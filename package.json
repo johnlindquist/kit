@@ -1,0 +1,19 @@
+{
+  "name": "js-shell-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "globals": "file:globals",
+    "node-fetch": "^2.6.1",
+    "node-jq": "^1.11.3",
+    "project-name-generator": "^2.1.9"
+  },
+  "type": "module"
+}
