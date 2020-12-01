@@ -10,10 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.0",
+    "dotenv": "^8.2.0",
     "globals": "file:globals",
     "node-fetch": "^2.6.1",
     "node-jq": "^1.11.3",
-    "project-name-generator": "^2.1.9"
+    "param-case": "^3.0.3",
+    "project-name-generator": "^2.1.9",
+    "title-case": "^3.0.2"
   },
   "type": "module"
 }
