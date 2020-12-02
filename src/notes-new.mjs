@@ -1,7 +1,4 @@
 #!js
-import dotenv from "dotenv"
-dotenv.config()
-
 let dir = process.env.NOTES_PATH
 let filename = $1.replace(/ /g, "-") + ".md"
 
@@ -13,10 +10,8 @@ ${new Date().toDateString()}
 `.trim()
 let file = `${dir}${filename}`
 
-try {
-  await access(file)
-} catch {
+if (!shell.test("-e", file)) {
   await writeFile(file, template)
 }
 
-await exec(`open -a 'Visual Studio Code' ${dir} -g ${file}`)
+execSync(`open -a 'Visual Studio Code' ${dir} -g ${file}`)

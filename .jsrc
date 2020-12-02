@@ -1,22 +1,6 @@
-# Find your node version with:
-# `which node` or `nvm which node` for the latest version
-# `nvm which node | pbcopy` will copy the full path to the clipboard
-export JS_NODE=~/.nvm/versions/node/v14.13.1/bin/node
-
-path+=~/.js
+path+=~/.js/bin
 
 export PATH
 
-# Find all .mjs files in the .js dir.
-# Alias their file names without extension to the file itself.
-for file in ~/.js/*.mjs; do
-    chmod +x $file
-    # Strip the path
-    fileAlias=${file##*/}
-    # Strip the .mjs extension
-    fileAlias=${fileAlias%.mjs}
-    # Create the alias
-    alias $fileAlias=$file
-done
-
-alias jsrc="source ~/.js/.jsrc"
+export JS_PATH=/Users/johnlindquist/.js
+export JS_NODE=/Users/johnlindquist/.nvm/versions/node/v15.3.0/bin/node

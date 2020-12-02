@@ -12,23 +12,26 @@ cd ~
 git clone https://github.com/johnlindquist/.js.git
 ```
 
-### 2. Source the .jsrc from your .zshrc
+### 2. Install the Latest Version of Node
 
-Run this command in your terminal:
+⚠️ The default project configuration currently requires:
+
+- [nvm](https://github.com/nvm-sh/nvm)
+- zsh with a [.zshrc](https://superuser.com/questions/886132/where-is-the-zshrc-file-on-mac)
 
 ```shell
-'\nsource ~/.js/.jsrc' >> ~/.zshrc
+nvm install node
 ```
 
-> 📝 The above command adds the following line to your .zshrc
->
-> ```shell
-> source ~/.js/.jsrc
-> ```
->
-> to your .zshrc file. You
+### 3. Configure Paths and Environment Variables
 
-## 3. `npm install` the Packages
+Copy/paste the following command in your terminal to configure JavaScript Shell Scripts:
+
+```shell
+echo '\nexport JS_NODE='$(nvm which node) >> ~/.js/.jsrc; echo '\nsource ~/.js/.jsrc' >> ~/.zshrc; source ~/.zshrc
+```
+
+### 4. `npm install` the Packages
 
 ```shell
 cd ~/.js
@@ -38,4 +41,23 @@ cd ~/.js
 npm i
 ```
 
-## Creating New Scripts
+## Confirm Scripts Are Working
+
+Type `joke` into your terminal and hit enter. You should see a random joke printed.
+
+## Create a New Script
+
+```shell
+js-new my-script
+```
+
+⚠️ This step relies on VS Code being installed
+This will create a new `.mjs` file in your `src` dir, [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it, and launch the file to edited in [VS Code](https://code.visualstudio.com/).
+
+Write some JavaScript in your `my-script.js` file, then you can run it in the terminal with `my-script`.
+
+## VSCode Configuration for Autocomplete
+
+**TODO** would love to support autocomplete from the globals...
+
+## Concepts

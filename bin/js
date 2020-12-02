@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+NODE_PATH=$HOME/.js/node_modules \
+DOTENV_CONFIG_PATH=$HOME/.js/.env \
+$JS_NODE \
+--require globals \
+--require dotenv/config \
+ "$@"

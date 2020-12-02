@@ -12,10 +12,14 @@
     "axios": "^0.21.0",
     "dotenv": "^8.2.0",
     "globals": "file:globals",
+    "ico-to-png": "^0.2.1",
+    "image-downloader": "^4.0.1",
     "node-fetch": "^2.6.1",
     "node-jq": "^1.11.3",
     "param-case": "^3.0.3",
     "project-name-generator": "^2.1.9",
+    "sharp": "^0.26.3",
+    "shelljs": "^0.8.4",
     "title-case": "^3.0.2"
   },
   "type": "module"

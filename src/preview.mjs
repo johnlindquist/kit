@@ -1,0 +1,3 @@
+#!js
+
+quickLook($1)
