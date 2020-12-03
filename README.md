@@ -5,11 +5,7 @@
 ### 1. Clone This Project to `~/.js`
 
 ```shell
-cd ~
-```
-
-```shell
-git clone https://github.com/johnlindquist/.js.git
+git clone https://github.com/johnlindquist/.js.git ~/.js
 ```
 
 ### 2. Install the Latest Version of Node
@@ -18,6 +14,8 @@ git clone https://github.com/johnlindquist/.js.git
 
 - [nvm](https://github.com/nvm-sh/nvm)
 - zsh with a [.zshrc](https://superuser.com/questions/886132/where-is-the-zshrc-file-on-mac)
+
+Install the latest version of Node.js with nvm
 
 ```shell
 nvm install node
