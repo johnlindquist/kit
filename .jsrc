@@ -3,4 +3,3 @@ path+=~/.js/bin
 export PATH
 
 export JS_PATH=/Users/johnlindquist/.js
-export JS_NODE=/Users/johnlindquist/.nvm/versions/node/v15.3.0/bin/node

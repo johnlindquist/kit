@@ -21,11 +21,8 @@ global.execSync = child_process.execSync
 global.spawn = child_process.spawn
 
 global.path = require("path")
-global.fetch = require("node-fetch")
 global.axios = require("axios")
 global.jq = require("node-jq")
-global.titleCase = require("title-case").titleCase
-global.paramCase = require("param-case").paramCase
 
 global.applescript = script =>
   execSync(

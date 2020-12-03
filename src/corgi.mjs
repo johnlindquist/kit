@@ -1,19 +1,24 @@
 #!js
 import download from "image-downloader"
+import os from "os"
 
-let response = await fetch(
-  `https://dog.ceo/api/breed/corgi/images/random`,
-  {
-    headers: {
-      Accept: "text/plain",
-    },
-  }
+let corgiTmpPath = path.join(
+  os.tmpdir(),
+  "js-shell-scripts",
+  "corgi"
 )
-let { message: url } = await response.json()
 
-let { filename: file } = await download.image({
-  url,
-  dest: "/Users/johnlindquist/tmp",
+if (!shell.test("-e", corgiTmpPath)) {
+  shell.mkdir("-p", corgiTmpPath)
+}
+
+let response = await axios(
+  `https://dog.ceo/api/breed/corgi/images/random`
+)
+
+let { filename } = await download.image({
+  url: response.data.message,
+  dest: corgiTmpPath,
 })
 
-preview(file)
+preview(filename)
