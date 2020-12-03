@@ -3,6 +3,9 @@
 "Cloning the repo to ~/.js"
 git clone https://github.com/johnlindquist/.js.git ~/.js
 
+"Accessing nvm"
+. ~/.nvm/nvm.sh
+
 echo "Installing the latest version of Node.js"
 nvm install node
 
