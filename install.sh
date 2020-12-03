@@ -17,10 +17,14 @@ elif command -v brew; then
 fi
 
 echo "Installing the latest version of Node.js"
-nvm install node
+nvm install node --latest-npm
 
-echo "Attaching .js to the latest node version"
-echo '\nexport JS_NODE='$(nvm which node) >> ~/.js/.jsrc
+JS_NODE=$(nvm which node)
+JS_NPM=${JS_NODE%node}npm
+
+echo "Attaching .js to the latest node and npm versions"
+echo '\nexport JS_NODE='$JS_NODE >> ~/.js/.jsrc
+echo '\nexport JS_NPM='$JS_NPM >> ~/.js/.jsrc
 
 echo "Adding .js to .zshrc"
 echo '\nsource ~/.js/.jsrc' >> ~/.zshrc
@@ -30,7 +34,7 @@ source ~/.zshrc
 
 echo "Installing npm packages"
 cd ~/.js
-$JS_NODE install
+$JS_NPM install
 
 echo "Verify your installation: "
 echo "type 'joke' and hit enter"
