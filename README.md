@@ -5,11 +5,7 @@
 ### 1. Clone This Project to `~/.js`
 
 ```shell
-cd ~
-```
-
-```shell
-git clone https://github.com/johnlindquist/.js.git
+git clone https://github.com/johnlindquist/.js.git ~/.js
 ```
 
 ### 2. Install the Latest Version of Node
