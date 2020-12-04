@@ -1,8 +1,7 @@
 #!/usr/bin/env zsh
-JS_PATH=~/.js
 
-"Cloning the repo to ~/.js"
-git clone https://github.com/johnlindquist/.js.git ~/.js
+"Cloning the repo to $JS_PATH"
+git clone https://github.com/johnlindquist/.js.git $JS_PATH
 
 echo "Accessing nvm"
 if [ -f ~/.nvm/nvm.sh ]; then
@@ -33,12 +32,15 @@ echo "Creating js executable"
 $JS_PATH/config/create-js.sh
 
 echo "Adding .js to .zshrc"
-echo '\nsource ~/.js/.jsrc' >> ~/.zshrc
+echo '\nsource $JS_PATH/.jsrc' >> ~/.zshrc
 
 echo "Sourcing .zshrc"
 source ~/.zshrc
 
 echo "Installing npm packages"
+echo $JS_NODE
+echo $JS_PATH
+echo $JS_NPM
 cd $JS_PATH
 $JS_NPM install
 
