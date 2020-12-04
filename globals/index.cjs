@@ -38,7 +38,7 @@ const srcFilePath = path.join(jsSrcPath, fileName)
 
 if (edit) {
   //usage: my-script --edit
-  code(srcFilePath)
+  code(srcFilePath, JS_PATH)
   shell.exit()
 }
 
@@ -56,6 +56,7 @@ if (cp) {
   const newSrcFilePath = path.join(jsSrcPath, cp + ".mjs")
   shell.cp(srcFilePath, newSrcFilePath)
   shell.ln("-s", newSrcFilePath, path.join(jsBinPath, cp))
+  code(newSrcFilePath, JS_PATH)
   shell.exit()
 }
 
