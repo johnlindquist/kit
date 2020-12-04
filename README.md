@@ -26,4 +26,30 @@ new hello-world
 ⚠️ This step relies on VS Code being installed
 This will create a new `.mjs` file in your `src` dir, [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it, and launch the file to edited in [VS Code](https://code.visualstudio.com/).
 
-Write some JavaScript in your `my-script.js` file, then you can run it in the terminal with `my-script`.
+## Other Flags
+
+The examples use `joke`, but these flags work on any JavaScript Script:
+
+## Edit a Script
+
+```shell
+joke --edit
+```
+
+### Duplicate a Script
+
+```shell
+joke --cp dadjoke
+```
+
+### Rename a Script
+
+```shell
+joke --mv dadjoke
+```
+
+## Delete a Script
+
+```shell
+joke --rm
+```
