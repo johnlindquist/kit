@@ -8,7 +8,7 @@
 - nvm
 
 ```shell
-curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/install.sh | zsh
+curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/config/install.sh | zsh
 ```
 
 ## Create a New Script
