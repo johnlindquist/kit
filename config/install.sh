@@ -19,8 +19,8 @@ fi
 echo "Installing the latest version of Node.js"
 nvm install node --latest-npm
 
-JS_NODE=$(nvm which node)
-JS_NPM=${JS_NODE%node}npm
+export JS_NODE=$(nvm which node)
+export JS_NPM=${JS_NODE%node}npm
 
 echo "Attaching .js to the latest node and npm versions"
 $JS_PATH/config/create-jsrc.sh
@@ -32,15 +32,12 @@ echo "Creating js executable"
 $JS_PATH/config/create-js.sh
 
 echo "Adding .js to .zshrc"
-echo '\nsource $JS_PATH/.jsrc' >> ~/.zshrc
+echo '\nsource '$JS_PATH'/.jsrc' >> ~/.zshrc
 
 echo "Sourcing .zshrc"
 source ~/.zshrc
 
 echo "Installing npm packages"
-echo $JS_NODE
-echo $JS_PATH
-echo $JS_NPM
 cd $JS_PATH
 $JS_NPM install
 
