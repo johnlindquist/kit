@@ -29,7 +29,8 @@ $JS_PATH/config/create-jsrc.sh
 echo "Linking included scripts"
 $JS_PATH/config/link.sh
 
-
+echo "Creating js executable"
+$JS_PATH/config/create-js.sh
 
 echo "Adding .js to .zshrc"
 echo '\nsource ~/.js/.jsrc' >> ~/.zshrc
