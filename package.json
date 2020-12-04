@@ -15,7 +15,8 @@
     "image-downloader": "^4.0.1",
     "node-jq": "^1.11.3",
     "project-name-generator": "^2.1.9",
-    "shelljs": "^0.8.4"
+    "shelljs": "^0.8.4",
+    "yargs": "^16.1.1"
   },
   "type": "module"
 }

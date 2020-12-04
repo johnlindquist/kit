@@ -16,4 +16,4 @@ shell.chmod(755, filePath)
 
 shell.ln("-s", filePath, symFilePath)
 
-openInCode(filePath, JS_PATH, 3)
+code(filePath, JS_PATH, 3)
