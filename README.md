@@ -13,6 +13,8 @@ curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/config/install
 
 ## Create a New Script
 
+⚠️ Files will automatically open in VS Code. I'm working on a way to add an "editor config" for your preferred editor
+
 1. Create a new script
 
 ```shell
@@ -23,14 +25,15 @@ new hello-world
 
 3. You can now run `hello-world` from your terminal
 
-⚠️ This step relies on VS Code being installed
-This will create a new `.mjs` file in your `src` dir, [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it, and launch the file to edited in [VS Code](https://code.visualstudio.com/).
+> This will create a new `.mjs` file in your `src` dir
+> [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it
+> launch the file to edited in [VS Code](https://code.visualstudio.com/).
 
 ## Other Flags
 
 The examples use `joke`, but these flags work on any JavaScript Script:
 
-## Edit a Script
+### Edit a Script
 
 ```shell
 joke --edit
@@ -48,7 +51,7 @@ joke --cp dadjoke
 joke --mv dadjoke
 ```
 
-## Delete a Script
+### Delete a Script
 
 ```shell
 joke --rm
