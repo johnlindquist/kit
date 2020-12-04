@@ -85,7 +85,7 @@ global.writeFile = fsPromises.writeFile
 global.readdir = fsPromises.readdir
 
 global.applescript = script =>
-  execSync(
+  shell.exec(
     `osascript -e '${script.replace(/'/g, "'\"'\"'")}'`
   )
 

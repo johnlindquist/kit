@@ -1,5 +1,0 @@
-path+=~/.js/bin
-
-export PATH
-
-export JS_PATH=/Users/johnlindquist/.js

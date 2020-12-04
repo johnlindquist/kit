@@ -1,8 +1,0 @@
-#!/bin/zsh
-
-NODE_PATH=$HOME/.js/node_modules \
-DOTENV_CONFIG_PATH=$JS_PATH/.env \
-$JS_NODE \
---require "$JS_PATH/globals/index.cjs" \
---require dotenv/config \
- "$@"
