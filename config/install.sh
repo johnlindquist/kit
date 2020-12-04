@@ -24,10 +24,10 @@ JS_NODE=$(nvm which node)
 JS_NPM=${JS_NODE%node}npm
 
 echo "Attaching .js to the latest node and npm versions"
-$JS_PATH/setup/create-jsrc.sh
+$JS_PATH/config/create-jsrc.sh
 
 echo "Linking included scripts"
-$JS_PATH/setup/link.sh
+$JS_PATH/config/link.sh
 
 
 
