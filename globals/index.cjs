@@ -100,7 +100,7 @@ global.notify = (title, subtitle) => {
 }
 
 global.preview = file => {
-  exec(`qlmanage -p "${file}"`)
+  shell.exec(`qlmanage -p "${file}"`, { silent: true })
 }
 
 JSON.log = async (object, selector = ".") => {
