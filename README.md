@@ -8,7 +8,7 @@
 - nvm
 
 ```shell
-JS_PATH=~/.js curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/config/install.sh | zsh
+curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/config/install.sh | JS_PATH=~/.js zsh
 ```
 
 ## Create a New Script
