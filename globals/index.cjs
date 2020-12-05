@@ -80,6 +80,11 @@ if (args.edit) {
   exit()
 }
 
+if (args.install) {
+  cd(JS_PATH)
+  exec(JS_NPM + " install " + args.install)
+}
+
 if (args.mv) {
   //usage: my-script --mv renamed-script
   const newSrcFilePath = path.join(
