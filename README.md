@@ -2,18 +2,13 @@
 
 ## Install
 
-### ⚠️ Requirements
-
-- zsh
-- nvm
-
 ```shell
 curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/config/install.sh | JS_PATH=~/.js zsh
 ```
 
 ## Create a New Script
 
-⚠️ Files will automatically open in VS Code. I'm working on a way to add an "editor config" for your preferred editor
+⚠️ Files will automatically open in VS Code.
 
 1. Create a new script
 
