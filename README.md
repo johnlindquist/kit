@@ -8,21 +8,17 @@ curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/config/install
 
 ## Create a New Script
 
-⚠️ Files will automatically open in VS Code.
-
 1. Create a new script
 
 ```shell
 new hello-world
 ```
 
+> The `hello-world.mjs` will automatically open in VS Code.
+
 2. Add some code to `hello-world.mjs`
 
 3. You can now run `hello-world` from your terminal
-
-> This will create a new `.mjs` file in your `src` dir
-> [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it
-> launch the file to edited in [VS Code](https://code.visualstudio.com/).
 
 ## Other Flags
 
@@ -35,6 +31,8 @@ joke --edit
 ```
 
 ### Duplicate a Script
+
+> Also opens `dadjoke.mjs` in VS Code
 
 ```shell
 joke --cp dadjoke
