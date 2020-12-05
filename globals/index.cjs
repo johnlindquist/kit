@@ -22,8 +22,13 @@ const { hideBin } = require("yargs/helpers")
 assignPropsTo(yargs(hideBin(process.argv)).argv, args)
 
 global.path = require("path")
-global.axios = require("axios")
 global.jq = require("node-jq")
+
+global.axios = require("axios")
+global.get = axios.get
+global.post = axios.post
+global.put = axios.put
+global.patch = axios.patch
 
 const fsPromises = require("fs/promises")
 
