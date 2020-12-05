@@ -32,11 +32,11 @@ joke --edit
 
 ### Duplicate a Script
 
-> Also opens `dadjoke.mjs` in VS Code
-
 ```shell
 joke --cp dadjoke
 ```
+
+> Automatically opens `dadjoke.mjs` in VS Code
 
 ### Rename a Script
 
