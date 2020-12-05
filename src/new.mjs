@@ -12,8 +12,8 @@ let symFilePath = path.join(JS_PATH, "bin", symName)
 let filePath = path.join(JS_PATH, "src", fileName)
 
 await writeFile(filePath, template)
-shell.chmod(755, filePath)
+chmod(755, filePath)
 
-shell.ln("-s", filePath, symFilePath)
+ln("-s", filePath, symFilePath)
 
 code(filePath, JS_PATH, 3)

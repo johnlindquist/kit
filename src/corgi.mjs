@@ -1,15 +1,14 @@
 #!js
 import download from "image-downloader"
-import os from "os"
 
 let corgiTmpPath = path.join(
-  os.tmpdir(),
+  TMP_DIR,
   "js-shell-scripts",
   "corgi"
 )
 
-if (!shell.test("-e", corgiTmpPath)) {
-  shell.mkdir("-p", corgiTmpPath)
+if (!test("-e", corgiTmpPath)) {
+  mkdir("-p", corgiTmpPath)
 }
 
 let response = await axios(
