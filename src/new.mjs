@@ -10,6 +10,10 @@ let template = `#!js
 
 `
 
+if (args.paste) {
+  template = paste()
+}
+
 let symName = $1
 let fileName = `${$1}.mjs`
 let symFilePath = path.join(JS_PATH, "bin", symName)
