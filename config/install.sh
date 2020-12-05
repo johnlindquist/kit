@@ -3,30 +3,17 @@
 "Cloning the repo to $JS_PATH"
 git clone https://github.com/johnlindquist/.js.git $JS_PATH
 
-echo "Accessing nvm"
-if [ -f ~/.nvm/nvm.sh ]; then
-  echo 'sourcing nvm from ~/.nvm'
-  . ~/.nvm/nvm.sh
-elif command -v brew; then
-  # https://docs.brew.sh/Manpage#--prefix-formula
-  BREW_PREFIX=$(brew --prefix nvm)
-  if [ -f "$BREW_PREFIX/nvm.sh" ]; then
-    echo "sourcing nvm from brew ($BREW_PREFIX)"
-    . $BREW_PREFIX/nvm.sh
-  fi
-fi
-
 echo "Installing the latest version of Node.js"
-nvm install node --latest-npm
+curl -sL install-node.now.sh | sh -s -- --prefix $JS_PATH/bin/.node
 
-export JS_NODE=$(nvm which node)
-export JS_NPM=${JS_NODE%node}npm
+export JS_NODE=$JS_PATH/bin/.node/bin/node
+export JS_NPM=$JS_PATH/bin/.node/bin/npm
 
 echo "Attaching .js to the latest node and npm versions"
 $JS_PATH/config/create-jsrc.sh
 
 echo "Linking included scripts"
-$JS_PATH/config/link.sh
+$JS_PATH/config/create-symlinks.sh
 
 echo "Creating js executable"
 $JS_PATH/config/create-js.sh
