@@ -4,7 +4,7 @@
 git clone https://github.com/johnlindquist/.js.git $JS_PATH
 
 echo "Installing the latest version of Node.js"
-curl -sL install-node.now.sh | sh -s -- --prefix $JS_PATH/bin/.node
+curl -sL install-node.now.sh | sh -s -- --prefix $JS_PATH/bin/.node --yes
 
 export JS_NODE=$JS_PATH/bin/.node/bin/node
 export JS_NPM=$JS_PATH/bin/.node/bin/npm
