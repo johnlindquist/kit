@@ -2,6 +2,10 @@
 
 import generate from "project-name-generator"
 
-console.log(
-  generate({ word: 2, alliterative: true }).dashed
-)
+const name = generate({ word: 2, alliterative: true })
+  .dashed
+
+console.log(name)
+
+copy(name)
+notify(name, "copied to clipboard")

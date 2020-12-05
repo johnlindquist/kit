@@ -1,7 +1,5 @@
 #!js
 
-const JS_PATH = process.env.JS_PATH
-
 let template = `#!js
 
 `
