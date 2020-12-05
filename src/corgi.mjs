@@ -1,4 +1,10 @@
 #!js
+/**
+ * Displays a random picture of a Corgi using dog.ceo
+ *
+ * Usage:
+ * corgi
+ */
 import download from "image-downloader"
 
 let corgiTmpPath = path.join(
@@ -11,7 +17,7 @@ if (!test("-e", corgiTmpPath)) {
   mkdir("-p", corgiTmpPath)
 }
 
-let response = await axios(
+let response = await get(
   `https://dog.ceo/api/breed/corgi/images/random`
 )
 
