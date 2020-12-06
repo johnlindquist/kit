@@ -3,6 +3,7 @@
 let typeMap = {
   describe: "rel_jjb",
   trigger: "rel_trg",
+  noun: "rel_jja",
   follow: "lc",
   rhyme: "rel_rhy",
   spell: "sp",
@@ -14,9 +15,11 @@ let type = typeMap[$1]
 
 let query = $2.replace(/ /g, "+")
 
-let response = await get(
-  `https://api.datamuse.com/words?${type}=${query}&md=d`
-)
+let url = `https://api.datamuse.com/words?${type}=${query}&md=d`
+if ($1 == "suggest")
+  url = `https://api.datamuse.com/sug?s=${query}&md=d`
+
+let response = await get(url)
 
 if (!args.alfred) {
   console.log(response.data)
