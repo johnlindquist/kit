@@ -23,6 +23,7 @@ assignPropsTo(yargs(hideBin(process.argv)).argv, args)
 
 global.path = require("path")
 global.jq = require("node-jq")
+global.prompt = require("inquirer").prompt
 
 global.axios = require("axios")
 global.get = axios.get
