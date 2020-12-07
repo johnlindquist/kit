@@ -28,5 +28,8 @@ $JS_NPM install
 echo "Sourcing .jsrc for first run"
 source $JS_PATH/.jsrc
 
+echo "Creating .env file"
+$JS_PATH/config/create-env.sh
+
 echo "Verify your installation: "
 echo "type 'joke' and hit enter"

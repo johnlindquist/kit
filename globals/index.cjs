@@ -26,6 +26,7 @@ assignPropsTo(
 global.path = require("path")
 global.jq = require("node-jq")
 global.prompt = require("inquirer").prompt
+global.chalk = require("chalk")
 
 global.axios = require("axios")
 global.get = axios.get
@@ -59,15 +60,21 @@ global.commandExists = command => {
 }
 
 global.code = (file, dir, line = 0) => {
-  if (!commandExists("code")) {
-    console.log(`Couldn't find a configured editor`)
+  if (!commandExists(EDITOR)) {
+    console.log(
+      chalk.red(`Couldn't find a configured editor`)
+    )
     return
   }
-  exec(
-    `code --goto ${file}:${line} ${
-      dir && `--folder-uri ${dir}`
-    }`
-  )
+  if (EDITOR == "code") {
+    exec(
+      `code --goto ${file}:${line} ${
+        dir && `--folder-uri ${dir}`
+      }`
+    )
+  }
+
+  exec(EDITOR + " " + file)
 }
 
 global.applescript = script =>
