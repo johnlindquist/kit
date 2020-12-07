@@ -18,8 +18,10 @@ args.forEach((arg, index) => {
 //map named args to global args. e.g. --foo is mapped to args.foo
 const yargs = require("yargs/yargs")
 const { hideBin } = require("yargs/helpers")
-
-assignPropsTo(yargs(hideBin(process.argv)).argv, args)
+assignPropsTo(
+  yargs(hideBin(process.argv)).help(false).argv,
+  args
+)
 
 global.path = require("path")
 global.jq = require("node-jq")
@@ -49,7 +51,17 @@ const jsSrcPath = path.join(JS_PATH, "src")
 const jsBinPath = path.join(JS_PATH, "bin")
 const srcFilePath = path.join(jsSrcPath, fileName)
 
+global.commandExists = command => {
+  return exec(`type ${command}`, {
+    silent: true,
+  }).stdout.trim()
+}
+
 global.code = (file, dir, line = 0) => {
+  if (!commandExists("code")) {
+    console.log(`Couldn't find a configured editor`)
+    return
+  }
   exec(
     `code --goto ${file}:${line} ${
       dir && `--folder-uri ${dir}`
@@ -74,15 +86,23 @@ global.preview = file => {
   exec(`qlmanage -p "${file}"`, { silent: true })
 }
 
+if (args.help) {
+  console.log(
+    `
+Options:    
+--edit opens the script in your editor: joke --edit
+--cp duplicates the script: joke --cp dadjoke
+--mv renames the script: joke --mv dadjoke
+--rm removes the script: joke --rm
+  `.trim()
+  )
+  exit()
+}
+
 if (args.edit) {
   //usage: my-script --edit
   code(srcFilePath, JS_PATH)
   exit()
-}
-
-if (args.install) {
-  cd(JS_PATH)
-  exec(JS_NPM + " install " + args.install)
 }
 
 if (args.mv) {
@@ -99,6 +119,13 @@ if (args.mv) {
 
 if (args.cp) {
   //usage: my-script --cp new-script
+  let result = exec(`type ${args.cp}`, { silent: true })
+  if (result.stdout) {
+    console.log(`${args.cp} already exists. 
+${result.stdout.trim()}
+Aborting...`)
+    exit()
+  }
   const newSrcFilePath = path.join(
     jsSrcPath,
     args.cp + ".mjs"
