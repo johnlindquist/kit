@@ -21,12 +21,12 @@ $JS_PATH/config/create-js.sh
 echo "Adding .js to .zshrc"
 echo '\nsource '$JS_PATH'/.jsrc' >> ~/.zshrc
 
-echo "Sourcing .zshrc"
-source ~/.zshrc
-
 echo "Installing npm packages"
 cd $JS_PATH
 $JS_NPM install
+
+echo "Sourcing .jsrc for first run"
+source $JS_PATH/.jsrc
 
 echo "Verify your installation: "
 echo "type 'joke' and hit enter"
