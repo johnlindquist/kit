@@ -6,6 +6,14 @@
  * new my-first-script
  */
 
+let result = exec(`type ${$1}`, { silent: true })
+if (result.stdout) {
+  console.log(`${$1} already exists. 
+${result.stdout.trim()}
+Aborting...`)
+  exit()
+}
+
 let template = `#!js
 
 `
