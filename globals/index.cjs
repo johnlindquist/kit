@@ -8,7 +8,6 @@ function assignPropsTo(source, target) {
   })
 }
 
-assignPropsTo(process.env, global)
 assignPropsTo(require("shelljs"), global)
 args = process.argv.slice(2)
 //map named args to global args. e.g. --foo is mapped to args.foo
@@ -46,12 +45,16 @@ const copyPaste = require("copy-paste")
 copy = copyPaste.copy
 paste = copyPaste.paste
 
-TMP_DIR = require("os").tmpdir()
+env.TMP_DIR = require("os").tmpdir()
 
 const symFilePath = process.argv[1]
 const scriptName = /[^/]*$/.exec(symFilePath)[0]
-const jsSrcPath = path.join(JS_PATH, "src")
-const jsBinPath = path.join(JS_PATH, "bin")
+const jsSrcPath = path.join(env.JS_PATH, "src")
+const jsBinPath = path.join(env.JS_PATH, "bin")
+
+info = message => {
+  console.log(chalk.yellow(message))
+}
 
 const createSymFilePath = name => path.join(jsBinPath, name)
 
@@ -65,13 +68,13 @@ commandExists = command => {
 }
 
 code = (file, dir, line = 0) => {
-  if (!commandExists(EDITOR)) {
+  if (!commandExists(env.EDITOR)) {
     console.log(
       chalk.red(`Couldn't find a configured editor`)
     )
     return
   }
-  if (EDITOR == "code") {
+  if (env.EDITOR == "code") {
     exec(
       `code --goto ${file}:${line} ${
         dir && `--folder-uri ${dir}`
@@ -79,7 +82,7 @@ code = (file, dir, line = 0) => {
     )
   }
 
-  exec(EDITOR + " " + file)
+  exec(env.EDITOR + " " + file)
 }
 
 applescript = script =>
@@ -113,7 +116,7 @@ Options:
 
 if (args.edit) {
   //usage: my-script --edit
-  code(createSourceFilePath(scriptName), JS_PATH)
+  code(createSourceFilePath(scriptName), env.JS_PATH)
   exit()
 }
 
@@ -153,7 +156,7 @@ copyScript = async (source, target) => {
   const sourceFilePath = createSourceFilePath(source)
   cp(sourceFilePath, newSrcFilePath)
   ln("-s", newSrcFilePath, path.join(jsBinPath, target))
-  code(newSrcFilePath, JS_PATH)
+  code(newSrcFilePath, env.JS_PATH)
   exit()
 }
 
@@ -164,6 +167,7 @@ if (args.cp) {
 removeScript = async name => {
   rm(createSymFilePath(name))
   rm(createSourceFilePath(name))
+  info(`Removed script: ${name}`)
   exit()
 }
 
@@ -195,6 +199,32 @@ Aborting...`)
   let template = `#!js
 
 `
+  if (!env.DISABLE_TEMPLATE_COMMENTS) {
+    template = `#!js
+//👋 The "shebang" line above is required for scripts to run
+
+/**
+ * Congratulations! 🎉 You made a \`${name}\` script! 🎈
+ * You can now run this script with \`${name}\` in your terminal
+ */
+
+/**
+ * Add whatever JavaScript you want to this file
+ * Install npm packages with \`js i some-npm-package\`
+ */
+
+console.log(\`${env.USER} made a ${name} script!\`)
+
+/**
+ * Disable these comments in the future by running "js env" then adding the following link to the .env:
+ * DISABLE_TEMPLATE_COMMENTS=true
+ * 
+ * Happy Scripting! 🤓 - John Lindquist
+ */
+//You can 
+//
+    `.trim()
+  }
 
   if (args.paste) {
     template = paste()
@@ -208,7 +238,7 @@ Aborting...`)
 
   ln("-s", filePath, symFilePath)
 
-  code(filePath, JS_PATH, 3)
+  code(filePath, env.JS_PATH, 3)
 }
 
 nextTime = command => {
@@ -232,7 +262,7 @@ arg = async (index, name) => {
 
 getScripts = async () => {
   return (
-    await readdir(path.join(JS_PATH, "bin"), {
+    await readdir(path.join(env.JS_PATH, "bin"), {
       encoding: "utf8",
       withFileTypes: true,
     })
