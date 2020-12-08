@@ -9,6 +9,11 @@ if [ \$# -eq 0 ];  then
     return
 fi
 
+if [[ \$1 == "globals" ]]; then
+    \$EDITOR \$JS_PATH/globals/index.cjs
+    return
+fi
+
 if [[ \$1 == "i" ]]; then
     cd \$JS_PATH
     \$JS_NPM install \$2
