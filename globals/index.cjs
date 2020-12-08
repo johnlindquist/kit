@@ -21,7 +21,13 @@ assignPropsTo(
 
 _ = require("lodash")
 path = require("path")
-prompt = require("inquirer").prompt
+inquirer = require("inquirer")
+inquirer.registerPrompt(
+  "search-list",
+  require("inquirer-search-list")
+)
+prompt = inquirer.prompt
+Separator = inquirer.Separator
 chalk = require("chalk")
 
 axios = require("axios")

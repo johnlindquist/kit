@@ -40,7 +40,7 @@ const run = async file => {
 
 const selectFile = action => async name => {
   const fileSelect = await prompt({
-    type: "list",
+    type: "search-list",
     name: "file",
     loop: false,
     message: `Which script do you want to ${name}`,
@@ -86,24 +86,36 @@ const npmCommand = command => async () => {
   )
 }
 
+const emph = chalk.green.bold
+
+let newScript = emph("new") + ": Create a new script"
+let runScript = emph("run") + ": Run a script"
+let editScript = emph("edit") + ": Edit a script"
+let lsScript = emph("ls") + ": List all scripts"
+let cpScript = emph("cp") + ": Duplicate a script"
+let mvScript = emph("mv") + ": Rename a script"
+let rmScript = emph("rm") + ": Remove a script"
+let iPackage = emph("i") + ": Install an npm package"
+let unPackage = emph("un") + ": Uninstall an npm package"
+
 const actionMap = {
-  new: createFile(),
-  run: selectFile(run),
-  edit: selectFile(edit),
-  ls: lsBin(),
-  duplicate: selectFile(cp),
-  delete: selectFile(rm),
-  rename: selectFile(mv),
-  install: npmCommand("install"),
-  uninstall: npmCommand("uninstall"),
+  [newScript]: createFile(),
+  [runScript]: selectFile(run),
+  [editScript]: selectFile(edit),
+  [lsScript]: lsBin(),
+  [cpScript]: selectFile(cp),
+  [mvScript]: selectFile(mv),
+  [rmScript]: selectFile(rm),
+  [iPackage]: npmCommand("install"),
+  [unPackage]: npmCommand("uninstall"),
 }
 
 const help = await prompt({
   type: "list",
   name: "action",
   loop: false,
-  message: "What do you want to do with a script?",
-  choices: Object.keys(actionMap),
+  message: "What do you want to do?",
+  choices: [...Object.keys(actionMap)],
 })
 
 const result = await actionMap[help.action](help.action)

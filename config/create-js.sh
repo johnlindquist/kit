@@ -33,7 +33,7 @@ if [[ $1 == "fix" ]]; then
 fi
 
 if [[ $1 == "ls" ]]; then    
-    ls $JS_PATH/bin
+    find $JS_PATH/bin -maxdepth 1 -type l -exec basename {} \;
     return
 fi
 
