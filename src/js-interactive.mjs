@@ -33,9 +33,10 @@ const mv = async file => {
   renameScript(file, newFile.name)
 }
 
-const run = file => async () => {
-  import("./" + file + ".mjs")
-  nextTime(file)
+const run = file => async selectedFile => {
+  const f = file || selectedFile
+  import("./" + f + ".mjs")
+  nextTime(f)
 }
 
 const selectFile = action => async name => {
