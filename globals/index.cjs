@@ -11,10 +11,6 @@ function assignPropsTo(source, target) {
 assignPropsTo(process.env, global)
 assignPropsTo(require("shelljs"), global)
 global.args = process.argv.slice(2)
-//map args to $1, $2, etc
-args.forEach((arg, index) => {
-  global["$" + String(index + 1)] = arg
-})
 //map named args to global args. e.g. --foo is mapped to args.foo
 const yargs = require("yargs/yargs")
 const { hideBin } = require("yargs/helpers")
@@ -208,4 +204,11 @@ Aborting...`)
   ln("-s", filePath, symFilePath)
 
   code(filePath, JS_PATH, 3)
+}
+
+nextTime = command => {
+  console.log(
+    chalk.yellow.bold(`Next time try running:`),
+    chalk.green.bold(command)
+  )
 }

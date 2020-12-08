@@ -1,5 +1,7 @@
 #!js
 
+let typeArg = args[0]
+
 let typeMap = {
   describe: "rel_jjb",
   trigger: "rel_trg",
@@ -9,14 +11,32 @@ let typeMap = {
   spell: "sp",
   synonym: "ml",
   sounds: "rel_nry",
+  suggest: "suggest",
 }
 
-let type = typeMap[$1]
+if (!typeArg) {
+  ;({ type: typeArg } = await prompt({
+    type: "list",
+    name: "type",
+    choices: Object.keys(typeMap),
+  }))
+}
 
-let query = $2.replace(/ /g, "+")
+let type = typeMap[typeArg]
+
+let query = args[1]
+if (!query) {
+  ;({ query } = await prompt({
+    type: "input",
+    name: "query",
+  }))
+  nextTime("datamuse " + typeArg + " " + query)
+}
+
+query = query.replace(/ /g, "+")
 
 let url = `https://api.datamuse.com/words?${type}=${query}&md=d`
-if ($1 == "suggest")
+if (typeArg == "suggest")
   url = `https://api.datamuse.com/sug?s=${query}&md=d`
 
 let response = await get(url)

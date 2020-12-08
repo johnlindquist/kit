@@ -1,11 +1,5 @@
 #!js
 
-const nextTime = command => {
-  console.log(
-    chalk.yellow.bold(`Next time try: ${command}`)
-  )
-}
-
 const edit = async file => {
   nextTime(file + " --edit")
   const fileName = file + ".mjs"
@@ -39,6 +33,11 @@ const mv = async file => {
   renameScript(file, newFile.name)
 }
 
+const run = async file => {
+  import("./" + file + ".mjs")
+  nextTime(file)
+}
+
 const selectFile = action => async name => {
   const fileSelect = await prompt({
     type: "list",
@@ -51,6 +50,16 @@ const selectFile = action => async name => {
   })
 
   await action(fileSelect.file)
+}
+
+const listScripts = () => async () => {
+  console.log(
+    (await readdir(path.join(JS_PATH, "bin"))).filter(
+      file => !file.startsWith(".")
+    )
+  )
+
+  nextTime(`js ls`)
 }
 
 const createFile = () => async () => {
@@ -84,6 +93,8 @@ const npmCommand = command => async () => {
 }
 
 const actionMap = {
+  run: selectFile(run),
+  ls: listScripts(),
   new: createFile(),
   edit: selectFile(edit),
   duplicate: selectFile(cp),

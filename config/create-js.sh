@@ -5,7 +5,7 @@ cat > $JS_PATH/bin/js <<EOF
 source $JS_PATH/.env
 
 if [ $# -eq 0 ];  then
-    js-help
+    js-interactive
     return
 fi
 
@@ -53,7 +53,7 @@ if [[ $1 == "rm" ]]; then
 fi
 
 if [[ $1 == "help" ]]; then
-    js-help
+    js-interactive
     return
 fi
 
