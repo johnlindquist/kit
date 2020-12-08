@@ -1,4 +1,4 @@
-#!js
+#!/usr/bin/env js
 /**
  * Logs out a Dad Joke from icanhazdadjoke.com
  *

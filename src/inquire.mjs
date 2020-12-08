@@ -1,4 +1,4 @@
-#!js
+#!/usr/bin/env js
 
 let answers = await prompt([
   {

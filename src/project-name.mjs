@@ -1,4 +1,4 @@
-#!js
+#!/usr/bin/env js
 /**
  * Generate an alliteraive, dashed project name
  * then copies it to the clipboard and shows a notification

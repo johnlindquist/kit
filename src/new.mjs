@@ -1,4 +1,4 @@
-#!js
+#!/usr/bin/env js
 /**
  * Creates a new script with symlinks and permissions then opens it in VS Code
  *

@@ -1,4 +1,4 @@
-#!js
+#!/usr/bin/env js
 
 import { format } from "date-fns"
 

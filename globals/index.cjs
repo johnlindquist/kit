@@ -196,11 +196,11 @@ Aborting...`)
     exit()
   }
 
-  let template = `#!js
+  let template = `#!/usr/bin/env js
 
 `
   if (!env.DISABLE_TEMPLATE_COMMENTS) {
-    template = `#!js
+    template = `#!/usr/bin/env js
 //👋 The "shebang" line above is required for scripts to run
 
 /*

@@ -1,4 +1,4 @@
-#!js
+#!/usr/bin/env js
 
 const edit = async file => {
   nextTime(file + " --edit")

@@ -1,4 +1,4 @@
-#!js
+#!/usr/bin/env js
 
 let typeArg = args[0]
 
