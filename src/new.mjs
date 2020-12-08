@@ -5,12 +5,6 @@
  * Usage:
  * new my-first-script
  */
-let name = args[0]
-
-if (!name) {
-  ;({ name } = await prompt({ name: "name" }))
-
-  nextTime("new " + name)
-}
+let name = await arg(0, "Name your script:")
 
 createScript(name)

@@ -10,7 +10,7 @@ function assignPropsTo(source, target) {
 
 assignPropsTo(process.env, global)
 assignPropsTo(require("shelljs"), global)
-global.args = process.argv.slice(2)
+args = process.argv.slice(2)
 //map named args to global args. e.g. --foo is mapped to args.foo
 const yargs = require("yargs/yargs")
 const { hideBin } = require("yargs/helpers")
@@ -19,32 +19,31 @@ assignPropsTo(
   args
 )
 
-global.path = require("path")
-global.jq = require("node-jq")
-global.prompt = require("inquirer").prompt
-global.chalk = require("chalk")
+_ = require("lodash")
+path = require("path")
+prompt = require("inquirer").prompt
+chalk = require("chalk")
 
-global.axios = require("axios")
-global.get = axios.get
-global.post = axios.post
-global.put = axios.put
-global.patch = axios.patch
+axios = require("axios")
+get = axios.get
+post = axios.post
+put = axios.put
+patch = axios.patch
 
 const fsPromises = require("fs/promises")
 
-global.readFile = fsPromises.readFile
-global.writeFile = fsPromises.writeFile
-global.readdir = fsPromises.readdir
+readFile = fsPromises.readFile
+writeFile = fsPromises.writeFile
+readdir = fsPromises.readdir
 
 const copyPaste = require("copy-paste")
-global.copy = copyPaste.copy
-global.paste = copyPaste.paste
+copy = copyPaste.copy
+paste = copyPaste.paste
 
-global.TMP_DIR = require("os").tmpdir()
+TMP_DIR = require("os").tmpdir()
 
 const symFilePath = process.argv[1]
-const name = /[^/]*$/.exec(symFilePath)[0]
-const fileName = `${name}.mjs`
+const scriptName = /[^/]*$/.exec(symFilePath)[0]
 const jsSrcPath = path.join(JS_PATH, "src")
 const jsBinPath = path.join(JS_PATH, "bin")
 
@@ -53,13 +52,13 @@ const createSymFilePath = name => path.join(jsBinPath, name)
 const createSourceFilePath = name =>
   path.join(jsSrcPath, name + ".mjs")
 
-global.commandExists = command => {
+commandExists = command => {
   return exec(`type ${command}`, {
     silent: true,
   }).stdout.trim()
 }
 
-global.code = (file, dir, line = 0) => {
+code = (file, dir, line = 0) => {
   if (!commandExists(EDITOR)) {
     console.log(
       chalk.red(`Couldn't find a configured editor`)
@@ -77,20 +76,20 @@ global.code = (file, dir, line = 0) => {
   exec(EDITOR + " " + file)
 }
 
-global.applescript = script =>
+applescript = script =>
   exec(`osascript -e '${script.replace(/'/g, "'\"'\"'")}'`)
 
-global.say = string => {
+say = string => {
   applescript(`say "${string}" speaking rate 250`)
 }
 
-global.notify = (title, subtitle) => {
+notify = (title, subtitle) => {
   applescript(
     `display notification with title "${title}" subtitle "${subtitle}"`
   )
 }
 
-global.preview = file => {
+preview = file => {
   exec(`qlmanage -p "${file}"`, { silent: true })
 }
 
@@ -108,11 +107,11 @@ Options:
 
 if (args.edit) {
   //usage: my-script --edit
-  code(createSourceFilePath(name), JS_PATH)
+  code(createSourceFilePath(scriptName), JS_PATH)
   exit()
 }
 
-global.renameScript = async (oldName, newName) => {
+renameScript = async (oldName, newName) => {
   const oldPath = createSourceFilePath(oldName)
   const oldSym = createSymFilePath(oldName)
   const newPath = createSourceFilePath(newName)
@@ -125,10 +124,10 @@ global.renameScript = async (oldName, newName) => {
 
 if (args.mv) {
   //usage: my-script --mv renamed-script
-  renameScript(name, args.mv)
+  renameScript(scriptName, args.mv)
 }
 
-global.copyScript = async (source, target) => {
+copyScript = async (source, target) => {
   //usage: my-script --cp new-script
   let result = exec(`type ${target}`, {
     silent: true,
@@ -153,17 +152,17 @@ global.copyScript = async (source, target) => {
 }
 
 if (args.cp) {
-  copyScript(name, args.cp)
+  copyScript(scriptName, args.cp)
 }
 
-global.removeScript = async name => {
+removeScript = async name => {
   rm(createSymFilePath(name))
   rm(createSourceFilePath(name))
   exit()
 }
 
 if (args.rm) {
-  removeScript(name)
+  removeScript(scriptName)
   //usage: my-script --rm
 }
 
@@ -173,12 +172,12 @@ if (args.ln) {
   ln(
     "-s",
     filePath,
-    path.join(jsBinPath, name.slice(0, -4))
+    path.join(jsBinPath, scriptName.slice(0, -4))
   )
   exit()
 }
 
-global.createScript = async name => {
+createScript = async name => {
   let result = exec(`type ${name}`, { silent: true })
   if (result.stdout) {
     console.log(`${name} already exists. 
@@ -211,4 +210,25 @@ nextTime = command => {
     chalk.yellow.bold(`Next time try running:`),
     chalk.green.bold(command)
   )
+}
+
+promptForArg = async message => {
+  let input = await prompt({ name: "name", message })
+
+  nextTime(scriptName + " " + input.name)
+
+  return input.name
+}
+
+arg = async (index, name) => {
+  return args[index] || (await promptForArg(name))
+}
+
+getScripts = async () => {
+  return (
+    await readdir(path.join(JS_PATH, "bin"), {
+      encoding: "utf8",
+      withFileTypes: true,
+    })
+  ).filter(file => file.isSymbolicLink())
 }

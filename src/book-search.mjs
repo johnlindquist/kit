@@ -6,18 +6,13 @@
  * book-search "Mistborn"
  */
 
+let query = await arg(0, "What do you want to search for?")
+
 let response = await get(
-  `http://openlibrary.org/search.json?q=${$1}`
+  `http://openlibrary.org/search.json?q=${query}`
 )
 
-let titles = await jq.run(
-  "[.docs[].title]",
-  response.data,
-  {
-    input: "json",
-    output: "json",
-  }
-)
+let titles = response.data.docs.map(doc => doc.title)
+titles = _.uniq(titles)
 
-//filter duplicates
-console.log(Array.from(titles))
+console.log(titles)

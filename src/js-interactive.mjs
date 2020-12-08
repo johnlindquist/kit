@@ -44,20 +44,14 @@ const selectFile = action => async name => {
     name: "file",
     loop: false,
     message: `Which script do you want to ${name}`,
-    choices: (
-      await readdir(path.join(JS_PATH, "bin"))
-    ).filter(file => !file.startsWith(".")),
+    choices: await getScripts(),
   })
 
   await action(fileSelect.file)
 }
 
-const listScripts = () => async () => {
-  console.log(
-    (await readdir(path.join(JS_PATH, "bin"))).filter(
-      file => !file.startsWith(".")
-    )
-  )
+const lsBin = () => async () => {
+  console.log(await getScripts())
 
   nextTime(`js ls`)
 }
@@ -93,10 +87,10 @@ const npmCommand = command => async () => {
 }
 
 const actionMap = {
-  run: selectFile(run),
-  ls: listScripts(),
   new: createFile(),
+  run: selectFile(run),
   edit: selectFile(edit),
+  ls: lsBin(),
   duplicate: selectFile(cp),
   delete: selectFile(rm),
   rename: selectFile(mv),
