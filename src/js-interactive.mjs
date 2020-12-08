@@ -33,7 +33,7 @@ const mv = async file => {
   renameScript(file, newFile.name)
 }
 
-const run = async file => {
+const run = file => async () => {
   import("./" + file + ".mjs")
   nextTime(file)
 }
@@ -48,12 +48,6 @@ const selectFile = action => async name => {
   })
 
   await action(fileSelect.file)
-}
-
-const lsBin = () => async () => {
-  console.log(await getScripts())
-
-  nextTime(`js ls`)
 }
 
 const createFile = () => async () => {
@@ -86,6 +80,12 @@ const npmCommand = command => async () => {
   )
 }
 
+const jsCommand = command => async () => {
+  let jsCommand = `js ` + command
+  exec(jsCommand)
+  nextTime(jsCommand)
+}
+
 const emph = chalk.green.bold
 
 let newScript = emph("new") + ": Create a new script"
@@ -97,21 +97,25 @@ let mvScript = emph("mv") + ": Rename a script"
 let rmScript = emph("rm") + ": Remove a script"
 let iPackage = emph("i") + ": Install an npm package"
 let unPackage = emph("un") + ": Uninstall an npm package"
+let editEnv = emph("env") + ": Modify settings in .env"
+let fileIssue = emph("issue") + ": File an issue on github"
 
 const actionMap = {
   [newScript]: createFile(),
-  [runScript]: selectFile(run),
+  [runScript]: selectFile(run()),
   [editScript]: selectFile(edit),
-  [lsScript]: lsBin(),
+  [lsScript]: jsCommand("ls"),
   [cpScript]: selectFile(cp),
   [mvScript]: selectFile(mv),
   [rmScript]: selectFile(rm),
   [iPackage]: npmCommand("install"),
   [unPackage]: npmCommand("uninstall"),
+  [editEnv]: jsCommand("env"),
+  [fileIssue]: run("issue"),
 }
 
 const help = await prompt({
-  type: "list",
+  type: "search-list",
   name: "action",
   loop: false,
   message: "What do you want to do?",

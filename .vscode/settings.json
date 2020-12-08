@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        ".history/**": true,
+        "bin/**": true
+    }
+}

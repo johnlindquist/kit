@@ -213,7 +213,7 @@ Aborting...`)
 
 nextTime = command => {
   console.log(
-    chalk.yellow.bold(`Next time try running:`),
+    chalk.yellow.italic(`Next time try:`),
     chalk.green.bold(command)
   )
 }
