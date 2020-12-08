@@ -203,14 +203,14 @@ Aborting...`)
     template = `#!js
 //👋 The "shebang" line above is required for scripts to run
 
-/**
+/*
  * Congratulations! 🎉 You made a \`${name}\` script! 🎈
  * You can now run this script with \`${name}\` in your terminal
  */
 
 console.log(\`${env.USER} made a ${name} script!\`)
 
-/**
+/*
  * First, let's accept an argument and log it out:
  */
 
@@ -218,7 +218,7 @@ console.log(\`${env.USER} made a ${name} script!\`)
 
 // console.log(user)
 
-/**
+/*
  * Second, let's query the github api with our argument
  * Uncomment the following lines and run \`${name} ${env.USER}\` (assuming this is your github username)
 */
@@ -227,27 +227,25 @@ console.log(\`${env.USER} made a ${name} script!\`)
 
 // console.log(response.data)
 
-/**
+/*
  * Finally, let's write the data to a file 
  * Uncomment the following lines and re-run the command
 */
 
 // await writeFile(user + ".json", JSON.stringify(response.data))
 
-/**
+/*
  * Congratulations! You're ready to explore the wonderful world of JavaScript Scripts.
  * You've probably noticed the helper functions (arg, get, and writeFile). 
  * Run \`js globals\` to explore all the helpers available.
 */
 
-/**
+/*
  * Disable these comments in the future by running "js env" then adding the following link to the .env:
  * DISABLE_TEMPLATE_COMMENTS=true
  * 
  * Happy Scripting! 🤓 - John Lindquist
  */
-//You can 
-//
     `.trim()
   }
 
