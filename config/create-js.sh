@@ -2,6 +2,13 @@
 cat > $JS_PATH/bin/js <<EOF
 #!/bin/zsh
 
+source $JS_PATH/.env
+
+if [ $# -eq 0 ];  then
+    js-help
+    return
+fi
+
 if [[ $1 == "i" ]]; then
     cd $JS_PATH
     $JS_NPM install $2
@@ -35,13 +42,29 @@ if [[ $1 == "edit" ]]; then
     return
 fi
 
+if [[ $1 == "rm" ]]; then
+    if [ -f $JS_PATH/bin/$2 ]; then
+        rm $JS_PATH/bin/$2
+        rm $JS_PATH/src/$2.mjs
+    else
+        echo "$2 not found"
+    fi
+    return
+fi
 
-NODE_PATH=$JS_PATH/node_modules \\
-DOTENV_CONFIG_PATH=$JS_PATH/.env \\
-$JS_NODE \\
---require dotenv/config \\
---require "$JS_PATH/globals/index.cjs" \\
-"\$@"
+if [[ $1 == "help" ]]; then
+    js-help
+    return
+fi
+
+
+
+NODE_PATH=/Users/johnlindquist/.js/node_modules \
+DOTENV_CONFIG_PATH=/Users/johnlindquist/.js/.env \
+/Users/johnlindquist/.js/bin/.node/bin/node \
+--require dotenv/config \
+--require "/Users/johnlindquist/.js/globals/index.cjs" \
+"$@"
 EOF
 
 chmod +x $JS_PATH/bin/js

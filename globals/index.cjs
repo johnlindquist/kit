@@ -51,7 +51,11 @@ const name = /[^/]*$/.exec(symFilePath)[0]
 const fileName = `${name}.mjs`
 const jsSrcPath = path.join(JS_PATH, "src")
 const jsBinPath = path.join(JS_PATH, "bin")
-const srcFilePath = path.join(jsSrcPath, fileName)
+
+const createSymFilePath = name => path.join(jsBinPath, name)
+
+const createSourceFilePath = name =>
+  path.join(jsSrcPath, name + ".mjs")
 
 global.commandExists = command => {
   return exec(`type ${command}`, {
@@ -104,51 +108,67 @@ Options:
 --rm removes the script: joke --rm
   `.trim()
   )
-  exit()
 }
 
 if (args.edit) {
   //usage: my-script --edit
-  code(srcFilePath, JS_PATH)
+  code(createSourceFilePath(name), JS_PATH)
+  exit()
+}
+
+global.renameScript = async (oldName, newName) => {
+  const oldPath = createSourceFilePath(oldName)
+  const oldSym = createSymFilePath(oldName)
+  const newPath = createSourceFilePath(newName)
+  const newSym = createSymFilePath(newName)
+  rm(oldSym)
+  mv(oldPath, newPath)
+  ln("-s", newPath, newSym)
   exit()
 }
 
 if (args.mv) {
   //usage: my-script --mv renamed-script
-  const newSrcFilePath = path.join(
-    jsSrcPath,
-    args.mv + ".mjs"
-  )
-  rm(symFilePath)
-  mv(srcFilePath, newSrcFilePath)
-  ln("-s", newSrcFilePath, path.join(jsBinPath, args.mv))
-  exit()
+  renameScript(name, args.mv)
 }
 
-if (args.cp) {
+global.copyScript = async (source, target) => {
   //usage: my-script --cp new-script
-  let result = exec(`type ${args.cp}`, { silent: true })
+  let result = exec(`type ${target}`, {
+    silent: true,
+  })
   if (result.stdout) {
-    console.log(`${args.cp} already exists. 
-${result.stdout.trim()}
-Aborting...`)
+    console.log(`${target} already exists. 
+  ${result.stdout.trim()}
+  Aborting...`)
     exit()
   }
+
   const newSrcFilePath = path.join(
     jsSrcPath,
-    args.cp + ".mjs"
+    target + ".mjs"
   )
-  cp(srcFilePath, newSrcFilePath)
-  ln("-s", newSrcFilePath, path.join(jsBinPath, args.cp))
+
+  const sourceFilePath = createSourceFilePath(source)
+  cp(sourceFilePath, newSrcFilePath)
+  ln("-s", newSrcFilePath, path.join(jsBinPath, target))
   code(newSrcFilePath, JS_PATH)
   exit()
 }
 
-if (args.rm) {
-  //usage: my-script --rm
-  rm(symFilePath)
-  rm(srcFilePath)
+if (args.cp) {
+  copyScript(name, args.cp)
+}
+
+global.removeScript = async name => {
+  rm(createSymFilePath(name))
+  rm(createSourceFilePath(name))
   exit()
+}
+
+if (args.rm) {
+  removeScript(name)
+  //usage: my-script --rm
 }
 
 if (args.ln) {
@@ -160,4 +180,32 @@ if (args.ln) {
     path.join(jsBinPath, name.slice(0, -4))
   )
   exit()
+}
+
+global.createScript = async name => {
+  let result = exec(`type ${name}`, { silent: true })
+  if (result.stdout) {
+    console.log(`${name} already exists. 
+${result.stdout.trim()}
+Aborting...`)
+    exit()
+  }
+
+  let template = `#!js
+
+`
+
+  if (args.paste) {
+    template = paste()
+  }
+
+  let symFilePath = createSymFilePath(name)
+  let filePath = createSourceFilePath(name)
+
+  await writeFile(filePath, template)
+  chmod(755, filePath)
+
+  ln("-s", filePath, symFilePath)
+
+  code(filePath, JS_PATH, 3)
 }
