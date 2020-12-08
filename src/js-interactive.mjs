@@ -3,7 +3,7 @@
 const edit = async file => {
   nextTime(file + " --edit")
   const fileName = file + ".mjs"
-  code(path.join(JS_PATH, "src", fileName))
+  code(path.join(env.JS_PATH, "src", fileName))
 }
 
 const rm = async file => {
@@ -20,7 +20,7 @@ const cp = async file => {
   nextTime(file + " --cp " + newFile.name)
 
   copyScript(file, newFile.name)
-  code(path.join(JS_PATH, "src", newFile.name + ".mjs"))
+  code(path.join(env.JS_PATH, "src", newFile.name + ".mjs"))
 }
 const mv = async file => {
   const newFile = await prompt({
@@ -68,7 +68,7 @@ const npmCommand = command => async () => {
     message: "Which npm package do you want to command?",
   })
 
-  exec(JS_NPM + " " + command + " " + npmPackage.name)
+  exec(env.JS_NPM + " " + command + " " + npmPackage.name)
 
   const shortcut = {
     install: "i",
