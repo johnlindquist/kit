@@ -80,7 +80,7 @@ code = (file, dir, line = 0) => {
   if (env.EDITOR == "code") {
     let codeArgs = ["--goto", `${file}:${line}`]
     if (dir) codeArgs.push("--folder-uri", dir)
-    let child = child_process.spawn("code", codeArgs, {
+    let child = spawn("code", codeArgs, {
       stdio: "inherit",
     })
 
@@ -88,7 +88,7 @@ code = (file, dir, line = 0) => {
       console.log("code openend: ", file)
     })
   } else {
-    let child = child_process.spawn(env.EDITOR, [file], {
+    let child = spawn(env.EDITOR, [file], {
       stdio: "inherit",
     })
 

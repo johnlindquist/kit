@@ -1,35 +1,49 @@
 #!/usr/bin/env zsh
 
-"Cloning the repo to $JS_PATH"
+BOLD="$(tput bold 2>/dev/null || echo '')"
+GREY="$(tput setaf 0 2>/dev/null || echo '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo '')"
+NO_COLOR="$(tput sgr0 2>/dev/null || echo '')"
+
+info() {
+  printf "${BOLD}${GREY}>${NO_COLOR} $@\n"
+}
+
+complete() {
+  printf "${GREEN}✓${NO_COLOR} $@\n"
+}
+
+info "Cloning the repo to $JS_PATH"
 git clone https://github.com/johnlindquist/.js.git $JS_PATH
 
-echo "Downloading node.js to your .js directory"
+info "Downloading node.js to your .js directory"
 $JS_PATH/config/install-node.sh --prefix $JS_PATH/bin/.node --yes
 
 export JS_NODE=$JS_PATH/bin/.node/bin/node
 export JS_NPM=$JS_PATH/bin/.node/bin/npm
 
-echo "Attaching .js to the the downloaded node and npm"
+info "Attaching .js to the the downloaded node and npm"
 $JS_PATH/config/create-jsrc.sh
 
-echo "Linking included scripts"
+info "Linking included scripts"
 $JS_PATH/config/create-symlinks.sh
 
-echo "Creating js executable"
-$JS_PATH/config/create-js.sh
+info "Creating js executable"
+cp $JS_PATH/config/js-template.sh $JS_PATH/bin/js
+chmod +x $JS_PATH/bin/js
 
-echo "Adding .js to .zshrc"
-echo '\nsource '$JS_PATH'/.jsrc' >> ~/.zshrc
+info "Adding .js to .zshrc"
+info '\nsource '$JS_PATH'/.jsrc' >> ~/.zshrc
 
-echo "Installing npm packages"
+info "Installing npm packages"
 cd $JS_PATH
 $JS_NPM install
 
-echo "Sourcing .jsrc for first run"
+info "Sourcing .jsrc for first run"
 source $JS_PATH/.jsrc
 
-echo "Creating .env file"
+info "Creating .env file"
 $JS_PATH/config/create-env.sh
 
-echo "Verify your installation: "
-echo "type 'js' and hit enter"
+info "Verify your installation: "
+complete "type 'js' and hit enter"

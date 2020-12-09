@@ -87,6 +87,20 @@ const jsCommand = command => async () => {
   nextTime(jsCommand)
 }
 
+const spawnScript = command => async () => {
+  let child = child_process.spawn(
+    env.JS_PATH + "/config/" + command + ".sh",
+    [],
+    {
+      stdio: "inherit",
+    }
+  )
+
+  child.on("exit", function (e, code) {
+    console.log(command + " complete")
+  })
+}
+
 const emph = chalk.green.bold
 
 let newScript = emph("new") + ": Create a new script"
@@ -100,6 +114,7 @@ let iPackage = emph("i") + ": Install an npm package"
 let unPackage = emph("un") + ": Uninstall an npm package"
 let editEnv = emph("env") + ": Modify settings in .env"
 let fileIssue = emph("issue") + ": File an issue on github"
+let upgrade = emph("upgrade") + ": Upgrade .js"
 
 const actionMap = {
   [newScript]: createFile(),
@@ -113,6 +128,7 @@ const actionMap = {
   [unPackage]: npmCommand("uninstall"),
   [editEnv]: jsCommand("env"),
   [fileIssue]: run("issue"),
+  [upgrade]: spawnScript("upgrade"),
 }
 
 const help = await prompt({
