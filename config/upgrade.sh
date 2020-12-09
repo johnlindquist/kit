@@ -39,8 +39,10 @@ info "Linking included scripts"
 $JS_PATH/config/create-symlinks.sh
 
 info "Creating js executable"
-cp $JS_PATH/config/js-template.sh $JS_PATH/bin/js
+cp $JS_PATH/config/template-js.sh $JS_PATH/bin/js
 chmod +x $JS_PATH/bin/js
 
-complete "Verify your installation: "
-complete "type 'js' and hit enter"
+complete "Upgrade complete"
+js
+
+

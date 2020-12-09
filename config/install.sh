@@ -29,7 +29,7 @@ info "Linking included scripts"
 $JS_PATH/config/create-symlinks.sh
 
 info "Creating js executable"
-cp $JS_PATH/config/js-template.sh $JS_PATH/bin/js
+cp $JS_PATH/config/template-js.sh $JS_PATH/bin/js
 chmod +x $JS_PATH/bin/js
 
 info "Adding .js to .zshrc"
@@ -47,7 +47,7 @@ info "Sourcing .jsrc for first run"
 source $JS_PATH/.jsrc
 
 info "Creating .env file"
-$JS_PATH/config/create-env.sh
+cp $JS_PATH/config/template-env.env $JS_PATH/.env
 
-info "Verify your installation: "
-complete "type 'js' and hit enter"
+complete "Welcome to JavaScript Scripts!"
+js
