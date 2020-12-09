@@ -33,7 +33,7 @@ cp $JS_PATH/config/js-template.sh $JS_PATH/bin/js
 chmod +x $JS_PATH/bin/js
 
 info "Adding .js to .zshrc"
-info '\nsource '$JS_PATH'/.jsrc' >> ~/.zshrc
+echo '\nsource '$JS_PATH'/.jsrc' >> ~/.zshrc
 
 info "Installing npm packages"
 cd $JS_PATH
