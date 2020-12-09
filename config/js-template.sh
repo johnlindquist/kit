@@ -7,6 +7,12 @@ if [ $# -eq 0 ];  then
     return
 fi
 
+if [[ $1 == "upgrade" ]]; then
+    cd $JS_PATH
+    $JS_PATH/config/upgrade.sh
+    return
+fi
+
 if [[ $1 == "globals" ]]; then
     $EDITOR $JS_PATH/globals/index.cjs
     return

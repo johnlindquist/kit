@@ -13,6 +13,8 @@ complete() {
   printf "${GREEN}✓${NO_COLOR} $@\n"
 }
 
+cd $JS_PATH
+
 info "Cleaning generated symlinks"
 git clean -fXq $JS_PATH/bin/*
 
