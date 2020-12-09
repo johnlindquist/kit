@@ -3,7 +3,7 @@
 const edit = async file => {
   nextTime(file + " --edit")
   const fileName = file + ".mjs"
-  code(path.join(env.JS_PATH, "src", fileName))
+  editor(path.join(env.JS_PATH, "src", fileName))
 }
 
 const rm = async file => {
@@ -20,7 +20,9 @@ const cp = async file => {
   nextTime(file + " --cp " + newFile.name)
 
   copyScript(file, newFile.name)
-  code(path.join(env.JS_PATH, "src", newFile.name + ".mjs"))
+  editor(
+    path.join(env.JS_PATH, "src", newFile.name + ".mjs")
+  )
 }
 const mv = async file => {
   const newFile = await prompt({

@@ -47,7 +47,7 @@ const copyPaste = require("copy-paste")
 copy = copyPaste.copy
 paste = copyPaste.paste
 
-env.TMP_DIR = require("os").tmpdir()
+Handlebars = require("handlebars")
 
 const symFilePath = process.argv[1]
 const scriptName = /[^/]*$/.exec(symFilePath)[0]
@@ -63,21 +63,17 @@ const createSymFilePath = name => path.join(jsBinPath, name)
 const createSourceFilePath = name =>
   path.join(jsSrcPath, name + ".mjs")
 
-commandExists = command => {
-  return exec(`type ${command}`, {
-    silent: true,
-  }).stdout.trim()
-}
-
-code = (file, dir, line = 0) => {
-  if (!commandExists(env.EDITOR)) {
+editor = async (file, dir, line = 0) => {
+  if (!which(await env("EDITOR"))) {
     console.log(
-      chalk.red(`Couldn't find the editor: ${env.EDITOR}`)
+      chalk.red(
+        `Couldn't find the editor: ${await env("EDITOR")}`
+      )
     )
     return
   }
 
-  if (env.EDITOR == "code") {
+  if ((await env("EDITOR")) == "code") {
     let codeArgs = ["--goto", `${file}:${line}`]
     if (dir) codeArgs.push("--folder-uri", dir)
     let child = spawn("code", codeArgs, {
@@ -85,7 +81,7 @@ code = (file, dir, line = 0) => {
     })
 
     child.on("exit", function (e, code) {
-      console.log("code openend: ", file)
+      console.log("code launched: ", file)
     })
   } else {
     let child = spawn(env.EDITOR, [file], {
@@ -97,7 +93,7 @@ code = (file, dir, line = 0) => {
     })
   }
 
-  // exec(env.EDITOR + " " + file)
+  exec(env.EDITOR + " " + file)
 }
 
 applescript = script =>
@@ -131,7 +127,7 @@ Options:
 
 if (args.edit) {
   //usage: my-script --edit
-  code(createSourceFilePath(scriptName), env.JS_PATH)
+  editor(createSourceFilePath(scriptName), env.JS_PATH)
   exit()
 }
 
@@ -171,7 +167,7 @@ copyScript = async (source, target) => {
   const sourceFilePath = createSourceFilePath(source)
   cp(sourceFilePath, newSrcFilePath)
   ln("-s", newSrcFilePath, path.join(jsBinPath, target))
-  code(newSrcFilePath, env.JS_PATH)
+  editor(newSrcFilePath, env.JS_PATH)
   exit()
 }
 
@@ -211,58 +207,18 @@ Aborting...`)
     exit()
   }
 
-  let template = `#!/usr/bin/env js
+  let templatePath = path.join(
+    await env("JS_PATH"),
+    "templates",
+    (await env("TEMPLATE")) + ".mjs"
+  )
 
-`
-  if (!env.DISABLE_TEMPLATE_COMMENTS) {
-    template = `#!/usr/bin/env js
-//👋 The "shebang" line above is required for scripts to run
-
-/*
- * Congratulations! 🎉 You made a \`${name}\` script! 🎈
- * You can now run this script with \`${name}\` in your terminal
- */
-
-console.log(\`${env.USER} made a ${name} script!\`)
-
-/*
- * First, let's accept an argument and log it out:
- */
-
-// let user = await arg(0)
-
-// console.log(user)
-
-/*
- * Second, let's query the github api with our argument
- * Uncomment the following lines and run \`${name} ${env.USER}\` (assuming this is your github username)
-*/
-
-// let response = await get(\`https://api.github.com/users/\${user}\`)
-
-// console.log(response.data)
-
-/*
- * Finally, let's write the data to a file 
- * Uncomment the following lines and re-run the command
-*/
-
-// await writeFile(user + ".json", JSON.stringify(response.data))
-
-/*
- * Congratulations! You're ready to explore the wonderful world of JavaScript Scripts.
- * You've probably noticed the helper functions (arg, get, and writeFile). 
- * Run \`js globals\` to explore all the helpers available.
-*/
-
-/*
- * Disable these comments in the future by running "js env" then adding the following link to the .env:
- * DISABLE_TEMPLATE_COMMENTS=true
- * 
- * Happy Scripting! 🤓 - John Lindquist
- */
-    `.trim()
-  }
+  let template = await readFile(templatePath, "utf8")
+  template = Handlebars.compile(template)
+  template = template({
+    ...env,
+    name,
+  })
 
   if (args.paste) {
     template = paste()
@@ -271,12 +227,12 @@ console.log(\`${env.USER} made a ${name} script!\`)
   let symFilePath = createSymFilePath(name)
   let filePath = createSourceFilePath(name)
 
-  await writeFile(filePath, template)
+  writeFile(filePath, template)
   chmod(755, filePath)
 
   ln("-s", filePath, symFilePath)
 
-  code(filePath, env.JS_PATH, 3)
+  editor(filePath, env.JS_PATH, 3)
 }
 
 nextTime = command => {
@@ -311,6 +267,34 @@ arg = async (index, message = "Input: ", choices) => {
     args[index] || (await promptForArg(message, choices))
   )
 }
+
+promptForEnv = async name => {
+  let envFile = path.join(env.JS_PATH, ".env")
+
+  let input = await prompt({
+    name: "value",
+    message: `Set ${name} to:`,
+  })
+
+  let regex = new RegExp("^" + name + "=.*$")
+  let { stdout } = grep(regex, envFile)
+
+  let envVar = name + "=" + input.value
+
+  if (stdout == "\n") {
+    echo("\n" + envVar).toEnd(envFile)
+  } else {
+    sed("-i", regex, envVar, envFile)
+  }
+
+  return input.value
+}
+
+env = async name => {
+  return process.env[name] || (await promptForEnv(name))
+}
+
+assignPropsTo(process.env, env)
 
 getScripts = async () => {
   return (

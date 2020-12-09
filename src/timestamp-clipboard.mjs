@@ -11,4 +11,4 @@ ${paste()}
 `.trim()
 
 await writeFile(fileName, template)
-code(fileName)
+editor(fileName)

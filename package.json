@@ -16,6 +16,7 @@
     "dotenv": "^8.2.0",
     "dotenv-with-expand": "^1.0.1",
     "globals": "file:globals",
+    "handlebars": "^4.7.6",
     "image-downloader": "^4.0.1",
     "inquirer": "^7.3.3",
     "inquirer-search-list": "^1.2.6",
