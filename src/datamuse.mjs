@@ -1,7 +1,5 @@
 #!/usr/bin/env js
 
-let typeArg = args[0]
-
 let typeMap = {
   describe: "rel_jjb",
   trigger: "rel_trg",
@@ -14,35 +12,24 @@ let typeMap = {
   suggest: "suggest",
 }
 
-if (!typeArg) {
-  ;({ type: typeArg } = await prompt({
-    type: "list",
-    name: "type",
-    choices: Object.keys(typeMap),
-  }))
-}
+let word = await arg(0, "Type a word:")
+let typeArg = await arg(
+  1,
+  "What would you like to find?",
+  Object.keys(typeMap)
+)
 
 let type = typeMap[typeArg]
+word = word.replace(/ /g, "+")
 
-let query = args[1]
-if (!query) {
-  ;({ query } = await prompt({
-    type: "input",
-    name: "query",
-  }))
-  nextTime("datamuse " + typeArg + " " + query)
-}
-
-query = query.replace(/ /g, "+")
-
-let url = `https://api.datamuse.com/words?${type}=${query}&md=d`
+let url = `https://api.datamuse.com/words?${type}=${word}&md=d`
 if (typeArg == "suggest")
-  url = `https://api.datamuse.com/sug?s=${query}&md=d`
+  url = `https://api.datamuse.com/sug?s=${word}&md=d`
 
 let response = await get(url)
 
 if (!args.alfred) {
-  console.log(response.data)
+  console.log(response.data.map(result => result.word))
 }
 
 if (args.alfred) {

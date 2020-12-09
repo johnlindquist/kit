@@ -67,7 +67,7 @@ fi
 NODE_PATH=\$JS_PATH/node_modules \\
 DOTENV_CONFIG_PATH=\$JS_PATH/.env \\
 \$JS_NODE \\
---require dotenv/config \\
+--require dotenv-with-expand/config \\
 --require "\$JS_PATH/globals/index.cjs" \\
 "\$@"
 EOF

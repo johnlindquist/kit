@@ -18,6 +18,8 @@ assignPropsTo(
   args
 )
 
+child_process = require("child_process")
+spawn = child_process.spawn
 _ = require("lodash")
 path = require("path")
 inquirer = require("inquirer")
@@ -70,19 +72,32 @@ commandExists = command => {
 code = (file, dir, line = 0) => {
   if (!commandExists(env.EDITOR)) {
     console.log(
-      chalk.red(`Couldn't find a configured editor`)
+      chalk.red(`Couldn't find the editor: ${env.EDITOR}`)
     )
     return
   }
+
   if (env.EDITOR == "code") {
-    exec(
-      `code --goto ${file}:${line} ${
-        dir && `--folder-uri ${dir}`
-      }`
-    )
+    let codeArgs = ["--goto", `${file}:${line}`]
+    if (dir) codeArgs.push("--folder-uri", dir)
+    let child = child_process.spawn("code", codeArgs, {
+      stdio: "inherit",
+    })
+
+    child.on("exit", function (e, code) {
+      console.log("code openend: ", file)
+    })
+  } else {
+    let child = child_process.spawn(env.EDITOR, [file], {
+      stdio: "inherit",
+    })
+
+    child.on("exit", function (e, code) {
+      console.log(env.EDITOR, " openend: ", file)
+    })
   }
 
-  exec(env.EDITOR + " " + file)
+  // exec(env.EDITOR + " " + file)
 }
 
 applescript = script =>
@@ -271,16 +286,30 @@ nextTime = command => {
   )
 }
 
-promptForArg = async message => {
-  let input = await prompt({ name: "name", message })
+let promptedArgs = ""
+promptForArg = async (message, choices) => {
+  let input
+  if (!choices) {
+    input = await prompt({ name: "name", message })
+  } else {
+    input = await prompt({
+      name: "name",
+      message,
+      type: "search-list",
+      choices,
+    })
+  }
 
-  nextTime(scriptName + " " + input.name)
+  promptedArgs += " " + input.name
+  nextTime(scriptName + promptedArgs)
 
   return input.name
 }
 
-arg = async (index, message = "Input: ") => {
-  return args[index] || (await promptForArg(message))
+arg = async (index, message = "Input: ", choices) => {
+  return (
+    args[index] || (await promptForArg(message, choices))
+  )
 }
 
 getScripts = async () => {
