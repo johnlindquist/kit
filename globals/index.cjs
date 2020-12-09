@@ -282,7 +282,7 @@ promptForEnv = async name => {
   let envVar = name + "=" + input.value
 
   if (stdout == "\n") {
-    echo("\n" + envVar).toEnd(envFile)
+    echo("-n", "\n" + envVar).toEnd(envFile)
   } else {
     sed("-i", regex, envVar, envFile)
   }
