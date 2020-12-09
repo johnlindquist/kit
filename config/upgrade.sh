@@ -43,6 +43,6 @@ cp $JS_PATH/config/template-js.sh $JS_PATH/bin/js
 chmod +x $JS_PATH/bin/js
 
 complete "Upgrade complete"
-info "type `js` and hit enter:"
+info "type js and hit enter:"
 
 

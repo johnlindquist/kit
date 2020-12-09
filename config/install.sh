@@ -50,4 +50,4 @@ info "Creating .env file"
 cp $JS_PATH/config/template-env.env $JS_PATH/.env
 
 complete "Welcome to JavaScript Scripts!"
-js
+info "type 'js' and hit enter to get started:"
