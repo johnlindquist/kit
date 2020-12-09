@@ -15,22 +15,6 @@ complete() {
 
 cd $JS_PATH
 
-info "Cleaning generated symlinks"
-git clean -fXq $JS_PATH/bin/*
-
-info "Updating Repo at $JS_PATH"
-cd $JS_PATH
-git pull
-
-if [[ $1 == "--node" ]]; then
-    info "Removing .js node"
-    git clean -Xfq $JS_PATH/bin/.node  
-    git clean -Xfq $JS_PATH/node_modules/  
-
-    info "Downloading node.js to your .js directory"
-    $JS_PATH/config/install-node.sh --prefix $JS_PATH/bin/.node --yes
-fi
-
 info "Installing missing npm packages"
 cd $JS_PATH
 $JS_NPM install
@@ -44,5 +28,3 @@ chmod +x $JS_PATH/bin/js
 
 complete "Upgrade complete"
 info "type js and hit enter:"
-
-

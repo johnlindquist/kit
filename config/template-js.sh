@@ -7,9 +7,9 @@ if [ $# -eq 0 ];  then
     return
 fi
 
-if [[ $1 == "upgrade" ]]; then
+if [[ $1 == "update" ]]; then
     cd $JS_PATH
-    $JS_PATH/config/upgrade.sh
+    $JS_PATH/config/update.sh
     return
 fi
 

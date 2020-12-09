@@ -116,7 +116,7 @@ let iPackage = emph("i") + ": Install an npm package"
 let unPackage = emph("un") + ": Uninstall an npm package"
 let editEnv = emph("env") + ": Modify settings in .env"
 let fileIssue = emph("issue") + ": File an issue on github"
-let upgrade = emph("upgrade") + ": Upgrade .js"
+let update = emph("update") + ": update .js"
 
 const actionMap = {
   [newScript]: createFile(),
@@ -130,7 +130,7 @@ const actionMap = {
   [unPackage]: npmCommand("uninstall"),
   [editEnv]: jsCommand("env"),
   [fileIssue]: run("issue"),
-  [upgrade]: spawnScript("upgrade"),
+  [update]: spawnScript("update"),
 }
 
 const help = await prompt({
