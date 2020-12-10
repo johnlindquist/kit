@@ -188,7 +188,7 @@ Aborting...`)
   let symFilePath = createSymFilePath(name)
   let filePath = createSourceFilePath(name)
 
-  writeFile(filePath, template)
+  await writeFile(filePath, template)
   chmod(755, filePath)
 
   ln("-s", filePath, symFilePath)
