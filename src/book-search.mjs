@@ -1,4 +1,3 @@
-#!/usr/bin/env js
 /**
  * Description: Searches for book titles using Open Library
  *

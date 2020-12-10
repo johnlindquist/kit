@@ -1,4 +1,3 @@
-#!/usr/bin/env js
 /**
  * Description: Creates a new empty script you can invoke from the terminal
  *
@@ -28,8 +27,6 @@ if (tutorial) {
   name = await arg("Enter a name for your script:")
 }
 
-createScript(name)
-
 if (tutorial) {
   echo(
     chalk.yellow.italic(`You can run your new script (`) +
@@ -44,3 +41,5 @@ if (tutorial) {
     ) + chalk.green.bold(name)
   )
 }
+
+await createScript(name)

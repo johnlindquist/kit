@@ -1,5 +1,3 @@
-#!/usr/bin/env js
-
 /**
  * Description: Queries a word api library
  */

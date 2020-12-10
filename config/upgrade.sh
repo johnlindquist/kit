@@ -19,12 +19,8 @@ info "Installing missing npm packages"
 cd $JS_PATH
 $JS_NPM install
 
-info "Linking included scripts"
-$JS_PATH/config/create-symlinks.sh
-
-info "Creating js executable"
-cp $JS_PATH/config/template-js.sh $JS_PATH/bin/js
-chmod +x $JS_PATH/bin/js
+info "Creating exectuables for scripts"
+$JS_PATH/config/create-bins.sh
 
 complete "Upgrade complete"
 info "type js and hit enter:"

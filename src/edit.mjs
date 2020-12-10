@@ -1,4 +1,4 @@
-#!/usr/bin/env js
+
 
 /**
  * Description: Opens the selected script in your editor

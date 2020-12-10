@@ -1,4 +1,3 @@
-#!/usr/bin/env js
 /**
  * Description: Pastes the contents of your clipboard into a file named by the timestamp
  */

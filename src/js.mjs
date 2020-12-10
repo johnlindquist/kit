@@ -1,4 +1,3 @@
-#!/usr/bin/env js
 /**
  * Description: The js interface
  */

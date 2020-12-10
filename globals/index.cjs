@@ -43,6 +43,7 @@ put = axios.put
 patch = axios.patch
 
 const fsPromises = require("fs/promises")
+const fs = require("fs")
 
 readFile = fsPromises.readFile
 writeFile = fsPromises.writeFile
@@ -172,28 +173,37 @@ Aborting...`)
     exit()
   }
 
-  let templatePath = path.join(
+  let jsTemplatePath = path.join(
     env.JS_PATH,
     "templates",
     (await env("TEMPLATE")) + ".mjs"
   )
 
-  let template = await readFile(templatePath, "utf8")
-  template = Handlebars.compile(template)
-  template = template({
+  let binTemplatePath = path.join(
+    env.JS_PATH,
+    "config",
+    "template-bin"
+  )
+
+  let jsTemplate = await readFile(jsTemplatePath, "utf8")
+  jsTemplate = Handlebars.compile(jsTemplate)
+  jsTemplate = jsTemplate({
     ...env,
     name,
   })
 
-  let symFilePath = createSymFilePath(name)
-  let filePath = createSourceFilePath(name)
+  let binTemplate = await readFile(binTemplatePath, "utf8")
+  binTemplate = Handlebars.compile(binTemplate)
+  binTemplate = binTemplate({ name })
 
-  await writeFile(filePath, template)
-  chmod(755, filePath)
+  let binFilePath = createSymFilePath(name)
+  let jsFilePath = createSourceFilePath(name)
 
-  ln("-s", filePath, symFilePath)
+  await writeFile(jsFilePath, jsTemplate)
+  await writeFile(binFilePath, binTemplate)
+  chmod(755, binFilePath)
 
-  editor(filePath, env.JS_PATH, 3)
+  editor(jsFilePath, env.JS_PATH)
 }
 
 nextTime = command => {
@@ -262,10 +272,6 @@ env = async first => {
 assignPropsTo(process.env, env)
 
 getScripts = async () => {
-  return (
-    await readdir(path.join(env.JS_PATH, "bin"), {
-      encoding: "utf8",
-      withFileTypes: true,
-    })
-  ).filter(file => file.isSymbolicLink())
+  let result = ls("-l", path.join(env.JS_PATH, "bin"))
+  return result.map(file => file)
 }

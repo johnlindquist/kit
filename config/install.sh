@@ -26,11 +26,7 @@ info "Attaching .js to the the downloaded node and npm"
 $JS_PATH/config/create-jsrc.sh
 
 info "Linking included scripts"
-$JS_PATH/config/create-symlinks.sh
-
-info "Creating js executable"
-cp $JS_PATH/config/template-js.sh $JS_PATH/bin/js
-chmod +x $JS_PATH/bin/js
+$JS_PATH/config/create-bins.sh
 
 info "Adding .js to .zshrc"
 if grep -q $JS_PATH'/.jsrc' ~/.zshrc; then
