@@ -9,8 +9,7 @@ function assignPropsTo(source, target) {
 }
 
 assignPropsTo(require("shelljs"), global)
-args = process.argv.slice(2)
-//map named args to global args. e.g. --foo is mapped to args.foo
+const args = process.argv.slice(2)
 const yargs = require("yargs/yargs")
 const { hideBin } = require("yargs/helpers")
 assignPropsTo(
@@ -58,6 +57,10 @@ info = message => {
   console.log(chalk.yellow(message))
 }
 
+warn = message => {
+  console.log(chalk.red(message))
+}
+
 const createSymFilePath = name => path.join(jsBinPath, name)
 
 const createSourceFilePath = name =>
@@ -81,7 +84,7 @@ editor = async (file, dir, line = 0) => {
     })
 
     child.on("exit", function (e, code) {
-      console.log("code launched: ", file)
+      // console.log("code launched: ", file)
     })
   } else {
     let child = spawn(env.EDITOR, [file], {
@@ -89,7 +92,7 @@ editor = async (file, dir, line = 0) => {
     })
 
     child.on("exit", function (e, code) {
-      console.log(env.EDITOR, " openend: ", file)
+      // console.log(env.EDITOR, " opened: ", file)
     })
   }
 
@@ -267,6 +270,7 @@ arg = async (index, message = "Input: ", choices) => {
     args[index] || (await promptForArg(message, choices))
   )
 }
+assignPropsTo(args, arg)
 
 promptForEnv = async name => {
   let envFile = path.join(env.JS_PATH, ".env")

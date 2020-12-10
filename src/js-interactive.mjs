@@ -83,12 +83,6 @@ const npmCommand = command => async () => {
   )
 }
 
-const jsCommand = command => async () => {
-  let jsCommand = `js ` + command
-  exec(jsCommand)
-  nextTime(jsCommand)
-}
-
 const spawnScript = command => async () => {
   let child = child_process.spawn(
     env.JS_PATH + "/config/" + command + ".sh",
@@ -105,40 +99,98 @@ const spawnScript = command => async () => {
 
 const emph = chalk.green.bold
 
-let newScript = emph("new") + ": Create a new script"
-let runScript = emph("run") + ": Run a script"
-let editScript = emph("edit") + ": Edit a script"
-let lsScript = emph("ls") + ": List all scripts"
-let cpScript = emph("cp") + ": Duplicate a script"
-let mvScript = emph("mv") + ": Rename a script"
-let rmScript = emph("rm") + ": Remove a script"
-let iPackage = emph("i") + ": Install an npm package"
-let unPackage = emph("un") + ": Uninstall an npm package"
-let editEnv = emph("env") + ": Modify settings in .env"
-let fileIssue = emph("issue") + ": File an issue on github"
-let update = emph("update") + ": update .js"
-
 const actionMap = {
-  [newScript]: createFile(),
-  [runScript]: selectFile(run()),
-  [editScript]: selectFile(edit),
-  [lsScript]: jsCommand("ls"),
-  [cpScript]: selectFile(cp),
-  [mvScript]: selectFile(mv),
-  [rmScript]: selectFile(rm),
-  [iPackage]: npmCommand("install"),
-  [unPackage]: npmCommand("uninstall"),
-  [editEnv]: jsCommand("env"),
-  [fileIssue]: run("issue"),
-  [update]: spawnScript("update"),
+  ["new"]: {
+    message: "Create a new script",
+    action: createFile(),
+  },
+  ["run"]: {
+    message: "Run a script",
+    action: selectFile(run()),
+  },
+  ["edit"]: {
+    message: "Edit a script",
+    action: selectFile(edit),
+  },
+  ["ls"]: {
+    message: "List all scripts",
+    action: async () => {
+      let scripts = (await getScripts()).map(
+        file => file.name
+      )
+      echo(scripts)
+      if (!arg[0]) nextTime(`js ls`)
+    },
+  },
+  ["cp"]: {
+    message: "Duplicate a script",
+    action: selectFile(cp),
+  },
+  ["mv"]: {
+    message: "Rename a script",
+    action: selectFile(mv),
+  },
+  ["rm"]: {
+    message: "Remove a script",
+    action: selectFile(rm),
+  },
+  ["i"]: {
+    message: "Install an npm package",
+    action: npmCommand("install"),
+  },
+  ["un"]: {
+    message: "Uninstall an npm package",
+    action: npmCommand("uninstall"),
+  },
+  ["env"]: {
+    message: "Modify .env",
+    action: () => {
+      editor(path.join(env.JS_PATH, ".env"))
+      if (!arg[0]) nextTime(`js env`)
+    },
+  },
+  ["issue"]: {
+    message: "File an issue on github",
+    action: run("issue"),
+  },
+  ["update"]: {
+    message: "Update js",
+    action: spawnScript("update"),
+  },
+  ["quit"]: {
+    message: "Quit js",
+    action: () => {
+      exit()
+    },
+  },
 }
 
-const help = await prompt({
-  type: "search-list",
-  name: "action",
-  loop: false,
-  message: "What do you want to do?",
-  choices: [...Object.keys(actionMap)],
-})
+const triggerAction = async action => {
+  await actionMap[action].action(action)
+}
 
-const result = await actionMap[help.action](help.action)
+const action = arg[0]
+
+if (action == "help" || !action) {
+  const help = await prompt({
+    type: "search-list",
+    name: "arg",
+    loop: false,
+    message: "What do you want to do?",
+    choices: [
+      ...Object.entries(actionMap).map(([key, value]) => ({
+        name: emph(key) + ": " + value.message,
+        value: key,
+      })),
+    ],
+  })
+
+  triggerAction(help.arg)
+}
+if (action) {
+  if (actionMap[action]) {
+    triggerAction(action)
+  } else {
+    warn(action + " is not a valid argument")
+  }
+}

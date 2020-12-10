@@ -6,5 +6,4 @@
  * new my-first-script
  */
 let name = await arg(0, "Name your script:")
-
 createScript(name)

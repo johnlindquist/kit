@@ -28,11 +28,11 @@ if (typeArg == "suggest")
 
 let response = await get(url)
 
-if (!args.alfred) {
+if (!arg.alfred) {
   console.log(response.data.map(result => result.word))
 }
 
-if (args.alfred) {
+if (arg.alfred) {
   let items = response.data.map(
     ({ word, score, tags, defs }) => {
       return {

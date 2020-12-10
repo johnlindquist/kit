@@ -7,70 +7,13 @@ if [ $# -eq 0 ];  then
     return
 fi
 
-if [[ $1 == "update" ]]; then
-    cd $JS_PATH
-    $JS_PATH/config/update.sh
-    return
-fi
-
-if [[ $1 == "globals" ]]; then
-    $EDITOR $JS_PATH/globals/index.cjs
-    return
-fi
-
-if [[ $1 == "i" ]]; then
-    cd $JS_PATH
-    $JS_NPM install $2
-    return
-fi
-
-if [[ $1 == "un" ]]; then
-    cd $JS_PATH
-    $JS_NPM uninstall $2
-    return
-fi
-
-if [[ $1 == "env" ]]; then
-    $EDITOR $JS_PATH/.env
-    return
-fi
-
-if [[ $1 == "fix" ]]; then
-    cd $JS_PATH
-    $JS_NPM audit fix --force
-    return
-fi
-
-if [[ $1 == "ls" ]]; then    
-    find $JS_PATH/bin -maxdepth 1 -type l -exec basename {} \;
-    return
-fi
-
-if [[ $1 == "edit" ]]; then
-    $EDITOR $JS_PATH
-    return
-fi
-
-if [[ $1 == "rm" ]]; then
-    if [ -f $JS_PATH/bin/$2 ]; then
-        rm $JS_PATH/bin/$2
-        rm $JS_PATH/src/$2.mjs
+if [ -L $1 ]; then
+    NODE_PATH=$JS_PATH/node_modules \
+    DOTENV_CONFIG_PATH=$JS_PATH/.env \
+    $JS_NODE \
+    --require dotenv-with-expand/config \
+    --require "$JS_PATH/globals/index.cjs" \
+    "$@"
     else
-        echo "$2 not found"
-    fi
-    return
+    js-interactive $1
 fi
-
-if [[ $1 == "help" ]]; then
-    js-interactive
-    return
-fi
-
-
-
-NODE_PATH=$JS_PATH/node_modules \
-DOTENV_CONFIG_PATH=$JS_PATH/.env \
-$JS_NODE \
---require dotenv-with-expand/config \
---require "$JS_PATH/globals/index.cjs" \
-"$@"
