@@ -75,16 +75,18 @@ const createSourceFilePath = name =>
   path.join(jsSrcPath, name + ".mjs")
 
 editor = async (file, dir, line = 0) => {
-  if (!which(await env("EDITOR"))) {
+  if (!which(await env("JS_EDITOR"))) {
     console.log(
       chalk.red(
-        `Couldn't find the editor: ${await env("EDITOR")}`
+        `Couldn't find the editor: ${await env(
+          "JS_EDITOR"
+        )}`
       )
     )
     return
   }
 
-  if ((await env("EDITOR")) == "code") {
+  if ((await env("JS_EDITOR")) == "code") {
     let codeArgs = ["--goto", `${file}:${line}`]
     if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
     let child = spawn("code", codeArgs, {
@@ -95,16 +97,16 @@ editor = async (file, dir, line = 0) => {
       // console.log("code launched: ", file)
     })
   } else {
-    let child = spawn(env.EDITOR, [file], {
+    let child = spawn(env.JS_EDITOR, [file], {
       stdio: "inherit",
     })
 
     child.on("exit", function (e, code) {
-      // console.log(env.EDITOR, " opened: ", file)
+      // console.log(env.JS_EDITOR, " opened: ", file)
     })
   }
 
-  exec(env.EDITOR + " " + file)
+  exec(env.JS_EDITOR + " " + file)
 }
 
 applescript = script =>
