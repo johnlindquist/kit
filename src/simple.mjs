@@ -19,7 +19,7 @@ const possibleEditors = [
   "webstorm",
   "vim",
 ]
-const selectedEditor = await env("JS_EDITOR", {
+const selectedEditor = await env("SIMPLE_EDITOR", {
   message:
     "Which code editor do you use? (You can always change this later in .env)",
   choices: () =>
@@ -32,7 +32,7 @@ const selectedEditor = await env("JS_EDITOR", {
 const edit = async (file, prompted) => {
   const fileName = file + ".mjs"
   if (prompted) nextTime("edit " + file)
-  editor(path.join(env.JS_PATH, "src", fileName))
+  editor(path.join(env.SIMPLE_PATH, "src", fileName))
 }
 
 const rm = async file => {
@@ -62,7 +62,7 @@ const cp = async file => {
     name: "name",
     message: "Name the new duplicated script:",
   })
-  nextTime("js cp " + file + " " + newFile.name)
+  nextTime("simple cp " + file + " " + newFile.name)
 
   copyScript(file, newFile.name)
 }
@@ -76,7 +76,7 @@ const mv = async file => {
     name: "name",
     message: "Rename script to:",
   })
-  nextTime("js mv " + file + " " + newFile.name)
+  nextTime("simple mv " + file + " " + newFile.name)
 
   renameScript(file, newFile.name)
 }
@@ -99,7 +99,7 @@ const selectFile = action => async name => {
     let word = "Description: "
     let { stdout } = grep(
       word,
-      path.join(env.JS_PATH, "src", name + ".mjs")
+      path.join(env.SIMPLE_PATH, "src", name + ".mjs")
     )
 
     let description = stdout
@@ -136,7 +136,7 @@ const checkboxFile = action => async name => {
     let word = "Description: "
     let { stdout } = grep(
       word,
-      path.join(env.JS_PATH, "src", name + ".mjs")
+      path.join(env.SIMPLE_PATH, "src", name + ".mjs")
     )
 
     let description = stdout
@@ -180,14 +180,16 @@ const createFile = () => async () => {
 
 const npmCommand = command => async () => {
   if (sourceArg) {
-    exec(env.JS_NPM + " " + command + " " + sourceArg)
+    exec(env.SIMPLE_NPM + " " + command + " " + sourceArg)
   } else {
     const npmPackage = await prompt({
       type: "input",
       name: "name",
       message: `Which npm package do you want to ${command}?`,
     })
-    exec(env.JS_NPM + " " + command + " " + npmPackage.name)
+    exec(
+      env.SIMPLE_NPM + " " + command + " " + npmPackage.name
+    )
 
     const shortcut = {
       install: "i",
@@ -195,14 +197,14 @@ const npmCommand = command => async () => {
     }
 
     nextTime(
-      "js " + shortcut[command] + " " + npmPackage.name
+      "simple " + shortcut[command] + " " + npmPackage.name
     )
   }
 }
 
 const spawnScript = command => async () => {
   let child = child_process.spawn(
-    env.JS_PATH + "/config/" + command + ".sh",
+    env.SIMPLE_PATH + "/config/" + command + ".sh",
     [],
     {
       stdio: "inherit",
@@ -234,7 +236,7 @@ const actionMap = {
         file => file.name
       )
       echo(scripts)
-      if (!action) nextTime(`js ls`)
+      if (!action) nextTime(`simple ls`)
     },
   },
   ["cp"]: {
@@ -260,8 +262,8 @@ const actionMap = {
   ["env"]: {
     message: "Modify .env",
     action: () => {
-      editor(path.join(env.JS_PATH, ".env"))
-      if (!action) nextTime(`js env`)
+      editor(path.join(env.SIMPLE_PATH, ".env"))
+      if (!action) nextTime(`simple env`)
     },
   },
   ["issue"]: {
@@ -269,11 +271,11 @@ const actionMap = {
     action: run("issue"),
   },
   ["update"]: {
-    message: "Update js",
+    message: "Update simple",
     action: spawnScript("update"),
   },
   ["quit"]: {
-    message: "Quit js",
+    message: "Quit simple",
     action: () => {
       exit()
     },

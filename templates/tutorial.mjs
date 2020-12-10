@@ -49,14 +49,14 @@ console.log(`{{USER}} made a {{name}} script!`)
 
 /**
  * Congratulations! You're ready to explore the wonderful world of JavaScript Scripts. 🥳
- * Type "js" in your terminal to play around with more options.
+ * Type "simple" in your terminal to play around with more options.
  * Use "new" to create new scripts from anywhere.
  * Review the included examples by typing "edit" 👀
  */
 
 /**
  * This file was created with the "tutorial" template. Switch to the "default" template without comments by running
- * "js env" adjusting the following line in your .env:
+ * "simple env" adjusting the following line in your .env:
  * TEMPLATE=default
  *
  * Happy Scripting! 🤓 - John Lindquist @johnlindquist

@@ -57,9 +57,9 @@ Handlebars = require("handlebars")
 
 const symFilePath = process.argv[1]
 const scriptName = /[^/]*$/.exec(symFilePath)[0]
-const jsSrcPath = path.join(env.JS_PATH, "src")
-const jsBinPath = path.join(env.JS_PATH, "bin")
-const envFile = path.join(env.JS_PATH, ".env")
+const simpleSrcPath = path.join(env.SIMPLE_PATH, "src")
+const simpleBinPath = path.join(env.SIMPLE_PATH, "bin")
+const envFile = path.join(env.SIMPLE_PATH, ".env")
 
 info = message => {
   console.log(chalk.yellow(message))
@@ -69,13 +69,14 @@ warn = message => {
   console.log(chalk.red(message))
 }
 
-const createSymFilePath = name => path.join(jsBinPath, name)
+const createSymFilePath = name =>
+  path.join(simpleBinPath, name)
 
 const createSourceFilePath = name =>
-  path.join(jsSrcPath, name + ".mjs")
+  path.join(simpleSrcPath, name + ".mjs")
 
 editor = async (file, dir, line = 0) => {
-  if (env.JS_EDITOR == "code") {
+  if (env.SIMPLE_EDITOR == "code") {
     let codeArgs = ["--goto", `${file}:${line}`]
     if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
     let child = spawn("code", codeArgs, {
@@ -87,14 +88,14 @@ editor = async (file, dir, line = 0) => {
     })
   } else {
     let editorArgs = [file]
-    if (env.JS_EDITOR.includes("vi"))
+    if (env.SIMPLE_EDITOR.includes("vi"))
       editorArgs.push(">/dev/tty")
-    let child = spawn(env.JS_EDITOR, editorArgs, {
+    let child = spawn(env.SIMPLE_EDITOR, editorArgs, {
       stdio: "inherit",
     })
 
     child.on("exit", function (e, code) {
-      // console.log(env.JS_EDITOR, " opened: ", file)
+      // console.log(env.SIMPLE_EDITOR, " opened: ", file)
     })
   }
 }
@@ -140,14 +141,14 @@ copyScript = async (source, target) => {
   }
 
   const newSrcFilePath = path.join(
-    jsSrcPath,
+    simpleSrcPath,
     target + ".mjs"
   )
 
   const sourceFilePath = createSourceFilePath(source)
   cp(sourceFilePath, newSrcFilePath)
-  ln("-s", newSrcFilePath, path.join(jsBinPath, target))
-  editor(newSrcFilePath, env.JS_PATH)
+  ln("-s", newSrcFilePath, path.join(simpleBinPath, target))
+  editor(newSrcFilePath, env.SIMPLE_PATH)
 }
 
 removeScript = async name => {
@@ -165,21 +166,24 @@ Aborting...`)
     exit()
   }
 
-  let jsTemplatePath = path.join(
-    env.JS_PATH,
+  let simpleTemplatePath = path.join(
+    env.SIMPLE_PATH,
     "templates",
     (await env("TEMPLATE")) + ".mjs"
   )
 
   let binTemplatePath = path.join(
-    env.JS_PATH,
+    env.SIMPLE_PATH,
     "config",
     "template-bin"
   )
 
-  let jsTemplate = await readFile(jsTemplatePath, "utf8")
-  jsTemplate = Handlebars.compile(jsTemplate)
-  jsTemplate = jsTemplate({
+  let simpleTemplate = await readFile(
+    simpleTemplatePath,
+    "utf8"
+  )
+  simpleTemplate = Handlebars.compile(simpleTemplate)
+  simpleTemplate = simpleTemplate({
     ...env,
     name,
   })
@@ -189,13 +193,13 @@ Aborting...`)
   binTemplate = binTemplate({ name })
 
   let binFilePath = createSymFilePath(name)
-  let jsFilePath = createSourceFilePath(name)
+  let simpleFilePath = createSourceFilePath(name)
 
-  await writeFile(jsFilePath, jsTemplate)
+  await writeFile(simpleFilePath, simpleTemplate)
   await writeFile(binFilePath, binTemplate)
   chmod(755, binFilePath)
 
-  editor(jsFilePath, env.JS_PATH)
+  editor(simpleFilePath, env.SIMPLE_PATH)
 }
 
 nextTime = command => {
@@ -260,6 +264,6 @@ env = async (envKey, promptConfig = {}) => {
 assignPropsTo(process.env, env)
 
 getScripts = async () => {
-  let result = ls("-l", path.join(env.JS_PATH, "bin"))
+  let result = ls("-l", path.join(env.SIMPLE_PATH, "bin"))
   return result.map(file => file)
 }

@@ -13,37 +13,37 @@ complete() {
   printf "${GREEN}✓${NO_COLOR} $@\n"
 }
 
-info "Cloning the repo to $JS_PATH"
-git clone https://github.com/johnlindquist/.js.git $JS_PATH
+info "Cloning the repo to $SIMPLE_PATH"
+git clone https://github.com/johnlindquist/.js.git $SIMPLE_PATH
 
 info "Downloading node.js to your .js directory"
-$JS_PATH/config/install-node.sh --prefix $JS_PATH/bin/.node --yes
+$SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 
-export JS_NODE=$JS_PATH/bin/.node/bin/node
-export JS_NPM=$JS_PATH/bin/.node/bin/npm
+export SIMPLE_NODE=$SIMPLE_PATH/bin/.node/bin/node
+export SIMPLE_NPM=$SIMPLE_PATH/bin/.node/bin/npm
 
-info "Attaching .js to the the downloaded node and npm"
-$JS_PATH/config/create-jsrc.sh
+info "Attaching simple to the the downloaded node and npm"
+$SIMPLE_PATH/config/create-simplerc.sh
 
 info "Linking included scripts"
-$JS_PATH/config/create-bins.sh
+$SIMPLE_PATH/config/create-bins.sh
 
-info "Adding .js to .zshrc"
-if grep -q $JS_PATH'/.jsrc' ~/.zshrc; then
+info "Adding simple to .zshrc"
+if grep -q $SIMPLE_PATH'/.simplerc' ~/.zshrc; then
   echo "Source already added to .zshrc"
   else
-  echo -n '\nsource '$JS_PATH'/.jsrc' >> ~/.zshrc
+  echo -n '\nsource '$SIMPLE_PATH'/.simplerc' >> ~/.zshrc
 fi
 
 info "Installing npm packages"
-cd $JS_PATH
-$JS_NPM install
+cd $SIMPLE_PATH
+$SIMPLE_NPM install
 
-info "Sourcing .jsrc for first run"
-source $JS_PATH/.jsrc
+info "Sourcing .simplerc for first run"
+source $SIMPLE_PATH/.simplerc
 
 info "Creating .env file"
-cp $JS_PATH/config/template-env.env $JS_PATH/.env
+cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
 
 complete "Welcome to JavaScript Scripts!"
 info "type 'js' and hit enter to get started:"

@@ -8,7 +8,7 @@ import download from "image-downloader"
 
 let corgiTmpPath = path.join(
   tempdir(),
-  "js-shell-scripts",
+  "simple-shell-scripts",
   "corgi"
 )
 

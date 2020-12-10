@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh   
 
-NODE_PATH=$JS_PATH/node_modules \
-DOTENV_CONFIG_PATH=$JS_PATH/.env \
-$JS_NODE \
+NODE_PATH=$SIMPLE_PATH/node_modules \
+DOTENV_CONFIG_PATH=$SIMPLE_PATH/.env \
+$SIMPLE_NODE \
 --require dotenv-with-expand/config \
---require "$JS_PATH/globals/index.cjs" \
-$JS_PATH/src/{{name}}.mjs \
+--require "$SIMPLE_PATH/globals/index.cjs" \
+$SIMPLE_PATH/src/{{name}}.mjs \
 "$@"

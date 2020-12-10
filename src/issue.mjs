@@ -3,5 +3,5 @@
  */
 
 exec(
-  `open "https://github.com/johnlindquist/.js/issues/new"`
+  `open "https://github.com/johnlindquist/simplescripts/issues/new"`
 )

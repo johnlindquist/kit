@@ -13,14 +13,14 @@ complete() {
   printf "${GREEN}✓${NO_COLOR} $@\n"
 }
 
-cd $JS_PATH
+cd $SIMPLE_PATH
 
 info "Installing missing npm packages"
-cd $JS_PATH
-$JS_NPM install
+cd $SIMPLE_PATH
+$SIMPLE_NPM install
 
 info "Creating exectuables for scripts"
-$JS_PATH/config/create-bins.sh
+$SIMPLE_PATH/config/create-bins.sh
 
 complete "Upgrade complete"
-info "type js and hit enter:"
+info "type simple and hit enter:"

@@ -1,17 +1,17 @@
-# JavaScript Scripts
+# Simple Scripts
 
 ## Install
 
 ```shell
-curl -o- https://raw.githubusercontent.com/johnlindquist/.js/main/config/install.sh | JS_PATH=~/.js zsh
+curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/main/config/install.sh | SIMPLE_PATH=~/.simple zsh
 ```
 
 ## Getting Started
 
-Run `js` in your shell.
+Run `simple` in your shell.
 
 ```shell
-js
+simple
 ```
 
-`js` launches an interactive prompt to train you to write your own scripts.
+`simple` launches an interactive prompt to train you to write your own scripts.

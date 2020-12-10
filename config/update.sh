@@ -13,22 +13,22 @@ complete() {
   printf "${GREEN}✓${NO_COLOR} $@\n"
 }
 
-cd $JS_PATH
+cd $SIMPLE_PATH
 
 info "Cleaning generated symlinks"
-git clean -fXq $JS_PATH/bin/*
+git clean -fXq $SIMPLE_PATH/bin/*
 
-info "Updating Repo at $JS_PATH"
-cd $JS_PATH
+info "Updating Repo at $SIMPLE_PATH"
+cd $SIMPLE_PATH
 git pull
 
 if [[ $1 == "--node" ]]; then
-    info "Removing .js node"
-    git clean -Xfq $JS_PATH/bin/.node  
-    git clean -Xfq $JS_PATH/node_modules/  
+    info "Removing .simple node"
+    git clean -Xfq $SIMPLE_PATH/bin/.node  
+    git clean -Xfq $SIMPLE_PATH/node_modules/  
 
-    info "Downloading node.js to your .js directory"
-    $JS_PATH/config/install-node.sh --prefix $JS_PATH/bin/.node --yes
+    info "Downloading node.js to your .simple directory"
+    $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 fi
 
-$JS_PATH/config/upgrade.sh
+$SIMPLE_PATH/config/upgrade.sh

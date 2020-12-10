@@ -49,7 +49,7 @@ if (arg.alfred) {
 
   let out = {
     variables: {
-      query,
+      query: word,
     },
     items,
   }
