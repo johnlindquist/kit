@@ -1,7 +1,7 @@
 
-export JS_PATH=/Users/johnlindquist/.js
-export JS_NODE=/Users/johnlindquist/.js/bin/.node/bin/node
-export JS_NPM=/Users/johnlindquist/.js/bin/.node/bin/npm
+export SIMPLE_PATH=/Users/johnlindquist/.simple
+export SIMPLE_NODE=/Users/johnlindquist/.simple/bin/.node/bin/node
+export SIMPLE_NPM=/Users/johnlindquist/.simple/bin/.node/bin/npm
 
-path+=/Users/johnlindquist/.js/bin
+path+=/Users/johnlindquist/.simple/bin
 export PATH

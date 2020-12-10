@@ -14,9 +14,9 @@ complete() {
 }
 
 info "Cloning the repo to $SIMPLE_PATH"
-git clone https://github.com/johnlindquist/.js.git $SIMPLE_PATH
+git clone https://github.com/johnlindquist/simplescripts.git $SIMPLE_PATH
 
-info "Downloading node.js to your .js directory"
+info "Downloading node.js to your .simple directory"
 $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 
 export SIMPLE_NODE=$SIMPLE_PATH/bin/.node/bin/node
@@ -39,11 +39,11 @@ info "Installing npm packages"
 cd $SIMPLE_PATH
 $SIMPLE_NPM install
 
-info "Sourcing .simplerc for first run"
-source $SIMPLE_PATH/.simplerc
-
 info "Creating .env file"
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
 
-complete "Welcome to JavaScript Scripts!"
-info "type 'js' and hit enter to get started:"
+info "Sourcing .simplerc for first run"
+source $SIMPLE_PATH/.simplerc
+
+complete "Welcome to Simple Scripts!"
+echo "type ${BOLD}${GREEN}'simple' ${NO_COLOR}and hit enter to get started:"
