@@ -24,6 +24,7 @@
     "lodash": "^4.17.20",
     "project-name-generator": "^2.1.9",
     "shelljs": "^0.8.4",
+    "untildify": "^4.0.0",
     "yargs": "^16.1.1"
   },
   "type": "module"
