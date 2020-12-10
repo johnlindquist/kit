@@ -1,9 +1,7 @@
 #!/usr/bin/env js
 /**
- * Logs out a Dad Joke from icanhazdadjoke.com
+ * Description: Logs out a Dad Joke from icanhazdadjoke.com
  *
- * Usage:
- * joke
  */
 
 let response = await get(`https://icanhazdadjoke.com/`, {

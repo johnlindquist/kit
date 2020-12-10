@@ -1,5 +1,9 @@
 #!/usr/bin/env js
 
+/**
+ * Description: Queries a word api library
+ */
+
 let typeMap = {
   describe: "rel_jjb",
   trigger: "rel_trg",

@@ -1,6 +1,6 @@
 #!/usr/bin/env js
 /**
- * Displays a random picture of a Corgi using dog.ceo
+ * Description: Displays a random picture of a Corgi using dog.ceo
  *
  * Usage:
  * corgi

@@ -1,12 +1,12 @@
 #!/usr/bin/env js
 /**
- * Searches for Book titles using Open Library
+ * Description: Searches for book titles using Open Library
  *
  * Usage:
  * book-search "Mistborn"
  */
 
-let query = await arg(0, "What do you want to search for?")
+let query = await arg("What do you want to search for?")
 
 let response = await get(
   `http://openlibrary.org/search.json?q=${query}`

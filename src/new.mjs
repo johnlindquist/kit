@@ -1,9 +1,9 @@
 #!/usr/bin/env js
 /**
- * Creates a new script with symlinks and permissions then opens it in VS Code
+ * Description: Creates a new empty script you can invoke from the terminal
  *
  * Usage:
  * new my-first-script
  */
-let name = await arg(0, "Name your script:")
+let name = await arg()
 createScript(name)
