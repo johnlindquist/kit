@@ -26,6 +26,12 @@ inquirer.registerPrompt(
   "search-list",
   require("inquirer-search-list")
 )
+
+inquirer.registerPrompt(
+  "suggest",
+  require("inquirer-prompt-suggest")
+)
+
 prompt = inquirer.prompt
 Separator = inquirer.Separator
 chalk = require("chalk")
@@ -52,6 +58,7 @@ const symFilePath = process.argv[1]
 const scriptName = /[^/]*$/.exec(symFilePath)[0]
 const jsSrcPath = path.join(env.JS_PATH, "src")
 const jsBinPath = path.join(env.JS_PATH, "bin")
+const envFile = path.join(env.JS_PATH, ".env")
 
 info = message => {
   console.log(chalk.yellow(message))
@@ -78,7 +85,7 @@ editor = async (file, dir, line = 0) => {
 
   if ((await env("EDITOR")) == "code") {
     let codeArgs = ["--goto", `${file}:${line}`]
-    if (dir) codeArgs.push("--folder-uri", dir)
+    if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
     let child = spawn("code", codeArgs, {
       stdio: "inherit",
     })
@@ -116,24 +123,6 @@ preview = file => {
   exec(`qlmanage -p "${file}"`, { silent: true })
 }
 
-if (args.help) {
-  console.log(
-    `
-Options:    
---edit opens the script in your editor: joke --edit
---cp duplicates the script: joke --cp dadjoke
---mv renames the script: joke --mv dadjoke
---rm removes the script: joke --rm
-  `.trim()
-  )
-}
-
-if (args.edit) {
-  //usage: my-script --edit
-  editor(createSourceFilePath(scriptName), env.JS_PATH)
-  exit()
-}
-
 renameScript = async (oldName, newName) => {
   const oldPath = createSourceFilePath(oldName)
   const oldSym = createSymFilePath(oldName)
@@ -143,11 +132,6 @@ renameScript = async (oldName, newName) => {
   mv(oldPath, newPath)
   ln("-s", newPath, newSym)
   exit()
-}
-
-if (args.mv) {
-  //usage: my-script --mv renamed-script
-  renameScript(scriptName, args.mv)
 }
 
 copyScript = async (source, target) => {
@@ -171,34 +155,12 @@ copyScript = async (source, target) => {
   cp(sourceFilePath, newSrcFilePath)
   ln("-s", newSrcFilePath, path.join(jsBinPath, target))
   editor(newSrcFilePath, env.JS_PATH)
-  exit()
-}
-
-if (args.cp) {
-  copyScript(scriptName, args.cp)
 }
 
 removeScript = async name => {
   rm(createSymFilePath(name))
   rm(createSourceFilePath(name))
   info(`Removed script: ${name}`)
-  exit()
-}
-
-if (args.rm) {
-  removeScript(scriptName)
-  //usage: my-script --rm
-}
-
-if (args.ln) {
-  //usage: my-script.mjs --ln
-  const filePath = symFilePath
-  ln(
-    "-s",
-    filePath,
-    path.join(jsBinPath, scriptName.slice(0, -4))
-  )
-  exit()
 }
 
 createScript = async name => {
@@ -211,7 +173,7 @@ Aborting...`)
   }
 
   let templatePath = path.join(
-    await env("JS_PATH"),
+    env.JS_PATH,
     "templates",
     (await env("TEMPLATE")) + ".mjs"
   )
@@ -222,10 +184,6 @@ Aborting...`)
     ...env,
     name,
   })
-
-  if (args.paste) {
-    template = paste()
-  }
 
   let symFilePath = createSymFilePath(name)
   let filePath = createSourceFilePath(name)
@@ -245,57 +203,72 @@ nextTime = command => {
   )
 }
 
-let promptedArgs = ""
-promptForArg = async (message, choices) => {
-  let input
-  if (!choices) {
-    input = await prompt({ name: "name", message })
-  } else {
-    input = await prompt({
-      name: "name",
-      message,
-      type: "search-list",
-      choices,
-    })
+let argIndex = 0
+arg = async (first, second) => {
+  let aKey
+  let promptConfig
+  if (typeof first == "number") {
+    aKey = argIndex++
+  }
+  if (typeof first == "string") {
+    aKey = first
+  }
+  if (typeof second == "undefined") {
+    promptConfig = { name: "name", message: first }
   }
 
-  promptedArgs += " " + input.name
-  nextTime(scriptName + promptedArgs)
+  if (typeof second == "string") {
+    promptConfig = { name: "name", message: second }
+  }
+  if (typeof second == "object") {
+    promptConfig = { name: aKey, ...second }
+  }
 
-  return input.name
-}
-
-arg = async (index, message = "Input: ", choices) => {
+  if (
+    typeof first == "object" ||
+    typeof first == "undefined"
+  ) {
+    aKey = argIndex++
+    promptConfig = { name: "name", ...first }
+  }
   return (
-    args[index] || (await promptForArg(message, choices))
+    args[aKey] ||
+    (await prompt(promptConfig))[promptConfig["name"]]
   )
 }
 assignPropsTo(args, arg)
 
-promptForEnv = async name => {
-  let envFile = path.join(env.JS_PATH, ".env")
+env = async first => {
+  let name
+  let input
 
-  let input = await prompt({
-    name: "value",
-    message: `Set ${name} to:`,
-  })
-
+  if (typeof first == "string") {
+    name = first
+    if (env[name]) return env[name]
+    input = await prompt({
+      name: "value",
+      message: `Set ${name} env to:`,
+    })
+  } else if (typeof first == "object") {
+    let promptConfig = first
+    input = await prompt(promptConfig)
+  } else {
+    echo(`env needs to be a string or a prompt config`)
+    exit()
+  }
   let regex = new RegExp("^" + name + "=.*$")
   let { stdout } = grep(regex, envFile)
 
   let envVar = name + "=" + input.value
 
   if (stdout == "\n") {
-    echo("-n", "\n" + envVar).toEnd(envFile)
+    config.silent = true
+    new ShellString("\n" + envVar).toEnd(envFile)
   } else {
     sed("-i", regex, envVar, envFile)
   }
 
   return input.value
-}
-
-env = async name => {
-  return process.env[name] || (await promptForEnv(name))
 }
 
 assignPropsTo(process.env, env)

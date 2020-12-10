@@ -19,6 +19,7 @@
     "handlebars": "^4.7.6",
     "image-downloader": "^4.0.1",
     "inquirer": "^7.3.3",
+    "inquirer-prompt-suggest": "^0.1.0",
     "inquirer-search-list": "^1.2.6",
     "lodash": "^4.17.20",
     "project-name-generator": "^2.1.9",

@@ -1,36 +1,62 @@
 #!/usr/bin/env js
+/**
+ * Description: The js interface
+ */
 
-const edit = async file => {
-  nextTime(file + " --edit")
+const action = arg[0]
+const sourceArg = arg[1]
+const targetArg = arg[2]
+
+const emph = chalk.green.bold
+
+const edit = async (file, prompted) => {
   const fileName = file + ".mjs"
   editor(path.join(env.JS_PATH, "src", fileName))
+  if (prompted) nextTime("edit " + file)
 }
 
 const rm = async file => {
-  nextTime(file + " --rm")
-  removeScript(file)
+  const confirm = await prompt({
+    type: "confirm",
+    name: "value",
+    message:
+      `Are you sure you want to delete: ` +
+      emph(file) +
+      "?",
+  })
+
+  if (confirm.value) {
+    removeScript(file)
+  } else {
+    echo(`Skipping ` + file)
+  }
 }
 
 const cp = async file => {
+  if (targetArg) {
+    copyScript(file, targetArg)
+    return
+  }
   const newFile = await prompt({
     type: "input",
     name: "name",
     message: "Name the new duplicated script:",
   })
-  nextTime(file + " --cp " + newFile.name)
+  nextTime("js cp " + file + " " + newFile.name)
 
   copyScript(file, newFile.name)
-  editor(
-    path.join(env.JS_PATH, "src", newFile.name + ".mjs")
-  )
 }
 const mv = async file => {
+  if (targetArg) {
+    renameScript(file, targetArg)
+    return
+  }
   const newFile = await prompt({
     type: "input",
     name: "name",
     message: "Rename script to:",
   })
-  nextTime(file + " --mv " + newFile.name)
+  nextTime("js mv " + file + " " + newFile.name)
 
   renameScript(file, newFile.name)
 }
@@ -42,18 +68,86 @@ const run = file => async selectedFile => {
 }
 
 const selectFile = action => async name => {
+  if (sourceArg) {
+    await action(sourceArg)
+    return
+  }
+
+  let scripts = (await getScripts()).map(file => file.name)
+
+  let choices = scripts.map(name => {
+    let word = "Description: "
+    let { stdout } = grep(
+      word,
+      path.join(env.JS_PATH, "src", name + ".mjs")
+    )
+
+    let description = stdout
+      .substring(0, stdout.indexOf("\n"))
+      .substring(stdout.indexOf(word) + word.length)
+      .trim()
+
+    return {
+      name: description ? name + ": " + description : name,
+      value: name,
+    }
+  })
+
   const fileSelect = await prompt({
     type: "search-list",
     name: "file",
     loop: false,
     message: `Which script do you want to ${name}`,
-    choices: await getScripts(),
+    choices,
   })
 
-  await action(fileSelect.file)
+  await action(fileSelect.file, "prompted")
+}
+
+const checkboxFile = action => async name => {
+  if (sourceArg) {
+    await action(sourceArg)
+    return
+  }
+
+  let scripts = (await getScripts()).map(file => file.name)
+
+  let choices = scripts.map(name => {
+    let word = "Description: "
+    let { stdout } = grep(
+      word,
+      path.join(env.JS_PATH, "src", name + ".mjs")
+    )
+
+    let description = stdout
+      .substring(0, stdout.indexOf("\n"))
+      .substring(stdout.indexOf(word) + word.length)
+      .trim()
+
+    return {
+      name: description ? name + ": " + description : name,
+      value: name,
+    }
+  })
+
+  const fileSelect = await prompt({
+    type: "checkbox",
+    name: "scripts",
+    loop: false,
+    message: `Which scripts do you want to ${name}`,
+    choices,
+  })
+
+  for await (let script of fileSelect.scripts) {
+    await action(script)
+  }
 }
 
 const createFile = () => async () => {
+  if (sourceArg) {
+    await createScript(sourceArg)
+    return
+  }
   const newFile = await prompt({
     type: "input",
     name: "name",
@@ -65,22 +159,25 @@ const createFile = () => async () => {
 }
 
 const npmCommand = command => async () => {
-  const npmPackage = await prompt({
-    type: "input",
-    name: "name",
-    message: "Which npm package do you want to command?",
-  })
+  if (sourceArg) {
+    exec(env.JS_NPM + " " + command + " " + sourceArg)
+  } else {
+    const npmPackage = await prompt({
+      type: "input",
+      name: "name",
+      message: `Which npm package do you want to ${command}?`,
+    })
+    exec(env.JS_NPM + " " + command + " " + npmPackage.name)
 
-  exec(env.JS_NPM + " " + command + " " + npmPackage.name)
+    const shortcut = {
+      install: "i",
+      uninstall: "un",
+    }
 
-  const shortcut = {
-    install: "i",
-    uninstall: "un",
+    nextTime(
+      "js " + shortcut[command] + " " + npmPackage.name
+    )
   }
-
-  nextTime(
-    "js " + shortcut[command] + " " + npmPackage.name
-  )
 }
 
 const spawnScript = command => async () => {
@@ -96,8 +193,6 @@ const spawnScript = command => async () => {
     console.log(command + " complete")
   })
 }
-
-const emph = chalk.green.bold
 
 const actionMap = {
   ["new"]: {
@@ -119,7 +214,7 @@ const actionMap = {
         file => file.name
       )
       echo(scripts)
-      if (!arg[0]) nextTime(`js ls`)
+      if (!action) nextTime(`js ls`)
     },
   },
   ["cp"]: {
@@ -132,7 +227,7 @@ const actionMap = {
   },
   ["rm"]: {
     message: "Remove a script",
-    action: selectFile(rm),
+    action: checkboxFile(rm),
   },
   ["i"]: {
     message: "Install an npm package",
@@ -146,7 +241,7 @@ const actionMap = {
     message: "Modify .env",
     action: () => {
       editor(path.join(env.JS_PATH, ".env"))
-      if (!arg[0]) nextTime(`js env`)
+      if (!action) nextTime(`js env`)
     },
   },
   ["issue"]: {
@@ -168,8 +263,6 @@ const actionMap = {
 const triggerAction = async action => {
   await actionMap[action].action(action)
 }
-
-const action = arg[0]
 
 if (action == "help" || !action) {
   const help = await prompt({
