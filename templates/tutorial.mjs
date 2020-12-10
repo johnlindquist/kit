@@ -57,7 +57,7 @@ console.log(`{{USER}} made a {{name}} script!`)
 /**
  * This file was created with the "tutorial" template. Switch to the "default" template without comments by running
  * "simple env" adjusting the following line in your .env:
- * TEMPLATE=default
+ * SIMPLE_TEMPLATE=default
  *
  * Happy Scripting! 🤓 - John Lindquist @johnlindquist
  */

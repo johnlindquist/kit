@@ -57,9 +57,14 @@ Handlebars = require("handlebars")
 
 const symFilePath = process.argv[1]
 const scriptName = /[^/]*$/.exec(symFilePath)[0]
-const simpleSrcPath = path.join(env.SIMPLE_PATH, "src")
-const simpleBinPath = path.join(env.SIMPLE_PATH, "bin")
-const envFile = path.join(env.SIMPLE_PATH, ".env")
+const SRC_PATH = path.join(env.SIMPLE_PATH, "src")
+const BIN_PATH = path.join(env.SIMPLE_PATH, "bin")
+const ENV_FILE = path.join(env.SIMPLE_PATH, ".env")
+const BIN_TEMPLATE_PATH = path.join(
+  env.SIMPLE_PATH,
+  "config",
+  "template-bin"
+)
 
 info = message => {
   console.log(chalk.yellow(message))
@@ -69,11 +74,10 @@ warn = message => {
   console.log(chalk.red(message))
 }
 
-const createSymFilePath = name =>
-  path.join(simpleBinPath, name)
+const createBinFilePath = name => path.join(BIN_PATH, name)
 
 const createSourceFilePath = name =>
-  path.join(simpleSrcPath, name + ".mjs")
+  path.join(SRC_PATH, name + ".mjs")
 
 editor = async (file, dir, line = 0) => {
   if (env.SIMPLE_EDITOR == "code") {
@@ -117,19 +121,41 @@ preview = file => {
   exec(`qlmanage -p "${file}"`, { silent: true })
 }
 
+const updateEnvKey = (envKey, envValue) => {
+  let regex = new RegExp("^" + envKey + "=.*$")
+  sed("-i", regex, envKey + "=" + envValue, ENV_FILE)
+}
+
+const writeNewEnvKey = envKeyValue => {
+  new ShellString("\n" + envKeyValue).toEnd(ENV_FILE)
+}
+
 renameScript = async (oldName, newName) => {
-  const oldPath = createSourceFilePath(oldName)
-  const oldSym = createSymFilePath(oldName)
-  const newPath = createSourceFilePath(newName)
-  const newSym = createSymFilePath(newName)
-  rm(oldSym)
-  mv(oldPath, newPath)
-  ln("-s", newPath, newSym)
-  exit()
+  const oldSourcePath = createSourceFilePath(oldName)
+  const oldBinPath = createBinFilePath(oldName)
+  const newSourcePath = createSourceFilePath(newName)
+  rm(oldBinPath)
+  mv(oldSourcePath, newSourcePath)
+  createBinFile(newName)
+  if (oldName == env.SIMPLE_MAIN) {
+    updateEnvKey("SIMPLE_MAIN", newName)
+  }
+}
+
+const createBinFile = async name => {
+  let binTemplate = await readFile(
+    BIN_TEMPLATE_PATH,
+    "utf8"
+  )
+  binTemplate = Handlebars.compile(binTemplate)
+  binTemplate = binTemplate({ name })
+
+  let binFilePath = createBinFilePath(name)
+  await writeFile(binFilePath, binTemplate)
+  chmod(755, binFilePath)
 }
 
 copyScript = async (source, target) => {
-  //usage: my-script --cp new-script
   let result = exec(`type ${target}`, {
     silent: true,
   })
@@ -141,18 +167,19 @@ copyScript = async (source, target) => {
   }
 
   const newSrcFilePath = path.join(
-    simpleSrcPath,
+    SRC_PATH,
     target + ".mjs"
   )
 
   const sourceFilePath = createSourceFilePath(source)
   cp(sourceFilePath, newSrcFilePath)
-  ln("-s", newSrcFilePath, path.join(simpleBinPath, target))
+  await createBinFile(target)
+
   editor(newSrcFilePath, env.SIMPLE_PATH)
 }
 
 removeScript = async name => {
-  rm(createSymFilePath(name))
+  rm(createBinFilePath(name))
   rm(createSourceFilePath(name))
   info(`Removed script: ${name}`)
 }
@@ -169,13 +196,7 @@ Aborting...`)
   let simpleTemplatePath = path.join(
     env.SIMPLE_PATH,
     "templates",
-    (await env("TEMPLATE")) + ".mjs"
-  )
-
-  let binTemplatePath = path.join(
-    env.SIMPLE_PATH,
-    "config",
-    "template-bin"
+    (await env("SIMPLE_TEMPLATE")) + ".mjs"
   )
 
   let simpleTemplate = await readFile(
@@ -188,16 +209,10 @@ Aborting...`)
     name,
   })
 
-  let binTemplate = await readFile(binTemplatePath, "utf8")
-  binTemplate = Handlebars.compile(binTemplate)
-  binTemplate = binTemplate({ name })
-
-  let binFilePath = createSymFilePath(name)
   let simpleFilePath = createSourceFilePath(name)
 
   await writeFile(simpleFilePath, simpleTemplate)
-  await writeFile(binFilePath, binTemplate)
-  chmod(755, binFilePath)
+  await createBinFile(name)
 
   editor(simpleFilePath, env.SIMPLE_PATH)
 }
@@ -246,14 +261,14 @@ env = async (envKey, promptConfig = {}) => {
   })
 
   let regex = new RegExp("^" + envKey + "=.*$")
-  let { stdout } = grep(regex, envFile)
+  let { stdout } = grep(regex, ENV_FILE)
 
-  let envVar = envKey + "=" + input.value
+  let envKeyValue = envKey + "=" + input.value
 
   if (stdout == "\n") {
-    new ShellString("\n" + envVar).toEnd(envFile)
+    writeNewEnvKey(envKeyValue)
   } else {
-    sed("-i", regex, envVar, envFile)
+    updateEnvKey(envKey, input.value)
   }
 
   let value = untildify(input.value)

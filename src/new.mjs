@@ -5,7 +5,7 @@
  * new my-first-script
  */
 
-let tutorial = (await env["TEMPLATE"]) == "tutorial"
+let tutorial = (await env["SIMPLE_TEMPLATE"]) == "tutorial"
 
 let name
 if (tutorial) {

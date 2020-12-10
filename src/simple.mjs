@@ -1,5 +1,5 @@
 /**
- * Description: The js interface
+ * Description: The simple interface
  */
 
 const action = arg[0]
@@ -36,6 +36,14 @@ const edit = async (file, prompted) => {
 }
 
 const rm = async file => {
+  console.log(file, env.SIMPLE_MAIN)
+  if (file == env.SIMPLE_MAIN) {
+    echo(
+      `Sorry, you can't rm the MAIN script, but you can rename it:`
+    )
+    await mv(file)
+    return
+  }
   const confirm = await prompt({
     type: "confirm",
     name: "value",
@@ -62,7 +70,9 @@ const cp = async file => {
     name: "name",
     message: "Name the new duplicated script:",
   })
-  nextTime("simple cp " + file + " " + newFile.name)
+  nextTime(
+    `${env.SIMPLE_MAIN} cp ` + file + " " + newFile.name
+  )
 
   copyScript(file, newFile.name)
 }
@@ -76,7 +86,9 @@ const mv = async file => {
     name: "name",
     message: "Rename script to:",
   })
-  nextTime("simple mv " + file + " " + newFile.name)
+  nextTime(
+    `${env.SIMPLE_MAIN} mv ` + file + " " + newFile.name
+  )
 
   renameScript(file, newFile.name)
 }
@@ -197,7 +209,11 @@ const npmCommand = command => async () => {
     }
 
     nextTime(
-      "simple " + shortcut[command] + " " + npmPackage.name
+      env.SIMPLE_MAIN +
+        " " +
+        shortcut[command] +
+        " " +
+        npmPackage.name
     )
   }
 }
@@ -236,7 +252,7 @@ const actionMap = {
         file => file.name
       )
       echo(scripts)
-      if (!action) nextTime(`simple ls`)
+      if (!action) nextTime(`${env.SIMPLE_MAIN} ls`)
     },
   },
   ["cp"]: {
@@ -263,7 +279,7 @@ const actionMap = {
     message: "Modify .env",
     action: () => {
       editor(path.join(env.SIMPLE_PATH, ".env"))
-      if (!action) nextTime(`simple env`)
+      if (!action) nextTime(`${env.SIMPLE_MAIN} env`)
     },
   },
   ["issue"]: {
@@ -292,7 +308,7 @@ if (action == "help" || !action) {
     name: "arg",
     loop: false,
     message:
-      (await env("TEMPLATE")) == "tutorial"
+      (await env("SIMPLE_TEMPLATE")) == "tutorial"
         ? "Start by creating a new script:"
         : "What do you want to do?",
     choices: [
