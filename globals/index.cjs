@@ -75,18 +75,7 @@ const createSourceFilePath = name =>
   path.join(jsSrcPath, name + ".mjs")
 
 editor = async (file, dir, line = 0) => {
-  if (!which(await env("JS_EDITOR"))) {
-    console.log(
-      chalk.red(
-        `Couldn't find the editor: ${await env(
-          "JS_EDITOR"
-        )}`
-      )
-    )
-    return
-  }
-
-  if ((await env("JS_EDITOR")) == "code") {
+  if (env.JS_EDITOR == "code") {
     let codeArgs = ["--goto", `${file}:${line}`]
     if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
     let child = spawn("code", codeArgs, {
@@ -97,7 +86,10 @@ editor = async (file, dir, line = 0) => {
       // console.log("code launched: ", file)
     })
   } else {
-    let child = spawn(env.JS_EDITOR, [file], {
+    let editorArgs = [file]
+    if (env.JS_EDITOR.includes("vi"))
+      editorArgs.push(">/dev/tty")
+    let child = spawn(env.JS_EDITOR, editorArgs, {
       stdio: "inherit",
     })
 
@@ -105,8 +97,6 @@ editor = async (file, dir, line = 0) => {
       // console.log(env.JS_EDITOR, " opened: ", file)
     })
   }
-
-  exec(env.JS_EDITOR + " " + file)
 }
 
 applescript = script =>
@@ -238,37 +228,33 @@ assignPropsTo(args, arg)
 
 const untildify = require("untildify")
 
-env = async first => {
-  let name
-  let input
-
-  if (typeof first == "string") {
-    name = first
-    if (env[name]) return untildify(env[name])
-    input = await prompt({
-      name: "value",
-      message: `Set ${name} env to:`,
-    })
-  } else if (typeof first == "object") {
-    let promptConfig = first
-    input = await prompt(promptConfig)
-  } else {
-    echo(`env needs to be a string or a prompt config`)
-    exit()
+env = async (envKey, promptConfig = {}) => {
+  if (env[envKey]) return untildify(env[envKey])
+  let promptConfigDefaults = {
+    name: "value",
+    message: `Set ${envKey} env to:`,
   }
-  let regex = new RegExp("^" + name + "=.*$")
+
+  let input = await prompt({
+    ...promptConfigDefaults,
+    ...promptConfig,
+    type: promptConfig.choices ? "list" : "input",
+  })
+
+  let regex = new RegExp("^" + envKey + "=.*$")
   let { stdout } = grep(regex, envFile)
 
-  let envVar = name + "=" + input.value
+  let envVar = envKey + "=" + input.value
 
   if (stdout == "\n") {
-    config.silent = true
     new ShellString("\n" + envVar).toEnd(envFile)
   } else {
     sed("-i", regex, envVar, envFile)
   }
 
-  return untildify(input.value)
+  let value = untildify(input.value)
+  env[envKey] = value
+  return value
 }
 
 assignPropsTo(process.env, env)
