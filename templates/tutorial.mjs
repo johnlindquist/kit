@@ -13,7 +13,7 @@ console.log(`{{USER}} made a {{name}} script!`)
  * Note: We use "lazy args". You will be prompted if you don't provide an arg.
  */
 
-// let user = await arg(0, "Type a username:")
+// let user = await arg("Type a github username:")
 // console.log(user)
 
 /**
@@ -29,7 +29,7 @@ console.log(`{{USER}} made a {{name}} script!`)
  * Finally, let's write the data to a file
  * 1. Uncomment the following lines
  * 2. Run `{{name}} {{USER}}` again
- * Note: We also support "lazy env"!
+ * Note: We also support "lazy env"
  * You will be prompted to set a "CONTENT_PATH" environment variable if one is not already set in .env
  */
 

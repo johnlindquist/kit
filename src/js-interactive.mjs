@@ -197,7 +197,7 @@ const spawnScript = command => async () => {
 const actionMap = {
   ["new"]: {
     message: "Create a new script",
-    action: createFile(),
+    action: run("new"),
   },
   ["run"]: {
     message: "Run a script",
@@ -269,7 +269,10 @@ if (action == "help" || !action) {
     type: "search-list",
     name: "arg",
     loop: false,
-    message: "What do you want to do?",
+    message:
+      (await env("TEMPLATE")) == "tutorial"
+        ? "Start by creating a new script:"
+        : "What do you want to do?",
     choices: [
       ...Object.entries(actionMap).map(([key, value]) => ({
         name: emph(key) + ": " + value.message,

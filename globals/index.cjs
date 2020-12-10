@@ -198,7 +198,7 @@ Aborting...`)
 
 nextTime = command => {
   console.log(
-    chalk.yellow.italic(`Next time try:`),
+    chalk.yellow.italic(`Next time, try typing:`),
     chalk.green.bold(command)
   )
 }
@@ -224,13 +224,15 @@ arg = async (
 }
 assignPropsTo(args, arg)
 
+const untildify = require("untildify")
+
 env = async first => {
   let name
   let input
 
   if (typeof first == "string") {
     name = first
-    if (env[name]) return env[name]
+    if (env[name]) return untildify(env[name])
     input = await prompt({
       name: "value",
       message: `Set ${name} env to:`,
@@ -254,7 +256,7 @@ env = async first => {
     sed("-i", regex, envVar, envFile)
   }
 
-  return input.value
+  return untildify(input.value)
 }
 
 assignPropsTo(process.env, env)
