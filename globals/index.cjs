@@ -204,35 +204,21 @@ nextTime = command => {
 }
 
 let argIndex = 0
-arg = async (first, second) => {
-  let aKey
-  let promptConfig
-  if (typeof first == "number") {
-    aKey = argIndex++
-  }
-  if (typeof first == "string") {
-    aKey = first
-  }
-  if (typeof second == "undefined") {
-    promptConfig = { name: "name", message: first }
-  }
-
-  if (typeof second == "string") {
-    promptConfig = { name: "name", message: second }
-  }
-  if (typeof second == "object") {
-    promptConfig = { name: aKey, ...second }
+arg = async (
+  message,
+  promptConfig = {},
+  key = argIndex++
+) => {
+  let type = promptConfig.choices ? "search-list" : "input"
+  promptConfig = {
+    message,
+    type,
+    name: "name",
+    ...promptConfig,
   }
 
-  if (
-    typeof first == "object" ||
-    typeof first == "undefined"
-  ) {
-    aKey = argIndex++
-    promptConfig = { name: "name", ...first }
-  }
   return (
-    args[aKey] ||
+    arg[key] ||
     (await prompt(promptConfig))[promptConfig["name"]]
   )
 }

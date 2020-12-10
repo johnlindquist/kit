@@ -5,5 +5,23 @@
  * Usage:
  * new my-first-script
  */
-let name = await arg()
+
+let name
+
+if ((await env["TEMPLATE"]) == "tutorial") {
+  name = await arg("Enter a name for your script:", {
+    type: "suggest",
+    name: "name",
+    suggestions: [
+      "hello-world",
+      "my-first-script",
+      "party-time",
+      "demo-time",
+      "woo-hoo",
+    ],
+  })
+} else {
+  name = await arg()
+}
+
 createScript(name)

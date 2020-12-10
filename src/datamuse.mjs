@@ -16,12 +16,10 @@ let typeMap = {
   suggest: "suggest",
 }
 
-let word = await arg(0, "Type a word:")
-let typeArg = await arg(
-  1,
-  "What would you like to find?",
-  Object.keys(typeMap)
-)
+let word = await arg("Type a word:")
+let typeArg = await arg("What would you like to find?", {
+  choices: Object.keys(typeMap),
+})
 
 let type = typeMap[typeArg]
 word = word.replace(/ /g, "+")
@@ -33,7 +31,7 @@ if (typeArg == "suggest")
 let response = await get(url)
 
 if (!arg.alfred) {
-  console.log(response.data.map(result => result.word))
+  echo(response.data.map(result => result.word))
 }
 
 if (arg.alfred) {
