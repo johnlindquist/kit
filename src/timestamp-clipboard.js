@@ -11,17 +11,30 @@ Your pasted contents are here:
 ${paste()}
 `.trim()
 
+let directory = await arg(
+  "Where do you want to save the file?",
+  {
+    type: "dir",
+  }
+)
+
 let confirm = await prompt({
   name: "value",
   type: "confirm",
-  message: `This script creates a file named "${fileName}"
-  with your clipboard contents in your current directory.
+  message: `Hitting enter will create a file named "${chalk.yellow(
+    fileName
+  )}"
+  containing your clipboard contents in "${chalk.yellow(
+    directory
+  )}".
+
   Continue?`,
 })
 
-console.log(confirm)
-
+let filePath = path.join(directory, fileName)
 if (confirm.value) {
-  await writeFile(fileName, template)
-  editor(fileName)
+  await writeFile(filePath, template)
+  launchEditor(filePath)
+} else {
+  echo("Ok, cancelled.")
 }

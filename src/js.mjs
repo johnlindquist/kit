@@ -32,7 +32,7 @@ const selectedEditor = await env("SIMPLE_EDITOR", {
 const edit = async (file, prompted) => {
   const fileName = file + ".js"
   if (prompted) nextTime("edit " + file)
-  editor(path.join(env.SIMPLE_PATH, "src", fileName))
+  launchEditor(path.join(env.SIMPLE_PATH, "src", fileName))
 }
 
 const rm = async file => {
@@ -278,7 +278,7 @@ const actionMap = {
   ["env"]: {
     message: "Modify .env",
     action: () => {
-      editor(path.join(env.SIMPLE_PATH, ".env"))
+      launchEditor(path.join(env.SIMPLE_PATH, ".env"))
       if (!action) nextTime(`${env.SIMPLE_MAIN} env`)
     },
   },

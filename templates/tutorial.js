@@ -35,28 +35,30 @@ console.log(`{{USER}} made a {{name}} script!`)
 
 // let template = `${response.data.name} just wrote a script that:
 // 1. Takes an argument
-// 2. Queries the Github API
+// 2. Fetches data from the Github API
 // 3. Writes the data to a template
-// 4. Writes the template to a file defined in an Environment Variable
-// 5. Automatically launched the file in your editor
+// 4. Writes the template to a path you defined in an Environment Variable
+// 5. Automatically launched the file in ${env.SIMPLE_EDITOR}
 //
-// ${response.data.name} is awesome!!!`
+// ${response.data.name} is an awesome scripter!!!
 //
-// let contentPath = await env("CONTENT_PATH")
+// Congratulations! You're ready to explore the wonderful world of JavaScript Scripts. 🥳
+// Type "simple" in your terminal to play around with more options.
+// Use "new" to create new scripts from anywhere.
+// Review the included examples by typing "edit" 👀
+//`
+//
+// let contentPath = await env("CONTENT_PATH", { type: "dir" })
 // let filePath = path.join(contentPath, user + ".txt")
 // await writeFile(filePath, template)
-// editor(filePath)
+// launchEditor(filePath)
+// console.log(`Opening ${filePath} with ${env.SIMPLE_EDITOR}`)
 
 /**
- * Congratulations! You're ready to explore the wonderful world of JavaScript Scripts. 🥳
- * Type "simple" in your terminal to play around with more options.
- * Use "new" to create new scripts from anywhere.
- * Review the included examples by typing "edit" 👀
- */
-
-/**
- * This file was created with the "tutorial" template. Switch to the "default" template without comments by running
- * "simple env" adjusting the following line in your .env:
+ * NOTE: This {{name}}.js file was created with the "tutorial" template.
+ * Switch to the "default" template with these steps:
+ * 1. Run "simple env"
+ * 2. Adjust this line in your .env:
  * SIMPLE_TEMPLATE=default
  *
  * Happy Scripting! 🤓 - John Lindquist @johnlindquist

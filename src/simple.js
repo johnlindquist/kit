@@ -31,30 +31,37 @@ const selectedEditor = await env("SIMPLE_EDITOR", {
 const edit = async (file, prompted) => {
   const fileName = file + ".js"
   if (prompted) nextTime("edit " + file)
-  editor(path.join(env.SIMPLE_PATH, "src", fileName))
+  launchEditor(path.join(env.SIMPLE_PATH, "src", fileName))
 }
 
-const rm = async file => {
-  if (file == env.SIMPLE_MAIN) {
-    echo(
-      `Sorry, you can't rm the MAIN script, but you can rename it:`
-    )
-    await mv(file)
-    return
-  }
-  const confirm = await prompt({
-    type: "confirm",
-    name: "value",
-    message:
-      `Are you sure you want to delete: ` +
-      emph(file) +
-      "?",
-  })
+const rm = async filePattern => {
+  let files = ls(env.SIMPLE_BIN_PATH)
+    .toString()
+    .split(",")
+    .filter(name => name.match(filePattern))
 
-  if (confirm.value) {
-    removeScript(file)
-  } else {
-    echo(`Skipping ` + file)
+  for await (let file of files) {
+    if (file == env.SIMPLE_MAIN) {
+      echo(
+        `Sorry, you can't rm the MAIN script, but you can rename it:`
+      )
+      await mv(file)
+      return
+    }
+    const confirm = await prompt({
+      type: "confirm",
+      name: "value",
+      message:
+        `Are you sure you want to delete: ` +
+        emph(file) +
+        "?",
+    })
+
+    if (confirm.value) {
+      removeScript(file)
+    } else {
+      echo(`Skipping ` + file)
+    }
   }
 }
 
@@ -93,7 +100,16 @@ const mv = async file => {
 
 const run = file => async selectedFile => {
   const f = file || selectedFile
-  import("./" + f + ".js")
+  if (f == "new" && env.SIMPLE_TEMPLATE == "tutorial") {
+    spawn("tutorial", [], { stdio: "inherit" })
+  } else {
+    if (env.SIMPLE_TEMPLATE == "default") {
+      echo(
+        `Note: simple displays the text following the "Description" comment when listing scripts`
+      )
+    }
+    spawn(f, [], { stdio: "inherit" })
+  }
   nextTime(f)
 }
 
@@ -250,10 +266,14 @@ const actionMap = {
   ["ls"]: {
     message: "List all scripts",
     action: async () => {
-      let scripts = (await getScripts()).map(
-        file => file.name
-      )
-      echo(scripts)
+      let pattern = new RegExp(sourceArg || "")
+
+      ls(env.SIMPLE_BIN_PATH)
+        .toString()
+        .split(",")
+        .filter(name => name.match(pattern))
+        .forEach(name => echo(name))
+
       if (!action) nextTime(`${env.SIMPLE_MAIN} ls`)
     },
   },
@@ -280,7 +300,7 @@ const actionMap = {
   ["env"]: {
     message: "Modify .env",
     action: () => {
-      editor(path.join(env.SIMPLE_PATH, ".env"))
+      launchEditor(path.join(env.SIMPLE_PATH, ".env"))
       if (!action) nextTime(`${env.SIMPLE_MAIN} env`)
     },
   },
@@ -327,6 +347,8 @@ if (action) {
   if (actionMap[action]) {
     triggerAction(action)
   } else {
-    warn(action + " is not a valid argument")
+    console.log(
+      chalk.red(action + " is not a valid argument")
+    )
   }
 }
