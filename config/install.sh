@@ -45,7 +45,7 @@ complete "Installed simple npm packages"
 
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
 source $SIMPLE_PATH/.simplerc
-PATH=$PATH:$SIMPLE_PATH/bin
+export PATH=$PATH:$SIMPLE_PATH/bin
 
 complete "Created .env and re-sourced .zshrc"
 
