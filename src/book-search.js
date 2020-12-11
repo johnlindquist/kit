@@ -15,3 +15,11 @@ let titles = response.data.docs.map(doc => doc.title)
 titles = _.uniq(titles)
 
 console.log(titles)
+
+if (arg[1]) {
+  echo(
+    `FYI: Please use "quotes" like "${arg[0]} ${arg[1]}" when passing strings.
+     I noticed 2 separate args, but I only search for the 1st. 
+    `
+  )
+}

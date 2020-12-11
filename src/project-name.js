@@ -9,7 +9,9 @@ import generate from "project-name-generator"
 const name = generate({ word: 2, alliterative: true })
   .dashed
 
-console.log(name)
-
+echo(
+  `Note #1: "${name}" has been copied to the clipboard. Paste anywhere to see it.`
+)
 copy(name)
+echo(`Note #2: "${name}" was posted as a notifiction.`)
 notify(name, "copied to clipboard")

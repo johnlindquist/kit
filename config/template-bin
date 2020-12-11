@@ -5,5 +5,5 @@ DOTENV_CONFIG_PATH=$SIMPLE_PATH/.env \
 $SIMPLE_NODE \
 --require dotenv-with-expand/config \
 --require "$SIMPLE_PATH/globals/index.cjs" \
-$SIMPLE_PATH/src/{{name}}.mjs \
+$SIMPLE_PATH/src/{{name}}.js \
 "$@"

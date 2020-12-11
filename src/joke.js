@@ -10,3 +10,13 @@ let response = await get(`https://icanhazdadjoke.com/`, {
 })
 
 console.log(response.data)
+
+let confirm = await prompt({
+  name: "value",
+  type: "confirm",
+  message: `Shall I also speak the joke?`,
+})
+
+if (confirm.value) {
+  say(response.data)
+}

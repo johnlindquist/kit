@@ -30,7 +30,7 @@ const selectedEditor = await env("SIMPLE_EDITOR", {
 })
 
 const edit = async (file, prompted) => {
-  const fileName = file + ".mjs"
+  const fileName = file + ".js"
   if (prompted) nextTime("edit " + file)
   editor(path.join(env.SIMPLE_PATH, "src", fileName))
 }
@@ -95,7 +95,7 @@ const mv = async file => {
 
 const run = file => async selectedFile => {
   const f = file || selectedFile
-  import("./" + f + ".mjs")
+  import("./" + f + ".js")
   nextTime(f)
 }
 
@@ -111,7 +111,7 @@ const selectFile = action => async name => {
     let word = "Description: "
     let { stdout } = grep(
       word,
-      path.join(env.SIMPLE_PATH, "src", name + ".mjs")
+      path.join(env.SIMPLE_PATH, "src", name + ".js")
     )
 
     let description = stdout
@@ -148,7 +148,7 @@ const checkboxFile = action => async name => {
     let word = "Description: "
     let { stdout } = grep(
       word,
-      path.join(env.SIMPLE_PATH, "src", name + ".mjs")
+      path.join(env.SIMPLE_PATH, "src", name + ".js")
     )
 
     let description = stdout

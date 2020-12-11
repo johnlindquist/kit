@@ -1,5 +1,5 @@
 //cjs is required to load/assign the content of this script synchronously
-//we may be able to convert this to .mjs if an "--import" flag is added
+//we may be able to convert this to .js if an "--import" flag is added
 //https://github.com/nodejs/node/issues/35103
 
 function assignPropsTo(source, target) {
@@ -77,7 +77,7 @@ warn = message => {
 const createBinFilePath = name => path.join(BIN_PATH, name)
 
 const createSourceFilePath = name =>
-  path.join(SRC_PATH, name + ".mjs")
+  path.join(SRC_PATH, name + ".js")
 
 editor = async (file, dir, line = 0) => {
   if (env.SIMPLE_EDITOR == "code") {
@@ -166,10 +166,7 @@ copyScript = async (source, target) => {
     exit()
   }
 
-  const newSrcFilePath = path.join(
-    SRC_PATH,
-    target + ".mjs"
-  )
+  const newSrcFilePath = path.join(SRC_PATH, target + ".js")
 
   const sourceFilePath = createSourceFilePath(source)
   cp(sourceFilePath, newSrcFilePath)
@@ -196,7 +193,7 @@ Aborting...`)
   let simpleTemplatePath = path.join(
     env.SIMPLE_PATH,
     "templates",
-    (await env("SIMPLE_TEMPLATE")) + ".mjs"
+    (await env("SIMPLE_TEMPLATE")) + ".js"
   )
 
   let simpleTemplate = await readFile(
