@@ -41,7 +41,7 @@ const rm = async filePattern => {
     .filter(name => name.match(filePattern))
 
   for await (let file of files) {
-    if (file == env.SIMPLE_MAIN) {
+    if (file == env.SIMPLE_NAME) {
       echo(
         `Sorry, you can't rm the MAIN script, but you can rename it:`
       )
@@ -76,7 +76,7 @@ const cp = async file => {
     message: "Name the new duplicated script:",
   })
   nextTime(
-    `${env.SIMPLE_MAIN} cp ` + file + " " + newFile.name
+    `${env.SIMPLE_NAME} cp ` + file + " " + newFile.name
   )
 
   copyScript(file, newFile.name)
@@ -92,7 +92,7 @@ const mv = async file => {
     message: "Rename script to:",
   })
   nextTime(
-    `${env.SIMPLE_MAIN} mv ` + file + " " + newFile.name
+    `${env.SIMPLE_NAME} mv ` + file + " " + newFile.name
   )
 
   renameScript(file, newFile.name)
@@ -227,7 +227,7 @@ const npmCommand = command => async () => {
     }
 
     nextTime(
-      env.SIMPLE_MAIN +
+      env.SIMPLE_NAME +
         " " +
         shortcut[command] +
         " " +
@@ -274,7 +274,7 @@ const actionMap = {
         .filter(name => name.match(pattern))
         .forEach(name => echo(name))
 
-      if (!action) nextTime(`${env.SIMPLE_MAIN} ls`)
+      if (!action) nextTime(`${env.SIMPLE_NAME} ls`)
     },
   },
   ["cp"]: {
@@ -301,7 +301,7 @@ const actionMap = {
     message: "Modify .env",
     action: () => {
       launchEditor(path.join(env.SIMPLE_PATH, ".env"))
-      if (!action) nextTime(`${env.SIMPLE_MAIN} env`)
+      if (!action) nextTime(`${env.SIMPLE_NAME} env`)
     },
   },
   ["issue"]: {
