@@ -5,41 +5,9 @@
  * new my-first-script
  */
 
-let tutorial = (await env["SIMPLE_TEMPLATE"]) == "tutorial"
-
-let name
-if (tutorial) {
-  name = await arg(
-    "Welcome! Enter a name for your first script:",
-    {
-      type: "suggest",
-      name: "name",
-      suggestions: [
-        "hello-world",
-        "my-first-script",
-        "party-time",
-        "demo-time",
-        "woo-hoo",
-      ],
-    }
-  )
-} else {
-  name = await arg("Enter a name for your script:")
-}
-
-if (tutorial) {
-  echo(
-    chalk.yellow.italic(`You can run your new script (`) +
-      chalk.green.bold(name) +
-      chalk.yellow.italic(`) from anywhere!`),
-    "🤯"
-  )
-
-  echo(
-    chalk.white(
-      "Play with the script. Make any changes you want. Then type: "
-    ) + chalk.green.bold(name)
-  )
-}
+let { name, tutorial } = await import("./tutorial/check.js")
+name ??= await arg("Enter a name for your script:")
+if (tutorial)
+  await import("./tutorial/text.js?name=" + name)
 
 await createScript(name)
