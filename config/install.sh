@@ -46,7 +46,7 @@ complete "Installed simple npm packages"
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
 complete "Created .env file"
 
-source ~/.zshrc
+source $HOME/.zshrc
 complete "Sourced .zshrc"
 
 complete "Welcome to Simple Scripts!"
