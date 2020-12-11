@@ -44,10 +44,9 @@ $SIMPLE_NPM install
 complete "Installed simple npm packages"
 
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
-complete "Created .env file"
+source "$HOME/.zshrc"
 
-source $HOME/.zshrc
-complete "Sourced .zshrc"
+complete "Created .env and re-sourced .zshrc"
 
 complete "Welcome to Simple Scripts!"
 echo "type ${BOLD}${GREEN}'simple' ${NO_COLOR}and hit enter to get started:"
