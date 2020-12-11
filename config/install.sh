@@ -34,7 +34,7 @@ complete "Created script wrappers in bin dir"
 if grep -q $SIMPLE_PATH'/.simplerc' ~/.zshrc; then
   echo "Source already added to .zshrc"
   else
-  echo -n '\nexport PATH=\$PATH:$SIMPLE_PATH' >> ~/.zshrc
+  echo -n '\nexport PATH=\$PATH:'$SIMPLE_PATH >> ~/.zshrc
   echo -n '\nsource '$SIMPLE_PATH'/.simplerc' >> ~/.zshrc
 fi
 complete "Added simple to .zshrc"
@@ -45,9 +45,10 @@ $SIMPLE_NPM install
 complete "Installed simple npm packages"
 
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
-source "$HOME/.zshrc"
+source $HOME/.zshrc
+source $SIMPLE_PATH/.simplerc
 
 complete "Created .env and re-sourced .zshrc"
 
 complete "Welcome to Simple Scripts!"
-echo "type ${BOLD}${GREEN}'simple' ${NO_COLOR}and hit enter to get started:"
+echo "type ${BOLD}${GREEN}simple ${NO_COLOR}and hit enter to get started:"
