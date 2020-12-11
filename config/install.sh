@@ -13,37 +13,41 @@ complete() {
   printf "${GREEN}✓${NO_COLOR} $@\n"
 }
 
-info "Cloning the repo to $SIMPLE_PATH"
+info "Cloning the repo to $SIMPLE_PATH..."
 git clone https://github.com/johnlindquist/simplescripts.git $SIMPLE_PATH
+complete "Repo cloned to $SIMPLE_PATH"
 
-info "Downloading node.js to your .simple directory"
+info "Downloading node.js to your $SIMPLE_PATH..."
 $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
+complete "node.js downloaded to the $SIMPLE_PATH"
 
 export SIMPLE_NODE=$SIMPLE_PATH/bin/.node/bin/node
 export SIMPLE_NPM=$SIMPLE_PATH/bin/.node/bin/npm
 
-info "Attaching simple to the the downloaded node and npm"
+info "Configuring simple in $SIMPLE_PATH..."
 $SIMPLE_PATH/config/create-simplerc.sh
+complete "Connected simple to simple's local node install"
 
-info "Linking included scripts"
 $SIMPLE_PATH/config/create-bins.sh
+complete "Created script wrappers in bin dir"
 
-info "Adding simple to .zshrc"
 if grep -q $SIMPLE_PATH'/.simplerc' ~/.zshrc; then
   echo "Source already added to .zshrc"
   else
   echo -n '\nsource '$SIMPLE_PATH'/.simplerc' >> ~/.zshrc
 fi
+complete "Added simple to .zshrc"
 
-info "Installing npm packages"
+
 cd $SIMPLE_PATH
 $SIMPLE_NPM install
+complete "Installed simple npm packages"
 
-info "Creating .env file"
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
+complete "Created .env file"
 
-info "Sourcing .simplerc for first run"
-source $SIMPLE_PATH/.simplerc
+source ~/.zshrc
+complete "Sourced .zshrc"
 
 complete "Welcome to Simple Scripts!"
 echo "type ${BOLD}${GREEN}'simple' ${NO_COLOR}and hit enter to get started:"

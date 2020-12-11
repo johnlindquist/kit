@@ -1,7 +1,0 @@
-
-export SIMPLE_PATH=/Users/johnlindquist/.simple
-export SIMPLE_NODE=/Users/johnlindquist/.simple/bin/.node/bin/node
-export SIMPLE_NPM=/Users/johnlindquist/.simple/bin/.node/bin/npm
-
-path+=/Users/johnlindquist/.simple/bin
-export PATH

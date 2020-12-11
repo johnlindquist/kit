@@ -4,6 +4,6 @@ NODE_PATH=$SIMPLE_PATH/node_modules \
 DOTENV_CONFIG_PATH=$SIMPLE_PATH/.env \
 $SIMPLE_NODE \
 --require dotenv-with-expand/config \
---require "$SIMPLE_PATH/globals/index.cjs" \
+--require "$SIMPLE_PATH/lib/index.cjs" \
 $SIMPLE_PATH/src/{{name}}.js \
 "$@"

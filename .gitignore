@@ -116,3 +116,4 @@ dist
 .pnp.*
 .history
 .jsrc
+.simplerc
