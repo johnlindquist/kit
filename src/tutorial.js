@@ -20,7 +20,7 @@ export let name = await arg(
   }
 )
 
-await createScript(name, env.SIMPLE_TEMPLATE)
+await createScript(name)
 
 echo(
   chalk.yellow.italic(`You can run your new script (`) +

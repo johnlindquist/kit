@@ -6,5 +6,4 @@
  */
 
 let name = await arg("Enter a name for your script:")
-let template = await env("SIMPLE_TEMPLATE")
-await createScript(name, template)
+await createScript(name)
