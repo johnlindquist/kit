@@ -24,7 +24,6 @@ const selectedEditor = await env("SIMPLE_EDITOR", {
     "Which code editor do you use? (You can always change this later in .env)",
   choices: () =>
     possibleEditors.filter(editor => {
-      console.log(editor)
       return which(editor)
     }),
 })
