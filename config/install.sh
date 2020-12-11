@@ -34,7 +34,7 @@ complete "Created script wrappers in bin dir"
 if grep -q $SIMPLE_PATH'/.simplerc' ~/.zshrc; then
   echo "Source already added to .zshrc"
   else
-  echo -n '\nexport PATH=\$PATH:'$SIMPLE_PATH >> ~/.zshrc
+  echo -n '\nexport PATH="$PATH:'$SIMPLE_PATH'/bin" >> ~/.zshrc
   echo -n '\nsource '$SIMPLE_PATH'/.simplerc' >> ~/.zshrc
 fi
 complete "Added simple to .zshrc"
