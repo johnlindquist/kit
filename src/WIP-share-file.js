@@ -19,7 +19,7 @@ try {
     }
   )
   await new Promise(res => child.on("exit", res))
-  child = spawn(`share-file`, [], { stdio: "inherit" })
+  child = spawn(`WIP-share-file`, [], { stdio: "inherit" })
   await new Promise(res => child.on("exit", res))
   exit()
 }

@@ -14,7 +14,7 @@ try {
     stdio: "inherit",
   })
   await new Promise(res => child.on("exit", res))
-  child = spawn(`read-news`, [], { stdio: "inherit" })
+  child = spawn(`WIP-read-news`, [], { stdio: "inherit" })
   await new Promise(res => child.on("exit", res))
   exit()
 }
