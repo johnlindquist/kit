@@ -1,29 +1,9 @@
-//Description: Selects a file to share uses localtunnel to share
-let localtunnel
-let handler
-try {
-  ;({ default: localtunnel } = await import("localtunnel"))
-  ;({ default: handler } = await import("serve-handler"))
-} catch {
-  //experimenting with "autoinstall" and "re-run if missing"
-  echo(
-    `Automatically installing missing packages ${chalk.yellow(
-      "localtunnel, serve-handler"
-    )} and re-running.`
-  )
-  let child = spawn(
-    `simple`,
-    ["i", "localtunnel", "serve-handler"],
-    {
-      stdio: "inherit",
-    }
-  )
-  await new Promise(res => child.on("exit", res))
-  child = spawn(`share-file`, [], { stdio: "inherit" })
-  await new Promise(res => child.on("exit", res))
-  exit()
-}
+//Description: Select a file. Copies a link to your clipboard where others can download the file from your machine.
 
+let { default: ngrok } = await autoInstall("ngrok")
+let { default: handler } = await autoInstall(
+  "serve-handler"
+)
 import http from "http"
 
 let tmpDir = path.join(
@@ -63,14 +43,10 @@ const server = http.createServer((request, response) => {
 })
 
 server.listen(port, async () => {
-  let tunnel = await localtunnel({ port })
-
-  echo(tunnel.url + "/" + symLink)
-
-  tunnel.on("close", () => {
-    // tunnels are closed
-  })
-  console.log("Running at http://localhost:" + port)
+  let tunnel = await ngrok.connect(port)
+  let shareLink = tunnel + "/" + symLink
+  echo(chalk.yellow(shareLink) + " copied to clipboard")
+  copy(shareLink)
 })
 
 process.stdin.resume() //so the program will not close instantly
