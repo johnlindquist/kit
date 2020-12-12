@@ -62,8 +62,9 @@ const server = http.createServer((request, response) => {
 
 server.listen(port, async () => {
   let tunnel = await localtunnel({ port })
-
-  echo(tunnel.url + "/" + symLink)
+  let shareLink = tunnel.url + "/" + symLink
+  echo(chalk.yellow(shareLink) + " copied to clipboard")
+  copy(shareLink)
 
   tunnel.on("close", () => {
     // tunnels are closed
