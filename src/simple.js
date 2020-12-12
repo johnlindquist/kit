@@ -205,7 +205,6 @@ const createFile = () => async () => {
 }
 
 const npmCommand = command => async () => {
-  console.log(command)
   if (sourceArg) {
     spawn(env.SIMPLE_NPM, [command, sourceArg], {
       stdio: "inherit",
