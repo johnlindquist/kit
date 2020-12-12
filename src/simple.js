@@ -108,7 +108,7 @@ const run = file => async selectedFile => {
         `Note: simple displays the text following the "Description" comment when listing scripts`
       )
     }
-    spawn(f, [], { stdio: "inherit" })
+    spawn(f, [...args], { stdio: "inherit" })
   }
   nextTime(f)
 }
@@ -119,32 +119,12 @@ const selectFile = action => async name => {
     return
   }
 
-  let scripts = (await getScripts()).map(file => file.name)
-
-  let choices = scripts.map(name => {
-    let word = "Description: "
-    let { stdout } = grep(
-      word,
-      path.join(env.SIMPLE_PATH, "src", name + ".js")
-    )
-
-    let description = stdout
-      .substring(0, stdout.indexOf("\n"))
-      .substring(stdout.indexOf(word) + word.length)
-      .trim()
-
-    return {
-      name: description ? name + ": " + description : name,
-      value: name,
-    }
-  })
-
   const fileSelect = await prompt({
     type: "search-list",
     name: "file",
     loop: false,
     message: `Which script do you want to ${name}`,
-    choices,
+    choices: await getScriptsInfo(),
   })
 
   await action(fileSelect.file, "prompted")
@@ -156,32 +136,12 @@ const checkboxFile = action => async name => {
     return
   }
 
-  let scripts = (await getScripts()).map(file => file.name)
-
-  let choices = scripts.map(name => {
-    let word = "Description: "
-    let { stdout } = grep(
-      word,
-      path.join(env.SIMPLE_PATH, "src", name + ".js")
-    )
-
-    let description = stdout
-      .substring(0, stdout.indexOf("\n"))
-      .substring(stdout.indexOf(word) + word.length)
-      .trim()
-
-    return {
-      name: description ? name + ": " + description : name,
-      value: name,
-    }
-  })
-
   const fileSelect = await prompt({
     type: "checkbox",
     name: "scripts",
     loop: false,
     message: `Which scripts do you want to ${name}`,
-    choices,
+    choices: await getScriptsInfo(),
   })
 
   for await (let script of fileSelect.scripts) {
@@ -264,7 +224,9 @@ const actionMap = {
   },
   ["edit"]: {
     message: "Edit a script",
-    action: selectFile(edit),
+    action: () => {
+      spawn(`edit`, [...args], { stdio: "inherit" })
+    },
   },
   ["ls"]: {
     message: "List all scripts",
