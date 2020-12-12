@@ -48,9 +48,10 @@ let symLink = _.last(filePath.split(path.sep)).replaceAll(
   " ",
   "-"
 )
+let symLinkPath = path.join(tmpDir, symLink)
 
 echo(`Symlinking ${symLink} in ${tmpDir}`)
-ln(filePath, symLink)
+ln(filePath, symLinkPath)
 
 let port = 3033
 
@@ -69,7 +70,7 @@ server.listen(port, async () => {
   tunnel.on("close", () => {
     // tunnels are closed
   })
-  console.log("Running at http://localhost:" + port)
+  // console.log("Running at http://localhost:" + port)
 })
 
 process.stdin.resume() //so the program will not close instantly
