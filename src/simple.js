@@ -237,7 +237,7 @@ const npmCommand = command => async () => {
 }
 
 const spawnScript = command => async () => {
-  let child = child_process.spawn(
+  let child = spawn(
     env.SIMPLE_PATH + "/config/" + command + ".sh",
     [],
     {
