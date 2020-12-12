@@ -35,6 +35,7 @@ echo(
   `Creating a temp dir to expose through a tunnel: ${tmpDir}`
 )
 mkdir(tmpDir)
+cd(tmpDir)
 
 let fileRelativePath = await arg(
   "Select a file to share: ",
