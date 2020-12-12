@@ -206,7 +206,7 @@ const createFile = () => async () => {
 
 const npmCommand = command => async () => {
   if (sourceArg) {
-    spawn(env.SIMPLE_NPM, [command, sourceArg], {
+    spawn(env.SIMPLE_NPM, [command, ...args.slice(1)], {
       stdio: "inherit",
     })
   } else {
@@ -216,9 +216,13 @@ const npmCommand = command => async () => {
       message: `Which npm package do you want to ${command}?`,
     })
 
-    spawn(env.SIMPLE_NPM, [command, npmPackage.name], {
-      stdio: "inherit",
-    })
+    spawn(
+      env.SIMPLE_NPM,
+      [command, ...npmPackage.name.split(" ")],
+      {
+        stdio: "inherit",
+      }
+    )
 
     const shortcut = {
       install: "i",
