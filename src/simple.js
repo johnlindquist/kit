@@ -166,9 +166,13 @@ const createFile = () => async () => {
 
 const npmCommand = command => async () => {
   if (sourceArg) {
-    spawn(env.SIMPLE_NPM, [command, ...args.slice(1)], {
-      stdio: "inherit",
-    })
+    spawn(
+      process.env.SIMPLE_NPM,
+      [command, ...args.slice(1)],
+      {
+        stdio: "inherit",
+      }
+    )
   } else {
     const npmPackage = await prompt({
       type: "input",
@@ -177,7 +181,7 @@ const npmCommand = command => async () => {
     })
 
     spawn(
-      env.SIMPLE_NPM,
+      process.env.SIMPLE_NPM,
       [command, ...npmPackage.name.split(" ")],
       {
         stdio: "inherit",
