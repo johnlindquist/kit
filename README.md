@@ -3,7 +3,7 @@
 ## Install
 
 ```shell
-curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/main/config/install.sh | SIMPLE_PATH=~/.simple zsh && source ~/.simple/.simplerc
+curl -o- https://simplescripts.dev/install.sh | SIMPLE_PATH=~/.simple zsh && source ~/.simple/.simplerc
 ```
 
 ## Getting Started
