@@ -6,4 +6,9 @@
  */
 
 let name = await arg("Enter a name for your script:")
-await createScript(name)
+let contents
+if (args["url"]) {
+  contents = (await get(args["url"])).data
+}
+
+await createScript(name, contents)
