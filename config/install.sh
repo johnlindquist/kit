@@ -44,7 +44,7 @@ PATH=$SIMPLE_PATH/bin/.node/bin
 echo "----"
 echo $PATH
 echo "----"
-PATH=$SIMPLE_PATH/bin/.node/bin $SIMPLE_PATH/bin/.node/bin/npm install
+PATH="$SIMPLE_PATH/bin/.node/bin" $SIMPLE_PATH/bin/.node/bin/npm install
 complete "Installed simple npm packages"
 
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
