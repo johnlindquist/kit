@@ -1,10 +1,8 @@
 #!/usr/bin/env zsh
 cat > $SIMPLE_PATH/.simplerc <<EOF
-export TESTING_SOME_VAR="$SIMPLE_PATH"
-export TESTING_ANOTHER_VAR="$SIMPLE_NODE_PATH"
-export SIMPLE_NODE_PATH="$SIMPLE_NODE_PATH"
-export SIMPLE_NODE="$SIMPLE_NODE"
-export SIMPLE_NPM="$SIMPLE_NPM"
+export SIMPLE_NODE_PATH="$SIMPLE_PATH/bin/.node/bin"
+export SIMPLE_NODE="$SIMPLE_PATH/bin/.node/bin/node"
+export SIMPLE_NPM="$SIMPLE_PATH/bin/.node/bin/npm"
 export SIMPLE_PATH="$SIMPLE_PATH"
 export PATH="\$PATH:$SIMPLE_PATH/bin"
 EOF
