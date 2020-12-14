@@ -41,7 +41,7 @@ complete "Added simple to .zshrc"
 
 
 cd $SIMPLE_PATH
-$SIMPLE_NPM install
+PATH=$SIMPLE_NODE_PATH $SIMPLE_NPM install
 complete "Installed simple npm packages"
 
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
