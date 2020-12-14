@@ -8,7 +8,9 @@ const file = await arg(
     type: "search-list",
     name: "file",
     loop: false,
-    choices: await getScriptsInfo(),
+    choices: await (
+      await import("./simple/getScriptsInfo.js")
+    ).getScriptsInfo(),
   }
 )
 

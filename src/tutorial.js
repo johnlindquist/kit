@@ -20,6 +20,9 @@ export let name = await arg(
   }
 )
 
+let { createScript } = await import(
+  "./simple/createScript.js"
+)
 await createScript(name)
 
 echo(

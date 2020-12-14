@@ -11,4 +11,7 @@ if (args["url"]) {
   contents = (await get(args["url"])).data
 }
 
+let { createScript } = await import(
+  "./simple/createScript.js"
+)
 await createScript(name, contents)

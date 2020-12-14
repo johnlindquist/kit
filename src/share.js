@@ -2,15 +2,19 @@
 
 const name = await arg("Select a script to share:", {
   type: "search-list",
-  choices: await getScriptsInfo(),
+  choices: await (
+    await import("./simple/getScriptsInfo.js")
+  ).getScriptsInfo(),
 })
 
 const scriptName = name + ".js"
 
-const content = await readFile(
-  path.join(process.env.SIMPLE_SRC_PATH, scriptName),
-  "utf8"
+const contentPath = path.join(
+  process.env.SIMPLE_SRC_PATH,
+  scriptName
 )
+
+const content = await readFile(contentPath, "utf8")
 
 const body = {
   files: {

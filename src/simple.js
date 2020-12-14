@@ -35,6 +35,9 @@ const edit = async (file, prompted) => {
 }
 
 const rm = async filePattern => {
+  let { removeScript } = await import(
+    "./simple/removeScript.js"
+  )
   let files = ls(env.SIMPLE_BIN_PATH)
     .toString()
     .split(",")
@@ -66,6 +69,9 @@ const rm = async filePattern => {
 }
 
 const cp = async file => {
+  let { copyScript } = await import(
+    "./simple/copyScript.js"
+  )
   if (targetArg) {
     copyScript(file, targetArg)
     return
@@ -82,6 +88,9 @@ const cp = async file => {
   copyScript(file, newFile.name)
 }
 const mv = async file => {
+  let { renameScript } = await import(
+    "./simple/renameScript.js"
+  )
   if (targetArg) {
     renameScript(file, targetArg)
     return
@@ -124,7 +133,9 @@ const selectFile = action => async name => {
     name: "file",
     loop: false,
     message: `Which script do you want to ${name}`,
-    choices: await getScriptsInfo(),
+    choices: await (
+      await import("./simple/getScriptsInfo.js")
+    ).getScriptsInfo(),
   })
 
   await action(fileSelect.file, "prompted")
@@ -141,27 +152,14 @@ const checkboxFile = action => async name => {
     name: "scripts",
     loop: false,
     message: `Which scripts do you want to ${name}`,
-    choices: await getScriptsInfo(),
+    choices: await (
+      await import("./simple/getScriptsInfo.js")
+    ).getScriptsInfo(),
   })
 
   for await (let script of fileSelect.scripts) {
     await action(script)
   }
-}
-
-const createFile = () => async () => {
-  if (sourceArg) {
-    await createScript(sourceArg)
-    return
-  }
-  const newFile = await prompt({
-    type: "input",
-    name: "name",
-    message: "Name the new script:",
-  })
-  nextTime("new " + newFile.name)
-
-  createScript(newFile.name)
 }
 
 const npmCommand = command => async () => {
