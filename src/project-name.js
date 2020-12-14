@@ -16,4 +16,6 @@ copy(name)
 echo(
   `> "${chalk.yellow(name)}" was posted as a notifiction.`
 )
+
+let { notify } = await import("./system/notify.js")
 notify(name, "copied to clipboard")
