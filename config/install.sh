@@ -24,7 +24,7 @@ complete "node.js downloaded to the $SIMPLE_PATH"
 
 
 info "Configuring simple in $SIMPLE_PATH..."
-SIMPLE_NODE_PATH="$SIMPLE_PATH/bin/.node/bin" \
+SNP="$SIMPLE_PATH/bin/.node/bin" \
 SIMPLE_NODE="$SIMPLE_PATH/bin/.node/bin/node" \
 SIMPLE_NPM="$SIMPLE_PATH/bin/.node/bin/npm" \
 $SIMPLE_PATH/config/create-simplerc.sh
@@ -43,7 +43,7 @@ complete "Added simple to .zshrc"
 
 
 cd $SIMPLE_PATH
-PATH=$SIMPLE_NODE_PATH $SIMPLE_NPM install
+PATH=$SNP $SIMPLE_NPM install
 complete "Installed simple npm packages"
 
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env

@@ -176,7 +176,7 @@ const npmCommand = command => async () => {
       {
         env: {
           ...process.env,
-          PATH: process.env.SIMPLE_NODE_PATH,
+          PATH: process.env.SNP,
         },
       }
     )
@@ -196,7 +196,7 @@ const npmCommand = command => async () => {
       {
         env: {
           ...process.env,
-          PATH: process.env.SIMPLE_NODE_PATH,
+          PATH: process.env.SNP,
         },
       }
     )
