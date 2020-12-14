@@ -3,33 +3,33 @@
 let { default: ngrok } = await need("ngrok")
 let { default: handler } = await need("serve-handler")
 import http from "http"
+let tmpDir = process.env.SIMPLE_TEMP_DIR
+let basePath = process.cwd()
 
-let tmpDir = path.join(
-  process.env.SIMPLE_PATH,
-  ".share-file-tmp"
-)
-
-echo(
-  `Creating a temp dir to expose through a tunnel: ${tmpDir}`
-)
-mkdir(tmpDir)
 cd(tmpDir)
 
 let fileRelativePath = await arg(
   "Select a file to share: ",
   {
     type: "file",
-    basePath: process.env.HOME,
+    basePath,
   }
 )
-let filePath = path.join(process.env.HOME, fileRelativePath)
+
+let filePath
+if (!fileRelativePath.startsWith(path.sep)) {
+  filePath = path.join(basePath, fileRelativePath)
+} else {
+  filePath = fileRelativePath
+}
+
 let symLink = _.last(filePath.split(path.sep)).replaceAll(
   " ",
   "-"
 )
 let symLinkPath = path.join(tmpDir, symLink)
 
-echo(`Symlinking ${symLink} in ${tmpDir}`)
+echo(`Creating temporary symlink: ${symLinkPath}`)
 ln(filePath, symLinkPath)
 
 let port = 3033
@@ -50,8 +50,11 @@ server.listen(port, async () => {
 process.stdin.resume() //so the program will not close instantly
 
 function exitHandler(options, exitCode) {
-  echo(`Clearing out ${tmpDir}`)
-  rm("-rf", tmpDir)
+  if (test("-f", symLinkPath)) {
+    echo(`Removing temporary symlink: ${symLinkPath}`)
+
+    rm(symLinkPath)
+  }
   if (options.exit) process.exit()
 }
 
