@@ -1,8 +1,7 @@
 //Description: Create a gist from a selected file
 
-let basePath = process.env.HOME
-let { value: filePath } = await prompt({
-  message: "Select a file",
+let basePath = process.cwd()
+let filePath = await arg("Select a file", {
   type: "file",
   basePath,
 })
@@ -42,3 +41,4 @@ const response = await post(
 )
 
 console.log(response.data.html_url)
+exec(`open ` + response.data.html_url)
