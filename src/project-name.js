@@ -1,6 +1,8 @@
 // Description: Generate an alliteraive, dashed project name, copies it to the clipboard, and shows a notification
 
-import generate from "project-name-generator"
+let { default: generate } = await autoInstall(
+  "project-name-generator"
+)
 
 const name = generate({ word: 2, alliterative: true })
   .dashed

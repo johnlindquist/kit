@@ -4,7 +4,9 @@
  * Usage:
  * corgi
  */
-import download from "image-downloader"
+let { default: download } = await autoInstall(
+  "image-downloader"
+)
 
 let corgiTmpPath = path.join(
   tempdir(),
