@@ -24,9 +24,9 @@ complete "node.js downloaded to the $SIMPLE_PATH"
 
 
 info "Configuring simple in $SIMPLE_PATH..."
-SIMPLE_NODE_PATH="$SIMPLE_PATH/bin/.node/bin" \
-TESTING_SOME_VAR="$SIMPLE_PATH/bin/node/bin" \
-TESTING_ANOTHER_VAR="$SIMPLE_PATH/bin/.node/bin/" \
+SIMPLE_NODE_PATH=$SIMPLE_PATH'/bin/.node/bin' \
+TESTING_SOME_VAR=$SIMPLE_PATH'/bin/node/bin' \
+TESTING_ANOTHER_VAR=$SIMPLE_PATH'/bin/.node/bin/' \
 SIMPLE_NODE="$SIMPLE_PATH/bin/.node/bin/node" \
 SIMPLE_NPM="$SIMPLE_PATH/bin/.node/bin/npm" \
 $SIMPLE_PATH/config/create-simplerc.sh
