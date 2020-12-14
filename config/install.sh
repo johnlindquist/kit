@@ -21,9 +21,9 @@ info "Downloading node.js to your $SIMPLE_PATH..."
 $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 complete "node.js downloaded to the $SIMPLE_PATH"
 
-export SIMPLE_NODE_PATH="$SIMPLE_PATH/bin/\.node/bin"
-export SIMPLE_NODE="$SIMPLE_NODE_PATH/node"
-export SIMPLE_NPM="$SIMPLE_NODE_PATH/npm"
+SIMPLE_NODE_PATH="$SIMPLE_PATH/bin/.node/bin"
+SIMPLE_NODE="$SIMPLE_NODE_PATH/node"
+SIMPLE_NPM="$SIMPLE_NODE_PATH/npm"
 
 info "Configuring simple in $SIMPLE_PATH..."
 $SIMPLE_PATH/config/create-simplerc.sh
