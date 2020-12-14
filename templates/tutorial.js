@@ -27,7 +27,7 @@ console.log(`{{USER}} made a {{name}} script!`)
 
 /**
  * Step 3: Write your data to a file
- * 1. Uncomment the lines from "let template" to "launchEditor"
+ * 1. Uncomment the lines from "let template" to "edit"
  * 2. Run `{{name}} {{USER}}` again
  * Note: a prompt will ask you to select a directory for your file
  */
@@ -38,7 +38,7 @@ console.log(`{{USER}} made a {{name}} script!`)
 // let contentPath = await env("TUTORIAL_CONTENT_PATH", { type: "dir", message: "Where should we store your file?" })
 // let filePath = path.join(contentPath, user + ".md")
 // await writeFile(filePath, template)
-// launchEditor(filePath)
+// edit(filePath)
 
 /**
  * Welcome to the wonderful world of Simple Scripts!

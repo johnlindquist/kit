@@ -15,6 +15,4 @@ const file = await arg(
 )
 
 const fileName = file + ".js"
-launchEditor(
-  path.join(process.env.SIMPLE_SRC_PATH, fileName)
-)
+edit(path.join(process.env.SIMPLE_SRC_PATH, fileName))

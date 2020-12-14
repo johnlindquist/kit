@@ -18,6 +18,6 @@ let confirm = await prompt({
 })
 
 if (confirm.value) {
-  let { say } = await import("./system/say.js")
+  let say = await system("say")
   say(response.data)
 }

@@ -8,12 +8,6 @@ const targetArg = arg[2]
 
 const emph = chalk.green.bold
 
-const edit = async (file, prompted) => {
-  const fileName = file + ".js"
-  if (prompted) nextTime("edit " + file)
-  launchEditor(path.join(env.SIMPLE_PATH, "src", fileName))
-}
-
 const rm = async filePattern => {
   let { removeScript } = await import(
     "./simple/removeScript.js"
@@ -254,7 +248,7 @@ const actionMap = {
   ["env"]: {
     message: "Modify .env",
     action: () => {
-      launchEditor(path.join(env.SIMPLE_PATH, ".env"))
+      edit(path.join(env.SIMPLE_PATH, ".env"))
       if (!action) nextTime(`${env.SIMPLE_NAME} env`)
     },
   },

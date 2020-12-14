@@ -34,7 +34,7 @@ let confirm = await prompt({
 let filePath = path.join(directory, fileName)
 if (confirm.value) {
   await writeFile(filePath, template)
-  launchEditor(filePath)
+  edit(filePath)
 } else {
   echo("Ok, cancelled.")
 }

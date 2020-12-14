@@ -25,5 +25,5 @@ let { filename } = await download.image({
   dest: corgiTmpPath,
 })
 
-let { preview } = await import("./system/preview.js")
+let preview = await system("preview")
 preview(filename)

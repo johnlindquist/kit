@@ -5,7 +5,6 @@ export let tutorialCheck = async () => {
   ) {
     echo(
       `
-  
   Congratulations! You're ready to explore the wonderful world of Simple Scripts. 🥳
   
   * Type ${chalk.green.bold(
@@ -17,7 +16,7 @@ export let tutorialCheck = async () => {
   * Review the included examples by typing ${chalk.green.bold(
     "edit"
   )} 👀
-    `.trim()
+    `
     )
     let { updateEnv } = await import("./utils.js")
     await updateEnv("SIMPLE_TEMPLATE", "default")

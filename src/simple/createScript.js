@@ -50,10 +50,5 @@ Please pick a different name:`)
     col = 17
   }
 
-  launchEditor(
-    simpleFilePath,
-    process.env.SIMPLE_PATH,
-    line,
-    col
-  )
+  edit(simpleFilePath, process.env.SIMPLE_PATH, line, col)
 }

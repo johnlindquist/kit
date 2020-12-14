@@ -24,5 +24,5 @@ export let copyScript = async (source, target) => {
   cp(sourceFilePath, newSrcFilePath)
   await createBinFile(target)
 
-  launchEditor(newSrcFilePath, process.env.SIMPLE_PATH)
+  edit(newSrcFilePath, process.env.SIMPLE_PATH)
 }
