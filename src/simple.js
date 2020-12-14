@@ -8,26 +8,6 @@ const targetArg = arg[2]
 
 const emph = chalk.green.bold
 
-const possibleEditors = [
-  "atom",
-  "code",
-  "emacs",
-  "nano",
-  "ne",
-  "nvim",
-  "sublime",
-  "webstorm",
-  "vim",
-]
-const selectedEditor = await env("SIMPLE_EDITOR", {
-  message:
-    "Which code editor do you use? (You can always change this later in .env)",
-  choices: () =>
-    possibleEditors.filter(editor => {
-      return which(editor)
-    }),
-})
-
 const edit = async (file, prompted) => {
   const fileName = file + ".js"
   if (prompted) nextTime("edit " + file)
