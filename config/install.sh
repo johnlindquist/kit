@@ -40,6 +40,10 @@ complete "Added simple to .zshrc"
 
 
 cd $SIMPLE_PATH
+PATH=$SIMPLE_PATH/bin/.node/bin
+echo "----"
+echo $PATH
+echo "----"
 PATH=$SIMPLE_PATH/bin/.node/bin $SIMPLE_PATH/bin/.node/bin/npm install
 complete "Installed simple npm packages"
 
