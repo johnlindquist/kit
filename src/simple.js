@@ -166,19 +166,21 @@ const createFile = () => async () => {
 
 const npmCommand = command => async () => {
   cd(process.env.SIMPLE_PATH)
+  const options = {
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      PATH:
+        process.env.SIMPLE_NODE_PATH +
+        ":" +
+        process.env.PATH,
+    },
+  }
   if (sourceArg) {
     spawn(
       process.env.SIMPLE_NPM,
       [command, ...args.slice(1)],
-      {
-        stdio: "inherit",
-      },
-      {
-        env: {
-          ...process.env,
-          PATH: process.env.SNP,
-        },
-      }
+      options
     )
   } else {
     const npmPackage = await prompt({
@@ -190,15 +192,7 @@ const npmCommand = command => async () => {
     spawn(
       process.env.SIMPLE_NPM,
       [command, ...npmPackage.name.split(" ")],
-      {
-        stdio: "inherit",
-      },
-      {
-        env: {
-          ...process.env,
-          PATH: process.env.SNP,
-        },
-      }
+      options
     )
 
     const shortcut = {
