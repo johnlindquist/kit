@@ -1,6 +1,6 @@
 // Description: Generate an alliteraive, dashed project name, copies it to the clipboard, and shows a notification
 
-let { default: generate } = await autoInstall(
+let { default: generate } = await need(
   "project-name-generator"
 )
 

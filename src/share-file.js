@@ -1,9 +1,7 @@
 //Description: Select a file. Copies a link to your clipboard where others can download the file from your machine.
 
-let { default: ngrok } = await autoInstall("ngrok")
-let { default: handler } = await autoInstall(
-  "serve-handler"
-)
+let { default: ngrok } = await need("ngrok")
+let { default: handler } = await need("serve-handler")
 import http from "http"
 
 let tmpDir = path.join(
