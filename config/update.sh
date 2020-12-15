@@ -15,7 +15,7 @@ complete() {
 
 cd $SIMPLE_PATH
 
-info "Cleaning generated symlinks"
+info "Cleaning generated wrappers"
 git clean -fXq $SIMPLE_PATH/bin/*
 
 info "Updating Repo at $SIMPLE_PATH"
