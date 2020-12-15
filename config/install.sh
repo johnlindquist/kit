@@ -30,14 +30,14 @@ $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 complete "node.js downloaded to the $SIMPLE_PATH"
 
 info "Configuring simple in $SIMPLE_PATH..."
-$SIMPLE_PATH/config/create_simplerc.sh
+$SIMPLE_PATH/config/create-simplerc.sh
 
 complete "Connected simple to simple's local node install"
 
-$SIMPLE_PATH/config/create_bins.sh
+$SIMPLE_PATH/config/create-bins.sh
 complete "Created script wrappers in bin dir"
 SIMPLE_PROFILE="$($SIMPLE_PATH/config/detect_profile.sh)"
-$SIMPLE_PATH/config/link_profile.sh
+$SIMPLE_PATH/config/link-profile.sh
 
 cd $SIMPLE_PATH
 PATH="$SIMPLE_PATH/bin/.node/bin:$PATH" $SIMPLE_PATH/bin/.node/bin/npm install
