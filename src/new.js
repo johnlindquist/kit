@@ -7,8 +7,8 @@
 
 let name = await arg("Enter a name for your script:")
 let contents
-if (args["url"]) {
-  contents = (await get(args["url"])).data
+if (arg["url"]) {
+  contents = (await get(arg["url"])).data
 }
 
 let { createScript } = await import(
