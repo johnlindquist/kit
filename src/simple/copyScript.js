@@ -4,7 +4,7 @@ let { createSourceFilePath, createBinFile } = await import(
 
 export let copyScript = async (source, target) => {
   //TODO: not finding my `g` git alias
-  let result = exec(`type ${target}`, {
+  let result = exec(`command -v ${target}`, {
     silent: true,
   })
   if (result.stdout) {

@@ -7,7 +7,7 @@ let {
 
 export let renameScript = async (oldName, newName) => {
   //TODO: not finding my `g` git alias
-  let result = exec(`type ${newName}`, {
+  let result = exec(`command -v ${newName}`, {
     silent: true,
   })
   if (result.stdout) {

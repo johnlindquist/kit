@@ -8,7 +8,7 @@ export let createScript = async (
   need = []
 ) => {
   let template = await env("SIMPLE_TEMPLATE")
-  let result = exec(`type ${name}`, { silent: true })
+  let result = exec(`command -v ${name}`, { silent: true })
   if (result.stdout) {
     console.log(`${name} already exists. 
 ${result.stdout.trim()}
