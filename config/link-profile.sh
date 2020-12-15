@@ -3,7 +3,7 @@
 # Forked from Yarn's install scripts
 link_profile() {
   printf "$cyan> Adding to \$PATH...$reset\n"
-  SIMPLE_PROFILE="$(./setup/detect_profile.sh)"
+  SIMPLE_PROFILE="$(./setup/detect-profile.sh)"
   SOURCE_STR="\nsource $SIMPLE_PATH/.simplerc\n"
 
   printf $SIMPLE_PROFILE
