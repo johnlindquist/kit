@@ -36,7 +36,7 @@ complete "Connected simple to simple's local node install"
 
 $SIMPLE_PATH/config/create-bins.sh
 complete "Created script wrappers in bin dir"
-SIMPLE_PROFILE="$($SIMPLE_PATH/config/detect-profile.sh)"
+SIMPLE_PROFILE="$($SIMPLE_PATH/config/detect-profile.sh)" \
 $SIMPLE_PATH/config/link-profile.sh
 
 cd $SIMPLE_PATH
