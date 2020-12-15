@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/sh
 cat > $SIMPLE_PATH/.simplerc <<EOF
 export SIMPLE_NODE_PATH="$SIMPLE_PATH/bin/.node/bin"
 export SIMPLE_NODE="$SIMPLE_PATH/bin/.node/bin/node"

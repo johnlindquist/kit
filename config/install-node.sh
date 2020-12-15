@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/sh
 
 # `install-node.now.sh` is a simple one-liner shell script to
 # install official Node.js binaries from `nodejs.org/dist` or other

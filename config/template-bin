@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh   
+#!/bin/sh
 
 NODE_PATH=$SIMPLE_PATH/node_modules \
 DOTENV_CONFIG_PATH=$SIMPLE_PATH/.env \

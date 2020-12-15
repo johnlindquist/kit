@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/sh
 for file in $SIMPLE_PATH/src/*.js; do
     # Strip the path
     binName=${file##*/}

@@ -1,9 +1,17 @@
-#!/usr/bin/env zsh
+#!/bin/sh
+
+set -e
 
 BOLD="$(tput bold 2>/dev/null || echo '')"
 GREY="$(tput setaf 0 2>/dev/null || echo '')"
 GREEN="$(tput setaf 2 2>/dev/null || echo '')"
 NO_COLOR="$(tput sgr0 2>/dev/null || echo '')"
+reset="\033[0m"
+red="\033[31m"
+green="\033[32m"
+yellow="\033[33m"
+cyan="\033[36m"
+white="\033[37m"
 
 info() {
   printf "${BOLD}${GREY}>${NO_COLOR} $@\n"
@@ -21,23 +29,15 @@ info "Downloading node.js to your $SIMPLE_PATH..."
 $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 complete "node.js downloaded to the $SIMPLE_PATH"
 
-
-
 info "Configuring simple in $SIMPLE_PATH..."
-$SIMPLE_PATH/config/create-simplerc.sh
+$SIMPLE_PATH/config/create_simplerc.sh
 
 complete "Connected simple to simple's local node install"
 
-$SIMPLE_PATH/config/create-bins.sh
+$SIMPLE_PATH/config/create_bins.sh
 complete "Created script wrappers in bin dir"
-
-if grep -q $SIMPLE_PATH'/.simplerc' ~/.zshrc; then
-  echo "Source already added to .zshrc"
-  else
-  echo -n '\nsource '$SIMPLE_PATH'/.simplerc' >> ~/.zshrc
-fi
-complete "Added simple to .zshrc"
-
+SIMPLE_PROFILE="$($SIMPLE_PATH/config/detect_profile.sh)"
+$SIMPLE_PATH/config/link_profile.sh
 
 cd $SIMPLE_PATH
 PATH="$SIMPLE_PATH/bin/.node/bin:$PATH" $SIMPLE_PATH/bin/.node/bin/npm install
