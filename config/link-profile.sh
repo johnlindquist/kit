@@ -1,6 +1,7 @@
 #!/bin/sh
   echo "---------------"
-  printf $SIMPLE_PROFILE
+  echo "The following is your simple PROFILE:"
+  echo $SIMPLE_PROFILE
   echo "---------------"
 # Forked from Yarn's install scripts
 link_profile() {
@@ -8,7 +9,7 @@ link_profile() {
   SOURCE_STR="\nsource $SIMPLE_PATH/.simplerc\n"
 
   echo "---------------"
-  printf $SIMPLE_PROFILE
+  echo $SIMPLE_PROFILE
   echo "---------------"
 
   if [ -z "${SIMPLE_PROFILE-}" ] ; then
