@@ -3,7 +3,7 @@
 let { default: ngrok } = await need("ngrok")
 let { default: handler } = await need("serve-handler")
 import http from "http"
-let tmpDir = process.env.SIMPLE_TEMP_DIR
+let tmpDir = env.SIMPLE_TEMP_DIR
 let basePath = process.cwd()
 
 cd(tmpDir)

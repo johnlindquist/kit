@@ -16,7 +16,7 @@ export let copyScript = async (source, target) => {
   }
 
   const newSrcFilePath = path.join(
-    process.env.SIMPLE_SRC_PATH,
+    env.SIMPLE_SRC_PATH,
     target + ".js"
   )
 
@@ -24,5 +24,5 @@ export let copyScript = async (source, target) => {
   cp(sourceFilePath, newSrcFilePath)
   await createBinFile(target)
 
-  edit(newSrcFilePath, process.env.SIMPLE_PATH)
+  edit(newSrcFilePath, env.SIMPLE_PATH)
 }

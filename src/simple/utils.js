@@ -1,12 +1,12 @@
 export const createBinFilePath = name =>
-  path.join(process.env.SIMPLE_BIN_PATH, name)
+  path.join(env.SIMPLE_BIN_PATH, name)
 
 export const createSourceFilePath = name =>
-  path.join(process.env.SIMPLE_SRC_PATH, name + ".js")
+  path.join(env.SIMPLE_SRC_PATH, name + ".js")
 
 export const createBinFile = async name => {
   let binTemplate = await readFile(
-    process.env.SIMPLE_BIN_TEMPLATE_PATH,
+    env.SIMPLE_BIN_TEMPLATE_PATH,
     "utf8"
   )
   binTemplate = Handlebars.compile(binTemplate)
@@ -23,13 +23,13 @@ export let updateEnv = (envKey, envValue) => {
     "-i",
     regex,
     envKey + "=" + envValue,
-    process.env.SIMPLE_ENV_FILE
+    env.SIMPLE_ENV_FILE
   )
 }
 
-export let writeNewEnv = async envKeyValue => {
+export let writeNewEnv = async (envKey, envValue) => {
   let { ShellString } = await import("shelljs")
-  new ShellString("\n" + envKeyValue).toEnd(
-    process.env.SIMPLE_ENV_FILE
+  new ShellString("\n" + envKey + "=" + envValue).toEnd(
+    env.SIMPLE_ENV_FILE
   )
 }

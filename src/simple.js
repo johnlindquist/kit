@@ -137,20 +137,17 @@ const checkboxFile = action => async name => {
 }
 
 const npmCommand = command => async () => {
-  cd(process.env.SIMPLE_PATH)
+  cd(env.SIMPLE_PATH)
   const options = {
     stdio: "inherit",
     env: {
-      ...process.env,
-      PATH:
-        process.env.SIMPLE_NODE_PATH +
-        ":" +
-        process.env.PATH,
+      ...env,
+      PATH: env.SIMPLE_NODE_PATH + ":" + env.PATH,
     },
   }
   if (sourceArg) {
     spawn(
-      process.env.SIMPLE_NPM,
+      env.SIMPLE_NPM,
       [command, ...args.slice(1)],
       options
     )
@@ -162,7 +159,7 @@ const npmCommand = command => async () => {
     })
 
     spawn(
-      process.env.SIMPLE_NPM,
+      env.SIMPLE_NPM,
       [command, ...npmPackage.name.split(" ")],
       options
     )

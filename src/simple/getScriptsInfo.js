@@ -1,8 +1,5 @@
 export let getScriptsInfo = async () => {
-  let result = ls(
-    "-l",
-    path.join(process.env.SIMPLE_PATH, "bin")
-  )
+  let result = ls("-l", path.join(env.SIMPLE_PATH, "bin"))
 
   let scripts = result.map(file => file.name)
 
@@ -10,11 +7,7 @@ export let getScriptsInfo = async () => {
     let descriptionMarker = "Description: "
     let { stdout } = grep(
       descriptionMarker,
-      path.join(
-        process.env.SIMPLE_PATH,
-        "src",
-        name + ".js"
-      )
+      path.join(env.SIMPLE_PATH, "src", name + ".js")
     )
 
     let description = stdout

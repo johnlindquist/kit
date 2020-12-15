@@ -1,7 +1,7 @@
 export let tutorialCheck = async () => {
   if (
-    process.env.TUTORIAL_CONTENT_PATH &&
-    process.env.SIMPLE_TEMPLATE == "tutorial"
+    env.TUTORIAL_CONTENT_PATH &&
+    env.SIMPLE_TEMPLATE == "tutorial"
   ) {
     echo(
       `

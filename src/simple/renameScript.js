@@ -23,8 +23,9 @@ export let renameScript = async (oldName, newName) => {
   const newSourcePath = createSourceFilePath(newName)
   rm(oldBinPath)
   mv(oldSourcePath, newSourcePath)
+  if (test("-f", oldSourcePath)) rm(oldSourcePath)
   createBinFile(newName)
-  if (oldName == process.env.SIMPLE_NAME) {
+  if (oldName == env.SIMPLE_NAME) {
     updateEnv("SIMPLE_NAME", newName)
   }
 }

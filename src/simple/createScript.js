@@ -14,7 +14,7 @@ Please pick a different name:`)
   }
 
   let simpleTemplatePath = path.join(
-    process.env.SIMPLE_PATH,
+    env.SIMPLE_PATH,
     "templates",
     template + ".js"
   )
@@ -50,5 +50,5 @@ Please pick a different name:`)
     col = 17
   }
 
-  edit(simpleFilePath, process.env.SIMPLE_PATH, line, col)
+  edit(simpleFilePath, env.SIMPLE_PATH, line, col)
 }

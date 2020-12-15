@@ -7,6 +7,6 @@ declare function ${curr}():any;`.trim(),
 )
 
 writeFile(
-  path.join(process.env.SIMPLE_PATH, "global.d.ts"),
+  path.join(env.SIMPLE_PATH, "global.d.ts"),
   template
 )

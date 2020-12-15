@@ -10,7 +10,7 @@ const name = await arg("Select a script to share:", {
 const scriptName = name + ".js"
 
 const contentPath = path.join(
-  process.env.SIMPLE_SRC_PATH,
+  env.SIMPLE_SRC_PATH,
   scriptName
 )
 
