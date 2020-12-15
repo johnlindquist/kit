@@ -5,9 +5,9 @@ link_profile() {
   printf "$cyan> Adding to \$PATH...$reset\n"
   SOURCE_STR="\nsource $SIMPLE_PATH/.simplerc\n"
 
-  printf "---------------"
+  echo "---------------"
   printf $SIMPLE_PROFILE
-  printf "---------------"
+  echo "---------------"
 
   if [ -z "${SIMPLE_PROFILE-}" ] ; then
     printf "$red> Profile not found. Tried ${SIMPLE_PROFILE} (as defined in \$PROFILE), ~/.bashrc, ~/.bash_profile, ~/.zshrc, and ~/.profile.\n"
