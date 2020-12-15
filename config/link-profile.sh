@@ -1,5 +1,7 @@
 #!/bin/sh
-
+  echo "---------------"
+  printf $SIMPLE_PROFILE
+  echo "---------------"
 # Forked from Yarn's install scripts
 link_profile() {
   printf "$cyan> Adding to \$PATH...$reset\n"
