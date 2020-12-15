@@ -86,11 +86,11 @@ const run = file => async selectedFile => {
   if (f == "new" && env.SIMPLE_TEMPLATE == "tutorial") {
     spawn("tutorial", [], { stdio: "inherit" })
   } else {
-    if (env.SIMPLE_TEMPLATE == "default") {
-      echo(
-        `Note: simple displays the text following the "Description" comment when listing scripts`
-      )
-    }
+    // if (env.SIMPLE_TEMPLATE == "default") {
+    //   echo(
+    //     `Note: simple displays the text following the "Description" comment when listing scripts`
+    //   )
+    // }
     spawn(f, [...args], { stdio: "inherit" })
   }
   nextTime(f)

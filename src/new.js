@@ -14,4 +14,4 @@ if (arg["url"]) {
 let { createScript } = await import(
   "./simple/createScript.js"
 )
-await createScript(name, contents)
+await createScript(name, contents, arg["need"])
