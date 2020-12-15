@@ -28,7 +28,7 @@
 # Patches welcome!
 # https://github.com/zeit/install-node.now.sh
 # Nathan Rajlich <nate@zeit.co>
-set -euo pipefail
+set -e pipefail
 
 BOLD="$(tput bold 2>/dev/null || echo '')"
 GREY="$(tput setaf 0 2>/dev/null || echo '')"
