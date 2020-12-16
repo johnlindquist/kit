@@ -4,8 +4,7 @@ let { createSourceFilePath, createBinFile } = await import(
 
 export let createScript = async (
   name,
-  contents,
-  need = []
+  { contents, need = [], simplify = [] }
 ) => {
   let template = await env("SIMPLE_TEMPLATE")
   let result = exec(`command -v ${name}`, { silent: true })
@@ -37,10 +36,24 @@ Please pick a different name:`)
   }
   let simpleFilePath = createSourceFilePath(name)
 
-  contents =
-    need
-      .map(pkg => `let {} = await need("${pkg}")`)
-      .join("\n") + contents
+  if (typeof need == "string") {
+    contents = `let {} = await need("${need}")\n` + contents
+  } else {
+    contents =
+      need
+        .map(pkg => `let {} = await need("${pkg}")`)
+        .join("\n") + contents
+  }
+
+  if (typeof simplify == "string") {
+    contents =
+      `let {} = await simplify("${simplify}")\n` + contents
+  } else {
+    contents =
+      simplify
+        .map(pkg => `let {} = await simplify("${pkg}")`)
+        .join("\n") + contents
+  }
 
   await writeFile(simpleFilePath, contents)
   await createBinFile(name)
@@ -55,7 +68,7 @@ Please pick a different name:`)
   let line = 1
   let col = 1
 
-  if (need.length) col = 6
+  if (need.length || simplify.length) col = 6
 
-  edit(simpleFilePath, env.SIMPLE_PATH, line, col)
+  edit(simpleFilePath, "", line, col)
 }
