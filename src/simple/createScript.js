@@ -70,5 +70,5 @@ Please pick a different name:`)
 
   if (need.length || simplify.length) col = 6
 
-  edit(simpleFilePath, "", line, col)
+  edit(simpleFilePath, env.SIMPLE_PATH, line, col)
 }
