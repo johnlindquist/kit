@@ -270,12 +270,9 @@ const triggerAction = async action => {
 }
 
 if (action == "help" || !action) {
-  let remoteUpdate = exec(`git remote update`, {
-    silent: true,
-  })
   let result = exec(
     `git rev-list HEAD...origin/main --count`,
-    { silent: true }
+    { silent: true, cwd: env.SIMPLE_PATH }
   )
   let behindCount = Number(result?.toString() || "0")
 
@@ -314,6 +311,10 @@ if (action == "help" || !action) {
   })
 
   triggerAction(help.arg)
+
+  spawn(`git`, [`remote`, `update`], {
+    cwd: env.SIMPLE_PATH,
+  })
 }
 if (action) {
   if (actionMap[action]) {
