@@ -10,11 +10,13 @@ jobs:
     - name: Install Simple
       run: > 
         curl -o- https://simplescripts.dev/api/install | 
-        SIMPLE_PATH=~/.simple sh && 
-        source ~/.simple/.simplerc
+        SIMPLE_PATH=~/.simple sh 
+        
     - name: Create a Test Script
       run: >
+        source ~/.simple/.simplerc
         new testing-new --template test
     - name: Run a Test Script
       run: >
+        source ~/.simple/.simplerc
         testing-new 
