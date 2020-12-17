@@ -1,7 +1,6 @@
 name: Manual Install Test
 
-on:
-  workflow_dispatch
+on: [push, pull_request]
 
 jobs:
   install:
