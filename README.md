@@ -1,5 +1,7 @@
 # Simple Scripts
 
+[https://simplescripts.dev/](https://simplescripts.dev/)
+
 ## Install
 
 ```shell
