@@ -3,4 +3,4 @@ let response = await get(
 )
 echo(response.data.name + " is working!")
 
-exec(`exit 1`)
+process.abort()
