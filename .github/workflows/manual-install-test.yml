@@ -19,4 +19,4 @@ jobs:
     - name: Run a Test Script
       run: >
         source ~/.simple/.simplerc &&
-        testing-new 
+        [ $(testing-new) != "simplescripts is working!" ] && exit 1
