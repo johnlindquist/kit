@@ -23,5 +23,5 @@ jobs:
     - name: Exit If Test Script Doesn't Work
       run: >
         source ~/.simple/.simplerc &&
-        [[ $(testing-new) != 'simplescripts is working!' ]] 
+        [ $(testing-new) != "simplescripts" ] 
         && exit 1
