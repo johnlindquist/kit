@@ -1,6 +1,6 @@
 //Description: Create a gist from a selected file
 
-let basePath = process.cwd()
+let basePath = cwd()
 let filePath = await arg("Select a file", {
   type: "file",
   basePath,
