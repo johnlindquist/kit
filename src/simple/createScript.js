@@ -70,5 +70,6 @@ Please pick a different name:`)
 
   if (need.length || simplify.length) col = 6
 
-  edit(simpleFilePath, "", line, col)
+  if (!(template == "test"))
+    edit(simpleFilePath, "", line, col)
 }
