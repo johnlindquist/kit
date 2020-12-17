@@ -16,7 +16,12 @@ jobs:
       run: >
         source ~/.simple/.simplerc &&
         new testing-new --template test
-    - name: Run a Test Script
+    - name: Run the Test Script
       run: >
         source ~/.simple/.simplerc &&
-        [[ $(testing-new) != 'simplescripts is working!' ]] && exit 1
+        testing-new
+    - name: Exit If Test Script Doesn't Work
+      run: >
+        source ~/.simple/.simplerc &&
+        [[ $(testing-new) != 'simplescripts is working!' ]] 
+        && exit 1
