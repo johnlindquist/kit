@@ -8,4 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install Simple Scripts
-      run: curl -o- https://simplescripts.dev/api/install | SIMPLE_PATH=~/.simple sh && source ~/.simple/.simplerc && simple ls
+      run: > 
+        curl -o- https://simplescripts.dev/api/install | 
+        SIMPLE_PATH=~/.simple sh && 
+        source ~/.simple/.simplerc &&
+        new testing-new --template test &&
+        testing-new 
