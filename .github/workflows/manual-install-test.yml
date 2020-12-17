@@ -15,13 +15,8 @@ jobs:
     - name: Create a Test Script
       run: >
         source ~/.simple/.simplerc &&
-        new testing-new --template test
+        new running-test-template --template test
     - name: Run the Test Script
       run: >
         source ~/.simple/.simplerc &&
-        testing-new
-    - name: Exit If Test Script Doesn't Work
-      run: >
-        source ~/.simple/.simplerc &&
-        [ $(testing-new) != "simplescripts" ] 
-        && exit 1
+        running-test-template
