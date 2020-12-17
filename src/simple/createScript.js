@@ -4,9 +4,9 @@ let { createSourceFilePath, createBinFile } = await import(
 
 export let createScript = async (
   name,
-  { contents, need = [], simplify = [] } = {}
+  { contents, need = [], simplify = [], template = "" } = {}
 ) => {
-  let template = await env("SIMPLE_TEMPLATE")
+  template ||= await env("SIMPLE_TEMPLATE")
   let result = exec(`command -v ${name}`, { silent: true })
   if (result.stdout) {
     console.log(`${name} already exists. 
@@ -70,5 +70,5 @@ Please pick a different name:`)
 
   if (need.length || simplify.length) col = 6
 
-  edit(simpleFilePath, env.SIMPLE_PATH, line, col)
+  edit(simpleFilePath, "", line, col)
 }

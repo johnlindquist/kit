@@ -3,16 +3,15 @@
  */
 
 let name = await arg("Enter a name for your script:")
-let contents
-if (arg["url"]) {
-  contents = (await get(arg["url"])).data
-}
 
 let { createScript } = await import(
   "./simple/createScript.js"
 )
 await createScript(name, {
-  contents,
-  need: arg["need"],
-  simplify: arg["simplify"],
+  contents: arg?.url
+    ? (await get(arg?.url)).data
+    : undefined,
+  need: arg?.need,
+  simplify: arg?.simplify,
+  template: arg?.template,
 })
