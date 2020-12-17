@@ -1,8 +1,8 @@
 let response = await get(
   `https://api.github.com/repos/johnlindquist/simplescripts`
 )
-echo(response.data.name + " is working! LIES!!!")
+echo(response.data.name + " is working!")
 
-spawn(`exit`, ["1"], { stdio: "inherit" })
+echo("Fail on exit")
 
-echo("HOW IS THIS NOT EXITING!!!!!")
+exit()
