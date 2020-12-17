@@ -3,6 +3,6 @@ let response = await get(
 )
 echo(response.data.name + " is working!")
 
-if (response.data.name != "simplescripts") {
+if (response.data.name != "failing intentionally") {
   exit()
 }
