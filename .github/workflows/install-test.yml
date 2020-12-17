@@ -6,12 +6,15 @@ jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-    - name: Branch name
-      run: echo running on branch ${GITHUB_REF##*/}
+    - name: Extract Branch Name
+      uses: rlespinasse/github-slug-action@3.1.0
+      
+    - name: Log Branch Name
+      run: echo "Running install from ${{ env.GITHUB_REF_SLUG }}"
       
     - name: Install Simple from Current Branch
       run: > 
-        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${GITHUB_REF##*/}/config/install.sh | 
+        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_REF_SLUG }}/config/install.sh | 
         SIMPLE_PATH=~/.simple sh 
         
     - name: Create a Test Script
