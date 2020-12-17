@@ -1,4 +1,4 @@
-name: Manual Install Test
+name: Test Install, New Script, Run Script
 
 on: [pull_request]
 
@@ -27,11 +27,11 @@ jobs:
         echo "   sha        : ${{ env.GITHUB_SHA_SHORT }}"
       
     - name: Log Branch Name
-      run: echo "Running install from ${{ env.GITHUB_BASE_REF_SLUG }}"
+      run: echo "Running install from ${{ env.GITHUB_HEAD_REF_SLUG }}"
       
     - name: Install Simple from Current Branch
       run: > 
-        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_BASE_REF_SLUG }}/config/install.sh | 
+        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_HEAD_REF_SLUG }}/config/install.sh | 
         SIMPLE_PATH=~/.simple sh 
         
     - name: Create a Test Script
