@@ -22,7 +22,7 @@ complete() {
 }
 
 info "Cloning the repo to $SIMPLE_PATH..."
-git clone https://github.com/johnlindquist/simplescripts.git $SIMPLE_PATH
+git clone https://github.com/johnlindquist/simplescripts.git $SIMPLE_PATH ${GITHUB_HEAD_REF_SLUG_URL:+--branch $GITHUB_HEAD_REF_SLUG_URL}
 complete "Repo cloned to $SIMPLE_PATH"
 
 info "Downloading node.js to your $SIMPLE_PATH..."
