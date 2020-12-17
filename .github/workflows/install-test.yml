@@ -10,11 +10,11 @@ jobs:
       uses: rlespinasse/github-slug-action@3.1.0
       
     - name: Log Branch Name
-      run: echo "Running install from ${{ env.GITHUB_REF_SLUG }}"
+      run: echo "Running install from ${{ env.GITHUB_REF_SLUG_URL }}"
       
     - name: Install Simple from Current Branch
       run: > 
-        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_REF_SLUG }}/config/install.sh | 
+        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_REF_SLUG_URL }}/config/install.sh | 
         SIMPLE_PATH=~/.simple sh 
         
     - name: Create a Test Script
