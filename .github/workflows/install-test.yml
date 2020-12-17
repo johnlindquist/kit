@@ -6,15 +6,19 @@ jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-    - name: Install Simple
+    - name: Branch name
+      run: echo running on branch ${GITHUB_REF##*/}
+      
+    - name: Install Simple from Current Branch
       run: > 
-        curl -o- https://simplescripts.dev/api/install | 
+        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${GITHUB_REF##*/}/config/install.sh | 
         SIMPLE_PATH=~/.simple sh 
         
     - name: Create a Test Script
       run: >
         source ~/.simple/.simplerc &&
         new running-test-template --template test
+        
     - name: Run the Test Script
       run: >
         source ~/.simple/.simplerc &&
