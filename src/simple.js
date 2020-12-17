@@ -194,6 +194,10 @@ const spawnScript = command => async () => {
 }
 
 const actionMap = {
+  ["update"]: {
+    message: "Update simple",
+    action: spawnScript("update"),
+  },
   ["new"]: {
     message: "Create a new script",
     action: run("new"),
@@ -253,10 +257,6 @@ const actionMap = {
     message: "File an issue on github",
     action: run("issue"),
   },
-  ["update"]: {
-    message: "Update simple",
-    action: spawnScript("update"),
-  },
   ["quit"]: {
     message: "Quit simple",
     action: () => {
@@ -270,6 +270,15 @@ const triggerAction = async action => {
 }
 
 if (action == "help" || !action) {
+  let remoteUpdate = exec(`git remote update`, {
+    silent: true,
+  })
+  let result = exec(
+    `git rev-list HEAD...origin/main --count`,
+    { silent: true }
+  )
+  let behindCount = Number(result?.toString() || "0")
+
   const help = await prompt({
     type: "search-list",
     name: "arg",
@@ -279,10 +288,28 @@ if (action == "help" || !action) {
         ? "Start by creating a new script:"
         : "What do you want to do?",
     choices: [
-      ...Object.entries(actionMap).map(([key, value]) => ({
-        name: emph(key) + ": " + value.message,
-        value: key,
-      })),
+      ...Object.entries(actionMap)
+        .filter(([key, value]) => {
+          if (key != "update") return true
+
+          return behindCount
+        })
+        .map(([key, value]) => {
+          if (key == "update") {
+            return {
+              name:
+                chalk.yellow(key) +
+                `: Simple Scripts is behind by ${behindCount} commit${
+                  behindCount > 1 ? "s" : ""
+                }`,
+              value: key,
+            }
+          }
+          return {
+            name: emph(key) + ": " + value.message,
+            value: key,
+          }
+        }),
     ],
   })
 
