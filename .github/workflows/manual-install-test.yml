@@ -14,9 +14,9 @@ jobs:
         
     - name: Create a Test Script
       run: >
-        source ~/.simple/.simplerc
+        source ~/.simple/.simplerc &&
         new testing-new --template test
     - name: Run a Test Script
       run: >
-        source ~/.simple/.simplerc
+        source ~/.simple/.simplerc &&
         testing-new 
