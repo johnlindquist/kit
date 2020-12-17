@@ -3,4 +3,4 @@ let response = await get(
 )
 echo(response.data.name + " is working!")
 
-process.abort()
+spawn(`exit`, ["1"], { stdio: "inherit" })
