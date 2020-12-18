@@ -2,11 +2,13 @@
 
 let { default: ngrok } = await need("ngrok")
 let { default: handler } = await need("serve-handler")
+let { default: cleanup } = await need("node-cleanup")
+
 import http from "http"
-let tmpDir = env.SIMPLE_TMP_DIR
+let tmpPath = env.SIMPLE_TMP_PATH
 let basePath = cwd()
 
-cd(tmpDir)
+cd(tmpPath)
 
 let fileRelativePath = await arg(
   "Select a file to share: ",
@@ -27,18 +29,14 @@ let symLink = _.last(filePath.split(path.sep)).replaceAll(
   " ",
   "-"
 )
-let symLinkPath = path.join(tmpDir, symLink)
+let symLinkPath = path.join(tmpPath, symLink)
 
 echo(`Creating temporary symlink: ${symLinkPath}`)
 ln(filePath, symLinkPath)
 
 let port = 3033
 
-const server = http.createServer((request, response) => {
-  // You pass two more arguments for config and middleware
-  // More details here: https://github.com/vercel/serve-handler#options
-  return handler(request, response)
-})
+const server = http.createServer(handler)
 
 server.listen(port, async () => {
   let tunnel = await ngrok.connect(port)
@@ -47,11 +45,9 @@ server.listen(port, async () => {
   copy(shareLink)
 })
 
-function exitHandler(options, exitCode) {
+cleanup(() => {
   if (test("-f", symLinkPath)) {
     echo(`Removing temporary symlink: ${symLinkPath}`)
-
     rm(symLinkPath)
   }
-  if (options.exit) process.exit()
-}
+})
