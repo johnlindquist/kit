@@ -49,7 +49,7 @@ jobs:
           source ~/.simple/.simplerc &&
           simple i serve-handler
 
-      - name: Install localtunnel
+      - name: Install node-cleanup
         run: >
           source ~/.simple/.simplerc &&
           simple i node-cleanup

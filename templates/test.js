@@ -8,16 +8,15 @@ echo(response.data.name + " is working!")
 if (response.data.name != "simplescripts") {
   exit()
 }
+echo(`successfully create a new script`)
 
 let testFile = "test.txt"
 await writeFile(testFile, "testing")
-let child = spawn(`share-file`, [testFile, "--trust"], {
-  stdio: "inherit",
-})
+let child = spawn(`share-file`, [testFile, "--trust"])
 
 await new Promise((res, rej) => {
   setTimeout(res, 3000)
 })
-console.log("after timeout")
 rm(testFile)
 kill(child.pid)
+echo(`share-file ran successfully`)
