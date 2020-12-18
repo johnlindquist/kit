@@ -1,45 +1,65 @@
 name: Test Install, New Script, Run Script
 
-on: [pull_request,workflow_dispatch]
+on: [pull_request, workflow_dispatch]
 
 jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-    - name: Extract Branch Name
-      uses: rlespinasse/github-slug-action@3.1.0
-    
-    - name: Print slug/short variables
-      run: |
-        echo "Slug variables"
-        echo "   ref        : ${{ env.GITHUB_REF_SLUG }}"
-        echo "   head ref   : ${{ env.GITHUB_HEAD_REF_SLUG }}"
-        echo "   base ref   : ${{ env.GITHUB_BASE_REF_SLUG }}"
-        echo "   event ref  : ${{ env.GITHUB_EVENT_REF_SLUG }}"
-        echo "   repository : ${{ env.GITHUB_REPOSITORY_SLUG }}"
-        echo "Slug URL variables"
-        echo "   ref        : ${{ env.GITHUB_REF_SLUG_URL }}"
-        echo "   head ref   : ${{ env.GITHUB_HEAD_REF_SLUG_URL }}"
-        echo "   base ref   : ${{ env.GITHUB_BASE_REF_SLUG_URL }}"
-        echo "   event ref  : ${{ env.GITHUB_EVENT_REF_SLUG_URL }}"
-        echo "   repository : ${{ env.GITHUB_REPOSITORY_SLUG_URL }}"
-        echo "Short SHA variables"
-        echo "   sha        : ${{ env.GITHUB_SHA_SHORT }}"
-      
-    - name: Log Branch Name
-      run: echo "Running install from ${{ env.GITHUB_HEAD_REF_SLUG }}"
-      
-    - name: Install Simple from Current Branch
-      run: > 
-        curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_HEAD_REF_SLUG }}${{ env.GITHUB_EVENT_REF_SLUG }}/config/install.sh | 
-        SIMPLE_PATH=~/.simple sh 
-        
-    - name: Create a Test Script
-      run: >
-        source ~/.simple/.simplerc &&
-        new running-test-template --template test
-        
-    - name: Run the Test Script
-      run: >
-        source ~/.simple/.simplerc &&
-        running-test-template
+      - name: Extract Branch Name
+        uses: rlespinasse/github-slug-action@3.1.0
+
+      - name: Print slug/short variables
+        run: |
+          echo "Slug variables"
+          echo "   ref        : ${{ env.GITHUB_REF_SLUG }}"
+          echo "   head ref   : ${{ env.GITHUB_HEAD_REF_SLUG }}"
+          echo "   base ref   : ${{ env.GITHUB_BASE_REF_SLUG }}"
+          echo "   event ref  : ${{ env.GITHUB_EVENT_REF_SLUG }}"
+          echo "   repository : ${{ env.GITHUB_REPOSITORY_SLUG }}"
+          echo "Slug URL variables"
+          echo "   ref        : ${{ env.GITHUB_REF_SLUG_URL }}"
+          echo "   head ref   : ${{ env.GITHUB_HEAD_REF_SLUG_URL }}"
+          echo "   base ref   : ${{ env.GITHUB_BASE_REF_SLUG_URL }}"
+          echo "   event ref  : ${{ env.GITHUB_EVENT_REF_SLUG_URL }}"
+          echo "   repository : ${{ env.GITHUB_REPOSITORY_SLUG_URL }}"
+          echo "Short SHA variables"
+          echo "   sha        : ${{ env.GITHUB_SHA_SHORT }}"
+
+      - name: Log Branch Name
+        run: echo "Running install from ${{ env.GITHUB_HEAD_REF_SLUG }}"
+
+      - name: Install Simple from Current Branch
+        run: >
+          curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_HEAD_REF_SLUG }}${{ env.GITHUB_EVENT_REF_SLUG }}/config/install.sh | 
+          SIMPLE_PATH=~/.simple sh
+
+      - name: Create a Test Script
+        run: >
+          source ~/.simple/.simplerc &&
+          new running-test-template --template test
+
+      - name: Install ngrok
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i ngrok
+
+      - name: Install serve-handler
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i serve-handler
+
+      - name: Install node-cleanup
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i node-cleanup
+
+      - name: Install tree-kill
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i tree-kill
+
+      - name: Run the Test Script
+        run: >
+          source ~/.simple/.simplerc &&
+          running-test-template --trust
