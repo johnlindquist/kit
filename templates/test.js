@@ -1,3 +1,5 @@
+let { default: kill } = await need("tree-kill")
+
 let response = await get(
   `https://api.github.com/repos/johnlindquist/simplescripts`
 )
@@ -7,10 +9,9 @@ if (response.data.name != "simplescripts") {
   exit()
 }
 
-//testing share-file
 let testFile = "test.txt"
 await writeFile(testFile, "testing")
-let child = spawn(`share-file`, [testFile], {
+let child = spawn(`share-file`, [testFile, "--trust"], {
   stdio: "inherit",
 })
 
@@ -19,4 +20,4 @@ await new Promise((res, rej) => {
 })
 console.log("after timeout")
 rm(testFile)
-child.kill()
+kill(child.pid)
