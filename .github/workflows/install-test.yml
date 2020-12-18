@@ -39,6 +39,26 @@ jobs:
           source ~/.simple/.simplerc &&
           new running-test-template --template test
 
+      - name: Install ngrok
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i ngrok
+
+      - name: Install serve-handler
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i serve-handler
+
+      - name: Install localtunnel
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i node-cleanup
+
+      - name: Install tree-kill
+        run: >
+          source ~/.simple/.simplerc &&
+          simple i tree-kill
+
       - name: Run the Test Script
         run: >
           source ~/.simple/.simplerc &&
