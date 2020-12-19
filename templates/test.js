@@ -114,7 +114,7 @@ if (
     `"new" passed (used default template after tutorial)`
   )
 } else {
-  echo(newDefaultContent)
+  echo(await readFile(newDefaultContentPath, "utf8"))
   exit()
 }
 
