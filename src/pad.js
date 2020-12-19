@@ -1,3 +1,4 @@
+//Descript: The fastest way to play with JavaScript.
 let { watch } = await need("chokidar")
 let { default: cleanup } = await need("node-cleanup")
 
@@ -76,6 +77,6 @@ watcher = watch(filePath)
 watcher.on("raw", change)
 
 cleanup(() => {
-  rm(filePath)
-  rm(fileWrapperPath)
+  trash(filePath)
+  trash(fileWrapperPath)
 })
