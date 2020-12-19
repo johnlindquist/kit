@@ -1,4 +1,15 @@
 let { default: kill } = await need("tree-kill")
+let { writeNewEnv, updateEnv } = await import(
+  path.join(env.SIMPLE_PATH, "src", "simple", "utils.js")
+)
+let { default: cleanup } = await need("node-cleanup")
+
+await trash([
+  path.join(env.SIMPLE_SRC_PATH, "testing-tutorial.js"),
+  path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
+  path.join(env.SIMPLE_SRC_PATH, "new-default.js"),
+  path.join(env.SIMPLE_BIN_PATH, "new-default"),
+])
 
 let response = await get(
   `https://api.github.com/repos/johnlindquist/simplescripts`
@@ -11,6 +22,9 @@ if (response.data.name != "simplescripts") {
 echo(`"new" passed`)
 
 //----------------------
+
+await updateEnv("SIMPLE_TEMPLATE", "tutorial")
+await updateEnv("TUTORIAL_CONTENT_PATH", "")
 
 let testingTutorial = "testing-tutorial"
 let child = spawnSync(
@@ -52,10 +66,13 @@ if (
   exit()
 }
 
-tutorialContent = tutorialContent.replaceAll("//", "")
-
+tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
+await writeNewEnv(
+  "TUTORIAL_CONTENT_PATH",
+  "/Users/johnlindquist/projects/blog"
+)
 await writeFile(testingTutorialFilePath, tutorialContent)
-child = spawnSync(
+child = spawn(
   testingTutorial,
   ["johnlindquist", "--trust", "--no-edit"],
   {
@@ -70,14 +87,6 @@ child = spawnSync(
 echo(`"tutorial" passed`)
 
 //---------------------
-
-let { writeNewEnv } = await import(
-  path.join(env.SIMPLE_PATH, "src", "simple", "utils.js")
-)
-await writeNewEnv(
-  "TUTORIAL_CONTENT_PATH",
-  "/Users/johnlindquist/projects/blog"
-)
 
 let newDefault = "new-default"
 child = spawnSync(
@@ -119,7 +128,7 @@ child = spawn(`share-file`, [testFile, "--trust"], {
 await new Promise((res, rej) => {
   setTimeout(res, 2000)
 })
-rm(testFile)
+trash(testFile)
 kill(child.pid)
 echo(`"share-file" passed`)
 
@@ -129,3 +138,12 @@ child = spawn(`pad`, [testFile, "--trust", "--no-edit"], {
 
 kill(child.pid)
 echo(`"pad" passed`)
+
+cleanup(async () => {
+  await trash([
+    path.join(env.SIMPLE_SRC_PATH, "testing-tutorial.js"),
+    path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
+    path.join(env.SIMPLE_SRC_PATH, "new-default.js"),
+    path.join(env.SIMPLE_BIN_PATH, "new-default"),
+  ])
+})

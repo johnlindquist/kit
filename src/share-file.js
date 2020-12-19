@@ -49,6 +49,6 @@ cleanup(() => {
   server.close()
   if (test("-f", symLinkPath)) {
     echo(`Removing temporary symlink: ${symLinkPath}`)
-    rm(symLinkPath)
+    trash(symLinkPath)
   }
 })

@@ -22,6 +22,7 @@
     "lodash": "^4.17.20",
     "shelljs": "^0.8.4",
     "speajus-inquirer-directory-fork": "github:jspears/inquirer-directory",
+    "trash": "^7.0.0",
     "untildify": "^4.0.0",
     "yargs": "^16.1.1"
   },
