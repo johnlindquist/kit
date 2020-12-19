@@ -1,3 +1,5 @@
+let { default: kill } = await need("tree-kill")
+
 let response = await get(
   `https://api.github.com/repos/johnlindquist/simplescripts`
 )
@@ -10,6 +12,7 @@ echo(`successfully create a new script`)
 
 let testFile = "test.txt"
 await writeFile(testFile, "testing")
+
 let child = spawn(`share-file`, [testFile, "--trust"], {
   stdio: "inherit",
 })
