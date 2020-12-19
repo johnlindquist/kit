@@ -15,7 +15,7 @@ let child = spawn(`share-file`, [testFile, "--trust"], {
 })
 
 await new Promise((res, rej) => {
-  setTimeout(res, 3000)
+  setTimeout(res, 2000)
 })
 rm(testFile)
 kill(child.pid)
