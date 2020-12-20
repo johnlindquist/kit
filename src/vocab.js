@@ -1,3 +1,4 @@
+//Description: Take a vocabulary quiz
 let { default: randomWord } = await need("random-word")
 let {} = await need("wordnet-db")
 let { WordNet } = await need("natural")

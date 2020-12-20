@@ -1,3 +1,4 @@
+//Description: Display clipboard content at a defined rate
 let { default: readline } = await need("readline")
 
 let wpm =
