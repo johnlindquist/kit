@@ -34,6 +34,9 @@ jobs:
           curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_HEAD_REF_SLUG }}${{ env.GITHUB_EVENT_REF_SLUG }}/config/install.sh | 
           SIMPLE_PATH=~/.simple sh
 
+      - name: Check .process
+        run: cat /home/runner/.profile
+        
       - name: Create a Test Script
         run: >
           source ~/.simple/.simplerc &&
