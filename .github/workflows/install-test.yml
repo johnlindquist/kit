@@ -45,6 +45,6 @@ jobs:
       - name: Run the Test Script
         run: >
           cat /home/runner/.profile &&
-          echo $PATH $$
+          echo $PATH &&
           source ~/.simple/.simplerc &&
           running-test-template --trust
