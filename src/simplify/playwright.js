@@ -1,8 +1,8 @@
 let { chromium } = await need("playwright")
 
-let browser = await chromium.launch()
-let context = await browser.newContext()
-let page = await context.newPage()
+export let browser = await chromium.launch()
+export let context = await browser.newContext()
+export let page = await context.newPage()
 
 let selectEval = selector => {
   return Array.from(
@@ -11,7 +11,8 @@ let selectEval = selector => {
 }
 
 export let select = async (url, selector) => {
-  await page.goto("https://" + url)
+  if (!url.startsWith("http")) url = "https://" + url
+  await page.goto(url)
   let results = await page.evaluate(selectEval, selector)
 
   await browser.close()
