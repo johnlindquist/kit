@@ -36,6 +36,9 @@ jobs:
 
       - name: Check .process
         run: cat /home/runner/.profile
+      
+      - name: Check .simplerc
+        run: cat /home/.simple/.simplerc
         
       - name: Create a Test Script
         run: >
