@@ -38,7 +38,7 @@ jobs:
         run: cat /home/runner/.profile
       
       - name: Check .simplerc
-        run: cat /home/.simple/.simplerc
+        run: cat /home/runner/.simple/.simplerc
         
       - name: Create a Test Script
         run: >
