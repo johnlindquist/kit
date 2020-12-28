@@ -1,6 +1,5 @@
 //Descript: The fastest way to play with JavaScript.
-let { watch } = await need("chokidar")
-let { default: cleanup } = await need("node-cleanup")
+let { setEnv } = await import("./simple/utils.js")
 
 let fileName = "scratch.js"
 let fileWrapper = "scratch-wrapper.js"
@@ -10,6 +9,23 @@ let fileWrapperPath = path.join(
   env.SIMPLE_TMP_PATH,
   fileWrapper
 )
+
+let cleanupCallback = async () => {
+  await setEnv("SIMPLE_PAD_PID", -1)
+  trash(filePath)
+  trash(fileWrapperPath)
+}
+
+if (env?.SIMPLE_PAD_PID > 0) {
+  await cleanupCallback()
+  process.kill(env?.SIMPLE_PAD_PID)
+  exit()
+}
+
+let { watch } = await need("chokidar")
+let { default: cleanup } = await need("node-cleanup")
+
+await setEnv("SIMPLE_PAD_PID", process.pid)
 
 await writeFile(filePath, "")
 edit(filePath)
@@ -76,7 +92,4 @@ ${result}
 watcher = watch(filePath)
 watcher.on("raw", change)
 
-cleanup(() => {
-  trash(filePath)
-  trash(fileWrapperPath)
-})
+cleanup(cleanupCallback)
