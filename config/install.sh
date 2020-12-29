@@ -29,9 +29,6 @@ info "Downloading node.js to your $SIMPLE_PATH..."
 $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 complete "node.js downloaded to the $SIMPLE_PATH"
 
-info "Configuring simple in $SIMPLE_PATH..."
-$SIMPLE_PATH/config/create-simplerc.sh
-
 complete "Connected simple to simple's local node install"
 
 $SIMPLE_PATH/config/create-bins.sh
