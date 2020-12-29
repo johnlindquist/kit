@@ -34,6 +34,10 @@ jobs:
           curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_HEAD_REF_SLUG }}${{ env.GITHUB_EVENT_REF_SLUG }}/config/install.sh | 
           SIMPLE_PATH=~/.simple sh
           
+      - name: View .profile
+        run: >
+          cat ~/.profile
+          
       - name: View bin
         run: >
           cat ~/.simple/bin/new
@@ -45,8 +49,8 @@ jobs:
 
       - name: Create a Test Script
         run: >
-          PATH=$SIMPLE_PATH/bin:$PATH new running-test-template --template test
+          $SIMPLE_PATH/new running-test-template --template test
 
       - name: Run the Test Script
         run: >
-          PATH=$SIMPLE_PATH/bin:$PATH running-test-template --trust
+          $SIMPLE_PATH/bin/running-test-template --trust
