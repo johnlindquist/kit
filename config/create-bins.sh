@@ -1,4 +1,6 @@
 #!/bin/sh
+SIMPLE_NODE=$SIMPLE_PATH/bin/.node/bin/node
+
 for file in $SIMPLE_PATH/src/*.js; do
     # Strip the path
     binName=${file##*/}
