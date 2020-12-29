@@ -49,8 +49,10 @@ jobs:
 
       - name: Create a Test Script
         run: >
-          ~/.simple/bin/new running-test-template --template test
+          source ~/.profile
+          new running-test-template --template test
 
       - name: Run the Test Script
         run: >
-          ~/.simple/bin/running-test-template --trust
+          source ~/.profile
+          running-test-template --trust
