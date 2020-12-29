@@ -137,15 +137,12 @@ const checkboxFile = action => async name => {
 }
 
 const npmCommand = command => async () => {
-  console.log("-------------------------")
-  console.log("env.SIMPLE_PATH", env.SIMPLE_PATH)
-  console.log(env)
-  
   cd(env.SIMPLE_PATH)
   const options = {
     stdio: "inherit",
     env: {
-      ...env
+      ...env,
+      PATH: env.SIMPLE_NODE_PATH + ":" + env.PATH,
     },
   }
   if (sourceArg) {
