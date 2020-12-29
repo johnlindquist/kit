@@ -31,8 +31,11 @@ complete "node.js downloaded to the $SIMPLE_PATH"
 
 complete "Connected simple to simple's local node install"
 
+SIMPLE_NODE=$SIMPLE_PATH/bin/.node/bin/node
+SIMPLE_NPM=$SIMPLE_PATH/bin/.node/bin/npm
 $SIMPLE_PATH/config/create-bins.sh
 complete "Created script wrappers in bin dir"
+
 SIMPLE_PROFILE="$($SIMPLE_PATH/config/detect-profile.sh)" \
 $SIMPLE_PATH/config/link-profile.sh
 
