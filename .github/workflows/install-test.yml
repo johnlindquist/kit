@@ -49,10 +49,10 @@ jobs:
 
       - name: Create a Test Script
         run: >
-          source ~/.profile
+          source ~/.profile && \
           new running-test-template --template test
 
       - name: Run the Test Script
         run: >
-          source ~/.profile
+          source ~/.profile && \
           running-test-template --trust
