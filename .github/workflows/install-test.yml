@@ -36,10 +36,8 @@ jobs:
 
       - name: Create a Test Script
         run: >
-          source ~/.simple/.simplerc &&
-          new running-test-template --template test
+          PATH=~/.simple/bin:$PATH new running-test-template --template test
 
       - name: Run the Test Script
         run: >
-          source ~/.simple/.simplerc &&
-          running-test-template --trust
+          PATH=~/.simple/bin:$PATH running-test-template --trust
