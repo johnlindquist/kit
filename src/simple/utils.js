@@ -10,7 +10,7 @@ export const createBinFile = async name => {
     "utf8"
   )
   binTemplate = Handlebars.compile(binTemplate)
-  binTemplate = binTemplate({ name })
+  binTemplate = binTemplate({ name, ...env })
 
   let binFilePath = createBinFilePath(name)
   await writeFile(binFilePath, binTemplate)

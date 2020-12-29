@@ -29,13 +29,13 @@ info "Downloading node.js to your $SIMPLE_PATH..."
 $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
 complete "node.js downloaded to the $SIMPLE_PATH"
 
-info "Configuring simple in $SIMPLE_PATH..."
-$SIMPLE_PATH/config/create-simplerc.sh
-
 complete "Connected simple to simple's local node install"
 
+SIMPLE_NODE=$SIMPLE_PATH/bin/.node/bin/node
+SIMPLE_NPM=$SIMPLE_PATH/bin/.node/bin/npm
 $SIMPLE_PATH/config/create-bins.sh
 complete "Created script wrappers in bin dir"
+
 SIMPLE_PROFILE="$($SIMPLE_PATH/config/detect-profile.sh)" \
 $SIMPLE_PATH/config/link-profile.sh
 
@@ -43,7 +43,9 @@ cd $SIMPLE_PATH
 PATH="$SIMPLE_PATH/bin/.node/bin:$PATH" $SIMPLE_PATH/bin/.node/bin/npm install
 complete "Installed simple npm packages"
 
-cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
+sed "s#{{SIMPLE_PATH}}#$SIMPLE_PATH#g;s#{{SIMPLE_NODE}}#$SIMPLE_NODE#g;s#{{SIMPLE_NPM}}#$SIMPLE_NPM#g" \
+$SIMPLE_PATH/config/template-env.env > $SIMPLE_PATH/.env
+
 complete "Created .env"
 
 complete "Welcome to Simple Scripts!"
