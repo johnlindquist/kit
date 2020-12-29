@@ -1,4 +1,4 @@
-//https://twitter.com/DavidKPiano/status/1342123536845058050
+//Description: Scrapes the contents of a specific tweet
 
 let { page, browser } = await simplify("playwright")
 
@@ -6,10 +6,6 @@ await page.goto(await arg("Paste link to tweet:"))
 
 await page.waitForSelector("article")
 
-//$$("article[role=article]").filter(el => el.firstChild.firstChild.firstChild.children[2])
-//e = $$("article[role=article]").filter(el => el.firstChild.firstChild.firstChild.children[2])[0]
-
-//e.firstChild.firstChild.firstChild.children[2].children[1].innerText
 let result = await page.evaluate(() => {
   let tweetDiv = Array.from(
     document.querySelectorAll("article[role=article]")
