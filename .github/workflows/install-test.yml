@@ -49,8 +49,8 @@ jobs:
 
       - name: Create a Test Script
         run: >
-          PATH=$SIMPLE_PATH/bin new running-test-template --template test
+          ~/.simple/bin/new running-test-template --template test
 
       - name: Run the Test Script
         run: >
-          PATH=$SIMPLE_PATH/bin running-test-template --trust
+          ~/.simple/bin/running-test-template --trust
