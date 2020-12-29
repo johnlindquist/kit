@@ -37,12 +37,16 @@ jobs:
       - name: View bin
         run: >
           cat ~/.simple/bin/new
+          
+      - name: View .env
+        run: >
+          cat ~/.simple/.env
 
 
       - name: Create a Test Script
         run: >
-          PATH=~/.simple/bin:$PATH new running-test-template --template test
+          PATH=$SIMPLE_PATH/bin:$PATH new running-test-template --template test
 
       - name: Run the Test Script
         run: >
-          PATH=~/.simple/bin:$PATH running-test-template --trust
+          PATH=$SIMPLE_PATH/bin:$PATH running-test-template --trust
