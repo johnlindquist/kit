@@ -43,11 +43,8 @@ cd $SIMPLE_PATH
 PATH="$SIMPLE_PATH/bin/.node/bin:$PATH" $SIMPLE_PATH/bin/.node/bin/npm install
 complete "Installed simple npm packages"
 
-cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
-
-echo "\nSIMPLE_PATH=$SIMPLE_PATH" >> "$SIMPLE_PATH/.env"
-echo "SIMPLE_NPM=$SIMPLE_NPM" >> "$SIMPLE_PATH/.env"
-echo "SIMPLE_NODE=$SIMPLE_NODE" >> "$SIMPLE_PATH/.env"
+sed "s#{{SIMPLE_PATH}}#$SIMPLE_PATH#g;s#{{SIMPLE_NODE}}#$SIMPLE_NODE#g;s#{{SIMPLE_NPM}}#$SIMPLE_NPM#g" \
+$SIMPLE_PATH/config/template-env.env > $SIMPLE_PATH/.env
 
 complete "Created .env"
 
