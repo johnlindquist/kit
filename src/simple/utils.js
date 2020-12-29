@@ -33,3 +33,8 @@ export let writeNewEnv = async (envKey, envValue) => {
     env.SIMPLE_ENV_FILE
   )
 }
+
+export let setEnv = async (envKey, envValue) => {
+  let fn = env[envKey] ? updateEnv : writeNewEnv
+  return await fn(envKey, envValue)
+}

@@ -21,7 +21,7 @@ export let renameScript = async (oldName, newName) => {
   const oldSourcePath = createSourceFilePath(oldName)
   const oldBinPath = createBinFilePath(oldName)
   const newSourcePath = createSourceFilePath(newName)
-  rm(oldBinPath)
+  trash(oldBinPath)
   mv(oldSourcePath, newSourcePath)
   if (test("-f", oldSourcePath)) rm(oldSourcePath)
   createBinFile(newName)
