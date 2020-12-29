@@ -1,4 +1,4 @@
-//Descript: The fastest way to play with JavaScript.
+//Description: The fastest way to play with JavaScript.
 let { setEnv } = await import("./simple/utils.js")
 
 let fileName = "scratch.js"

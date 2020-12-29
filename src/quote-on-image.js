@@ -1,3 +1,5 @@
+//Description: Place text on top of an image and render it out
+
 let { chromium } = await need("playwright")
 await need("textfit")
 
