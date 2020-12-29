@@ -5,7 +5,7 @@
 ## Install
 
 ```shell
-curl -o- https://simplescripts.dev/api/install | SIMPLE_PATH=~/.simple sh; export PATH=$PATH:$SIMPLE_PATH/bin
+export SIMPLE_PATH=~/.simple; curl -o- https://simplescripts.dev/api/install | sh; export PATH=$PATH:$SIMPLE_PATH/bin
 ```
 
 ## Getting Started
