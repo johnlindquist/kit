@@ -45,9 +45,9 @@ complete "Installed simple npm packages"
 
 cp $SIMPLE_PATH/config/template-env.env $SIMPLE_PATH/.env
 
-echo "SIMPLE_NPM=$SIMPLE_NPM" >> "$SIMPLE_PATH/.env"
-echo "SIMPLE_NODE=$SIMPLE_NODE" >> "$SIMPLE_PATH/.env"
-echo "SIMPLE_PATH=$SIMPLE_PATH" >> "$SIMPLE_PATH/.env"
+echo -e "SIMPLE_PATH=$SIMPLE_PATH" >> "$SIMPLE_PATH/.env"
+echo -e "SIMPLE_NPM=$SIMPLE_NPM" >> "$SIMPLE_PATH/.env"
+echo -e "SIMPLE_NODE=$SIMPLE_NODE" >> "$SIMPLE_PATH/.env"
 
 complete "Created .env"
 
