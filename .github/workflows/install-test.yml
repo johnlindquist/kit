@@ -33,6 +33,11 @@ jobs:
         run: >
           curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_HEAD_REF_SLUG }}${{ env.GITHUB_EVENT_REF_SLUG }}/config/install.sh | 
           SIMPLE_PATH=~/.simple sh
+          
+      - name: View bin
+        run: >
+          cat ~/.simple/bin/new
+
 
       - name: Create a Test Script
         run: >
