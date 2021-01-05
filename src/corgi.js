@@ -1,10 +1,9 @@
 /**
  * Description: Displays a random picture of a Corgi using dog.ceo
- *
- * Usage:
- * corgi
+ * Shortcut: Alt+C
  */
 let { default: download } = await need("image-downloader")
+let { default: sizeOf } = await need("image-size")
 
 let corgiTmpPath = path.join(
   tempdir(),
@@ -25,5 +24,16 @@ let { filename } = await download.image({
   dest: corgiTmpPath,
 })
 
-let preview = await system("preview")
-preview(filename)
+let dimensions = await sizeOf(filename)
+
+show(
+  `
+  <style>
+  *{
+    margin:0;
+    padding:0;
+  }
+  </style>
+  <img style="width: 100vw" src="${filename}" alt="">`,
+  dimensions
+)

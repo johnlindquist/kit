@@ -35,7 +35,7 @@ NODE_PATH=${env.SIMPLE_PATH}/node_modules \
 DOTENV_CONFIG_PATH=${env.SIMPLE_PATH}/.env \
 ${env.SIMPLE_NODE} \
 --require dotenv-with-expand/config \
---require "${env.SIMPLE_PATH}/lib/dangerously_edit.cjs" \
+--require "${env.SIMPLE_PATH}/lib/core.cjs" \
 ${fileWrapperPath} \
 "$@"
 `.trim()

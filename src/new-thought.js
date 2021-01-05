@@ -1,4 +1,5 @@
 //Description: Generate a file using the current date in a specified folder
+//Menu: New Journal Entry
 let { format } = await need("date-fns")
 
 let date = format(new Date(), "yyyy-MM-dd")
