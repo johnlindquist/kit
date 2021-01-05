@@ -257,12 +257,6 @@ const actionMap = {
     message: "File an issue on github",
     action: run("issue"),
   },
-  ["quit"]: {
-    message: "Quit simple",
-    action: () => {
-      exit()
-    },
-  },
 }
 
 const triggerAction = async action => {

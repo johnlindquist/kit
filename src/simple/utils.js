@@ -17,7 +17,7 @@ export const createBinFile = async name => {
   chmod(755, binFilePath)
 }
 
-export let updateEnv = (envKey, envValue) => {
+export let updateEnv = async (envKey, envValue) => {
   let regex = new RegExp("^" + envKey + "=.*$")
   sed(
     "-i",

@@ -1,7 +1,4 @@
-/**
- * Description: Logs out a Dad Joke from icanhazdadjoke.com
- *
- */
+// Description: Logs out a Dad Joke from icanhazdadjoke.com
 
 let response = await get(`https://icanhazdadjoke.com/`, {
   headers: {
@@ -18,6 +15,6 @@ let confirm = await prompt({
 })
 
 if (confirm.value) {
-  let say = await system("say")
+  let { say } = await import("./system/index.js")
   say(response.data)
 }
