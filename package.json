@@ -20,8 +20,10 @@
     "inquirer-prompt-suggest": "^0.1.0",
     "inquirer-search-list": "^1.2.6",
     "lodash": "^4.17.20",
+    "node-cleanup": "^2.1.2",
     "shelljs": "^0.8.4",
     "speajus-inquirer-directory-fork": "github:jspears/inquirer-directory",
+    "strip-ansi": "^6.0.0",
     "trash": "^7.0.0",
     "untildify": "^4.0.0",
     "yargs": "^16.1.1"
