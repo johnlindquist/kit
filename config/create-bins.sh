@@ -17,7 +17,7 @@ echo "$cliBins" | tr ' ' '\n' | while read file; do
 done
 
 if [ -z "$(ls -A $SIMPLE_PATH/scripts)" ]; then
-   exit 0
+   exit 1
 fi
 
 for file in $SIMPLE_PATH/scripts/*.js; do
