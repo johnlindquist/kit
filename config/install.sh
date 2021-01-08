@@ -40,6 +40,9 @@ SIMPLE_PROFILE="$($SIMPLE_PATH/config/detect-profile.sh)" \
 $SIMPLE_PATH/config/link-profile.sh
 
 cd $SIMPLE_PATH
+
+ls ./node/bin
+
 PATH="$SIMPLE_PATH/node/bin:$PATH" $SIMPLE_PATH/node/bin/npm install
 complete "Installed simple npm packages"
 
