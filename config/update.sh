@@ -24,11 +24,11 @@ git pull
 
 if [[ $1 == "--node" ]]; then
     info "Removing .simple node"
-    git clean -Xfq $SIMPLE_PATH/bin/.node  
+    git clean -Xfq $SIMPLE_PATH/node
     git clean -Xfq $SIMPLE_PATH/node_modules/  
 
     info "Downloading node.js to your .simple directory"
-    $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
+    $SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/node --yes
 fi
 
 $SIMPLE_PATH/config/upgrade.sh
