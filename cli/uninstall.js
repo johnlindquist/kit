@@ -5,7 +5,7 @@ let file = JSON.parse(
   )
 )
 
-const packages = await arg(
+let packages = await arg(
   chalk`Which packages do you want to {red uninstall}`,
   {
     type: "autocomplete",
@@ -16,6 +16,11 @@ const packages = await arg(
     ],
   }
 )
+
+//grab all the args you used `simple un jquery react`
+if (typeof packages == "string") {
+  packages = [packages, ...args]
+}
 
 spawn(env.SIMPLE_NPM, ["uninstall", ...packages, ...args], {
   stdio: "inherit",
