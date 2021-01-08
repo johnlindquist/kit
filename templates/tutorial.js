@@ -35,7 +35,7 @@ console.log(`{{USER}} made a {{name}} script!`)
 // let template = `# Congratulations! ${response.data.name} 🏆:
 // Check your terminal for next steps 👀`
 //
-// let contentPath = await env("TUTORIAL_CONTENT_PATH", { type: "dir", message: "Where should we store your file?" })
+// let contentPath = await env("TUTORIAL_CONTENT_PATH", { message: "Where should we store your file?" })
 // let filePath = path.join(contentPath, user + ".md")
 // await writeFile(filePath, template)
 // edit(filePath)
