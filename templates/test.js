@@ -1,13 +1,10 @@
 let { default: kill } = await need("tree-kill")
-let { writeNewEnv, updateEnv } = await import(
-  path.join(env.SIMPLE_PATH, "src", "simple", "utils.js")
-)
 let { default: cleanup } = await need("node-cleanup")
 
 await trash([
-  path.join(env.SIMPLE_SRC_PATH, "testing-tutorial.js"),
+  path.join(env.SIMPLE_SCRIPTS_PATH, "testing-tutorial.js"),
   path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
-  path.join(env.SIMPLE_SRC_PATH, "new-default.js"),
+  path.join(env.SIMPLE_SCRIPTS_PATH, "new-default.js"),
   path.join(env.SIMPLE_BIN_PATH, "new-default"),
 ])
 
@@ -36,7 +33,7 @@ let child = spawnSync(
 )
 
 let testingTutorialFilePath = path.join(
-  env.SIMPLE_SRC_PATH,
+  env.SIMPLE_SCRIPTS_PATH,
   testingTutorial + ".js"
 )
 let tutorialContent = await readFile(
@@ -67,10 +64,11 @@ if (
 }
 
 tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
-await writeNewEnv(
+await run("simple", [
+  "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
-  "/Users/johnlindquist/projects/blog"
-)
+  "/Users/johnlindquist/projects/blog",
+])
 await writeFile(testingTutorialFilePath, tutorialContent)
 child = spawn(
   testingTutorial,
@@ -98,7 +96,7 @@ child = spawnSync(
 )
 
 let newDefaultContentPath = path.join(
-  env.SIMPLE_SRC_PATH,
+  env.SIMPLE_SCRIPTS_PATH,
   newDefault + ".js"
 )
 let newDefaultBuffer = await readFile(newDefaultContentPath)
@@ -141,9 +139,12 @@ echo(`"pad" passed`)
 
 cleanup(async () => {
   await trash([
-    path.join(env.SIMPLE_SRC_PATH, "testing-tutorial.js"),
+    path.join(
+      env.SIMPLE_SCRIPTS_PATH,
+      "testing-tutorial.js"
+    ),
     path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
-    path.join(env.SIMPLE_SRC_PATH, "new-default.js"),
+    path.join(env.SIMPLE_SCRIPTS_PATH, "new-default.js"),
     path.join(env.SIMPLE_BIN_PATH, "new-default"),
   ])
 })

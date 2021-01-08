@@ -3,7 +3,8 @@
 NODE_PATH={{SIMPLE_PATH}}/node_modules \
 DOTENV_CONFIG_PATH={{SIMPLE_PATH}}/.env \
 {{SIMPLE_NODE}} \
---require dotenv-with-expand/config \
+--require dotenv/config \
 --require "{{SIMPLE_PATH}}/lib/core.cjs" \
-{{SIMPLE_PATH}}/src/{{name}}.js \
+--require "{{SIMPLE_PATH}}/lib/system.cjs" \
+{{SIMPLE_PATH}}/{{type}}/{{name}}.js \
 "$@"

@@ -26,7 +26,7 @@ git clone https://github.com/johnlindquist/simplescripts.git $SIMPLE_PATH ${GITH
 complete "Repo cloned to $SIMPLE_PATH"
 
 info "Downloading node.js to your $SIMPLE_PATH..."
-$SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/bin/.node --yes
+$SIMPLE_PATH/config/install-node.sh --prefix $SIMPLE_PATH/node --yes
 complete "node.js downloaded to the $SIMPLE_PATH"
 
 complete "Connected simple to simple's local node install"
