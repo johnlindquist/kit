@@ -23,8 +23,6 @@ let choices = scripts.map(name => {
   }
 })
 
-console.log(choices)
-
 if (process.send) {
   process.send(choices)
 }
