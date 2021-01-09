@@ -7,7 +7,7 @@ let file = await arg(`Which script do you want to edit?`, {
     let [scripts] = await run("cli/scripts-info")
 
     let valid = scripts
-      .map(script => script.name)
+      .map(script => script.value)
       .includes(input)
 
     if (valid) return true
