@@ -1,10 +1,21 @@
 let script = await arg(
   `Which script do you want to rename?`,
   {
-    type: "search-list",
-    name: "script",
-    loop: false,
-    choices: (await run("cli/scripts-info"))[0],
+    type: "autocomplete",
+    choices: (await run("cli/scripts-info"))[0].map(
+      script => script.value
+    ),
+    validate: async function (input) {
+      let valid = this.choices
+        .map(script => script.value)
+        .includes(input)
+
+      if (valid) return true
+
+      exit()
+
+      return chalk`Script {green.bold ${input}} not found. Please select a different script:`
+    },
   }
 )
 
