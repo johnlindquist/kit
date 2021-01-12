@@ -6,4 +6,5 @@ let installNames = [...packageNames.split(" "), ...args]
 
 spawn(env.SIMPLE_NPM, ["install", ...installNames], {
   stdio: "inherit",
+  cwd: env.SIMPLE_PATH,
 })
