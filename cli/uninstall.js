@@ -24,4 +24,5 @@ if (typeof packages == "string") {
 
 spawn(env.SIMPLE_NPM, ["uninstall", ...packages, ...args], {
   stdio: "inherit",
+  cwd: env.SIMPLE_PATH,
 })
