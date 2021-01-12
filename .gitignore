@@ -120,3 +120,5 @@ dist
 SIMPLE_NOTES.md
 ROADMAP.md
 .DS_Store
+.lsp
+simple.code-workspace
