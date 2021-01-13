@@ -28,12 +28,11 @@ await run(
 )
 
 let testingTutorial = "testing-tutorial"
-let child = spawnSync(
-  `tutorial`,
-  [testingTutorial, "--trust", "--no-edit"],
-  {
-    stdio: "inherit",
-  }
+await run(
+  `cli/tutorial`,
+  testingTutorial,
+  "--trust",
+  "--no-edit"
 )
 
 let testingTutorialFilePath = path.join(
