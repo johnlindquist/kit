@@ -144,9 +144,12 @@ await writeFile(testFile, "testing")
 
 exec(
   `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js`,
-  env: {
-    PATH: simplePath("bin") + ":" + env.PATH,
-  },
+  {
+    stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
+  }
 )
 
 console.log(`--- AFTER EXEC ---`)
@@ -165,18 +168,21 @@ let shareFileChild = spawn(
   }
 )
 
-console.log(paste())
-await wait(500)
-
+await new Promise((res, rej) => {
+  setTimeout(res, 2000)
+})
 trash(testFile)
 kill(shareFileChild.pid)
 echo(`"share-file" passed`)
 
 exec(
   `new pad --url https://simplescripts.dev/scripts/johnlindquist/pad.js`,
-  env: {
-    PATH: simplePath("bin") + ":" + env.PATH,
-  },
+  {
+    stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
+  }
 )
 
 let padChild = spawn(
@@ -184,6 +190,9 @@ let padChild = spawn(
   [testFile, "--trust", "--no-edit"],
   {
     stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
   }
 )
 
