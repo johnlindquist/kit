@@ -21,7 +21,11 @@ echo(`"new" passed`)
 //----------------------
 
 await run("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
-await run("cli/set-env-var", "TUTORIAL_CONTENT_PATH", "")
+await run(
+  "cli/set-env-var",
+  "TUTORIAL_CONTENT_PATH",
+  simplePath("tmp")
+)
 
 let testingTutorial = "testing-tutorial"
 let child = spawnSync(
@@ -64,11 +68,12 @@ if (
 }
 
 tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
-await run("simple", [
+await run(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
-  "/Users/johnlindquist/projects/blog",
-])
+  "/Users/johnlindquist/projects/blog"
+)
+
 await writeFile(testingTutorialFilePath, tutorialContent)
 child = spawn(
   testingTutorial,
