@@ -80,7 +80,7 @@ await run(
 )
 
 await writeFile(testingTutorialFilePath, tutorialContent)
-child = spawn(
+let testingTutorialChild = spawn(
   testingTutorial,
   ["johnlindquist", "--trust", "--no-edit"],
   {
@@ -97,7 +97,7 @@ echo(`"tutorial" passed`)
 //---------------------
 
 let newDefault = "new-default"
-child = spawnSync(
+let newChild = spawnSync(
   `new`,
   [newDefault, "--trust", "--no-edit"],
   {
@@ -129,22 +129,30 @@ if (
 let testFile = "test.txt"
 await writeFile(testFile, "testing")
 
-child = spawn(`share-file`, [testFile, "--trust"], {
-  stdio: "inherit",
-})
+let shareFileChild = spawn(
+  `share-file`,
+  [testFile, "--trust"],
+  {
+    stdio: "inherit",
+  }
+)
 
 await new Promise((res, rej) => {
   setTimeout(res, 2000)
 })
 trash(testFile)
-kill(child.pid)
+kill(shareFileChild.pid)
 echo(`"share-file" passed`)
 
-child = spawn(`pad`, [testFile, "--trust", "--no-edit"], {
-  stdio: "inherit",
-})
+let padChild = spawn(
+  `pad`,
+  [testFile, "--trust", "--no-edit"],
+  {
+    stdio: "inherit",
+  }
+)
 
-kill(child.pid)
+kill(padChild.pid)
 echo(`"pad" passed`)
 
 cleanup(async () => {
