@@ -106,27 +106,8 @@ let newChild = spawnSync(
   }
 )
 
-console.log(`
-
-
-
-
-
-
-
-
-
-`)
-
-console.log({ env })
-
-console.log(`
-
-
-
-
-
-`)
+console.log("scripts:", ls(simplePath("scripts")))
+console.log("new:", which("new"))
 
 let newDefaultContentPath = simplePath(
   "scripts",
