@@ -11,6 +11,8 @@ let [type, name] = pathParts.slice(pathParts.length - 2)
 binTemplate = compile(binTemplate)
 binTemplate = binTemplate({ name, type, ...env })
 
-let binFilePath = path.join(env.SIMPLE_BIN_PATH, name)
+console.log({ SIMPLE_BIN_PATH: env.SIMPLE_BIN_PATH, name })
+
+let binFilePath = simplePath(name)
 await writeFile(binFilePath, binTemplate)
 chmod(755, binFilePath)
