@@ -13,6 +13,6 @@ binTemplate = binTemplate({ name, type, ...env })
 
 console.log({ SIMPLE_BIN_PATH: env.SIMPLE_BIN_PATH, name })
 
-let binFilePath = simplePath(name)
+let binFilePath = simplePath("bin", name)
 await writeFile(binFilePath, binTemplate)
 chmod(755, binFilePath)
