@@ -20,8 +20,8 @@ echo(`"new" passed`)
 
 //----------------------
 
-await updateEnv("SIMPLE_TEMPLATE", "tutorial")
-await updateEnv("TUTORIAL_CONTENT_PATH", "")
+await run("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
+await run("cli/set-env-var", "TUTORIAL_CONTENT_PATH", "")
 
 let testingTutorial = "testing-tutorial"
 let child = spawnSync(
