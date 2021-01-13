@@ -106,8 +106,30 @@ let newChild = spawnSync(
   }
 )
 
-let newDefaultContentPath = path.join(
-  env.SIMPLE_SCRIPTS_PATH,
+console.log(`
+
+
+
+
+
+
+
+
+
+`)
+
+console.log({ env })
+
+console.log(`
+
+
+
+
+
+`)
+
+let newDefaultContentPath = simplePath(
+  "scripts",
   newDefault + ".js"
 )
 let newDefaultBuffer = await readFile(newDefaultContentPath)
