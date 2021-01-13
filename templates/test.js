@@ -143,7 +143,7 @@ let testFile = "test.txt"
 await writeFile(testFile, "testing")
 
 exec(
-  `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js`,
+  `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js --no-edit`,
   {
     stdio: "inherit",
     env: {
@@ -176,7 +176,7 @@ kill(shareFileChild.pid)
 echo(`"share-file" passed`)
 
 exec(
-  `new pad --url https://simplescripts.dev/scripts/johnlindquist/pad.js`,
+  `new pad --url https://simplescripts.dev/scripts/johnlindquist/pad.js --no-edit`,
   {
     stdio: "inherit",
     env: {
