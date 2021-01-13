@@ -142,6 +142,10 @@ if (
 let testFile = "test.txt"
 await writeFile(testFile, "testing")
 
+exec(
+  `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js`
+)
+
 let shareFileChild = spawn(
   `share-file`,
   [testFile, "--trust"],
@@ -156,6 +160,10 @@ await new Promise((res, rej) => {
 trash(testFile)
 kill(shareFileChild.pid)
 echo(`"share-file" passed`)
+
+exec(
+  `new pad --url https://simplescripts.dev/scripts/johnlindquist/pad.js`
+)
 
 let padChild = spawn(
   `pad`,
