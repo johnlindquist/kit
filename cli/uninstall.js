@@ -1,8 +1,7 @@
 let file = JSON.parse(
-  await readFile(
-    path.join(env.SIMPLE_PATH, "package.json"),
-    { encoding: "utf8" }
-  )
+  await readFile(simplePath("package.json"), {
+    encoding: "utf8",
+  })
 )
 
 let packages = await arg(
@@ -25,4 +24,8 @@ if (typeof packages == "string") {
 spawn(env.SIMPLE_NPM, ["uninstall", ...packages, ...args], {
   stdio: "inherit",
   cwd: env.SIMPLE_PATH,
+  env: {
+    //need to prioritize our node over any nodes on the path
+    PATH: env.SIMPLE_NODE_BIN + ":" + env.PATH,
+  },
 })

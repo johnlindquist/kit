@@ -16,20 +16,30 @@ echo(response.data.name + " is working!")
 if (response.data.name != "simplescripts") {
   exit()
 }
-echo(`"new" passed`)
+echo(`
+
+---"new" passed---
+
+---starting "tutorial"---
+
+`)
 
 //----------------------
 
-await updateEnv("SIMPLE_TEMPLATE", "tutorial")
-await updateEnv("TUTORIAL_CONTENT_PATH", "")
+let TUTORIAL_CONTENT_PATH = simplePath("tmp")
+await run("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
+await run(
+  "cli/set-env-var",
+  "TUTORIAL_CONTENT_PATH",
+  TUTORIAL_CONTENT_PATH
+)
 
 let testingTutorial = "testing-tutorial"
-let child = spawnSync(
-  `tutorial`,
-  [testingTutorial, "--trust", "--no-edit"],
-  {
-    stdio: "inherit",
-  }
+await run(
+  `cli/tutorial`,
+  testingTutorial,
+  "--trust",
+  "--no-edit"
 )
 
 let testingTutorialFilePath = path.join(
@@ -45,7 +55,7 @@ let tutorialContentBuffer = await readFile(
   testingTutorialFilePath
 )
 let tutorialTemplateBuffer = await readFile(
-  path.join(env.SIMPLE_PATH, "templates", "tutorial.js")
+  simplePath("templates", "tutorial.js")
 )
 
 if (
@@ -64,19 +74,20 @@ if (
 }
 
 tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
-await run("simple", [
+await run(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
-  "/Users/johnlindquist/projects/blog",
-])
+  TUTORIAL_CONTENT_PATH
+)
+
 await writeFile(testingTutorialFilePath, tutorialContent)
-child = spawn(
+let testingTutorialChild = spawnSync(
   testingTutorial,
   ["johnlindquist", "--trust", "--no-edit"],
   {
     stdio: "inherit",
     env: {
-      TUTORIAL_CONTENT_PATH: ".",
+      TUTORIAL_CONTENT_PATH,
       ...env,
     },
   }
@@ -86,23 +97,35 @@ echo(`"tutorial" passed`)
 
 //---------------------
 
+console.log("bin:", ls(simplePath("bin")).toString())
+console.log("PATH:", env.PATH)
+
 let newDefault = "new-default"
-child = spawnSync(
+let newChild = spawnSync(
   `new`,
   [newDefault, "--trust", "--no-edit"],
   {
     stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
   }
 )
 
-let newDefaultContentPath = path.join(
-  env.SIMPLE_SCRIPTS_PATH,
+console.log(
+  "scripts:",
+  ls(simplePath("scripts")).toString()
+)
+console.log("new:", which("new"))
+
+let newDefaultContentPath = simplePath(
+  "scripts",
   newDefault + ".js"
 )
 let newDefaultBuffer = await readFile(newDefaultContentPath)
 
 let defaultTemplateBuffer = await readFile(
-  path.join(env.SIMPLE_PATH, "templates", "default.js")
+  simplePath("templates", "default.js")
 )
 
 if (
@@ -119,22 +142,61 @@ if (
 let testFile = "test.txt"
 await writeFile(testFile, "testing")
 
-child = spawn(`share-file`, [testFile, "--trust"], {
-  stdio: "inherit",
-})
+exec(
+  `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js --no-edit`,
+  {
+    stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
+  }
+)
+
+console.log(`--- AFTER EXEC ---`)
+console.log("PATH: ", env.PATH)
+console.log(ls(simplePath("bin")).toString())
+console.log(ls(simplePath("scripts")).toString())
+
+let shareFileChild = spawn(
+  `share-file`,
+  [testFile, "--trust"],
+  {
+    stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
+  }
+)
 
 await new Promise((res, rej) => {
   setTimeout(res, 2000)
 })
 trash(testFile)
-kill(child.pid)
+kill(shareFileChild.pid)
 echo(`"share-file" passed`)
 
-child = spawn(`pad`, [testFile, "--trust", "--no-edit"], {
-  stdio: "inherit",
-})
+exec(
+  `new pad --url https://simplescripts.dev/scripts/johnlindquist/pad.js --no-edit`,
+  {
+    stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
+  }
+)
 
-kill(child.pid)
+let padChild = spawn(
+  `pad`,
+  [testFile, "--trust", "--no-edit"],
+  {
+    stdio: "inherit",
+    env: {
+      PATH: simplePath("bin") + ":" + env.PATH,
+    },
+  }
+)
+
+kill(padChild.pid)
 echo(`"pad" passed`)
 
 cleanup(async () => {
