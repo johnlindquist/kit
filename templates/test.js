@@ -16,7 +16,13 @@ echo(response.data.name + " is working!")
 if (response.data.name != "simplescripts") {
   exit()
 }
-echo(`"new" passed`)
+echo(`
+
+---"new" passed---
+
+---starting "tutorial"---
+
+`)
 
 //----------------------
 
