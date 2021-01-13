@@ -45,7 +45,7 @@ let tutorialContentBuffer = await readFile(
   testingTutorialFilePath
 )
 let tutorialTemplateBuffer = await readFile(
-  path.join(env.SIMPLE_PATH, "templates", "tutorial.js")
+  simplePath("templates", "tutorial.js")
 )
 
 if (
@@ -102,7 +102,7 @@ let newDefaultContentPath = path.join(
 let newDefaultBuffer = await readFile(newDefaultContentPath)
 
 let defaultTemplateBuffer = await readFile(
-  path.join(env.SIMPLE_PATH, "templates", "default.js")
+  simplePath("templates", "default.js")
 )
 
 if (

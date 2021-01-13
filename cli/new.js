@@ -31,7 +31,7 @@ let template =
   arg?.template || (await env("SIMPLE_TEMPLATE"))
 
 let templateContent = await readFile(
-  path.join(env.SIMPLE_PATH, "templates", template + ".js"),
+  simplePath("templates", template + ".js"),
   "utf8"
 )
 
