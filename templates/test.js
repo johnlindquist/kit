@@ -97,16 +97,25 @@ echo(`"tutorial" passed`)
 
 //---------------------
 
+console.log("bin:", ls(simplePath("bin")).toString())
+console.log("PATH:", env.PATH)
+
 let newDefault = "new-default"
 let newChild = spawnSync(
   `new`,
   [newDefault, "--trust", "--no-edit"],
   {
     stdio: "inherit",
+    env: {
+      PATH: simplePath("bin"),
+    },
   }
 )
 
-console.log("scripts:", ls(simplePath("scripts")))
+console.log(
+  "scripts:",
+  ls(simplePath("scripts")).toString()
+)
 console.log("new:", which("new"))
 
 let newDefaultContentPath = simplePath(
