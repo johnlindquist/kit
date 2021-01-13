@@ -26,11 +26,12 @@ echo(`
 
 //----------------------
 
+let TUTORIAL_CONTENT_PATH = simplePath("tmp")
 await run("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
 await run(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
-  simplePath("tmp")
+  TUTORIAL_CONTENT_PATH
 )
 
 let testingTutorial = "testing-tutorial"
@@ -76,17 +77,17 @@ tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
 await run(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
-  "/Users/johnlindquist/projects/blog"
+  TUTORIAL_CONTENT_PATH
 )
 
 await writeFile(testingTutorialFilePath, tutorialContent)
-let testingTutorialChild = spawn(
+let testingTutorialChild = spawnSync(
   testingTutorial,
   ["johnlindquist", "--trust", "--no-edit"],
   {
     stdio: "inherit",
     env: {
-      TUTORIAL_CONTENT_PATH: ".",
+      TUTORIAL_CONTENT_PATH,
       ...env,
     },
   }
