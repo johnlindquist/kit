@@ -107,7 +107,7 @@ let newChild = spawnSync(
   {
     stdio: "inherit",
     env: {
-      PATH: simplePath("bin"),
+      PATH: simplePath("bin") + ":" + env.PATH,
     },
   }
 )
