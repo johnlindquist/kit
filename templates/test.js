@@ -146,6 +146,11 @@ exec(
   `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js`
 )
 
+console.log(`--- AFTER EXEC ---`)
+console.log("PATH: ", env.PATH)
+console.log(ls(simplePath("bin")).toString())
+console.log(ls(simplePath("scripts")).toString())
+
 let shareFileChild = spawn(
   `share-file`,
   [testFile, "--trust"],
