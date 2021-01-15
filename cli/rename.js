@@ -6,7 +6,6 @@ let choices = async () => {
 let script = await arg(
   `Which script do you want to rename?`,
   {
-    type: "autocomplete",
     choices,
     validate: async function (input) {
       let scripts =

@@ -51,7 +51,7 @@ await run(
 )
 
 console.log(
-  chalk`\n Created a {green ${name}} script using the {yellow ${template}} template`
+  chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
 edit(scriptPath, env.SIMPLE_PATH)

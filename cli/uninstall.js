@@ -7,7 +7,6 @@ let file = JSON.parse(
 let packages = await arg(
   chalk`Which packages do you want to {red uninstall}`,
   {
-    type: "autocomplete",
     multiple: true,
     choices: [
       ...Object.keys(file?.dependencies || []),
