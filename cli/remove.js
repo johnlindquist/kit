@@ -9,13 +9,15 @@ let scripts = ls(env.SIMPLE_SCRIPTS_PATH)
   .map(name => name.replace(".js", ""))
 
 for await (let script of scripts) {
-  const confirm = await prompt({
-    type: "confirm",
-    name: "value",
-    message: chalk`Are you sure you want to delete {red.bold ${script}}?`,
-  })
+  const confirm =
+    arg?.force ||
+    (await prompt({
+      type: "confirm",
+      name: "value",
+      message: chalk`Are you sure you want to delete {red.bold ${script}}?`,
+    }))
 
-  if (confirm.value) {
+  if (confirm) {
     await trash([
       path.join(env.SIMPLE_BIN_PATH, script),
       path.join(env.SIMPLE_SCRIPTS_PATH, script + ".js"),

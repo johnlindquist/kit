@@ -6,7 +6,6 @@ let choices = async () => {
 let script = await arg(
   `Which script do you want to duplicate?`,
   {
-    type: "autocomplete",
     choices,
     validate: async function (input) {
       let scripts =

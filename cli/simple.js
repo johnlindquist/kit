@@ -41,7 +41,6 @@ const cliScripts = [
 ]
 
 let script = await arg("What do you want to do?", {
-  type: "autocomplete",
   message:
     (await env("SIMPLE_TEMPLATE")) == "tutorial"
       ? "Start by creating a new script:"

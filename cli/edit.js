@@ -5,7 +5,6 @@ let choices = async () => {
 }
 
 let file = await arg(`Which script do you want to edit?`, {
-  type: "autocomplete",
   choices,
   validate: async function (input) {
     let scripts =
