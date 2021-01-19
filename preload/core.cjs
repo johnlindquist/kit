@@ -487,9 +487,9 @@ run = async (scriptPath, ...runArgs) => {
           "--require",
           "dotenv/config",
           "--require",
-          simplePath("/lib/core.cjs"),
+          simplePath("/preload/core.cjs"),
           "--require",
-          simplePath("/lib/system.cjs"),
+          simplePath("/preload/system.cjs"),
         ],
         //Manually set node. Shouldn't have to worry about PATH
         execPath: env.SIMPLE_NODE,
