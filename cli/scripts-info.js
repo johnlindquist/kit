@@ -23,6 +23,4 @@ let choices = scripts.map(name => {
   }
 })
 
-if (process.send) {
-  process.send(choices)
-}
+send(choices)
