@@ -1,8 +1,6 @@
 // Description: Run the selected script
-let choices = async () => {
-  let [scripts] = await run("cli/scripts-info")
-  return scripts.map(script => script.value)
-}
+let [scripts] = await run("cli/scripts-info")
+let choices = scripts.map(script => script.value)
 
 let file = await arg(`Which script do you want to run?`, {
   choices,
@@ -19,4 +17,4 @@ let file = await arg(`Which script do you want to run?`, {
 })
 
 let fileName = file + ".js"
-run(path.join(env.SIMPLE_SCRIPTS_PATH, fileName))
+await run(path.join(env.SIMPLE_SCRIPTS_PATH, fileName))
