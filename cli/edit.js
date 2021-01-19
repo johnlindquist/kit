@@ -1,8 +1,7 @@
 // Description: Opens the selected script in your editor
-let choices = async () => {
-  let [scripts] = await run("cli/scripts-info")
-  return scripts.map(script => script.value)
-}
+
+let [scripts] = await run("cli/scripts-info")
+let choices = scripts.map(script => script.value)
 
 let file = await arg(`Which script do you want to edit?`, {
   choices,
