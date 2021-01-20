@@ -1,5 +1,5 @@
-let { default: kill } = await need("tree-kill")
-let { default: cleanup } = await need("node-cleanup")
+let { default: kill } = await npm("tree-kill")
+let { default: cleanup } = await npm("node-cleanup")
 
 await trash([
   path.join(env.SIMPLE_SCRIPTS_PATH, "testing-tutorial.js"),

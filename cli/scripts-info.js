@@ -1,26 +1,37 @@
 let result = ls("-l", env.SIMPLE_SCRIPTS_PATH)
 let scripts = result.map(file => file.name)
+let descriptionMarker = "Description:"
+let menuMarker = "Menu:"
+let shortcutMarker = "Shortcut:"
 
-let choices = scripts.map(name => {
-  let descriptionMarker = "Description: "
-  let { stdout } = grep(
-    descriptionMarker,
-    path.join(env.SIMPLE_SCRIPTS_PATH, name)
+let getByMarker = marker => lines =>
+  lines
+    ?.find(line => line.includes(marker))
+    ?.split(marker)[1]
+    ?.trim()
+
+let choices = scripts.map(async file => {
+  let fileContents = await readFile(
+    simplePath("scripts", file),
+    "utf8"
   )
 
-  let description = stdout
-    .substring(0, stdout.indexOf("\n"))
-    .substring(
-      stdout.indexOf(descriptionMarker) +
-        descriptionMarker.length
-    )
-    .trim()
+  let fileLines = fileContents.split("\n")
+  // .filter(line =>
+  //   line.startsWith("/" || line.startsWith(" *"))
+  // )
 
-  name = name.replace(".js", "")
+  let description = getByMarker("Description:")(fileLines)
+  let menu = getByMarker("Menu:")(fileLines)
+  let shortcut = getByMarker("Shortcut:")(fileLines)
+
   return {
-    name: description ? name + ": " + description : name,
-    value: name,
+    description,
+    menu,
+    shortcut,
+    file,
+    command: file.replace(".js", ""),
   }
 })
 
-send(choices)
+send(await Promise.all(choices))

@@ -1,20 +1,15 @@
 // Description: Run the selected script
-let [scripts] = await run("cli/scripts-info")
-let choices = scripts.map(script => script.value)
+// Shortcut: Alt+S
 
-let file = await arg(`Which script do you want to run?`, {
-  choices,
-  validate: async function (input) {
-    let scripts =
-      this?.choices.map(choice => choice.value) ||
-      (await choices())
-    let valid = scripts.includes(input)
+let { choices, validate } = await import("./scripts.js")
 
-    if (valid) return true
+let command = await arg(
+  `Which script do you want to run?`,
+  {
+    choices,
+    validate,
+  }
+)
 
-    return chalk`Script {green.bold ${input}} not found. Please select a different script:`
-  },
-})
-
-let fileName = file + ".js"
+let fileName = command + ".js"
 await run(path.join(env.SIMPLE_SCRIPTS_PATH, fileName))

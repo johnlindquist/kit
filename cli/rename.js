@@ -1,35 +1,17 @@
-let [scripts] = await run("cli/scripts-info")
-let choices = scripts.map(script => script.value)
+let { choices, validate, exists } = await import(
+  "./scripts.js"
+)
 
 let script = await arg(
   `Which script do you want to rename?`,
   {
     choices,
-    validate: async function (input) {
-      let scripts =
-        this?.choices.map(choice => choice.value) ||
-        (await choices())
-      let valid = scripts.includes(input)
-
-      if (valid) return true
-
-      return chalk`Script {green.bold ${input}} not found. Please select a different script:`
-    },
+    validate,
   }
 )
 
 let newScript = await arg(`Enter the new script name:`, {
-  validate: async input => {
-    let result = exec(`command -v ${input}`, {
-      silent: true,
-    })
-
-    if (result.stdout) {
-      return chalk`{red.bold ${input}} already exists. Please choose another name.`
-    }
-
-    return true
-  },
+  validate: exists,
 })
 
 let oldFilePath = path.join(

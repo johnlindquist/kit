@@ -1,4 +1,4 @@
-let { chromium } = await need("playwright")
+let { chromium } = await npm("playwright")
 
 export let browser = await chromium.launch()
 export let context = await browser.newContext()

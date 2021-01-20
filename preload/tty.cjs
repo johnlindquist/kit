@@ -125,9 +125,10 @@ arg = async (message = "Input", promptConfig = {}) => {
     env.SIMPLE_SCRIPT_NAME
   } {yellow ${input}}} {yellow ${argOpts.join(" ")}}`
 
+  // TODO: Should I care about teaching this?
   let nextTime =
     chalk`👉 Run without prompts by typing: ` + command
-  console.log(nextTime)
+  // console.log(nextTime)
 
   return input
 }
@@ -148,7 +149,7 @@ env = async (envKey, promptConfig = {}) => {
   return input
 }
 
-need = async packageName => {
+npm = async packageName => {
   try {
     return await import(packageName)
   } catch {
