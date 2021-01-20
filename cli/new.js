@@ -1,19 +1,9 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-let validate = async input => {
-  let result = exec(`command -v ${input}`, {
-    silent: true,
-  })
-
-  if (result.stdout) {
-    return chalk`{red.bold ${input}} already exists. Please choose another name.`
-  }
-
-  return true
-}
+let { exists } = await import("./scripts.js")
 
 let name = await arg("Enter a name for your script:", {
-  validate,
+  validate: exists,
 })
 
 let scriptPath = path.join(
@@ -21,10 +11,10 @@ let scriptPath = path.join(
   name + ".js"
 )
 
-let contents = [arg?.need]
+let contents = [arg?.npm]
   .flatMap(x => x)
   .filter(Boolean)
-  .map(need => `let {} = await need("${need}")`)
+  .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
 let template =

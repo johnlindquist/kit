@@ -1,20 +1,10 @@
 // Description: Opens the selected script in your editor
 
-let [scripts] = await run("cli/scripts-info")
-let choices = scripts.map(script => script.value)
+let { choices, validate } = await import("./scripts.js")
 
 let file = await arg(`Which script do you want to edit?`, {
   choices,
-  validate: async function (input) {
-    let scripts =
-      this?.choices.map(choice => choice.value) ||
-      (await choices())
-    let valid = scripts.includes(input)
-
-    if (valid) return true
-
-    return chalk`Script {green.bold ${input}} not found. Please select a different script:`
-  },
+  validate,
 })
 
 let fileName = file + ".js"
