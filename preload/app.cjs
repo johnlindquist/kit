@@ -90,7 +90,7 @@ env = async (envKey, promptConfig = {}) => {
   return input
 }
 
-need = async packageName => {
+npm = async packageName => {
   try {
     return await import(packageName)
   } catch {
@@ -127,7 +127,7 @@ need = async packageName => {
         choices: config.choices.map(choice => {
           return {
             ...choice,
-            display: `<div>
+            info: `<div>
           <div>${installMessage}</div>
           <div>${downloadsMessage}</div>
           <div>${readMore}</div>
