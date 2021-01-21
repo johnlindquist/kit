@@ -45,7 +45,6 @@ prompt = async config => {
             choices: (
               await config.choices(data?.input)
             ).map(choice => {
-              console.log({ choice })
               if (typeof choice === "string") {
                 return {
                   name: choice,

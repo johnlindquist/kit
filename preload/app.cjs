@@ -22,7 +22,7 @@ prompt = async config => {
     }
   }
 
-  if (setFrontMost) setFrontMost()
+  await getFrontMost()
   process.send({ ...config, from: "prompt" })
 
   let resolve = null
