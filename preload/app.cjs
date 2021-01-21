@@ -22,7 +22,7 @@ prompt = async config => {
     }
   }
 
-  if (setFrontMost) setFrontMost()
+  await getFrontMost()
   process.send({ ...config, from: "prompt" })
 
   let resolve = null
@@ -44,7 +44,6 @@ prompt = async config => {
           from: "choices",
           choices: (await config.choices(data?.input)).map(
             choice => {
-              console.log({ choice })
               if (typeof choice === "string") {
                 return {
                   name: choice,

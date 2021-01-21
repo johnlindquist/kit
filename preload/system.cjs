@@ -1,10 +1,11 @@
 front = env.front || ""
 
-setFrontMost = async () => {
+getFrontMost = async () => {
   if (!front)
     front = await applescript(`
 path to frontmost application as Unicode text
 `)
+  return front
 }
 
 applescript = async (script, options) => {
@@ -42,7 +43,7 @@ getSelectedText = async () => {
 setSelectedText = async text => {
   await applescript(`set the clipboard to "${text}"`)
 
-  if (!front) setFrontMost()
+  let front = await getFrontMost()
   if (front) {
     await applescript(
       `tell application "${front}" to activate`
@@ -118,3 +119,35 @@ getPathAsPicture = async path =>
   await applescript(
     `set the clipboard to (read (POSIX file ${path} as JPEG picture)`
   )
+
+getActiveScreen = async () =>
+  new Promise((res, rej) => {
+    let messageHandler = data => {
+      if (data.from === "system") {
+        res(data.activeScreen)
+        process.off("message", messageHandler)
+      }
+    }
+    process.on("message", messageHandler)
+
+    process.send({ from: "system" })
+  })
+
+setActiveAppBounds = async ({
+  left,
+  top,
+  right,
+  bottom,
+}) => {
+  await applescript(
+    `tell application "System Events"
+      set processName to name of first application process whose frontmost is true as text
+      tell process processName to set the position of front window to {${left}, ${top}}
+      tell process processName to set the size of front window to {${
+        right - left
+      }, ${bottom - top}}
+    end tell`
+  )
+}
+
+//tell application "System Events" to tell process "Code" to set the size of front window to {300, 300}
