@@ -67,6 +67,7 @@ prompt = async config => {
 }
 
 arg = async (message = "Input", promptConfig = {}) => {
+  if (args.length) return args.shift()
   return prompt({
     message,
     ...promptConfig,
