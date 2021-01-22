@@ -25,8 +25,11 @@ preview = async file => {
   exec(`qlmanage -p "${file}"`, { silent: true })
 }
 
-say = async string =>
-  applescript(`say "${string}" speaking rate 250`)
+//List voices: `say -v "?"`. Get more voices: Preferences->Accessibility->System Voices
+say = async (string, { rate = 250, voice = "Alex" } = {}) =>
+  await applescript(
+    `say "${string}" using "${voice}" speaking rate ${rate}`
+  )
 
 getSelectedText = async () => {
   if (front) {
