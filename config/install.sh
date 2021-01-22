@@ -46,9 +46,7 @@ ls ./node/bin
 PATH="$SIMPLE_PATH/node/bin:$PATH" $SIMPLE_PATH/node/bin/npm install
 complete "Installed simple npm packages"
 
-sed "s#{{SIMPLE_PATH}}#$SIMPLE_PATH#g;s#{{SIMPLE_NODE}}#$SIMPLE_NODE#g;s#{{SIMPLE_NPM}}#$SIMPLE_NPM#g" \
-$SIMPLE_PATH/config/template-env.env > $SIMPLE_PATH/.env
-
+$SIMPLE_PATH/config/create-env.sh
 complete "Created .env"
 
 complete "Welcome to Simple Scripts!"
