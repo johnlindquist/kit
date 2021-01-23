@@ -37,14 +37,10 @@ const cliScripts = [
   { name: "env", message: "Modify .env" },
   { name: "issue", message: "File an issue on github" },
   { name: "update", message: "Update simple" },
-  { name: "tutorial", message: "Go through the tutorial" },
 ]
 
 let script = await arg("What do you want to do?", {
-  message:
-    (await env("SIMPLE_TEMPLATE")) == "tutorial"
-      ? "Start by creating a new script:"
-      : "What do you want to do?",
+  message: "What do you want to do?",
   choices: cliScripts.map(({ name, message, alias }) => {
     return {
       name: chalk`{green.bold ${name}}${
