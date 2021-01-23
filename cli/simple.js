@@ -37,6 +37,7 @@ const cliScripts = [
   { name: "env", message: "Modify .env" },
   { name: "issue", message: "File an issue on github" },
   { name: "update", message: "Update simple" },
+  { name: "quit", message: "Quit Simple Scripts" },
 ]
 
 let script = await arg("What do you want to do?", {
