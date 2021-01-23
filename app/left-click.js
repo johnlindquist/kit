@@ -1,3 +1,3 @@
 // Description: Run the selected script
-// Shortcut: Alt+S
+// Shortcut: cmd ;
 await run("cli/run")
