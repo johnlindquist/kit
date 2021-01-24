@@ -1,10 +1,21 @@
+const { getEventListeners } = require("events")
+
 prompt = async config => {
+  console.log(`>>> APP PROMPT <<<`)
+
+  let type = "input"
   if (config?.choices) {
-    config = { ...config, type: "autocomplete" }
+    type = "autocomplete"
   }
-  config = { type: "input", name: "value", ...config }
-  if (typeof config.choices === "function") {
-    config = { ...config, type: "lazy" }
+  if (typeof config?.choices === "function") {
+    type = "lazy"
+  }
+
+  config = {
+    type,
+    message: "Input:",
+    name: "value",
+    ...config,
   }
 
   if (typeof config?.choices === "object") {
@@ -25,17 +36,10 @@ prompt = async config => {
   await getFrontMost()
   process.send({ ...config, from: "prompt" })
 
-  let resolve = null
-  let reject = null
-
-  let value = await new Promise((res, rej) => {
-    resolve = res
-    reject = rej
-
-    process.on("message", async data => {
+  let value = await new Promise((resolve, reject) => {
+    let messageHandler = async data => {
       //The App is requesting to run the arg choices func
-      // console.log("process.on('message'):", data)
-      // TODO: Consider validation
+      // console.log("process.once('message'):", data)
       if (
         data?.from === "input" &&
         typeof config?.choices == "function"
@@ -57,12 +61,17 @@ prompt = async config => {
 
         return
       }
-      res(data)
-    })
-    process.on("error", reject)
+      resolve(data)
+    }
+
+    let errorHandler = () => {
+      reject()
+    }
+
+    process.once("message", messageHandler)
+    process.once("error", errorHandler)
   })
 
-  process.removeAllListeners()
   return value
 }
 

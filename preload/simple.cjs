@@ -125,24 +125,35 @@ run = async (scriptPath, ...runArgs) => {
       }
     )
 
+    let name = process.argv[1].split("/").pop()
+    let childName = scriptPath.split("/").pop()
+
+    console.log(childName, child.pid)
+
     let forwardToChild = message => {
+      console.log(name, "->", childName)
       child.send(message)
     }
     process.on("message", forwardToChild)
 
     child.on("message", message => {
+      console.log(name, "<-", childName)
       if (process.send) process.send(message)
       values.push(message)
     })
 
     child.on("error", error => {
+      // console.log(`simple error`, { error })
       values.push(error)
       rej(values)
     })
 
     child.on("close", code => {
+      console.log(`CLOSE ${childName} from ${name}`, {
+        child: child.pid,
+        code,
+      })
       process.off("message", forwardToChild)
-      child.removeAllListeners()
       res(values)
     })
   })

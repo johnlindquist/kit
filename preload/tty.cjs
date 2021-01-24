@@ -1,4 +1,5 @@
 prompt = async config => {
+  // console.log(`\n\n >>> TTY PROMPT <<< \n\n`)
   if (config?.choices) {
     config = { ...config, type: "autocomplete" }
   }
@@ -33,7 +34,7 @@ prompt = async config => {
       resolve = res
       reject = rej
 
-      process.on("message", async data => {
+      process.once("message", async data => {
         //The App is requesting to run the arg choices func
         // console.log("process.on('message'):", data)
         if (
@@ -61,10 +62,9 @@ prompt = async config => {
         //The App returned normal data
         res(data)
       })
-      process.on("error", reject)
+      process.once("error", reject)
     })
 
-    process.removeAllListeners()
     return value
   }
 
