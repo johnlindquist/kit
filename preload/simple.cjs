@@ -2,53 +2,6 @@
 //we may be able to convert this to .js if an "--import" flag is added
 //https://github.com/nodejs/node/issues/35103
 
-const possibleEditors = [
-  "atom",
-  "code",
-  "emacs",
-  "nano",
-  "ne",
-  "nvim",
-  "sublime",
-  "webstorm",
-  "vim",
-]
-
-edit = async (file, dir, line = 0, col = 0) => {
-  if (arg?.edit == false) return
-  if (
-    (await env("SIMPLE_EDITOR", {
-      message:
-        "Which code editor do you use? (You can always change this later in .env)",
-      choices: possibleEditors
-        .filter(editor => which(editor))
-        .map(editor => which(editor).toString().trim()),
-    })) == which("code")
-  ) {
-    let codeArgs = ["--goto", `${file}:${line}:${col}`]
-    if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
-    let editor = spawn(env.SIMPLE_EDITOR, codeArgs, {
-      stdio: "inherit",
-    })
-
-    editor.on("exit", function (e, code) {
-      // console.log("code launched: ", file)
-    })
-  } else {
-    let editorArgs = [file]
-    let editor = spawn(env.SIMPLE_EDITOR, editorArgs, {
-      stdio: "inherit",
-    })
-
-    editor.on("exit", function (e, code) {
-      // console.log(env.SIMPLE_EDITOR, " opened: ", file)
-    })
-  }
-  echo(
-    chalk`> Opening {yellow ${file}} with {green.bold ${env.SIMPLE_EDITOR}}`
-  )
-}
-
 install = async packageNames => {
   return await new Promise((res, rej) => {
     let npm = spawn("npm", ["i", ...packageNames], {
@@ -112,7 +65,7 @@ run = async (scriptPath, ...runArgs) => {
           "--require",
           simplePath("/preload/simple.cjs"),
           "--require",
-          simplePath("/preload/system.cjs"),
+          simplePath("/preload/mac.cjs"),
         ],
         //Manually set node. Shouldn't have to worry about PATH
         execPath: env.SIMPLE_NODE,
