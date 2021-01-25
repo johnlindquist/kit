@@ -7,6 +7,6 @@ DOTENV_CONFIG_PATH={{SIMPLE_PATH}}/.env \
 --require "{{SIMPLE_PATH}}/preload/api.cjs" \
 --require "{{SIMPLE_PATH}}/preload/tty.cjs" \
 --require "{{SIMPLE_PATH}}/preload/simple.cjs" \
---require "{{SIMPLE_PATH}}/preload/system.cjs" \
+--require "{{SIMPLE_PATH}}/preload/mac.cjs" \
 {{SIMPLE_PATH}}/{{type}}/{{name}}.js \
 "$@"

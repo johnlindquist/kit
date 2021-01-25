@@ -57,27 +57,6 @@ setSelectedText = async text => {
   )
 }
 
-iterm = command => {
-  command = `"${command.replace(/"/g, '\\"')}"`
-  let script = `
-  tell application "iTerm"
-      if application "iTerm" is running then
-          try
-              tell the first window to create tab with default profile
-          on error
-              create window with default profile
-          end try
-      end if
-  
-      delay 0.1
-  
-      tell the first window to tell current session to write text ${command}
-      activate
-  end tell
-  `.trim()
-  applescript(script)
-}
-
 show = async (html, options) => {
   let showHtml = path.join(env.SIMPLE_TMP_PATH, "show.html")
   await writeFile(showHtml, html)
@@ -153,4 +132,91 @@ setActiveAppBounds = async ({
   )
 }
 
-//tell application "System Events" to tell process "Code" to set the size of front window to {300, 300}
+terminal = async script => {
+  return await applescript(`tell application "Terminal"
+do script "${script}"
+activate
+end tell
+`)
+}
+
+iterm = async command => {
+  command = `"${command.replace(/"/g, '\\"')}"`
+  let script = `
+  tell application "iTerm"
+      if application "iTerm" is running then
+          try
+              tell the first window to create tab with default profile
+          on error
+              create window with default profile
+          end try
+      end if
+  
+      delay 0.1
+  
+      tell the first window to tell current session to write text ${command}
+      activate
+  end tell
+  `.trim()
+  applescript(script)
+}
+
+let possibleTerminals = ["terminal", "iterm", "hyper"]
+
+let terminalEditor = editor => async file =>
+  await global[
+    await env("SIMPLE_TERMINAL", {
+      message: `Which Terminal do you use with ${editor}?`,
+      choices: possibleTerminals,
+    })
+  ](`${editor} ${file}`)
+
+vim = terminalEditor("vim")
+nano = terminalEditor("nano")
+
+const possibleEditors = [
+  "atom",
+  "code",
+  "emacs",
+  "nano",
+  "ne",
+  "nvim",
+  "sublime",
+  "webstorm",
+  "vim",
+]
+
+code = async (file, dir, line = 0, col = 0) => {
+  let codeArgs = ["--goto", `${file}:${line}:${col}`]
+  if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
+  codeArgs = codeArgs.join(" ")
+  let command = `code ${codeArgs}`
+  exec(command)
+}
+
+edit = async (file, dir, line = 0, col = 0) => {
+  if (arg?.edit == false) return
+
+  let editor = await env("SIMPLE_EDITOR", {
+    message:
+      "Which code editor do you use? (You can always change this later in .env)",
+    choices: [
+      ...possibleEditors
+        .filter(editor => global[editor])
+        .filter(editor => which(editor))
+        .map(editor =>
+          which(editor).toString().trim().split("/").pop()
+        ),
+      {
+        name: "None. Always copy path to clipboard",
+        value: "copy",
+      },
+    ],
+  })
+
+  await global[editor](file)
+
+  echo(
+    chalk`> Opening {yellow ${file}} with {green.bold ${env.SIMPLE_EDITOR}}`
+  )
+}
