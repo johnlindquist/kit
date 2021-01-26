@@ -58,20 +58,12 @@ setSelectedText = async text => {
 }
 
 show = async (html, options) => {
-  let showHtml = path.join(env.SIMPLE_TMP_PATH, "show.html")
-  await writeFile(showHtml, html)
-
-  let url = "file://" + showHtml
   if (process.send) {
     process.send({
-      ...options,
       from: "show",
-      frame: false,
-      titleBarStyle: "customButtonsOnHover",
-      url,
+      html,
+      options,
     })
-  } else {
-    exec(`open ${url}`)
   }
 }
 
@@ -161,7 +153,7 @@ iterm = async command => {
   applescript(script)
 }
 
-let possibleTerminals = ["terminal", "iterm", "hyper"]
+let possibleTerminals = ["terminal", "iterm"]
 
 let terminalEditor = editor => async file =>
   await global[
@@ -220,3 +212,8 @@ edit = async (file, dir, line = 0, col = 0) => {
     chalk`> Opening {yellow ${file}} with {green.bold ${env.SIMPLE_EDITOR}}`
   )
 }
+
+fileSearch = async input =>
+  exec(`mdfind -name ${input}`, { silent: true })
+    .toString()
+    .split("\n")
