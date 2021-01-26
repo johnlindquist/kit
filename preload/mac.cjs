@@ -66,6 +66,19 @@ show = async (html, options) => {
     })
   }
 }
+showMarkdown = async (markdown, options) => {
+  let markdownHtml = (await npm("marked")).default(
+    markdown.trim()
+  )
+  let wrapMarkdown = `<div class="p-2">${markdownHtml}</div>`
+  if (process.send) {
+    process.send({
+      from: "show",
+      html: wrapMarkdown,
+      options,
+    })
+  }
+}
 
 getSelectedPath = async () => {
   return await applescript(
