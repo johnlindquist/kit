@@ -1,4 +1,4 @@
-prompt = async config => {
+exports.prompt = async config => {
   // console.log(`\n\n >>> TTY PROMPT <<< \n\n`)
   if (config?.choices) {
     config = { ...config, type: "autocomplete" }
@@ -100,7 +100,10 @@ prompt = async config => {
   return value
 }
 
-arg = async (message = "Input", promptConfig = {}) => {
+exports.arg = async (
+  message = "Input",
+  promptConfig = {}
+) => {
   if (args[0]) {
     let attemptArg = args.shift()
     if (promptConfig?.validate) {
@@ -139,23 +142,7 @@ arg = async (message = "Input", promptConfig = {}) => {
   return input
 }
 
-env = async (envKey, promptConfig = {}) => {
-  if (env[envKey]) return env[envKey]
-
-  let input = await prompt({
-    message: `Set ${envKey} env to:`,
-    ...promptConfig,
-  })
-
-  if (input.startsWith("~"))
-    input = input.replace("~", env.HOME)
-
-  await run("cli/set-env-var", envKey, input)
-  env[envKey] = input
-  return input
-}
-
-npm = async packageName => {
+exports.npm = async packageName => {
   try {
     return await import(packageName)
   } catch {
@@ -214,4 +201,16 @@ npm = async packageName => {
       )
     )
   }
+}
+
+exports.show = async (html, options) => {
+  console.log(html)
+}
+
+exports.showMarkdown = async (markdown, options) => {
+  let markdownHtml = (await npm("marked")).default(
+    markdown.trim()
+  )
+
+  console.log(markdown)
 }

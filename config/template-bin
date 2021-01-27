@@ -5,7 +5,6 @@ DOTENV_CONFIG_PATH={{SIMPLE_PATH}}/.env \
 {{SIMPLE_NODE}} \
 --require dotenv/config \
 --require "{{SIMPLE_PATH}}/preload/api.cjs" \
---require "{{SIMPLE_PATH}}/preload/tty.cjs" \
 --require "{{SIMPLE_PATH}}/preload/simple.cjs" \
 --require "{{SIMPLE_PATH}}/preload/mac.cjs" \
 {{SIMPLE_PATH}}/{{type}}/{{name}}.js \

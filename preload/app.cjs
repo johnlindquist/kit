@@ -1,6 +1,6 @@
 const { getEventListeners } = require("events")
 
-prompt = async config => {
+exports.prompt = async config => {
   console.log(`>>> APP PROMPT <<<`, config)
 
   let type = "input"
@@ -92,7 +92,10 @@ prompt = async config => {
   return value
 }
 
-arg = async (message = "Input", promptConfig = {}) => {
+exports.arg = async (
+  message = "Input",
+  promptConfig = {}
+) => {
   if (args.length) return args.shift()
   return prompt({
     message,
@@ -100,23 +103,7 @@ arg = async (message = "Input", promptConfig = {}) => {
   })
 }
 
-env = async (envKey, promptConfig = {}) => {
-  if (env[envKey]) return env[envKey]
-
-  let input = await prompt({
-    message: `Set ${envKey} env to:`,
-    ...promptConfig,
-  })
-
-  if (input.startsWith("~"))
-    input = input.replace("~", env.HOME)
-
-  await run("cli/set-env-var", envKey, input)
-  env[envKey] = input
-  return input
-}
-
-npm = async packageName => {
+exports.npm = async packageName => {
   try {
     return await import(packageName)
   } catch {
@@ -139,27 +126,14 @@ npm = async packageName => {
 
       let message = `Do you trust ${packageName}?`
 
-      let config = {
-        message,
-        choices: [
-          { name: "Yes", value: true },
-          { name: "No", value: false },
-        ],
-      }
-
       config = {
-        ...config,
+        type: "confirm",
         message,
-        choices: config.choices.map(choice => {
-          return {
-            ...choice,
-            info: `<div>
-          <div>${installMessage}</div>
-          <div>${downloadsMessage}</div>
-          <div>${readMore}</div>
-          </div>`,
-          }
-        }),
+        info: `<div>
+        <div>${installMessage}</div>
+        <div>${downloadsMessage}</div>
+        <div><a href="${readMore}">${readMore}</a></div>        
+        </div>`,
       }
 
       let trust = await prompt(config)
@@ -187,4 +161,27 @@ npm = async packageName => {
       )
     )
   }
+}
+
+let addPadding = html =>
+  `<div class="p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">${html}</div>`
+
+exports.show = async (html, options) => {
+  process.send({
+    from: "show",
+    html: addPadding(html),
+    options,
+  })
+}
+
+exports.showMarkdown = async (markdown, options) => {
+  let markdownHtml = (await npm("marked")).default(
+    markdown.trim()
+  )
+
+  process.send({
+    from: "show",
+    html: addPadding(markdownHtml),
+    options,
+  })
 }

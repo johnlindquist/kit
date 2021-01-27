@@ -2,6 +2,14 @@
 //we may be able to convert this to .js if an "--import" flag is added
 //https://github.com/nodejs/node/issues/35103
 
+let context = require(`./${
+  process.env?.SIMPLE_CONTEXT === "app" ? "app" : "tty"
+}.cjs`)
+
+Object.keys(context).forEach(key => {
+  global[key] = context[key]
+})
+
 install = async packageNames => {
   return await new Promise((res, rej) => {
     let npm = spawn("npm", ["i", ...packageNames], {
@@ -27,7 +35,7 @@ install = async packageNames => {
 
 simplify = async lib => {
   try {
-    return await import(`../src/simplify/${lib}.js`)
+    return await import(simplePath(`simplify`, `${lib}.js`))
   } catch (error) {
     console.log(error)
     console.log(`Simplifier for ${lib} doesn't exist`)
@@ -63,8 +71,6 @@ run = async (scriptPath, ...runArgs) => {
           "dotenv/config",
           "--require",
           simplePath("/preload/api.cjs"),
-          "--require",
-          simplePath("/preload/tty.cjs"),
           "--require",
           simplePath("/preload/simple.cjs"),
           "--require",
@@ -134,6 +140,23 @@ argOpts = Object.entries(argv)
   })
 
 assignPropsTo(argv, arg)
+
+env = async (envKey, promptConfig = {}) => {
+  if (env[envKey]) return env[envKey]
+
+  let input = await prompt({
+    message: `Set ${envKey} env to:`,
+    ...promptConfig,
+  })
+
+  if (input.startsWith("~"))
+    input = input.replace("~", env.HOME)
+
+  await run("cli/set-env-var", envKey, input)
+  env[envKey] = input
+  return input
+}
+
 assignPropsTo(process.env, env)
 
 env.SIMPLE_BIN_FILE_PATH = process.argv[1]

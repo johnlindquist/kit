@@ -57,31 +57,6 @@ setSelectedText = async text => {
   )
 }
 
-let addPadding = html =>
-  `<div class="p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">${html}</div>`
-
-show = async (html, options) => {
-  if (process.send) {
-    process.send({
-      from: "show",
-      html: addPadding(html),
-      options,
-    })
-  }
-}
-showMarkdown = async (markdown, options) => {
-  let markdownHtml = (await npm("marked")).default(
-    markdown.trim()
-  )
-  if (process.send) {
-    process.send({
-      from: "show",
-      html: addPadding(markdownHtml),
-      options,
-    })
-  }
-}
-
 getSelectedFile = async () => {
   return await applescript(
     `-------------------------------------------------
