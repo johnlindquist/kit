@@ -57,7 +57,8 @@ setSelectedText = async text => {
   )
 }
 
-let addPadding = html => `<div class="p-2">${html}</div>`
+let addPadding = html =>
+  `<div class="p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">${html}</div>`
 
 show = async (html, options) => {
   if (process.send) {
