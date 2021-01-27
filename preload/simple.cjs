@@ -38,6 +38,9 @@ simplify = async lib => {
 run = async (scriptPath, ...runArgs) => {
   return new Promise(async (res, rej) => {
     let values = []
+    if (!scriptPath.includes("/")) {
+      scriptPath = simplePath("scripts", scriptPath)
+    }
     if (!scriptPath.startsWith(path.sep)) {
       scriptPath = simplePath(scriptPath)
     }
