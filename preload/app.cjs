@@ -1,9 +1,17 @@
 const { getEventListeners } = require("events")
 
 prompt = async config => {
-  console.log(`>>> APP PROMPT <<<`)
+  console.log(`>>> APP PROMPT <<<`, config)
 
   let type = "input"
+
+  if (config?.type === "confirm") {
+    config.choices = [
+      { name: "Yes", value: true },
+      { name: "No", value: false },
+    ]
+  }
+
   if (config?.choices) {
     type = "autocomplete"
   }
@@ -36,10 +44,14 @@ prompt = async config => {
   await getFrontMost()
   process.send({ ...config, from: "prompt" })
 
+  let messageHandler
+  let errorHandler
   let value = await new Promise((resolve, reject) => {
-    let messageHandler = async data => {
+    messageHandler = async data => {
       //The App is requesting to run the arg choices func
-      // console.log("process.once('message'):", data)
+      // console.log("process.on('message'):", data)
+
+      //If you're typing input, send back choices based on the function
       if (
         data?.from === "input" &&
         typeof config?.choices == "function"
@@ -61,16 +73,21 @@ prompt = async config => {
 
         return
       }
+
+      //The App returned normal data
       resolve(data)
     }
 
-    let errorHandler = () => {
+    errorHandler = () => {
       reject()
     }
 
-    process.once("message", messageHandler)
-    process.once("error", errorHandler)
+    process.on("message", messageHandler)
+    process.on("error", errorHandler)
   })
+
+  process.off("message", messageHandler)
+  process.off("error", errorHandler)
 
   return value
 }

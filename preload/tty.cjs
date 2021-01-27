@@ -27,16 +27,14 @@ prompt = async config => {
     // if (setFrontMost) setFrontMost()
     process.send({ ...config, from: "prompt" })
 
-    let resolve = null
-    let reject = null
-
-    let value = await new Promise((res, rej) => {
-      resolve = res
-      reject = rej
-
-      process.once("message", async data => {
+    let messageHandler
+    let errorHandler
+    let value = await new Promise((resolve, reject) => {
+      messageHandler = async data => {
         //The App is requesting to run the arg choices func
         // console.log("process.on('message'):", data)
+
+        //If you're typing input, send back choices based on the function
         if (
           data?.from === "input" &&
           typeof config?.choices == "function"
@@ -60,10 +58,19 @@ prompt = async config => {
         }
 
         //The App returned normal data
-        res(data)
-      })
-      process.once("error", reject)
+        resolve(data)
+      }
+
+      errorHandler = () => {
+        reject()
+      }
+
+      process.on("message", messageHandler)
+      process.on("error", errorHandler)
     })
+
+    process.off("message", messageHandler)
+    process.off("error", errorHandler)
 
     return value
   }
