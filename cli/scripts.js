@@ -1,22 +1,28 @@
 let [scripts] = await run("cli/scripts-info")
 
-export const choices = scripts.map(script => {
-  let {
-    command,
-    menu,
-    value,
-    shortcut,
-    description,
-  } = script
-  return {
-    name:
-      (menu || command) + (shortcut ? `: ${shortcut}` : ``),
-    value: command,
-    info:
-      description &&
-      `<div class="bg-white p-1">${description}</div>`,
-  }
-})
+export const choices = scripts
+  .map(script => {
+    let {
+      command,
+      menu,
+      value,
+      shortcut,
+      description,
+    } = script
+    return {
+      name:
+        (menu || command) +
+        (shortcut ? `: ${shortcut}` : ``),
+      value: command,
+      info: description && `<div>${description}</div>`,
+    }
+  })
+  .sort((a, b) => {
+    let aName = a.name.toLowerCase()
+    let bName = b.name.toLowerCase()
+
+    return aName > bName ? 1 : aName < bName ? -1 : 0
+  })
 
 export const validate = async function (input) {
   let valid = choices.find(
