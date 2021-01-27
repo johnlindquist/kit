@@ -57,11 +57,13 @@ setSelectedText = async text => {
   )
 }
 
+let addPadding = html => `<div class="p-2">${html}</div>`
+
 show = async (html, options) => {
   if (process.send) {
     process.send({
       from: "show",
-      html,
+      html: addPadding(html),
       options,
     })
   }
@@ -70,17 +72,16 @@ showMarkdown = async (markdown, options) => {
   let markdownHtml = (await npm("marked")).default(
     markdown.trim()
   )
-  let wrapMarkdown = `<div class="p-2">${markdownHtml}</div>`
   if (process.send) {
     process.send({
       from: "show",
-      html: wrapMarkdown,
+      html: addPadding(markdownHtml),
       options,
     })
   }
 }
 
-getSelectedPath = async () => {
+getSelectedFile = async () => {
   return await applescript(
     `-------------------------------------------------
     # Full path of selected items in Finder.
@@ -226,7 +227,11 @@ edit = async (file, dir, line = 0, col = 0) => {
   )
 }
 
-fileSearch = async input =>
-  exec(`mdfind -name ${input}`, { silent: true })
+// TODO: Optimize, etc
+fileSearch = async (input, { onlyin = "~" } = {}) =>
+  exec(`mdfind -name ${input} -onlyin ${onlyin}`, {
+    silent: true,
+  })
     .toString()
     .split("\n")
+    .slice(0, 25)
