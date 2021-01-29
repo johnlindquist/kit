@@ -1,7 +1,7 @@
 const { getEventListeners } = require("events")
 
 exports.prompt = async config => {
-  console.log(`>>> APP PROMPT <<<`, config)
+  // console.log(`>>> APP PROMPT <<<`, config)
 
   let type = "input"
 
@@ -167,6 +167,8 @@ let addPadding = html =>
   `<div class="p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">${html}</div>`
 
 exports.show = async (html, options) => {
+  if (typeof html === "object")
+    html = JSON.stringify(html, null, "\t")
   process.send({
     from: "show",
     html: addPadding(html),

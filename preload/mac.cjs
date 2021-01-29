@@ -204,10 +204,14 @@ edit = async (file, dir, line = 0, col = 0) => {
 }
 
 // TODO: Optimize, etc
-fileSearch = async (input, { onlyin = "~" } = {}) =>
-  exec(`mdfind -name ${input} -onlyin ${onlyin}`, {
+fileSearch = async (input, { onlyin = "~", kind } = {}) => {
+  let command = `mdfind -name ${input} -onlyin ${onlyin}`
+  if (kind) command += ` kind:${kind}`
+
+  return exec(command, {
     silent: true,
   })
     .toString()
     .split("\n")
     .slice(0, 25)
+}

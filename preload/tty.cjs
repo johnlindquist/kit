@@ -95,6 +95,7 @@ exports.prompt = async config => {
     }
   }
 
+  // TODO: Strip out enquirer autocomplete
   let { value } = await require("enquirer").prompt(config)
 
   return value

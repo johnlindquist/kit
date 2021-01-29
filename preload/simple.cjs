@@ -126,6 +126,7 @@ process.on("uncaughtException", err => {
   exit()
 })
 
+// TODO: Strip out minimist
 let argv = require("minimist")(process.argv.slice(2))
 
 args = [...argv._]
