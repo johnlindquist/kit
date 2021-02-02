@@ -1,0 +1,18 @@
+{
+  "name": "simple-prompt",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@types/node": "^14.14.22",
+    "@types/react": "^17.0.0",
+    "next": "10.0.6",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "typescript": "^4.1.3"
+  }
+}
