@@ -1,12 +1,5 @@
-front = env.front || ""
-
-getFrontMost = async () => {
-  if (!front)
-    front = await applescript(`
-path to frontmost application as Unicode text
-`)
-  return front
-}
+frontAppName = null
+selectedText = null
 
 applescript = async (script, options) => {
   let formattedScript = script.replace(/'/g, "'\"'\"'")
@@ -14,6 +7,31 @@ applescript = async (script, options) => {
     .toString()
     .trim()
 }
+
+getSelectedText = async () => {
+  process.send({ from: "hide" })
+  await applescript(
+    `tell application "System Events" to keystroke "c" using command down`
+  )
+
+  return await applescript(`get the clipboard`)
+}
+;(beforePrompt = async () => {
+  if (frontAppName) return
+  let result = await applescript(`
+global frontApp, frontAppName
+
+tell application "System Events"
+	set frontApp to first application process whose frontmost is true
+	set frontAppName to name of frontApp
+end tell
+
+return {frontAppName}
+`)
+
+  let results = result.split(",")
+  frontAppName ||= results[0]
+})()
 
 notify = async (title, subtitle) => {
   applescript(
@@ -31,27 +49,9 @@ say = async (string, { rate = 250, voice = "Alex" } = {}) =>
     `say "${string}" using "${voice}" speaking rate ${rate}`
   )
 
-getSelectedText = async () => {
-  if (front) {
-    await applescript(
-      `tell application "${front}" to activate`
-    )
-  }
-  await applescript(
-    `tell application "System Events" to keystroke "c" using command down`
-  )
-  return await applescript(`get the clipboard`)
-}
-
 setSelectedText = async text => {
   await applescript(`set the clipboard to "${text}"`)
-
-  let front = await getFrontMost()
-  if (front) {
-    await applescript(
-      `tell application "${front}" to activate`
-    )
-  }
+  process.send({ from: "hide" })
   await applescript(
     `tell application "System Events" to keystroke "v" using command down`
   )

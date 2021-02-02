@@ -82,7 +82,6 @@ run = async (scriptPath, ...runArgs) => {
           ...env,
           SIMPLE_PARENT_NAME: env.SIMPLE_SCRIPT_NAME,
           SIMPLE_PARENT_ARGS: runArgs,
-          front,
         },
       }
     )
