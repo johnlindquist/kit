@@ -36,12 +36,12 @@ exports.prompt = async config => {
             value: choice,
           }
         }
+        choice.uuid = v4()
         return choice
       }),
     }
   }
 
-  await getFrontMost()
   process.send({ ...config, from: "prompt" })
 
   let messageHandler
@@ -66,6 +66,7 @@ exports.prompt = async config => {
                   value: choice,
                 }
               }
+              choice.uuid = v4()
               return choice
             }
           ),

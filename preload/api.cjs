@@ -26,6 +26,7 @@ globalApi = {
   createWriteStream: "fs",
   readdir: "fs/promises",
   compile: "handlebars",
+  v4: "uuid",
 }
 ;({ cwd, pid, stderr, stdin, stdout, uptime } = process)
 
