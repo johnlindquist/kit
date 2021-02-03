@@ -1,6 +1,10 @@
 //Description: Simple Scripts CLI
 
 const cliScripts = [
+  {
+    name: "open",
+    message: "Open .simple directory in editor",
+  },
   { name: "new", message: "Create a new script" },
   { name: "run", message: "Run a script" },
   { name: "edit", message: "Edit a script" },
@@ -38,7 +42,10 @@ const cliScripts = [
   { name: "issue", message: "File an issue on github" },
   { name: "debug", message: "Launch Debugger" },
   { name: "set-login", message: "Set login settings" },
-  { name: "update", message: "Update simple" },
+  {
+    name: "update",
+    message: `Update simple. App: ${env.SIMPLE_APP_VERSION}`,
+  },
   { name: "quit", message: "Quit Simple Scripts" },
 ]
 
