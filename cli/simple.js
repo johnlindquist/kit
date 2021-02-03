@@ -5,6 +5,7 @@ const cliScripts = [
     name: "open",
     message: "Open .simple directory in editor",
   },
+  { name: "browse", message: "Go to simplescripts.dev" },
   { name: "new", message: "Create a new script" },
   { name: "run", message: "Run a script" },
   { name: "edit", message: "Edit a script" },
