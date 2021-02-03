@@ -125,7 +125,7 @@ exports.npm = async packageName => {
       config = {
         type: "confirm",
         message,
-        info: `<div>
+        preview: `<div>
         <div>${installMessage}</div>
         <div>${downloadsMessage}</div>
         <div><a href="${readMore}">${readMore}</a></div>        

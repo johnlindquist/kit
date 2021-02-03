@@ -14,7 +14,7 @@ export const choices = scripts
         (menu || command) +
         (shortcut ? `: ${shortcut}` : ``),
       value: command,
-      info: description && `<div>${description}</div>`,
+      preview: description,
     }
   })
   .sort((a, b) => {
