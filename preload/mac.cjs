@@ -1,7 +1,10 @@
 frontAppName = null
 selectedText = null
 
-applescript = async (script, options) => {
+applescript = async (
+  script,
+  options = { silent: true }
+) => {
   let formattedScript = script.replace(/'/g, "'\"'\"'")
   return exec(`osascript -e '${formattedScript}'`, options)
     .toString()
@@ -18,7 +21,8 @@ getSelectedText = async () => {
 }
 ;(beforePrompt = async () => {
   if (frontAppName) return
-  let result = await applescript(`
+  let result = await applescript(
+    `
 global frontApp, frontAppName
 
 tell application "System Events"
@@ -27,7 +31,8 @@ tell application "System Events"
 end tell
 
 return {frontAppName}
-`)
+`
+  )
 
   let results = result.split(",")
   frontAppName ||= results[0]
