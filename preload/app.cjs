@@ -1,8 +1,6 @@
 const { getEventListeners } = require("events")
 
 exports.prompt = async config => {
-  // console.log(`>>> APP PROMPT <<<`, config)
-
   let type = "input"
 
   if (config?.type === "confirm") {
@@ -48,9 +46,6 @@ exports.prompt = async config => {
   let errorHandler
   let value = await new Promise((resolve, reject) => {
     messageHandler = async data => {
-      //The App is requesting to run the arg choices func
-      // console.log("process.on('message'):", data)
-
       //If you're typing input, send back choices based on the function
       if (
         data?.from === "input" &&
