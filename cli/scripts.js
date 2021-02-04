@@ -14,7 +14,7 @@ export const choices = scripts
         (menu || command) +
         (shortcut ? `: ${shortcut}` : ``),
       value: command,
-      preview: description,
+      description,
     }
   })
   .sort((a, b) => {
