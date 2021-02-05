@@ -50,6 +50,14 @@ chalk = (...args) => require("chalk")(...args)
 
 paste = (...args) => require("clipboardy").read(...args)
 copy = (...args) => require("clipboardy").write(...args)
+dbFile = file => {
+  let low = require("lowdb")
+  let FileSync = require("lowdb/adapters/FileSync")
+  let adapter = new FileSync(
+    simplePath("db", `${file}.json`)
+  )
+  return low(adapter)
+}
 
 rm = () => {
   echo(
