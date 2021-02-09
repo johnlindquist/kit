@@ -1,5 +1,5 @@
 let result = ls("-l", env.SIMPLE_SCRIPTS_PATH)
-let scripts = result.map(file => file.name)
+let files = result.map(file => file.name)
 let descriptionMarker = "Description:"
 let menuMarker = "Menu:"
 let shortcutMarker = "Shortcut:"
@@ -10,7 +10,7 @@ let getByMarker = marker => lines =>
     ?.split(marker)[1]
     ?.trim()
 
-let choices = scripts.map(async file => {
+let choices = files.map(async file => {
   let fileContents = await readFile(
     simplePath("scripts", file),
     "utf8"
@@ -34,4 +34,4 @@ let choices = scripts.map(async file => {
   }
 })
 
-send(await Promise.all(choices))
+export let scripts = await Promise.all(choices)

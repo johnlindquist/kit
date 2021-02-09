@@ -11,11 +11,11 @@ let binExists = test("-f", simplePath("bin", scriptName))
 if (scriptExists || binExists) {
   console.log({ scriptExists, binExists })
   console.log(chalk`{red Clearing out ${scriptName}}`)
-  await run("cli/remove", scriptName, "--force")
+  await simple("cli/remove", scriptName, "--force")
 }
 
 console.log(chalk`--- {yellow NEW} ---`)
-await run("cli/new", scriptName, "--no-edit")
+await simple("cli/new", scriptName, "--no-edit")
 
 test("-f", simplePath("scripts", scriptName + ".js"))
 test("-f", simplePath("bin", scriptName))
@@ -33,7 +33,7 @@ if (!scriptExists || !binExists) {
 }
 
 console.log(chalk`--- {yellow RM} ---`)
-await run("cli/remove", scriptName, "--force")
+await simple("cli/remove", scriptName, "--force")
 
 test("-f", simplePath("scripts", scriptName + ".js"))
 test("-f", simplePath("bin", scriptName))

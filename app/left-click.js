@@ -1,3 +1,3 @@
 // Description: Run the selected script
 // Shortcut: cmd ;
-await run("cli/run")
+await simple("cli/run")

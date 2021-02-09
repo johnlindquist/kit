@@ -1,6 +1,6 @@
-let [scripts] = await run("cli/scripts-info")
+let { scripts } = await simple("cli/scripts-info")
 
-export const choices = scripts
+export let choices = scripts
   .map(script => {
     let {
       command,
@@ -24,7 +24,7 @@ export const choices = scripts
     return aName > bName ? 1 : aName < bName ? -1 : 0
   })
 
-export const validate = async function (input) {
+export let validate = async function (input) {
   let valid = choices.find(
     choice =>
       input === choice.value ||
@@ -37,7 +37,7 @@ export const validate = async function (input) {
   return chalk`Script {green.bold ${input}} not found. Please select a different script:`
 }
 
-export const exists = async input => {
+export let exists = async input => {
   let result = exec(`command -v ${input}`, {
     silent: true,
   })

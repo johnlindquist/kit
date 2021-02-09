@@ -43,6 +43,16 @@ simplify = async lib => {
   }
 }
 
+simple = async (scriptPath, ..._args) => {
+  args.push(..._args)
+  if (!scriptPath.includes("/")) {
+    return await import(
+      simplePath("scripts", scriptPath) + ".js"
+    )
+  }
+  return await import(simplePath(scriptPath) + ".js")
+}
+
 run = async (scriptPath, ...runArgs) => {
   return new Promise(async (res, rej) => {
     let values = []
@@ -57,37 +67,46 @@ run = async (scriptPath, ...runArgs) => {
       scriptPath = scriptPath + ".js"
 
     // console.log({ scriptPath, args, argOpts, runArgs })
-    let child = fork(
-      scriptPath,
-      [...args, ...runArgs, ...argOpts].filter(arg => {
-        if (typeof arg === "string") return arg.length > 0
+    let scriptArgs = [
+      ...args,
+      ...runArgs,
+      ...argOpts,
+    ].filter(arg => {
+      if (typeof arg === "string") return arg.length > 0
 
-        return arg
-      }),
-      {
-        stdio: "inherit",
-        execArgv: [
-          "--require",
-          "dotenv/config",
-          "--require",
-          simplePath("/preload/api.cjs"),
-          "--require",
-          simplePath("/preload/simple.cjs"),
-          "--require",
-          simplePath("/preload/mac.cjs"),
-        ],
-        //Manually set node. Shouldn't have to worry about PATH
-        execPath: env.SIMPLE_NODE,
-        env: {
-          ...env,
-          SIMPLE_PARENT_NAME: env.SIMPLE_SCRIPT_NAME,
-          SIMPLE_PARENT_ARGS: runArgs,
-        },
-      }
+      return arg
+    })
+    let child = fork(scriptPath, scriptArgs, {
+      stdio: "inherit",
+      execArgv: [
+        "--require",
+        "dotenv/config",
+        "--require",
+        simplePath("/preload/api.cjs"),
+        "--require",
+        simplePath("/preload/simple.cjs"),
+        "--require",
+        simplePath("/preload/mac.cjs"),
+      ],
+      //Manually set node. Shouldn't have to worry about PATH
+      execPath: env.SIMPLE_NODE,
+      env: {
+        ...env,
+        SIMPLE_PARENT_NAME:
+          env.SIMPLE_PARENT_NAME || env.SIMPLE_SCRIPT_NAME,
+        SIMPLE_ARGS:
+          env.SIMPLE_ARGS || scriptArgs.join("."),
+      },
+    })
+
+    let name = process.argv[1].replace(
+      simplePath() + path.sep,
+      ""
     )
-
-    let name = process.argv[1].split("/").pop()
-    let childName = scriptPath.split("/").pop()
+    let childName = scriptPath.replace(
+      simplePath() + path.sep,
+      ""
+    )
 
     console.log(childName, child.pid)
 
@@ -152,7 +171,7 @@ env = async (envKey, promptConfig = {}) => {
   if (input.startsWith("~"))
     input = input.replace("~", env.HOME)
 
-  await run("cli/set-env-var", envKey, input)
+  await simple("cli/set-env-var", envKey, input)
   env[envKey] = input
   return input
 }
@@ -160,9 +179,9 @@ env = async (envKey, promptConfig = {}) => {
 assignPropsTo(process.env, env)
 
 env.SIMPLE_BIN_FILE_PATH = process.argv[1]
-env.SIMPLE_SRC_NAME = /[^/]*$/.exec(
-  env.SIMPLE_BIN_FILE_PATH
-)[0]
+env.SIMPLE_SRC_NAME = process.argv[1]
+  .split(".simple/")
+  .pop()
 
 env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
   ".js",

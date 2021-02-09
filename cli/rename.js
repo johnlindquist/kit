@@ -4,15 +4,15 @@ let { choices, validate, exists } = await import(
 
 let script = await arg(
   `Which script do you want to rename?`,
-  {
-    choices,
-    validate,
-  }
+  choices,
+  validate
 )
 
-let newScript = await arg(`Enter the new script name:`, {
-  validate: exists,
-})
+let newScript = await arg(
+  `Enter the new script name:`,
+  null,
+  exists
+)
 
 let oldFilePath = path.join(
   env.SIMPLE_SCRIPTS_PATH,
@@ -23,5 +23,5 @@ let newFilePath = path.join(
   newScript + ".js"
 )
 mv(oldFilePath, newFilePath)
-await run("cli/create-bin", ["scripts/" + newScript])
+await simple("cli/create-bin", "scripts/" + newScript)
 trash(path.join(env.SIMPLE_BIN_PATH, script))

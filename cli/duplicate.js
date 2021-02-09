@@ -2,10 +2,8 @@ let { choices, validate } = await import("./scripts.js")
 
 let script = await arg(
   `Which script do you want to duplicate?`,
-  {
-    choices,
-    validate,
-  }
+  choices,
+  validate
 )
 
 let newScript = await arg(`Enter the new script name:`, {
@@ -31,6 +29,6 @@ let newFilePath = path.join(
   newScript + ".js"
 )
 cp(oldFilePath, newFilePath)
-await run("cli/create-bin", ["scripts/" + newScript])
+await simple("cli/create-bin", ["scripts/" + newScript])
 
 edit(newFilePath, env.SIMPLE_PATH)

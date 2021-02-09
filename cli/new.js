@@ -2,9 +2,11 @@
 
 let { exists } = await import("./scripts.js")
 
-let name = await arg("Enter a name for your script:", {
-  validate: exists,
-})
+let name = await arg(
+  "Enter a name for your script:",
+  null,
+  exists
+)
 
 let scriptPath = path.join(
   env.SIMPLE_SCRIPTS_PATH,
@@ -33,7 +35,7 @@ if (arg?.url) {
 }
 
 await writeFile(scriptPath, contents)
-await run(
+await simple(
   "cli/create-bin",
   path
     .join(env.SIMPLE_SCRIPTS_PATH, name)

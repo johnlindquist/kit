@@ -56,7 +56,7 @@ say = async (string, { rate = 250, voice = "Alex" } = {}) =>
 
 setSelectedText = async text => {
   await applescript(`set the clipboard to "${text}"`)
-  process.send({ from: "hide" })
+  if (process?.send) process.send({ from: "hide" })
   await applescript(
     `tell application "System Events" to keystroke "v" using command down`
   )
@@ -209,14 +209,15 @@ edit = async (file, dir, line = 0, col = 0) => {
 }
 
 // TODO: Optimize, etc
-fileSearch = async (input, { onlyin = "~", kind } = {}) => {
-  let command = `mdfind -name ${input} -onlyin ${onlyin}`
-  if (kind) command += ` kind:${kind}`
+fileSearch = async (name, { onlyin = "~", kind } = {}) => {
+  let command = `mdfind${name ? ` -name ${name}` : ""}${
+    onlyin ? ` -onlyin ${onlyin}` : ``
+  }${kind ? ` "kind:${kind}"` : ``}`
+  console.log(command)
 
   return exec(command, {
     silent: true,
   })
     .toString()
     .split("\n")
-    .slice(0, 25)
 }

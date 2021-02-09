@@ -27,15 +27,19 @@ echo(`
 //----------------------
 
 let TUTORIAL_CONTENT_PATH = simplePath("tmp")
-await run("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
-await run(
+await simple(
+  "cli/set-env-var",
+  "SIMPLE_TEMPLATE",
+  "tutorial"
+)
+await simple(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH
 )
 
 let testingTutorial = "testing-tutorial"
-await run(
+await simple(
   `cli/tutorial`,
   testingTutorial,
   "--trust",
@@ -74,7 +78,7 @@ if (
 }
 
 tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
-await run(
+await simple(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH

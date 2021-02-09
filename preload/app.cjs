@@ -1,10 +1,30 @@
 const { getEventListeners } = require("events")
 
+const fromInput = async (choices, input) => {
+  process.send({
+    simpleScript: env.SIMPLE_SCRIPT_NAME,
+    parentScript: env.SIMPLE_PARENT_NAME,
+    simpleArgs: args.join(" "),
+    from: "choices",
+    input,
+    choices: (await choices(input)).map(choice => {
+      if (typeof choice === "string") {
+        return {
+          name: choice,
+          value: choice,
+        }
+      }
+      choice.uuid = v4()
+      return choice
+    }),
+  })
+}
+
 exports.prompt = async config => {
   let type = "input"
 
   if (config?.type === "confirm") {
-    config.choices = [
+    config.choices = () => [
       { name: "Yes", value: true },
       { name: "No", value: false },
     ]
@@ -13,17 +33,42 @@ exports.prompt = async config => {
   if (config?.choices) {
     type = "autocomplete"
   }
-  if (typeof config?.choices === "function") {
-    type = "lazy"
+  if (
+    typeof config?.choices === "function" &&
+    config?.choices.length > 0
+  ) {
+    type = "choices"
   }
 
   config = {
+    simpleScript: env.SIMPLE_SCRIPT_NAME,
     type,
     message: "Input:",
     name: "value",
     ...config,
   }
-
+  if (
+    typeof config?.choices === "function" &&
+    config?.choices?.length === 0
+  ) {
+    console.log(`RUNNING CHOICES FUNC:`)
+    let choices = config?.choices()
+    if (typeof choices?.then === "function")
+      choices = await choices
+    config = {
+      ...config,
+      choices: choices.map(choice => {
+        if (typeof choice === "string") {
+          return {
+            name: choice,
+            value: choice,
+          }
+        }
+        choice.uuid = v4()
+        return choice
+      }),
+    }
+  }
   if (typeof config?.choices === "object") {
     config = {
       ...config,
@@ -40,7 +85,23 @@ exports.prompt = async config => {
     }
   }
 
-  process.send({ ...config, from: "prompt" })
+  // console.log(`simpleInput:`, Object.keys(arg))
+  if (arg["simple-input"]) {
+    // console.log(
+    //   `CACHING IN EFFECT:`,
+    //   config.choices,
+    //   arg["simple-input"]
+    // )
+    fromInput(config.choices, arg["simple-input"])
+  } else {
+    process.send({
+      ...config,
+      simpleScript: env.SIMPLE_SCRIPT_NAME,
+      parentScript: env.SIMPLE_PARENT_NAME,
+      simpleArgs: args.join(" "),
+      from: "prompt",
+    })
+  }
 
   let messageHandler
   let errorHandler
@@ -49,24 +110,10 @@ exports.prompt = async config => {
       //If you're typing input, send back choices based on the function
       if (
         data?.from === "input" &&
-        typeof config?.choices == "function"
+        typeof config?.choices == "function" &&
+        config?.choices.length > 0
       ) {
-        process.send({
-          from: "choices",
-          choices: (await config.choices(data?.input)).map(
-            choice => {
-              if (typeof choice === "string") {
-                return {
-                  name: choice,
-                  value: choice,
-                }
-              }
-              choice.uuid = v4()
-              return choice
-            }
-          ),
-        })
-
+        fromInput(config.choices, data.input)
         return
       }
 
@@ -90,8 +137,10 @@ exports.prompt = async config => {
 
 exports.arg = async (
   message = "Input",
-  promptConfig = {}
+  choices,
+  validate
 ) => {
+  let promptConfig = { message, choices, validate }
   if (args.length) return args.shift()
   return prompt({
     message,

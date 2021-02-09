@@ -10,11 +10,6 @@ const cliScripts = [
   { name: "run", message: "Run a script" },
   { name: "edit", message: "Edit a script" },
   {
-    name: "list",
-    alias: "ls",
-    message: "List all scripts",
-  },
-  {
     name: "duplicate",
     alias: "cp",
     message: "Duplicate a script",
@@ -50,17 +45,16 @@ const cliScripts = [
   { name: "quit", message: "Quit Simple Scripts" },
 ]
 
-let script = await arg("What do you want to do?", {
-  message: "What do you want to do?",
-  choices: cliScripts.map(({ name, message, alias }) => {
+let script = await arg("What do you want to do?", () =>
+  cliScripts.map(({ name, message, alias }) => {
     return {
       name: chalk`{green.bold ${name}}${
         alias ? chalk` {yellow (${alias})}` : ""
       }: ${message}`,
       value: name,
     }
-  }),
-})
+  })
+)
 
 let found = cliScripts.find(
   config => config.name == script || config.alias == script
@@ -69,4 +63,4 @@ if (found) {
   script = "cli/" + found.name
 }
 
-let values = await run(script)
+let values = await simple(script)

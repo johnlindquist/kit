@@ -5,7 +5,7 @@ export let name = await arg(
   Please name your script (example: get-profile):`
 )
 
-await run("cli/new", name, "--template", "tutorial")
+await simple("cli/new", name, "--template", "tutorial")
 
 echo(
   chalk`\n🤯 {yellow.italic Type} {green.bold ${name}} {yellow.italic in any directory to run ${name}.js}" 🤯\n`
