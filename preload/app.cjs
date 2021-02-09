@@ -23,13 +23,6 @@ const fromInput = async (choices, input) => {
 exports.prompt = async config => {
   let type = "input"
 
-  if (config?.type === "confirm") {
-    config.choices = () => [
-      { name: "Yes", value: true },
-      { name: "No", value: false },
-    ]
-  }
-
   if (config?.choices) {
     type = "autocomplete"
   }
@@ -69,7 +62,10 @@ exports.prompt = async config => {
       }),
     }
   }
-  if (typeof config?.choices === "object") {
+  if (
+    config?.choices &&
+    typeof config?.choices === "object"
+  ) {
     config = {
       ...config,
       choices: config.choices.map(choice => {
