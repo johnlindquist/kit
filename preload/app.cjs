@@ -2,7 +2,7 @@ const { getEventListeners } = require("events")
 
 const fromInput = async (choices, input) => {
   process.send({
-    simpleScript: env.SIMPLE_SCRIPT_NAME,
+    simpleScript,
     parentScript: env.SIMPLE_PARENT_NAME,
     simpleArgs: args.join(" "),
     from: "choices",
@@ -41,7 +41,7 @@ exports.prompt = async config => {
   }
 
   config = {
-    simpleScript: env.SIMPLE_SCRIPT_NAME,
+    simpleScript,
     type,
     message: "Input:",
     name: "value",
@@ -93,10 +93,10 @@ exports.prompt = async config => {
     //   arg["simple-input"]
     // )
     fromInput(config.choices, arg["simple-input"])
-  } else {
+  } else if (!arg["prompt-exists"]) {
     process.send({
       ...config,
-      simpleScript: env.SIMPLE_SCRIPT_NAME,
+      simpleScript,
       parentScript: env.SIMPLE_PARENT_NAME,
       simpleArgs: args.join(" "),
       from: "prompt",

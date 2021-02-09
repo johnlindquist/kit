@@ -44,6 +44,7 @@ simplify = async lib => {
 }
 
 simple = async (scriptPath, ..._args) => {
+  simpleScript = simpleScriptFromPath(scriptPath)
   args.push(..._args)
   if (!scriptPath.includes("/")) {
     return await import(
@@ -190,6 +191,15 @@ env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
 
 simplePath = (...parts) =>
   path.join(env.SIMPLE_PATH, ...parts)
+
+simpleScriptFromPath = path => {
+  path = path.replace(env.SIMPLE_PATH + "/", "")
+  if (!path.includes("/")) path = "scripts/" + path
+  path = path.replace(/\.js$/, "")
+  return path
+}
+
+simpleScript = simpleScriptFromPath(env.SIMPLE_SCRIPT_NAME)
 
 env.SIMPLE_SCRIPTS_PATH = path.join(
   env.SIMPLE_PATH,
