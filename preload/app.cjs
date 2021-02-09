@@ -44,7 +44,6 @@ exports.prompt = async config => {
     typeof config?.choices === "function" &&
     config?.choices?.length === 0
   ) {
-    console.log(`RUNNING CHOICES FUNC:`)
     let choices = config?.choices()
     if (typeof choices?.then === "function")
       choices = await choices

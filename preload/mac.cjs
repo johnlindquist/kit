@@ -213,7 +213,6 @@ fileSearch = async (name, { onlyin = "~", kind } = {}) => {
   let command = `mdfind${name ? ` -name ${name}` : ""}${
     onlyin ? ` -onlyin ${onlyin}` : ``
   }${kind ? ` "kind:${kind}"` : ``}`
-  console.log(command)
 
   return exec(command, {
     silent: true,
