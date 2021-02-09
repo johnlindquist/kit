@@ -45,6 +45,7 @@ exports.arg = async (
   choices,
   validate
 ) => {
+  if (args.length) return args.shift()
   let input = await prompt({
     message,
     choices,
