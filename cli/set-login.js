@@ -1,1 +1,1 @@
-send({ from: "setLogin", openAtLogin: true })
+send({ from: "SET_LOGIN", openAtLogin: true })

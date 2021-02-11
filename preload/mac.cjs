@@ -12,7 +12,7 @@ applescript = async (
 }
 
 getSelectedText = async () => {
-  process.send({ from: "hide" })
+  if (process?.send) process.send({ from: "HIDE_APP" })
   await applescript(
     `tell application "System Events" to keystroke "c" using command down`
   )
@@ -56,7 +56,7 @@ say = async (string, { rate = 250, voice = "Alex" } = {}) =>
 
 setSelectedText = async text => {
   await applescript(`set the clipboard to "${text}"`)
-  if (process?.send) process.send({ from: "hide" })
+  if (process?.send) process.send({ from: "HIDE_APP" })
   await applescript(
     `tell application "System Events" to keystroke "v" using command down`
   )
@@ -92,14 +92,14 @@ getPathAsPicture = async path =>
 getActiveScreen = async () =>
   new Promise((res, rej) => {
     let messageHandler = data => {
-      if (data.from === "system") {
+      if (data.from === "SCREEN_INFO") {
         res(data.activeScreen)
         process.off("message", messageHandler)
       }
     }
     process.on("message", messageHandler)
 
-    process.send({ from: "system" })
+    process.send({ from: "GET_SCREEN_INFO" })
   })
 
 setActiveAppBounds = async ({

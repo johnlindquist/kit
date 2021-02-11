@@ -5,7 +5,7 @@ const fromInput = async (choices, input) => {
     simpleScript,
     parentScript: env.SIMPLE_PARENT_NAME,
     simpleArgs: args.join(" "),
-    from: "updateChoices",
+    from: "UPDATE_PROMPT_CHOICES",
     input,
     choices: (await choices(input)).map(choice => {
       if (typeof choice === "string") {
@@ -64,7 +64,7 @@ exports.prompt = async config => {
       simpleScript,
       parentScript: env.SIMPLE_PARENT_NAME,
       simpleArgs: args.join(" "),
-      from: "prompt",
+      from: "SHOW_PROMPT_WITH_DATA",
       choices,
       cache: typeof choices !== "function",
     })
@@ -76,7 +76,7 @@ exports.prompt = async config => {
     messageHandler = async data => {
       //If you're typing input, send back choices based on the function
       if (
-        data?.from === "input" &&
+        data?.from === "INPUT_CHANGED" &&
         typeof choices === "function"
       ) {
         fromInput(choices, data.input)
@@ -194,7 +194,7 @@ exports.show = async (html, options) => {
   if (typeof html === "object")
     html = JSON.stringify(html, null, "\t")
   process.send({
-    from: "show",
+    from: "SHOW_RESULTS",
     html: addPadding(html),
     options,
   })
@@ -206,7 +206,7 @@ exports.showMarkdown = async (markdown, options) => {
   )
 
   process.send({
-    from: "show",
+    from: "SHOW_RESULTS",
     html: addPadding(markdownHtml),
     options,
   })

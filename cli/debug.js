@@ -1,1 +1,1 @@
-send({ from: "debug" })
+send({ from: "TOGGLE_DEBUGGER" })
