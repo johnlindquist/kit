@@ -76,7 +76,7 @@ trash = async (...trashArgs) => {
 }
 
 send = (...args) => {
-  if (process && process.send) {
+  if (process?.send) {
     process.send(...args)
   } else {
     console.log(
