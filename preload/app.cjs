@@ -23,7 +23,7 @@ const fromInput = async (choices, input) => {
 exports.prompt = async config => {
   let {
     message = "",
-    validate = () => {},
+    validate = null,
     preview = "",
     choices = [],
   } = config
@@ -83,8 +83,20 @@ exports.prompt = async config => {
         return
       }
 
-      //The App returned normal data
-      resolve(data)
+      if (validate) {
+        let valid = await validate(data)
+
+        if (typeof valid === "string") {
+          process.send({
+            from: "UPDATE_PROMPT_INFO",
+            info: valid,
+          })
+        } else {
+          resolve(data)
+        }
+      } else {
+        resolve(data)
+      }
     }
 
     errorHandler = () => {
