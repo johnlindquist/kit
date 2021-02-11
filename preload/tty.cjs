@@ -41,16 +41,39 @@ exports.prompt = async config => {
 }
 
 exports.arg = async (
-  message = "Input",
-  choices,
-  validate
+  messageOrConfig = "Input",
+  choices
 ) => {
-  if (args.length) return args.shift()
-  let input = await prompt({
-    message,
-    choices,
-    validate,
-  })
+  let firstArg = args.length ? args.shift() : null
+  if (firstArg) {
+    let valid = true
+    if (messageOrConfig?.validate) {
+      let { validate } = messageOrConfig
+      let validOrMessage = await validate(firstArg)
+      if (
+        typeof validOrMessage === "string" ||
+        !validOrMessage
+      ) {
+        valid = false
+        console.log(validOrMessage)
+      }
+    }
+
+    if (valid) {
+      return firstArg
+    }
+  }
+
+  let config = {}
+
+  if (typeof messageOrConfig === "string") {
+    config.message = messageOrConfig
+  } else {
+    config = messageOrConfig
+  }
+
+  config.choices = choices
+  let input = await prompt(config)
 
   let command = chalk`{green.bold ${
     env.SIMPLE_SCRIPT_NAME

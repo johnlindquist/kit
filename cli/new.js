@@ -2,11 +2,10 @@
 
 let { exists } = await import("./scripts.js")
 
-let name = await arg(
-  "Enter a name for your script:",
-  null,
-  exists
-)
+let name = await arg({
+  message: "Enter a name for your script:",
+  validate: exists,
+})
 
 let scriptPath = path.join(
   env.SIMPLE_SCRIPTS_PATH,
