@@ -2,10 +2,14 @@ const { getEventListeners } = require("events")
 
 const fromInput = async (choices, input) => {
   process.send({
+    from: "log",
+    message: `>>> FROM INPUT: ${choices} ${input}`,
+  })
+  process.send({
     simpleScript,
     parentScript: env.SIMPLE_PARENT_NAME,
     simpleArgs: args.join(" "),
-    from: "choices",
+    from: "updateChoices",
     input,
     choices: (await choices(input)).map(choice => {
       if (typeof choice === "string") {
@@ -21,80 +25,58 @@ const fromInput = async (choices, input) => {
 }
 
 exports.prompt = async config => {
-  let type = "input"
+  let {
+    message = "",
+    validate = () => {},
+    preview = "",
+    choices = [],
+  } = config
+  //TODO: Handle validation
 
-  if (config?.choices) {
-    type = "autocomplete"
-  }
+  process.send({ from: "log", message })
   if (
-    typeof config?.choices === "function" &&
-    config?.choices.length > 0
+    choices &&
+    typeof choices === "function" &&
+    choices.length === 0
   ) {
-    type = "choices"
-  }
-
-  config = {
-    simpleScript,
-    type,
-    message: "Input:",
-    name: "value",
-    ...config,
-  }
-  if (
-    typeof config?.choices === "function" &&
-    config?.choices?.length === 0
-  ) {
-    let choices = config?.choices()
-    if (typeof choices?.then === "function")
+    choices = choices()
+    if (typeof choices?.then === "function") {
       choices = await choices
-    config = {
-      ...config,
-      choices: choices.map(choice => {
-        if (typeof choice === "string") {
-          return {
-            name: choice,
-            value: choice,
-          }
-        }
-        choice.uuid = v4()
-        return choice
-      }),
-    }
-  }
-  if (
-    config?.choices &&
-    typeof config?.choices === "object"
-  ) {
-    config = {
-      ...config,
-      choices: config.choices.map(choice => {
-        if (typeof choice === "string") {
-          return {
-            name: choice,
-            value: choice,
-          }
-        }
-        choice.uuid = v4()
-        return choice
-      }),
     }
   }
 
-  // console.log(`simpleInput:`, Object.keys(arg))
+  if (typeof choices === "object") {
+    choices = choices.map(choice => {
+      if (typeof choice === "string") {
+        return {
+          name: choice,
+          value: choice,
+        }
+      }
+      choice.uuid = v4()
+      return choice
+    })
+  }
+
+  process.send({
+    from: "log",
+    message: `>>> CHOICES ${typeof choices}`,
+  })
+
   if (arg["simple-input"]) {
-    // console.log(
-    //   `CACHING IN EFFECT:`,
-    //   config.choices,
-    //   arg["simple-input"]
-    // )
-    fromInput(config.choices, arg["simple-input"])
-  } else if (!arg["prompt-exists"]) {
+    //Got cache, so silently pass arg
+    fromInput(choices, arg["simple-input"])
+  }
+  if (!arg["prompt-exists"]) {
     process.send({
-      ...config,
+      message,
+      preview,
       simpleScript,
       parentScript: env.SIMPLE_PARENT_NAME,
       simpleArgs: args.join(" "),
       from: "prompt",
+      choices,
+      cache: typeof choices !== "function",
     })
   }
 
@@ -102,13 +84,17 @@ exports.prompt = async config => {
   let errorHandler
   let value = await new Promise((resolve, reject) => {
     messageHandler = async data => {
+      process.send({
+        from: "log",
+        message: `>>> HANDLE: ${JSON.stringify(data)}`,
+      })
+
       //If you're typing input, send back choices based on the function
       if (
         data?.from === "input" &&
-        typeof config?.choices == "function" &&
-        config?.choices.length > 0
+        typeof choices === "function"
       ) {
-        fromInput(config.choices, data.input)
+        fromInput(choices, data.input)
         return
       }
 
@@ -130,16 +116,23 @@ exports.prompt = async config => {
   return value
 }
 
-exports.arg = async (
-  message = "Input",
-  choices,
-  validate
-) => {
-  let promptConfig = { message, choices, validate }
+exports.arg = async (messageOrConfig, choices) => {
   if (args.length) return args.shift()
-  return prompt({
+
+  if (typeof messageOrConfig === "string") {
+    return await prompt({
+      message: messageOrConfig,
+      choices,
+    })
+  }
+
+  let { message, validate, preview } = messageOrConfig
+
+  return await prompt({
     message,
-    ...promptConfig,
+    validate,
+    preview,
+    choices,
   })
 }
 
@@ -167,24 +160,30 @@ exports.npm = async packageName => {
       let message = `Do you trust ${packageName}?`
 
       config = {
-        type: "confirm",
         message,
         preview: `<div>
         <div>${installMessage}</div>
         <div>${downloadsMessage}</div>
         <div><a href="${readMore}">${readMore}</a></div>        
         </div>`,
+        choices: [
+          {
+            name: `Yes, install ${packageName}`,
+            value: "true",
+          },
+          {
+            name: `No, abort`,
+            value: "false",
+          },
+        ],
       }
 
       let trust = await prompt(config)
-      if (!trust) {
+      if (trust === "false") {
         echo(`Ok. Exiting...`)
         exit()
       }
     }
-    echo(
-      chalk`Installing {yellow ${packageName}} and continuing.`
-    )
 
     await install([packageName])
     let packageJson = require(simplePath(
