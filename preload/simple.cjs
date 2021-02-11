@@ -130,10 +130,6 @@ run = async (scriptPath, ...runArgs) => {
     })
 
     child.on("close", code => {
-      console.log(`CLOSE ${childName} from ${name}`, {
-        child: child.pid,
-        code,
-      })
       process.off("message", forwardToChild)
       res(values)
     })

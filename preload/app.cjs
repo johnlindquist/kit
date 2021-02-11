@@ -2,10 +2,6 @@ const { getEventListeners } = require("events")
 
 const fromInput = async (choices, input) => {
   process.send({
-    from: "log",
-    message: `>>> FROM INPUT: ${choices} ${input}`,
-  })
-  process.send({
     simpleScript,
     parentScript: env.SIMPLE_PARENT_NAME,
     simpleArgs: args.join(" "),
@@ -33,7 +29,6 @@ exports.prompt = async config => {
   } = config
   //TODO: Handle validation
 
-  process.send({ from: "log", message })
   if (
     choices &&
     typeof choices === "function" &&
@@ -58,11 +53,6 @@ exports.prompt = async config => {
     })
   }
 
-  process.send({
-    from: "log",
-    message: `>>> CHOICES ${typeof choices}`,
-  })
-
   if (arg["simple-input"]) {
     //Got cache, so silently pass arg
     fromInput(choices, arg["simple-input"])
@@ -84,11 +74,6 @@ exports.prompt = async config => {
   let errorHandler
   let value = await new Promise((resolve, reject) => {
     messageHandler = async data => {
-      process.send({
-        from: "log",
-        message: `>>> HANDLE: ${JSON.stringify(data)}`,
-      })
-
       //If you're typing input, send back choices based on the function
       if (
         data?.from === "input" &&
