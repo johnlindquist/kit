@@ -3,9 +3,11 @@
 let { choices, validate } = await import("./scripts.js")
 
 let file = await arg(
-  `Which script do you want to edit?`,
-  () => choices,
-  validate
+  {
+    message: `Which script do you want to edit?`,
+    validate,
+  },
+  choices
 )
 
 let fileName = file + ".js"

@@ -6,10 +6,6 @@ let context = require(`./${
   process.env?.SIMPLE_CONTEXT === "app" ? "app" : "tty"
 }.cjs`)
 
-Object.keys(context).forEach(key => {
-  global[key] = context[key]
-})
-
 install = async packageNames => {
   return await new Promise((res, rej) => {
     let npm = spawn("npm", ["i", ...packageNames], {

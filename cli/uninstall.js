@@ -6,13 +6,10 @@ let file = JSON.parse(
 
 let packages = await arg(
   chalk`Which packages do you want to {red uninstall}`,
-  {
-    multiple: true,
-    choices: [
-      ...Object.keys(file?.dependencies || []),
-      ...Object.keys(file?.devDependencies || []),
-    ],
-  }
+  [
+    ...Object.keys(file?.dependencies || []),
+    ...Object.keys(file?.devDependencies || []),
+  ]
 )
 
 //grab all the args you used `simple un jquery react`

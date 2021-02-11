@@ -42,8 +42,16 @@ export let exists = async input => {
     silent: true,
   })
 
-  if (result.stdout) {
+  let checkBin = await readdir(simplePath("bin"))
+
+  if (result.stdout || checkBin.includes(input)) {
     return chalk`{red.bold ${input}} already exists. Please choose another name.`
+  }
+
+  let validName = input.match(/^([a-z]|\-)+$/g)
+
+  if (!validName) {
+    return chalk`{red.bold "${input}}" can only include lowercase and -`
   }
 
   return true

@@ -20,14 +20,22 @@ const fromInput = async (choices, input) => {
   })
 }
 
-exports.prompt = async config => {
+prompt = async config => {
   let {
     message = "",
     validate = null,
     preview = "",
     choices = [],
+    type = "",
   } = config
   //TODO: Handle validation
+
+  if (type === "confirm") {
+    choices = [
+      { name: "Yes", value: true },
+      { name: "No", value: false },
+    ]
+  }
 
   if (
     choices &&
@@ -83,6 +91,8 @@ exports.prompt = async config => {
         return
       }
 
+      console.log(validate)
+
       if (validate) {
         let valid = await validate(data)
 
@@ -113,7 +123,7 @@ exports.prompt = async config => {
   return value
 }
 
-exports.arg = async (messageOrConfig, choices) => {
+arg = async (messageOrConfig, choices) => {
   if (args.length) return args.shift()
 
   if (typeof messageOrConfig === "string") {
@@ -133,7 +143,7 @@ exports.arg = async (messageOrConfig, choices) => {
   })
 }
 
-exports.npm = async packageName => {
+npm = async packageName => {
   try {
     return await import(packageName)
   } catch {
@@ -202,7 +212,7 @@ exports.npm = async packageName => {
 let addPadding = html =>
   `<div class="p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">${html}</div>`
 
-exports.show = async (html, options) => {
+show = async (html, options) => {
   if (typeof html === "object")
     html = JSON.stringify(html, null, "\t")
   process.send({
@@ -212,7 +222,7 @@ exports.show = async (html, options) => {
   })
 }
 
-exports.showMarkdown = async (markdown, options) => {
+showMarkdown = async (markdown, options) => {
   let markdownHtml = (await npm("marked")).default(
     markdown.trim()
   )

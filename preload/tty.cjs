@@ -1,4 +1,4 @@
-exports.prompt = async config => {
+prompt = async config => {
   // console.log(`\n\n >>> TTY PROMPT <<< \n\n`)
   if (config?.choices) {
     config = { ...config, type: "autocomplete" }
@@ -40,10 +40,7 @@ exports.prompt = async config => {
   return value
 }
 
-exports.arg = async (
-  messageOrConfig = "Input",
-  choices
-) => {
+arg = async (messageOrConfig = "Input", choices) => {
   let firstArg = args.length ? args.shift() : null
   if (firstArg) {
     let valid = true
@@ -87,7 +84,7 @@ exports.arg = async (
   return input
 }
 
-exports.npm = async packageName => {
+npm = async packageName => {
   try {
     return await import(packageName)
   } catch {
@@ -148,11 +145,11 @@ exports.npm = async packageName => {
   }
 }
 
-exports.show = async (html, options) => {
+show = async (html, options) => {
   console.log(html)
 }
 
-exports.showMarkdown = async (markdown, options) => {
+showMarkdown = async (markdown, options) => {
   let markdownHtml = (await npm("marked")).default(
     markdown.trim()
   )
