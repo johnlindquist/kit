@@ -97,6 +97,22 @@ log = (...args) => {
   }
 }
 
+let _consoleLog = console.log.bind(console)
+console.log = (...args) => {
+  if (process?.send) {
+    process.send({
+      from: "CONSOLE_LOG",
+      log: args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" "),
+    })
+  } else {
+    _consoleLog(...args)
+  }
+}
+
 wait = async time =>
   new Promise(res => setTimeout(res, time))
 
