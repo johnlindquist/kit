@@ -122,15 +122,9 @@ prompt = async (config = {}) => {
 }
 
 arg = async (messageOrConfig, choices) => {
-  console.log(
-    `typof messageOrConfig`,
-    typeof messageOrConfig,
-    { args }
-  )
   if (args.length) return args.shift()
 
   if (typeof messageOrConfig === "undefined") {
-    console.log(`WHAT THE HECK!!!`)
     return await prompt({ message: "Enter arg:" })
   }
 
