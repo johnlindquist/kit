@@ -24,7 +24,7 @@ const cliScripts = [
     alias: "rm",
     message: "Remove a script",
   },
-  { name: "clear", message: "Clear the prompt chache" },
+  { name: "clear", message: "Clear the caches" },
   {
     name: "install",
     alias: "i",
