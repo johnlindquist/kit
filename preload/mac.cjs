@@ -54,7 +54,9 @@ say = async (string, { rate = 250, voice = "Alex" } = {}) =>
   )
 
 setSelectedText = async text => {
-  await applescript(`set the clipboard to "${text}"`)
+  await applescript(
+    `set the clipboard to "${text.replaceAll('"', '\\"')}"`
+  )
   if (process?.send) process.send({ from: "HIDE_APP" })
   await applescript(
     `tell application "System Events" to keystroke "v" using command down`
