@@ -12,7 +12,6 @@ applescript = async (
 }
 
 getSelectedText = async () => {
-  if (process?.send) process.send({ from: "HIDE_APP" })
   await applescript(
     `tell application "System Events" to keystroke "c" using command down`
   )

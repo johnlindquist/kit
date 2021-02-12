@@ -129,19 +129,20 @@ npm = async packageName => {
     )
 
     await install([packageName])
-    let packageJson = require(simplePath(
+    let packageJsonPath = simplePath(
       "node_modules",
       packageName,
       "package.json"
-    ))
-
-    return await import(
-      simplePath(
-        "node_modules",
-        packageName,
-        packageJson.main
-      )
     )
+    let packageJson = require(packageJsonPath)
+
+    let packageImport = simplePath(
+      "node_modules",
+      packageName,
+      packageJson?.main || "index.js"
+    )
+
+    return await import(packageImport)
   }
 }
 

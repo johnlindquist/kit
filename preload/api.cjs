@@ -86,6 +86,17 @@ send = (...args) => {
   }
 }
 
+log = (...args) => {
+  if (process?.send) {
+    process.send({
+      from: "LOG_MESSAGE",
+      message: args.join(" "),
+    })
+  } else {
+    console.log(...args)
+  }
+}
+
 wait = async time =>
   new Promise(res => setTimeout(res, time))
 

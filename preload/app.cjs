@@ -27,8 +27,8 @@ prompt = async config => {
     preview = "",
     choices = [],
     type = "",
+    cache = true,
   } = config
-  //TODO: Handle validation
 
   if (type === "confirm") {
     choices = [
@@ -74,7 +74,7 @@ prompt = async config => {
       simpleArgs: args.join(" "),
       from: "SHOW_PROMPT_WITH_DATA",
       choices,
-      cache: typeof choices !== "function",
+      cache: typeof choices !== "function" && cache,
     })
   }
 
@@ -90,8 +90,6 @@ prompt = async config => {
         fromInput(choices, data.input)
         return
       }
-
-      console.log(validate)
 
       if (validate) {
         let valid = await validate(data)
@@ -183,6 +181,7 @@ npm = async packageName => {
             value: "false",
           },
         ],
+        cache: false,
       }
 
       let trust = await prompt(config)
