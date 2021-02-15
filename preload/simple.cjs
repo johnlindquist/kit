@@ -42,12 +42,17 @@ simplify = async lib => {
 simple = async (scriptPath, ..._args) => {
   simpleScript = simpleScriptFromPath(scriptPath)
   args.push(..._args)
-  if (!scriptPath.includes("/")) {
-    return await import(
-      simplePath("scripts", scriptPath) + ".js"
-    )
+  let simpleScriptPath = scriptPath.includes("/")
+    ? simplePath(scriptPath) + ".js"
+    : simplePath("scripts", scriptPath) + ".js"
+
+  //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
+  try {
+    return await import(simpleScriptPath + `?uuid=${v4()}`)
+  } catch (error) {
+    console.log(error)
+    exit()
   }
-  return await import(simplePath(scriptPath) + ".js")
 }
 
 run = async (scriptPath, ...runArgs) => {
@@ -159,6 +164,7 @@ env = async (envKey, promptConfig = {}) => {
   let input = await prompt({
     message: `Set ${envKey} env to:`,
     ...promptConfig,
+    cache: false,
   })
 
   if (input.startsWith("~"))

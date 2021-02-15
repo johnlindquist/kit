@@ -127,3 +127,9 @@ assignPropsTo = (source, target) => {
     target[key] = value
   })
 }
+
+home = (...pathParts) => {
+  let path = require("path")
+  let os = require("os")
+  return path.resolve(os.homedir(), ...pathParts)
+}

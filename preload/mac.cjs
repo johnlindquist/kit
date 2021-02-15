@@ -1,14 +1,20 @@
-frontAppName = null
-selectedText = null
-
 applescript = async (
   script,
   options = { silent: true }
 ) => {
   let formattedScript = script.replace(/'/g, "'\"'\"'")
-  return exec(`osascript -e '${formattedScript}'`, options)
-    .toString()
-    .trim()
+
+  let { stdout, stderr } = exec(
+    `osascript -e '${formattedScript}'`,
+    options
+  )
+
+  if (stderr) {
+    console.log(stderr)
+    exit()
+  }
+
+  return stdout
 }
 
 getSelectedText = async () => {
@@ -18,24 +24,6 @@ getSelectedText = async () => {
 
   return await applescript(`get the clipboard`)
 }
-;(beforePrompt = async () => {
-  if (frontAppName) return
-  let result = await applescript(
-    `
-global frontApp, frontAppName
-
-tell application "System Events"
-	set frontApp to first application process whose frontmost is true
-	set frontAppName to name of frontApp
-end tell
-
-return {frontAppName}
-`
-  )
-
-  let results = result.split(",")
-  frontAppName ||= results[0]
-})()
 
 notify = async (title, subtitle) => {
   applescript(
@@ -120,81 +108,18 @@ setActiveAppBounds = async ({
   )
 }
 
-terminal = async script => {
-  return await applescript(`tell application "Terminal"
-do script "${script}"
-activate
-end tell
-`)
-}
-
-iterm = async command => {
-  command = `"${command.replace(/"/g, '\\"')}"`
-  let script = `
-  tell application "iTerm"
-      if application "iTerm" is running then
-          try
-              tell the first window to create tab with default profile
-          on error
-              create window with default profile
-          end try
-      end if
-  
-      delay 0.1
-  
-      tell the first window to tell current session to write text ${command}
-      activate
-  end tell
-  `.trim()
-  applescript(script)
-}
-
-let possibleTerminals = ["terminal", "iterm"]
-
-let terminalEditor = editor => async file =>
-  await global[
-    await env("SIMPLE_TERMINAL", {
-      message: `Which Terminal do you use with ${editor}?`,
-      choices: possibleTerminals,
-    })
-  ](`${editor} ${file}`)
-
-vim = terminalEditor("vim")
-nano = terminalEditor("nano")
-
-const possibleEditors = [
-  "atom",
-  "code",
-  "emacs",
-  "nano",
-  "ne",
-  "nvim",
-  "sublime",
-  "webstorm",
-  "vim",
-]
-
-code = async (file, dir, line = 0, col = 0) => {
-  let codeArgs = ["--goto", `${file}:${line}:${col}`]
-  if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
-  codeArgs = codeArgs.join(" ")
-  let command = `code ${codeArgs}`
-  exec(command)
-}
-
 edit = async (file, dir, line = 0, col = 0) => {
   if (arg?.edit == false) return
+
+  let { possibleEditors, ...macEditors } = await simple(
+    "apps/mac/editor"
+  )
 
   let editor = await env("SIMPLE_EDITOR", {
     message:
       "Which code editor do you use? (You can always change this later in .env)",
     choices: [
-      ...possibleEditors
-        .filter(editor => global[editor])
-        .filter(editor => which(editor))
-        .map(editor =>
-          which(editor).toString().trim().split("/").pop()
-        ),
+      ...possibleEditors(),
       {
         name: "None. Always copy path to clipboard",
         value: "copy",
@@ -202,9 +127,18 @@ edit = async (file, dir, line = 0, col = 0) => {
     ],
   })
 
-  await global[editor](file)
+  let execEditor = file =>
+    exec(`${editor} ${file}`, { env: {} })
+  let editorFn = macEditors[editor] || execEditor
 
-  echo(
+  let { stdout, stderr } = await editorFn(file)
+
+  if (stderr) {
+    console.log(stderr)
+    exit()
+  }
+
+  console.log(
     chalk`> Opening {yellow ${file}} with {green.bold ${env.SIMPLE_EDITOR}}`
   )
 }
