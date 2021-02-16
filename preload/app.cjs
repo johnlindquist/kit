@@ -122,7 +122,30 @@ prompt = async (config = {}) => {
 }
 
 arg = async (messageOrConfig, choices) => {
-  if (args.length) return args.shift()
+  let firstArg = args.length ? args.shift() : null
+  if (firstArg) {
+    let valid = true
+    if (messageOrConfig?.validate) {
+      let { validate } = messageOrConfig
+      console.log({ validate })
+      let validOrMessage = await validate(firstArg)
+      if (
+        typeof validOrMessage === "string" ||
+        !validOrMessage
+      ) {
+        process.send({
+          from: "UPDATE_PROMPT_INFO",
+          info:
+            validOrMessage || "Invalid value. Try again:",
+        })
+        valid = false
+      }
+    }
+
+    if (valid) {
+      return firstArg
+    }
+  }
 
   if (typeof messageOrConfig === "undefined") {
     return await prompt({ message: "Enter arg:" })
