@@ -131,10 +131,10 @@ edit = async (file, dir, line = 0, col = 0) => {
     exec(`${editor} ${file}`, { env: {} })
   let editorFn = macEditors[editor] || execEditor
 
-  let { stdout, stderr } = await editorFn(file)
+  let result = await editorFn(file)
 
-  if (stderr) {
-    console.log(stderr)
+  if (result?.stderr) {
+    console.warn(`STDERR ${stderr}`)
     exit()
   }
 
