@@ -86,19 +86,8 @@ send = (...args) => {
   }
 }
 
-log = (...args) => {
-  if (process?.send) {
-    process.send({
-      from: "LOG_MESSAGE",
-      message: args.join(" "),
-    })
-  } else {
-    console.log(...args)
-  }
-}
-
 let _consoleLog = console.log.bind(console)
-console.log = (...args) => {
+console.log = async (...args) => {
   if (process?.send) {
     process.send({
       from: "CONSOLE_LOG",
@@ -110,6 +99,22 @@ console.log = (...args) => {
     })
   } else {
     _consoleLog(...args)
+  }
+}
+
+let _consoleWarn = console.warn.bind(console)
+console.warn = async (...args) => {
+  if (process?.send) {
+    process.send({
+      from: "CONSOLE_WARN",
+      warn: args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" "),
+    })
+  } else {
+    _consoleWarn(...args)
   }
 }
 
