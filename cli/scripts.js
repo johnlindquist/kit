@@ -38,21 +38,29 @@ export let validate = async function (input) {
 }
 
 export let exists = async input => {
-  let result = exec(`command -v ${input}`, {
-    silent: true,
-  })
+  try {
+    let checkBin = await readdir(simplePath("bin"))
 
-  let checkBin = await readdir(simplePath("bin"))
+    if (checkBin.includes(input)) {
+      return chalk`{red.bold ${input}} exists. Enter different name:`
+    }
 
-  if (result.stdout || checkBin.includes(input)) {
-    return chalk`{red.bold ${input}} already exists. Please choose another name.`
+    let result = exec(`command -v ${input}`, {
+      silent: true,
+    })
+
+    if (result.stdout) {
+      return chalk`{red.bold ${input}} is a system command. Enter different name:`
+    }
+
+    let validName = input.match(/^([a-z]|\-)+$/g)
+
+    if (!validName) {
+      return chalk`{red.bold "${input}}" can only include lowercase and -. Enter different name:`
+    }
+
+    return true
+  } catch (error) {
+    console.warn(`Error validating that ${input} exists`)
   }
-
-  let validName = input.match(/^([a-z]|\-)+$/g)
-
-  if (!validName) {
-    return chalk`{red.bold "${input}}" can only include lowercase and -`
-  }
-
-  return true
 }
