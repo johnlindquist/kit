@@ -50,8 +50,18 @@ simple = async (scriptPath, ..._args) => {
   try {
     return await import(simpleScriptPath + `?uuid=${v4()}`)
   } catch (error) {
-    console.log(error)
-    exit()
+    let errorMessage = `Error importing: ${simpleScriptPath
+      .split("/")
+      .pop()}. Opening...`
+    console.warn(errorMessage)
+    if (process?.send) {
+      process.send({
+        from: "UPDATE_PROMPT_INFO",
+        info: errorMessage,
+      })
+    }
+
+    await wait(2000)
   }
 }
 
@@ -125,7 +135,7 @@ run = async (scriptPath, ...runArgs) => {
     })
 
     child.on("error", error => {
-      // console.log(`simple error`, { error })
+      console.warn(error)
       values.push(error)
       rej(values)
     })
@@ -137,8 +147,8 @@ run = async (scriptPath, ...runArgs) => {
   })
 }
 
-process.on("uncaughtException", err => {
-  console.log(err)
+process.on("uncaughtException", async err => {
+  console.warn(`UNCAUGHT EXCEPTION: ${err}`)
   exit()
 })
 
