@@ -127,7 +127,6 @@ arg = async (messageOrConfig, choices) => {
     let valid = true
     if (messageOrConfig?.validate) {
       let { validate } = messageOrConfig
-      console.log({ validate })
       let validOrMessage = await validate(firstArg)
       if (
         typeof validOrMessage === "string" ||

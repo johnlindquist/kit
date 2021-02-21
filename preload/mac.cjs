@@ -3,6 +3,10 @@ applescript = async (
   options = { silent: true }
 ) => {
   let formattedScript = script.replace(/'/g, "'\"'\"'")
+  await writeFile(
+    simplePath("tmp", "_testing.applescript"),
+    script
+  )
 
   let { stdout, stderr } = exec(
     `osascript -e '${formattedScript}'`,
@@ -77,36 +81,6 @@ getPathAsPicture = async path =>
   await applescript(
     `set the clipboard to (read (POSIX file ${path} as JPEG picture)`
   )
-
-getActiveScreen = async () =>
-  new Promise((res, rej) => {
-    let messageHandler = data => {
-      if (data.from === "SCREEN_INFO") {
-        res(data.activeScreen)
-        process.off("message", messageHandler)
-      }
-    }
-    process.on("message", messageHandler)
-
-    process.send({ from: "GET_SCREEN_INFO" })
-  })
-
-setActiveAppBounds = async ({
-  left,
-  top,
-  right,
-  bottom,
-}) => {
-  await applescript(
-    `tell application "System Events"
-      set processName to name of first application process whose frontmost is true as text
-      tell process processName to set the position of front window to {${left}, ${top}}
-      tell process processName to set the size of front window to {${
-        right - left
-      }, ${bottom - top}}
-    end tell`
-  )
-}
 
 edit = async (file, dir, line = 0, col = 0) => {
   if (arg?.edit == false) return

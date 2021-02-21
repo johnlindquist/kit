@@ -226,3 +226,28 @@ let nodeBin = ["node", "bin"]
 env.SIMPLE_NODE_BIN = simplePath(...nodeBin)
 env.SIMPLE_NODE = simplePath(...nodeBin, "node")
 env.SIMPLE_NPM = simplePath(...nodeBin, "npm")
+
+inspect = async data => {
+  let dashedDate = () =>
+    new Date()
+      .toISOString()
+      .replace("T", "-")
+      .replaceAll(":", "-")
+      .split(".")[0]
+
+  let tmpFilePath = simplePath(
+    "tmp",
+    env.SIMPLE_SCRIPT_NAME
+  )
+  let tmpFullPath = path.join(
+    tmpFilePath,
+    `${dashedDate()}.json`
+  )
+  await mkdir(tmpFilePath, { recursive: true })
+  await writeFile(
+    tmpFullPath,
+    JSON.stringify(data, null, "\t")
+  )
+
+  await edit(tmpFullPath)
+}
