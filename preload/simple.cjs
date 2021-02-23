@@ -6,54 +6,14 @@ let context = require(`./${
   process.env?.SIMPLE_CONTEXT === "app" ? "app" : "tty"
 }.cjs`)
 
-install = async packageNames => {
-  return await new Promise((res, rej) => {
-    let npm = spawn("npm", ["i", ...packageNames], {
-      stdio: "inherit",
-      cwd: env.SIMPLE_PATH,
-      env: {
-        //need to prioritize our node over any nodes on the path
-        PATH: env.SIMPLE_NODE_BIN + ":" + env.PATH,
-      },
-    })
-
-    npm.on("error", error => {
-      console.log({ error })
-      rej(error)
-    })
-
-    npm.on("exit", exit => {
-      console.log({ exit })
-      res(exit)
-    })
-  })
-}
-
-simplify = async lib => {
+let attemptImport = async (path, _args) => {
+  updateArgs(_args)
   try {
-    return await import(simplePath(`simplify`, `${lib}.js`))
+    //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
+    //must use `import` for ESM
+    return await import(path + `?uuid=${v4()}`)
   } catch (error) {
-    console.log(error)
-    console.log(`Simplifier for ${lib} doesn't exist`)
-    exit()
-  }
-}
-
-simple = async (scriptPath, ..._args) => {
-  simpleScript = simpleScriptFromPath(scriptPath)
-  args.push(..._args)
-  let simpleScriptPath = scriptPath.includes("/")
-    ? simplePath(scriptPath) + ".js"
-    : simplePath("scripts", scriptPath) + ".js"
-
-  //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
-  try {
-    return await import(simpleScriptPath + `?uuid=${v4()}`)
-  } catch (error) {
-    let errorMessage = `Error importing: ${simpleScriptPath
-      .split("/")
-      .pop()}. Opening...`
-    console.warn(errorMessage)
+    console.warn(error)
     if (process?.send) {
       process.send({
         from: "UPDATE_PROMPT_INFO",
@@ -62,7 +22,25 @@ simple = async (scriptPath, ..._args) => {
     }
 
     await wait(2000)
+    exit(1)
   }
+}
+
+script = async (name, ..._args) => {
+  simpleScript = name
+  let simpleScriptPath =
+    simplePath("scripts", simpleScript) + ".js"
+
+  return attemptImport(simpleScriptPath, _args)
+}
+
+sdk = async (scriptPath, ..._args) => {
+  let sdkScriptPath = sdkPath(scriptPath) + ".js"
+  return await attemptImport(sdkScriptPath, _args)
+}
+
+simple = async lib => {
+  return await sdk(`simple/${lib}`)
 }
 
 run = async (scriptPath, ...runArgs) => {
@@ -94,11 +72,11 @@ run = async (scriptPath, ...runArgs) => {
         "--require",
         "dotenv/config",
         "--require",
-        simplePath("/preload/api.cjs"),
+        sdkPath("preload/api.cjs"),
         "--require",
-        simplePath("/preload/simple.cjs"),
+        sdkPath("preload/simple.cjs"),
         "--require",
-        simplePath("/preload/mac.cjs"),
+        sdkPath("preload/mac.cjs"),
       ],
       //Manually set node. Shouldn't have to worry about PATH
       execPath: env.SIMPLE_NODE,
@@ -153,20 +131,24 @@ process.on("uncaughtException", async err => {
 })
 
 // TODO: Strip out minimist
-let argv = require("minimist")(process.argv.slice(2))
+args = []
+updateArgs = arrayOfArgs => {
+  let argv = require("minimist")(arrayOfArgs)
+  args = [...args, ...argv._]
+  argOpts = Object.entries(argv)
+    .filter(([key]) => key != "_")
+    .flatMap(([key, value]) => {
+      if (typeof value === "boolean") {
+        if (value) return [`--${key}`]
+        if (!value) return [`--no-${key}`]
+      }
+      return [`--${key}`, value]
+    })
 
-args = [...argv._]
-argOpts = Object.entries(argv)
-  .filter(([key]) => key != "_")
-  .flatMap(([key, value]) => {
-    if (typeof value === "boolean") {
-      if (value) return [`--${key}`]
-      if (!value) return [`--no-${key}`]
-    }
-    return [`--${key}`, value]
-  })
+  assignPropsTo(argv, arg)
+}
 
-assignPropsTo(argv, arg)
+updateArgs(process.argv.slice(2))
 
 env = async (envKey, promptConfig = {}) => {
   if (env[envKey]) return env[envKey]
@@ -180,7 +162,7 @@ env = async (envKey, promptConfig = {}) => {
   if (input.startsWith("~"))
     input = input.replace("~", env.HOME)
 
-  await simple("cli/set-env-var", envKey, input)
+  await sdk("cli/set-env-var", envKey, input)
   env[envKey] = input
   return input
 }
@@ -189,7 +171,7 @@ assignPropsTo(process.env, env)
 
 env.SIMPLE_BIN_FILE_PATH = process.argv[1]
 env.SIMPLE_SRC_NAME = process.argv[1]
-  .split(".simple/")
+  .split(env.SIMPLE_PATH.split(path.sep).pop())
   .pop()
 
 env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
@@ -197,37 +179,25 @@ env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
   ""
 )
 
+sdkPath = (...parts) => path.join(env.SIMPLE_SDK, ...parts)
 simplePath = (...parts) =>
   path.join(env.SIMPLE_PATH, ...parts)
 
 simpleScriptFromPath = path => {
-  path = path.replace(env.SIMPLE_PATH + "/", "")
-  if (!path.includes("/")) path = "scripts/" + path
+  path = path.replace(simplePath() + "/", "")
+  path = path.replace(/\.js$/, "")
+  return path
+}
+
+sdkScriptFromPath = path => {
+  path = path.replace(env.SIMPLE_SDK + "/", "")
   path = path.replace(/\.js$/, "")
   return path
 }
 
 simpleScript = simpleScriptFromPath(env.SIMPLE_SCRIPT_NAME)
 
-env.SIMPLE_SCRIPTS_PATH = path.join(
-  env.SIMPLE_PATH,
-  "scripts"
-)
-env.SIMPLE_BIN_PATH = simplePath("bin")
-env.SIMPLE_ENV_FILE = simplePath(".env")
-env.SIMPLE_BIN_TEMPLATE_PATH = simplePath(
-  "config",
-  "template-bin"
-)
-
-env.SIMPLE_TMP_PATH = simplePath("tmp")
-env.SIMPLE_NODE_PATH = simplePath("node_modules")
-let nodeBin = ["node", "bin"]
-env.SIMPLE_NODE_BIN = simplePath(...nodeBin)
-env.SIMPLE_NODE = simplePath(...nodeBin, "node")
-env.SIMPLE_NPM = simplePath(...nodeBin, "npm")
-
-inspect = async data => {
+inspect = async (data, extension) => {
   let dashedDate = () =>
     new Date()
       .toISOString()
@@ -239,15 +209,37 @@ inspect = async data => {
     "tmp",
     env.SIMPLE_SCRIPT_NAME
   )
+  let formattedData = data
   let tmpFullPath = path.join(
     tmpFilePath,
-    `${dashedDate()}.json`
+    `${dashedDate()}.txt`
   )
+  if (typeof data === "object") {
+    formattedData = JSON.stringify(data, null, "\t")
+    tmpFullPath = path.join(
+      tmpFilePath,
+      `${dashedDate()}.json`
+    )
+  }
+
+  if (extension) {
+    tmpFullPath = path.join(
+      tmpFilePath,
+      `${dashedDate()}.${extension}`
+    )
+  }
+
   await mkdir(tmpFilePath, { recursive: true })
-  await writeFile(
-    tmpFullPath,
-    JSON.stringify(data, null, "\t")
-  )
+  await writeFile(tmpFullPath, formattedData)
 
   await edit(tmpFullPath)
+}
+
+compileTemplate = async (template, vars) => {
+  let templateContent = await readFile(
+    simplePath("templates", template),
+    "utf8"
+  )
+  let templateCompiler = compile(templateContent)
+  return templateCompiler(vars)
 }

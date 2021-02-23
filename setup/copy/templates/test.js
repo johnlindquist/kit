@@ -2,10 +2,10 @@ let { default: kill } = await npm("tree-kill")
 let { default: cleanup } = await npm("node-cleanup")
 
 await trash([
-  path.join(env.SIMPLE_SCRIPTS_PATH, "testing-tutorial.js"),
-  path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
-  path.join(env.SIMPLE_SCRIPTS_PATH, "new-default.js"),
-  path.join(env.SIMPLE_BIN_PATH, "new-default"),
+  simplePath("scripts", "testing-tutorial.js"),
+  simplePath("bin", "testing-tutorial"),
+  simplePath("scripts", "new-default.js"),
+  simplePath("bin", "new-default"),
 ])
 
 let response = await get(
@@ -27,27 +27,23 @@ echo(`
 //----------------------
 
 let TUTORIAL_CONTENT_PATH = simplePath("tmp")
-await simple(
-  "cli/set-env-var",
-  "SIMPLE_TEMPLATE",
-  "tutorial"
-)
-await simple(
+await sdk("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
+await sdk(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH
 )
 
 let testingTutorial = "testing-tutorial"
-await simple(
-  `cli/tutorial`,
+await sdk(
+  "cli/new",
   testingTutorial,
   "--trust",
   "--no-edit"
 )
 
 let testingTutorialFilePath = path.join(
-  env.SIMPLE_SCRIPTS_PATH,
+  simplePath("scripts"),
   testingTutorial + ".js"
 )
 let tutorialContent = await readFile(
@@ -78,7 +74,7 @@ if (
 }
 
 tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
-await simple(
+await sdk(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH
@@ -142,75 +138,3 @@ if (
   echo(await readFile(newDefaultContentPath, "utf8"))
   exit()
 }
-
-let testFile = "test.txt"
-await writeFile(testFile, "testing")
-
-exec(
-  `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js --no-edit`,
-  {
-    stdio: "inherit",
-    env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
-    },
-  }
-)
-
-console.log(`--- AFTER EXEC ---`)
-console.log("PATH: ", env.PATH)
-console.log(ls(simplePath("bin")).toString())
-console.log(ls(simplePath("scripts")).toString())
-
-let shareFileChild = spawn(
-  `share-file`,
-  [testFile, "--trust"],
-  {
-    stdio: "inherit",
-    env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
-    },
-  }
-)
-
-await new Promise((res, rej) => {
-  setTimeout(res, 2000)
-})
-trash(testFile)
-kill(shareFileChild.pid)
-echo(`"share-file" passed`)
-
-exec(
-  `new pad --url https://simplescripts.dev/scripts/johnlindquist/pad.js --no-edit`,
-  {
-    stdio: "inherit",
-    env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
-    },
-  }
-)
-
-let padChild = spawn(
-  `pad`,
-  [testFile, "--trust", "--no-edit"],
-  {
-    stdio: "inherit",
-    env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
-    },
-  }
-)
-
-kill(padChild.pid)
-echo(`"pad" passed`)
-
-cleanup(async () => {
-  await trash([
-    path.join(
-      env.SIMPLE_SCRIPTS_PATH,
-      "testing-tutorial.js"
-    ),
-    path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
-    path.join(env.SIMPLE_SCRIPTS_PATH, "new-default.js"),
-    path.join(env.SIMPLE_BIN_PATH, "new-default"),
-  ])
-})

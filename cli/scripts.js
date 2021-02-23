@@ -1,4 +1,4 @@
-let { scripts } = await simple("cli/scripts-info")
+let { scripts } = await sdk("cli/scripts-info")
 
 export let choices = scripts
   .map(script => {

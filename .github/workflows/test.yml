@@ -29,10 +29,36 @@ jobs:
       - name: Log Branch Name
         run: echo "Running install from ${{ env.GITHUB_HEAD_REF_SLUG }}"
 
-      - name: Install Simple from Current Branch
+      - name: Clone simplescripts
+        run: |
+          git clone https://github.com/johnlindquist/simplescripts.git ~/.simplesdk
+          ls ~/.simplesdk
+
+      - name: Checkout to branch - ${{ env.GITHUB_HEAD_REF_SLUG }}
+        run: |
+          cd ~/.simplesdk
+          git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
+
+      - name: Install latest node
         run: >
-          curl -o- https://raw.githubusercontent.com/johnlindquist/simplescripts/${{ env.GITHUB_HEAD_REF_SLUG }}${{ env.GITHUB_EVENT_REF_SLUG }}/config/install.sh | 
-          SIMPLE_PATH=~/.simple sh
+          ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node
+
+      - name: npm install
+        run: |
+          cd ~/.simplesdk
+          ~/.simplesdk/node/bin/npm install
+
+      - name: cat simple.sh
+        run: cat ~/.simplesdk/simple.sh
+
+      - name: setup .simple dir
+        run: |
+          cd ~/.simplesdk
+          SIMPLE_PATH=~/.simple ~/.simplesdk/simple.sh ~/.simplesdk/setup/setup.js
+
+      - name: list .simple dir
+        run: >
+          ls ~/.simple
 
       - name: View .profile
         run: >

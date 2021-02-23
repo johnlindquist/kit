@@ -1,1 +1,1 @@
-await edit(env.SIMPLE_PATH)
+await edit(simplePath())

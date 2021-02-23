@@ -2,7 +2,7 @@ let result = exec(
   `git rev-list HEAD...origin/main --count`,
   {
     silent: true,
-    cwd: env.SIMPLE_PATH,
+    cwd: simplePath(),
   }
 )
 let behindCount = Number(result?.toString() || "0")

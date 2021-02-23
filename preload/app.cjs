@@ -169,7 +169,7 @@ arg = async (messageOrConfig, choices) => {
 
 npm = async packageName => {
   try {
-    return await import(packageName)
+    return require(packageName)
   } catch {
     if (!arg?.trust) {
       let installMessage = `${env.SIMPLE_SCRIPT_NAME}} needs to install the npm library: ${packageName}`
@@ -217,44 +217,17 @@ npm = async packageName => {
       }
     }
 
-    await install([packageName])
+    await sdk("cli/install", packageName)
     let packageJson = require(simplePath(
       "node_modules",
       packageName,
       "package.json"
     ))
 
-    return await import(
-      simplePath(
-        "node_modules",
-        packageName,
-        packageJson.main
-      )
-    )
+    return require(simplePath(
+      "node_modules",
+      packageName,
+      packageJson.main
+    ))
   }
-}
-
-let addPadding = html =>
-  `<div class="p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">${html}</div>`
-
-show = async (html, options) => {
-  if (typeof html === "object")
-    html = JSON.stringify(html, null, "\t")
-  process.send({
-    from: "SHOW_RESULTS",
-    html: addPadding(html),
-    options,
-  })
-}
-
-showMarkdown = async (markdown, options) => {
-  let markdownHtml = (await npm("marked")).default(
-    markdown.trim()
-  )
-
-  process.send({
-    from: "SHOW_RESULTS",
-    html: addPadding(markdownHtml),
-    options,
-  })
 }

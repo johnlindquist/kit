@@ -86,8 +86,8 @@ arg = async (messageOrConfig = "Input", choices) => {
 
 npm = async packageName => {
   try {
-    return await import(packageName)
-  } catch {
+    return require(packageName)
+  } catch (error) {
     if (!arg?.trust) {
       let installMessage = chalk`\n{green ${env.SIMPLE_SCRIPT_NAME}} needs to install the npm library: {yellow ${packageName}}`
 
@@ -128,7 +128,7 @@ npm = async packageName => {
       chalk`Installing {yellow ${packageName}} and continuing.`
     )
 
-    await install([packageName])
+    await sdk("cli/install", packageName)
     let packageJsonPath = simplePath(
       "node_modules",
       packageName,
@@ -142,18 +142,6 @@ npm = async packageName => {
       packageJson?.main || "index.js"
     )
 
-    return await import(packageImport)
+    return require(packageImport)
   }
-}
-
-show = async (html, options) => {
-  console.log(html)
-}
-
-showMarkdown = async (markdown, options) => {
-  let markdownHtml = (await npm("marked")).default(
-    markdown.trim()
-  )
-
-  console.log(markdown)
 }

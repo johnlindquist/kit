@@ -23,6 +23,7 @@ globalApi = {
   mkdir: "fs/promises",
   readFile: "fs/promises",
   writeFile: "fs/promises",
+  appendFile: "fs/promises",
   createWriteStream: "fs",
   readdir: "fs/promises",
   compile: "handlebars",
