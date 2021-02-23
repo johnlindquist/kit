@@ -32,6 +32,9 @@ jobs:
       - name: Clone simplescripts
         run: >
           git clone https://github.com/johnlindquist/simplescripts.git ~/.simplesdk
+
+      - name: Checkout to ${{ env.GITHUB_HEAD_REF_SLUG }}
+        run: >
           git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
 
       - name: Install latest node
