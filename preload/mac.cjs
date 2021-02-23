@@ -3,10 +3,12 @@ applescript = async (
   options = { silent: true }
 ) => {
   let formattedScript = script.replace(/'/g, "'\"'\"'")
-  await writeFile(
-    simplePath("tmp", "_testing.applescript"),
-    script
-  )
+  if (env?.DEBUG) {
+    await writeFile(
+      simplePath("tmp", "_debug.applescript"),
+      script
+    )
+  }
 
   let { stdout, stderr } = exec(
     `osascript -e '${formattedScript}'`,
@@ -23,15 +25,15 @@ applescript = async (
 
 getSelectedText = async () => {
   await applescript(
-    `tell application "System Events" to keystroke "c" using command down`
+    String.raw`tell application "System Events" to keystroke "c" using command down`
   )
 
-  return await applescript(`get the clipboard`)
+  return await applescript(String.raw`get the clipboard`)
 }
 
 notify = async (title, subtitle) => {
   applescript(
-    `display notification with title "${title}" subtitle "${subtitle}"`
+    String.raw`display notification with title "${title}" subtitle "${subtitle}"`
   )
 }
 
@@ -42,22 +44,25 @@ preview = async file => {
 //List voices: `say -v "?"`. Get more voices: Preferences->Accessibility->System Voices
 say = async (string, { rate = 250, voice = "Alex" } = {}) =>
   await applescript(
-    `say "${string}" using "${voice}" speaking rate ${rate}`
+    String.raw`say "${string}" using "${voice}" speaking rate ${rate}`
   )
 
 setSelectedText = async text => {
   await applescript(
-    `set the clipboard to "${text.replaceAll('"', '\\"')}"`
+    String.raw`set the clipboard to "${text.replaceAll(
+      '"',
+      '\\"'
+    )}"`
   )
   if (process?.send) process.send({ from: "HIDE_APP" })
   await applescript(
-    `tell application "System Events" to keystroke "v" using command down`
+    String.raw`tell application "System Events" to keystroke "v" using command down`
   )
 }
 
 getSelectedFile = async () => {
   return await applescript(
-    `-------------------------------------------------
+    String.raw`-------------------------------------------------
     # Full path of selected items in Finder.
     -------------------------------------------------
     tell application "Finder"
@@ -79,14 +84,14 @@ getSelectedFile = async () => {
 
 getPathAsPicture = async path =>
   await applescript(
-    `set the clipboard to (read (POSIX file ${path} as JPEG picture)`
+    String.raw`set the clipboard to (read (POSIX file ${path} as JPEG picture)`
   )
 
 edit = async (file, dir, line = 0, col = 0) => {
   if (arg?.edit == false) return
 
   let { possibleEditors, ...macEditors } = await simple(
-    "apps/mac/editor"
+    "editor"
   )
 
   let editor = await env("SIMPLE_EDITOR", {

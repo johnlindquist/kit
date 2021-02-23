@@ -26,19 +26,18 @@ const cliScripts = [
   },
   { name: "clear", message: "Clear the caches" },
   {
-    name: "install",
+    name: "npm-install",
     alias: "i",
     message: "Install an npm package",
   },
   {
-    name: "uninstall",
+    name: "npm-uninstall",
     alias: "un",
     message: "Uninstall an npm package",
   },
   { name: "env", message: "Modify .env" },
   { name: "issue", message: "File an issue on github" },
-  { name: "debug", message: "Launch Debugger" },
-  { name: "set-login", message: "Set login settings" },
+  { name: "open-at-login", message: "Open at login" },
   { name: "open-log", message: "Open simple.log" },
   {
     name: "update",
@@ -65,4 +64,4 @@ if (found) {
   script = "cli/" + found.name
 }
 
-let values = await simple(script)
+let values = await sdk(script)

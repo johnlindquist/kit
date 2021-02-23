@@ -2,9 +2,9 @@ let { default: kill } = await npm("tree-kill")
 let { default: cleanup } = await npm("node-cleanup")
 
 await trash([
-  path.join(env.SIMPLE_SCRIPTS_PATH, "testing-tutorial.js"),
+  simplePath("scripts", "testing-tutorial.js"),
   path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
-  path.join(env.SIMPLE_SCRIPTS_PATH, "new-default.js"),
+  simplePath("scripts", "new-default.js"),
   path.join(env.SIMPLE_BIN_PATH, "new-default"),
 ])
 
@@ -27,19 +27,15 @@ echo(`
 //----------------------
 
 let TUTORIAL_CONTENT_PATH = simplePath("tmp")
-await simple(
-  "cli/set-env-var",
-  "SIMPLE_TEMPLATE",
-  "tutorial"
-)
-await simple(
+await sdk("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
+await sdk(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH
 )
 
 let testingTutorial = "testing-tutorial"
-await simple(
+await sdk(
   `cli/tutorial`,
   testingTutorial,
   "--trust",
@@ -47,7 +43,7 @@ await simple(
 )
 
 let testingTutorialFilePath = path.join(
-  env.SIMPLE_SCRIPTS_PATH,
+  simplePath("scripts"),
   testingTutorial + ".js"
 )
 let tutorialContent = await readFile(
@@ -205,12 +201,9 @@ echo(`"pad" passed`)
 
 cleanup(async () => {
   await trash([
-    path.join(
-      env.SIMPLE_SCRIPTS_PATH,
-      "testing-tutorial.js"
-    ),
+    path.join(simplePath("scripts"), "testing-tutorial.js"),
     path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
-    path.join(env.SIMPLE_SCRIPTS_PATH, "new-default.js"),
+    simplePath("scripts", "new-default.js"),
     path.join(env.SIMPLE_BIN_PATH, "new-default"),
   ])
 })

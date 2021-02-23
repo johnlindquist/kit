@@ -1,6 +1,6 @@
 let terminalEditor = editor => async file => {
   let { possibleTerminals, ...macTerminals } = await simple(
-    "apps/mac/terminal"
+    "terminal"
   )
   let terminal = await env("SIMPLE_TERMINAL", {
     message: `Which Terminal do you use with ${editor}?`,

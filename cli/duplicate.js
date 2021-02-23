@@ -24,14 +24,14 @@ let newScript = await arg({
 })
 
 let oldFilePath = path.join(
-  env.SIMPLE_SCRIPTS_PATH,
+  simplePath("scripts"),
   script + ".js"
 )
 let newFilePath = path.join(
-  env.SIMPLE_SCRIPTS_PATH,
+  simplePath("scripts"),
   newScript + ".js"
 )
 cp(oldFilePath, newFilePath)
-await simple("cli/create-bin", "scripts/" + newScript)
+await sdk("cli/create-bin", "scripts/" + newScript)
 
 edit(newFilePath)

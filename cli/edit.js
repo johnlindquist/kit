@@ -11,4 +11,4 @@ let file = await arg(
 )
 
 let fileName = file + ".js"
-edit(path.join(env.SIMPLE_SCRIPTS_PATH, fileName))
+edit(simplePath(`scripts/${fileName}`))

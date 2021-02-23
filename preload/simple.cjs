@@ -13,7 +13,7 @@ install = async packageNames => {
       cwd: env.SIMPLE_PATH,
       env: {
         //need to prioritize our node over any nodes on the path
-        PATH: env.SIMPLE_NODE_BIN + ":" + env.PATH,
+        PATH: sdkPath("node", "bin") + ":" + env.PATH,
       },
     })
 
@@ -29,28 +29,50 @@ install = async packageNames => {
   })
 }
 
-simplify = async lib => {
+simple = async lib => {
   try {
-    return await import(simplePath(`simplify`, `${lib}.js`))
+    return await sdk(`simple/${lib}`)
   } catch (error) {
     console.log(error)
-    console.log(`Simplifier for ${lib} doesn't exist`)
+    console.log(`Simple ${lib} doesn't exist`)
     exit()
   }
 }
 
-simple = async (scriptPath, ..._args) => {
+script = async (scriptPath, ..._args) => {
   simpleScript = simpleScriptFromPath(scriptPath)
   args.push(..._args)
-  let simpleScriptPath = scriptPath.includes("/")
-    ? simplePath(scriptPath) + ".js"
-    : simplePath("scripts", scriptPath) + ".js"
+  let simpleScriptPath =
+    simplePath("scripts", scriptPath) + ".js"
 
   //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
   try {
     return await import(simpleScriptPath + `?uuid=${v4()}`)
   } catch (error) {
     let errorMessage = `Error importing: ${simpleScriptPath
+      .split("/")
+      .pop()}. Opening...`
+    console.warn(errorMessage)
+    if (process?.send) {
+      process.send({
+        from: "UPDATE_PROMPT_INFO",
+        info: errorMessage,
+      })
+    }
+
+    await wait(2000)
+  }
+}
+
+sdk = async (scriptPath, ..._args) => {
+  args.push(..._args)
+
+  let sdkScriptPath = sdkPath(scriptPath) + ".js"
+  //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
+  try {
+    return await import(sdkScriptPath + `?uuid=${v4()}`)
+  } catch (error) {
+    let errorMessage = `Error importing: ${sdkScriptPath
       .split("/")
       .pop()}. Opening...`
     console.warn(errorMessage)
@@ -94,11 +116,11 @@ run = async (scriptPath, ...runArgs) => {
         "--require",
         "dotenv/config",
         "--require",
-        simplePath("/preload/api.cjs"),
+        sdkPath("preload/api.cjs"),
         "--require",
-        simplePath("/preload/simple.cjs"),
+        sdkPath("preload/simple.cjs"),
         "--require",
-        simplePath("/preload/mac.cjs"),
+        sdkPath("preload/mac.cjs"),
       ],
       //Manually set node. Shouldn't have to worry about PATH
       execPath: env.SIMPLE_NODE,
@@ -180,7 +202,7 @@ env = async (envKey, promptConfig = {}) => {
   if (input.startsWith("~"))
     input = input.replace("~", env.HOME)
 
-  await simple("cli/set-env-var", envKey, input)
+  await sdk("cli/set-env-var", envKey, input)
   env[envKey] = input
   return input
 }
@@ -189,7 +211,7 @@ assignPropsTo(process.env, env)
 
 env.SIMPLE_BIN_FILE_PATH = process.argv[1]
 env.SIMPLE_SRC_NAME = process.argv[1]
-  .split(".simple/")
+  .split(env.SIMPLE_PATH.split(path.sep).pop())
   .pop()
 
 env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
@@ -197,35 +219,23 @@ env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
   ""
 )
 
+sdkPath = (...parts) => path.join(env.SIMPLE_SDK, ...parts)
 simplePath = (...parts) =>
   path.join(env.SIMPLE_PATH, ...parts)
 
 simpleScriptFromPath = path => {
-  path = path.replace(env.SIMPLE_PATH + "/", "")
-  if (!path.includes("/")) path = "scripts/" + path
+  path = path.replace(simplePath() + "/", "")
+  path = path.replace(/\.js$/, "")
+  return path
+}
+
+sdkScriptFromPath = path => {
+  path = path.replace(env.SIMPLE_SDK + "/", "")
   path = path.replace(/\.js$/, "")
   return path
 }
 
 simpleScript = simpleScriptFromPath(env.SIMPLE_SCRIPT_NAME)
-
-env.SIMPLE_SCRIPTS_PATH = path.join(
-  env.SIMPLE_PATH,
-  "scripts"
-)
-env.SIMPLE_BIN_PATH = simplePath("bin")
-env.SIMPLE_ENV_FILE = simplePath(".env")
-env.SIMPLE_BIN_TEMPLATE_PATH = simplePath(
-  "config",
-  "template-bin"
-)
-
-env.SIMPLE_TMP_PATH = simplePath("tmp")
-env.SIMPLE_NODE_PATH = simplePath("node_modules")
-let nodeBin = ["node", "bin"]
-env.SIMPLE_NODE_BIN = simplePath(...nodeBin)
-env.SIMPLE_NODE = simplePath(...nodeBin, "node")
-env.SIMPLE_NPM = simplePath(...nodeBin, "npm")
 
 inspect = async data => {
   let dashedDate = () =>

@@ -1,4 +1,4 @@
-let result = ls("-l", env.SIMPLE_SCRIPTS_PATH)
+let result = ls("-l", simplePath("scripts"))
 let files = result.map(file => file.name)
 let descriptionMarker = "Description:"
 let menuMarker = "Menu:"

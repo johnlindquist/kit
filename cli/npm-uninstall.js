@@ -22,6 +22,6 @@ spawn(env.SIMPLE_NPM, ["uninstall", ...packages, ...args], {
   cwd: env.SIMPLE_PATH,
   env: {
     //need to prioritize our node over any nodes on the path
-    PATH: env.SIMPLE_NODE_BIN + ":" + env.PATH,
+    PATH: sdkPath("node", "bin") + ":" + env.PATH,
   },
 })

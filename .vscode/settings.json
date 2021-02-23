@@ -1,7 +1,0 @@
-{
-  "files.exclude": {
-    ".history/**": true
-  },
-  "typescript.disableAutomaticTypeAcquisition": true,
-  "typescript.suggest.autoImports": false
-}
