@@ -39,8 +39,7 @@ jobs:
 
       - name: Install latest node
         run: >
-          ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node \
-          && ls ~/.simplesdk/setup/node/bin
+          ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node
 
       - name: npm install
         run: >
