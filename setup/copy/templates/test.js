@@ -36,7 +36,7 @@ await sdk(
 
 let testingTutorial = "testing-tutorial"
 await sdk(
-  `cli/tutorial`,
+  "cli/new",
   testingTutorial,
   "--trust",
   "--no-edit"
