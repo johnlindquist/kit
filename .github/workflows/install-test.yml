@@ -30,16 +30,14 @@ jobs:
         run: echo "Running install from ${{ env.GITHUB_HEAD_REF_SLUG }}"
 
       - name: Clone simplescripts
-        run: >
+        run: |
           git clone https://github.com/johnlindquist/simplescripts.git ~/.simplesdk
-
-      - name: ls simplesdk
-        run: >
           ls ~/.simplesdk
 
       - name: Checkout to branch - ${{ env.GITHUB_HEAD_REF_SLUG }}
-        run: >
-          cd ~/.simplesdk && git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
+        run: |
+          cd ~/.simplesdk
+          git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
 
       - name: Install latest node
         run: >
@@ -49,8 +47,12 @@ jobs:
         run: >
           ~/.simplesdk/node/bin/npm install
 
+      - name: cat simple.sh
+        run: cat ~/.simplesdk/simple.sh
+
       - name: setup .simple dir
-        run: >
+        run: |
+          cd ~/.simplesdk
           SIMPLE_PATH=~/.simple ~/.simplesdk/simple.sh ~/.simplesdk/setup/setup-simple-dir.js
 
       - name: list .simple dir
