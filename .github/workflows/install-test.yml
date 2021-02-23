@@ -47,7 +47,7 @@ jobs:
 
       - name: setup .simple dir
         run: >
-          SIMPLE_PATH=~/.simple .simplesdk/simple.sh .simplesdk/setup/setup-simple-dir.js
+          SIMPLE_PATH=~/.simple ~/.simplesdk/simple.sh ~/.simplesdk/setup/setup-simple-dir.js
 
       - name: View .profile
         run: >
