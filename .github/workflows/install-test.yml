@@ -33,17 +33,18 @@ jobs:
         run: >
           git clone https://github.com/johnlindquist/simplescripts.git ~/.simplesdk
 
-      - name: Checkout to ${{ env.GITHUB_HEAD_REF_SLUG }}
+      - name: Checkout to branch - ${{ env.GITHUB_HEAD_REF_SLUG }}
         run: >
           cd ~/.simplesdk && git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
 
       - name: Install latest node
         run: >
-          ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node
+          ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node \
+          && ls ~/.simplesdk/setup/node/bin
 
       - name: npm install
         run: >
-          ~/.simplesdk/setup/node/bin/npm install
+          ~/.simplesdk/node/bin/npm install
 
       - name: setup .simple dir
         run: >
