@@ -231,28 +231,3 @@ npm = async packageName => {
     ))
   }
 }
-
-let addPadding = html =>
-  `<div class="p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">${html}</div>`
-
-show = async (html, options) => {
-  if (typeof html === "object")
-    html = JSON.stringify(html, null, "\t")
-  process.send({
-    from: "SHOW_RESULTS",
-    html: addPadding(html),
-    options,
-  })
-}
-
-showMarkdown = async (markdown, options) => {
-  let markdownHtml = (await npm("marked")).default(
-    markdown.trim()
-  )
-
-  process.send({
-    from: "SHOW_RESULTS",
-    html: addPadding(markdownHtml),
-    options,
-  })
-}

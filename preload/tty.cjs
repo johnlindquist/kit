@@ -145,15 +145,3 @@ npm = async packageName => {
     return require(packageImport)
   }
 }
-
-show = async (html, options) => {
-  console.log(html)
-}
-
-showMarkdown = async (markdown, options) => {
-  let markdownHtml = (await npm("marked")).default(
-    markdown.trim()
-  )
-
-  console.log(markdown)
-}

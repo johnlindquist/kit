@@ -20,79 +20,85 @@ applescript = async (
     exit()
   }
 
-  return stdout
+  return stdout.trim()
 }
 
-getSelectedText = async () => {
-  await applescript(
-    String.raw`tell application "System Events" to keystroke "c" using command down`
-  )
+let terminal = async script => {
+  let command = `tell application "Terminal"
+  do script "${script}"
+  activate
+  end tell
+  `
 
-  return await applescript(String.raw`get the clipboard`)
+  return await applescript(command)
 }
 
-notify = async (title, subtitle) => {
-  applescript(
-    String.raw`display notification with title "${title}" subtitle "${subtitle}"`
-  )
-}
-
-preview = async file => {
-  exec(`qlmanage -p "${file}"`, { silent: true })
-}
-
-//List voices: `say -v "?"`. Get more voices: Preferences->Accessibility->System Voices
-say = async (string, { rate = 250, voice = "Alex" } = {}) =>
-  await applescript(
-    String.raw`say "${string}" using "${voice}" speaking rate ${rate}`
-  )
-
-setSelectedText = async text => {
-  await applescript(
-    String.raw`set the clipboard to "${text.replaceAll(
-      '"',
-      '\\"'
-    )}"`
-  )
-  if (process?.send) process.send({ from: "HIDE_APP" })
-  await applescript(
-    String.raw`tell application "System Events" to keystroke "v" using command down`
-  )
-}
-
-getSelectedFile = async () => {
-  return await applescript(
-    String.raw`-------------------------------------------------
-    # Full path of selected items in Finder.
-    -------------------------------------------------
-    tell application "Finder"
-      set finderSelList to selection as alias list
-    end tell
+let iterm = async command => {
+  command = `"${command.replace(/"/g, '\\"')}"`
+  let script = `
+    tell application "iTerm"
+        if application "iTerm" is running then
+            try
+                tell the first window to create tab with default profile
+            on error
+                create window with default profile
+            end try
+        end if
     
-    if finderSelList ≠ {} then
-      repeat with i in finderSelList
-        set contents of i to POSIX path of (contents of i)
-      end repeat
-      
-      set AppleScript's text item delimiters to linefeed
-      finderSelList as text
-    end if
-    -------------------------------------------------`,
-    { silent: true }
-  )
+        delay 0.1
+    
+        tell the first window to tell current session to write text ${command}
+        activate
+    end tell
+    `.trim()
+  return await applescript(script)
 }
 
-getPathAsPicture = async path =>
-  await applescript(
-    String.raw`set the clipboard to (read (POSIX file ${path} as JPEG picture)`
-  )
+let terminalEditor = editor => async file => {
+  //TODO: Hyper? Other terminals?
+  let termMap = { terminal, iterm }
+
+  let possibleTerminals = () =>
+    Object.entries(termMap)
+      .filter(async ([name, value]) => {
+        return fileSearch(name, {
+          onlyin: "/",
+          kind: "application",
+        })
+      })
+      .map(([name, value]) => ({ name, value: name }))
+
+  let terminal = await env("SIMPLE_TERMINAL", {
+    message: `Which Terminal do you use with ${editor}?`,
+    choices: possibleTerminals(),
+  })
+
+  let macTerminals = [terminal, iterm]
+
+  return macTerminals[terminal](`${editor} ${file}`)
+}
 
 edit = async (file, dir, line = 0, col = 0) => {
   if (arg?.edit == false) return
 
-  let { possibleEditors, ...macEditors } = await simple(
-    "editor"
-  )
+  let possibleEditors = () =>
+    [
+      "atom",
+      "code",
+      "emacs",
+      "nano",
+      "ne",
+      "nvim",
+      "sublime",
+      "webstorm",
+      "vim",
+    ].filter(
+      editor =>
+        exec(
+          `PATH="/usr/bin:/usr/local/bin" which ${editor}`,
+          { silent: true }
+        ).stdout
+    )
 
   let editor = await env("SIMPLE_EDITOR", {
     message:
@@ -105,6 +111,18 @@ edit = async (file, dir, line = 0, col = 0) => {
       },
     ],
   })
+
+  let code = async (file, dir, line = 0, col = 0) => {
+    let codeArgs = ["--goto", `${file}:${line}:${col}`]
+    if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
+    codeArgs = codeArgs.join(" ")
+    let command = `code ${codeArgs}`
+    exec(command)
+  }
+
+  let vim = terminalEditor("vim")
+  let nano = terminalEditor("nano")
+  let macEditors = [code, vim, nano]
 
   let execEditor = file =>
     exec(`${editor} ${file}`, { env: {} })
@@ -120,17 +138,4 @@ edit = async (file, dir, line = 0, col = 0) => {
   console.log(
     chalk`> Opening {yellow ${file}} with {green.bold ${env.SIMPLE_EDITOR}}`
   )
-}
-
-// TODO: Optimize, etc
-fileSearch = async (name, { onlyin = "~", kind } = {}) => {
-  let command = `mdfind${name ? ` -name ${name}` : ""}${
-    onlyin ? ` -onlyin ${onlyin}` : ``
-  }${kind ? ` "kind:${kind}"` : ``}`
-
-  return exec(command, {
-    silent: true,
-  })
-    .toString()
-    .split("\n")
 }
