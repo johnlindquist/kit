@@ -176,7 +176,7 @@ kill(shareFileChild.pid)
 echo(`"share-file" passed`)
 
 exec(
-  `new pad --url https://simplescripts.dev/scripts/johnlindquist/pad.js --no-edit`,
+  `new hello-world --url https://simplescripts.dev/scripts/johnlindquist/hello-world.js --no-edit`,
   {
     stdio: "inherit",
     env: {
@@ -184,26 +184,3 @@ exec(
     },
   }
 )
-
-let padChild = spawn(
-  `pad`,
-  [testFile, "--trust", "--no-edit"],
-  {
-    stdio: "inherit",
-    env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
-    },
-  }
-)
-
-kill(padChild.pid)
-echo(`"pad" passed`)
-
-cleanup(async () => {
-  await trash([
-    simplePath("scripts", "testing-tutorial.js"),
-    simplePath("bin", "testing-tutorial"),
-    simplePath("scripts", "new-default.js"),
-    simplePath("bin", "new-default"),
-  ])
-})
