@@ -44,7 +44,8 @@ jobs:
           ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node
 
       - name: npm install
-        run: >
+        run: |
+          cd ~/.simplesdk
           ~/.simplesdk/node/bin/npm install
 
       - name: cat simple.sh
