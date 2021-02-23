@@ -35,7 +35,7 @@ jobs:
 
       - name: Checkout to ${{ env.GITHUB_HEAD_REF_SLUG }}
         run: >
-          git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
+          cd ~/.simplesdk && git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
 
       - name: Install latest node
         run: >
