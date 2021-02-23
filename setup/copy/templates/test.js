@@ -74,7 +74,7 @@ if (
 }
 
 tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
-await simple(
+await sdk(
   "cli/set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH
