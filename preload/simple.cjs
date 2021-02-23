@@ -13,11 +13,7 @@ let attemptImport = async (path, _args) => {
     //must use `import` for ESM
     return await import(path + `?uuid=${v4()}`)
   } catch (error) {
-    console.log(error)
-    let errorMessage = `Error importing: ${path
-      .split("/")
-      .pop()}. Opening...`
-    console.warn(errorMessage)
+    console.warn(error)
     if (process?.send) {
       process.send({
         from: "UPDATE_PROMPT_INFO",
@@ -26,6 +22,7 @@ let attemptImport = async (path, _args) => {
     }
 
     await wait(2000)
+    exit(1)
   }
 }
 
