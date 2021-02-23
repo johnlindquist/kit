@@ -1,1 +1,1 @@
-edit(env.SIMPLE_ENV_FILE, env.SIMPLE_PATH)
+edit(simplePath(".env"), env.SIMPLE_PATH)

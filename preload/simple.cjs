@@ -13,6 +13,7 @@ let attemptImport = async (path, _args) => {
     //must use `import` for ESM
     return await import(path + `?uuid=${v4()}`)
   } catch (error) {
+    console.log(error)
     let errorMessage = `Error importing: ${path
       .split("/")
       .pop()}. Opening...`

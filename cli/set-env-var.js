@@ -8,10 +8,7 @@ let updateEnv = async (envKey, envValue) => {
 }
 
 let writeNewEnv = async (envKey, envValue) => {
-  let { ShellString } = await import("shelljs")
-  new ShellString("\n" + envKey + "=" + envValue).toEnd(
-    envFile
-  )
+  await appendFile(envFile, `\n${envKey}=${envValue}`)
 }
 let exists = env[envKey]
 let fn = exists ? updateEnv : writeNewEnv
