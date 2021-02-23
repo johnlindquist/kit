@@ -197,7 +197,7 @@ sdkScriptFromPath = path => {
 
 simpleScript = simpleScriptFromPath(env.SIMPLE_SCRIPT_NAME)
 
-inspect = async data => {
+inspect = async (data, extension) => {
   let dashedDate = () =>
     new Date()
       .toISOString()
@@ -209,15 +209,28 @@ inspect = async data => {
     "tmp",
     env.SIMPLE_SCRIPT_NAME
   )
+  let formattedData = data
   let tmpFullPath = path.join(
     tmpFilePath,
-    `${dashedDate()}.json`
+    `${dashedDate()}.txt`
   )
+  if (typeof data === "object") {
+    formattedData = JSON.stringify(data, null, "\t")
+    tmpFullPath = path.join(
+      tmpFilePath,
+      `${dashedDate()}.json`
+    )
+  }
+
+  if (extension) {
+    tmpFullPath = path.join(
+      tmpFilePath,
+      `${dashedDate()}.${extension}`
+    )
+  }
+
   await mkdir(tmpFilePath, { recursive: true })
-  await writeFile(
-    tmpFullPath,
-    JSON.stringify(data, null, "\t")
-  )
+  await writeFile(tmpFullPath, formattedData)
 
   await edit(tmpFullPath)
 }
