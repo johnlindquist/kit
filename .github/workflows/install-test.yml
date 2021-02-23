@@ -39,9 +39,11 @@ jobs:
           ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node
 
       - name: npm install
+        run: >
           ~/.simplesdk/setup/node/bin/npm install
 
       - name: setup .simple dir
+        run: >
           SIMPLE_PATH=~/.simple .simplesdk/simple.sh .simplesdk/setup/setup-simple-dir.js
 
       - name: View .profile
