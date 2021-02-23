@@ -54,7 +54,7 @@ jobs:
       - name: setup .simple dir
         run: |
           cd ~/.simplesdk
-          SIMPLE_PATH=~/.simple ~/.simplesdk/simple.sh ~/.simplesdk/setup/setup-simple-dir.js
+          SIMPLE_PATH=~/.simple ~/.simplesdk/simple.sh ~/.simplesdk/setup/setup.js
 
       - name: list .simple dir
         run: >

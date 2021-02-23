@@ -19,7 +19,7 @@ for await (let script of scripts) {
 
   if (confirm) {
     await trash([
-      path.join(env.SIMPLE_BIN_PATH, script),
+      simplePath("bin", script),
       simplePath("scripts", script + ".js"),
     ])
   } else {

@@ -169,7 +169,7 @@ arg = async (messageOrConfig, choices) => {
 
 npm = async packageName => {
   try {
-    return await import(packageName)
+    return require(packageName)
   } catch {
     if (!arg?.trust) {
       let installMessage = `${env.SIMPLE_SCRIPT_NAME}} needs to install the npm library: ${packageName}`
@@ -217,20 +217,18 @@ npm = async packageName => {
       }
     }
 
-    await install([packageName])
+    await sdk("cli/install", packageName)
     let packageJson = require(simplePath(
       "node_modules",
       packageName,
       "package.json"
     ))
 
-    return await import(
-      simplePath(
-        "node_modules",
-        packageName,
-        packageJson.main
-      )
-    )
+    return require(simplePath(
+      "node_modules",
+      packageName,
+      packageJson.main
+    ))
   }
 }
 

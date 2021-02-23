@@ -6,50 +6,14 @@ let context = require(`./${
   process.env?.SIMPLE_CONTEXT === "app" ? "app" : "tty"
 }.cjs`)
 
-install = async packageNames => {
-  return await new Promise((res, rej) => {
-    let npm = spawn("npm", ["i", ...packageNames], {
-      stdio: "inherit",
-      cwd: env.SIMPLE_PATH,
-      env: {
-        //need to prioritize our node over any nodes on the path
-        PATH: sdkPath("node", "bin") + ":" + env.PATH,
-      },
-    })
-
-    npm.on("error", error => {
-      console.log({ error })
-      rej(error)
-    })
-
-    npm.on("exit", exit => {
-      console.log({ exit })
-      res(exit)
-    })
-  })
-}
-
-simple = async lib => {
+let attemptImport = async (path, _args) => {
+  updateArgs(_args)
   try {
-    return await sdk(`simple/${lib}`)
+    //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
+    //must use `import` for ESM
+    return await import(path + `?uuid=${v4()}`)
   } catch (error) {
-    console.log(error)
-    console.log(`Simple ${lib} doesn't exist`)
-    exit()
-  }
-}
-
-script = async (scriptPath, ..._args) => {
-  simpleScript = simpleScriptFromPath(scriptPath)
-  args.push(..._args)
-  let simpleScriptPath =
-    simplePath("scripts", scriptPath) + ".js"
-
-  //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
-  try {
-    return await import(simpleScriptPath + `?uuid=${v4()}`)
-  } catch (error) {
-    let errorMessage = `Error importing: ${simpleScriptPath
+    let errorMessage = `Error importing: ${path
       .split("/")
       .pop()}. Opening...`
     console.warn(errorMessage)
@@ -62,29 +26,23 @@ script = async (scriptPath, ..._args) => {
 
     await wait(2000)
   }
+}
+
+script = async (name, ..._args) => {
+  simpleScript = name
+  let simpleScriptPath =
+    simplePath("scripts", simpleScript) + ".js"
+
+  return attemptImport(simpleScriptPath, _args)
 }
 
 sdk = async (scriptPath, ..._args) => {
-  args.push(..._args)
-
   let sdkScriptPath = sdkPath(scriptPath) + ".js"
-  //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
-  try {
-    return await import(sdkScriptPath + `?uuid=${v4()}`)
-  } catch (error) {
-    let errorMessage = `Error importing: ${sdkScriptPath
-      .split("/")
-      .pop()}. Opening...`
-    console.warn(errorMessage)
-    if (process?.send) {
-      process.send({
-        from: "UPDATE_PROMPT_INFO",
-        info: errorMessage,
-      })
-    }
+  return await attemptImport(sdkScriptPath, _args)
+}
 
-    await wait(2000)
-  }
+simple = async lib => {
+  return await sdk(`simple/${lib}`)
 }
 
 run = async (scriptPath, ...runArgs) => {
@@ -175,20 +133,24 @@ process.on("uncaughtException", async err => {
 })
 
 // TODO: Strip out minimist
-let argv = require("minimist")(process.argv.slice(2))
+args = []
+updateArgs = arrayOfArgs => {
+  let argv = require("minimist")(arrayOfArgs)
+  args = [...args, ...argv._]
+  argOpts = Object.entries(argv)
+    .filter(([key]) => key != "_")
+    .flatMap(([key, value]) => {
+      if (typeof value === "boolean") {
+        if (value) return [`--${key}`]
+        if (!value) return [`--no-${key}`]
+      }
+      return [`--${key}`, value]
+    })
 
-args = [...argv._]
-argOpts = Object.entries(argv)
-  .filter(([key]) => key != "_")
-  .flatMap(([key, value]) => {
-    if (typeof value === "boolean") {
-      if (value) return [`--${key}`]
-      if (!value) return [`--no-${key}`]
-    }
-    return [`--${key}`, value]
-  })
+  assignPropsTo(argv, arg)
+}
 
-assignPropsTo(argv, arg)
+updateArgs(process.argv.slice(2))
 
 env = async (envKey, promptConfig = {}) => {
   if (env[envKey]) return env[envKey]

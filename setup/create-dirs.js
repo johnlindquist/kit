@@ -14,9 +14,9 @@ dirs.forEach(async dir => {
   await mkdir(simplePath(dir))
 })
 
-cp("-r", sdkPath("setup/app"), simplePath("app"))
+cp("-r", sdkPath("setup/copy/app"), simplePath("app"))
 cp(
-  sdkPath("setup/package.json"),
+  sdkPath("setup/copy/package.json"),
   simplePath("package.json")
 )
 

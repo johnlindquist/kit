@@ -17,11 +17,25 @@ if (typeof packages == "string") {
   packages = [packages, ...args]
 }
 
-spawn(env.SIMPLE_NPM, ["uninstall", ...packages, ...args], {
-  stdio: "inherit",
-  cwd: env.SIMPLE_PATH,
-  env: {
-    //need to prioritize our node over any nodes on the path
-    PATH: sdkPath("node", "bin") + ":" + env.PATH,
-  },
+let uninstall = spawn(
+  "npm",
+  [
+    "uninstall",
+    "--prefix",
+    simplePath(),
+    ...packages,
+    ...args,
+  ],
+  {
+    stdio: "inherit",
+    cwd: env.SIMPLE_PATH,
+    env: {
+      //need to prioritize our node over any nodes on the path
+      PATH: sdkPath("node", "bin") + ":" + env.PATH,
+    },
+  }
+)
+
+uninstall.on("error", error => {
+  console.log({ error })
 })

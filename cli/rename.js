@@ -25,4 +25,4 @@ let newFilePath = path.join(
 )
 mv(oldFilePath, newFilePath)
 await sdk("cli/create-bin", "scripts/" + newScript)
-trash(path.join(env.SIMPLE_BIN_PATH, script))
+trash(simplePath("bin", script))

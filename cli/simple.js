@@ -26,12 +26,12 @@ const cliScripts = [
   },
   { name: "clear", message: "Clear the caches" },
   {
-    name: "npm-install",
+    name: "install",
     alias: "i",
     message: "Install an npm package",
   },
   {
-    name: "npm-uninstall",
+    name: "uninstall",
     alias: "un",
     message: "Uninstall an npm package",
   },
