@@ -3,9 +3,9 @@ let { default: cleanup } = await npm("node-cleanup")
 
 await trash([
   simplePath("scripts", "testing-tutorial.js"),
-  path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
+  simplePath("bin", "testing-tutorial"),
   simplePath("scripts", "new-default.js"),
-  path.join(env.SIMPLE_BIN_PATH, "new-default"),
+  simplePath("bin", "new-default"),
 ])
 
 let response = await get(
@@ -201,9 +201,9 @@ echo(`"pad" passed`)
 
 cleanup(async () => {
   await trash([
-    path.join(simplePath("scripts"), "testing-tutorial.js"),
-    path.join(env.SIMPLE_BIN_PATH, "testing-tutorial"),
+    simplePath("scripts", "testing-tutorial.js"),
+    simplePath("bin", "testing-tutorial"),
     simplePath("scripts", "new-default.js"),
-    path.join(env.SIMPLE_BIN_PATH, "new-default"),
+    simplePath("bin", "new-default"),
   ])
 })
