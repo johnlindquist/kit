@@ -26,21 +26,18 @@ console.log(`{{USER}} made a {{name}} script!`)
 // console.log(`Found the name ${response.data.name} for user ${user}`)
 
 /**
- * Step 3: Write your data to a file
- * 1. Uncomment the lines from "let template" to "edit"
+ * Step 3: Write your data to a template
+ * 1. Uncomment the lines from "contentPath" to "edit"
  * 2. Run `{{name}} {{USER}}` again
  * Note: a prompt will ask you to select a directory for your file
  */
 
-// let template = `# Congratulations! ${response.data.name} 🏆:
-// Check your terminal for next steps 👀`
-//
-// let contentPath = await env("TUTORIAL_CONTENT_PATH", { message: "Where should we store your file?" })
-// let filePath = path.join(contentPath, user + ".md")
-// await writeFile(filePath, template)
-// edit(filePath)
-
-/**
- * Welcome to the wonderful world of Simple Scripts!
- * Happy Scripting! 🤓 - John Lindquist @johnlindquist
- */
+// let contentPath = await env("TUTORIAL_CONTENT_PATH", {
+//   message: "Where should we store your file?",
+// })
+// let content = await compileTemplate("tutorial.md", {
+//   name: response.data.name,
+// })
+// let filePath = path.join(contentPath, `${user}.md`)
+// await writeFile(filePath, content)
+// await edit(filePath)

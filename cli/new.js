@@ -22,7 +22,7 @@ let template =
   arg?.template || (await env("SIMPLE_TEMPLATE"))
 
 let templateContent = await readFile(
-  sdkPath("templates", "scripts", template + ".js"),
+  simplePath("templates", template + ".js"),
   "utf8"
 )
 

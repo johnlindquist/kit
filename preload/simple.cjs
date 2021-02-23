@@ -223,3 +223,12 @@ inspect = async data => {
 
   await edit(tmpFullPath)
 }
+
+compileTemplate = async (template, vars) => {
+  let templateContent = await readFile(
+    simplePath("templates", template),
+    "utf8"
+  )
+  let templateCompiler = compile(templateContent)
+  return templateCompiler(vars)
+}
