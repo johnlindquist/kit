@@ -11,7 +11,7 @@ let attemptImport = async (path, _args) => {
   try {
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM
-    return await import(path + `?uuid=${v4()}`)
+    return await import(path + `?uuid=${uuid()}`)
   } catch (error) {
     console.warn(error)
     if (process?.send) {
