@@ -1,20 +1,19 @@
 await mkdir(simplePath())
 
-let dirs = ["cache", "db", "bin", "logs", "scripts", "tmp"]
+let dirs = ["cache", "db", "bin", "logs", "tmp"]
 
 dirs.forEach(async dir => {
   await mkdir(simplePath(dir))
 })
 
-cp("-r", sdkPath("setup/copy/app"), simplePath("app"))
-cp(
-  "-r",
-  sdkPath("setup/copy/templates"),
-  simplePath("templates")
-)
-cp(
-  sdkPath("setup/copy/package.json"),
-  simplePath("package.json")
-)
+let copies = ["app", "scripts", "templates", "package.json"]
+
+copies.forEach(async source => {
+  cp(
+    "-r",
+    sdkPath(`setup/copy/${source}`),
+    simplePath(source)
+  )
+})
 
 ln("-s", sdkPath(), simplePath("sdk"))
