@@ -5,4 +5,4 @@ let script = await arg(
   async () => (await import("./scripts.js")).choices
 )
 
-await script(script)
+await run(script)

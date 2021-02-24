@@ -17,7 +17,7 @@ let attemptImport = async (path, _args) => {
     if (process?.send) {
       process.send({
         from: "UPDATE_PROMPT_INFO",
-        info: errorMessage,
+        info: error.message,
       })
     }
 
@@ -26,7 +26,7 @@ let attemptImport = async (path, _args) => {
   }
 }
 
-script = async (name, ..._args) => {
+run = async (name, ..._args) => {
   simpleScript = name
   let simpleScriptPath =
     simplePath("scripts", simpleScript) + ".js"
@@ -43,7 +43,7 @@ simple = async lib => {
   return await sdk(`simple/${lib}`)
 }
 
-run = async (scriptPath, ...runArgs) => {
+runSub = async (scriptPath, ...runArgs) => {
   return new Promise(async (res, rej) => {
     let values = []
     if (!scriptPath.includes("/")) {
