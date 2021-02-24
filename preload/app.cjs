@@ -14,7 +14,7 @@ const fromInput = async (choices, input) => {
           value: choice,
         }
       }
-      choice.uuid = v4()
+      choice.uuid = uuid()
       return choice
     }),
   })
@@ -56,7 +56,7 @@ prompt = async (config = {}) => {
           value: choice,
         }
       }
-      choice.uuid = v4()
+      choice.uuid = uuid()
       return choice
     })
   }

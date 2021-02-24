@@ -47,11 +47,11 @@ _ = new Proxy(
     },
   }
 )
+uuid = () => v4()
 chalk = (...args) => require("chalk")(...args)
-
 paste = (...args) => require("clipboardy").read(...args)
 copy = (...args) => require("clipboardy").write(...args)
-dbFile = file => {
+db = file => {
   let low = require("lowdb")
   let FileSync = require("lowdb/adapters/FileSync")
   let adapter = new FileSync(
@@ -60,11 +60,6 @@ dbFile = file => {
   return low(adapter)
 }
 
-rm = () => {
-  echo(
-    chalk`{yellow rm} doesn't exist. You're probably looking for {yellow trash}`
-  )
-}
 trash = async (...trashArgs) => {
   trashArgs
     .flatMap(x => x)
@@ -74,6 +69,13 @@ trash = async (...trashArgs) => {
       )
     })
   return await require("trash")(...trashArgs)
+}
+
+rm = async (...rmArgs) => {
+  echo(
+    chalk`{yellow rm} doesn't exist. You're probably looking for {yellow trash}`
+  )
+  await trash(...rmArgs)
 }
 
 send = (...args) => {
