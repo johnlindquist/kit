@@ -1,8 +1,10 @@
 // Description: Run the selected script
 
+let { choices } = await sdk("cli/scripts")
+
 let script = await arg(
   `Which script do you want to run?`,
-  async () => (await import("./scripts.js")).choices
+  choices
 )
 
 await run(script)

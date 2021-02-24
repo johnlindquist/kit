@@ -7,6 +7,10 @@ const cliScripts = [
   },
   { name: "browse", message: "Go to simplescripts.dev" },
   { name: "new", message: "Create a new script" },
+  {
+    name: "new-from-template",
+    message: "Create a new script from a template",
+  },
   { name: "run", message: "Run a script" },
   { name: "edit", message: "Edit a script" },
   {

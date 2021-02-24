@@ -1,4 +1,9 @@
+console.log("before result")
+
 let result = ls("-l", simplePath("scripts"))
+
+console.log({ ls })
+
 let files = result.map(file => file.name)
 let descriptionMarker = "Description:"
 let menuMarker = "Menu:"

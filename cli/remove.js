@@ -2,9 +2,12 @@ let filePattern = await arg(
   "Enter a pattern. You will be prompted to confirm:"
 )
 
-let scripts = ls(simplePath("scripts"))
-  .toString()
-  .split(",")
+if (filePattern.startsWith("*"))
+  filePattern = "." + filePattern
+
+let scripts = await readdir(simplePath("scripts"))
+
+scripts = scripts
   .filter(name => name.match(filePattern))
   .map(name => name.replace(".js", ""))
 
@@ -14,7 +17,7 @@ for await (let script of scripts) {
     (await prompt({
       type: "confirm",
       name: "value",
-      message: chalk`Are you sure you want to delete {red.bold ${script}}?`,
+      message: chalk`Delete "{red.bold ${script}}"?`,
     }))
 
   if (confirm) {
