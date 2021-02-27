@@ -86,9 +86,6 @@ send = (from, data) => {
   if (process?.send) {
     process.send({ from, ...data })
   } else {
-    console.log(
-      chalk`{yellow.bold No parent process found}. Logging instead:`
-    )
     console.log(from, ...args)
   }
 }
