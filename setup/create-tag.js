@@ -1,7 +1,7 @@
 let { Octokit } = await npm("@octokit/rest")
 
 const octokit = new Octokit({
-  auth: await env("GITHUB_AUTH_TOKEN"),
+  auth: await env("GITHUB_TOKEN"),
 })
 
 const owner = "johnlindquist"
