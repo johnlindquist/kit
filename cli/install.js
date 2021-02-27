@@ -1,7 +1,7 @@
 let install = async packageNames => {
   return await new Promise((res, rej) => {
     let npm = spawn(
-      "npm",
+      sdkPath("node", "bin", "npm"),
       ["i", "--prefix", simplePath(), ...packageNames],
       {
         stdio: "inherit",

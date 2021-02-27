@@ -18,7 +18,7 @@ if (typeof packages == "string") {
 }
 
 let uninstall = spawn(
-  "npm",
+  sdkPath("node", "bin", "npm"),
   [
     "uninstall",
     "--prefix",
