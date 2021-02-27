@@ -44,10 +44,6 @@ const cliScripts = [
   { name: "issue", message: "File an issue on github" },
   { name: "open-at-login", message: "Open at login" },
   { name: "open-log", message: "Open simple.log" },
-  {
-    name: "update",
-    message: `Update simple. App: ${env.SIMPLE_APP_VERSION}`,
-  },
   { name: "quit", message: "Quit Simple Scripts" },
 ]
 
