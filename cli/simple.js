@@ -39,6 +39,7 @@ const cliScripts = [
     alias: "un",
     message: "Uninstall an npm package",
   },
+  { name: "sdk", message: "Open the sdk" },
   { name: "env", message: "Modify .env" },
   { name: "issue", message: "File an issue on github" },
   { name: "open-at-login", message: "Open at login" },
@@ -50,15 +51,18 @@ const cliScripts = [
   { name: "quit", message: "Quit Simple Scripts" },
 ]
 
-let script = await arg("What do you want to do?", () =>
-  cliScripts.map(({ name, message, alias }) => {
-    return {
-      name: chalk`{green.bold ${name}}${
-        alias ? chalk` {yellow (${alias})}` : ""
-      }: ${message}`,
-      value: name,
-    }
-  })
+let script = await arg(
+  "What do you want to do?",
+  () =>
+    cliScripts.map(({ name, message, alias }) => {
+      return {
+        name: chalk`{green.bold ${name}}${
+          alias ? chalk` {yellow (${alias})}` : ""
+        }: ${message}`,
+        value: name,
+      }
+    }),
+  true
 )
 
 let found = cliScripts.find(

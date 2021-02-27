@@ -40,10 +40,7 @@ if (arg?.url) {
 
 await writeFile(scriptPath, contents)
 
-await sdk(
-  "cli/create-bin",
-  simplePath("scripts", name).replace(".js", "")
-)
+await sdk("cli/create-bin", "scripts", name)
 
 console.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`

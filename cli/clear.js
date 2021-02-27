@@ -1,1 +1,1 @@
-send({ from: "CLEAR_CACHE" })
+send("CLEAR_CACHE")

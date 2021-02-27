@@ -127,6 +127,9 @@ edit = async (file, dir, line = 0, col = 0) => {
   let execEditor = file =>
     exec(`${editor} ${file}`, { env: {} })
   let editorFn = macEditors[editor] || execEditor
+  send("UPDATE_PROMPT_INFO", {
+    info: `Opening ${file} with ${env.SIMPLE_EDITOR}`,
+  })
 
   let result = await editorFn(file)
 

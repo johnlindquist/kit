@@ -8,6 +8,7 @@ globalApi = {
   grep: "shelljs",
   ln: "shelljs",
   ls: "shelljs",
+  mkdir: "shelljs",
   mv: "shelljs",
   sed: "shelljs",
   tempdir: "shelljs",
@@ -20,7 +21,6 @@ globalApi = {
   put: "axios",
   post: "axios",
   patch: "axios",
-  mkdir: "fs/promises",
   readFile: "fs/promises",
   writeFile: "fs/promises",
   appendFile: "fs/promises",
@@ -51,13 +51,17 @@ uuid = () => v4()
 chalk = (...args) => require("chalk")(...args)
 paste = (...args) => require("clipboardy").read(...args)
 copy = (...args) => require("clipboardy").write(...args)
-db = file => {
+db = (key, defaults) => {
   let low = require("lowdb")
   let FileSync = require("lowdb/adapters/FileSync")
-  let adapter = new FileSync(
-    simplePath("db", `${file}.json`)
+  let _db = low(
+    new FileSync(simplePath("db", `${key}.json`))
   )
-  return low(adapter)
+
+  _db._.mixin(require("lodash-id"))
+  _db.defaults(defaults).write()
+
+  return _db
 }
 
 trash = async (...trashArgs) => {
@@ -78,46 +82,45 @@ rm = async (...rmArgs) => {
   await trash(...rmArgs)
 }
 
-send = (...args) => {
+send = (from, data) => {
   if (process?.send) {
-    process.send(...args)
+    process.send({ from, ...data })
   } else {
     console.log(
       chalk`{yellow.bold No parent process found}. Logging instead:`
     )
-    console.log(...args)
+    console.log(from, ...args)
   }
 }
 
-let _consoleLog = console.log.bind(console)
-console.log = async (...args) => {
-  if (process?.send) {
-    process.send({
-      from: "CONSOLE_LOG",
+showImage = (image, options) => {
+  if (typeof image === "string") {
+    image = { src: image }
+  }
+  send("SHOW_IMAGE", { options, image })
+}
+
+if (process?.send) {
+  let _consoleLog = console.log.bind(console)
+  let _consoleWarn = console.warn.bind(console)
+  console.log = async (...args) => {
+    send("CONSOLE_LOG", {
       log: args
         .map(a =>
           typeof a != "string" ? JSON.stringify(a) : a
         )
         .join(" "),
     })
-  } else {
-    _consoleLog(...args)
   }
-}
 
-let _consoleWarn = console.warn.bind(console)
-console.warn = async (...args) => {
-  if (process?.send) {
-    process.send({
-      from: "CONSOLE_WARN",
+  console.warn = async (...args) => {
+    send("CONSOLE_WARN", {
       warn: args
         .map(a =>
           typeof a != "string" ? JSON.stringify(a) : a
         )
         .join(" "),
     })
-  } else {
-    _consoleWarn(...args)
   }
 }
 

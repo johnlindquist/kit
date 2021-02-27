@@ -1,9 +1,9 @@
-await mkdir(simplePath())
+mkdir(simplePath())
 
-let dirs = ["cache", "db", "bin", "logs", "tmp"]
+let dirs = ["cache", "db", "bin", "lib", "logs", "tmp"]
 
-dirs.forEach(async dir => {
-  await mkdir(simplePath(dir))
+dirs.forEach(dir => {
+  mkdir(simplePath(dir))
 })
 
 let copies = ["app", "scripts", "templates", "package.json"]

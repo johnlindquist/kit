@@ -17,7 +17,8 @@ export let setSelectedText = async text => {
       '\\"'
     )}"`
   )
-  if (process?.send) process.send({ from: "HIDE_APP" })
+  send("HIDE_APP")
+
   await applescript(
     String.raw`tell application "System Events" to keystroke "v" using command down`
   )

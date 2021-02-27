@@ -24,5 +24,5 @@ let newFilePath = path.join(
   newScript + ".js"
 )
 mv(oldFilePath, newFilePath)
-await sdk("cli/create-bin", "scripts/" + newScript)
+await sdk("cli/create-bin", "scripts", newScript)
 trash(simplePath("bin", script))

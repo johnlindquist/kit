@@ -32,6 +32,6 @@ let newFilePath = path.join(
   newScript + ".js"
 )
 cp(oldFilePath, newFilePath)
-await sdk("cli/create-bin", "scripts/" + newScript)
+await sdk("cli/create-bin", "scripts", newScript)
 
 edit(newFilePath)

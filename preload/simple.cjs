@@ -13,34 +13,14 @@ let attemptImport = async (path, _args) => {
     //must use `import` for ESM
     return await import(path + `?uuid=${uuid()}`)
   } catch (error) {
-    console.warn(error)
-    if (process?.send) {
-      process.send({
-        from: "UPDATE_PROMPT_INFO",
-        info: error.message,
-      })
-    }
+    console.warn(error.message)
+    send("UPDATE_PROMPT_WARN", {
+      info: error.message,
+    })
 
     await wait(2000)
     exit(1)
   }
-}
-
-run = async (name, ..._args) => {
-  simpleScript = name
-  let simpleScriptPath =
-    simplePath("scripts", simpleScript) + ".js"
-
-  return attemptImport(simpleScriptPath, _args)
-}
-
-sdk = async (scriptPath, ..._args) => {
-  let sdkScriptPath = sdkPath(scriptPath) + ".js"
-  return await attemptImport(sdkScriptPath, _args)
-}
-
-simple = async lib => {
-  return await sdk(`simple/${lib}`)
 }
 
 runSub = async (scriptPath, ...runArgs) => {
@@ -108,7 +88,7 @@ runSub = async (scriptPath, ...runArgs) => {
 
     child.on("message", message => {
       console.log(name, "<-", childName)
-      if (process.send) process.send(message)
+      send(message)
       values.push(message)
     })
 
@@ -159,6 +139,8 @@ env = async (envKey, promptConfig = {}) => {
     cache: false,
   })
 
+  console.log({ input })
+
   if (input.startsWith("~"))
     input = input.replace("~", env.HOME)
 
@@ -180,8 +162,16 @@ env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
 )
 
 sdkPath = (...parts) => path.join(env.SIMPLE_SDK, ...parts)
-simplePath = (...parts) =>
-  path.join(env.SIMPLE_PATH, ...parts)
+
+simplePath = (...parts) => {
+  return path.join(
+    env.SIMPLE_PATH,
+    ...parts.filter(Boolean)
+  )
+}
+
+libPath = (...parts) =>
+  path.join(simplePath("lib"), ...parts)
 
 simpleScriptFromPath = path => {
   path = path.replace(simplePath() + "/", "")
@@ -196,6 +186,34 @@ sdkScriptFromPath = path => {
 }
 
 simpleScript = simpleScriptFromPath(env.SIMPLE_SCRIPT_NAME)
+
+run = async (name, ..._args) => {
+  simpleScript = name
+  send("UPDATE_PROMPT_INFO", {
+    info: `Running ${simpleScript}...`,
+  })
+  let simpleScriptPath =
+    simplePath("scripts", simpleScript) + ".js"
+
+  return attemptImport(simpleScriptPath, _args)
+}
+
+sdk = async (scriptPath, ..._args) => {
+  send("UPDATE_PROMPT_INFO", {
+    info: `Running sdk: ${scriptPath}...`,
+  })
+  let sdkScriptPath = sdkPath(scriptPath) + ".js"
+  return await attemptImport(sdkScriptPath, _args)
+}
+
+lib = async (scriptPath, ..._args) => {
+  let sdkScriptPath = libPath(scriptPath) + ".js"
+  return await attemptImport(sdkScriptPath, _args)
+}
+
+simple = async lib => {
+  return await sdk(`simple/${lib}`)
+}
 
 inspect = async (data, extension) => {
   let dashedDate = () =>
@@ -229,7 +247,7 @@ inspect = async (data, extension) => {
     )
   }
 
-  await mkdir(tmpFilePath, { recursive: true })
+  mkdir("-p", tmpFilePath)
   await writeFile(tmpFullPath, formattedData)
 
   await edit(tmpFullPath)

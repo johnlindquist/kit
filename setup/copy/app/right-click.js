@@ -1,3 +1,3 @@
 //Description: The right-click action of the app
-//Shortcut: cmd :
+//Shortcut: cmd shift ;
 await sdk("cli/simple")

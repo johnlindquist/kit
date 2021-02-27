@@ -1,1 +1,7 @@
-TODO: Write READMD.md lol
+## `db`
+
+```js
+let todos = db("todos")
+
+todos
+```

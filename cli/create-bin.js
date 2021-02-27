@@ -1,11 +1,10 @@
-let scriptPath = await arg("Enter script path name:")
+let type = await arg("Select type:", ["scripts", "cli"])
+let name = await arg("Script name:")
+
 let binTemplate = await readFile(
   sdkPath("templates", "bin", "template"),
   "utf8"
 )
-
-let pathParts = scriptPath.replace(".js", "").split("/")
-let [type, name] = pathParts.slice(pathParts.length - 2)
 
 binTemplate = compile(binTemplate)
 binTemplate = binTemplate({
@@ -16,5 +15,7 @@ binTemplate = binTemplate({
 })
 
 let binFilePath = simplePath("bin", name)
+
+mkdir("-p", path.dirname(binFilePath))
 await writeFile(binFilePath, binTemplate)
 chmod(755, binFilePath)

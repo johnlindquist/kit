@@ -1,11 +1,10 @@
 const { getEventListeners } = require("events")
 
 const fromInput = async (choices, input) => {
-  process.send({
+  send("UPDATE_PROMPT_CHOICES", {
     simpleScript,
     parentScript: env.SIMPLE_PARENT_NAME,
     simpleArgs: args.join(" "),
-    from: "UPDATE_PROMPT_CHOICES",
     input,
     choices: (await choices(input)).map(choice => {
       if (typeof choice === "string") {
@@ -27,7 +26,7 @@ prompt = async (config = {}) => {
     preview = "",
     choices = [],
     type = "",
-    cache = true,
+    cache = false,
   } = config
 
   if (type === "confirm") {
@@ -54,9 +53,16 @@ prompt = async (config = {}) => {
         return {
           name: choice,
           value: choice,
+          id: uuid(),
         }
       }
-      choice.uuid = uuid()
+
+      if (typeof choice === "object") {
+        if (!choice?.id) {
+          choice.id = uuid()
+        }
+      }
+
       return choice
     })
   }
@@ -66,28 +72,28 @@ prompt = async (config = {}) => {
     fromInput(choices, arg["simple-input"])
   }
   if (!arg["prompt-exists"]) {
-    process.send({
+    send("SHOW_PROMPT_WITH_DATA", {
       message,
       preview,
       simpleScript,
       parentScript: env.SIMPLE_PARENT_NAME,
       simpleArgs: args.join(" "),
-      from: "SHOW_PROMPT_WITH_DATA",
       choices,
-      cache: typeof choices !== "function" && cache,
+      cache,
     })
   }
 
   let messageHandler
   let errorHandler
+
+  console.log(`typeof choices`, typeof choices)
   let value = await new Promise((resolve, reject) => {
     messageHandler = async data => {
       //If you're typing input, send back choices based on the function
-      if (
-        data?.from === "INPUT_CHANGED" &&
-        typeof choices === "function"
-      ) {
-        fromInput(choices, data.input)
+      if (data?.from === "INPUT_CHANGED") {
+        if (typeof choices === "function") {
+          fromInput(choices, data.input)
+        }
         return
       }
 
@@ -95,8 +101,7 @@ prompt = async (config = {}) => {
         let valid = await validate(data)
 
         if (typeof valid === "string") {
-          process.send({
-            from: "UPDATE_PROMPT_INFO",
+          send("UPDATE_PROMPT_WARN", {
             info: valid,
           })
         } else {
@@ -121,7 +126,7 @@ prompt = async (config = {}) => {
   return value
 }
 
-arg = async (messageOrConfig, choices) => {
+arg = async (messageOrConfig, choices, cache = false) => {
   let firstArg = args.length ? args.shift() : null
   if (firstArg) {
     let valid = true
@@ -132,8 +137,7 @@ arg = async (messageOrConfig, choices) => {
         typeof validOrMessage === "string" ||
         !validOrMessage
       ) {
-        process.send({
-          from: "UPDATE_PROMPT_INFO",
+        send("UPDATE_PROMPT_WARN", {
           info:
             validOrMessage || "Invalid value. Try again:",
         })
@@ -154,6 +158,7 @@ arg = async (messageOrConfig, choices) => {
     return await prompt({
       message: messageOrConfig,
       choices,
+      cache,
     })
   }
 
@@ -164,6 +169,7 @@ arg = async (messageOrConfig, choices) => {
     validate,
     preview,
     choices,
+    cache,
   })
 }
 

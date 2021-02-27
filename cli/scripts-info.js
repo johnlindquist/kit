@@ -1,10 +1,18 @@
-console.log("before result")
+let scriptsPath = "scripts"
 
-let result = ls("-l", simplePath("scripts"))
+if (arg.dir) scriptsPath = `${scriptsPath}/${arg.dir}`
 
-console.log({ ls })
+let result = await readdir(simplePath(scriptsPath), {
+  withFileTypes: true,
+})
 
-let files = result.map(file => file.name)
+let files = result
+  .filter(file => file.isFile())
+  .map(file => {
+    let name = file.name
+    if (arg.dir) name = `${arg.dir}/${name}`
+    return name
+  })
 let descriptionMarker = "Description:"
 let menuMarker = "Menu:"
 let shortcutMarker = "Shortcut:"
@@ -16,16 +24,10 @@ let getByMarker = marker => lines =>
     ?.trim()
 
 let choices = files.map(async file => {
-  let fileContents = await readFile(
-    simplePath("scripts", file),
-    "utf8"
-  )
+  let filePath = simplePath("scripts", file)
+  let fileContents = await readFile(filePath, "utf8")
 
   let fileLines = fileContents.split("\n")
-  // .filter(line =>
-  //   line.startsWith("/" || line.startsWith(" *"))
-  // )
-
   let description = getByMarker("Description:")(fileLines)
   let menu = getByMarker("Menu:")(fileLines)
   let shortcut = getByMarker("Shortcut:")(fileLines)
@@ -39,4 +41,4 @@ let choices = files.map(async file => {
   }
 })
 
-export let scripts = await Promise.all(choices)
+export let scriptsInfo = await Promise.all(choices)

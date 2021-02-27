@@ -49,8 +49,6 @@ end tell
 get V's JSON
 `)
 
-  await writeFile(simplePath("tmp", "windows.json"), result)
-
   return JSON.parse(result)
 }
 
@@ -73,7 +71,7 @@ end tell
 `)
 }
 
-export let getAllWindowBounds = async () => {
+export let getWindowsBounds = async () => {
   let result = await applescript(String.raw`set listOfWindows to ""
 	tell application "System Events"
 		
@@ -208,7 +206,7 @@ export let getActiveScreen = async () =>
     }
     process.on("message", messageHandler)
 
-    process.send({ from: "GET_SCREEN_INFO" })
+    send("GET_SCREEN_INFO")
   })
 
 export let getMousePosition = async () =>
@@ -221,7 +219,7 @@ export let getMousePosition = async () =>
     }
     process.on("message", messageHandler)
 
-    process.send({ from: "GET_MOUSE" })
+    send("GET_MOUSE")
   })
 
 export let setActiveAppBounds = async ({

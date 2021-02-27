@@ -1,1 +1,1 @@
-send({ from: "QUIT_APP" })
+send("QUIT_APP")

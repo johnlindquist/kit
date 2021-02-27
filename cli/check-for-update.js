@@ -7,8 +7,4 @@ let result = exec(
 )
 let behindCount = Number(result?.toString() || "0")
 
-if (process.send) {
-  process.send(behindCount)
-} else {
-  console.log(behindCount)
-}
+send("BEHIND_COUNT", behindCount)

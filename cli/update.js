@@ -1,1 +1,1 @@
-send({ from: "UPDATE_APP" })
+send("UPDATE_APP")

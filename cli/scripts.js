@@ -1,6 +1,6 @@
-let { scripts } = await sdk("cli/scripts-info")
+let { scriptsInfo } = await sdk("cli/scripts-info")
 
-export let choices = scripts
+export let scripts = scriptsInfo
   .map(script => {
     let {
       command,
@@ -39,10 +39,22 @@ export let validate = async function (input) {
 
 export let exists = async input => {
   try {
-    let checkBin = await readdir(simplePath("bin"))
+    let checkBin = await readdir(simplePath("bin"), {
+      withFileTypes: true,
+    })
+    let checkFile = checkBin
+      .filter(f => f.isFile())
+      .map(({ name }) => name)
 
-    if (checkBin.includes(input)) {
-      return chalk`{red.bold ${input}} exists. Enter different name:`
+    if (checkFile.includes(input)) {
+      return chalk`{red.bold "${input}}" exists as bin file. Enter different name:`
+    }
+
+    let checkDir = checkBin
+      .filter(f => f.isDirectory())
+      .map(({ name }) => name)
+    if (checkDir.includes(input)) {
+      return chalk`{red.bold "${input}}" exists as bin directory. Enter different name:`
     }
 
     let result = exec(`command -v ${input}`, {
@@ -50,10 +62,10 @@ export let exists = async input => {
     })
 
     if (result.stdout) {
-      return chalk`{red.bold ${input}} is a system command. Enter different name:`
+      return chalk`{red.bold "${input}}" is a system command. Enter different name:`
     }
 
-    let validName = input.match(/^([a-z]|\-)+$/g)
+    let validName = input.match(/^([a-z]|\-|\/)+$/g)
 
     if (!validName) {
       return chalk`{red.bold "${input}}" can only include lowercase and -. Enter different name:`

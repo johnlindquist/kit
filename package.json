@@ -15,6 +15,7 @@
     "enquirer": "^2.3.6",
     "handlebars": "^4.7.6",
     "lodash": "^4.17.20",
+    "lodash-id": "^0.14.0",
     "lowdb": "^1.0.0",
     "minimist": "^1.2.5",
     "shelljs": "^0.8.4",
