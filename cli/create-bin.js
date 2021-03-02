@@ -2,7 +2,7 @@ let type = await arg("Select type:", ["scripts", "cli"])
 let name = await arg("Script name:")
 
 let binTemplate = await readFile(
-  sdkPath("templates", "bin", "template"),
+  kitPath("templates", "bin", "template"),
   "utf8"
 )
 
@@ -11,10 +11,10 @@ binTemplate = binTemplate({
   name,
   type,
   ...env,
-  TARGET_PATH: simplePath(),
+  TARGET_PATH: projectPath(),
 })
 
-let binFilePath = simplePath("bin", name)
+let binFilePath = projectPath("bin", name)
 
 mkdir("-p", path.dirname(binFilePath))
 await writeFile(binFilePath, binTemplate)

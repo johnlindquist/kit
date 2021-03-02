@@ -1,1 +1,1 @@
-edit(sdkPath())
+edit(kitPath())

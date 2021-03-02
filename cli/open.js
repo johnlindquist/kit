@@ -1,1 +1,1 @@
-await edit(simplePath())
+await edit(projectPath())

@@ -2,9 +2,9 @@ const { getEventListeners } = require("events")
 
 const fromInput = async (choices, input) => {
   send("UPDATE_PROMPT_CHOICES", {
-    simpleScript,
-    parentScript: env.SIMPLE_PARENT_NAME,
-    simpleArgs: args.join(" "),
+    kitScript,
+    parentScript: env.KIT_PARENT_NAME,
+    kitArgs: args.join(" "),
     input,
     choices: (await choices(input)).map(choice => {
       if (typeof choice === "string") {
@@ -67,17 +67,17 @@ prompt = async (config = {}) => {
     })
   }
 
-  if (arg["simple-input"]) {
+  if (arg["kit-input"]) {
     //Got cache, so silently pass arg
-    fromInput(choices, arg["simple-input"])
+    fromInput(choices, arg["kit-input"])
   }
   if (!arg["prompt-exists"]) {
     send("SHOW_PROMPT_WITH_DATA", {
       message,
       preview,
-      simpleScript,
-      parentScript: env.SIMPLE_PARENT_NAME,
-      simpleArgs: args.join(" "),
+      kitScript,
+      parentScript: env.KIT_PARENT_NAME,
+      kitArgs: args.join(" "),
       choices,
       cache,
     })
@@ -178,7 +178,7 @@ npm = async packageName => {
     return require(packageName)
   } catch {
     if (!arg?.trust) {
-      let installMessage = `${env.SIMPLE_SCRIPT_NAME}} needs to install the npm library: ${packageName}`
+      let installMessage = `${env.KIT_SCRIPT_NAME}} needs to install the npm library: ${packageName}`
 
       let downloadsMessage = `${packageName} has had ${
         (
@@ -223,14 +223,14 @@ npm = async packageName => {
       }
     }
 
-    await sdk("cli/install", packageName)
-    let packageJson = require(simplePath(
+    await cli("install", packageName)
+    let packageJson = require(projectPath(
       "node_modules",
       packageName,
       "package.json"
     ))
 
-    return require(simplePath(
+    return require(projectPath(
       "node_modules",
       packageName,
       packageJson.main

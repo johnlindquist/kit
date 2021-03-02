@@ -16,13 +16,13 @@ let newScript = await arg({
 })
 
 let oldFilePath = path.join(
-  simplePath("scripts"),
+  projectPath("scripts"),
   script + ".js"
 )
 let newFilePath = path.join(
-  simplePath("scripts"),
+  projectPath("scripts"),
   newScript + ".js"
 )
 mv(oldFilePath, newFilePath)
-await sdk("cli/create-bin", "scripts", newScript)
-trash(simplePath("bin", script))
+await cli("create-bin", "scripts", newScript)
+trash(projectPath("bin", script))

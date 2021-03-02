@@ -1,3 +1,3 @@
-await sdk("setup/create-dirs")
-await sdk("setup/create-env")
-await sdk("setup/create-cli-bins")
+await setup("create-dirs")
+await setup("create-env")
+await setup("create-cli-bins")

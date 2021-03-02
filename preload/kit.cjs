@@ -3,7 +3,7 @@
 //https://github.com/nodejs/node/issues/35103
 
 let context = require(`./${
-  process.env?.SIMPLE_CONTEXT === "app" ? "app" : "tty"
+  process.env?.KIT_CONTEXT === "app" ? "app" : "tty"
 }.cjs`)
 
 let attemptImport = async (path, _args) => {
@@ -27,10 +27,10 @@ runSub = async (scriptPath, ...runArgs) => {
   return new Promise(async (res, rej) => {
     let values = []
     if (!scriptPath.includes("/")) {
-      scriptPath = simplePath("scripts", scriptPath)
+      scriptPath = projectPath("scripts", scriptPath)
     }
     if (!scriptPath.startsWith(path.sep)) {
-      scriptPath = simplePath(scriptPath)
+      scriptPath = projectPath(scriptPath)
     }
 
     if (!scriptPath.endsWith(".js"))
@@ -52,29 +52,28 @@ runSub = async (scriptPath, ...runArgs) => {
         "--require",
         "dotenv/config",
         "--require",
-        sdkPath("preload/api.cjs"),
+        kitPath("preload/api.cjs"),
         "--require",
-        sdkPath("preload/simple.cjs"),
+        kitPath("preload/kit.cjs"),
         "--require",
-        sdkPath("preload/mac.cjs"),
+        kitPath("preload/mac.cjs"),
       ],
       //Manually set node. Shouldn't have to worry about PATH
-      execPath: env.SIMPLE_NODE,
+      execPath: env.KIT_NODE,
       env: {
         ...env,
-        SIMPLE_PARENT_NAME:
-          env.SIMPLE_PARENT_NAME || env.SIMPLE_SCRIPT_NAME,
-        SIMPLE_ARGS:
-          env.SIMPLE_ARGS || scriptArgs.join("."),
+        KIT_PARENT_NAME:
+          env.KIT_PARENT_NAME || env.KIT_SCRIPT_NAME,
+        KIT_ARGS: env.KIT_ARGS || scriptArgs.join("."),
       },
     })
 
     let name = process.argv[1].replace(
-      simplePath() + path.sep,
+      projectPath() + path.sep,
       ""
     )
     let childName = scriptPath.replace(
-      simplePath() + path.sep,
+      projectPath() + path.sep,
       ""
     )
 
@@ -139,80 +138,89 @@ env = async (envKey, promptConfig = {}) => {
     cache: false,
   })
 
-  console.log({ input })
-
   if (input.startsWith("~"))
     input = input.replace("~", env.HOME)
 
-  await sdk("cli/set-env-var", envKey, input)
+  await cli("set-env-var", envKey, input)
   env[envKey] = input
   return input
 }
 
 assignPropsTo(process.env, env)
 
-env.SIMPLE_BIN_FILE_PATH = process.argv[1]
-env.SIMPLE_SRC_NAME = process.argv[1]
-  .split(env.SIMPLE_PATH.split(path.sep).pop())
+env.KIT_BIN_FILE_PATH = process.argv[1]
+env.KIT_SRC_NAME = process.argv[1]
+  .split(env.SKA.split(path.sep).pop())
   .pop()
 
-env.SIMPLE_SCRIPT_NAME = env.SIMPLE_SRC_NAME.replace(
-  ".js",
-  ""
-)
+env.KIT_SCRIPT_NAME = env.KIT_SRC_NAME.replace(".js", "")
 
-sdkPath = (...parts) => path.join(env.SIMPLE_SDK, ...parts)
+kitPath = (...parts) => path.join(env.KIT, ...parts)
 
-simplePath = (...parts) => {
-  return path.join(
-    env.SIMPLE_PATH,
-    ...parts.filter(Boolean)
-  )
+projectPath = (...parts) => {
+  return path.join(env.SKA, ...parts.filter(Boolean))
 }
 
 libPath = (...parts) =>
-  path.join(simplePath("lib"), ...parts)
+  path.join(projectPath("lib"), ...parts)
 
-simpleScriptFromPath = path => {
-  path = path.replace(simplePath() + "/", "")
+kitScriptFromPath = path => {
+  path = path.replace(projectPath() + "/", "")
   path = path.replace(/\.js$/, "")
   return path
 }
 
-sdkScriptFromPath = path => {
-  path = path.replace(env.SIMPLE_SDK + "/", "")
+kitFromPath = path => {
+  path = path.replace(env.KIT + "/", "")
   path = path.replace(/\.js$/, "")
   return path
 }
 
-simpleScript = simpleScriptFromPath(env.SIMPLE_SCRIPT_NAME)
+kitScript = kitScriptFromPath(env.KIT_SCRIPT_NAME)
 
 run = async (name, ..._args) => {
-  simpleScript = name
+  kitScript = name
   send("UPDATE_PROMPT_INFO", {
-    info: `Running ${simpleScript}...`,
+    info: `Running ${kitScript}...`,
   })
-  let simpleScriptPath =
-    simplePath("scripts", simpleScript) + ".js"
+  let kitScriptPath =
+    projectPath("scripts", kitScript) + ".js"
 
-  return attemptImport(simpleScriptPath, _args)
+  return attemptImport(kitScriptPath, _args)
 }
 
-sdk = async (scriptPath, ..._args) => {
+kit = async (scriptPath, ..._args) => {
   send("UPDATE_PROMPT_INFO", {
-    info: `Running sdk: ${scriptPath}...`,
+    info: `Running kit: ${scriptPath}...`,
   })
-  let sdkScriptPath = sdkPath(scriptPath) + ".js"
-  return await attemptImport(sdkScriptPath, _args)
+  let kitScriptPath = kitPath(scriptPath) + ".js"
+  return await attemptImport(kitScriptPath, _args)
 }
 
 lib = async (scriptPath, ..._args) => {
-  let sdkScriptPath = libPath(scriptPath) + ".js"
-  return await attemptImport(sdkScriptPath, _args)
+  let kitScriptPath = libPath(scriptPath) + ".js"
+  return await attemptImport(kitScriptPath, _args)
 }
 
-simple = async lib => {
-  return await sdk(`simple/${lib}`)
+cli = async (cliPath, ..._args) => {
+  send("UPDATE_PROMPT_INFO", {
+    info: `Running cli: ${cliPath}...`,
+  })
+  let cliScriptPath = kitPath("cli/" + cliPath) + ".js"
+  return await attemptImport(cliScriptPath, _args)
+}
+
+setup = async (setupPath, ..._args) => {
+  send("UPDATE_PROMPT_INFO", {
+    info: `Running setup: ${setupPath}...`,
+  })
+  let setupScriptPath =
+    kitPath("setup/" + setupPath) + ".js"
+  return await attemptImport(setupScriptPath, _args)
+}
+
+kitLib = async lib => {
+  return await kit(`kit/${lib}`)
 }
 
 inspect = async (data, extension) => {
@@ -223,10 +231,7 @@ inspect = async (data, extension) => {
       .replaceAll(":", "-")
       .split(".")[0]
 
-  let tmpFilePath = simplePath(
-    "tmp",
-    env.SIMPLE_SCRIPT_NAME
-  )
+  let tmpFilePath = projectPath("tmp", env.KIT_SCRIPT_NAME)
   let formattedData = data
   let tmpFullPath = path.join(
     tmpFilePath,
@@ -255,7 +260,7 @@ inspect = async (data, extension) => {
 
 compileTemplate = async (template, vars) => {
   let templateContent = await readFile(
-    simplePath("templates", template),
+    projectPath("templates", template),
     "utf8"
   )
   let templateCompiler = compile(templateContent)

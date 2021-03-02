@@ -1,9 +1,9 @@
 let envTemplate = await readFile(
-  sdkPath("templates", "env", "template.env"),
+  kitPath("templates", "env", "template.env"),
   "utf8"
 )
 
 envTemplate = compile(envTemplate)
 envTemplate = envTemplate({ ...env })
 
-await writeFile(simplePath(".env"), envTemplate)
+await writeFile(projectPath(".env"), envTemplate)

@@ -1,11 +1,11 @@
 let binTemplate = await readFile(
-  sdkPath("templates", "bin", "template"),
+  kitPath("templates", "bin", "template"),
   "utf8"
 )
 
 let binCompiler = compile(binTemplate)
 
-let bins = ["cli/new", "cli/edit", "cli/simple"]
+let bins = ["cli/new", "cli/edit", "cli/kit"]
 
 bins.forEach(async bin => {
   let [type, name] = bin.split("/")
@@ -13,10 +13,10 @@ bins.forEach(async bin => {
     name,
     type,
     ...env,
-    TARGET_PATH: sdkPath(),
+    TARGET_PATH: kitPath(),
   })
 
-  let binFilePath = simplePath("bin", name)
+  let binFilePath = projectPath("bin", name)
   await writeFile(binFilePath, binResult)
   chmod(755, binFilePath)
 })

@@ -6,7 +6,7 @@
 let script = await arg(
   `Which script do you want to run?`,
   //Put "choices" inside of function when caching to avoid re-running
-  async () => (await sdk("cli/scripts")).scripts,
+  async () => (await cli("scripts")).scripts,
   //Enable caching
   true
 )

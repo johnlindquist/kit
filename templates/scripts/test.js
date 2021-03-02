@@ -2,18 +2,18 @@ let { default: kill } = await npm("tree-kill")
 let { default: cleanup } = await npm("node-cleanup")
 
 await trash([
-  simplePath("scripts", "testing-tutorial.js"),
-  simplePath("bin", "testing-tutorial"),
-  simplePath("scripts", "new-default.js"),
-  simplePath("bin", "new-default"),
+  projectPath("scripts", "testing-tutorial.js"),
+  projectPath("bin", "testing-tutorial"),
+  projectPath("scripts", "new-default.js"),
+  projectPath("bin", "new-default"),
 ])
 
 let response = await get(
-  `https://api.github.com/repos/johnlindquist/simplescripts`
+  `https://api.github.com/repos/johnlindquist/kit`
 )
 echo(response.data.name + " is working!")
 
-if (response.data.name != "simplescripts") {
+if (response.data.name != "kit") {
   exit()
 }
 echo(`
@@ -26,24 +26,24 @@ echo(`
 
 //----------------------
 
-let TUTORIAL_CONTENT_PATH = simplePath("tmp")
-await sdk("cli/set-env-var", "SIMPLE_TEMPLATE", "tutorial")
-await sdk(
-  "cli/set-env-var",
+let TUTORIAL_CONTENT_PATH = projectPath("tmp")
+await cli("set-env-var", "KIT_TEMPLATE", "tutorial")
+await cli(
+  "set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH
 )
 
 let testingTutorial = "testing-tutorial"
-await sdk(
-  `cli/tutorial`,
+await cli(
+  `tutorial`,
   testingTutorial,
   "--trust",
   "--no-edit"
 )
 
 let testingTutorialFilePath = path.join(
-  simplePath("scripts"),
+  projectPath("scripts"),
   testingTutorial + ".js"
 )
 let tutorialContent = await readFile(
@@ -55,7 +55,7 @@ let tutorialContentBuffer = await readFile(
   testingTutorialFilePath
 )
 let tutorialTemplateBuffer = await readFile(
-  simplePath("templates", "tutorial.js")
+  projectPath("templates", "tutorial.js")
 )
 
 if (
@@ -74,8 +74,8 @@ if (
 }
 
 tutorialContent = tutorialContent.replaceAll(/^\/\//gm, "")
-await sdk(
-  "cli/set-env-var",
+await cli(
+  "set-env-var",
   "TUTORIAL_CONTENT_PATH",
   TUTORIAL_CONTENT_PATH
 )
@@ -97,7 +97,7 @@ echo(`"tutorial" passed`)
 
 //---------------------
 
-console.log("bin:", ls(simplePath("bin")).toString())
+console.log("bin:", ls(projectPath("bin")).toString())
 console.log("PATH:", env.PATH)
 
 let newDefault = "new-default"
@@ -107,25 +107,25 @@ let newChild = spawnSync(
   {
     stdio: "inherit",
     env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
+      PATH: projectPath("bin") + ":" + env.PATH,
     },
   }
 )
 
 console.log(
   "scripts:",
-  ls(simplePath("scripts")).toString()
+  ls(projectPath("scripts")).toString()
 )
 console.log("new:", which("new"))
 
-let newDefaultContentPath = simplePath(
+let newDefaultContentPath = projectPath(
   "scripts",
   newDefault + ".js"
 )
 let newDefaultBuffer = await readFile(newDefaultContentPath)
 
 let defaultTemplateBuffer = await readFile(
-  simplePath("templates", "default.js")
+  projectPath("templates", "default.js")
 )
 
 if (
@@ -143,19 +143,19 @@ let testFile = "test.txt"
 await writeFile(testFile, "testing")
 
 exec(
-  `new share-file --url https://simplescripts.dev/scripts/johnlindquist/share-file.js --no-edit`,
+  `new share-file --url https://scriptkit.app/scripts/johnlindquist/share-file.js --no-edit`,
   {
     stdio: "inherit",
     env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
+      PATH: projectPath("bin") + ":" + env.PATH,
     },
   }
 )
 
 console.log(`--- AFTER EXEC ---`)
 console.log("PATH: ", env.PATH)
-console.log(ls(simplePath("bin")).toString())
-console.log(ls(simplePath("scripts")).toString())
+console.log(ls(projectPath("bin")).toString())
+console.log(ls(projectPath("scripts")).toString())
 
 let shareFileChild = spawn(
   `share-file`,
@@ -163,7 +163,7 @@ let shareFileChild = spawn(
   {
     stdio: "inherit",
     env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
+      PATH: projectPath("bin") + ":" + env.PATH,
     },
   }
 )
@@ -176,11 +176,11 @@ kill(shareFileChild.pid)
 echo(`"share-file" passed`)
 
 exec(
-  `new hello-world --url https://simplescripts.dev/scripts/johnlindquist/hello-world.js --no-edit`,
+  `new hello-world --url https://scriptkit.app/scripts/johnlindquist/hello-world.js --no-edit`,
   {
     stdio: "inherit",
     env: {
-      PATH: simplePath("bin") + ":" + env.PATH,
+      PATH: projectPath("bin") + ":" + env.PATH,
     },
   }
 )

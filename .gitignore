@@ -116,9 +116,8 @@ dist
 .pnp.*
 .history
 .jsrc
-.simplerc
-SIMPLE_NOTES.md
+KIT_NOTES.md
 ROADMAP.md
 .DS_Store
 .lsp
-simple.code-workspace
+kit.code-workspace

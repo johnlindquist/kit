@@ -1,6 +1,6 @@
 let envKey = await arg("env key:")
 let envValue = await arg("env value:")
-let envFile = simplePath(".env")
+let envFile = projectPath(".env")
 
 let updateEnv = async (envKey, envValue) => {
   let regex = new RegExp("^" + envKey + "=.*$")

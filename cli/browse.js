@@ -1,1 +1,1 @@
-exec(`open https://simplescripts.dev`)
+exec(`open https://scriptkit.app`)

@@ -1,0 +1,25 @@
+#!/bin/bash
+# The full path to the parent directory of this script
+KIT=$(builtin cd "$(dirname $(dirname ${BASH_SOURCE[0]}))"; pwd)
+
+echo "KIT: $KIT"
+echo "SKA: $SKA"
+
+PATH="$KIT/node/bin:$PATH".kit
+NODE_PATH="$KIT/node_modules"
+KIT_NODE="$KIT/node/bin/node"
+KIT_NPM="$KIT/node/bin/npm"
+KIT_PRELOAD="$KIT/preload"
+
+KIT="$KIT" \
+PATH="$PATH" \
+SKA="$SKA" \
+NODE_PATH="$NODE_PATH" \
+KIT_NODE="$KIT_NODE" \
+KIT_NPM="$KIT_NPM" \
+KIT_PRELOAD="$KIT_PRELOAD" \
+node \
+--require "$KIT_PRELOAD/api.cjs" \
+--require "$KIT_PRELOAD/kit.cjs" \
+--require "$KIT_PRELOAD/mac.cjs" \
+"$@"

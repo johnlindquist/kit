@@ -5,7 +5,7 @@ const octokit = new Octokit({
 })
 
 const owner = "johnlindquist"
-const repo = "simplescripts"
+const repo = "kit"
 const branch = "main"
 let version = await arg("Version")
 

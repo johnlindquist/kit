@@ -1,7 +1,7 @@
 let { default: readline } = await import("readline")
 let { default: stripAnsi } = await import("strip-ansi")
 
-let child = spawn("simple")
+let child = spawn("kit")
 
 const rl = readline.createInterface({
   input: child.stdout,
@@ -31,7 +31,7 @@ child.stdout.on("end", () => {
 //   let tests = [enterName, help, result]
 
 //   console.log(
-//     chalk`{yellow Running ${env.SIMPLE_SCRIPT_NAME} tests}`
+//     chalk`{yellow Running ${env.KIT_SCRIPT_NAME} tests}`
 //   )
 //   tests.forEach(fn => {
 //     if (fn()) {
