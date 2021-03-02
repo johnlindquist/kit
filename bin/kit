@@ -1,6 +1,6 @@
 #!/bin/sh
 # The full path to the parent directory of this script
-KIT=$(builtin cd "$(dirname $(dirname ${BASH_SOURCE[0]}))"; pwd)
+KIT=$(cd "$(dirname $(dirname ${BASH_SOURCE[0]}))"; pwd)
 
 echo "KIT: $KIT"
 echo "SKA: $SKA"
