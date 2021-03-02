@@ -1,24 +1,24 @@
 let { Octokit } = await npm("@octokit/rest")
 
-const octokit = new Octokit({
+let octokit = new Octokit({
   auth: await env("GITHUB_TOKEN"),
 })
 
-const owner = "johnlindquist"
-const repo = "kit"
-const branch = "main"
+let owner = "johnlindquist"
+let repo = "kit"
+let branch = "main"
 let version = await arg("Version")
 
 console.log(`TAGGING VERSION: ${version}`)
 
-const commitRef = await octokit.git.getRef({
+let commitRef = await octokit.git.getRef({
   owner,
   repo,
   ref: `heads/${branch}`,
 })
 
-const object = commitRef.data.object.sha
-const tagCreateResponse = await octokit.git.createTag({
+let object = commitRef.data.object.sha
+let tagCreateResponse = await octokit.git.createTag({
   owner,
   repo,
   tag: version,
@@ -27,7 +27,7 @@ const tagCreateResponse = await octokit.git.createTag({
   type: "commit",
 })
 
-const createRefResponse = await octokit.git.createRef({
+let createRefResponse = await octokit.git.createRef({
   owner,
   repo,
   ref: `refs/tags/${version}`,
