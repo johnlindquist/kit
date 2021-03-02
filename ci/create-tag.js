@@ -9,6 +9,8 @@ const repo = "kit"
 const branch = "main"
 let version = await arg("Version")
 
+console.log(`TAGGING VERSION: ${version}`)
+
 const commitRef = await octokit.git.getRef({
   owner,
   repo,
