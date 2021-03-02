@@ -84,10 +84,6 @@ jobs:
           running-test-template --trust
 
       - name: Test new-and-rm
-        env:
-          #env vars for main kit
-          SKA:.
-          KIT_TEMPLATE:default
         run: |
           cd ~/.ska
-          kit/bin/kit kit/test/new-and-rm.js
+          SKA=. KIT_TEMPLATE=default kit/bin/kit kit/test/new-and-rm.js
