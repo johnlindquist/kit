@@ -85,9 +85,9 @@ jobs:
 
       - name: Test new-and-rm
         env:
-          # env vars for main kit
+          #env vars for main kit
           SKA:.
-          KIT_TEMPLATE=default
+          KIT_TEMPLATE:default
         run: |
           cd ~/.ska
           kit/bin/kit kit/test/new-and-rm.js
