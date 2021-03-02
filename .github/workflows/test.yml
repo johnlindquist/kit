@@ -49,12 +49,12 @@ jobs:
           ~/.kit/node/bin/npm install
 
       - name: cat kit.sh
-        run: cat ~/.kit/bin/kit.sh
+        run: cat ~/.kit/bin/kit
 
       - name: setup .ska dir
         run: |
           cd ~/.kit
-          SKA=~/.ska ./bin/kit.sh ./setup/setup.js
+          SKA=~/.ska ./bin/kit ./setup/setup.js
 
       - name: list .ska dir
         run: >
