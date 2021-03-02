@@ -41,7 +41,7 @@ jobs:
 
       - name: Install latest node
         run: >
-          ~/.kit/setup/install-node.sh --prefix ~/.kit/node
+          bash ~/.kit/setup/install-node.sh --prefix ~/.kit/node
 
       - name: npm install
         run: |
@@ -54,7 +54,7 @@ jobs:
       - name: setup .ska dir
         run: |
           cd ~/.kit
-          SKA=~/.ska ./bin/kit ./setup/setup.js
+          SKA=~/.ska bash ./bin/kit ./setup/setup.js
 
       - name: list .ska dir
         run: >
