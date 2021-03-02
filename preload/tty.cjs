@@ -73,7 +73,7 @@ arg = async (messageOrConfig = "Input", choices) => {
   let input = await prompt(config)
 
   let command = chalk`{green.bold ${
-    env.SIMPLE_SCRIPT_NAME
+    env.KIT_SCRIPT_NAME
   } {yellow ${input}}} {yellow ${argOpts.join(" ")}}`
 
   // TODO: Should I care about teaching this?
@@ -89,7 +89,7 @@ npm = async packageName => {
     return require(packageName)
   } catch (error) {
     if (!arg?.trust) {
-      let installMessage = chalk`\n{green ${env.SIMPLE_SCRIPT_NAME}} needs to install the npm library: {yellow ${packageName}}`
+      let installMessage = chalk`\n{green ${env.KIT_SCRIPT_NAME}} needs to install the npm library: {yellow ${packageName}}`
 
       let downloadsMessage = chalk`{yellow ${packageName}} has had {yellow ${
         (
@@ -128,15 +128,15 @@ npm = async packageName => {
       chalk`Installing {yellow ${packageName}} and continuing.`
     )
 
-    await sdk("cli/install", packageName)
-    let packageJsonPath = simplePath(
+    await cli("install", packageName)
+    let packageJsonPath = projectPath(
       "node_modules",
       packageName,
       "package.json"
     )
     let packageJson = require(packageJsonPath)
 
-    let packageImport = simplePath(
+    let packageImport = projectPath(
       "node_modules",
       packageName,
       packageJson?.main || "index.js"

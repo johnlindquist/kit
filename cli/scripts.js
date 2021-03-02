@@ -1,4 +1,4 @@
-let { scriptsInfo } = await sdk("cli/scripts-info")
+let { scriptsInfo } = await cli("scripts-info")
 
 export let scripts = scriptsInfo
   .map(script => {
@@ -39,7 +39,7 @@ export let validate = async function (input) {
 
 export let exists = async input => {
   try {
-    let checkBin = await readdir(simplePath("bin"), {
+    let checkBin = await readdir(projectPath("bin"), {
       withFileTypes: true,
     })
     let checkFile = checkBin

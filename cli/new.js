@@ -8,7 +8,7 @@ let name = await arg({
 })
 
 let scriptPath = path.join(
-  simplePath("scripts"),
+  projectPath("scripts"),
   name + ".js"
 )
 
@@ -18,11 +18,10 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
-let template =
-  arg?.template || (await env("SIMPLE_TEMPLATE"))
+let template = arg?.template || (await env("KIT_TEMPLATE"))
 
 let templateContent = await readFile(
-  simplePath("templates", template + ".js"),
+  projectPath("templates", template + ".js"),
   "utf8"
 )
 
@@ -36,10 +35,10 @@ if (arg?.url) {
 mkdir("-p", path.dirname(scriptPath))
 await writeFile(scriptPath, contents)
 
-await sdk("cli/create-bin", "scripts", name)
+await cli("create-bin", "scripts", name)
 
 console.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
-edit(scriptPath, simplePath())
+edit(scriptPath, projectPath())

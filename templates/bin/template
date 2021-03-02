@@ -1,11 +1,11 @@
 #!/bin/sh
 
-NODE_PATH={{SIMPLE_PATH}}/node_modules:{{SIMPLE_SDK}}/node_modules \
-DOTENV_CONFIG_PATH={{SIMPLE_PATH}}/.env \
-{{SIMPLE_NODE}} \
+NODE_PATH={{SKA}}/node_modules:{{KIT}}/node_modules \
+DOTENV_CONFIG_PATH={{SKA}}/.env \
+{{KIT_NODE}} \
 --require dotenv/config \
---require "{{SIMPLE_SDK}}/preload/api.cjs" \
---require "{{SIMPLE_SDK}}/preload/simple.cjs" \
---require "{{SIMPLE_SDK}}/preload/mac.cjs" \
+--require "{{KIT}}/preload/api.cjs" \
+--require "{{KIT}}/preload/kit.cjs" \
+--require "{{KIT}}/preload/mac.cjs" \
 {{TARGET_PATH}}/{{type}}/{{name}}.js \
 "$@"

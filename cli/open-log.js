@@ -1,3 +1,3 @@
 // Description: Open Log
 
-edit(simplePath("logs", "simple.log"))
+edit(projectPath("logs", "kit.log"))

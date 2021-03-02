@@ -3,4 +3,4 @@
 
 //Note: Feels free to delete this script!
 
-edit(simplePath("sdk/docs/README.md"))
+edit(projectPath("kit/docs/README.md"))

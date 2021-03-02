@@ -3,7 +3,7 @@
 const cliScripts = [
   {
     name: "open",
-    message: "Open .simple directory in editor",
+    message: "Open .ska directory in editor",
   },
   { name: "browse", message: "Go to scriptkit.app" },
   { name: "new", message: "Create a new script" },
@@ -39,12 +39,12 @@ const cliScripts = [
     alias: "un",
     message: "Uninstall an npm package",
   },
-  { name: "sdk", message: "Open the sdk" },
+  { name: "kit", message: "Open the kit" },
   { name: "env", message: "Modify .env" },
   { name: "issue", message: "File an issue on github" },
   { name: "open-at-login", message: "Open at login" },
-  { name: "open-log", message: "Open simple.log" },
-  { name: "quit", message: "Quit Simple Scripts" },
+  { name: "open-log", message: "Open kit.log" },
+  { name: "quit", message: "Quit Kit" },
 ]
 
 let script = await arg(
@@ -65,7 +65,5 @@ let found = cliScripts.find(
   config => config.name == script || config.alias == script
 )
 if (found) {
-  script = "cli/" + found.name
+  await cli(found.name)
 }
-
-let values = await sdk(script)

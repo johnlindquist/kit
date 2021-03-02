@@ -1,5 +1,5 @@
 let file = JSON.parse(
-  await readFile(simplePath("package.json"), {
+  await readFile(projectPath("package.json"), {
     encoding: "utf8",
   })
 )
@@ -12,26 +12,26 @@ let packages = await arg(
   ]
 )
 
-//grab all the args you used `simple un jquery react`
+//grab all the args you used `kit un jquery react`
 if (typeof packages == "string") {
   packages = [packages, ...args]
 }
 
 let uninstall = spawn(
-  sdkPath("node", "bin", "npm"),
+  kitPath("node", "bin", "npm"),
   [
     "uninstall",
     "--prefix",
-    simplePath(),
+    projectPath(),
     ...packages,
     ...args,
   ],
   {
     stdio: "inherit",
-    cwd: env.SIMPLE_PATH,
+    cwd: env.SKA,
     env: {
       //need to prioritize our node over any nodes on the path
-      PATH: sdkPath("node", "bin") + ":" + env.PATH,
+      PATH: kitPath("node", "bin") + ":" + env.PATH,
     },
   }
 )

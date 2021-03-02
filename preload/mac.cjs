@@ -5,7 +5,7 @@ applescript = async (
   let formattedScript = script.replace(/'/g, "'\"'\"'")
   if (env?.DEBUG) {
     await writeFile(
-      simplePath("tmp", "_debug.applescript"),
+      projectPath("tmp", "_debug.applescript"),
       script
     )
   }
@@ -68,7 +68,7 @@ let terminalEditor = editor => async file => {
       })
       .map(([name, value]) => ({ name, value: name }))
 
-  let terminal = await env("SIMPLE_TERMINAL", {
+  let terminal = await env("KIT_TERMINAL", {
     message: `Which Terminal do you use with ${editor}?`,
     choices: possibleTerminals(),
   })
@@ -100,7 +100,7 @@ edit = async (file, dir, line = 0, col = 0) => {
         ).stdout
     )
 
-  let editor = await env("SIMPLE_EDITOR", {
+  let editor = await env("KIT_EDITOR", {
     message:
       "Which code editor do you use? (You can always change this later in .env)",
     choices: [
@@ -128,7 +128,7 @@ edit = async (file, dir, line = 0, col = 0) => {
     exec(`${editor} ${file}`, { env: {} })
   let editorFn = macEditors[editor] || execEditor
   send("UPDATE_PROMPT_INFO", {
-    info: `Opening ${file} with ${env.SIMPLE_EDITOR}`,
+    info: `Opening ${file} with ${env.KIT_EDITOR}`,
   })
 
   let result = await editorFn(file)
@@ -139,6 +139,6 @@ edit = async (file, dir, line = 0, col = 0) => {
   }
 
   console.log(
-    chalk`> Opening {yellow ${file}} with {green.bold ${env.SIMPLE_EDITOR}}`
+    chalk`> Opening {yellow ${file}} with {green.bold ${env.KIT_EDITOR}}`
   )
 }

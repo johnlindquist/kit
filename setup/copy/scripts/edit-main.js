@@ -3,4 +3,4 @@
 
 //Note: Feels free to delete this script!
 
-edit(simplePath("app/left-click.js"))
+edit(projectPath("app/left-click.js"))

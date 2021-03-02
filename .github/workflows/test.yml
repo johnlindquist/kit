@@ -29,36 +29,36 @@ jobs:
       - name: Log Branch Name
         run: echo "Running install from ${{ env.GITHUB_HEAD_REF_SLUG }}"
 
-      - name: Clone simplescripts
+      - name: Clone kit
         run: |
-          git clone https://github.com/johnlindquist/simplescripts.git ~/.simplesdk
-          ls ~/.simplesdk
+          git clone https://github.com/johnlindquist/kit.git ~/.kit
+          ls ~/.kit
 
       - name: Checkout to branch - ${{ env.GITHUB_HEAD_REF_SLUG }}
         run: |
-          cd ~/.simplesdk
+          cd ~/.kit
           git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
 
       - name: Install latest node
         run: >
-          ~/.simplesdk/setup/install-node.sh --prefix ~/.simplesdk/node
+          ~/.kit/setup/install-node.sh --prefix ~/.kit/node
 
       - name: npm install
         run: |
-          cd ~/.simplesdk
-          ~/.simplesdk/node/bin/npm install
+          cd ~/.kit
+          ~/.kit/node/bin/npm install
 
-      - name: cat simple.sh
-        run: cat ~/.simplesdk/simple.sh
+      - name: cat kit.sh
+        run: cat ~/.kit/bin/kit.sh
 
-      - name: setup .simple dir
+      - name: setup .ska dir
         run: |
-          cd ~/.simplesdk
-          SIMPLE_PATH=~/.simple ~/.simplesdk/simple.sh ~/.simplesdk/setup/setup.js
+          cd ~/.kit
+          SKA=~/.ska ./bin/kit.sh ./setup/setup.js
 
-      - name: list .simple dir
+      - name: list .ska dir
         run: >
-          ls ~/.simple
+          ls ~/.ska
 
       - name: View .profile
         run: >
@@ -66,14 +66,14 @@ jobs:
 
       - name: View bin
         run: >
-          cat ~/.simple/bin/new
+          cat ~/.ska/bin/new
 
       - name: View .env
         run: >
-          cat ~/.simple/.env
+          cat ~/.ska/.env
 
-      - name: Adding Simple to Path
-        run: echo "~/.simple/bin" >> $GITHUB_PATH
+      - name: Adding sk to Path
+        run: echo "~/.ska/bin" >> $GITHUB_PATH
 
       - name: Create a Test Script
         run: >
@@ -85,4 +85,4 @@ jobs:
 
       - name: Test new-and-rm
         run: >
-          simple test/new-and-rm
+          kit test/new-and-rm

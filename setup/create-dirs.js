@@ -1,9 +1,9 @@
-mkdir(simplePath())
+mkdir(projectPath())
 
 let dirs = ["cache", "db", "bin", "lib", "logs", "tmp"]
 
 dirs.forEach(dir => {
-  mkdir(simplePath(dir))
+  mkdir(projectPath(dir))
 })
 
 let copies = ["app", "scripts", "templates", "package.json"]
@@ -11,9 +11,9 @@ let copies = ["app", "scripts", "templates", "package.json"]
 copies.forEach(async source => {
   cp(
     "-r",
-    sdkPath(`setup/copy/${source}`),
-    simplePath(source)
+    kitPath(`setup/copy/${source}`),
+    projectPath(source)
   )
 })
 
-ln("-s", sdkPath(), simplePath("sdk"))
+ln("-s", kitPath(), projectPath("kit"))

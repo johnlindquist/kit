@@ -1,14 +1,14 @@
 let install = async packageNames => {
   return await new Promise((res, rej) => {
     let npm = spawn(
-      sdkPath("node", "bin", "npm"),
-      ["i", "--prefix", simplePath(), ...packageNames],
+      kitPath("node", "bin", "npm"),
+      ["i", "--prefix", projectPath(), ...packageNames],
       {
         stdio: "inherit",
-        cwd: simplePath(),
+        cwd: projectPath(),
         env: {
           //need to prioritize our node over any nodes on the path
-          PATH: sdkPath("node", "bin") + ":" + env.PATH,
+          PATH: kitPath("node", "bin") + ":" + env.PATH,
         },
       }
     )

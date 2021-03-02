@@ -27,7 +27,7 @@ child.stdout.on("end", end => {
   let tests = [enterName, help, result]
 
   console.log(
-    chalk`{yellow Running ${env.SIMPLE_SCRIPT_NAME} tests}`
+    chalk`{yellow Running ${env.KIT_SCRIPT_NAME} tests}`
   )
   tests.forEach(fn => {
     if (fn()) {

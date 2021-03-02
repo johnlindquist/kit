@@ -4,27 +4,27 @@ let scriptName = "testing-new-and-rm"
 
 let scriptExists = test(
   "-f",
-  simplePath("scripts", scriptName + ".js")
+  projectPath("scripts", scriptName + ".js")
 )
-let binExists = test("-f", simplePath("bin", scriptName))
+let binExists = test("-f", projectPath("bin", scriptName))
 
 if (scriptExists || binExists) {
   console.log({ scriptExists, binExists })
   console.log(chalk`{red Clearing out ${scriptName}}`)
-  await sdk("cli/remove", scriptName, "--force")
+  await cli("remove", scriptName, "--force")
 }
 
 console.log(chalk`--- {yellow NEW} ---`)
-await sdk("cli/new", scriptName, "--no-edit")
+await cli("new", scriptName, "--no-edit")
 
-test("-f", simplePath("scripts", scriptName + ".js"))
-test("-f", simplePath("bin", scriptName))
+test("-f", projectPath("scripts", scriptName + ".js"))
+test("-f", projectPath("bin", scriptName))
 
 scriptExists = test(
   "-f",
-  simplePath("scripts", scriptName + ".js")
+  projectPath("scripts", scriptName + ".js")
 )
-binExists = test("-f", simplePath("bin", scriptName))
+binExists = test("-f", projectPath("bin", scriptName))
 
 if (!scriptExists || !binExists) {
   console.log({ scriptExists, binExists })
@@ -33,16 +33,16 @@ if (!scriptExists || !binExists) {
 }
 
 console.log(chalk`--- {yellow RM} ---`)
-await sdk("cli/remove", scriptName, "--force")
+await cli("remove", scriptName, "--force")
 
-test("-f", simplePath("scripts", scriptName + ".js"))
-test("-f", simplePath("bin", scriptName))
+test("-f", projectPath("scripts", scriptName + ".js"))
+test("-f", projectPath("bin", scriptName))
 
 scriptExists = test(
   "-f",
-  simplePath("scripts", scriptName + ".js")
+  projectPath("scripts", scriptName + ".js")
 )
-binExists = test("-f", simplePath("bin", scriptName))
+binExists = test("-f", projectPath("bin", scriptName))
 
 if (scriptExists || binExists) {
   console.log({ scriptExists, binExists })

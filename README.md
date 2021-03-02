@@ -1,23 +1,23 @@
-# Simple Scripts
+# Script Kit App
 
-[https://simplescripts.dev/](https://simplescripts.dev/)
+[https://scriptkit.app/](https://scriptkit.app/)
 
 ## Install
 
 ```shell
-export SIMPLE_PATH=~/.simple; curl -o- https://simplescripts.dev/api/install | sh; export PATH=$PATH:$SIMPLE_PATH/bin
+export SKA=~/.ska; curl -o- https://scriptkit.app/api/install | sh; export PATH=$PATH:$SKA/bin
 ```
 
 ## Getting Started
 
-Run `simple` in your shell.
+Run `kit` in your shell.
 
 ```shell
-simple
+kit
 ```
 
-`simple` launches an interactive prompt to train you to write your own scripts.
+`kit` launches an interactive prompt to train you to write your own scripts.
 
 ## Join the Discussion
 
-[https://github.com/johnlindquist/simplescripts/discussions](https://github.com/johnlindquist/simplescripts/discussions)
+[https://github.com/johnlindquist/kit/discussions](https://github.com/johnlindquist/kit/discussions)

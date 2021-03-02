@@ -1,1 +1,1 @@
-edit(simplePath(".env"), env.SIMPLE_PATH)
+edit(projectPath(".env"), env.SKA)

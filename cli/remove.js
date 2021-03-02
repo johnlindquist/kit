@@ -27,7 +27,7 @@ let promptToRemoveFiles = async (dir, pattern) => {
     .filter(name => name.match(pattern))
 
   for await (let script of files) {
-    let targetDir = dir.replace(simplePath("scripts"), "")
+    let targetDir = dir.replace(projectPath("scripts"), "")
     let scriptName = script.replace(".js", "")
 
     const confirm =
@@ -41,12 +41,12 @@ let promptToRemoveFiles = async (dir, pattern) => {
       }))
 
     if (confirm) {
-      let trashBin = simplePath(
+      let trashBin = projectPath(
         "bin",
         targetDir,
         scriptName
       )
-      let trashScript = simplePath(
+      let trashScript = projectPath(
         "scripts",
         targetDir,
         script
@@ -65,10 +65,10 @@ let promptToRemoveFiles = async (dir, pattern) => {
 
   for await (let dir of dirs) {
     await promptToRemoveFiles(
-      simplePath("scripts", dir),
+      projectPath("scripts", dir),
       ".*"
     )
   }
 }
 
-await promptToRemoveFiles(simplePath("scripts"), pattern)
+await promptToRemoveFiles(projectPath("scripts"), pattern)

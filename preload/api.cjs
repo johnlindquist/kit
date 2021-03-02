@@ -55,7 +55,7 @@ db = (key, defaults) => {
   let low = require("lowdb")
   let FileSync = require("lowdb/adapters/FileSync")
   let _db = low(
-    new FileSync(simplePath("db", `${key}.json`))
+    new FileSync(projectPath("db", `${key}.json`))
   )
 
   _db._.mixin(require("lodash-id"))
@@ -86,7 +86,7 @@ send = (from, data) => {
   if (process?.send) {
     process.send({ from, ...data })
   } else {
-    console.log(from, ...args)
+    // console.log(from, ...args)
   }
 }
 

@@ -1,3 +1,1 @@
-let { getSelectedText, setSelectedText } = await simple(
-  "text"
-)
+let { getSelectedText, setSelectedText } = await kit("text")
