@@ -193,7 +193,7 @@ kit = async (scriptPath, ..._args) => {
   send("UPDATE_PROMPT_INFO", {
     info: `Running kit: ${scriptPath}...`,
   })
-  let kitScriptPath = kitPath(scriptPath) + ".js"
+  let kitScriptPath = kitPath("kit", scriptPath) + ".js"
   return await attemptImport(kitScriptPath, _args)
 }
 
