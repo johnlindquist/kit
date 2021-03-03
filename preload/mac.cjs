@@ -56,10 +56,11 @@ let iterm = async command => {
 
 let terminalEditor = editor => async file => {
   //TODO: Hyper? Other terminals?
-  let termMap = { terminal, iterm }
+  let supportedTerminalMap = { terminal, iterm }
 
+  let { fileSearch } = await kit("file")
   let possibleTerminals = () =>
-    Object.entries(termMap)
+    Object.entries(supportedTerminalMap)
       .filter(async ([name, value]) => {
         return fileSearch(name, {
           onlyin: "/",
@@ -68,14 +69,14 @@ let terminalEditor = editor => async file => {
       })
       .map(([name, value]) => ({ name, value: name }))
 
-  let terminal = await env("KIT_TERMINAL", {
+  let KIT_TERMINAL = await env("KIT_TERMINAL", {
     message: `Which Terminal do you use with ${editor}?`,
     choices: possibleTerminals(),
   })
 
-  let macTerminals = [terminal, iterm]
-
-  return macTerminals[terminal](`${editor} ${file}`)
+  return supportedTerminalMap[KIT_TERMINAL](
+    `${editor} ${file}`
+  )
 }
 
 edit = async (file, dir, line = 0, col = 0) => {
@@ -100,7 +101,7 @@ edit = async (file, dir, line = 0, col = 0) => {
         ).stdout
     )
 
-  let editor = await env("KIT_EDITOR", {
+  let KIT_EDITOR = await env("KIT_EDITOR", {
     message:
       "Which code editor do you use? (You can always change this later in .env)",
     choices: [
@@ -121,12 +122,14 @@ edit = async (file, dir, line = 0, col = 0) => {
   }
 
   let vim = terminalEditor("vim")
+  let nvim = terminalEditor("nvim")
   let nano = terminalEditor("nano")
-  let macEditors = [code, vim, nano]
+  let fullySupportedEditors = { code, vim, nvim, nano }
 
   let execEditor = file =>
-    exec(`${editor} ${file}`, { env: {} })
-  let editorFn = macEditors[editor] || execEditor
+    exec(`${KIT_EDITOR} ${file}`, { env: {} })
+  let editorFn =
+    fullySupportedEditors[KIT_EDITOR] || execEditor
   send("UPDATE_PROMPT_INFO", {
     info: `Opening ${file} with ${env.KIT_EDITOR}`,
   })

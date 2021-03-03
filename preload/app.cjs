@@ -86,7 +86,6 @@ prompt = async (config = {}) => {
   let messageHandler
   let errorHandler
 
-  console.log(`typeof choices`, typeof choices)
   let value = await new Promise((resolve, reject) => {
     messageHandler = async data => {
       //If you're typing input, send back choices based on the function
