@@ -25,7 +25,7 @@ export let scripts = scriptsInfo
   })
 
 export let validate = async function (input) {
-  let valid = choices.find(
+  let valid = scripts.find(
     choice =>
       input === choice.value ||
       input === choice.value + ".js" ||
