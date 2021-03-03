@@ -16,13 +16,13 @@ let newScript = await arg({
 })
 
 let oldFilePath = path.join(
-  projectPath("scripts"),
+  kenvPath("scripts"),
   script + ".js"
 )
 let newFilePath = path.join(
-  projectPath("scripts"),
+  kenvPath("scripts"),
   newScript + ".js"
 )
 mv(oldFilePath, newFilePath)
 await cli("create-bin", "scripts", newScript)
-trash(projectPath("bin", script))
+trash(kenvPath("bin", script))

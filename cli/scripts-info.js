@@ -2,7 +2,7 @@ let scriptsPath = "scripts"
 
 if (arg.dir) scriptsPath = `${scriptsPath}/${arg.dir}`
 
-let result = await readdir(projectPath(scriptsPath), {
+let result = await readdir(kenvPath(scriptsPath), {
   withFileTypes: true,
 })
 
@@ -24,7 +24,7 @@ let getByMarker = marker => lines =>
     ?.trim()
 
 let choices = files.map(async file => {
-  let filePath = projectPath("scripts", file)
+  let filePath = kenvPath("scripts", file)
   let fileContents = await readFile(filePath, "utf8")
 
   let fileLines = fileContents.split("\n")

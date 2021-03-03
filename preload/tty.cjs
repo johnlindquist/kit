@@ -129,14 +129,14 @@ npm = async packageName => {
     )
 
     await cli("install", packageName)
-    let packageJsonPath = projectPath(
+    let packageJsonPath = kenvPath(
       "node_modules",
       packageName,
       "package.json"
     )
     let packageJson = require(packageJsonPath)
 
-    let packageImport = projectPath(
+    let packageImport = kenvPath(
       "node_modules",
       packageName,
       packageJson?.main || "index.js"

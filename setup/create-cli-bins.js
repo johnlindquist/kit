@@ -16,7 +16,7 @@ bins.forEach(async bin => {
     TARGET_PATH: kitPath(),
   })
 
-  let binFilePath = projectPath("bin", name)
+  let binFilePath = kenvPath("bin", name)
   await writeFile(binFilePath, binResult)
   chmod(755, binFilePath)
 })

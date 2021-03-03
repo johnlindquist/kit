@@ -27,10 +27,10 @@ runSub = async (scriptPath, ...runArgs) => {
   return new Promise(async (res, rej) => {
     let values = []
     if (!scriptPath.includes("/")) {
-      scriptPath = projectPath("scripts", scriptPath)
+      scriptPath = kenvPath("scripts", scriptPath)
     }
     if (!scriptPath.startsWith(path.sep)) {
-      scriptPath = projectPath(scriptPath)
+      scriptPath = kenvPath(scriptPath)
     }
 
     if (!scriptPath.endsWith(".js"))
@@ -69,11 +69,11 @@ runSub = async (scriptPath, ...runArgs) => {
     })
 
     let name = process.argv[1].replace(
-      projectPath() + path.sep,
+      kenvPath() + path.sep,
       ""
     )
     let childName = scriptPath.replace(
-      projectPath() + path.sep,
+      kenvPath() + path.sep,
       ""
     )
 
@@ -150,22 +150,21 @@ assignPropsTo(process.env, env)
 
 env.KIT_BIN_FILE_PATH = process.argv[1]
 env.KIT_SRC_NAME = process.argv[1]
-  .split(env.SKA.split(path.sep).pop())
+  .split(env.KENV.split(path.sep).pop())
   .pop()
 
 env.KIT_SCRIPT_NAME = env.KIT_SRC_NAME.replace(".js", "")
 
 kitPath = (...parts) => path.join(env.KIT, ...parts)
 
-projectPath = (...parts) => {
-  return path.join(env.SKA, ...parts.filter(Boolean))
+kenvPath = (...parts) => {
+  return path.join(env.KENV, ...parts.filter(Boolean))
 }
 
-libPath = (...parts) =>
-  path.join(projectPath("lib"), ...parts)
+libPath = (...parts) => path.join(kenvPath("lib"), ...parts)
 
 kitScriptFromPath = path => {
-  path = path.replace(projectPath() + "/", "")
+  path = path.replace(kenvPath() + "/", "")
   path = path.replace(/\.js$/, "")
   return path
 }
@@ -183,8 +182,7 @@ run = async (name, ..._args) => {
   send("UPDATE_PROMPT_INFO", {
     info: `Running ${kitScript}...`,
   })
-  let kitScriptPath =
-    projectPath("scripts", kitScript) + ".js"
+  let kitScriptPath = kenvPath("scripts", kitScript) + ".js"
 
   return attemptImport(kitScriptPath, _args)
 }
@@ -231,7 +229,7 @@ inspect = async (data, extension) => {
       .replaceAll(":", "-")
       .split(".")[0]
 
-  let tmpFilePath = projectPath("tmp", env.KIT_SCRIPT_NAME)
+  let tmpFilePath = kenvPath("tmp", env.KIT_SCRIPT_NAME)
   let formattedData = data
   let tmpFullPath = path.join(
     tmpFilePath,
@@ -260,7 +258,7 @@ inspect = async (data, extension) => {
 
 compileTemplate = async (template, vars) => {
   let templateContent = await readFile(
-    projectPath("templates", template),
+    kenvPath("templates", template),
     "utf8"
   )
   let templateCompiler = compile(templateContent)

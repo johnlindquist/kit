@@ -3,7 +3,7 @@
 KIT=$(builtin cd "$(dirname $(dirname ${BASH_SOURCE[0]}))"; pwd)
 
 echo "KIT: $KIT"
-echo "SKA: $SKA"
+echo "KENV: $KENV"
 
 PATH="$KIT/node/bin:$PATH".kit
 NODE_PATH="$KIT/node_modules"
@@ -13,7 +13,7 @@ KIT_PRELOAD="$KIT/preload"
 
 KIT="$KIT" \
 PATH="$PATH" \
-SKA="$SKA" \
+KENV="$KENV" \
 NODE_PATH="$NODE_PATH" \
 KIT_NODE="$KIT_NODE" \
 KIT_NPM="$KIT_NPM" \

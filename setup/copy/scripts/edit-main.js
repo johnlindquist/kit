@@ -3,4 +3,4 @@
 
 //Note: Feels free to delete this script!
 
-edit(projectPath("app/left-click.js"))
+edit(kenvPath("app/left-click.js"), kenvPath())

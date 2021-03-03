@@ -1,1 +1,1 @@
-await edit(projectPath())
+await edit(kenvPath())

@@ -1,1 +1,1 @@
-edit(projectPath(".env"), env.SKA)
+edit(kenvPath(".env"), env.KENV)

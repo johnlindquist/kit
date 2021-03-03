@@ -1,7 +1,7 @@
 #!/bin/sh
 
-NODE_PATH={{SKA}}/node_modules:{{KIT}}/node_modules \
-DOTENV_CONFIG_PATH={{SKA}}/.env \
+NODE_PATH={{KENV}}/node_modules:{{KIT}}/node_modules \
+DOTENV_CONFIG_PATH={{KENV}}/.env \
 {{KIT_NODE}} \
 --require dotenv/config \
 --require "{{KIT}}/preload/api.cjs" \

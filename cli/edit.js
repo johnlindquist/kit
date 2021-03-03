@@ -11,4 +11,4 @@ let file = await arg(
 )
 
 let fileName = file + ".js"
-edit(projectPath(`scripts/${fileName}`))
+edit(kenvPath(`scripts/${fileName}`))

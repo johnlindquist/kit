@@ -11,10 +11,10 @@ binTemplate = binTemplate({
   name,
   type,
   ...env,
-  TARGET_PATH: projectPath(),
+  TARGET_PATH: kenvPath(),
 })
 
-let binFilePath = projectPath("bin", name)
+let binFilePath = kenvPath("bin", name)
 
 mkdir("-p", path.dirname(binFilePath))
 await writeFile(binFilePath, binTemplate)
