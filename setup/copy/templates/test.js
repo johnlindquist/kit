@@ -2,10 +2,10 @@ let { default: kill } = await npm("tree-kill")
 let { default: cleanup } = await npm("node-cleanup")
 
 await trash([
-  projectPath("scripts", "testing-tutorial.js"),
-  projectPath("bin", "testing-tutorial"),
-  projectPath("scripts", "new-default.js"),
-  projectPath("bin", "new-default"),
+  kenvPath("scripts", "testing-tutorial.js"),
+  kenvPath("bin", "testing-tutorial"),
+  kenvPath("scripts", "new-default.js"),
+  kenvPath("bin", "new-default"),
 ])
 
 let response = await get(
@@ -26,7 +26,7 @@ echo(`
 
 //----------------------
 
-let TUTORIAL_CONTENT_PATH = projectPath("tmp")
+let TUTORIAL_CONTENT_PATH = kenvPath("tmp")
 await cli("set-env-var", "KIT_TEMPLATE", "tutorial")
 await cli(
   "set-env-var",
@@ -38,7 +38,7 @@ let testingTutorial = "testing-tutorial"
 await cli("new", testingTutorial, "--trust", "--no-edit")
 
 let testingTutorialFilePath = path.join(
-  projectPath("scripts"),
+  kenvPath("scripts"),
   testingTutorial + ".js"
 )
 let tutorialContent = await readFile(
@@ -50,7 +50,7 @@ let tutorialContentBuffer = await readFile(
   testingTutorialFilePath
 )
 let tutorialTemplateBuffer = await readFile(
-  projectPath("templates", "tutorial.js")
+  kenvPath("templates", "tutorial.js")
 )
 
 if (
@@ -92,7 +92,7 @@ echo(`"tutorial" passed`)
 
 //---------------------
 
-console.log("bin:", ls(projectPath("bin")).toString())
+console.log("bin:", ls(kenvPath("bin")).toString())
 console.log("PATH:", env.PATH)
 
 let newDefault = "new-default"
@@ -102,25 +102,22 @@ let newChild = spawnSync(
   {
     stdio: "inherit",
     env: {
-      PATH: projectPath("bin") + ":" + env.PATH,
+      PATH: kenvPath("bin") + ":" + env.PATH,
     },
   }
 )
 
-console.log(
-  "scripts:",
-  ls(projectPath("scripts")).toString()
-)
+console.log("scripts:", ls(kenvPath("scripts")).toString())
 console.log("new:", which("new"))
 
-let newDefaultContentPath = projectPath(
+let newDefaultContentPath = kenvPath(
   "scripts",
   newDefault + ".js"
 )
 let newDefaultBuffer = await readFile(newDefaultContentPath)
 
 let defaultTemplateBuffer = await readFile(
-  projectPath("templates", "default.js")
+  kenvPath("templates", "default.js")
 )
 
 if (

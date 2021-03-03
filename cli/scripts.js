@@ -39,7 +39,7 @@ export let validate = async function (input) {
 
 export let exists = async input => {
   try {
-    let checkBin = await readdir(projectPath("bin"), {
+    let checkBin = await readdir(kenvPath("bin"), {
       withFileTypes: true,
     })
     let checkFile = checkBin

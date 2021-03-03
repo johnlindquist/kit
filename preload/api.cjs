@@ -54,9 +54,7 @@ copy = (...args) => require("clipboardy").write(...args)
 db = (key, defaults) => {
   let low = require("lowdb")
   let FileSync = require("lowdb/adapters/FileSync")
-  let _db = low(
-    new FileSync(projectPath("db", `${key}.json`))
-  )
+  let _db = low(new FileSync(kenvPath("db", `${key}.json`)))
 
   _db._.mixin(require("lodash-id"))
   _db.defaults(defaults).write()

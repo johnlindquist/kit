@@ -1,3 +1,3 @@
 // Description: Open Log
 
-edit(projectPath("logs", "kit.log"))
+edit(kenvPath("logs", "kit.log"))

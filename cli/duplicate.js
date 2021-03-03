@@ -24,11 +24,11 @@ let newScript = await arg({
 })
 
 let oldFilePath = path.join(
-  projectPath("scripts"),
+  kenvPath("scripts"),
   script + ".js"
 )
 let newFilePath = path.join(
-  projectPath("scripts"),
+  kenvPath("scripts"),
   newScript + ".js"
 )
 cp(oldFilePath, newFilePath)

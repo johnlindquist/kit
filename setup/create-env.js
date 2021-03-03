@@ -6,4 +6,4 @@ let envTemplate = await readFile(
 envTemplate = compile(envTemplate)
 envTemplate = envTemplate({ ...env })
 
-await writeFile(projectPath(".env"), envTemplate)
+await writeFile(kenvPath(".env"), envTemplate)

@@ -4,9 +4,9 @@ let scriptName = "testing-new-and-rm"
 
 let scriptExists = test(
   "-f",
-  projectPath("scripts", scriptName + ".js")
+  kenvPath("scripts", scriptName + ".js")
 )
-let binExists = test("-f", projectPath("bin", scriptName))
+let binExists = test("-f", kenvPath("bin", scriptName))
 
 if (scriptExists || binExists) {
   console.log({ scriptExists, binExists })
@@ -17,14 +17,14 @@ if (scriptExists || binExists) {
 console.log(chalk`--- {yellow NEW} ---`)
 await cli("new", scriptName, "--no-edit")
 
-test("-f", projectPath("scripts", scriptName + ".js"))
-test("-f", projectPath("bin", scriptName))
+test("-f", kenvPath("scripts", scriptName + ".js"))
+test("-f", kenvPath("bin", scriptName))
 
 scriptExists = test(
   "-f",
-  projectPath("scripts", scriptName + ".js")
+  kenvPath("scripts", scriptName + ".js")
 )
-binExists = test("-f", projectPath("bin", scriptName))
+binExists = test("-f", kenvPath("bin", scriptName))
 
 if (!scriptExists || !binExists) {
   console.log({ scriptExists, binExists })
@@ -35,14 +35,14 @@ if (!scriptExists || !binExists) {
 console.log(chalk`--- {yellow RM} ---`)
 await cli("remove", scriptName, "--force")
 
-test("-f", projectPath("scripts", scriptName + ".js"))
-test("-f", projectPath("bin", scriptName))
+test("-f", kenvPath("scripts", scriptName + ".js"))
+test("-f", kenvPath("bin", scriptName))
 
 scriptExists = test(
   "-f",
-  projectPath("scripts", scriptName + ".js")
+  kenvPath("scripts", scriptName + ".js")
 )
-binExists = test("-f", projectPath("bin", scriptName))
+binExists = test("-f", kenvPath("bin", scriptName))
 
 if (scriptExists || binExists) {
   console.log({ scriptExists, binExists })

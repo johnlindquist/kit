@@ -8,7 +8,7 @@ let name = await arg({
 })
 
 let scriptPath = path.join(
-  projectPath("scripts"),
+  kenvPath("scripts"),
   name + ".js"
 )
 
@@ -18,7 +18,7 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
-let templates = await readdir(projectPath("templates"))
+let templates = await readdir(kenvPath("templates"))
 let template = await arg(
   "Select a template",
   templates
@@ -27,7 +27,7 @@ let template = await arg(
 )
 
 let templateContent = await readFile(
-  projectPath("templates", template + ".js"),
+  kenvPath("templates", template + ".js"),
   "utf8"
 )
 
@@ -46,4 +46,4 @@ console.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
-edit(scriptPath, projectPath())
+edit(scriptPath, kenvPath())

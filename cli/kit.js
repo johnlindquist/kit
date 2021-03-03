@@ -3,7 +3,7 @@
 const cliScripts = [
   {
     name: "open",
-    message: "Open .ska directory in editor",
+    message: "Open .kenv directory in editor",
   },
   { name: "browse", message: "Go to scriptkit.app" },
   { name: "new", message: "Create a new script" },

@@ -3,4 +3,4 @@
 
 //Note: Feels free to delete this script!
 
-edit(projectPath("kit/docs/README.md"))
+edit(kenvPath("kit/docs/README.md"))

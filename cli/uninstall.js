@@ -1,5 +1,5 @@
 let file = JSON.parse(
-  await readFile(projectPath("package.json"), {
+  await readFile(kenvPath("package.json"), {
     encoding: "utf8",
   })
 )
@@ -22,13 +22,13 @@ let uninstall = spawn(
   [
     "uninstall",
     "--prefix",
-    projectPath(),
+    kenvPath(),
     ...packages,
     ...args,
   ],
   {
     stdio: "inherit",
-    cwd: env.SKA,
+    cwd: env.KENV,
     env: {
       //need to prioritize our node over any nodes on the path
       PATH: kitPath("node", "bin") + ":" + env.PATH,

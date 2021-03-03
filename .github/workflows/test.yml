@@ -51,14 +51,14 @@ jobs:
       - name: cat kit.sh
         run: cat ~/.kit/bin/kit
 
-      - name: setup .ska dir
+      - name: setup .kenv dir
         run: |
           cd ~/.kit
-          SKA=~/.ska bash ./bin/kit ./setup/setup.js
+          KENV=~/.kenv bash ./bin/kit ./setup/setup.js
 
-      - name: list .ska dir
+      - name: list .kenv dir
         run: >
-          ls ~/.ska
+          ls ~/.kenv
 
       - name: View .profile
         run: >
@@ -66,14 +66,14 @@ jobs:
 
       - name: View bin
         run: >
-          cat ~/.ska/bin/new
+          cat ~/.kenv/bin/new
 
       - name: View .env
         run: >
-          cat ~/.ska/.env
+          cat ~/.kenv/.env
 
       - name: Adding sk to Path
-        run: echo "~/.ska/bin" >> $GITHUB_PATH
+        run: echo "~/.kenv/bin" >> $GITHUB_PATH
 
       - name: Create a Test Script
         run: >
@@ -85,5 +85,5 @@ jobs:
 
       - name: Test new-and-rm
         run: |
-          cd ~/.ska
-          SKA=. KIT_TEMPLATE=default kit/bin/kit kit/test/new-and-rm.js
+          cd ~/.kenv
+          KENV=. KIT_TEMPLATE=default kit/bin/kit kit/test/new-and-rm.js

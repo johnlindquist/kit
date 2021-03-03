@@ -8,7 +8,7 @@ let name = await arg({
 })
 
 let scriptPath = path.join(
-  projectPath("scripts"),
+  kenvPath("scripts"),
   name + ".js"
 )
 
@@ -21,7 +21,7 @@ let contents = [arg?.npm]
 let template = arg?.template || (await env("KIT_TEMPLATE"))
 
 let templateContent = await readFile(
-  projectPath("templates", template + ".js"),
+  kenvPath("templates", template + ".js"),
   "utf8"
 )
 
@@ -41,4 +41,4 @@ console.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
-edit(scriptPath, projectPath())
+edit(scriptPath, kenvPath())
