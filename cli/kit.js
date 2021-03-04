@@ -30,6 +30,10 @@ const cliScripts = [
   },
   { name: "clear", message: "Clear the caches" },
   {
+    name: "Check for update",
+    message: `Version: ${env.KIT_APP_VERSION}`,
+  },
+  {
     name: "install",
     alias: "i",
     message: "Install an npm package",
@@ -39,7 +43,6 @@ const cliScripts = [
     alias: "un",
     message: "Uninstall an npm package",
   },
-  { name: "kit", message: "Open the kit" },
   { name: "env", message: "Modify .env" },
   { name: "issue", message: "File an issue on github" },
   { name: "open-at-login", message: "Open at login" },
