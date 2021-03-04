@@ -1,4 +1,4 @@
-//Description: Simple Scripts CLI
+//Description: Script Kit CLI
 
 const cliScripts = [
   {
