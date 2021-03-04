@@ -16,4 +16,6 @@ copies.forEach(async source => {
   )
 })
 
+cp(kitPath(`setup/copy/gitignore`), kenvPath(".gitignore"))
+
 ln("-s", kitPath(), kenvPath("kit"))
