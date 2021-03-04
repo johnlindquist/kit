@@ -1,0 +1,5 @@
+#!/bin/bash
+
+KIT=$(builtin cd "$(dirname ${BASH_SOURCE[0]})"; pwd)
+
+$KIT/bin/kit $KIT/ipc/invoke-app.js "$@"
