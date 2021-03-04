@@ -29,6 +29,7 @@ const cliScripts = [
     message: "Remove a script",
   },
   { name: "clear", message: "Clear the caches" },
+  { name: "update", message: `Check for update. Current Version: ${env.KIT_APP_VERSION}`}
   {
     name: "install",
     alias: "i",
