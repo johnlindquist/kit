@@ -49,12 +49,12 @@ jobs:
           ~/.kit/node/bin/npm install
 
       - name: cat kit.sh
-        run: cat ~/.kit/bin/kit
+        run: cat ~/.kit/script
 
       - name: setup .kenv dir
         run: |
           cd ~/.kit
-          KENV=~/.kenv bash ./bin/kit ./setup/setup.js
+          KENV=~/.kenv bash ./script ./setup/setup.js
 
       - name: list .kenv dir
         run: >
@@ -86,4 +86,4 @@ jobs:
       - name: Test new-and-rm
         run: |
           cd ~/.kenv
-          KENV=. KIT_TEMPLATE=default kit/bin/kit kit/test/new-and-rm.js
+          KENV=. KIT_TEMPLATE=default kit/script kit/test/new-and-rm.js
