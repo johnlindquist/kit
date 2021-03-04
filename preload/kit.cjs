@@ -18,6 +18,27 @@ let attemptImport = async (path, _args) => {
       info: error.message,
     })
 
+    await wait(1000)
+    try {
+      let stackWithoutId = error.stack.replace(
+        /\?[^:]*/,
+        ""
+      )
+      console.warn(stackWithoutId)
+      let errorFile = stackWithoutId
+        .split("\n")[1]
+        .replace("at file://", "")
+        .replace(/:.*/, "")
+        .trim()
+
+      let [, line, col] = stackWithoutId
+        .split("\n")[1]
+        .replace("at file://", "")
+        .split(":")
+      console.log({ line, col })
+      edit(errorFile, kenvPath(), line, col)
+    } catch {}
+
     await wait(2000)
     exit(1)
   }

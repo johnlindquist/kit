@@ -131,7 +131,7 @@ edit = async (file, dir, line = 0, col = 0) => {
     info: `Opening ${file} with ${env.KIT_EDITOR}`,
   })
 
-  let result = await editorFn(file)
+  let result = await editorFn(file, dir, line, col)
 
   if (result?.stderr) {
     console.warn(`STDERR ${stderr}`)

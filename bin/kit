@@ -1,11 +1,11 @@
 #!/bin/bash
-# The full path to the parent directory of this script
+# ../../ of this script
 KIT=$(builtin cd "$(dirname $(dirname ${BASH_SOURCE[0]}))"; pwd)
 
 echo "KIT: $KIT"
 echo "KENV: $KENV"
 
-PATH="$KIT/node/bin:$PATH".kit
+PATH="$KIT/node/bin:$PATH"
 NODE_PATH="$KIT/node_modules"
 KIT_NODE="$KIT/node/bin/node"
 KIT_NPM="$KIT/node/bin/npm"

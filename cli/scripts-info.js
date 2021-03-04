@@ -13,6 +13,7 @@ let files = result
     if (arg.dir) name = `${arg.dir}/${name}`
     return name
   })
+  .filter(name => name.endsWith(".js"))
 let descriptionMarker = "Description:"
 let menuMarker = "Menu:"
 let shortcutMarker = "Shortcut:"
