@@ -5,6 +5,10 @@ const cliScripts = [
     name: "open",
     message: "Open .kenv directory in editor",
   },
+  {
+    name: "open-kit",
+    message: "Open .kit directory in editor",
+  },
   { name: "browse", message: "Go to scriptkit.app" },
   { name: "new", message: "Create a new script" },
   {
@@ -43,6 +47,10 @@ const cliScripts = [
     alias: "un",
     message: "Uninstall an npm package",
   },
+  {
+    name: "add-kenv-to-profile",
+    message: "Add .kenv/bin to your path",
+  },
   { name: "env", message: "Modify .env" },
   { name: "issue", message: "File an issue on github" },
   { name: "open-at-login", message: "Open at login" },
@@ -53,14 +61,26 @@ const cliScripts = [
 let script = await arg(
   "What do you want to do?",
   () =>
-    cliScripts.map(({ name, message, alias }) => {
-      return {
-        name: chalk`{green.bold ${name}}${
-          alias ? chalk` {yellow (${alias})}` : ""
-        }: ${message}`,
-        value: name,
+    cliScripts.map(
+      ({ name, message, alias, description }) => {
+        if (env.KIT_CONTEXT === "app") {
+          return {
+            name: chalk`{green.bold ${name}}${
+              alias ? chalk` {yellow (${alias})}` : ""
+            }`,
+            description: message,
+            value: name,
+          }
+        }
+
+        return {
+          name: chalk`{green.bold ${name}}${
+            alias ? chalk` {yellow (${alias})}` : ""
+          }: ${message}`,
+          value: name,
+        }
       }
-    }),
+    ),
   true
 )
 
