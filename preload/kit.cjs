@@ -250,7 +250,7 @@ inspect = async (data, extension) => {
       .replaceAll(":", "-")
       .split(".")[0]
 
-  let tmpFilePath = kenvPath("tmp", env.KIT_SCRIPT_NAME)
+  let tmpFilePath = kenvPath("tmp", kitScript)
   let formattedData = data
   let tmpFullPath = path.join(
     tmpFilePath,
