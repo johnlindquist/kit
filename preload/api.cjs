@@ -88,6 +88,10 @@ send = (from, data) => {
   }
 }
 
+show = (html, options) => {
+  send("SHOW", { options, html })
+}
+
 showImage = (image, options) => {
   if (typeof image === "string") {
     image = { src: image }

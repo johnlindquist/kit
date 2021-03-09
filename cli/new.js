@@ -3,7 +3,7 @@
 let { exists } = await import("./scripts.js")
 
 let name = await arg({
-  message: "Enter a name for your script:",
+  message: arg?.message || "Enter a name for your script:",
   validate: exists,
 })
 
