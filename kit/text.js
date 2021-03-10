@@ -1,4 +1,5 @@
 export let getSelectedText = async () => {
+  send("HIDE_APP")
   await applescript(
     String.raw`tell application "System Events" to keystroke "c" using command down`
   )
