@@ -1,6 +1,6 @@
 // Description: Opens the selected script in your editor
 
-let { scripts, validate } = await import("./scripts.js")
+let { scripts, validate } = await cli("scripts")
 
 let file = await arg(
   {

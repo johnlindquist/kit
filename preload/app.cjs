@@ -27,12 +27,13 @@ prompt = async (config = {}) => {
     choices = [],
     type = "",
     cache = false,
+    secret = false,
   } = config
 
   if (type === "confirm") {
     choices = [
-      { name: "Yes", value: true },
       { name: "No", value: false },
+      { name: "Yes", value: true },
     ]
   }
 
@@ -80,6 +81,7 @@ prompt = async (config = {}) => {
       kitArgs: args.join(" "),
       choices,
       cache,
+      secret,
     })
   }
 

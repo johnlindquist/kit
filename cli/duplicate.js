@@ -1,4 +1,4 @@
-let { scripts, validate } = await import("./scripts.js")
+let { scripts, validate } = await cli("scripts")
 
 let script = await arg(
   {

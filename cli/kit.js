@@ -15,6 +15,14 @@ const cliScripts = [
     name: "new-from-template",
     message: "Create a new script from a template",
   },
+  {
+    name: "new-from-url",
+    message: "Create a script from a url",
+  },
+  {
+    name: "share-script",
+    message: "Share a script as a Gist",
+  },
   { name: "run", message: "Run a script" },
   { name: "edit", message: "Edit a script" },
   {

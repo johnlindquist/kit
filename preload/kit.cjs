@@ -198,20 +198,22 @@ kitFromPath = path => {
 
 kitScript = kitScriptFromPath(env.KIT_SCRIPT_NAME)
 
+setPromptText = info => {
+  send("UPDATE_PROMPT_INFO", {
+    info,
+  })
+}
+
 run = async (name, ..._args) => {
   kitScript = name
-  send("UPDATE_PROMPT_INFO", {
-    info: `Running ${kitScript}...`,
-  })
+  setPromptText(`Running ${kitScript}...`)
   let kitScriptPath = kenvPath("scripts", kitScript) + ".js"
 
   return attemptImport(kitScriptPath, _args)
 }
 
 kit = async (scriptPath, ..._args) => {
-  send("UPDATE_PROMPT_INFO", {
-    info: `Running kit: ${scriptPath}...`,
-  })
+  setPromptText(`Running kit: ${scriptPath}...`)
   let kitScriptPath = kitPath("kit", scriptPath) + ".js"
   return await attemptImport(kitScriptPath, _args)
 }
@@ -222,17 +224,13 @@ lib = async (scriptPath, ..._args) => {
 }
 
 cli = async (cliPath, ..._args) => {
-  send("UPDATE_PROMPT_INFO", {
-    info: `Running cli: ${cliPath}...`,
-  })
+  setPromptText(`Running cli: ${cliPath}...`)
   let cliScriptPath = kitPath("cli/" + cliPath) + ".js"
   return await attemptImport(cliScriptPath, _args)
 }
 
 setup = async (setupPath, ..._args) => {
-  send("UPDATE_PROMPT_INFO", {
-    info: `Running setup: ${setupPath}...`,
-  })
+  setPromptText(`Running setup: ${setupPath}...`)
   let setupScriptPath =
     kitPath("setup/" + setupPath) + ".js"
   return await attemptImport(setupScriptPath, _args)

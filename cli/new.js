@@ -1,6 +1,6 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-let { exists } = await import("./scripts.js")
+let { exists } = await cli("scripts")
 
 let name = await arg({
   message: arg?.message || "Enter a name for your script:",
