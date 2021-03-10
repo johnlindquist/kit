@@ -1,11 +1,11 @@
-let { choices, validate } = await import("./scripts.js")
+let { scripts, validate } = await import("./scripts.js")
 
 let script = await arg(
   {
     message: `Which script do you want to duplicate?`,
     validate,
   },
-  choices
+  scripts
 )
 
 let newScript = await arg({

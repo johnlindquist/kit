@@ -1,4 +1,4 @@
-let { choices, validate, exists } = await import(
+let { scripts, validate, exists } = await import(
   "./scripts.js"
 )
 
@@ -7,7 +7,7 @@ let script = await arg(
     message: `Which script do you want to rename?`,
     validate,
   },
-  choices
+  scripts
 )
 
 let newScript = await arg({
