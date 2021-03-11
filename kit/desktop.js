@@ -168,7 +168,10 @@ export let setWindowBoundsByIndex = async (
 	  end tell`)
 }
 
-export let scatterWindows = async (x, y, width, height) => {
+export let scatterWindows = async () => {
+  let { workArea } = await getActiveScreen()
+  let { x, y, width, height } = workArea
+
   return await applescript(String.raw`
   ${utils}
 
@@ -178,11 +181,11 @@ tell application "System Events"
   repeat with theProcess in V's Ps
 	  set V's Ws to window of theProcess
 	  repeat with theWindow in V's Ws
-	  		set width to random number from ${x} + 400 to ${width}
-	  		set height to random number from ${y} + 400 to ${height}	  
+	  		set width to random number from 400 to ${width}
+	  		set height to random number from 400 to ${height}	  
 	  
-	  		set x to random number from ${x} to ${width} + ${x} - width
-		  	set y to random number from ${y} to ${height} + ${y} - height
+	  		set x to random number from ${x} to ${x} + ${width} - width
+		  	set y to random number from ${y} to ${y} + ${height} - height
 		  
 		  try
 			set size of theWindow to {width, height}
@@ -192,6 +195,54 @@ tell application "System Events"
   end repeat
 end tell
   `)
+}
+
+export let organizeWindows = async () => {
+  let { workArea } = await getActiveScreen()
+  let { x, y, width, height } = workArea
+  console.log({ x, y, width, height })
+
+  let windows = await getWindows()
+  let rows = Math.floor(Math.sqrt(windows.length))
+  let columns = Math.floor(Math.sqrt(windows.length))
+
+  windows.forEach(async (window, i) => {
+    let sqrt = Math.ceil(Math.sqrt(windows.length))
+    let col = Math.floor(i % sqrt)
+    let row = Math.floor(i / sqrt)
+    let { process, title, index } = window
+
+    let windowX = Math.floor((col * width) / sqrt) + x
+    let windowY = Math.floor((row * height) / sqrt) + y
+    let windowWidth = Math.floor(width / sqrt)
+    let windowHeight = Math.floor(height / sqrt)
+
+    console.log({
+      process,
+      title,
+      index,
+      sqrt,
+      col,
+      row,
+      windowX,
+      windowY,
+      windowWidth,
+      windowHeight,
+    })
+    await setWindowSizeByIndex(
+      process,
+      index,
+      windowWidth,
+      windowHeight
+    )
+
+    await setWindowPositionByIndex(
+      process,
+      index,
+      windowX,
+      windowY
+    )
+  })
 }
 
 export let setWindowPositionByIndex = async (
