@@ -1,44 +1,49 @@
-export let getWindows = async () => {
-  let result = await applescript(String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
-  set AppleScript's text item delimiters to theSearchString
-  set theTextItems to every text item of theText
-  set AppleScript's text item delimiters to theReplacementString
-  set theText to theTextItems as string
-  set AppleScript's text item delimiters to ""
-  return theText
+let utils = String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
+set AppleScript's text item delimiters to theSearchString
+set theTextItems to every text item of theText
+set AppleScript's text item delimiters to theReplacementString
+set theText to theTextItems as string
+set AppleScript's text item delimiters to ""
+return theText
 end findAndReplaceInText
 
 script V
-  property Ps : missing value
-  property Ws : missing value
-  property JSON : ""
-  property Object : ""
-  
-  to finalizeJSON()
-	  set JSON to "[" & text 1 thru -2 of JSON & "]"
-  end finalizeJSON
-  
-  to addPair(key, value)
-	  set escapedValue to findAndReplaceInText(value, "\"", "\\\"")
-	  set Object to Object & ("\"" & key & "\":\"" & escapedValue) & "\","
-  end addPair
-  
-  to finalizeObject()
-	  set Object to "{" & text 1 thru -2 of Object & "},"
-	  set JSON to JSON & Object
-	  set Object to ""
-  end finalizeObject
-end script
+property Ps : missing value
+property Ws : missing value
+property JSON : ""
+property Object : ""
 
+to finalizeJSON()
+	set JSON to "[" & text 1 thru -2 of JSON & "]"
+end finalizeJSON
+
+to addPair(key, value)
+	set escapedValue to paragraphs of findAndReplaceInText(value, "\"", "\\\"")
+	set Object to Object & ("\"" & key & "\":\"" & escapedValue) & "\","
+end addPair
+
+to finalizeObject()
+	set Object to "{" & text 1 thru -2 of Object & "},"
+	set JSON to JSON & Object
+	set Object to ""
+end finalizeObject
+end script`
+
+export let getWindows = async () => {
+  let result = await applescript(String.raw`
+${utils}
 
 tell application "System Events"
   set V's Ps to processes whose visible is true
   
   repeat with theProcess in V's Ps
 	  set V's Ws to window of theProcess
+	  set counter to 0
 	  repeat with theWindow in V's Ws
 		  tell V to addPair("process", short name of theProcess as string)
 		  tell V to addPair("title", name of theWindow as string)
+		  tell V to addPair("index", counter as string)
+		  set counter to counter + 1
 		  tell V to finalizeObject()
 	  end repeat
   end repeat
@@ -59,12 +64,12 @@ tell application "${process}"
 end tell
 
 tell application "System Events"
-	set _processWindow to window of process "${process}" 
-	repeat with _window in _processWindow
-		if name of _window contains "${title}" then
-			perform action "AXRaise" of _window
+	set theProcessWindow to window of process "${process}" 
+	repeat with theWindow in theProcessWindow
+		if name of theWindow contains "${title}" then
+			perform action "AXRaise" of theWindow
 		else
-		perform action "AXRaise" of item 1 of _processWindow
+		perform action "AXRaise" of item 1 of theProcessWindow
 		end if
 	end repeat
 end tell
@@ -111,26 +116,112 @@ export let setWindowPosition = async (
 ) => {
   return await applescript(String.raw`
 	tell application "System Events"
-	set _processWindow to window of process "${process}"
-	repeat with _window in _processWindow
-		if name of _window contains "${title}" then
-			set position of _window to {${x}, ${y}}
+	set theProcessWindow to window of process "${process}"
+	repeat with theWindow in theProcessWindow
+		if name of theWindow contains "${title}" then
+			set position of theWindow to {${x}, ${y}}
 		else
-			set position of item 1 of _processWindow to {${x}, ${y}}
+			set position of item 1 of theProcessWindow to {${x}, ${y}}
 		end if
 	end repeat
 end tell`)
 }
 
+export let setWindowSizeByIndex = async (
+  process,
+  index,
+  x,
+  y
+) => {
+  return await applescript(String.raw`
+		tell application "System Events"
+		set theProcessWindow to window of process "${process}"
+		set counter to 0
+		repeat with theWindow in theProcessWindow
+			if counter as string is "${index}"
+				set size of theWindow to {${x}, ${y}}
+			end if
+			set counter to counter + 1
+		end repeat
+	end tell`)
+}
+
+export let setWindowBoundsByIndex = async (
+  process,
+  index,
+  x,
+  y,
+  width,
+  height
+) => {
+  return await applescript(String.raw`
+		  tell application "System Events"
+		  set theProcessWindow to window of process "${process}"
+		  set counter to 0
+		  repeat with theWindow in theProcessWindow
+			  if counter as string is "${index}"
+				  set size of theWindow to {${width}, ${height}}
+				  set position of theWindow to {${x}, ${y}}
+			  end if
+			  set counter to counter + 1
+		  end repeat
+	  end tell`)
+}
+
+export let scatterWindows = async (x, y, width, height) => {
+  return await applescript(String.raw`
+  ${utils}
+
+tell application "System Events"
+  set V's Ps to processes whose visible is true
+  
+  repeat with theProcess in V's Ps
+	  set V's Ws to window of theProcess
+	  repeat with theWindow in V's Ws
+	  		set width to random number from ${x} + 400 to ${width}
+	  		set height to random number from ${y} + 400 to ${height}	  
+	  
+	  		set x to random number from ${x} to ${width} + ${x} - width
+		  	set y to random number from ${y} to ${height} + ${y} - height
+		  
+		  try
+			set size of theWindow to {width, height}
+			set position of theWindow to {x, y}
+		  end try
+	  end repeat
+  end repeat
+end tell
+  `)
+}
+
+export let setWindowPositionByIndex = async (
+  process,
+  index,
+  x,
+  y
+) => {
+  return await applescript(String.raw`
+		tell application "System Events"
+		set theProcessWindow to window of process "${process}"
+		set counter to 0
+		repeat with theWindow in theProcessWindow
+			if counter as string is "${index}"
+				set position of theWindow to {${x}, ${y}}
+			end if
+			set counter to counter + 1
+		end repeat
+	end tell`)
+}
+
 export let setWindowSize = async (process, title, x, y) => {
   return await applescript(String.raw`
 	  tell application "System Events"
-	  set _processWindow to window of process "${process}"
-	  repeat with _window in _processWindow
-		  if name of _window contains "${title}" then
-			  set size of _window to {${x}, ${y}}
+	  set theProcessWindow to window of process "${process}"
+	  repeat with theWindow in theProcessWindow
+		  if name of theWindow contains "${title}" then
+			  set size of theWindow to {${x}, ${y}}
 			  else
-			  set size of item 1 of _processWindow to {${x}, ${y}}
+			  set size of item 1 of theProcessWindow to {${x}, ${y}}
 		  end if
 	  end repeat
   end tell`)
@@ -138,30 +229,7 @@ export let setWindowSize = async (process, title, x, y) => {
 
 export let getScreens = async () => {
   let result = await applescript(String.raw`
-	use framework "Foundation"
-use framework "AppKit"
-use scripting additions
-
-script V
-	property Ps : missing value
-	property Ws : missing value
-	property JSON : ""
-	property Object : ""
-	
-	to finalizeJSON()
-		set JSON to "[" & text 1 thru -2 of JSON & "]"
-	end finalizeJSON
-	
-	to addPair(key, value)
-		set Object to Object & ("\"" & key & "\":\"" & value as string) & "\","
-	end addPair
-	
-	to finalizeObject()
-		set Object to "{" & text 1 thru -2 of Object & "},"
-		set JSON to JSON & Object
-		set Object to ""
-	end finalizeObject
-end script
+${utils}
 
 repeat with screen in current application's NSScreen's screens
 	set theScreen to screen's frame()
