@@ -25,6 +25,9 @@ jobs:
           echo "   repository : ${{ env.GITHUB_REPOSITORY_SLUG_URL }}"
           echo "Short SHA variables"
           echo "   sha        : ${{ env.GITHUB_SHA_SHORT }}"
+          echo "PR variables"
+          echo "   pr head sha: ${{ env.GITHUB_EVENT_PULL_REQUEST_HEAD_SHA_SHORT }}"
+          echo "   pr event ref: ${{ env.GITHUB_EVENT_REF_SLUG_URL }}"
 
       - name: Log Ref Name
         run: echo "Running install from ${{ env.GITHUB_REF_SLUG }}"
