@@ -25,19 +25,22 @@ jobs:
           echo "   repository : ${{ env.GITHUB_REPOSITORY_SLUG_URL }}"
           echo "Short SHA variables"
           echo "   sha        : ${{ env.GITHUB_SHA_SHORT }}"
+          echo "PR variables"
+          echo "   pr head sha: ${{ env.GITHUB_EVENT_PULL_REQUEST_HEAD_SHA_SHORT }}"
+          echo "   pr event ref: ${{ env.GITHUB_EVENT_REF_SLUG_URL }}"
 
-      - name: Log Branch Name
-        run: echo "Running install from ${{ env.GITHUB_HEAD_REF_SLUG }}"
+      - name: Log Ref Name
+        run: echo "Running install from ${{ env.GITHUB_REF_SLUG }}"
 
       - name: Clone kit
         run: |
           git clone https://github.com/johnlindquist/kit.git ~/.kit
           ls ~/.kit
 
-      - name: Checkout to branch - ${{ env.GITHUB_HEAD_REF_SLUG }}
+      - name: Checkout to branch - ${{ env.GITHUB_REF_SLUG }}
         run: |
           cd ~/.kit
-          git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
+          git checkout ${{ env.GITHUB_REF_SLUG }}
 
       - name: Install latest node
         run: >
