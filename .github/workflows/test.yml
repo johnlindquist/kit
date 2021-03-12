@@ -37,10 +37,10 @@ jobs:
           git clone https://github.com/johnlindquist/kit.git ~/.kit
           ls ~/.kit
 
-      - name: Checkout to branch - ${{ env.GITHUB_REF_SLUG }}
+      - name: Checkout to branch - ${{ env.GITHUB_SHA_SHORT }}
         run: |
           cd ~/.kit
-          git checkout ${{ env.GITHUB_REF_SLUG }}
+          git checkout ${{ env.GITHUB_SHA_SHORT }}
 
       - name: Install latest node
         run: >
