@@ -1,3 +1,11 @@
+export let getActiveTab = async () => {
+  let result = await applescript(
+    String.raw`tell application "Google Chrome" to return URL of active tab of front window`
+  )
+
+  return result
+}
+
 export let getTabs = async () => {
   let result = await applescript(String.raw`
     on findAndReplaceInText(theText, theSearchString, theReplacementString)
