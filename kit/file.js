@@ -36,9 +36,9 @@ export let getSelectedFile = async () => {
   )
 }
 
-export let getPathAsPicture = async path =>
+export let copyPathAsPicture = async path =>
   await applescript(
-    String.raw`set the clipboard to (read (POSIX file ${path} as JPEG picture)`
+    String.raw`set the clipboard to (read (POSIX file "${path}") as JPEG picture)`
   )
 
 export let preview = async file => {

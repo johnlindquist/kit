@@ -36,7 +36,9 @@ let attemptImport = async (path, _args) => {
         .replace("at file://", "")
         .split(":")
       console.log({ line, col })
-      edit(errorFile, kenvPath(), line, col)
+      if (errorFile.includes(kenvPath())) {
+        edit(errorFile, kenvPath(), line, col)
+      }
     } catch {}
 
     await wait(2000)
