@@ -23,7 +23,7 @@ applescript = async (
   return stdout.trim()
 }
 
-let terminal = async script => {
+terminal = async script => {
   let command = `tell application "Terminal"
   do script "${script}"
   activate
@@ -33,7 +33,7 @@ let terminal = async script => {
   return await applescript(command)
 }
 
-let iterm = async command => {
+iterm = async command => {
   command = `"${command.replace(/"/g, '\\"')}"`
   let script = `
     tell application "iTerm"
