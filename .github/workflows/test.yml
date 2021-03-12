@@ -43,7 +43,7 @@ jobs:
 
       - name: Clone kit
         run: |
-          git clone ${{ github.event.pull_request.url }} ~/.kit
+          git clone https://github.com/${{ github.event.pull_request.head.repo.clone_url }} ~/.kit
           ls ~/.kit
 
       - name: Checkout to ref - ${{ env.GITHUB_REF_SLUG }}
