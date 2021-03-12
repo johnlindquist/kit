@@ -23,6 +23,10 @@ const cliScripts = [
     name: "share-script",
     message: "Share a script as a Gist",
   },
+  {
+    name: "share-script-as-link",
+    message: "Share a script as a kit:// link",
+  },
   { name: "run", message: "Run a script" },
   { name: "edit", message: "Edit a script" },
   {
