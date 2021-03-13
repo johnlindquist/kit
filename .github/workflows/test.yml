@@ -8,6 +8,15 @@ jobs:
     steps:
       - name: Extract Branch Name
         uses: rlespinasse/github-slug-action@3.1.0
+        
+      - name: Print event variables
+        run : |
+          echo "inputs name: ${{ github.event.inputs.name }}"
+          echo "inputs home: ${{ github.event.inputs.home }}"
+          echo "organization: ${{ github.event.organization }}"
+          echo "sender: ${{ github.event.sender }}"
+          echo "repo: ${{ github.event.repository }}"
+          echo "url: ${{ github.event.pull_request.url }}"
 
       - name: Print slug/short variables
         run: |
@@ -34,10 +43,10 @@ jobs:
 
       - name: Clone kit
         run: |
-          git clone https://github.com/johnlindquist/kit.git ~/.kit
+          git clone ${{ github.event.pull_request.head.repo.clone_url }} ~/.kit
           ls ~/.kit
 
-      - name: Checkout to branch - ${{ env.GITHUB_REF_SLUG }}
+      - name: Checkout to ref - ${{ env.GITHUB_HEAD_REF_SLUG }}
         run: |
           cd ~/.kit
           git checkout ${{ env.GITHUB_REF_SLUG }}
@@ -53,6 +62,9 @@ jobs:
 
       - name: cat kit.sh
         run: cat ~/.kit/script
+        
+      - name: clone ~/.kenv dir
+        run: git clone https://github.com/johnlindquist/kenv.git ~/.kenv
 
       - name: setup .kenv dir
         run: |
