@@ -1,5 +1,5 @@
-//Menu: Share Script as Gist
-//Description: Create a gist from the selected script
+//Menu: Share Script as ScriptKit.app link
+//Description: Create a gist and share from ScriptKit
 
 let { scripts, validate, exists } = await cli("scripts")
 let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
@@ -55,10 +55,10 @@ const response = await post(
   config
 )
 
-let link = `kit://${script}?url=${
+let link = `https://scriptkit.app/api/new?name=${script}&url=${
   response.data.files[script + ".js"].raw_url
 }`
 exec(`open ` + response.data.html_url)
 copy(link)
-setPromptText(`Copied kit:// link to clipboard`)
+setPromptText(`Copied share link to clipboard`)
 await wait(1000)

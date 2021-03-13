@@ -25,7 +25,7 @@ const cliScripts = [
   },
   {
     name: "share-script-as-link",
-    message: "Share a script as a kit:// link",
+    message: "Share a script as a ScriptKit.app link",
   },
   { name: "run", message: "Run a script" },
   { name: "edit", message: "Edit a script" },
