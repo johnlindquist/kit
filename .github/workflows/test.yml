@@ -46,10 +46,10 @@ jobs:
           git clone ${{ github.event.pull_request.head.repo.clone_url }} ~/.kit
           ls ~/.kit
 
-      - name: Checkout to ref - ${{ env.GITHUB_REF_SLUG }}
+      - name: Checkout to ref - ${{ env.GITHUB_HEAD_REF_SLUG }}
         run: |
           cd ~/.kit
-          git checkout ${{ env.GITHUB_REF_SLUG }}
+          git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
 
       - name: Install latest node
         run: >
