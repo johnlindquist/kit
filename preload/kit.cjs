@@ -208,14 +208,14 @@ setPromptText = info => {
 
 run = async (name, ..._args) => {
   kitScript = name
-  setPromptText(`Running ${kitScript}...`)
+  setPromptText(`>_ ${kitScript}...`)
   let kitScriptPath = kenvPath("scripts", kitScript) + ".js"
 
   return attemptImport(kitScriptPath, _args)
 }
 
 kit = async (scriptPath, ..._args) => {
-  setPromptText(`Running kit: ${scriptPath}...`)
+  setPromptText(`>_ kit: ${scriptPath}...`)
   let kitScriptPath = kitPath("kit", scriptPath) + ".js"
   return await attemptImport(kitScriptPath, _args)
 }
@@ -226,13 +226,13 @@ lib = async (scriptPath, ..._args) => {
 }
 
 cli = async (cliPath, ..._args) => {
-  setPromptText(`Running cli: ${cliPath}...`)
+  setPromptText(`>_ cli: ${cliPath}...`)
   let cliScriptPath = kitPath("cli/" + cliPath) + ".js"
   return await attemptImport(cliScriptPath, _args)
 }
 
 setup = async (setupPath, ..._args) => {
-  setPromptText(`Running setup: ${setupPath}...`)
+  setPromptText(`>_ setup: ${setupPath}...`)
   let setupScriptPath =
     kitPath("setup/" + setupPath) + ".js"
   return await attemptImport(setupScriptPath, _args)
