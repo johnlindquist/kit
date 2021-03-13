@@ -11,11 +11,6 @@ jobs:
         
       - name: Print event variables
         run : |
-          echo "inputs name: ${{ github.event.inputs.name }}"
-          echo "inputs home: ${{ github.event.inputs.home }}"
-          echo "organization: ${{ github.event.organization }}"
-          echo "sender: ${{ github.event.sender }}"
-          echo "repo: ${{ github.event.repository }}"
           echo "url: ${{ github.event.pull_request.url }}"
 
       - name: Print slug/short variables
@@ -46,10 +41,10 @@ jobs:
           git clone ${{ github.event.pull_request.head.repo.clone_url }} ~/.kit
           ls ~/.kit
 
-      - name: Checkout to ref - ${{ env.GITHUB_HEAD_REF_SLUG }}
+      - name: Checkout to ref - ${{ github.event.pull_request.head.sha }}
         run: |
           cd ~/.kit
-          git checkout ${{ env.GITHUB_HEAD_REF_SLUG }}
+          git checkout ${{ github.event.pull_request.head.sha }}
 
       - name: Install latest node
         run: >
