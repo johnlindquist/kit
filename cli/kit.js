@@ -67,6 +67,10 @@ const cliScripts = [
   { name: "issue", message: "File an issue on github" },
   { name: "open-at-login", message: "Open at login" },
   { name: "open-log", message: "Open kit.log" },
+  {
+    name: "toggle-server",
+    message: "Start/stop the server",
+  },
   { name: "quit", message: "Quit Kit" },
 ]
 
