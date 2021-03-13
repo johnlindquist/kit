@@ -39,8 +39,9 @@ let body = {
       content: await readFile(scriptPath, "utf8"),
     },
   },
-  public: isPublic,
 }
+
+if (isPublic) body.public = true
 
 let config = {
   headers: {
