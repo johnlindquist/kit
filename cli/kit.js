@@ -46,7 +46,7 @@ const cliScripts = [
   },
   { name: "clear", message: "Clear the caches" },
   {
-    name: "Check for update",
+    name: "update",
     message: `Version: ${env.KIT_APP_VERSION}`,
   },
   {
