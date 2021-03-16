@@ -242,6 +242,11 @@ kitLib = async lib => {
   return await kit(`kit/${lib}`)
 }
 
+tmp = file => {
+  let scriptTmpDir = kenvPath("tmp", kitScript)
+  mkdir("-p", scriptTmpDir)
+  return kenvPath("tmp", kitScript, file)
+}
 inspect = async (data, extension) => {
   let dashedDate = () =>
     new Date()

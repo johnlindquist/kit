@@ -143,3 +143,27 @@ home = (...pathParts) => {
   let os = require("os")
   return path.resolve(os.homedir(), ...pathParts)
 }
+
+isFile = async file => {
+  let result = await readdir(file, {
+    withFileTypes: true,
+  })
+
+  return result.isFile()
+}
+
+isDir = async dir => {
+  let result = await readdir(dir, {
+    withFileTypes: true,
+  })
+
+  return result.isDir()
+}
+
+isBin = async bin => {
+  return Boolean(
+    exec(`command -v ${bin}`, {
+      silent: true,
+    }).stdout
+  )
+}
