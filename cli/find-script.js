@@ -3,12 +3,9 @@ let { scripts } = await cli("fns")
 let input = await arg("Enter Script name:")
 
 let valid = (await scripts()).find(
-  choice =>
-    input === choice.value ||
-    input === choice.value + ".js" ||
-    input === choice.name
+  script => input === script + ".js" || input === script
 )
 
 export let found = valid
-  ? valid
+  ? true
   : chalk`Script {green.bold ${input}} not found. Please select a different script:`
