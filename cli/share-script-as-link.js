@@ -1,7 +1,7 @@
 //Menu: Share Script as ScriptKit.app link
 //Description: Create a gist and share from ScriptKit
 
-let { scripts, validate, exists } = await cli("scripts")
+let { exists, findScript, scripts } = await cli("fns")
 let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
 if (!env[GITHUB_GIST_TOKEN]) {
   show(`
@@ -21,12 +21,11 @@ let token = await env(GITHUB_GIST_TOKEN, {
 let script = await arg(
   {
     message: `Which script do you want to share?`,
-    validate,
   },
   scripts
 )
 
-let scriptPath = kenvPath("scripts", script) + ".js"
+let scriptPath = kenvPath("scripts", script)
 
 let isPublic = await arg("Make gist public?", [
   { name: `No, keep ${script} private`, value: false },
@@ -35,7 +34,7 @@ let isPublic = await arg("Make gist public?", [
 
 let body = {
   files: {
-    [script + ".js"]: {
+    [script]: {
       content: await readFile(scriptPath, "utf8"),
     },
   },
@@ -56,9 +55,7 @@ const response = await post(
   config
 )
 
-let link = `https://scriptkit.app/api/new?name=${script}&url=${
-  response.data.files[script + ".js"].raw_url
-}`
+let link = `https://scriptkit.app/api/new?name=${script}&url=${response.data.files[script].raw_url}`
 exec(`open ` + response.data.html_url)
 copy(link)
 setPromptText(`Copied share link to clipboard`)

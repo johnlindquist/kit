@@ -1,4 +1,4 @@
-let { scripts, validate } = await cli("scripts")
+let { scripts, validate } = await cli("fns")
 
 let script = await arg(
   {

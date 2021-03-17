@@ -1,6 +1,6 @@
 // Description: Creates a script from an entered url
 
-let { exists } = await cli("scripts")
+let { exists } = await cli("fns")
 
 let url = await arg("Enter script url:")
 

@@ -1,11 +1,15 @@
+// Menu: New Script
 // Description: Creates a new empty script you can invoke from the terminal
+let { exists } = await cli("fns")
 
-let { exists } = await cli("scripts")
+console.log({ args })
 
 let name = await arg({
   message: arg?.message || "Enter a name for your script:",
   validate: exists,
 })
+
+console.log({ name })
 
 let scriptPath = path.join(
   kenvPath("scripts"),

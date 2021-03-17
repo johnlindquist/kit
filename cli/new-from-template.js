@@ -1,6 +1,6 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-let { exists } = await cli("scripts")
+let { exists } = await cli("fns")
 
 let name = await arg({
   message: "Enter a name for your script:",

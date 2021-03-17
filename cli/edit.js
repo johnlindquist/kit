@@ -1,6 +1,6 @@
 // Description: Opens the selected script in your editor
 
-let { scripts, validate } = await cli("scripts")
+let { scripts, validate } = await cli("fns")
 
 let file = await arg(
   {
@@ -10,5 +10,5 @@ let file = await arg(
   scripts
 )
 
-let fileName = file + ".js"
-edit(kenvPath(`scripts/${fileName}`), kenvPath())
+file = file.endsWith(".js") ? file : `${file}.js`
+edit(kenvPath(`scripts/${file}`), kenvPath())

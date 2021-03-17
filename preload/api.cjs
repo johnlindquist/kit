@@ -80,7 +80,7 @@ rm = async (...rmArgs) => {
   await trash(...rmArgs)
 }
 
-send = (from, data) => {
+send = async (from, data) => {
   if (process?.send) {
     process.send({ from, ...data })
   } else {
@@ -131,7 +131,6 @@ checkProcess = pid => {
   //if running, stdout has text. If not, stdout is an empty string
   return stdout
 }
-
 assignPropsTo = (source, target) => {
   Object.entries(source).forEach(([key, value]) => {
     target[key] = value
@@ -143,7 +142,6 @@ home = (...pathParts) => {
   let os = require("os")
   return path.resolve(os.homedir(), ...pathParts)
 }
-
 isFile = async file => {
   let result = await readdir(file, {
     withFileTypes: true,
@@ -153,10 +151,13 @@ isFile = async file => {
 }
 
 isDir = async dir => {
-  let result = await readdir(dir, {
-    withFileTypes: true,
-  })
-
+  try {
+    let result = await readdir(dir, {
+      withFileTypes: true,
+    })
+  } catch (error) {
+    return false
+  }
   return result.isDir()
 }
 

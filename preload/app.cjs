@@ -1,7 +1,9 @@
 const { getEventListeners } = require("events")
 
 const fromInput = async (choices, input) => {
+  let scriptInfo = await cli("info", kitScript)
   send("UPDATE_PROMPT_CHOICES", {
+    scriptInfo,
     kitScript,
     parentScript: env.KIT_PARENT_NAME,
     kitArgs: args.join(" "),
@@ -73,7 +75,10 @@ prompt = async (config = {}) => {
     fromInput(choices, arg["kit-input"])
   }
   if (!arg["prompt-exists"]) {
+    let scriptInfo = await cli("info", kitScript)
+
     send("SHOW_PROMPT_WITH_DATA", {
+      scriptInfo,
       message,
       preview,
       kitScript,
@@ -129,21 +134,18 @@ prompt = async (config = {}) => {
 
 arg = async (messageOrConfig, choices, cache = false) => {
   let firstArg = args.length ? args.shift() : null
+  let message = ""
   if (firstArg) {
     let valid = true
     if (messageOrConfig?.validate) {
       let { validate } = messageOrConfig
       let validOrMessage = await validate(firstArg)
-      if (
-        typeof validOrMessage === "string" ||
-        !validOrMessage
-      ) {
-        send("UPDATE_PROMPT_WARN", {
-          info:
-            validOrMessage || "Invalid value. Try again:",
-        })
-        valid = false
-      }
+      valid =
+        typeof validOrMessage === "boolean" &&
+        validOrMessage
+
+      if (typeof validOrMessage === "string")
+        message = validOrMessage
     }
 
     if (valid) {
@@ -152,18 +154,20 @@ arg = async (messageOrConfig, choices, cache = false) => {
   }
 
   if (typeof messageOrConfig === "undefined") {
-    return await prompt({ message: "Enter arg:" })
+    return await prompt({ message })
   }
 
   if (typeof messageOrConfig === "string") {
+    if (!message) message = messageOrConfig
     return await prompt({
-      message: messageOrConfig,
+      message,
       choices,
       cache,
     })
   }
 
-  let { message, validate, preview } = messageOrConfig
+  let { validate, preview } = messageOrConfig
+  if (!message) message = messageOrConfig.message
 
   return await prompt({
     message,

@@ -1,9 +1,9 @@
-let { scripts, validate, exists } = await cli("scripts")
+let { exists, findScript, scripts } = await cli("fns")
 
 let script = await arg(
   {
     message: `Which script do you want to rename?`,
-    validate,
+    validate: findScript,
   },
   scripts
 )

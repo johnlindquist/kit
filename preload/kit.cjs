@@ -215,7 +215,6 @@ run = async (name, ..._args) => {
 }
 
 kit = async (scriptPath, ..._args) => {
-  setPromptText(`>_ kit: ${scriptPath}...`)
   let kitScriptPath = kitPath("kit", scriptPath) + ".js"
   return await attemptImport(kitScriptPath, _args)
 }
@@ -226,7 +225,6 @@ lib = async (scriptPath, ..._args) => {
 }
 
 cli = async (cliPath, ..._args) => {
-  setPromptText(`>_ cli: ${cliPath}...`)
   let cliScriptPath = kitPath("cli/" + cliPath) + ".js"
   return await attemptImport(cliScriptPath, _args)
 }

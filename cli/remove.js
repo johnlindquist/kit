@@ -26,6 +26,11 @@ let promptToRemoveFiles = async (dir, pattern) => {
     .map(({ name }) => name)
     .filter(name => name.match(pattern))
 
+  if (!files.length) {
+    setPromptText(`No scripts matched pattern: ${pattern}`)
+    await wait(1000)
+  }
+
   for await (let script of files) {
     let targetDir = dir.replace(kenvPath("scripts"), "")
     let scriptName = script.replace(".js", "")
