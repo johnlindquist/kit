@@ -13,14 +13,21 @@ let newScript = await arg({
   validate: exists,
 })
 
-let oldFilePath = path.join(
-  kenvPath("scripts"),
-  script + ".js"
-)
+let oldFilePath = path.join(kenvPath("scripts"), script)
+
+if (!(await isFile(oldFilePath))) {
+  console.warn(`${oldFilePath} doesn't exist...`)
+  exit()
+}
+
 let newFilePath = path.join(
   kenvPath("scripts"),
   newScript + ".js"
 )
+
+console.log({ oldFilePath, newFilePath })
+
 mv(oldFilePath, newFilePath)
 await cli("create-bin", "scripts", newScript)
 trash(kenvPath("bin", script))
+edit(newFilePath, kenvPath())
