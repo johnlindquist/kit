@@ -143,22 +143,11 @@ home = (...pathParts) => {
   return path.resolve(os.homedir(), ...pathParts)
 }
 isFile = async file => {
-  let result = await readdir(file, {
-    withFileTypes: true,
-  })
-
-  return result.isFile()
+  return test("-f", file)
 }
 
 isDir = async dir => {
-  try {
-    let result = await readdir(dir, {
-      withFileTypes: true,
-    })
-  } catch (error) {
-    return false
-  }
-  return result.isDir()
+  return test("-d", dir)
 }
 
 isBin = async bin => {
