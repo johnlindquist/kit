@@ -9,8 +9,6 @@ let valid = (await scripts()).find(
     input === choice.name
 )
 
-console.log({ valid })
-
 export let found = valid
   ? valid
   : chalk`Script {green.bold ${input}} not found. Please select a different script:`

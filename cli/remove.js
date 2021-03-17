@@ -16,7 +16,6 @@ let matchDirsInDir = async (dir, pattern) => {
 }
 
 let promptToRemoveFiles = async (dir, pattern) => {
-  console.log({ dir }, { pattern })
   let dirList = await readdir(dir, {
     withFileTypes: true,
   })

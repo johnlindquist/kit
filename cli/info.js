@@ -17,7 +17,6 @@ let filePath = file.startsWith("/scripts")
   ? file
   : kenvPath(!file.includes("/") && "scripts", file)
 
-console.log({ filePath, file })
 let fileContents = await readFile(filePath, "utf8")
 
 let fileLines = fileContents.split("\n")

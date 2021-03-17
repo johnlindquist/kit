@@ -8,7 +8,6 @@ let contents = (await get(url)).data
 
 if (url.endsWith(".js")) {
   let nameFromUrl = url.split("/").pop().replace(".js", "")
-  console.log({ nameFromUrl })
   updateArgs([nameFromUrl])
 }
 

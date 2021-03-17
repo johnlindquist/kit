@@ -1,6 +1,5 @@
 export let exists = async input => {
   let check = (await cli("exists", input)).exists
-  console.log({ check })
   return check
 }
 
