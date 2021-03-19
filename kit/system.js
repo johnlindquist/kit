@@ -10,6 +10,13 @@ export let sleep = async () => {
   )
 }
 
+
+export let shutdown = async () => {
+  return await applescript(
+    String.raw`tell application "Finder" to shut down`
+  )
+}
+
 // Example: "AppleScript Editor", "Automator", "Finder", "LaunchBar"
 // the quotes, comma and spacing are important
 export let quitAllApps = async (appsToExclude = "") => {
