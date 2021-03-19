@@ -9,3 +9,9 @@ export let sleep = async () => {
     String.raw`tell application "Finder" to sleep`
   )
 }
+
+export let shutdown = async () => {
+  return await applescript(
+    String.raw`tell application "Finder" to shut down`
+  )
+}
