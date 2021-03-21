@@ -1,10 +1,12 @@
 // Description: Run the selected script
-let { scripts } = await cli("fns")
+let { menu, validate } = await cli("fns")
 
 let script = await arg(
-  `Which script do you want to run?`,
-  scripts,
-  true
+  {
+    message: `Which script do you want to run?`,
+    validate,
+  },
+  menu
 )
 
 await run(script)

@@ -85,7 +85,7 @@ tell application "Google Chrome"
                 set i to i + 1
                 end repeat
         end repeat
-        open location "http://" & address
+        open location address
         return address
 end tell
 `)

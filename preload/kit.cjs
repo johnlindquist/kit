@@ -134,6 +134,7 @@ process.on("uncaughtException", async err => {
 
 // TODO: Strip out minimist
 args = []
+
 updateArgs = arrayOfArgs => {
   let argv = require("minimist")(arrayOfArgs)
   args = [...args, ...argv._]
@@ -200,9 +201,9 @@ kitFromPath = path => {
 
 kitScript = kitScriptFromPath(env.KIT_SCRIPT_NAME)
 
-setPromptText = info => {
-  send("UPDATE_PROMPT_INFO", {
-    info,
+setPromptText = text => {
+  send("SET_PROMPT_TEXT", {
+    text,
   })
 }
 
@@ -287,4 +288,20 @@ compileTemplate = async (template, vars) => {
   )
   let templateCompiler = compile(templateContent)
   return templateCompiler(vars)
+}
+
+currentTab = null
+tabs = []
+tab = async (name, fn) => {
+  console.log(`### TAB ${name}`)
+  tabs.push({ name, fn })
+  if (arg.tab) {
+    if (arg.tab === name) {
+      send("SET_TAB_INDEX", { tabIndex: tabs.length - 1 })
+      currentTab = await fn()
+    }
+  } else if (tabs.length === 1) {
+    send("SET_TAB_INDEX", { tabIndex: 0 })
+    currentTab = await fn()
+  }
 }

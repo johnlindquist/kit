@@ -2,7 +2,7 @@ let descriptionMarker = "Description:"
 let menuMarker = "Menu:"
 let shortcutMarker = "Shortcut:"
 
-export let file = await arg("Which script")
+export let file = await arg("Get info for:")
 !file.endsWith(".js") && (file = `${file}.js`) //Append .js if you only give script name
 
 let getByMarker = marker => lines =>

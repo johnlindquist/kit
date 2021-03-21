@@ -1,7 +1,7 @@
 //Menu: Share Script as ScriptKit.app link
 //Description: Create a gist and share from ScriptKit
 
-let { exists, findScript, scripts } = await cli("fns")
+let { menu, exists, findScript, scripts } = await cli("fns")
 let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
 if (!env[GITHUB_GIST_TOKEN]) {
   show(`
@@ -22,7 +22,7 @@ let script = await arg(
   {
     message: `Which script do you want to share?`,
   },
-  scripts
+  menu
 )
 
 let scriptPath = kenvPath("scripts", script)

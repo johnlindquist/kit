@@ -3,11 +3,14 @@ const { getEventListeners } = require("events")
 const fromInput = async (choices, input) => {
   let scriptInfo = await cli("info", kitScript)
   send("UPDATE_PROMPT_CHOICES", {
+    tabs: tabs?.length ? tabs.map(({ name }) => name) : [],
+    tabIndex: tabs?.findIndex(({ name }) => arg?.tab),
     scriptInfo,
     kitScript,
     parentScript: env.KIT_PARENT_NAME,
     kitArgs: args.join(" "),
     input,
+    cache: false,
     choices: (await choices(input)).map(choice => {
       if (typeof choice === "string") {
         return {
@@ -78,6 +81,10 @@ prompt = async (config = {}) => {
     let scriptInfo = await cli("info", kitScript)
 
     send("SHOW_PROMPT_WITH_DATA", {
+      tabs: tabs?.length
+        ? tabs.map(({ name }) => name)
+        : [],
+      tabIndex: tabs?.findIndex(({ name }) => arg?.tab),
       scriptInfo,
       message,
       preview,
@@ -85,7 +92,7 @@ prompt = async (config = {}) => {
       parentScript: env.KIT_PARENT_NAME,
       kitArgs: args.join(" "),
       choices,
-      cache,
+      cache: false,
       secret,
     })
   }
@@ -103,6 +110,19 @@ prompt = async (config = {}) => {
         return
       }
 
+      if (data?.from === "TAB_CHANGED") {
+        if (data?.tab && tabs) {
+          console.log(`RECEIVING TAB_CHANGED ${data?.tab}`)
+          process.off("message", messageHandler)
+          process.off("error", errorHandler)
+          let tabIndex = tabs.findIndex(({ name }) => {
+            return name == data?.tab
+          })
+          currentTab = tabs[tabIndex].fn()
+        }
+        return
+      }
+
       if (validate) {
         let valid = await validate(data)
 
@@ -110,18 +130,22 @@ prompt = async (config = {}) => {
           send("UPDATE_PROMPT_WARN", {
             info: valid,
           })
-        } else {
-          resolve(data)
+
+          return
         }
-      } else {
-        resolve(data)
       }
+      resolve(data)
+
+      tabs = []
     }
 
     errorHandler = () => {
       reject()
     }
 
+    console.log(
+      `------------ ADDING ANOTHER MESSAGE HANDLER!!!!`
+    )
     process.on("message", messageHandler)
     process.on("error", errorHandler)
   })
