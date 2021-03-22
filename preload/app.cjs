@@ -143,9 +143,6 @@ prompt = async (config = {}) => {
       reject()
     }
 
-    console.log(
-      `------------ ADDING ANOTHER MESSAGE HANDLER!!!!`
-    )
     process.on("message", messageHandler)
     process.on("error", errorHandler)
   })
