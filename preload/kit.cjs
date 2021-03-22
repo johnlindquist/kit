@@ -293,7 +293,6 @@ compileTemplate = async (template, vars) => {
 currentTab = null
 tabs = []
 tab = async (name, fn) => {
-  console.log(`### TAB ${name}`)
   tabs.push({ name, fn })
   if (arg.tab) {
     if (arg.tab === name) {
