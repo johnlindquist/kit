@@ -118,7 +118,7 @@ prompt = async (config = {}) => {
           let tabIndex = tabs.findIndex(({ name }) => {
             return name == data?.tab
           })
-          currentTab = tabs[tabIndex].fn()
+          currentTab = tabs[tabIndex].fn(data?.input)
         }
         return
       }

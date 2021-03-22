@@ -209,7 +209,11 @@ setPromptText = text => {
 
 run = async (name, ..._args) => {
   kitScript = name
-  setPromptText(`>_ ${kitScript}...`)
+  send("RUN_SCRIPT", {
+    name,
+    arg: _args,
+  })
+  // setPromptText(`>_ ${kitScript}...`)
   let kitScriptPath = kenvPath("scripts", kitScript) + ".js"
 
   return attemptImport(kitScriptPath, _args)
