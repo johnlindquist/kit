@@ -25,7 +25,7 @@ let script = await arg(
   menu
 )
 
-let scriptPath = kenvPath("scripts", script)
+let scriptPath = kenvPath("scripts", script + ".js")
 
 let isPublic = await arg("Make gist public?", [
   { name: `No, keep ${script} private`, value: false },
