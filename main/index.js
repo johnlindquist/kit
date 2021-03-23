@@ -41,18 +41,23 @@ const NewScript = async () => {
         value: "new",
       },
       {
-        name: "New from template",
-        description:
-          "Enter a script name then select a template",
-        value: "new-from-template",
-      },
-      {
         name: "New from url",
         description: "Enter a url then name it",
         value: "new-from-url",
       },
+      {
+        name: "Browse Community Examples",
+        description:
+          "Visit scriptkit.app/scripts/johnlindquist for a variety of examples",
+        value: "browse-examples",
+      },
     ]
   )
+
+  if (cliScript === "browse-examples") {
+    exec(`open https://scriptkit.app/scripts/johnlindquist`)
+    return
+  }
 
   await cli(cliScript)
 }
@@ -81,6 +86,11 @@ const Other = async () => {
         value: "update",
       },
       {
+        name: "Get Help",
+        description: `Post a question to Script Kit GitHub discussions`,
+        value: "get-help",
+      },
+      {
         name: host && port ? "Stop Server" : "Start Server",
         description:
           host && port
@@ -105,6 +115,13 @@ const Other = async () => {
       },
     ]
   )
+
+  if (cliScript === "get-help") {
+    await exec(
+      `open https://github.com/johnlindquist/kit/discussions`
+    )
+    return
+  }
 
   await cli(cliScript)
 }
