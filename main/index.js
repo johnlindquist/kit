@@ -110,7 +110,40 @@ const Other = async () => {
 }
 
 const Edit = async () => {
-  await cli("edit")
+  let script = await arg(
+    {
+      message: `Which script do you want to edit?`,
+      validate,
+    },
+    menu
+  )
+
+  script = script.endsWith(".js") ? script : `${script}.js`
+
+  let editAction = await arg("Which action?", [
+    {
+      name: "Edit",
+      description: `Open ${script} in ${env.KIT_EDITOR}`,
+      value: "edit",
+    },
+    {
+      name: "Duplicate",
+      description: `Make a copy of ${script} and open in ${env.KIT_EDITOR}`,
+      value: "duplicate",
+    },
+    {
+      name: "Rename",
+      description: `Prompt to rename ${script}`,
+      value: "rename",
+    },
+    {
+      name: "Remove",
+      description: `Delete ${script} to trash`,
+      value: "remove",
+    },
+  ])
+
+  await cli(editAction, script)
 }
 
 const Run = async () => {
