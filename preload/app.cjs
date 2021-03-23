@@ -3,8 +3,10 @@ const { getEventListeners } = require("events")
 const fromInput = async (choices, input) => {
   let scriptInfo = await cli("info", kitScript)
   send("UPDATE_PROMPT_CHOICES", {
-    tabs: tabs?.length ? tabs.map(({ name }) => name) : [],
-    tabIndex: tabs?.findIndex(({ name }) => arg?.tab),
+    tabs: onTabs?.length
+      ? onTabs.map(({ name }) => name)
+      : [],
+    tabIndex: onTabs?.findIndex(({ name }) => arg?.tab),
     scriptInfo,
     kitScript,
     parentScript: env.KIT_PARENT_NAME,
@@ -81,10 +83,10 @@ prompt = async (config = {}) => {
     let scriptInfo = await cli("info", kitScript)
 
     send("SHOW_PROMPT_WITH_DATA", {
-      tabs: tabs?.length
-        ? tabs.map(({ name }) => name)
+      tabs: onTabs?.length
+        ? onTabs.map(({ name }) => name)
         : [],
-      tabIndex: tabs?.findIndex(({ name }) => arg?.tab),
+      tabIndex: onTabs?.findIndex(({ name }) => arg?.tab),
       scriptInfo,
       message,
       preview,
@@ -111,14 +113,14 @@ prompt = async (config = {}) => {
       }
 
       if (data?.from === "TAB_CHANGED") {
-        if (data?.tab && tabs) {
+        if (data?.tab && onTabs) {
           console.log(`RECEIVING TAB_CHANGED ${data?.tab}`)
           process.off("message", messageHandler)
           process.off("error", errorHandler)
-          let tabIndex = tabs.findIndex(({ name }) => {
+          let tabIndex = onTabs.findIndex(({ name }) => {
             return name == data?.tab
           })
-          currentTab = tabs[tabIndex].fn(data?.input)
+          currentTab = onTabs[tabIndex].fn(data?.input)
         }
         return
       }

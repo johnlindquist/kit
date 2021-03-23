@@ -294,17 +294,17 @@ compileTemplate = async (template, vars) => {
   return templateCompiler(vars)
 }
 
-currentTab = null
-tabs = []
-tab = async (name, fn) => {
-  tabs.push({ name, fn })
+currentOnTab = null
+onTabs = []
+onTab = async (name, fn) => {
+  onTabs.push({ name, fn })
   if (arg.tab) {
     if (arg.tab === name) {
-      send("SET_TAB_INDEX", { tabIndex: tabs.length - 1 })
-      currentTab = await fn()
+      send("SET_TAB_INDEX", { tabIndex: onTabs.length - 1 })
+      currentOnTab = await fn()
     }
-  } else if (tabs.length === 1) {
+  } else if (onTabs.length === 1) {
     send("SET_TAB_INDEX", { tabIndex: 0 })
-    currentTab = await fn()
+    currentOnTab = await fn()
   }
 }

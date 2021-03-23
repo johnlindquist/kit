@@ -117,8 +117,8 @@ const Run = async () => {
   await cli("run")
 }
 
-tab("Run", Run)
-tab("Edit", Edit)
-tab("Share", Share)
-tab("New", NewScript)
-tab("Other", Other)
+onTab("Run", Run)
+onTab("Edit", Edit)
+onTab("Share", Share)
+onTab("New", NewScript)
+onTab("Other", Other)
