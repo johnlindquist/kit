@@ -208,6 +208,7 @@ setPromptText = text => {
 }
 
 run = async (name, ..._args) => {
+  onTabs = []
   kitScript = name
   send("RUN_SCRIPT", {
     name,
