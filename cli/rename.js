@@ -28,6 +28,10 @@ let newFilePath = path.join(
 console.log({ oldFilePath, newFilePath })
 
 mv(oldFilePath, newFilePath)
-await cli("create-bin", "scripts", newScript)
-trash(kenvPath("bin", script))
+
+let oldBin = kenvPath("bin", script.replace(".js", ""))
+let newBin = kenvPath("bin", newScript)
+
+console.log(`Moving ${oldBin} to ${newBin}`)
+mv(oldBin, newBin)
 edit(newFilePath, kenvPath())
