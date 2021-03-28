@@ -201,6 +201,49 @@ kitFromPath = path => {
 
 kitScript = kitScriptFromPath(env.KIT_SCRIPT_NAME)
 
+send = async (channel, data) => {
+  if (process?.send) {
+    process.send({ kitScript, channel, ...data })
+  } else {
+    // console.log(from, ...args)
+  }
+}
+
+if (process?.send) {
+  let _consoleLog = console.log.bind(console)
+  let _consoleWarn = console.warn.bind(console)
+  console.log = async (...args) => {
+    send("CONSOLE_LOG", {
+      log: args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" "),
+    })
+  }
+
+  console.warn = async (...args) => {
+    send("CONSOLE_WARN", {
+      warn: args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" "),
+    })
+  }
+}
+
+show = (html, options) => {
+  send("SHOW", { options, html })
+}
+
+showImage = (image, options) => {
+  if (typeof image === "string") {
+    image = { src: image }
+  }
+  send("SHOW_IMAGE", { options, image })
+}
+
 setPromptText = text => {
   send("SET_PROMPT_TEXT", {
     text,
@@ -212,7 +255,7 @@ run = async (name, ..._args) => {
   kitScript = name
   send("RUN_SCRIPT", {
     name,
-    arg: _args,
+    args: _args,
   })
   // setPromptText(`>_ ${kitScript}...`)
   let kitScriptPath = kenvPath("scripts", kitScript) + ".js"
@@ -301,11 +344,51 @@ onTab = async (name, fn) => {
   onTabs.push({ name, fn })
   if (arg.tab) {
     if (arg.tab === name) {
-      send("SET_TAB_INDEX", { tabIndex: onTabs.length - 1 })
+      send("SET_TAB_INDEX", {
+        tabIndex: onTabs.length - 1,
+      })
       currentOnTab = await fn()
     }
   } else if (onTabs.length === 1) {
     send("SET_TAB_INDEX", { tabIndex: 0 })
     currentOnTab = await fn()
   }
+}
+
+let prevChoices = []
+setChoices = async choices => {
+  if (typeof choices === "object") {
+    choices = choices.map(choice => {
+      if (typeof choice === "string") {
+        return {
+          name: choice,
+          value: choice,
+          id: uuid(),
+        }
+      }
+
+      if (typeof choice === "object") {
+        if (!choice?.id) {
+          choice.id = uuid()
+        }
+      }
+
+      return choice
+    })
+  }
+
+  if (
+    typeof choices === "object" &&
+    choices?.length &&
+    choices?.every(
+      (c, i) =>
+        c.name == prevChoices?.[i]?.name &&
+        c.value == prevChoices?.[i]?.value
+    )
+  ) {
+    return
+  }
+
+  send("SET_CHOICES", { choices })
+  prevChoices = choices
 }

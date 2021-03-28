@@ -80,49 +80,6 @@ rm = async (...rmArgs) => {
   await trash(...rmArgs)
 }
 
-send = async (from, data) => {
-  if (process?.send) {
-    process.send({ from, ...data })
-  } else {
-    // console.log(from, ...args)
-  }
-}
-
-show = (html, options) => {
-  send("SHOW", { options, html })
-}
-
-showImage = (image, options) => {
-  if (typeof image === "string") {
-    image = { src: image }
-  }
-  send("SHOW_IMAGE", { options, image })
-}
-
-if (process?.send) {
-  let _consoleLog = console.log.bind(console)
-  let _consoleWarn = console.warn.bind(console)
-  console.log = async (...args) => {
-    send("CONSOLE_LOG", {
-      log: args
-        .map(a =>
-          typeof a != "string" ? JSON.stringify(a) : a
-        )
-        .join(" "),
-    })
-  }
-
-  console.warn = async (...args) => {
-    send("CONSOLE_WARN", {
-      warn: args
-        .map(a =>
-          typeof a != "string" ? JSON.stringify(a) : a
-        )
-        .join(" "),
-    })
-  }
-}
-
 wait = async time =>
   new Promise(res => setTimeout(res, time))
 

@@ -318,7 +318,7 @@ end tell
 export let getActiveScreen = async () =>
   new Promise((res, rej) => {
     let messageHandler = data => {
-      if (data.from === "SCREEN_INFO") {
+      if (data.channel === "SCREEN_INFO") {
         res(data.activeScreen)
         process.off("message", messageHandler)
       }
@@ -331,7 +331,7 @@ export let getActiveScreen = async () =>
 export let getMousePosition = async () =>
   new Promise((res, rej) => {
     let messageHandler = data => {
-      if (data.from === "MOUSE") {
+      if (data.channel === "MOUSE") {
         res(data.mouseCursor)
         process.off("message", messageHandler)
       }

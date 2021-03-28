@@ -65,7 +65,7 @@ const NewScript = async () => {
 const Other = async () => {
   let { host, port } = await new Promise((res, rej) => {
     let messageHandler = data => {
-      if (data.from === "SERVER") {
+      if (data.channel === "SERVER") {
         res(data)
         process.off("message", messageHandler)
       }
