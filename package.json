@@ -17,6 +17,7 @@
     "lodash": "^4.17.20",
     "lodash-id": "^0.14.0",
     "lowdb": "^1.0.0",
+    "marked": "^2.0.1",
     "minimist": "^1.2.5",
     "node-ipc": "^9.1.4",
     "shelljs": "^0.8.4",
