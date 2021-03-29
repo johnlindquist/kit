@@ -14,9 +14,7 @@ let attemptImport = async (path, _args) => {
     return await import(path + `?uuid=${uuid()}`)
   } catch (error) {
     console.warn(error.message)
-    send("UPDATE_PROMPT_WARN", {
-      info: error.message,
-    })
+    setPromptText(error.message)
 
     await wait(1000)
     try {
@@ -392,3 +390,5 @@ setChoices = async choices => {
   send("SET_CHOICES", { choices })
   prevChoices = choices
 }
+
+md = markdown => require("marked")(markdown)

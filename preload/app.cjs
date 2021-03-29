@@ -1,31 +1,31 @@
-let fromInput = async (choices, input) => {
-  console.log({ choices, input })
-  let scriptInfo = await cli("info", kitScript)
+let displayChoices = choices => {
+  switch (typeof choices) {
+    case "string":
+      setPanel(choices)
+      break
 
-  setChoices(
-    (await choices(input)).map(choice => {
-      if (typeof choice === "string") {
-        return {
-          name: choice,
-          value: choice,
-        }
-      }
-      choice.uuid = uuid()
-      return choice
-    })
-  )
+    case "object":
+      setChoices(choices)
+      break
+  }
+}
+
+let fromInput = async (choices, input) => {
+  displayChoices(await choices(input))
 }
 
 prompt = async (config = {}) => {
   let {
     message = "",
     validate = null,
-    preview = "",
     choices = [],
     type = "",
     cache = false,
     secret = false,
+    hint = "",
   } = config
+
+  setMode("FILTER")
 
   if (type === "confirm") {
     choices = [
@@ -36,12 +36,12 @@ prompt = async (config = {}) => {
 
   if (choices && typeof choices === "function") {
     if (choices?.length === 0) {
-      setMode("FILTER")
       choices = choices()
       if (typeof choices?.then === "function") {
         choices = await choices
       }
     } else {
+      //When choices is a function with an argument
       setMode("GENERATE")
     }
   }
@@ -53,7 +53,6 @@ prompt = async (config = {}) => {
   if (!arg["prompt-exists"]) {
     let scriptInfo = await cli("info", kitScript)
 
-    console.log(`SHOW_PROMPT`, { kitScript })
     send("SHOW_PROMPT", {
       tabs: onTabs?.length
         ? onTabs.map(({ name }) => name)
@@ -61,14 +60,16 @@ prompt = async (config = {}) => {
       tabIndex: onTabs?.findIndex(({ name }) => arg?.tab),
       scriptInfo,
       message,
-      preview,
       kitScript,
       parentScript: env.KIT_PARENT_NAME,
       kitArgs: args.join(" "),
       cache: false,
       secret,
     })
-    setChoices(choices)
+
+    setHint(hint)
+
+    displayChoices(choices)
   }
 
   let messageHandler
@@ -78,11 +79,6 @@ prompt = async (config = {}) => {
     messageHandler = async data => {
       //If you're typing input, send back choices based on the function
       if (data?.channel === "GENERATE_CHOICES") {
-        console.log(
-          typeof choices,
-          choices?.length,
-          choices
-        )
         if (
           typeof choices === "function" &&
           choices?.length > 0
@@ -109,9 +105,7 @@ prompt = async (config = {}) => {
         let valid = await validate(data)
 
         if (typeof valid === "string") {
-          send("UPDATE_PROMPT_WARN", {
-            info: valid,
-          })
+          setPromptText(valid)
 
           return
         }
@@ -169,15 +163,15 @@ arg = async (messageOrConfig, choices, cache = false) => {
     })
   }
 
-  let { validate, preview } = messageOrConfig
+  let { validate, hint } = messageOrConfig
   if (!message) message = messageOrConfig.message
 
   return await prompt({
     message,
     validate,
-    preview,
     choices,
     cache,
+    hint,
   })
 }
 
@@ -206,11 +200,6 @@ npm = async packageName => {
 
       config = {
         message,
-        preview: `<div>
-        <div>${installMessage}</div>
-        <div>${downloadsMessage}</div>
-        <div><a href="${readMore}">${readMore}</a></div>        
-        </div>`,
         choices: [
           {
             name: `Yes, install ${packageName}`,
@@ -247,57 +236,7 @@ npm = async packageName => {
 }
 
 setPanel = async html => {
-  let scriptInfo = await cli("info", kitScript)
-
-  send("SHOW_PROMPT", {
-    tabs: onTabs?.length
-      ? onTabs.map(({ name }) => name)
-      : [],
-    tabIndex: onTabs?.findIndex(({ name }) => arg?.tab),
-    scriptInfo,
-    message: "ok, a message then!",
-    kitScript,
-    parentScript: env.KIT_PARENT_NAME,
-    cache: false,
-  })
   send("SET_PANEL", { html })
-
-  let messageHandler
-  let errorHandler
-
-  let value = await new Promise((resolve, reject) => {
-    messageHandler = async data => {
-      if (data?.channel === "TAB_CHANGED") {
-        if (data?.tab && onTabs) {
-          console.log(`>> TEARING DOWN PANEL TABS`)
-          process.off("message", messageHandler)
-          process.off("error", errorHandler)
-          let tabIndex = onTabs.findIndex(({ name }) => {
-            return name == data?.tab
-          })
-
-          currentOnTab = onTabs[tabIndex].fn(data?.input)
-        }
-        return
-      }
-
-      resolve(data)
-
-      tabs = []
-    }
-
-    errorHandler = () => {
-      reject()
-    }
-
-    process.on("message", messageHandler)
-    process.on("error", errorHandler)
-  })
-
-  process.off("message", messageHandler)
-  process.off("error", errorHandler)
-
-  return value
 }
 
 setMode = async mode => {
