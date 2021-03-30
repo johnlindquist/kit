@@ -23,6 +23,7 @@ prompt = async (config = {}) => {
     cache = false,
     secret = false,
     hint = "",
+    input = "",
   } = config
 
   setMode("FILTER")
@@ -67,7 +68,8 @@ prompt = async (config = {}) => {
       secret,
     })
 
-    setHint(hint)
+    if (hint) setHint(hint)
+    if (input) setInput(input)
 
     displayChoices(choices)
   }
@@ -163,7 +165,7 @@ arg = async (messageOrConfig, choices, cache = false) => {
     })
   }
 
-  let { validate, hint } = messageOrConfig
+  let { validate, hint, input } = messageOrConfig
   if (!message) message = messageOrConfig.message
 
   return await prompt({
@@ -172,6 +174,7 @@ arg = async (messageOrConfig, choices, cache = false) => {
     choices,
     cache,
     hint,
+    input,
   })
 }
 
@@ -248,5 +251,11 @@ setMode = async mode => {
 setHint = async hint => {
   send("SET_HINT", {
     hint,
+  })
+}
+
+setInput = async input => {
+  send("SET_INPUT", {
+    input,
   })
 }
