@@ -21,6 +21,7 @@ let token = await env(GITHUB_GIST_TOKEN, {
 let script = await arg(
   {
     message: `Which script do you want to share?`,
+    validate: findScript,
   },
   menu
 )
