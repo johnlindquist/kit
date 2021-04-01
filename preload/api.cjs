@@ -27,7 +27,6 @@ globalApi = {
   createWriteStream: "fs",
   readdir: "fs/promises",
   compile: "handlebars",
-  v4: "uuid",
 }
 ;({ cwd, pid, stderr, stdin, stdout, uptime } = process)
 
@@ -47,7 +46,7 @@ _ = new Proxy(
     },
   }
 )
-uuid = () => v4()
+uuid = (...args) => require("uuid").v4(...args)
 chalk = (...args) => require("chalk")(...args)
 paste = (...args) => require("clipboardy").read(...args)
 copy = (...args) => require("clipboardy").write(...args)
@@ -110,7 +109,7 @@ isDir = async dir => {
 isBin = async bin => {
   return Boolean(
     exec(`command -v ${bin}`, {
-      silent: true,
+      silent: false,
     }).stdout
   )
 }

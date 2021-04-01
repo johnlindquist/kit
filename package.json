@@ -25,5 +25,8 @@
     "trash": "^7.0.0",
     "uuid": "^8.3.2"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@types/shelljs": "^0.8.8"
+  }
 }
