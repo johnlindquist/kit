@@ -108,6 +108,7 @@ prompt = async (config = {}) => {
 
         if (typeof valid === "string") {
           setPromptText(valid)
+          setChoices(kitPrevChoices)
 
           return
         }
@@ -257,5 +258,11 @@ setHint = async hint => {
 setInput = async input => {
   send("SET_INPUT", {
     input,
+  })
+}
+
+sendResponse = async value => {
+  send("SEND_RESPONSE", {
+    value,
   })
 }

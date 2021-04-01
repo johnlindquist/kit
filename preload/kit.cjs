@@ -353,7 +353,7 @@ onTab = async (name, fn) => {
   }
 }
 
-let prevChoices = []
+kitPrevChoices = []
 setChoices = async choices => {
   if (typeof choices === "object") {
     choices = choices.map(choice => {
@@ -380,15 +380,15 @@ setChoices = async choices => {
     choices?.length &&
     choices?.every(
       (c, i) =>
-        c.name == prevChoices?.[i]?.name &&
-        c.value == prevChoices?.[i]?.value
+        c.name == kitPrevChoices?.[i]?.name &&
+        c.value == kitPrevChoices?.[i]?.value
     )
   ) {
     return
   }
 
   send("SET_CHOICES", { choices })
-  prevChoices = choices
+  kitPrevChoices = choices
 }
 
 md = markdown => require("marked")(markdown)
