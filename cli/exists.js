@@ -8,6 +8,6 @@ export let exists = (await isBin(kenvPath("bin", input)))
       silent: true,
     }).stdout
   ? chalk`{red.bold "${input}}" is a system command. Enter different name:`
-  : !input.match(/^([a-z]|\-|\/)+$/g)
-  ? chalk`{red.bold "${input}}" can only include lowercase and -. Enter different name:`
+  : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
+  ? chalk`{red.bold "${input}}" can only include lowercase, numbers, and -. Enter different name:`
   : true
