@@ -3,7 +3,8 @@ let { scripts } = await cli("fns")
 let input = await arg("Enter Script name:")
 
 let valid = (await scripts()).find(
-  script => input === script + ".js" || input === script
+  script =>
+    script.replace(".js", "") === input.replace(".js", "")
 )
 
 export let found = valid

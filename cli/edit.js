@@ -1,11 +1,11 @@
 // Description: Opens the selected script in your editor
 
-let { menu, scripts, validate } = await cli("fns")
+let { menu, findScript } = await cli("fns")
 
 let file = await arg(
   {
     message: `Which script do you want to edit?`,
-    validate,
+    validate: findScript,
   },
   menu
 )
