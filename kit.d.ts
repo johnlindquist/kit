@@ -1,6 +1,6 @@
 export {}
 
-import { AxiosRequestConfig, AxiosResponse } from "axios"
+import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"
 import * as fsPromises from "fs/promises"
@@ -14,39 +14,69 @@ import * as clipboardy from "clipboardy"
 import { lowdb } from "lowdb"
 import * as trashType from "trash"
 
-type AxiosMethod = <T = any, R = AxiosResponse<T>>(
-  url: string,
-  config?: AxiosRequestConfig
-) => Promise<R>
-
-interface PromptConfig {
+interface PromptConfig<Value> {
   message: string
   validate?: (
-    choice: Choice
+    choice: Choice<Value>
   ) => boolean | string | Promise<boolean | string>
   hint?: string
   input?: string
 }
 
-interface Choice {
+interface Choice<Value> {
   name: string
-  value?: any
+  value: Value
   description?: string
   img?: string
   html?: string
 }
+interface Arg<Value> {
+  (
+    placeholder: string,
+    choices:
+      | Choice<Value>[]
+      | (() => Choice<Value>[])
+      | (() => Promise<Choice<Value>[]>)
+      | ((
+          input: string
+        ) =>
+          | Choice<Value>[]
+          | ((input: string) => Promise<Choice<Value>[]>))
+  ): Promise<Value | File[]>
+  (
+    promptConfig: PromptConfig<Value>,
+    panel:
+      | string
+      | (() => string)
+      | (() => Promise<string>)
+      | ((input: string) => Promise<string | File[]>)
+  ): Promise<string | File[]>
+}
 
-type Arg = (
-  messageOrPromptConfig: string | PromptConfig,
-  panelOrChoices: string | Choice[]
+type Env = (
+  envKey: string,
+  promptConfig: PromptConfig<string>
 ) => Promise<string>
+type Path = (pathParts: string[]) => string
 
-type Run = (script: string) => Promise<any>
+type SendMessage = (channel: string, data: any) => void
+
+type Inspect = (
+  data: any,
+  extension: string
+) => Promise<void>
+
+type CompileTemplate = (
+  template: string,
+  vars: any
+) => Promise<string>
+type OnTab = (name: string, fn: () => void) => Promise<void>
+type Markdown = (markdown: string) => string
 
 declare global {
   namespace NodeJS {
     interface Global {
-      arg: Arg
+      //preload/api.cjs
       cd: typeof shelljs.cd
       cp: typeof shelljs.cp
       chmod: typeof shelljs.chmod
@@ -65,10 +95,10 @@ declare global {
       spawn: typeof child_process.spawn
       spawnSync: typeof child_process.spawnSync
       fork: typeof child_process.fork
-      get: AxiosMethod
-      put: AxiosMethod
-      post: AxiosMethod
-      patch: AxiosMethod
+      get: AxiosInstance["get"]
+      put: AxiosInstance["put"]
+      post: AxiosInstance["post"]
+      patch: AxiosInstance["patch"]
       readFile: typeof fsPromises
       writeFile: typeof fsPromises
       appendFile: typeof fsPromises
@@ -90,7 +120,7 @@ declare global {
       uuid: typeof uuidType.v4
       chalk: typeof chalkType
       paste: typeof clipboardy.read
-      copy: typeof clipboard.write
+      copy: typeof clipboardy.write
       db: lowdb
 
       trash: typeof trashType
@@ -98,16 +128,38 @@ declare global {
 
       wait: (time: number) => Promise<undefined>
 
-      checkProcess: (number) => string
+      checkProcess: (processId: number) => string
 
       home: (pathParts: string[]) => string
 
       isFile: (file: string) => Promise<boolean>
       isDir: (dir: string) => Promise<boolean>
       isBin: (bin: string) => Promise<boolean>
+
+      //preload/kit.cjs
+      arg: Arg<any>
+      env: Env
+
+      kitPath: Path
+      kenvPath: Path
+      libPath: Path
+      kitScriptFromPath: Path
+      kitFromPath: Path
+
+      send: SendMessage
+
+      //Need help with import wrappers
+
+      tmp: Path
+      inspect: Inspect
+
+      compileTemplate: CompileTemplate
+
+      onTab: OnTab
+      md: Markdown
     }
   }
-  let arg: Arg
+  //preload/api.cjs
   let cd: typeof shelljs.cd
   let cp: typeof shelljs.cp
   let chmod: typeof shelljs.chmod
@@ -126,10 +178,10 @@ declare global {
   let spawn: typeof child_process.spawn
   let spawnSync: typeof child_process.spawnSync
   let fork: typeof child_process.fork
-  let get: AxiosMethod
-  let put: AxiosMethod
-  let post: AxiosMethod
-  let patch: AxiosMethod
+  let get: AxiosInstance["get"]
+  let put: AxiosInstance["put"]
+  let post: AxiosInstance["post"]
+  let patch: AxiosInstance["patch"]
   let readFile: typeof fsPromises
   let writeFile: typeof fsPromises
   let appendFile: typeof fsPromises
@@ -151,7 +203,7 @@ declare global {
   let uuid: typeof uuidType.v4
   let chalk: typeof chalkType
   let paste: typeof clipboardy.read
-  let copy: typeof clipboard.write
+  let copy: typeof clipboardy.write
   let db: lowdb
 
   let trash: typeof trashType
@@ -166,4 +218,24 @@ declare global {
   let isFile: (file: string) => Promise<boolean>
   let isDir: (dir: string) => Promise<boolean>
   let isBin: (bin: string) => Promise<boolean>
+
+  //preload/kit.cjs
+  let arg: Arg<string | FileList[]>
+  let env: Env
+
+  let kitPath: Path
+  let kenvPath: Path
+  let libPath: Path
+  let kitScriptFromPath: Path
+  let kitFromPath: Path
+
+  let send: SendMessage
+
+  let tmp: Path
+  let inspect: Inspect
+
+  let compileTemplate: CompileTemplate
+
+  let onTab: OnTab
+  let md: Markdown
 }
