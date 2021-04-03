@@ -22,7 +22,7 @@ let tagCreateResponse = await octokit.git.createTag({
   owner,
   repo,
   tag: version,
-  placeholder: version,
+  message: version,
   object,
   type: "commit",
 })
