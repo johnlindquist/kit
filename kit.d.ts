@@ -211,7 +211,7 @@ declare global {
 
   let wait: (time: number) => Promise<undefined>
 
-  let checkProcess: (number) => string
+  let checkProcess: (processId: number) => string
 
   let home: (pathParts: string[]) => string
 
