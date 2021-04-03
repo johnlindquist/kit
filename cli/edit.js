@@ -4,7 +4,7 @@ let { menu, findScript } = await cli("fns")
 
 let file = await arg(
   {
-    message: `Which script do you want to edit?`,
+    placeholder: `Which script do you want to edit?`,
     validate: findScript,
   },
   menu

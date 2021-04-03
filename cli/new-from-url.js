@@ -12,7 +12,7 @@ if (url.endsWith(".js")) {
 }
 
 let name = await arg({
-  message: "Enter a name for your script:",
+  placeholder: "Enter a name for your script:",
   validate: exists,
 })
 

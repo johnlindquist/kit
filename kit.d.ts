@@ -15,7 +15,7 @@ import { lowdb } from "lowdb"
 import * as trashType from "trash"
 
 interface PromptConfig<Value> {
-  message: string
+  placeholder: string
   validate?: (
     choice: Choice<Value>
   ) => boolean | string | Promise<boolean | string>

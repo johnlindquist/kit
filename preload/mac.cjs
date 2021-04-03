@@ -70,7 +70,7 @@ let terminalEditor = editor => async file => {
       .map(([name, value]) => ({ name, value: name }))
 
   let KIT_TERMINAL = await env("KIT_TERMINAL", {
-    message: `Which Terminal do you use with ${editor}?`,
+    placeholder: `Which Terminal do you use with ${editor}?`,
     choices: possibleTerminals(),
   })
 
@@ -102,7 +102,7 @@ edit = async (file, dir, line = 0, col = 0) => {
     )
 
   let KIT_EDITOR = await env("KIT_EDITOR", {
-    message:
+    placeholder:
       "Which code editor do you use? (You can always change this later in .env)",
     choices: [
       ...possibleEditors(),

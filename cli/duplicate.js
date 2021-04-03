@@ -2,14 +2,14 @@ let { exists, scripts, validate } = await cli("fns")
 
 let script = await arg(
   {
-    message: `Which script do you want to duplicate?`,
+    placeholder: `Which script do you want to duplicate?`,
     validate,
   },
   scripts
 )
 
 let newScript = await arg({
-  message: `Enter the new script name:`,
+  placeholder: `Enter the new script name:`,
   validate: exists,
 })
 

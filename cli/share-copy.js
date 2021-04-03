@@ -5,7 +5,7 @@ let { menu, exists, findScript, scripts } = await cli("fns")
 
 let script = await arg(
   {
-    message: `Which script do you want to share?`,
+    placeholder: `Which script do you want to share?`,
   },
   menu
 )

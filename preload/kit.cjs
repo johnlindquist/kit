@@ -155,9 +155,8 @@ env = async (envKey, promptConfig = {}) => {
   if (env[envKey]) return env[envKey]
 
   let input = await prompt({
-    message: `Set ${envKey} env to:`,
+    placeholder: `Set ${envKey} env to:`,
     ...promptConfig,
-    cache: false,
   })
 
   if (input.startsWith("~"))

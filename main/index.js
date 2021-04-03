@@ -8,7 +8,7 @@ let { menu, scripts, validate } = await cli("fns")
 const Share = async () => {
   let cliScript = await arg(
     {
-      message: `Which script do you want to share?`,
+      placeholder: `Which script do you want to share?`,
     },
     menu
   )
@@ -77,7 +77,7 @@ const Other = async () => {
 
   let cliScript = await arg(
     {
-      message: `Other options:`,
+      placeholder: `Other options:`,
     },
     [
       {
@@ -134,7 +134,7 @@ const Other = async () => {
 const Edit = async () => {
   let script = await arg(
     {
-      message: `Which script do you want to edit?`,
+      placeholder: `Which script do you want to edit?`,
       validate,
     },
     menu

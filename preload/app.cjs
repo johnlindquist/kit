@@ -16,24 +16,15 @@ let fromInput = async (choices, input) => {
 
 prompt = async (config = {}) => {
   let {
-    message = "",
+    placeholder = "",
     validate = null,
     choices = [],
-    type = "",
-    cache = false,
     secret = false,
     hint = "",
     input = "",
   } = config
 
   setMode("FILTER")
-
-  if (type === "confirm") {
-    choices = [
-      { name: "No", value: false },
-      { name: "Yes", value: true },
-    ]
-  }
 
   if (choices && typeof choices === "function") {
     if (choices?.length === 0) {
@@ -60,7 +51,7 @@ prompt = async (config = {}) => {
         : [],
       tabIndex: onTabs?.findIndex(({ name }) => arg?.tab),
       scriptInfo,
-      message,
+      placeholder,
       kitScript,
       parentScript: env.KIT_PARENT_NAME,
       kitArgs: args.join(" "),
@@ -132,20 +123,24 @@ prompt = async (config = {}) => {
   return value
 }
 
-arg = async (messageOrConfig, choices, cache = false) => {
+arg = async (
+  placeholderOrConfig,
+  choices,
+  cache = false
+) => {
   let firstArg = args.length ? args.shift() : null
-  let message = ""
+  let placeholder = ""
   if (firstArg) {
     let valid = true
-    if (messageOrConfig?.validate) {
-      let { validate } = messageOrConfig
+    if (placeholderOrConfig?.validate) {
+      let { validate } = placeholderOrConfig
       let validOrMessage = await validate(firstArg)
       valid =
         typeof validOrMessage === "boolean" &&
         validOrMessage
 
       if (typeof validOrMessage === "string")
-        message = validOrMessage
+        placeholder = validOrMessage
     }
 
     if (valid) {
@@ -153,24 +148,25 @@ arg = async (messageOrConfig, choices, cache = false) => {
     }
   }
 
-  if (typeof messageOrConfig === "undefined") {
-    return await prompt({ message })
+  if (typeof placeholderOrConfig === "undefined") {
+    return await prompt({ placeholder })
   }
 
-  if (typeof messageOrConfig === "string") {
-    if (!message) message = messageOrConfig
+  if (typeof placeholderOrConfig === "string") {
+    if (!placeholder) placeholder = placeholderOrConfig
     return await prompt({
-      message,
+      placeholder,
       choices,
       cache,
     })
   }
 
-  let { validate, hint, input } = messageOrConfig
-  if (!message) message = messageOrConfig.message
+  let { validate, hint, input } = placeholderOrConfig
+  if (!placeholder)
+    placeholder = placeholderOrConfig.placeholder
 
   return await prompt({
-    message,
+    placeholder,
     validate,
     choices,
     cache,
@@ -184,7 +180,7 @@ npm = async packageName => {
     return require(packageName)
   } catch {
     if (!arg?.trust) {
-      let installMessage = `${env.KIT_SCRIPT_NAME}} needs to install the npm library: ${packageName}`
+      let placeholder = `${env.KIT_SCRIPT_NAME}} needs to install : ${packageName}`
 
       let downloadsMessage = `${packageName} has had ${
         (
@@ -196,28 +192,29 @@ npm = async packageName => {
       } downloads from npm in the past week`
 
       let packageLink = `https://npmjs.com/package/${packageName}`
-      let readMore = `
-    Read more about ${packageName} here: ${packageLink}
-    `
 
-      let message = `Do you trust ${packageName}?`
-
-      config = {
-        message,
-        choices: [
+      let trust = await arg(
+        { placeholder, hint: downloadsMessage },
+        [
           {
-            name: `Yes, install ${packageName}`,
+            name: `Abort`,
+            value: "false",
+          },
+          {
+            name: `Install ${packageName}`,
             value: "true",
           },
           {
-            name: `No, abort`,
-            value: "false",
+            name: `Visit ${packageLink}}`,
+            value: "visit",
           },
-        ],
-        cache: false,
+        ]
+      )
+      if (trust === "visit") {
+        exec(`open ${packageLink}`)
+        exit()
       }
 
-      let trust = await prompt(config)
       if (trust === "false") {
         echo(`Ok. Exiting...`)
         exit()

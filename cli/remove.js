@@ -36,13 +36,18 @@ let promptToRemoveFiles = async (dir, pattern) => {
 
     const confirm =
       arg?.force ||
-      (await prompt({
-        type: "confirm",
-        name: "value",
-        message: chalk`Delete "{red.bold ${
+      (await arg(
+        chalk`Delete "{red.bold ${
           targetDir ? `${targetDir}/` : ``
         }${scriptName}}"?`,
-      }))
+        [
+          { name: `No, keep ${scriptName}`, value: false },
+          {
+            name: `Yes, remove ${scriptName}`,
+            value: true,
+          },
+        ]
+      ))
 
     if (confirm) {
       let trashBin = kenvPath("bin", targetDir, scriptName)

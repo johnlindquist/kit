@@ -3,7 +3,8 @@
 let { exists } = await cli("fns")
 
 let name = await arg({
-  message: arg?.message || "Enter a name for your script:",
+  placeholder:
+    arg?.placeholder || "Enter a name for your script:",
   validate: exists,
 })
 

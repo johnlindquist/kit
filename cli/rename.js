@@ -2,14 +2,14 @@ let { exists, findScript, scripts } = await cli("fns")
 
 let script = await arg(
   {
-    message: `Which script do you want to rename?`,
+    placeholder: `Which script do you want to rename?`,
     validate: findScript,
   },
   scripts
 )
 
 let newScript = await arg({
-  message: `Enter the new script name:`,
+  placeholder: `Enter the new script name:`,
   validate: exists,
 })
 

@@ -15,12 +15,12 @@ if (!env[GITHUB_GIST_TOKEN]) {
 
 let token = await env(GITHUB_GIST_TOKEN, {
   secret: true,
-  message: chalk`Enter GitHub gist token:`,
+  placeholder: chalk`Enter GitHub gist token:`,
 })
 
 let script = await arg(
   {
-    message: `Which script do you want to share?`,
+    placeholder: `Which script do you want to share?`,
   },
   menu
 )

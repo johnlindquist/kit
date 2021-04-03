@@ -3,7 +3,7 @@ let { menu, findScript } = await cli("fns")
 
 let script = await arg(
   {
-    message: `Which script do you want to run?`,
+    placeholder: `Which script do you want to run?`,
     validate: findScript,
   },
   menu

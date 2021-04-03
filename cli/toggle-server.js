@@ -28,7 +28,7 @@ if (host && port) {
 } else {
   host = await arg("Set host: e.g., kit.local")
   port = await arg({
-    message: "Set port: e.g., 5555",
+    placeholder: "Set port: e.g., 5555",
     validate: async value => {
       let portInt = parseInt(value, 10)
       let openPort = await detect(portInt)
