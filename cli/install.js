@@ -1,3 +1,8 @@
+/** @type typeof import("date-fns") */
+let { formatDistanceToNow, parseISO } = await npm(
+  "date-fns"
+)
+
 let install = async packageNames => {
   return await new Promise((res, rej) => {
     let npm = spawn(
@@ -25,7 +30,25 @@ let install = async packageNames => {
 }
 
 let packageNames = await arg(
-  "Which npm package/s would you like to install?"
+  "Which npm package/s would you like to install?",
+  async input => {
+    if (input < 3) return []
+    let response = await get(
+      `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
+    )
+    let packages = response.data.objects
+    return packages.map(o => {
+      return {
+        name: o.package.name,
+        value: o.package.name,
+        description: `${
+          o.package.description
+        } - ${formatDistanceToNow(
+          parseISO(o.package.date)
+        )} ago`,
+      }
+    })
+  }
 )
 
 let installNames = [...packageNames.split(" "), ...args]

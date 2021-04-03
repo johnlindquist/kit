@@ -81,14 +81,19 @@ const Other = async () => {
     },
     [
       {
+        name: "Get Help",
+        description: `Post a question to Script Kit GitHub discussions`,
+        value: "get-help",
+      },
+      {
         name: "Check for Update",
         description: `Version: ${env.KIT_APP_VERSION}`,
         value: "update",
       },
       {
-        name: "Get Help",
-        description: `Post a question to Script Kit GitHub discussions`,
-        value: "get-help",
+        name: "Manage npm packages",
+        description: `add or remove npm package`,
+        value: "manage-npm",
       },
       {
         name: host && port ? "Stop Server" : "Start Server",
