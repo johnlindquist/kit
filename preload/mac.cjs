@@ -130,7 +130,7 @@ edit = async (file, dir, line = 0, col = 0) => {
     exec(`${KIT_EDITOR} ${file}`, { env: {} })
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor
-  setPromptText(`Opening ${file} with ${env.KIT_EDITOR}`)
+  setPlaceholder(`Opening ${file} with ${env.KIT_EDITOR}`)
 
   let result = await editorFn(file, dir, line, col)
 

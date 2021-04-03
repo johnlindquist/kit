@@ -58,5 +58,5 @@ const response = await post(
 let link = `https://scriptkit.app/api/new?name=${script}&url=${response.data.files[script].raw_url}`
 exec(`open ` + response.data.html_url)
 copy(link)
-setPromptText(`Copied share link to clipboard`)
+setPlaceholder(`Copied share link to clipboard`)
 await wait(1000)

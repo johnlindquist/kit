@@ -58,5 +58,5 @@ const response = await post(
 
 exec(`open ` + response.data.html_url)
 copy(response.data.files[script + ".js"].raw_url)
-setPromptText(`Copied raw gist url to clipboard`)
+setPlaceholder(`Copied raw gist url to clipboard`)
 await wait(1000)

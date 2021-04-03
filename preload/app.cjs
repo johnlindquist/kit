@@ -107,7 +107,7 @@ prompt = async (config = {}) => {
         let valid = await validate(data)
 
         if (typeof valid === "string") {
-          setPromptText(valid)
+          setPlaceholder(valid)
           setChoices(kitPrevChoices)
 
           return

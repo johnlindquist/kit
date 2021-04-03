@@ -13,5 +13,5 @@ let script = await arg(
 let scriptPath = kenvPath("scripts", script) + ".js"
 
 copy(await readFile(scriptPath, "utf8"))
-setPromptText(`Copied content of script to clipboard`)
+setPlaceholder(`Copied content of script to clipboard`)
 await wait(1000)

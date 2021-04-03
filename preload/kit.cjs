@@ -14,7 +14,7 @@ let attemptImport = async (path, _args) => {
     return await import(path + `?uuid=${uuid()}`)
   } catch (error) {
     console.warn(error.message)
-    setPromptText(error.message)
+    setPlaceholder(error.message)
 
     await wait(1000)
     try {
@@ -242,8 +242,8 @@ showImage = (image, options) => {
   send("SHOW_IMAGE", { options, image })
 }
 
-setPromptText = text => {
-  send("SET_PROMPT_TEXT", {
+setPlaceholder = text => {
+  send("SET_PLACEHOLDER", {
     text,
   })
 }
@@ -255,7 +255,7 @@ run = async (name, ..._args) => {
     name,
     args: _args,
   })
-  // setPromptText(`>_ ${kitScript}...`)
+  // setPlaceholder(`>_ ${kitScript}...`)
   let kitScriptPath = kenvPath("scripts", kitScript) + ".js"
 
   return attemptImport(kitScriptPath, _args)
@@ -277,7 +277,7 @@ cli = async (cliPath, ..._args) => {
 }
 
 setup = async (setupPath, ..._args) => {
-  setPromptText(`>_ setup: ${setupPath}...`)
+  setPlaceholder(`>_ setup: ${setupPath}...`)
   let setupScriptPath =
     kitPath("setup/" + setupPath) + ".js"
   return await attemptImport(setupScriptPath, _args)

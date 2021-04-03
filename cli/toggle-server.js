@@ -42,6 +42,6 @@ if (host && port) {
 
   send("START_SERVER", { host, port })
 
-  setPromptText(`Starting http://${host}:${port}`)
+  setPlaceholder(`Starting http://${host}:${port}`)
   await wait(1000)
 }

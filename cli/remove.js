@@ -26,7 +26,7 @@ let promptToRemoveFiles = async (dir, pattern) => {
     .filter(name => name.match(pattern))
 
   if (!files.length) {
-    setPromptText(`No scripts matched pattern: ${pattern}`)
+    setPlaceholder(`No scripts matched pattern: ${pattern}`)
     await wait(1000)
   }
 
