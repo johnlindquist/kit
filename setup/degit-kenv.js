@@ -1,0 +1,1 @@
+await trash(kenvPath(".git"))
