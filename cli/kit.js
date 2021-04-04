@@ -78,13 +78,13 @@ let script = await arg(
   "What do you want to do?",
   () =>
     cliScripts.map(
-      ({ name, message, alias, description }) => {
+      ({ name, placeholder, alias, description }) => {
         if (env.KIT_CONTEXT === "app") {
           return {
             name: chalk`{green.bold ${name}}${
               alias ? chalk` {yellow (${alias})}` : ""
             }`,
-            description: message,
+            description: placeholder,
             value: name,
           }
         }
@@ -92,7 +92,7 @@ let script = await arg(
         return {
           name: chalk`{green.bold ${name}}${
             alias ? chalk` {yellow (${alias})}` : ""
-          }: ${message}`,
+          }: ${placeholder}`,
           value: name,
         }
       }
