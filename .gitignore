@@ -121,3 +121,4 @@ ROADMAP.md
 .DS_Store
 .lsp
 kit.code-workspace
+.vscode
