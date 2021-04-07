@@ -5,7 +5,7 @@
   "types": "./kit.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
-    "preload": "concurrently \"tsc -noEmit -p ./src/preload\" \"./node/bin/node ./build/build.cjs\"",
+    "preload": "concurrently \"tsc --watch --noEmit --project ./src/preload/\" \"./node/bin/node ./build/build.cjs\"",
     "scripts": "tsc -p ./src/scripts --watch",
     "dev": "npm run clean && concurrently --kill-others \"npm run preload\" \"npm run scripts\""
   },
