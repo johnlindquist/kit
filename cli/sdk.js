@@ -1,1 +1,1 @@
-edit(kitPath())
+edit(kitPath());

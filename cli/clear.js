@@ -1,1 +1,1 @@
-send("CLEAR_CACHE")
+send("CLEAR_CACHE");

@@ -1,3 +1,2 @@
 // Description: Open Log
-
-edit(kenvPath("logs", "kit.log"))
+edit(kenvPath("logs", "kit.log"));

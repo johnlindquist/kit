@@ -1,1 +1,2 @@
-await edit(kitPath())
+await edit(kitPath());
+export {};

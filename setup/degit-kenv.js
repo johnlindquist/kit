@@ -1,1 +1,2 @@
-await trash(kenvPath(".git"))
+await trash(kenvPath(".git"));
+export {};

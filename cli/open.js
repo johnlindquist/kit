@@ -1,1 +1,2 @@
-await edit(kenvPath())
+await edit(kenvPath());
+export {};

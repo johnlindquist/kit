@@ -1,1 +1,1 @@
-send("QUIT_APP")
+send("QUIT_APP");

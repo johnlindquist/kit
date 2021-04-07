@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "../../",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "Node"
+  },
+  "include": ["./**/*"],
+  "exclude": []
+}

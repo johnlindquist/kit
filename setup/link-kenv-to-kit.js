@@ -1,1 +1,2 @@
-await cli("install", "~/.kit")
+await cli("install", "~/.kit");
+export {};

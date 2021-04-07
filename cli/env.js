@@ -1,1 +1,1 @@
-edit(kenvPath(".env"), env.KENV)
+edit(kenvPath(".env"), env.KENV);
