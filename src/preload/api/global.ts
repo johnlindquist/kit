@@ -1,5 +1,3 @@
-import { config } from "dotenv"
-config()
 import { LoDashStatic } from "lodash"
 import { Options } from "trash"
 import { assignPropsTo } from "../utils"

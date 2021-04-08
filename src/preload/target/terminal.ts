@@ -39,8 +39,15 @@ global.kitPrompt = async (config: any) => {
     }
   }
 
+  let promptConfig = {
+    ...config,
+    message: config.placeholder,
+  }
+
   // TODO: Strip out enquirer autocomplete
-  let { value } = await require("enquirer").prompt(config)
+  let { value } = await require("enquirer").prompt(
+    promptConfig
+  )
 
   return value
 }

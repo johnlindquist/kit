@@ -1,9 +1,5 @@
-var __create = Object.create;
 var __defProp = Object.defineProperty;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value}) : obj[key] = value;
@@ -18,21 +14,6 @@ var __objSpread = (a, b) => {
     }
   return a;
 };
-var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
-var __reExport = (target, module2, desc) => {
-  if (module2 && typeof module2 === "object" || typeof module2 === "function") {
-    for (let key of __getOwnPropNames(module2))
-      if (!__hasOwnProp.call(target, key) && key !== "default")
-        __defProp(target, key, {get: () => module2[key], enumerable: !(desc = __getOwnPropDesc(module2, key)) || desc.enumerable});
-  }
-  return target;
-};
-var __toModule = (module2) => {
-  return __reExport(__markAsModule(__defProp(module2 != null ? __create(__getProtoOf(module2)) : {}, "default", module2 && module2.__esModule && "default" in module2 ? {get: () => module2.default, enumerable: true} : {value: module2, enumerable: true})), module2);
-};
-
-// src/preload/api/global.ts
-var import_dotenv = __toModule(require("dotenv"));
 
 // src/preload/utils.ts
 var assignPropsTo = (source, target) => {
@@ -42,7 +23,6 @@ var assignPropsTo = (source, target) => {
 };
 
 // src/preload/api/global.ts
-(0, import_dotenv.config)();
 var globalApi = {
   cd: "shelljs",
   cp: "shelljs",
@@ -498,18 +478,18 @@ global.edit = async (file, dir, line = 0, col = 0) => {
 };
 
 // src/preload/target/terminal.ts
-global.kitPrompt = async (config2) => {
-  if (config2?.choices) {
-    config2 = __objSpread(__objSpread({}, config2), {type: "autocomplete"});
+global.kitPrompt = async (config) => {
+  if (config?.choices) {
+    config = __objSpread(__objSpread({}, config), {type: "autocomplete"});
   }
-  config2 = __objSpread({type: "input", name: "value"}, config2);
-  if (typeof config2.choices === "function") {
-    let f = config2.choices;
-    if (config2.choices.length === 0) {
-      let choices = config2.choices();
+  config = __objSpread({type: "input", name: "value"}, config);
+  if (typeof config.choices === "function") {
+    let f = config.choices;
+    if (config.choices.length === 0) {
+      let choices = config.choices();
       if (typeof choices?.then === "function")
         choices = await choices;
-      config2 = __objSpread(__objSpread({}, config2), {
+      config = __objSpread(__objSpread({}, config), {
         choices
       });
     } else {
@@ -519,13 +499,16 @@ global.kitPrompt = async (config2) => {
         await this.render();
         return this.choices;
       }, 250);
-      config2 = __objSpread(__objSpread({}, config2), {
+      config = __objSpread(__objSpread({}, config), {
         choices: [],
         suggest
       });
     }
   }
-  let {value} = await require("enquirer").prompt(config2);
+  let promptConfig = __objSpread(__objSpread({}, config), {
+    message: config.placeholder
+  });
+  let {value} = await require("enquirer").prompt(promptConfig);
   return value;
 };
 global.arg = async (messageOrConfig = "Input", choices) => {
@@ -544,14 +527,14 @@ global.arg = async (messageOrConfig = "Input", choices) => {
       return firstArg;
     }
   }
-  let config2 = {placeholder: ""};
+  let config = {placeholder: ""};
   if (typeof messageOrConfig === "string") {
-    config2.placeholder = messageOrConfig;
+    config.placeholder = messageOrConfig;
   } else {
-    config2 = messageOrConfig;
+    config = messageOrConfig;
   }
-  config2.choices = choices;
-  let input = await global.kitPrompt(config2);
+  config.choices = choices;
+  let input = await global.kitPrompt(config);
   let command = global.chalk`{green.bold ${global.env.KIT_SCRIPT_NAME} {yellow ${input}}} {yellow ${global.argOpts.join(" ")}}`;
   let nextTime = global.chalk`👉 Run without prompts by typing: ` + command;
   return input;
@@ -586,14 +569,14 @@ global.npm = async (packageName) => {
       echo(downloadsMessage);
       echo(readMore);
       let message = global.chalk`Do you trust {yellow ${packageName}}?`;
-      let config2 = {
+      let config = {
         placeholder: message,
         choices: [
           {name: "Yes", value: true},
           {name: "No", value: false}
         ]
       };
-      let trust = await global.kitPrompt(config2);
+      let trust = await global.kitPrompt(config);
       if (!trust) {
         echo(`Ok. Exiting...`);
         exit();

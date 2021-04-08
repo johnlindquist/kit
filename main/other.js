@@ -1,5 +1,5 @@
 let { host, port } = await new Promise((res, rej) => {
-    let messageHandler = data => {
+    let messageHandler = (data) => {
         if (data.channel === "SERVER") {
             res(data);
             process.off("message", messageHandler);
@@ -40,6 +40,11 @@ let otherOptions = [
         name: "Add ~/.kenv/bin to $PATH",
         description: `Looks for your profile and appends to $PATH`,
         value: "add-kenv-to-profile",
+    },
+    {
+        name: "Generate bin files",
+        description: "Recreate all the terminal executables",
+        value: "create-all-bins",
     },
     {
         name: "Quit",
