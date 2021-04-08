@@ -104,6 +104,14 @@ interface Edit {
   ): Promise<void>
 }
 
+interface Wait {
+  (time: number): Promise<undefined>
+}
+
+interface IsCheck {
+  (file: string): Promise<boolean>
+}
+
 declare global {
   interface Choice<Value> {
     name: string
@@ -179,14 +187,14 @@ declare global {
       trash: typeof trashType
       rm: typeof trashType
 
-      wait: (time: number) => Promise<undefined>
+      wait: Wait
 
       checkProcess: (processId: number) => string
 
-      home: (...pathParts: string[]) => string
-      isFile: (file: string) => Promise<boolean>
-      isDir: (dir: string) => Promise<boolean>
-      isBin: (bin: string) => Promise<boolean>
+      home: Path
+      isFile: IsCheck
+      isDir: IsCheck
+      isBin: IsCheck
 
       //preload/kit.cjs
       arg: Arg<any>
@@ -202,8 +210,6 @@ declare global {
       libPath: Path
       kitScriptFromPath: Path
       kitFromPath: Path
-
-      //Need help with import wrappers
 
       tmp: Path
       inspect: Inspect
@@ -292,4 +298,52 @@ declare global {
   let createWriteStream: typeof fs.createWriteStream
   let readdir: typeof fsPromises.readdir
   let compile: typeof handlebars.compile
+
+  let path: typeof import("path")
+
+  let paste: typeof clipboardy.read
+  let copy: typeof clipboardy.write
+  let edit: Edit
+
+  let chalk: ChalkFunction
+
+  let trash: typeof trashType
+  let rm: typeof trashType
+
+  let kitPath: Path
+  let kenvPath: Path
+
+  let attemptImport: KitModuleLoader
+  let npm: KitModuleLoader
+  let main: KitModuleLoader
+  let kit: KitModuleLoader
+  let lib: KitModuleLoader
+  let cli: KitModuleLoader
+  let setup: KitModuleLoader
+  let run: KitModuleLoader
+
+  let env: Env
+  let arg: Arg<any>
+  let onTab: OnTab
+  let applescript: AppleScript
+  let send: Send
+  let args: Args
+
+  let updateArgs: UpdateArgs
+  let argOpts: any
+
+  let setPlaceholder: SetAppProp
+  let setPanel: SetAppProp
+  let setHint: SetAppProp
+  let setInput: SetAppProp
+
+  let show: ShowAppWindow
+  let showImage: ShowAppWindow
+
+  let wait: Wait
+
+  let home: Path
+  let isFile: IsCheck
+  let isDir: IsCheck
+  let isBin: IsCheck
 }

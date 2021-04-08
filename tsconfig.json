@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "outDir": "./",
+    "rootDir": "./src",
+    "moduleResolution": "Node"
+  },
+  "include": ["./src/**/*.ts", "src/kit.d.ts"],
+  "exclude": ["./src/preload/**/*"]
+}

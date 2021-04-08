@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ESNext",
     "module": "CommonJS"
-  }
+  },
+  "include": ["./**/*.ts"]
 }

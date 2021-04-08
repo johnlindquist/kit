@@ -2,11 +2,11 @@
   "name": "kit",
   "version": "1.0.0",
   "description": "",
-  "types": "./kit.d.ts",
+  "types": "./src/kit.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
     "preload": "concurrently \"tsc --watch --noEmit --project ./src/preload/\" \"./node/bin/node ./build/build.cjs\"",
-    "scripts": "tsc -p ./src/scripts --watch",
+    "scripts": "tsc --watch",
     "dev": "npm run clean && concurrently --kill-others \"npm run preload\" \"npm run scripts\""
   },
   "author": "",
