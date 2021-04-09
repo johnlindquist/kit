@@ -119,6 +119,7 @@ declare global {
     description?: string
     img?: string
     html?: string
+    preview?: string
   }
 
   interface PromptConfig {
@@ -130,6 +131,7 @@ declare global {
     input?: string
     secret?: boolean
     choices?: Choices<any> | Panel
+    drop?: boolean
   }
 
   namespace NodeJS {

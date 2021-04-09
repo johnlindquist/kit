@@ -498,7 +498,8 @@ global.kitPrompt = async (config) => {
     choices = [],
     secret = false,
     hint = "",
-    input = ""
+    input = "",
+    drop = false
   } = config;
   global.setMode("FILTER");
   if (typeof choices === "function") {
@@ -508,58 +509,56 @@ global.kitPrompt = async (config) => {
       global.setMode("GENERATE");
     }
   }
-  if (global.arg["kit-input"]) {
-    fromInput(choices, global.arg["kit-input"]);
-  }
-  if (!global.arg["prompt-exists"]) {
-    let scriptInfo = await global.cli("info", global.kitScript);
-    global.send("SHOW_PROMPT", {
-      tabs: global.onTabs?.length ? global.onTabs.map(({name}) => name) : [],
-      tabIndex: global.onTabs?.findIndex(({name}) => global.arg?.tab),
-      scriptInfo,
-      placeholder,
-      kitScript: global.kitScript,
-      parentScript: global.env.KIT_PARENT_NAME,
-      kitArgs: global.args.join(" "),
-      cache: false,
-      secret
-    });
-    if (hint)
-      global.setHint(hint);
-    if (input)
-      global.setInput(input);
-    displayChoices(choices);
-  }
+  let scriptInfo = await global.cli("info", global.kitScript);
+  global.send("SHOW_PROMPT", {
+    tabs: global.onTabs?.length ? global.onTabs.map(({name}) => name) : [],
+    tabIndex: global.onTabs?.findIndex(({name}) => global.arg?.tab),
+    scriptInfo,
+    placeholder,
+    kitScript: global.kitScript,
+    parentScript: global.env.KIT_PARENT_NAME,
+    kitArgs: global.args.join(" "),
+    secret,
+    drop
+  });
+  if (hint)
+    global.setHint(hint);
+  if (input)
+    global.setInput(input);
+  displayChoices(choices);
   let messageHandler;
   let errorHandler;
   let value = await new Promise((resolve, reject) => {
     messageHandler = async (data) => {
-      if (data?.channel === "GENERATE_CHOICES") {
-        if (typeof choices === "function" && choices?.length > 0) {
-          fromInput(choices, data.input);
-        }
-        return;
+      switch (data?.channel) {
+        case "GENERATE_CHOICES":
+          if (typeof choices === "function" && choices?.length > 0) {
+            fromInput(choices, data.input);
+          }
+          break;
+        case "TAB_CHANGED":
+          if (data?.tab && global.onTabs) {
+            process.off("message", messageHandler);
+            process.off("error", errorHandler);
+            let tabIndex = global.onTabs.findIndex(({name}) => {
+              return name == data?.tab;
+            });
+            global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
+          }
+          break;
+        case "VALUE_SUBMITTED":
+          let {value: value2} = data;
+          if (validate) {
+            let validateMessage = await validate(value2);
+            if (typeof validateMessage === "string") {
+              global.setPlaceholder(validateMessage);
+              global.setChoices(global.kitPrevChoices);
+              return;
+            }
+          }
+          resolve(value2);
+          break;
       }
-      if (data?.channel === "TAB_CHANGED") {
-        if (data?.tab && global.onTabs) {
-          process.off("message", messageHandler);
-          process.off("error", errorHandler);
-          let tabIndex = global.onTabs.findIndex(({name}) => {
-            return name == data?.tab;
-          });
-          global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
-        }
-        return;
-      }
-      if (validate) {
-        let valid = await validate(data);
-        if (typeof valid === "string") {
-          global.setPlaceholder(valid);
-          global.setChoices(global.kitPrevChoices);
-          return;
-        }
-      }
-      resolve(data);
     };
     errorHandler = () => {
       reject();
@@ -573,41 +572,34 @@ global.kitPrompt = async (config) => {
 };
 global.arg = async (placeholderOrConfig, choices) => {
   let firstArg = global.args.length ? global.args.shift() : null;
-  let placeholder = "";
+  let placeholderOrValidateMessage = "";
   if (firstArg) {
     let valid = true;
     if (typeof placeholderOrConfig !== "string" && placeholderOrConfig?.validate) {
-      let {validate: validate2} = placeholderOrConfig;
-      let validOrMessage = await validate2(firstArg);
+      let {validate} = placeholderOrConfig;
+      let validOrMessage = await validate(firstArg);
       valid = typeof validOrMessage === "boolean" && validOrMessage;
       if (typeof validOrMessage === "string")
-        placeholder = validOrMessage;
+        placeholderOrValidateMessage = validOrMessage;
     }
     if (valid) {
       return firstArg;
     }
   }
   if (typeof placeholderOrConfig === "undefined") {
-    return await global.kitPrompt({placeholder});
+    return await global.kitPrompt({
+      placeholder: placeholderOrValidateMessage
+    });
   }
   if (typeof placeholderOrConfig === "string") {
-    if (!placeholder)
-      placeholder = placeholderOrConfig;
     return await global.kitPrompt({
-      placeholder,
+      placeholder: placeholderOrConfig,
       choices
     });
   }
-  let {validate, hint, input} = placeholderOrConfig;
-  if (!placeholder)
-    placeholder = placeholderOrConfig.placeholder;
-  return await global.kitPrompt({
-    placeholder,
-    validate,
-    choices,
-    hint,
-    input
-  });
+  return await global.kitPrompt(__objSpread({
+    choices
+  }, placeholderOrConfig));
 };
 global.updateArgs = (arrayOfArgs) => {
   let argv = require("minimist")(arrayOfArgs);
