@@ -57,7 +57,7 @@ interface Path {
 }
 
 interface Inspect {
-  (data: any, extension: string): Promise<void>
+  (data: any, extension?: string): Promise<void>
 }
 
 interface CompileTemplate {
@@ -348,4 +348,6 @@ declare global {
   let isFile: IsCheck
   let isDir: IsCheck
   let isBin: IsCheck
+
+  let inspect: Inspect
 }

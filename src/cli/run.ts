@@ -1,5 +1,13 @@
 // Description: Run the selected script
-let { menu, findScript } = await cli("fns")
+let { findScript } = await cli("fns")
+
+let menu: any[]
+let menuCachePath = kenvPath("cache", "menu-cache.json")
+if (await isFile(menuCachePath)) {
+  menu = JSON.parse(await readFile(menuCachePath, "utf-8"))
+} else {
+  menu = await (await cli("menu")).menu
+}
 
 let script = await arg(
   {
