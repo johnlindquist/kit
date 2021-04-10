@@ -488,9 +488,6 @@ var displayChoices = (choices) => {
       break;
   }
 };
-var fromInput = async (choices, input) => {
-  displayChoices(await choices(input));
-};
 global.kitPrompt = async (config) => {
   let {
     placeholder = "",
@@ -502,13 +499,6 @@ global.kitPrompt = async (config) => {
     drop = false
   } = config;
   global.setMode("FILTER");
-  if (typeof choices === "function") {
-    if (choices?.length === 0) {
-      choices = await choices();
-    } else {
-      global.setMode("GENERATE");
-    }
-  }
   let scriptInfo = await global.cli("info", global.kitScript);
   global.send("SHOW_PROMPT", {
     tabs: global.onTabs?.length ? global.onTabs.map(({name}) => name) : [],
@@ -525,15 +515,26 @@ global.kitPrompt = async (config) => {
     global.setHint(hint);
   if (input)
     global.setInput(input);
-  displayChoices(choices);
+  let generateChoices = null;
+  if (typeof choices === "function" && choices?.length > 0) {
+    global.setMode("GENERATE");
+    generateChoices = choices;
+  }
+  if (generateChoices) {
+    displayChoices(await generateChoices(""));
+  } else if (typeof choices === "function" && choices?.length === 0) {
+    displayChoices(await choices());
+  } else {
+    displayChoices(choices);
+  }
   let messageHandler;
   let errorHandler;
   let value = await new Promise((resolve, reject) => {
     messageHandler = async (data) => {
       switch (data?.channel) {
         case "GENERATE_CHOICES":
-          if (typeof choices === "function" && choices?.length > 0) {
-            fromInput(choices, data.input);
+          if (generateChoices) {
+            displayChoices(await generateChoices(data?.input));
           }
           break;
         case "TAB_CHANGED":

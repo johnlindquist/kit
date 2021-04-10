@@ -12,15 +12,6 @@ let displayChoices = (choices: Choice<any>[]) => {
   }
 }
 
-let fromInput = async (
-  choices: (
-    input: string
-  ) => Promise<Choice<any>[]> | Choice<any>[],
-  input: string
-) => {
-  displayChoices(await choices(input))
-}
-
 global.kitPrompt = async (config: PromptConfig) => {
   let {
     placeholder = "",
@@ -33,18 +24,6 @@ global.kitPrompt = async (config: PromptConfig) => {
   } = config
 
   global.setMode("FILTER")
-
-  if (typeof choices === "function") {
-    if (choices?.length === 0) {
-      choices = await (choices as () => any)()
-      // if (typeof choices?.then === "function") {
-      //   choices = await choices
-      // }
-    } else {
-      //When choices is a function with an argument
-      global.setMode("GENERATE")
-    }
-  }
 
   let scriptInfo = await global.cli(
     "info",
@@ -70,24 +49,42 @@ global.kitPrompt = async (config: PromptConfig) => {
   if (hint) global.setHint(hint)
   if (input) global.setInput(input)
 
-  displayChoices(choices as any)
+  let generateChoices: GenerateChoices = null
+
+  //function, with "input"
+  if (
+    typeof choices === "function" &&
+    choices?.length > 0
+  ) {
+    global.setMode("GENERATE")
+    generateChoices = choices as GenerateChoices
+  }
+
+  if (generateChoices) {
+    displayChoices(await generateChoices(""))
+    //function, no argument
+  } else if (
+    typeof choices === "function" &&
+    choices?.length === 0
+  ) {
+    displayChoices(await (choices as () => any)())
+    //array
+  } else {
+    displayChoices(choices as any)
+  }
 
   let messageHandler: (data: any) => void
   let errorHandler: () => void
 
   let value = await new Promise((resolve, reject) => {
     messageHandler = async data => {
-      //If you're typing input, send back choices based on the function
-
       switch (data?.channel) {
         case "GENERATE_CHOICES":
-          if (
-            typeof choices === "function" &&
-            choices?.length > 0
-          ) {
-            fromInput(choices as any, data.input)
+          if (generateChoices) {
+            displayChoices(
+              await generateChoices(data?.input)
+            )
           }
-
           break
 
         case "TAB_CHANGED":

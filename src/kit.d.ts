@@ -13,17 +13,6 @@ import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
 
-type Choices<Value> =
-  | string[]
-  | Choice<Value>[]
-  | (() => Choice<Value>[])
-  | (() => Promise<Choice<Value>[]>)
-  | ((
-      input: string
-    ) =>
-      | Choice<Value>[]
-      | ((input: string) => Promise<Choice<Value>[]>))
-
 type Panel =
   | string
   | (() => string)
@@ -122,6 +111,16 @@ declare global {
     preview?: string
   }
 
+  type Choices<Value> =
+    | string[]
+    | Choice<Value>[]
+    | (() => Choice<Value>[])
+    | (() => Promise<Choice<Value>[]>)
+    | GenerateChoices
+
+  interface GenerateChoices {
+    (input: string): Choice<any>[] | Promise<Choice<any>[]>
+  }
   interface PromptConfig {
     placeholder: string
     validate?: (
