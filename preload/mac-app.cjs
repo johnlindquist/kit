@@ -496,7 +496,8 @@ global.kitPrompt = async (config) => {
     secret = false,
     hint = "",
     input = "",
-    drop = false
+    drop = false,
+    ignoreBlur = false
   } = config;
   global.setMode("FILTER");
   let scriptInfo = await global.cli("info", global.kitScript);
@@ -515,6 +516,8 @@ global.kitPrompt = async (config) => {
     global.setHint(hint);
   if (input)
     global.setInput(input);
+  if (ignoreBlur)
+    global.setIgnoreBlur(true);
   let generateChoices = null;
   if (typeof choices === "function" && choices?.length > 0) {
     global.setMode("GENERATE");
@@ -648,8 +651,10 @@ global.npm = async (packageName) => {
         exit();
       }
     }
+    setHint(`Installing ${packageName}...`);
     await global.cli("install", packageName);
     let packageJson = require(global.kenvPath("node_modules", packageName, "package.json"));
+    setHint("");
     return require(global.kenvPath("node_modules", packageName, packageJson.main));
   }
 };
@@ -670,6 +675,9 @@ global.setInput = async (input) => {
   global.send("SET_INPUT", {
     input
   });
+};
+global.setIgnoreBlur = async (ignore) => {
+  global.send("SET_IGNORE_BLUR", {ignore});
 };
 global.sendResponse = async (value) => {
   global.send("SEND_RESPONSE", {

@@ -131,6 +131,7 @@ declare global {
     secret?: boolean
     choices?: Choices<any> | Panel
     drop?: boolean
+    ignoreBlur?: boolean
   }
 
   namespace NodeJS {
@@ -236,6 +237,7 @@ declare global {
       setPanel: SetAppProp
       setHint: SetAppProp
       setInput: SetAppProp
+      setIgnoreBlur: SetAppProp
 
       show: ShowAppWindow
       showImage: ShowAppWindow
@@ -337,6 +339,7 @@ declare global {
   let setPanel: SetAppProp
   let setHint: SetAppProp
   let setInput: SetAppProp
+  let setIgnoreBluer: SetAppProp
 
   let show: ShowAppWindow
   let showImage: ShowAppWindow

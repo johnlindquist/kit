@@ -21,6 +21,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     hint = "",
     input = "",
     drop = false,
+    ignoreBlur = false,
   } = config
 
   global.setMode("FILTER")
@@ -48,6 +49,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   if (hint) global.setHint(hint)
   if (input) global.setInput(input)
+  if (ignoreBlur) global.setIgnoreBlur(true)
 
   let generateChoices: GenerateChoices = null
 
@@ -242,12 +244,16 @@ global.npm = async packageName => {
       }
     }
 
+    setHint(`Installing ${packageName}...`)
+
     await global.cli("install", packageName)
     let packageJson = require(global.kenvPath(
       "node_modules",
       packageName,
       "package.json"
     ))
+
+    setHint("")
 
     return require(global.kenvPath(
       "node_modules",
@@ -277,6 +283,10 @@ global.setInput = async input => {
   global.send("SET_INPUT", {
     input,
   })
+}
+
+global.setIgnoreBlur = async ignore => {
+  global.send("SET_IGNORE_BLUR", { ignore })
 }
 
 global.sendResponse = async value => {
