@@ -375,8 +375,8 @@ global.md = (markdown) => require("marked")(markdown);
 // src/preload/os/mac.ts
 global.applescript = async (script, options = {silent: true}) => {
   let formattedScript = script.replace(/'/g, `'"'"'`);
-  if (global.env?.DEBUG) {
-    await writeFile(global.kenvPath("tmp", "_debug.applescript"), script);
+  if (true) {
+    await writeFile(global.kenvPath("tmp", "_debug.applescript"), formattedScript);
   }
   let {stdout, stderr} = exec(`osascript -e '${formattedScript}'`, options);
   if (stderr) {
@@ -386,8 +386,10 @@ global.applescript = async (script, options = {silent: true}) => {
   return stdout.trim();
 };
 global.terminal = async (script) => {
+  console.log(script);
+  let formattedScript = script.replace(/'|"/g, '\\"');
   let command = `tell application "Terminal"
-  do script "${script}"
+  do script "${formattedScript}"
   activate
   end tell
   `;
@@ -478,6 +480,13 @@ global.edit = async (file, dir, line = 0, col = 0) => {
 };
 
 // src/preload/target/app.ts
+var MODE;
+(function(MODE2) {
+  MODE2["GENERATE"] = "GENERATE";
+  MODE2["FILTER"] = "FILTER";
+  MODE2["MANUAL"] = "MANUAL";
+  MODE2["HOTKEY"] = "HOTKEY";
+})(MODE || (MODE = {}));
 var displayChoices = (choices) => {
   switch (typeof choices) {
     case "string":
@@ -497,9 +506,10 @@ global.kitPrompt = async (config) => {
     hint = "",
     input = "",
     drop = false,
-    ignoreBlur = false
+    ignoreBlur = false,
+    mode = MODE.FILTER
   } = config;
-  global.setMode("FILTER");
+  global.setMode(mode);
   let scriptInfo = await global.cli("info", global.kitScript);
   global.send("SHOW_PROMPT", {
     tabs: global.onTabs?.length ? global.onTabs.map(({name}) => name) : [],
@@ -520,7 +530,7 @@ global.kitPrompt = async (config) => {
     global.setIgnoreBlur(true);
   let generateChoices = null;
   if (typeof choices === "function" && choices?.length > 0) {
-    global.setMode("GENERATE");
+    global.setMode(MODE.GENERATE);
     generateChoices = choices;
   }
   if (generateChoices) {
@@ -573,6 +583,20 @@ global.kitPrompt = async (config) => {
   process.off("message", messageHandler);
   process.off("error", errorHandler);
   return value;
+};
+global.drop = async (hint = "") => {
+  return await global.kitPrompt({
+    placeholder: "Waiting for drop...",
+    hint,
+    drop: true,
+    ignoreBlur: true
+  });
+};
+global.hotkey = async (placeholder = "Type anything:") => {
+  return await global.kitPrompt({
+    placeholder,
+    mode: MODE.HOTKEY
+  });
 };
 global.arg = async (placeholderOrConfig, choices) => {
   let firstArg = global.args.length ? global.args.shift() : null;

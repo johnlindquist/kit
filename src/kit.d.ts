@@ -13,6 +13,13 @@ import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
 
+export enum MODE {
+  GENERATE = "GENERATE",
+  FILTER = "FILTER",
+  MANUAL = "MANUAL",
+  HOTKEY = "HOTKEY",
+}
+
 type Panel =
   | string
   | (() => string)
@@ -25,6 +32,25 @@ interface Arg<Value> {
     placeholderOrConfig?: string | PromptConfig,
     choicesOrPanel?: Choices<Value> | Panel
   ): Promise<string | Value | File[]>
+}
+interface Drop {
+  (hint?: string): Promise<any>
+}
+
+interface KeyData {
+  key: string
+  command: string
+  shift: string
+  option: string
+  control: string
+  fn: string
+  hyper: string
+  os: string
+  super: string
+  win: string
+}
+interface Hotkey {
+  (placeholder?: string): Promise<KeyData>
 }
 
 interface Env {
@@ -132,6 +158,7 @@ declare global {
     choices?: Choices<any> | Panel
     drop?: boolean
     ignoreBlur?: boolean
+    mode?: MODE
   }
 
   namespace NodeJS {
@@ -200,6 +227,8 @@ declare global {
 
       //preload/kit.cjs
       arg: Arg<any>
+      drop: Drop
+      hotkey: Hotkey
       env: Env
       argOpts: any
 
@@ -263,7 +292,7 @@ declare global {
         ...runArgs: string[]
       ) => Promise<any>
 
-      setMode: (mode: "GENERATE" | "FILTER") => void
+      setMode: (mode: MODE) => void
 
       currentOnTab: any
       kitPrevChoices: Choices<any>
@@ -327,6 +356,8 @@ declare global {
 
   let env: Env
   let arg: Arg<any>
+  let drop: Drop
+  let hotkey: Hotkey
   let onTab: OnTab
   let applescript: AppleScript
   let send: Send

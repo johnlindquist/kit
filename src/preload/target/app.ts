@@ -1,3 +1,4 @@
+import { MODE } from "../../kit"
 import { assignPropsTo } from "../utils"
 
 let displayChoices = (choices: Choice<any>[]) => {
@@ -22,9 +23,10 @@ global.kitPrompt = async (config: PromptConfig) => {
     input = "",
     drop = false,
     ignoreBlur = false,
+    mode = MODE.FILTER,
   } = config
 
-  global.setMode("FILTER")
+  global.setMode(mode)
 
   let scriptInfo = await global.cli(
     "info",
@@ -58,7 +60,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     typeof choices === "function" &&
     choices?.length > 0
   ) {
-    global.setMode("GENERATE")
+    global.setMode(MODE.GENERATE)
     generateChoices = choices as GenerateChoices
   }
 
@@ -105,7 +107,7 @@ global.kitPrompt = async (config: PromptConfig) => {
           }
           break
 
-        case "VALUE_SUBMITTED":
+        case "VALUE_SUBMITTED" || "HOTKEY":
           let { value } = data
           if (validate) {
             let validateMessage = await validate(value)
@@ -134,6 +136,22 @@ global.kitPrompt = async (config: PromptConfig) => {
   process.off("error", errorHandler)
 
   return value
+}
+
+global.drop = async (hint = "") => {
+  return await global.kitPrompt({
+    placeholder: "Waiting for drop...",
+    hint,
+    drop: true,
+    ignoreBlur: true,
+  })
+}
+
+global.hotkey = async (placeholder = "Type anything:") => {
+  return await global.kitPrompt({
+    placeholder,
+    mode: MODE.HOTKEY,
+  })
 }
 
 global.arg = async (placeholderOrConfig, choices) => {

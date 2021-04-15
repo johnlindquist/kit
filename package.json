@@ -26,6 +26,7 @@
     "marked": "^2.0.1",
     "minimist": "^1.2.5",
     "node-ipc": "^9.1.4",
+    "rxjs": "^6.6.7",
     "shelljs": "^0.8.4",
     "strip-ansi": "^6.0.0",
     "trash": "^7.0.0",
