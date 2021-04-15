@@ -24,8 +24,10 @@ global.applescript = async (
 }
 
 global.terminal = async script => {
+  let formattedScript = script.replace(/'|"/g, '\\"')
+
   let command = `tell application "Terminal"
-  do script "${script}"
+  do script "${formattedScript}"
   activate
   end tell
   `
