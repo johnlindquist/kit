@@ -358,6 +358,40 @@ export let setActiveAppBounds = async ({
   )
 }
 
+export let getActiveAppBounds = async () => {
+  let stringBounds = await applescript(String.raw`
+  ${utils}
+
+  tell application "System Events"
+	set processName to name of first application process whose frontmost is true as text
+	tell process processName
+		set [x, y] to position of front window
+		set [width, height] to size of front window
+		
+		tell V to addPair("left", x as string)
+		tell V to addPair("top", y as string)
+		tell V to addPair("right", x + width as string)
+		tell V to addPair("bottom", y + height as string)
+		tell V to finalizeObject()
+		
+	end tell
+	tell V to finalizeJSON()
+end tell
+
+get V's JSON
+  `)
+
+  let jsonBounds = JSON.parse(stringBounds)[0]
+
+  return Object.entries(jsonBounds).reduce(
+    (acc, [key, value]: [string, string]) => {
+      acc[key] = parseInt(value, 10)
+      return acc
+    },
+    {}
+  )
+}
+
 export let notify = async (title, subtitle) => {
   applescript(
     String.raw`display notification with title "${title}" subtitle "${subtitle}"`
