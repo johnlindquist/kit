@@ -50,6 +50,12 @@ let otherOptions: Choice<string>[] = [
     value: "create-all-bins",
   },
   {
+    name: "Change main keyboard shortcut",
+    description:
+      "Pick a new keyboard shortcut for the main menu",
+    value: "change-main-shortcut",
+  },
+  {
     name: "Quit",
     description: `Quit Script Kit`,
     value: "quit",

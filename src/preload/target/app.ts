@@ -1,4 +1,4 @@
-import { MODE } from "../../kit"
+import { MODE } from "../../enums"
 import { assignPropsTo } from "../utils"
 
 let displayChoices = (choices: Choice<any>[]) => {
@@ -49,7 +49,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     drop,
   })
 
-  if (hint) global.setHint(hint)
+  global.setHint(hint)
   if (input) global.setInput(input)
   if (ignoreBlur) global.setIgnoreBlur(true)
 

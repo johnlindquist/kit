@@ -375,8 +375,8 @@ global.md = (markdown) => require("marked")(markdown);
 // src/preload/os/mac.ts
 global.applescript = async (script, options = {silent: true}) => {
   let formattedScript = script.replace(/'/g, `'"'"'`);
-  if (true) {
-    await writeFile(global.kenvPath("tmp", "_debug.applescript"), formattedScript);
+  if (global.env?.DEBUG) {
+    await writeFile(global.kenvPath("tmp", "_debug.applescript"), script);
   }
   let {stdout, stderr} = exec(`osascript -e '${formattedScript}'`, options);
   if (stderr) {
@@ -386,7 +386,6 @@ global.applescript = async (script, options = {silent: true}) => {
   return stdout.trim();
 };
 global.terminal = async (script) => {
-  console.log(script);
   let formattedScript = script.replace(/'|"/g, '\\"');
   let command = `tell application "Terminal"
   do script "${formattedScript}"
@@ -479,7 +478,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   console.log(global.chalk`> Opening {yellow ${file}} with {green.bold ${global.env.KIT_EDITOR}}`);
 };
 
-// src/preload/target/app.ts
+// src/enums.ts
 var MODE;
 (function(MODE2) {
   MODE2["GENERATE"] = "GENERATE";
@@ -487,6 +486,8 @@ var MODE;
   MODE2["MANUAL"] = "MANUAL";
   MODE2["HOTKEY"] = "HOTKEY";
 })(MODE || (MODE = {}));
+
+// src/preload/target/app.ts
 var displayChoices = (choices) => {
   switch (typeof choices) {
     case "string":
@@ -522,8 +523,7 @@ global.kitPrompt = async (config) => {
     secret,
     drop
   });
-  if (hint)
-    global.setHint(hint);
+  global.setHint(hint);
   if (input)
     global.setInput(input);
   if (ignoreBlur)

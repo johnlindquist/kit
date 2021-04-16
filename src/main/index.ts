@@ -10,14 +10,15 @@ onTab("Run", async () => {
 onTab("Edit", async () => {
   await main("edit")
 })
-onTab("Share", async () => {
-  await main("share")
-})
 onTab("New", async () => {
   await main("new")
 })
-onTab("Other", async () => {
-  await main("other")
+onTab("Share", async () => {
+  await main("share")
+})
+
+onTab("Help", async () => {
+  await main("help")
 })
 
 export {}

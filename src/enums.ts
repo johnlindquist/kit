@@ -1,0 +1,6 @@
+export enum MODE {
+  GENERATE = "GENERATE",
+  FILTER = "FILTER",
+  MANUAL = "MANUAL",
+  HOTKEY = "HOTKEY",
+}

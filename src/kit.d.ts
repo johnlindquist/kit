@@ -1,5 +1,7 @@
 export {}
 
+import { MODE } from "./enums"
+
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"
@@ -12,13 +14,6 @@ import { AdapterOptions, lowdb, LowdbSync } from "lowdb"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
-
-export enum MODE {
-  GENERATE = "GENERATE",
-  FILTER = "FILTER",
-  MANUAL = "MANUAL",
-  HOTKEY = "HOTKEY",
-}
 
 type Panel =
   | string
@@ -39,15 +34,16 @@ interface Drop {
 
 interface KeyData {
   key: string
-  command: string
-  shift: string
-  option: string
-  control: string
-  fn: string
-  hyper: string
-  os: string
-  super: string
-  win: string
+  command: boolean
+  shift: boolean
+  option: boolean
+  control: boolean
+  fn: boolean
+  hyper: boolean
+  os: boolean
+  super: boolean
+  win: boolean
+  shortcut: string
 }
 interface Hotkey {
   (placeholder?: string): Promise<KeyData>
@@ -383,4 +379,9 @@ declare global {
   let isBin: IsCheck
 
   let inspect: Inspect
+
+  let db: (
+    key: string,
+    defaults: any
+  ) => LowdbSync<AdapterOptions>
 }

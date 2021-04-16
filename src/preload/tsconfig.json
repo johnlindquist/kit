@@ -3,5 +3,5 @@
     "target": "ESNext",
     "module": "CommonJS"
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../enums.ts"]
 }
