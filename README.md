@@ -1,6 +1,6 @@
 # Script Kit App
 
-[https://scriptkit.come/](https://scriptkit.com/)
+[https://scriptkit.com/](https://scriptkit.com/)
 
 ## Join the Discussion
 
