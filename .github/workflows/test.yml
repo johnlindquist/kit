@@ -93,7 +93,7 @@ jobs:
         run: >
           running-test-template --trust
 
-      - name: Test new-and-rm
+      - name: Test kit script with new-and-rm
         run: |
           cd ~/.kenv
-          KENV=. KIT_TEMPLATE=default kit/script kit/test/new-and-rm.js
+          KENV=. KIT_TEMPLATE=default ~/.kit/script ~/.kit/test/new-and-rm.js
