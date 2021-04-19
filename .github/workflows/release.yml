@@ -12,6 +12,16 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+
+      - name: Get Time
+        id: time
+        uses: nanzm/get-time-action@v1.1
+        with:
+          timeZone: 8
+          format: "YYYY-MM-DD-HH-mm-ss"
+
       - name: Checkout kit
         uses: actions/checkout@master
         with:
@@ -33,8 +43,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: kit-mac-${{ github.ref }}.zip
+          tag_name: ${{ steps.time.outputs.time }}
+          release_name: kit-mac-${{ env.GITHUB_REF_SLUG_URL }}.zip
           draft: true
           prerelease: false
 
