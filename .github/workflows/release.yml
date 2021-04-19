@@ -10,15 +10,21 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout kit
+        uses: actions/checkout@master
+        with:
+          path: ~/.kit
+
       - name: Install latest node
         run: >
           bash ~/.kit/install-node.sh --prefix ~/.kit/node
-      - uses: actions/checkout@master
+
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
           filename: "kit.zip"
-          exclusions: "*.git* /*node_modules/* .editorconfig"
+          exclusions: "*.git* /*node_modules/* .editorconfig /*src/*"
+
       - name: Create Draft Release
         id: create_release
         uses: actions/create-release@v1
