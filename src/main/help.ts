@@ -56,6 +56,12 @@ let otherOptions: Choice<string>[] = [
     value: "change-main-shortcut",
   },
   {
+    name: "Prepare Script for Stream Deck",
+    description:
+      "Launch a script from a Stream Deck button",
+    value: "stream-deck",
+  },
+  {
     name: "Quit",
     description: `Quit Script Kit`,
     value: "quit",
