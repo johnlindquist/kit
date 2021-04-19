@@ -3,7 +3,7 @@ name: Release kit.zip
 on:
   push:
     branches:
-      - master
+      - main
       - beta
 
 jobs:
