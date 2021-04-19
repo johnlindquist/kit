@@ -1,7 +1,7 @@
 export let file = await arg("Get info for:")
 !file.endsWith(".js") && (file = `${file}.js`) //Append .js if you only give script name
 
-let getByMarker = marker => lines =>
+let getByMarker = (marker: string) => (lines: string[]) =>
   lines
     ?.find(line => line.includes(marker))
     ?.split(marker)[1]
@@ -25,4 +25,6 @@ export let shortcut = getByMarker("Shortcut:")(fileLines)
 export let alias = getByMarker("Alias:")(fileLines)
 export let author = getByMarker("Author:")(fileLines)
 export let twitter = getByMarker("Twitter:")(fileLines)
+export let shortcode = getByMarker("Shortcode:")(fileLines)
+export let exclude = getByMarker("Exclude:")(fileLines)
 export let command = file.replace(".js", "")
