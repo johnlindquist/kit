@@ -12,6 +12,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+
       - name: Checkout kit
         uses: actions/checkout@master
         with:
@@ -34,7 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: kit-mac-${{ github.ref }}.zip
+          release_name: kit-mac-${{ env.GITHUB_REF_SLUG_URL }}.zip
           draft: true
           prerelease: false
 
