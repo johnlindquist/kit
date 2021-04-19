@@ -1,5 +1,5 @@
 let { scripts, info } = await cli("fns");
-let infoToMenuItem = script => {
+let infoToMenuItem = (script) => {
     let { command, menu, shortcut, description } = script;
     return {
         ...script,
@@ -10,6 +10,7 @@ let infoToMenuItem = script => {
 };
 let files = await scripts();
 export let menu = (await Promise.all(files.map(info)))
+    .filter((item) => !(item?.exclude && item?.exclude === "true"))
     .map(infoToMenuItem)
     .sort((a, b) => {
     let aName = a.name.toLowerCase();
