@@ -1,4 +1,4 @@
-import { MODE } from "../../enums"
+import { MODE, CHANNELS } from "../../enums"
 import { assignPropsTo } from "../utils"
 
 let displayChoices = (choices: Choice<any>[]) => {
@@ -83,7 +83,7 @@ global.kitPrompt = async (config: PromptConfig) => {
   let value = await new Promise((resolve, reject) => {
     messageHandler = async data => {
       switch (data?.channel) {
-        case "GENERATE_CHOICES":
+        case CHANNELS.GENERATE_CHOICES:
           if (generateChoices) {
             displayChoices(
               await generateChoices(data?.input)
@@ -91,7 +91,7 @@ global.kitPrompt = async (config: PromptConfig) => {
           }
           break
 
-        case "TAB_CHANGED":
+        case CHANNELS.TAB_CHANGED:
           if (data?.tab && global.onTabs) {
             process.off("message", messageHandler)
             process.off("error", errorHandler)
@@ -107,7 +107,7 @@ global.kitPrompt = async (config: PromptConfig) => {
           }
           break
 
-        case "VALUE_SUBMITTED" || "HOTKEY":
+        case CHANNELS.VALUE_SUBMITTED:
           let { value } = data
           if (validate) {
             let validateMessage = await validate(value)
