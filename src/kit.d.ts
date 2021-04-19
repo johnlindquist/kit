@@ -384,4 +384,6 @@ declare global {
     key: string,
     defaults: any
   ) => LowdbSync<AdapterOptions>
+
+  let md: Markdown
 }
