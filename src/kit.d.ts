@@ -124,6 +124,22 @@ interface IsCheck {
 }
 
 declare global {
+  interface Script {
+    command: string
+    menu?: string
+    shortcut?: string
+    description?: string
+    shortcode?: string
+    alias?: string
+    author?: string
+    twitter?: string
+    exclude?: string
+  }
+
+  interface MenuItem extends Script {
+    name: string
+    value: string
+  }
   interface Choice<Value> {
     name: string
     value: Value

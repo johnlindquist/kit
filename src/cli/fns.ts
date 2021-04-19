@@ -11,9 +11,9 @@ export let findScript = async input =>
 export let scripts = async () =>
   (await cli("scripts")).scripts
 
-export let menu = async () => {
+export let menu = async (fromCache = true) => {
   let menuCachePath = kenvPath("cache", "menu-cache.json")
-  if (await isFile(menuCachePath)) {
+  if (fromCache && (await isFile(menuCachePath))) {
     return JSON.parse(
       await readFile(menuCachePath, "utf-8")
     )
