@@ -1,10 +1,12 @@
-name: Release kit.zip
+name: Release kit-mac.zip
 
 on:
   push:
     branches:
       - main
       - beta
+    tags:
+      - "*"
 
 jobs:
   release:
@@ -22,7 +24,7 @@ jobs:
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
-          filename: "kit.zip"
+          filename: "kit-mac.zip"
           exclusions: "*.git* /*node_modules/* .editorconfig /*src/*"
 
       - name: Create Draft Release
@@ -31,8 +33,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: <tofill>
-          release_name: <tofill>
+          tag_name: ${{ github.ref }}
+          release_name: kit-mac-${{ github.ref }}.zip
           draft: true
           prerelease: false
 
@@ -41,8 +43,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./kit.zip
-          asset_name: kit.zip
+          asset_path: ./kit-mac.zip
+          asset_name: kit-mac.zip
           asset_content_type: application/zip
 
       - uses: eregon/publish-release@v1
