@@ -13,11 +13,11 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
         with:
-          path: ~/.kit
+          path: kit
 
       - name: Install latest node
         run: >
-          bash ~/.kit/install-node.sh --prefix ~/.kit/node
+          bash kit/install-node.sh --prefix kit/node --platform darwin
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master
