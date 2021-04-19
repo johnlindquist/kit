@@ -364,9 +364,6 @@ global.setChoices = async (choices) => {
       return choice;
     });
   }
-  if (typeof choices === "object" && Array.isArray(choices) && choices?.length && choices?.every((c, i) => c.name == global.kitPrevChoices?.[i]?.name && c.value == global.kitPrevChoices?.[i]?.value)) {
-    return;
-  }
   global.send("SET_CHOICES", {choices});
   global.kitPrevChoices = choices;
 };

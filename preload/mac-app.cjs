@@ -364,9 +364,6 @@ global.setChoices = async (choices) => {
       return choice;
     });
   }
-  if (typeof choices === "object" && Array.isArray(choices) && choices?.length && choices?.every((c, i) => c.name == global.kitPrevChoices?.[i]?.name && c.value == global.kitPrevChoices?.[i]?.value)) {
-    return;
-  }
   global.send("SET_CHOICES", {choices});
   global.kitPrevChoices = choices;
 };
@@ -486,6 +483,12 @@ var MODE;
   MODE2["MANUAL"] = "MANUAL";
   MODE2["HOTKEY"] = "HOTKEY";
 })(MODE || (MODE = {}));
+var CHANNELS;
+(function(CHANNELS2) {
+  CHANNELS2["GENERATE_CHOICES"] = "GENERATE_CHOICES";
+  CHANNELS2["TAB_CHANGED"] = "TAB_CHANGED";
+  CHANNELS2["VALUE_SUBMITTED"] = "VALUE_SUBMITTED";
+})(CHANNELS || (CHANNELS = {}));
 
 // src/preload/target/app.ts
 var displayChoices = (choices) => {
@@ -545,12 +548,12 @@ global.kitPrompt = async (config) => {
   let value = await new Promise((resolve, reject) => {
     messageHandler = async (data) => {
       switch (data?.channel) {
-        case "GENERATE_CHOICES":
+        case CHANNELS.GENERATE_CHOICES:
           if (generateChoices) {
             displayChoices(await generateChoices(data?.input));
           }
           break;
-        case "TAB_CHANGED":
+        case CHANNELS.TAB_CHANGED:
           if (data?.tab && global.onTabs) {
             process.off("message", messageHandler);
             process.off("error", errorHandler);
@@ -560,7 +563,7 @@ global.kitPrompt = async (config) => {
             global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
           }
           break;
-        case "VALUE_SUBMITTED":
+        case CHANNELS.VALUE_SUBMITTED:
           let {value: value2} = data;
           if (validate) {
             let validateMessage = await validate(value2);
