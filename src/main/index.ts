@@ -21,4 +21,12 @@ onTab("Help", async () => {
   await main("help")
 })
 
+let join = db("kit").get("join").value()
+
+if (join !== "false") {
+  onTab("Join", async () => {
+    await cli("join")
+  })
+}
+
 export {}
