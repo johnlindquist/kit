@@ -26,6 +26,7 @@
     "marked": "^2.0.1",
     "minimist": "^1.2.5",
     "node-ipc": "^9.1.4",
+    "node-notifier": "^9.0.1",
     "rxjs": "^6.6.7",
     "shelljs": "^0.8.4",
     "strip-ansi": "^6.0.0",
@@ -34,6 +35,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@types/node-notifier": "^8.0.0",
     "@types/shelljs": "^0.8.8",
     "concurrently": "^6.0.1",
     "esbuild": "^0.11.6",

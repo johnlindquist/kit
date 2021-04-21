@@ -74,6 +74,7 @@ global.uuid = (...args) => require("uuid").v4(...args);
 global.chalk = (...text) => require("chalk")(...text);
 global.paste = (...args) => require("clipboardy").read(...args);
 global.copy = (...args) => require("clipboardy").write(...args);
+global.notify = (...args) => require("node-notifier").notify(...args);
 global.trash = async (input, options) => {
   ;
   (typeof input === "string" ? [input] : input).flatMap((x) => x).forEach((trashArg) => {
