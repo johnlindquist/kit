@@ -123,6 +123,10 @@ interface IsCheck {
   (file: string): Promise<boolean>
 }
 
+interface DB {
+  (key: string, defaults?: any): LowdbSync<AdapterOptions>
+}
+
 declare global {
   interface Script {
     command: string
@@ -144,6 +148,7 @@ declare global {
     name: string
     value: Value
     description?: string
+    focused?: string
     img?: string
     html?: string
     preview?: string
@@ -220,10 +225,7 @@ declare global {
       chalk: ChalkFunction
       paste: typeof clipboardy.read
       copy: typeof clipboardy.write
-      db: (
-        key: string,
-        defaults: any
-      ) => LowdbSync<AdapterOptions>
+      db: DB
 
       trash: typeof trashType
       rm: typeof trashType
@@ -396,10 +398,7 @@ declare global {
 
   let inspect: Inspect
 
-  let db: (
-    key: string,
-    defaults: any
-  ) => LowdbSync<AdapterOptions>
+  let db: DB
 
   let md: Markdown
 }
