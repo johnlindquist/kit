@@ -124,7 +124,12 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     let codeArgs = ["--goto", `${file}:${line}:${col}`]
     if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
     let command = `code ${codeArgs.join(" ")}`
-    exec(command)
+    exec(command, {
+      env: {
+        ...process.env,
+        PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`,
+      },
+    })
   }
 
   let vim = terminalEditor("vim")
@@ -133,7 +138,12 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   let fullySupportedEditors = { code, vim, nvim, nano }
 
   let execEditor = (file: string) =>
-    exec(`${KIT_EDITOR} ${file}`, { env: {} })
+    exec(`${KIT_EDITOR} ${file}`, {
+      env: {
+        ...process.env,
+        PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`,
+      },
+    })
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor
   global.setPlaceholder(
