@@ -28,8 +28,8 @@ if (email_address === "no") {
   await wait(2000)
 
   await cli("settings", "join", "false")
-
-  await main("index")
 }
+
+await main("index")
 
 export {}
