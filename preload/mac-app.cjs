@@ -458,13 +458,21 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     if (dir2)
       codeArgs = [...codeArgs, "--folder-uri", dir2];
     let command = `code ${codeArgs.join(" ")}`;
-    exec(command);
+    exec(command, {
+      env: __objSpread(__objSpread({}, process.env), {
+        PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`
+      })
+    });
   };
   let vim = terminalEditor("vim");
   let nvim = terminalEditor("nvim");
   let nano = terminalEditor("nano");
   let fullySupportedEditors = {code, vim, nvim, nano};
-  let execEditor = (file2) => exec(`${KIT_EDITOR} ${file2}`, {env: {}});
+  let execEditor = (file2) => exec(`${KIT_EDITOR} ${file2}`, {
+    env: __objSpread(__objSpread({}, process.env), {
+      PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`
+    })
+  });
   let editorFn = fullySupportedEditors[KIT_EDITOR] || execEditor;
   global.setPlaceholder(`Opening ${file} with ${global.env.KIT_EDITOR}`);
   let result = await editorFn(file, dir, line, col);
