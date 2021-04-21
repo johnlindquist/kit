@@ -52,14 +52,15 @@ let config = {
   },
 }
 
-const response = await post(
+let response = await post(
   `https://api.github.com/gists`,
   body,
   config
 )
 
-let link = `https://scriptkit.app/api/new?name=${script}&url=${response.data.files[scriptJS].raw_url}`
-exec(`open ` + response.data.html_url)
+let gistUrl = response.data.files[scriptJS].raw_url
+
+let link = `https://scriptkit.app/api/new?name=${script}&url=${gistUrl}`
 
 let discussionPost = `
 [Install ${script}](${link})
@@ -71,7 +72,24 @@ ${content}
 
 copy(discussionPost)
 
-setPlaceholder(`Copied discussion content to clipboard`)
-await wait(1000)
+await arg(
+  {
+    placeholder: "Post ready",
+    hint: `JS fenced content copied to clipboard`,
+    ignoreBlur: true,
+  },
+  md(`
+* "Escape" to close prompt
+
+## Open Kit Discussions
+[Click to open new Kit discussion](https://github.com/johnlindquist/kit/discussions/new)
+
+## View gist
+[${gistUrl}](${gistUrl})
+
+## Install Link
+[${link}](${link})
+`)
+)
 
 export {}
