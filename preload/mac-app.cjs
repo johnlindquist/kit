@@ -102,7 +102,7 @@ global.isBin = async (bin) => Boolean(exec(`command -v ${bin}`, {
   silent: false
 }).stdout);
 global.args = [];
-global.env = async (envKey, promptConfig = {placeholder: ""}) => {
+global.env = async (envKey, promptConfig = {placeholder: `Set ${envKey} to:`}) => {
   if (global.env[envKey])
     return global.env[envKey];
   let input = await global.kitPrompt(__objSpread({

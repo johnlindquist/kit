@@ -124,7 +124,7 @@ global.args = []
 
 global.env = async (
   envKey,
-  promptConfig = { placeholder: "" }
+  promptConfig = { placeholder: `Set ${envKey} to:` }
 ) => {
   if (global.env[envKey]) return global.env[envKey]
 
