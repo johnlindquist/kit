@@ -6,6 +6,7 @@ let name = await arg({
   placeholder:
     arg?.placeholder || "Enter a name for your script:",
   validate: exists,
+  hint: `e.g., my-new-script`,
 })
 
 let scriptPath = path.join(

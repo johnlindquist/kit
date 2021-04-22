@@ -16,12 +16,16 @@ script = script.endsWith(".js") ? script : `${script}.js`
 let editActions: Choice<string>[] = [
   {
     name: "Open",
-    description: `Open ${script} in ${env.KIT_EDITOR}`,
+    description: `Open ${script}${
+      env.KIT_EDITOR ? ` in ${env.KIT_EDITOR}` : ``
+    }`,
     value: "edit",
   },
   {
     name: "Duplicate",
-    description: `Make a copy of ${script} and open in ${env.KIT_EDITOR}`,
+    description: `Make a copy of ${script} and open${
+      env.KIT_EDITOR ? ` in ${env.KIT_EDITOR}` : ``
+    }`,
     value: "duplicate",
   },
   {

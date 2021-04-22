@@ -4,11 +4,11 @@ let email_address = await arg(
     hint: `Enter "no" to remove "join" tab from main menu`,
   },
   md(`
-    ## Emails include:
-    * Tips for writing scripts
-    * Community script highlights
-    * Automation ideas
-    * Upcoming features
+## Emails include:
+* Tips for writing scripts
+* Community script highlights
+* Automation ideas
+* Upcoming features
         `)
 )
 
