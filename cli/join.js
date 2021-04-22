@@ -18,6 +18,6 @@ else {
     setPlaceholder(`Thanks! Make sure to confirm in your mail app 😇`);
     await wait(2000);
     await cli("settings", "join", "false");
-    await main("index");
 }
+await main("index");
 export {};

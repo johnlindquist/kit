@@ -1,8 +1,7 @@
 // Menu: Main
 // Description: Script Kit
-// Shortcut: cmd ;
 
-//Note: Feel free to edit this file!
+global.onTabs = []
 
 onTab("Run", async () => {
   await cli("run")

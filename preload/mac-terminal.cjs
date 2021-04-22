@@ -74,6 +74,7 @@ global.uuid = (...args) => require("uuid").v4(...args);
 global.chalk = (...text) => require("chalk")(...text);
 global.paste = (...args) => require("clipboardy").read(...args);
 global.copy = (...args) => require("clipboardy").write(...args);
+global.notify = (...args) => require("node-notifier").notify(...args);
 global.trash = async (input, options) => {
   ;
   (typeof input === "string" ? [input] : input).flatMap((x) => x).forEach((trashArg) => {
@@ -101,7 +102,7 @@ global.isBin = async (bin) => Boolean(exec(`command -v ${bin}`, {
   silent: false
 }).stdout);
 global.args = [];
-global.env = async (envKey, promptConfig = {placeholder: ""}) => {
+global.env = async (envKey, promptConfig = {placeholder: `Set ${envKey} to:`}) => {
   if (global.env[envKey])
     return global.env[envKey];
   let input = await global.kitPrompt(__objSpread({

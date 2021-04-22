@@ -14,6 +14,7 @@ import { AdapterOptions, lowdb, LowdbSync } from "lowdb"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
+import { notify as notifyType } from "node-notifier"
 
 type Panel =
   | string
@@ -313,6 +314,8 @@ declare global {
 
       setChoices: (choices: Choices<any>) => void
       sendResponse: (value: any) => void
+
+      notify: typeof notifyType
     }
   }
   //preload/api.cjs
@@ -401,4 +404,5 @@ declare global {
   let db: DB
 
   let md: Markdown
+  let notify: typeof notifyType
 }
