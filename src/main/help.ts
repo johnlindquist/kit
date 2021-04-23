@@ -27,6 +27,11 @@ let otherOptions: Choice<string>[] = [
     value: "manage-npm",
   },
   {
+    name: "Clipboard history",
+    description: "Paste from clipboard history",
+    value: "clipboard",
+  },
+  {
     name: host && port ? "Stop Server" : "Start Server",
     description:
       host && port

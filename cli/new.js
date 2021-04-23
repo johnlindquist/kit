@@ -1,10 +1,14 @@
 // Menu: New Script
 // Description: Creates a new empty script you can invoke from the terminal
 let { exists } = await cli("fns");
+let generate = await npm("project-name-generator");
+let examples = Array.from({ length: 3 })
+    .map((_, i) => generate({ words: 2 }).dashed)
+    .join(", ");
 let name = await arg({
     placeholder: arg?.placeholder || "Enter a name for your script:",
     validate: exists,
-    hint: `e.g., my-new-script`,
+    hint: `examples: ${examples}`,
 });
 let scriptPath = path.join(kenvPath("scripts"), name + ".js");
 let contents = [arg?.npm]
