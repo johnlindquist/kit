@@ -1,7 +1,7 @@
 export let file = await arg("Get info for:");
 !file.endsWith(".js") && (file = `${file}.js`); //Append .js if you only give script name
 let getByMarker = (marker) => (lines) => lines
-    ?.find(line => line.includes(marker))
+    ?.find(line => line.match(new RegExp(`^\/\/\\s*${marker}\\s*`, "gim")))
     ?.split(marker)[1]
     ?.trim();
 export let filePath = file.startsWith("/scripts")

@@ -3,7 +3,11 @@ export let file = await arg("Get info for:")
 
 let getByMarker = (marker: string) => (lines: string[]) =>
   lines
-    ?.find(line => line.includes(marker))
+    ?.find(line =>
+      line.match(
+        new RegExp(`^\/\/\\s*${marker}\\s*`, "gim")
+      )
+    )
     ?.split(marker)[1]
     ?.trim()
 
