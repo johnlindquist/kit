@@ -8,7 +8,7 @@ export let scripts = async () => (await cli("scripts")).scripts;
 export let menu = async (fromCache = true) => {
     let menuCachePath = kenvPath("cache", "menu-cache.json");
     if (fromCache && (await isFile(menuCachePath))) {
-        return JSON.parse(await readFile(menuCachePath, "utf-8"));
+        return getScripts();
     }
     return await (await cli("menu")).menu;
 };

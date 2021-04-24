@@ -7,7 +7,7 @@ let getByMarker = (marker: string) => (lines: string[]) =>
     ?.split(marker)[1]
     ?.trim()
 
-let filePath = file.startsWith("/scripts")
+export let filePath = file.startsWith("/scripts")
   ? kenvPath(file)
   : file.startsWith(path.sep)
   ? file
@@ -20,6 +20,7 @@ let fileLines = fileContents.split("\n")
 export let description = getByMarker("Description:")(
   fileLines
 )
+
 export let menu = getByMarker("Menu:")(fileLines)
 export let shortcut = getByMarker("Shortcut:")(fileLines)
 export let alias = getByMarker("Alias:")(fileLines)
@@ -27,4 +28,6 @@ export let author = getByMarker("Author:")(fileLines)
 export let twitter = getByMarker("Twitter:")(fileLines)
 export let shortcode = getByMarker("Shortcode:")(fileLines)
 export let exclude = getByMarker("Exclude:")(fileLines)
+export let cron = getByMarker("Cron:")(fileLines)
+export let system = getByMarker("System:")(fileLines)
 export let command = file.replace(".js", "")

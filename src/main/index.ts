@@ -1,5 +1,6 @@
 // Menu: Main
 // Description: Script Kit
+let { menu } = await cli("fns")
 
 global.onTabs = []
 
@@ -16,6 +17,11 @@ onTab("Share", async () => {
   await main("share")
 })
 
+if ((await menu()).some(script => script?.cron)) {
+  onTab("Cron", async () => {
+    await cli("cron")
+  })
+}
 onTab("Help", async () => {
   await main("help")
 })

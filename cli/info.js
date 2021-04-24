@@ -4,7 +4,7 @@ let getByMarker = (marker) => (lines) => lines
     ?.find(line => line.includes(marker))
     ?.split(marker)[1]
     ?.trim();
-let filePath = file.startsWith("/scripts")
+export let filePath = file.startsWith("/scripts")
     ? kenvPath(file)
     : file.startsWith(path.sep)
         ? file
@@ -19,4 +19,6 @@ export let author = getByMarker("Author:")(fileLines);
 export let twitter = getByMarker("Twitter:")(fileLines);
 export let shortcode = getByMarker("Shortcode:")(fileLines);
 export let exclude = getByMarker("Exclude:")(fileLines);
+export let cron = getByMarker("Cron:")(fileLines);
+export let system = getByMarker("System:")(fileLines);
 export let command = file.replace(".js", "");

@@ -604,7 +604,7 @@ global.drop = async (hint = "") => {
     ignoreBlur: true
   });
 };
-global.hotkey = async (placeholder = "Type anything:") => {
+global.hotkey = async (placeholder = "Press a key combo:") => {
   return await global.kitPrompt({
     placeholder,
     mode: MODE.HOTKEY
@@ -662,9 +662,9 @@ global.npm = async (packageName) => {
   } catch {
     if (!global.arg?.trust) {
       let placeholder = `${packageName} is required for this script`;
-      let downloadsMessage = `${packageName} has had ${(await get(`https://api.npmjs.org/downloads/point/last-week/` + packageName)).data.downloads} downloads from npm in the past week`;
       let packageLink = `https://npmjs.com/package/${packageName}`;
-      let trust = await global.arg({placeholder, hint: downloadsMessage}, [
+      let hint = `[${packageName}](${packageLink}) has had ${(await get(`https://api.npmjs.org/downloads/point/last-week/` + packageName)).data.downloads} downloads from npm in the past week`;
+      let trust = await global.arg({placeholder, hint: md(hint)}, [
         {
           name: `Abort`,
           value: "false"
@@ -672,16 +672,8 @@ global.npm = async (packageName) => {
         {
           name: `Install ${packageName}`,
           value: "true"
-        },
-        {
-          name: `Visit ${packageLink}}`,
-          value: "visit"
         }
       ]);
-      if (trust === "visit") {
-        exec(`open ${packageLink}`);
-        exit();
-      }
       if (trust === "false") {
         echo(`Ok. Exiting...`);
         exit();
@@ -720,4 +712,5 @@ global.sendResponse = async (value) => {
     value
   });
 };
+global.getScripts = () => require(kenvPath("cache", "menu-cache.json"));
 //# sourceMappingURL=mac-app.cjs.map

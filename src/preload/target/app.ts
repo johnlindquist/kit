@@ -147,7 +147,9 @@ global.drop = async (hint = "") => {
   })
 }
 
-global.hotkey = async (placeholder = "Type anything:") => {
+global.hotkey = async (
+  placeholder = "Press a key combo:"
+) => {
   return await global.kitPrompt({
     placeholder,
     mode: MODE.HOTKEY,
@@ -223,7 +225,9 @@ global.npm = async packageName => {
     if (!global.arg?.trust) {
       let placeholder = `${packageName} is required for this script`
 
-      let downloadsMessage = `${packageName} has had ${
+      let packageLink = `https://npmjs.com/package/${packageName}`
+
+      let hint = `[${packageName}](${packageLink}) has had ${
         (
           await get(
             `https://api.npmjs.org/downloads/point/last-week/` +
@@ -232,10 +236,8 @@ global.npm = async packageName => {
         ).data.downloads
       } downloads from npm in the past week`
 
-      let packageLink = `https://npmjs.com/package/${packageName}`
-
       let trust = await global.arg(
-        { placeholder, hint: downloadsMessage },
+        { placeholder, hint: md(hint) },
         [
           {
             name: `Abort`,
@@ -245,16 +247,8 @@ global.npm = async packageName => {
             name: `Install ${packageName}`,
             value: "true",
           },
-          {
-            name: `Visit ${packageLink}}`,
-            value: "visit",
-          },
         ]
       )
-      if (trust === "visit") {
-        exec(`open ${packageLink}`)
-        exit()
-      }
 
       if (trust === "false") {
         echo(`Ok. Exiting...`)
@@ -312,3 +306,6 @@ global.sendResponse = async value => {
     value,
   })
 }
+
+global.getScripts = () =>
+  require(kenvPath("cache", "menu-cache.json"))

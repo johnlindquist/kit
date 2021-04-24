@@ -32,6 +32,16 @@ let otherOptions: Choice<string>[] = [
     value: "clipboard",
   },
   {
+    name: "Cron schedule",
+    description: "View and edit upcoming cron tasks",
+    value: "cron",
+  },
+  {
+    name: "System Scripts",
+    description: "View and edit system event scripts",
+    value: "system-events",
+  },
+  {
     name: host && port ? "Stop Server" : "Start Server",
     description:
       host && port
@@ -53,6 +63,12 @@ let otherOptions: Choice<string>[] = [
     name: "Generate bin files",
     description: "Recreate all the terminal executables",
     value: "create-all-bins",
+  },
+  {
+    name: "Change script shortcut",
+    description:
+      "Pick a new keyboard shortcut for a script",
+    value: "change-shortcut",
   },
   {
     name: "Change main keyboard shortcut",
