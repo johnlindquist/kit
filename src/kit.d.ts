@@ -128,8 +128,14 @@ interface DB {
   (key: string, defaults?: any): LowdbSync<AdapterOptions>
 }
 
+interface GetScripts {
+  (): Script[]
+}
+
 declare global {
   interface Script {
+    file: string
+    filePath: string
     command: string
     menu?: string
     shortcut?: string
@@ -139,6 +145,8 @@ declare global {
     author?: string
     twitter?: string
     exclude?: string
+    cron?: string
+    system: string
   }
 
   interface MenuItem extends Script {
@@ -316,6 +324,10 @@ declare global {
       sendResponse: (value: any) => void
 
       notify: typeof notifyType
+
+      getScripts: GetScripts
+
+      memoryMap: Map<string, any>
     }
   }
   //preload/api.cjs
@@ -405,4 +417,8 @@ declare global {
 
   let md: Markdown
   let notify: typeof notifyType
+
+  let getScripts: GetScripts
+
+  let memoryMap: Map<string, any>
 }

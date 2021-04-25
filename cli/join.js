@@ -1,6 +1,6 @@
 let email_address = await arg({
     placeholder: "Enter e-mail to join newsletter:",
-    hint: `Enter "no" to remove "join" tab from main menu`,
+    hint: `Enter "no" to remove join tab from main menu`,
 }, md(`
 ## Emails include:
 * Tips for writing scripts

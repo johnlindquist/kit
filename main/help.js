@@ -30,6 +30,16 @@ let otherOptions = [
         value: "clipboard",
     },
     {
+        name: "View schedule",
+        description: "View and edit upcoming jobs",
+        value: "schedule",
+    },
+    {
+        name: "System Scripts",
+        description: "View and edit system event scripts",
+        value: "system-events",
+    },
+    {
         name: host && port ? "Stop Server" : "Start Server",
         description: host && port
             ? `Server running on http://${host}:${port}`
@@ -50,6 +60,11 @@ let otherOptions = [
         name: "Generate bin files",
         description: "Recreate all the terminal executables",
         value: "create-all-bins",
+    },
+    {
+        name: "Change script shortcut",
+        description: "Pick a new keyboard shortcut for a script",
+        value: "change-shortcut",
     },
     {
         name: "Change main keyboard shortcut",
