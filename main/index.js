@@ -14,9 +14,9 @@ onTab("New", async () => {
 onTab("Share", async () => {
     await main("share");
 });
-if ((await menu()).some(script => script?.cron)) {
+if ((await menu()).some(script => script?.schedule)) {
     onTab("Cron", async () => {
-        await cli("cron");
+        await cli("schedule");
     });
 }
 onTab("Help", async () => {

@@ -32,9 +32,9 @@ let otherOptions: Choice<string>[] = [
     value: "clipboard",
   },
   {
-    name: "Cron schedule",
-    description: "View and edit upcoming cron tasks",
-    value: "cron",
+    name: "View schedule",
+    description: "View and edit upcoming jobs",
+    value: "schedule",
   },
   {
     name: "System Scripts",

@@ -326,6 +326,8 @@ declare global {
       notify: typeof notifyType
 
       getScripts: GetScripts
+
+      memoryMap: Map<string, any>
     }
   }
   //preload/api.cjs
@@ -417,4 +419,6 @@ declare global {
   let notify: typeof notifyType
 
   let getScripts: GetScripts
+
+  let memoryMap: Map<string, any>
 }

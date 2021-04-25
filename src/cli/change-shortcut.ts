@@ -29,11 +29,11 @@ let { filePath } = script
 let { shortcut } = await hotkey()
 
 let fileContents = await readFile(filePath, "utf-8")
-if (fileContents.includes("Shortcut: ")) {
-  let newContents = fileContents.replace(
-    /(?<=^.*Shortcut:\s).*(?=$)/gm,
-    shortcut
-  )
+let reg = /(?<=^\/\/\s*Shortcut:\s).*(?=$)/gim
+if (
+  fileContents.split("\n").some(line => line.match(reg))
+) {
+  let newContents = fileContents.replace(reg, shortcut)
 
   await writeFile(filePath, newContents)
 } else {
