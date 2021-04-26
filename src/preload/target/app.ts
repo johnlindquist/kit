@@ -306,8 +306,3 @@ global.sendResponse = async value => {
     value,
   })
 }
-
-global.getScripts = () =>
-  require(kenvPath("cache", "menu-cache.json"))
-
-global.memoryMap = new Map()

@@ -88,6 +88,12 @@ let otherOptions: Choice<string>[] = [
     value: "stream-deck",
   },
   {
+    name: "Created by John Lindquist",
+    description: `Visit johnlindquist.com`,
+    value: "credits",
+    img: kitPath("images", "john.png"),
+  },
+  {
     name: "Quit",
     description: `Quit Script Kit`,
     value: "quit",

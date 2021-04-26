@@ -194,3 +194,8 @@ global.db = (key: any, defaults: any) => {
 
   return _db
 }
+
+global.getScripts = () =>
+  require(kenvPath("cache", "menu-cache.json"))
+
+global.memoryMap = new Map()
