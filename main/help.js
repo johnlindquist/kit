@@ -15,6 +15,11 @@ let otherOptions = [
         value: "get-help",
     },
     {
+        name: "Visit docs",
+        description: `Work in progress...`,
+        value: "goto-docs",
+    },
+    {
         name: "Check for Update",
         description: `Version: ${env.KIT_APP_VERSION}`,
         value: "update",

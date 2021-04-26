@@ -23,6 +23,10 @@ if ((await menu()).some(script => script?.schedule)) {
   })
 }
 
+onTab("Hot 🔥", async () => {
+  await main("hot")
+})
+
 onTab("Help", async () => {
   await main("help")
 })
