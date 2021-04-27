@@ -83,7 +83,7 @@ let otherOptions = [
     },
     {
         name: "Created by John Lindquist",
-        description: `Visit johnlindquist.com`,
+        description: `Follow @johnlindquist on twitter`,
         value: "credits",
         img: kitPath("images", "john.png"),
     },
