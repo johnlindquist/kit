@@ -1,1 +1,1 @@
-exec(`open https://johnlidquist.com`);
+exec(`open https://twitter.com/johnlindquist`);
