@@ -122,7 +122,6 @@ global.edit = async (file, dir, line = 0, col = 0) => {
 
   let atom = async (file: string, dir: string) => {
     let command = `atom "${file}"${dir ? ` "${dir}"` : ``}`
-    console.log({ command })
     let result = exec(command, {
       env: {
         HOME: home(),
