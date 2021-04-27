@@ -287,16 +287,20 @@ global.compileTemplate = async (template, vars) => {
 
 global.currentOnTab = null
 global.onTabs = []
+global.onTabIndex = 0
 global.onTab = async (name, fn) => {
   global.onTabs.push({ name, fn })
   if (global.arg.tab) {
     if (global.arg.tab === name) {
+      let tabIndex = global.onTabs.length - 1
+      global.onTabIndex = tabIndex
       global.send("SET_TAB_INDEX", {
-        tabIndex: global.onTabs.length - 1,
+        tabIndex,
       })
       global.currentOnTab = await fn()
     }
   } else if (global.onTabs.length === 1) {
+    global.onTabIndex = 0
     global.send("SET_TAB_INDEX", { tabIndex: 0 })
     global.currentOnTab = await fn()
   }

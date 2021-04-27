@@ -13,6 +13,120 @@ let displayChoices = (choices: Choice<any>[]) => {
   }
 }
 
+let checkTabChanged = (
+  data,
+  messageHandler,
+  errorHandler?
+) => {
+  if (data?.tab && global.onTabs) {
+    process.off("message", messageHandler)
+    if (errorHandler) process.off("error", errorHandler)
+    updateTab(data)
+  }
+}
+
+let updateTab = data => {
+  let tabIndex = global.onTabs.findIndex(({ name }) => {
+    return name == data?.tab
+  })
+
+  global.onTabIndex = tabIndex
+  global.currentOnTab = global.onTabs[tabIndex].fn(
+    data?.input
+  )
+}
+
+// TODO: Refactor into RxJS :D
+let promptId = 0
+let waitForPrompt = async ({ choices, validate }) => {
+  promptId++
+  let messageHandler: (data: any) => void
+  let errorHandler: () => void
+
+  let value = await new Promise(async (resolve, reject) => {
+    let currentPromptId = promptId
+    let generateChoices: GenerateChoices = null
+
+    //function, with "input"
+    if (
+      typeof choices === "function" &&
+      choices?.length > 0
+    ) {
+      global.setMode(MODE.GENERATE)
+      generateChoices = choices as GenerateChoices
+    }
+
+    if (generateChoices) {
+      ;(generateChoices("") as Promise<Choice<any>[]>).then(
+        result => {
+          if (currentPromptId === promptId)
+            displayChoices(result)
+        }
+      )
+      //function, no argument
+    } else if (
+      typeof choices === "function" &&
+      choices?.length === 0
+    ) {
+      choices().then(result => {
+        if (currentPromptId === promptId) {
+          displayChoices(result)
+        }
+      })
+      //array
+    } else {
+      displayChoices(choices as any)
+    }
+
+    messageHandler = async data => {
+      switch (data?.channel) {
+        case CHANNELS.GENERATE_CHOICES:
+          if (generateChoices) {
+            displayChoices(
+              await generateChoices(data?.input)
+            )
+          }
+          break
+
+        case CHANNELS.TAB_CHANGED:
+          checkTabChanged(
+            data,
+            messageHandler,
+            errorHandler
+          )
+          break
+
+        case CHANNELS.VALUE_SUBMITTED:
+          let { value } = data
+          if (validate) {
+            let validateMessage = await validate(value)
+
+            if (typeof validateMessage === "string") {
+              global.setPlaceholder(validateMessage)
+              global.setChoices(global.kitPrevChoices)
+
+              return
+            }
+          }
+          resolve(value)
+          break
+      }
+    }
+
+    errorHandler = () => {
+      reject()
+    }
+
+    process.on("message", messageHandler)
+    process.on("error", errorHandler)
+  })
+
+  process.off("message", messageHandler)
+  process.off("error", errorHandler)
+
+  return value
+}
+
 global.kitPrompt = async (config: PromptConfig) => {
   let {
     placeholder = "",
@@ -53,89 +167,7 @@ global.kitPrompt = async (config: PromptConfig) => {
   if (input) global.setInput(input)
   if (ignoreBlur) global.setIgnoreBlur(true)
 
-  let generateChoices: GenerateChoices = null
-
-  //function, with "input"
-  if (
-    typeof choices === "function" &&
-    choices?.length > 0
-  ) {
-    global.setMode(MODE.GENERATE)
-    generateChoices = choices as GenerateChoices
-  }
-
-  if (generateChoices) {
-    displayChoices(await generateChoices(""))
-    //function, no argument
-  } else if (
-    typeof choices === "function" &&
-    choices?.length === 0
-  ) {
-    displayChoices(await (choices as () => any)())
-    //array
-  } else {
-    displayChoices(choices as any)
-  }
-
-  let messageHandler: (data: any) => void
-  let errorHandler: () => void
-
-  let value = await new Promise((resolve, reject) => {
-    messageHandler = async data => {
-      switch (data?.channel) {
-        case CHANNELS.GENERATE_CHOICES:
-          if (generateChoices) {
-            displayChoices(
-              await generateChoices(data?.input)
-            )
-          }
-          break
-
-        case CHANNELS.TAB_CHANGED:
-          if (data?.tab && global.onTabs) {
-            process.off("message", messageHandler)
-            process.off("error", errorHandler)
-            let tabIndex = global.onTabs.findIndex(
-              ({ name }) => {
-                return name == data?.tab
-              }
-            )
-
-            global.currentOnTab = global.onTabs[
-              tabIndex
-            ].fn(data?.input)
-          }
-          break
-
-        case CHANNELS.VALUE_SUBMITTED:
-          let { value } = data
-          if (validate) {
-            let validateMessage = await validate(value)
-
-            if (typeof validateMessage === "string") {
-              global.setPlaceholder(validateMessage)
-              global.setChoices(global.kitPrevChoices)
-
-              return
-            }
-          }
-          resolve(value)
-          break
-      }
-    }
-
-    errorHandler = () => {
-      reject()
-    }
-
-    process.on("message", messageHandler)
-    process.on("error", errorHandler)
-  })
-
-  process.off("message", messageHandler)
-  process.off("error", errorHandler)
-
-  return value
+  return await waitForPrompt({ choices, validate })
 }
 
 global.drop = async (hint = "") => {
@@ -306,8 +338,3 @@ global.sendResponse = async value => {
     value,
   })
 }
-
-global.getScripts = () =>
-  require(kenvPath("cache", "menu-cache.json"))
-
-global.memoryMap = new Map()

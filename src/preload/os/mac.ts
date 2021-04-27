@@ -120,14 +120,24 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     ],
   })
 
+  let atom = async (file: string, dir: string) => {
+    let command = `atom "${file}"${dir ? ` "${dir}"` : ``}`
+    let result = exec(command, {
+      env: {
+        HOME: home(),
+        PATH: process.env.PATH,
+      },
+    })
+    console.log(result)
+  }
+
   let code = async (file, dir, line = 0, col = 0) => {
     let codeArgs = ["--goto", `${file}:${line}:${col}`]
     if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
     let command = `code ${codeArgs.join(" ")}`
     exec(command, {
       env: {
-        ...process.env,
-        PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`,
+        PATH: process.env.PATH,
       },
     })
   }
@@ -135,15 +145,25 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   let vim = terminalEditor("vim")
   let nvim = terminalEditor("nvim")
   let nano = terminalEditor("nano")
-  let fullySupportedEditors = { code, vim, nvim, nano }
+  let fullySupportedEditors = {
+    code,
+    vim,
+    nvim,
+    nano,
+    atom,
+  }
 
-  let execEditor = (file: string) =>
-    exec(`${KIT_EDITOR} ${file}`, {
+  let execEditor = (file: string) => {
+    let editCommand = `${KIT_EDITOR} ${file}`
+
+    console.log({ editCommand })
+    exec(editCommand, {
       env: {
         ...process.env,
-        PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`,
+        PATH: `${process.env.PATH}`,
       },
     })
+  }
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor
   global.setPlaceholder(

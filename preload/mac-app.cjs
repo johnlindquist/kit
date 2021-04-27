@@ -142,6 +142,8 @@ global.db = (key, defaults) => {
   _db.defaults(defaults).write();
   return _db;
 };
+global.getScripts = () => require(kenvPath("cache", "menu-cache.json"));
+global.memoryMap = new Map();
 
 // src/preload/api/kit.ts
 global.attemptImport = async (path, ..._args) => {
@@ -332,16 +334,20 @@ global.compileTemplate = async (template, vars) => {
 };
 global.currentOnTab = null;
 global.onTabs = [];
+global.onTabIndex = 0;
 global.onTab = async (name, fn) => {
   global.onTabs.push({name, fn});
   if (global.arg.tab) {
     if (global.arg.tab === name) {
+      let tabIndex = global.onTabs.length - 1;
+      global.onTabIndex = tabIndex;
       global.send("SET_TAB_INDEX", {
-        tabIndex: global.onTabs.length - 1
+        tabIndex
       });
       global.currentOnTab = await fn();
     }
   } else if (global.onTabs.length === 1) {
+    global.onTabIndex = 0;
     global.send("SET_TAB_INDEX", {tabIndex: 0});
     global.currentOnTab = await fn();
   }
@@ -454,26 +460,47 @@ global.edit = async (file, dir, line = 0, col = 0) => {
       }
     ]
   });
+  let atom = async (file2, dir2) => {
+    let command = `atom "${file2}"${dir2 ? ` "${dir2}"` : ``}`;
+    console.log({command});
+    let result2 = exec(command, {
+      env: {
+        HOME: home(),
+        PATH: process.env.PATH
+      }
+    });
+    console.log(result2);
+  };
   let code = async (file2, dir2, line2 = 0, col2 = 0) => {
     let codeArgs = ["--goto", `${file2}:${line2}:${col2}`];
     if (dir2)
       codeArgs = [...codeArgs, "--folder-uri", dir2];
     let command = `code ${codeArgs.join(" ")}`;
     exec(command, {
-      env: __objSpread(__objSpread({}, process.env), {
-        PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`
-      })
+      env: {
+        PATH: process.env.PATH
+      }
     });
   };
   let vim = terminalEditor("vim");
   let nvim = terminalEditor("nvim");
   let nano = terminalEditor("nano");
-  let fullySupportedEditors = {code, vim, nvim, nano};
-  let execEditor = (file2) => exec(`${KIT_EDITOR} ${file2}`, {
-    env: __objSpread(__objSpread({}, process.env), {
-      PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`
-    })
-  });
+  let fullySupportedEditors = {
+    code,
+    vim,
+    nvim,
+    nano,
+    atom
+  };
+  let execEditor = (file2) => {
+    let editCommand = `${KIT_EDITOR} ${file2}`;
+    console.log({editCommand});
+    exec(editCommand, {
+      env: __objSpread(__objSpread({}, process.env), {
+        PATH: `${process.env.PATH}`
+      })
+    });
+  };
   let editorFn = fullySupportedEditors[KIT_EDITOR] || execEditor;
   global.setPlaceholder(`Opening ${file} with ${global.env.KIT_EDITOR}`);
   let result = await editorFn(file, dir, line, col);
@@ -510,6 +537,82 @@ var displayChoices = (choices) => {
       break;
   }
 };
+var checkTabChanged = (data, messageHandler, errorHandler) => {
+  if (data?.tab && global.onTabs) {
+    process.off("message", messageHandler);
+    if (errorHandler)
+      process.off("error", errorHandler);
+    updateTab(data);
+  }
+};
+var updateTab = (data) => {
+  let tabIndex = global.onTabs.findIndex(({name}) => {
+    return name == data?.tab;
+  });
+  global.onTabIndex = tabIndex;
+  global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
+};
+var promptId = 0;
+var waitForPrompt = async ({choices, validate}) => {
+  promptId++;
+  let messageHandler;
+  let errorHandler;
+  let value = await new Promise(async (resolve, reject) => {
+    let currentPromptId = promptId;
+    let generateChoices = null;
+    if (typeof choices === "function" && choices?.length > 0) {
+      global.setMode(MODE.GENERATE);
+      generateChoices = choices;
+    }
+    if (generateChoices) {
+      ;
+      generateChoices("").then((result) => {
+        if (currentPromptId === promptId)
+          displayChoices(result);
+      });
+    } else if (typeof choices === "function" && choices?.length === 0) {
+      choices().then((result) => {
+        if (currentPromptId === promptId) {
+          displayChoices(result);
+        }
+      });
+    } else {
+      displayChoices(choices);
+    }
+    messageHandler = async (data) => {
+      switch (data?.channel) {
+        case CHANNELS.GENERATE_CHOICES:
+          if (generateChoices) {
+            displayChoices(await generateChoices(data?.input));
+          }
+          break;
+        case CHANNELS.TAB_CHANGED:
+          checkTabChanged(data, messageHandler, errorHandler);
+          break;
+        case CHANNELS.VALUE_SUBMITTED:
+          let {value: value2} = data;
+          if (validate) {
+            let validateMessage = await validate(value2);
+            if (typeof validateMessage === "string") {
+              global.setPlaceholder(validateMessage);
+              global.setChoices(global.kitPrevChoices);
+              return;
+            }
+          }
+          resolve(value2);
+          break;
+      }
+    };
+    errorHandler = () => {
+      reject();
+    };
+    process.on("message", messageHandler);
+    process.on("error", errorHandler);
+  });
+  process.off("message", messageHandler);
+  process.off("error", errorHandler);
+  return value;
+};
 global.kitPrompt = async (config) => {
   let {
     placeholder = "",
@@ -540,61 +643,7 @@ global.kitPrompt = async (config) => {
     global.setInput(input);
   if (ignoreBlur)
     global.setIgnoreBlur(true);
-  let generateChoices = null;
-  if (typeof choices === "function" && choices?.length > 0) {
-    global.setMode(MODE.GENERATE);
-    generateChoices = choices;
-  }
-  if (generateChoices) {
-    displayChoices(await generateChoices(""));
-  } else if (typeof choices === "function" && choices?.length === 0) {
-    displayChoices(await choices());
-  } else {
-    displayChoices(choices);
-  }
-  let messageHandler;
-  let errorHandler;
-  let value = await new Promise((resolve, reject) => {
-    messageHandler = async (data) => {
-      switch (data?.channel) {
-        case CHANNELS.GENERATE_CHOICES:
-          if (generateChoices) {
-            displayChoices(await generateChoices(data?.input));
-          }
-          break;
-        case CHANNELS.TAB_CHANGED:
-          if (data?.tab && global.onTabs) {
-            process.off("message", messageHandler);
-            process.off("error", errorHandler);
-            let tabIndex = global.onTabs.findIndex(({name}) => {
-              return name == data?.tab;
-            });
-            global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
-          }
-          break;
-        case CHANNELS.VALUE_SUBMITTED:
-          let {value: value2} = data;
-          if (validate) {
-            let validateMessage = await validate(value2);
-            if (typeof validateMessage === "string") {
-              global.setPlaceholder(validateMessage);
-              global.setChoices(global.kitPrevChoices);
-              return;
-            }
-          }
-          resolve(value2);
-          break;
-      }
-    };
-    errorHandler = () => {
-      reject();
-    };
-    process.on("message", messageHandler);
-    process.on("error", errorHandler);
-  });
-  process.off("message", messageHandler);
-  process.off("error", errorHandler);
-  return value;
+  return await waitForPrompt({choices, validate});
 };
 global.drop = async (hint = "") => {
   return await global.kitPrompt({
@@ -712,6 +761,4 @@ global.sendResponse = async (value) => {
     value
   });
 };
-global.getScripts = () => require(kenvPath("cache", "menu-cache.json"));
-global.memoryMap = new Map();
 //# sourceMappingURL=mac-app.cjs.map

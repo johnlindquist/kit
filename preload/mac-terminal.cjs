@@ -142,6 +142,8 @@ global.db = (key, defaults) => {
   _db.defaults(defaults).write();
   return _db;
 };
+global.getScripts = () => require(kenvPath("cache", "menu-cache.json"));
+global.memoryMap = new Map();
 
 // src/preload/api/kit.ts
 global.attemptImport = async (path, ..._args) => {
@@ -332,16 +334,20 @@ global.compileTemplate = async (template, vars) => {
 };
 global.currentOnTab = null;
 global.onTabs = [];
+global.onTabIndex = 0;
 global.onTab = async (name, fn) => {
   global.onTabs.push({name, fn});
   if (global.arg.tab) {
     if (global.arg.tab === name) {
+      let tabIndex = global.onTabs.length - 1;
+      global.onTabIndex = tabIndex;
       global.send("SET_TAB_INDEX", {
-        tabIndex: global.onTabs.length - 1
+        tabIndex
       });
       global.currentOnTab = await fn();
     }
   } else if (global.onTabs.length === 1) {
+    global.onTabIndex = 0;
     global.send("SET_TAB_INDEX", {tabIndex: 0});
     global.currentOnTab = await fn();
   }
@@ -454,26 +460,47 @@ global.edit = async (file, dir, line = 0, col = 0) => {
       }
     ]
   });
+  let atom = async (file2, dir2) => {
+    let command = `atom "${file2}"${dir2 ? ` "${dir2}"` : ``}`;
+    console.log({command});
+    let result2 = exec(command, {
+      env: {
+        HOME: home(),
+        PATH: process.env.PATH
+      }
+    });
+    console.log(result2);
+  };
   let code = async (file2, dir2, line2 = 0, col2 = 0) => {
     let codeArgs = ["--goto", `${file2}:${line2}:${col2}`];
     if (dir2)
       codeArgs = [...codeArgs, "--folder-uri", dir2];
     let command = `code ${codeArgs.join(" ")}`;
     exec(command, {
-      env: __objSpread(__objSpread({}, process.env), {
-        PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`
-      })
+      env: {
+        PATH: process.env.PATH
+      }
     });
   };
   let vim = terminalEditor("vim");
   let nvim = terminalEditor("nvim");
   let nano = terminalEditor("nano");
-  let fullySupportedEditors = {code, vim, nvim, nano};
-  let execEditor = (file2) => exec(`${KIT_EDITOR} ${file2}`, {
-    env: __objSpread(__objSpread({}, process.env), {
-      PATH: `/usr/local/bin:usr/bin:${process.env.PATH}`
-    })
-  });
+  let fullySupportedEditors = {
+    code,
+    vim,
+    nvim,
+    nano,
+    atom
+  };
+  let execEditor = (file2) => {
+    let editCommand = `${KIT_EDITOR} ${file2}`;
+    console.log({editCommand});
+    exec(editCommand, {
+      env: __objSpread(__objSpread({}, process.env), {
+        PATH: `${process.env.PATH}`
+      })
+    });
+  };
   let editorFn = fullySupportedEditors[KIT_EDITOR] || execEditor;
   global.setPlaceholder(`Opening ${file} with ${global.env.KIT_EDITOR}`);
   let result = await editorFn(file, dir, line, col);
