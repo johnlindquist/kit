@@ -64,7 +64,7 @@ interface UpdateArgs {
   (args: string[]): void
 }
 
-interface Path {
+interface PathFn {
   (...pathParts: string[]): string
 }
 
@@ -243,7 +243,7 @@ declare global {
 
       checkProcess: (processId: number) => string
 
-      home: Path
+      home: PathFn
       isFile: IsCheck
       isDir: IsCheck
       isBin: IsCheck
@@ -259,13 +259,13 @@ declare global {
         promptConfig: PromptConfig
       ) => Promise<any>
 
-      kitPath: Path
-      kenvPath: Path
-      libPath: Path
-      kitScriptFromPath: Path
-      kitFromPath: Path
+      kitPath: PathFn
+      kenvPath: PathFn
+      libPath: PathFn
+      kitScriptFromPath: PathFn
+      kitFromPath: PathFn
 
-      tmp: Path
+      tmp: PathFn
       inspect: Inspect
 
       compileTemplate: CompileTemplate
@@ -308,6 +308,7 @@ declare global {
         name: string
         fn: (input?: string) => void | Promise<any>
       }[]
+      onTabIndex: number
       kitLib: (lib: string) => Promise<string>
 
       runSub: (
@@ -371,8 +372,8 @@ declare global {
   let trash: typeof trashType
   let rm: typeof trashType
 
-  let kitPath: Path
-  let kenvPath: Path
+  let kitPath: PathFn
+  let kenvPath: PathFn
 
   let attemptImport: KitModuleLoader
   let npm: KitModuleLoader
@@ -406,7 +407,7 @@ declare global {
 
   let wait: Wait
 
-  let home: Path
+  let home: PathFn
   let isFile: IsCheck
   let isDir: IsCheck
   let isBin: IsCheck
@@ -421,4 +422,6 @@ declare global {
   let getScripts: GetScripts
 
   let memoryMap: Map<string, any>
+
+  let onTabIndex: number
 }

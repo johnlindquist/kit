@@ -125,6 +125,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     console.log({ command })
     let result = exec(command, {
       env: {
+        HOME: home(),
         PATH: process.env.PATH,
       },
     })

@@ -334,16 +334,20 @@ global.compileTemplate = async (template, vars) => {
 };
 global.currentOnTab = null;
 global.onTabs = [];
+global.onTabIndex = 0;
 global.onTab = async (name, fn) => {
   global.onTabs.push({name, fn});
   if (global.arg.tab) {
     if (global.arg.tab === name) {
+      let tabIndex = global.onTabs.length - 1;
+      global.onTabIndex = tabIndex;
       global.send("SET_TAB_INDEX", {
-        tabIndex: global.onTabs.length - 1
+        tabIndex
       });
       global.currentOnTab = await fn();
     }
   } else if (global.onTabs.length === 1) {
+    global.onTabIndex = 0;
     global.send("SET_TAB_INDEX", {tabIndex: 0});
     global.currentOnTab = await fn();
   }
@@ -461,6 +465,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     console.log({command});
     let result2 = exec(command, {
       env: {
+        HOME: home(),
         PATH: process.env.PATH
       }
     });
@@ -532,6 +537,82 @@ var displayChoices = (choices) => {
       break;
   }
 };
+var checkTabChanged = (data, messageHandler, errorHandler) => {
+  if (data?.tab && global.onTabs) {
+    process.off("message", messageHandler);
+    if (errorHandler)
+      process.off("error", errorHandler);
+    updateTab(data);
+  }
+};
+var updateTab = (data) => {
+  let tabIndex = global.onTabs.findIndex(({name}) => {
+    return name == data?.tab;
+  });
+  global.onTabIndex = tabIndex;
+  global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
+};
+var promptId = 0;
+var waitForPrompt = async ({choices, validate}) => {
+  promptId++;
+  let messageHandler;
+  let errorHandler;
+  let value = await new Promise(async (resolve, reject) => {
+    let currentPromptId = promptId;
+    let generateChoices = null;
+    if (typeof choices === "function" && choices?.length > 0) {
+      global.setMode(MODE.GENERATE);
+      generateChoices = choices;
+    }
+    if (generateChoices) {
+      ;
+      generateChoices("").then((result) => {
+        if (currentPromptId === promptId)
+          displayChoices(result);
+      });
+    } else if (typeof choices === "function" && choices?.length === 0) {
+      choices().then((result) => {
+        if (currentPromptId === promptId) {
+          displayChoices(result);
+        }
+      });
+    } else {
+      displayChoices(choices);
+    }
+    messageHandler = async (data) => {
+      switch (data?.channel) {
+        case CHANNELS.GENERATE_CHOICES:
+          if (generateChoices) {
+            displayChoices(await generateChoices(data?.input));
+          }
+          break;
+        case CHANNELS.TAB_CHANGED:
+          checkTabChanged(data, messageHandler, errorHandler);
+          break;
+        case CHANNELS.VALUE_SUBMITTED:
+          let {value: value2} = data;
+          if (validate) {
+            let validateMessage = await validate(value2);
+            if (typeof validateMessage === "string") {
+              global.setPlaceholder(validateMessage);
+              global.setChoices(global.kitPrevChoices);
+              return;
+            }
+          }
+          resolve(value2);
+          break;
+      }
+    };
+    errorHandler = () => {
+      reject();
+    };
+    process.on("message", messageHandler);
+    process.on("error", errorHandler);
+  });
+  process.off("message", messageHandler);
+  process.off("error", errorHandler);
+  return value;
+};
 global.kitPrompt = async (config) => {
   let {
     placeholder = "",
@@ -562,61 +643,7 @@ global.kitPrompt = async (config) => {
     global.setInput(input);
   if (ignoreBlur)
     global.setIgnoreBlur(true);
-  let generateChoices = null;
-  if (typeof choices === "function" && choices?.length > 0) {
-    global.setMode(MODE.GENERATE);
-    generateChoices = choices;
-  }
-  if (generateChoices) {
-    displayChoices(await generateChoices(""));
-  } else if (typeof choices === "function" && choices?.length === 0) {
-    displayChoices(await choices());
-  } else {
-    displayChoices(choices);
-  }
-  let messageHandler;
-  let errorHandler;
-  let value = await new Promise((resolve, reject) => {
-    messageHandler = async (data) => {
-      switch (data?.channel) {
-        case CHANNELS.GENERATE_CHOICES:
-          if (generateChoices) {
-            displayChoices(await generateChoices(data?.input));
-          }
-          break;
-        case CHANNELS.TAB_CHANGED:
-          if (data?.tab && global.onTabs) {
-            process.off("message", messageHandler);
-            process.off("error", errorHandler);
-            let tabIndex = global.onTabs.findIndex(({name}) => {
-              return name == data?.tab;
-            });
-            global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
-          }
-          break;
-        case CHANNELS.VALUE_SUBMITTED:
-          let {value: value2} = data;
-          if (validate) {
-            let validateMessage = await validate(value2);
-            if (typeof validateMessage === "string") {
-              global.setPlaceholder(validateMessage);
-              global.setChoices(global.kitPrevChoices);
-              return;
-            }
-          }
-          resolve(value2);
-          break;
-      }
-    };
-    errorHandler = () => {
-      reject();
-    };
-    process.on("message", messageHandler);
-    process.on("error", errorHandler);
-  });
-  process.off("message", messageHandler);
-  process.off("error", errorHandler);
-  return value;
+  return await waitForPrompt({choices, validate});
 };
 global.drop = async (hint = "") => {
   return await global.kitPrompt({
