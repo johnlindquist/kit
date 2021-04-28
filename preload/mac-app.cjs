@@ -576,11 +576,16 @@ var waitForPrompt = async ({choices, validate}) => {
           displayChoices(result);
       });
     } else if (typeof choices === "function" && choices?.length === 0) {
-      choices().then((result) => {
-        if (currentPromptId === promptId) {
-          displayChoices(result);
-        }
-      });
+      let resultOrPromise = choices();
+      if (resultOrPromise.then) {
+        resultOrPromise.then((result) => {
+          if (currentPromptId === promptId) {
+            displayChoices(result);
+          }
+        });
+      } else {
+        displayChoices(resultOrPromise);
+      }
     } else {
       displayChoices(choices);
     }
