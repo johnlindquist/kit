@@ -2,8 +2,6 @@ let { scripts } = await cli("fns")
 
 let input = await arg("Enter Script name:")
 
-console.log({ input })
-
 let valid = (await scripts()).find(
   script =>
     script.replace(".js", "") === input.replace(".js", "")
