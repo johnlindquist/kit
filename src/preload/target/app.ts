@@ -68,11 +68,16 @@ let waitForPrompt = async ({ choices, validate }) => {
       typeof choices === "function" &&
       choices?.length === 0
     ) {
-      choices().then(result => {
-        if (currentPromptId === promptId) {
-          displayChoices(result)
-        }
-      })
+      let resultOrPromise = choices()
+      if (resultOrPromise.then) {
+        resultOrPromise.then(result => {
+          if (currentPromptId === promptId) {
+            displayChoices(result)
+          }
+        })
+      } else {
+        displayChoices(resultOrPromise)
+      }
       //array
     } else {
       displayChoices(choices as any)
