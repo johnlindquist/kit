@@ -1,0 +1,2 @@
+await selectKitEditor(true)
+export {}

@@ -1,7 +1,6 @@
 import { assignPropsTo } from "../utils"
 
 global.kitPrompt = async (config: any) => {
-  // console.log(`\n\n >>> TTY PROMPT <<< \n\n`)
   if (config?.choices) {
     config = { ...config, type: "autocomplete" }
   }
@@ -14,6 +13,10 @@ global.kitPrompt = async (config: any) => {
       let choices = config.choices()
       if (typeof choices?.then === "function")
         choices = await choices
+      choices = choices.map(({ name, value }) => ({
+        name,
+        value,
+      }))
       config = {
         ...config,
         choices,
@@ -45,11 +48,11 @@ global.kitPrompt = async (config: any) => {
   }
 
   // TODO: Strip out enquirer autocomplete
-  let { value } = await require("enquirer").prompt(
+  let result = await require("enquirer").prompt(
     promptConfig
   )
 
-  return value
+  return result.value
 }
 
 global.arg = async (messageOrConfig = "Input", choices) => {
@@ -69,7 +72,6 @@ global.arg = async (messageOrConfig = "Input", choices) => {
         !validOrMessage
       ) {
         valid = false
-        console.log(validOrMessage)
       }
     }
 
@@ -88,16 +90,6 @@ global.arg = async (messageOrConfig = "Input", choices) => {
 
   config.choices = choices
   let input = await global.kitPrompt(config)
-
-  let command = global.chalk`{green.bold ${
-    global.env.KIT_SCRIPT_NAME
-  } {yellow ${input}}} {yellow ${global.argOpts.join(" ")}}`
-
-  // TODO: Should I care about teaching this?
-  let nextTime =
-    global.chalk`👉 Run without prompts by typing: ` +
-    command
-  // console.log(nextTime)
 
   return input
 }

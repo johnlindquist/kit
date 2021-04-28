@@ -124,9 +124,13 @@ global.args = []
 
 global.env = async (
   envKey,
-  promptConfig = { placeholder: `Set ${envKey} to:` }
+  promptConfig = {
+    placeholder: `Set ${envKey} to:`,
+    reset: false,
+  }
 ) => {
-  if (global.env[envKey]) return global.env[envKey]
+  if (global.env[envKey] && !promptConfig?.reset)
+    return global.env[envKey]
 
   let input = await global.kitPrompt({
     placeholder: `Set ${envKey} env to:`,

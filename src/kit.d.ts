@@ -50,10 +50,13 @@ interface Hotkey {
   (placeholder?: string): Promise<KeyData>
 }
 
+interface EnvConfig extends PromptConfig {
+  reset?: boolean
+}
 interface Env {
   (
     envKey: string,
-    promptConfig?: PromptConfig
+    promptConfig?: EnvConfig
   ): Promise<string>
   [key: string]: any
 }
@@ -130,6 +133,10 @@ interface DB {
 
 interface GetScripts {
   (): Script[]
+}
+
+interface SelectKitEditor {
+  (reset: boolean): Promise<string>
 }
 
 declare global {
@@ -329,6 +336,8 @@ declare global {
       getScripts: GetScripts
 
       memoryMap: Map<string, any>
+
+      selectKitEditor: SelectKitEditor
     }
   }
   //preload/api.cjs
@@ -424,4 +433,6 @@ declare global {
   let memoryMap: Map<string, any>
 
   let onTabIndex: number
+
+  let selectKitEditor: SelectKitEditor
 }
