@@ -84,6 +84,22 @@ let terminalEditor = editor => async file => {
   )
 }
 
+let execConfig = () => {
+  let editorParentPath = "/usr/local/bin"
+  let PATH = [
+    editorParentPath,
+    ...process.env.PATH.split(":"),
+  ]
+    .filter(p => !p.startsWith(home()))
+    .join(":")
+  return {
+    env: {
+      HOME: home(),
+      PATH,
+    },
+  }
+}
+
 global.edit = async (file, dir, line = 0, col = 0) => {
   if (global.arg?.edit === false) return
 
@@ -122,24 +138,16 @@ global.edit = async (file, dir, line = 0, col = 0) => {
 
   let atom = async (file: string, dir: string) => {
     let command = `atom "${file}"${dir ? ` "${dir}"` : ``}`
-    let result = exec(command, {
-      env: {
-        HOME: home(),
-        PATH: process.env.PATH,
-      },
-    })
-    console.log(result)
+    exec(command, execConfig())
   }
 
   let code = async (file, dir, line = 0, col = 0) => {
     let codeArgs = ["--goto", `${file}:${line}:${col}`]
     if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
     let command = `code ${codeArgs.join(" ")}`
-    exec(command, {
-      env: {
-        PATH: process.env.PATH,
-      },
-    })
+
+    let config = execConfig()
+    let codeResult = exec(command, config)
   }
 
   let vim = terminalEditor("vim")
@@ -156,13 +164,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   let execEditor = (file: string) => {
     let editCommand = `${KIT_EDITOR} ${file}`
 
-    console.log({ editCommand })
-    exec(editCommand, {
-      env: {
-        ...process.env,
-        PATH: `${process.env.PATH}`,
-      },
-    })
+    exec(editCommand, execConfig())
   }
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor

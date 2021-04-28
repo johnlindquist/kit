@@ -5,8 +5,9 @@ export let exists = async input => {
 
 export let info = async input => await cli("info", input)
 
-export let findScript = async input =>
-  (await cli("find-script", input)).found
+export let findScript = async input => {
+  return (await cli("find-script", input)).found
+}
 
 export let scripts = async () =>
   (await cli("scripts")).scripts

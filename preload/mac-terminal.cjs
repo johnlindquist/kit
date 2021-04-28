@@ -436,6 +436,19 @@ var terminalEditor = (editor) => async (file) => {
   });
   return supportedTerminalMap[KIT_TERMINAL](`${editor} ${file}`);
 };
+var execConfig = () => {
+  let editorParentPath = "/usr/local/bin";
+  let PATH = [
+    editorParentPath,
+    ...process.env.PATH.split(":")
+  ].filter((p) => !p.startsWith(home())).join(":");
+  return {
+    env: {
+      HOME: home(),
+      PATH
+    }
+  };
+};
 global.edit = async (file, dir, line = 0, col = 0) => {
   if (global.arg?.edit === false)
     return;
@@ -462,24 +475,15 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   });
   let atom = async (file2, dir2) => {
     let command = `atom "${file2}"${dir2 ? ` "${dir2}"` : ``}`;
-    let result2 = exec(command, {
-      env: {
-        HOME: home(),
-        PATH: process.env.PATH
-      }
-    });
-    console.log(result2);
+    exec(command, execConfig());
   };
   let code = async (file2, dir2, line2 = 0, col2 = 0) => {
     let codeArgs = ["--goto", `${file2}:${line2}:${col2}`];
     if (dir2)
       codeArgs = [...codeArgs, "--folder-uri", dir2];
     let command = `code ${codeArgs.join(" ")}`;
-    exec(command, {
-      env: {
-        PATH: process.env.PATH
-      }
-    });
+    let config = execConfig();
+    let codeResult = exec(command, config);
   };
   let vim = terminalEditor("vim");
   let nvim = terminalEditor("nvim");
@@ -493,12 +497,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   };
   let execEditor = (file2) => {
     let editCommand = `${KIT_EDITOR} ${file2}`;
-    console.log({editCommand});
-    exec(editCommand, {
-      env: __objSpread(__objSpread({}, process.env), {
-        PATH: `${process.env.PATH}`
-      })
-    });
+    exec(editCommand, execConfig());
   };
   let editorFn = fullySupportedEditors[KIT_EDITOR] || execEditor;
   global.setPlaceholder(`Opening ${file} with ${global.env.KIT_EDITOR}`);
@@ -522,6 +521,10 @@ global.kitPrompt = async (config) => {
       let choices = config.choices();
       if (typeof choices?.then === "function")
         choices = await choices;
+      choices = choices.map(({name, value}) => ({
+        name,
+        value
+      }));
       config = __objSpread(__objSpread({}, config), {
         choices
       });
@@ -541,8 +544,8 @@ global.kitPrompt = async (config) => {
   let promptConfig = __objSpread(__objSpread({}, config), {
     message: config.placeholder
   });
-  let {value} = await require("enquirer").prompt(promptConfig);
-  return value;
+  let result = await require("enquirer").prompt(promptConfig);
+  return result.value;
 };
 global.arg = async (messageOrConfig = "Input", choices) => {
   let firstArg = global.args.length ? global.args.shift() : null;
@@ -553,7 +556,6 @@ global.arg = async (messageOrConfig = "Input", choices) => {
       let validOrMessage = await validate(firstArg);
       if (typeof validOrMessage === "string" || !validOrMessage) {
         valid = false;
-        console.log(validOrMessage);
       }
     }
     if (valid) {
@@ -568,8 +570,6 @@ global.arg = async (messageOrConfig = "Input", choices) => {
   }
   config.choices = choices;
   let input = await global.kitPrompt(config);
-  let command = global.chalk`{green.bold ${global.env.KIT_SCRIPT_NAME} {yellow ${input}}} {yellow ${global.argOpts.join(" ")}}`;
-  let nextTime = global.chalk`👉 Run without prompts by typing: ` + command;
   return input;
 };
 global.updateArgs = (arrayOfArgs) => {

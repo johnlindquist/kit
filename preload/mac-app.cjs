@@ -436,6 +436,19 @@ var terminalEditor = (editor) => async (file) => {
   });
   return supportedTerminalMap[KIT_TERMINAL](`${editor} ${file}`);
 };
+var execConfig = () => {
+  let editorParentPath = "/usr/local/bin";
+  let PATH = [
+    editorParentPath,
+    ...process.env.PATH.split(":")
+  ].filter((p) => !p.startsWith(home())).join(":");
+  return {
+    env: {
+      HOME: home(),
+      PATH
+    }
+  };
+};
 global.edit = async (file, dir, line = 0, col = 0) => {
   if (global.arg?.edit === false)
     return;
@@ -462,24 +475,15 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   });
   let atom = async (file2, dir2) => {
     let command = `atom "${file2}"${dir2 ? ` "${dir2}"` : ``}`;
-    let result2 = exec(command, {
-      env: {
-        HOME: home(),
-        PATH: process.env.PATH
-      }
-    });
-    console.log(result2);
+    exec(command, execConfig());
   };
   let code = async (file2, dir2, line2 = 0, col2 = 0) => {
     let codeArgs = ["--goto", `${file2}:${line2}:${col2}`];
     if (dir2)
       codeArgs = [...codeArgs, "--folder-uri", dir2];
     let command = `code ${codeArgs.join(" ")}`;
-    exec(command, {
-      env: {
-        PATH: process.env.PATH
-      }
-    });
+    let config = execConfig();
+    let codeResult = exec(command, config);
   };
   let vim = terminalEditor("vim");
   let nvim = terminalEditor("nvim");
@@ -493,12 +497,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   };
   let execEditor = (file2) => {
     let editCommand = `${KIT_EDITOR} ${file2}`;
-    console.log({editCommand});
-    exec(editCommand, {
-      env: __objSpread(__objSpread({}, process.env), {
-        PATH: `${process.env.PATH}`
-      })
-    });
+    exec(editCommand, execConfig());
   };
   let editorFn = fullySupportedEditors[KIT_EDITOR] || execEditor;
   global.setPlaceholder(`Opening ${file} with ${global.env.KIT_EDITOR}`);
