@@ -100,9 +100,7 @@ let execConfig = () => {
   }
 }
 
-global.edit = async (file, dir, line = 0, col = 0) => {
-  if (global.arg?.edit === false) return
-
+global.selectKitEditor = async reset => {
   let possibleEditors = () =>
     [
       "atom",
@@ -124,7 +122,8 @@ global.edit = async (file, dir, line = 0, col = 0) => {
       )
       .map(name => ({ name, value: name }))
 
-  let KIT_EDITOR = await global.env("KIT_EDITOR", {
+  return await global.env("KIT_EDITOR", {
+    reset,
     placeholder:
       "Which code editor do you use? (You can always change this later in .env)",
     choices: [
@@ -135,31 +134,37 @@ global.edit = async (file, dir, line = 0, col = 0) => {
       },
     ],
   })
+}
 
-  let atom = async (file: string, dir: string) => {
-    let command = `atom "${file}"${dir ? ` "${dir}"` : ``}`
-    exec(command, execConfig())
-  }
+let atom = async (file: string, dir: string) => {
+  let command = `atom "${file}"${dir ? ` "${dir}"` : ``}`
+  exec(command, execConfig())
+}
 
-  let code = async (file, dir, line = 0, col = 0) => {
-    let codeArgs = ["--goto", `${file}:${line}:${col}`]
-    if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
-    let command = `code ${codeArgs.join(" ")}`
+let code = async (file, dir, line = 0, col = 0) => {
+  let codeArgs = ["--goto", `${file}:${line}:${col}`]
+  if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
+  let command = `code ${codeArgs.join(" ")}`
 
-    let config = execConfig()
-    let codeResult = exec(command, config)
-  }
+  let config = execConfig()
+  exec(command, config)
+}
 
-  let vim = terminalEditor("vim")
-  let nvim = terminalEditor("nvim")
-  let nano = terminalEditor("nano")
-  let fullySupportedEditors = {
-    code,
-    vim,
-    nvim,
-    nano,
-    atom,
-  }
+let vim = terminalEditor("vim")
+let nvim = terminalEditor("nvim")
+let nano = terminalEditor("nano")
+let fullySupportedEditors = {
+  code,
+  vim,
+  nvim,
+  nano,
+  atom,
+}
+
+global.edit = async (file, dir, line = 0, col = 0) => {
+  if (global.arg?.edit === false) return
+
+  let KIT_EDITOR = await global.selectKitEditor(false)
 
   let execEditor = (file: string) => {
     let editCommand = `${KIT_EDITOR} ${file}`

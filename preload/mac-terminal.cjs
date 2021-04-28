@@ -102,8 +102,11 @@ global.isBin = async (bin) => Boolean(exec(`command -v ${bin}`, {
   silent: false
 }).stdout);
 global.args = [];
-global.env = async (envKey, promptConfig = {placeholder: `Set ${envKey} to:`}) => {
-  if (global.env[envKey])
+global.env = async (envKey, promptConfig = {
+  placeholder: `Set ${envKey} to:`,
+  reset: false
+}) => {
+  if (global.env[envKey] && !promptConfig?.reset)
     return global.env[envKey];
   let input = await global.kitPrompt(__objSpread({
     placeholder: `Set ${envKey} env to:`
@@ -225,7 +228,7 @@ global.runSub = async (scriptPath, ...runArgs) => {
       values.push(error);
       rej(values);
     });
-    child.on("close", (code) => {
+    child.on("close", (code2) => {
       process.off("message", forwardToChild);
       res(values);
     });
@@ -449,9 +452,7 @@ var execConfig = () => {
     }
   };
 };
-global.edit = async (file, dir, line = 0, col = 0) => {
-  if (global.arg?.edit === false)
-    return;
+global.selectKitEditor = async (reset) => {
   let possibleEditors = () => [
     "atom",
     "code",
@@ -463,7 +464,8 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     "webstorm",
     "vim"
   ].filter((editor) => exec(`PATH="/usr/bin:/usr/local/bin" which ${editor}`, {silent: true}).stdout).map((name) => ({name, value: name}));
-  let KIT_EDITOR = await global.env("KIT_EDITOR", {
+  return await global.env("KIT_EDITOR", {
+    reset,
     placeholder: "Which code editor do you use? (You can always change this later in .env)",
     choices: [
       ...possibleEditors(),
@@ -473,28 +475,33 @@ global.edit = async (file, dir, line = 0, col = 0) => {
       }
     ]
   });
-  let atom = async (file2, dir2) => {
-    let command = `atom "${file2}"${dir2 ? ` "${dir2}"` : ``}`;
-    exec(command, execConfig());
-  };
-  let code = async (file2, dir2, line2 = 0, col2 = 0) => {
-    let codeArgs = ["--goto", `${file2}:${line2}:${col2}`];
-    if (dir2)
-      codeArgs = [...codeArgs, "--folder-uri", dir2];
-    let command = `code ${codeArgs.join(" ")}`;
-    let config = execConfig();
-    let codeResult = exec(command, config);
-  };
-  let vim = terminalEditor("vim");
-  let nvim = terminalEditor("nvim");
-  let nano = terminalEditor("nano");
-  let fullySupportedEditors = {
-    code,
-    vim,
-    nvim,
-    nano,
-    atom
-  };
+};
+var atom = async (file, dir) => {
+  let command = `atom "${file}"${dir ? ` "${dir}"` : ``}`;
+  exec(command, execConfig());
+};
+var code = async (file, dir, line = 0, col = 0) => {
+  let codeArgs = ["--goto", `${file}:${line}:${col}`];
+  if (dir)
+    codeArgs = [...codeArgs, "--folder-uri", dir];
+  let command = `code ${codeArgs.join(" ")}`;
+  let config = execConfig();
+  exec(command, config);
+};
+var vim = terminalEditor("vim");
+var nvim = terminalEditor("nvim");
+var nano = terminalEditor("nano");
+var fullySupportedEditors = {
+  code,
+  vim,
+  nvim,
+  nano,
+  atom
+};
+global.edit = async (file, dir, line = 0, col = 0) => {
+  if (global.arg?.edit === false)
+    return;
+  let KIT_EDITOR = await global.selectKitEditor(false);
   let execEditor = (file2) => {
     let editCommand = `${KIT_EDITOR} ${file2}`;
     exec(editCommand, execConfig());
