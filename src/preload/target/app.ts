@@ -45,40 +45,27 @@ let waitForPrompt = async ({ choices, validate }) => {
 
   let value = await new Promise(async (resolve, reject) => {
     let currentPromptId = promptId
-    let generateChoices: GenerateChoices = null
 
-    //function, with "input"
-    if (
-      typeof choices === "function" &&
-      choices?.length > 0
-    ) {
-      global.setMode(MODE.GENERATE)
-      generateChoices = choices as GenerateChoices
-    }
+    global.setMode(
+      typeof choices === "function" && choices?.length > 0
+        ? MODE.GENERATE
+        : MODE.FILTER
+    )
 
-    if (generateChoices) {
-      ;(generateChoices("") as Promise<Choice<any>[]>).then(
-        result => {
-          if (currentPromptId === promptId)
-            displayChoices(result)
-        }
-      )
-      //function, no argument
-    } else if (
-      typeof choices === "function" &&
-      choices?.length === 0
-    ) {
-      let resultOrPromise = choices()
+    let invokeChoices = (input: string) => {
+      let resultOrPromise = choices(input)
       if (resultOrPromise.then) {
         resultOrPromise.then(result => {
-          if (currentPromptId === promptId) {
+          if (currentPromptId === promptId)
             displayChoices(result)
-          }
         })
       } else {
         displayChoices(resultOrPromise)
       }
-      //array
+    }
+
+    if (typeof choices === "function") {
+      invokeChoices("")
     } else {
       displayChoices(choices as any)
     }
@@ -86,11 +73,7 @@ let waitForPrompt = async ({ choices, validate }) => {
     messageHandler = async data => {
       switch (data?.channel) {
         case CHANNELS.GENERATE_CHOICES:
-          if (generateChoices) {
-            displayChoices(
-              await generateChoices(data?.input)
-            )
-          }
+          invokeChoices(data?.input)
           break
 
         case CHANNELS.TAB_CHANGED:

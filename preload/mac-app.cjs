@@ -564,37 +564,27 @@ var waitForPrompt = async ({choices, validate}) => {
   let errorHandler;
   let value = await new Promise(async (resolve, reject) => {
     let currentPromptId = promptId;
-    let generateChoices = null;
-    if (typeof choices === "function" && choices?.length > 0) {
-      global.setMode(MODE.GENERATE);
-      generateChoices = choices;
-    }
-    if (generateChoices) {
-      ;
-      generateChoices("").then((result) => {
-        if (currentPromptId === promptId)
-          displayChoices(result);
-      });
-    } else if (typeof choices === "function" && choices?.length === 0) {
-      let resultOrPromise = choices();
+    global.setMode(typeof choices === "function" && choices?.length > 0 ? MODE.GENERATE : MODE.FILTER);
+    let invokeChoices = (input) => {
+      let resultOrPromise = choices(input);
       if (resultOrPromise.then) {
         resultOrPromise.then((result) => {
-          if (currentPromptId === promptId) {
+          if (currentPromptId === promptId)
             displayChoices(result);
-          }
         });
       } else {
         displayChoices(resultOrPromise);
       }
+    };
+    if (typeof choices === "function") {
+      invokeChoices("");
     } else {
       displayChoices(choices);
     }
     messageHandler = async (data) => {
       switch (data?.channel) {
         case CHANNELS.GENERATE_CHOICES:
-          if (generateChoices) {
-            displayChoices(await generateChoices(data?.input));
-          }
+          invokeChoices(data?.input);
           break;
         case CHANNELS.TAB_CHANGED:
           checkTabChanged(data, messageHandler, errorHandler);
