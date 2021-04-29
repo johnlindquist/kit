@@ -1,6 +1,6 @@
 //Menu: Share Script as ScriptKit.app link
 //Description: Create a gist and share from ScriptKit
-let { menu, exists, findScript, scripts } = await cli("fns");
+let { menu } = await cli("fns");
 let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN";
 if (!env[GITHUB_GIST_TOKEN]) {
     show(`
