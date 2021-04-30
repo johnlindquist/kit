@@ -1,7 +1,7 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
 
-let { menu, exists, findScript, scripts } = await cli("fns")
+let { menu } = await cli("fns")
 let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
 if (!env[GITHUB_GIST_TOKEN]) {
   show(`
@@ -21,7 +21,6 @@ let token = await env(GITHUB_GIST_TOKEN, {
 let script = await arg(
   {
     placeholder: `Which script do you want to share?`,
-    validate: findScript,
   },
   menu
 )
