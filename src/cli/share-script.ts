@@ -8,7 +8,7 @@ if (!env[GITHUB_GIST_TOKEN]) {
 <div class="p-2">
 <h1>GitHub token not found</h1>
 <div>Create one here (Select the "gist" scope):</div>
-<a href="https://github.com/settings/tokens/new">https://github.com/settings/tokens/new</a>
+<a href="https://github.com/settings/tokens/new?scopes=gist&description=kit+share+script+token">https://github.com/settings/tokens/new</a>
 </div>
   `)
 }
