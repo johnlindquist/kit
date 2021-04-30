@@ -1,4 +1,4 @@
-//Menu: Share Script as ScriptKit.app link
+//Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
 let { menu } = await cli("fns");
 let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN";
@@ -40,7 +40,7 @@ let config = {
     },
 };
 const response = await post(`https://api.github.com/gists`, body, config);
-let link = `https://scriptkit.app/api/new?name=${script}&url=${response.data.files[scriptJS].raw_url}`;
+let link = `https://scriptkit.com/api/new?name=${script}&url=${response.data.files[scriptJS].raw_url}`;
 exec(`open ` + response.data.html_url);
 copy(link);
 setPlaceholder(`Copied share link to clipboard`);

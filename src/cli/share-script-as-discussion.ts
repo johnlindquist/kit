@@ -60,7 +60,7 @@ let response = await post(
 
 let gistUrl = response.data.files[scriptJS].raw_url
 
-let link = `https://scriptkit.app/api/new?name=${script}&url=${gistUrl}`
+let link = `https://scriptkit.com/api/new?name=${script}&url=${gistUrl}`
 
 let discussionPost = `
 [Install ${script}](${link})

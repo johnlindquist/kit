@@ -8,7 +8,7 @@ const cliScripts = [
         name: "open-kit",
         placeholder: "Open .kit directory in editor",
     },
-    { name: "browse", placeholder: "Go to scriptkit.app" },
+    { name: "browse", placeholder: "Go to scriptkit.com" },
     { name: "new", placeholder: "Create a new script" },
     {
         name: "new-from-template",
@@ -24,7 +24,7 @@ const cliScripts = [
     },
     {
         name: "share-script-as-link",
-        placeholder: "Share a script as a ScriptKit.app link",
+        placeholder: "Share a script as a scriptkit.com link",
     },
     { name: "run", placeholder: "Run a script" },
     { name: "edit", placeholder: "Edit a script" },

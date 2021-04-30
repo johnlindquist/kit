@@ -140,7 +140,7 @@ let testFile = "test.txt"
 await writeFile(testFile, "testing")
 
 exec(
-  `new share-file --url https://scriptkit.app/scripts/johnlindquist/share-file.js --no-edit`,
+  `new share-file --url https://scriptkit.com/scripts/johnlindquist/share-file.js --no-edit`,
   {
     stdio: "inherit",
     env: {
@@ -173,7 +173,7 @@ kill(shareFileChild.pid)
 echo(`"share-file" passed`)
 
 exec(
-  `new hello-world --url https://scriptkit.app/scripts/johnlindquist/hello-world.js --no-edit`,
+  `new hello-world --url https://scriptkit.com/scripts/johnlindquist/hello-world.js --no-edit`,
   {
     stdio: "inherit",
     env: {

@@ -42,7 +42,7 @@ let config = {
 };
 let response = await post(`https://api.github.com/gists`, body, config);
 let gistUrl = response.data.files[scriptJS].raw_url;
-let link = `https://scriptkit.app/api/new?name=${script}&url=${gistUrl}`;
+let link = `https://scriptkit.com/api/new?name=${script}&url=${gistUrl}`;
 let discussionPost = `
 [Install ${script}](${link})
 
