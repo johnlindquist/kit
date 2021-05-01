@@ -2,7 +2,6 @@
 //Description: Create a gist and copy discussion content to clipboard
 
 let { menu } = await cli("fns")
-let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
 
 let script: string = await arg(
   {
@@ -11,7 +10,7 @@ let script: string = await arg(
   menu
 )
 
-let token = await env(GITHUB_GIST_TOKEN, {
+let token = await env("GITHUB_GIST_TOKEN", {
   secret: true,
   ignoreBlur: true,
   hint: md(

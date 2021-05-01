@@ -8,9 +8,7 @@ let script = await arg(
   menu
 )
 
-let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
-
-let token = await env(GITHUB_GIST_TOKEN, {
+let token = await env("GITHUB_GIST_TOKEN", {
   secret: true,
   ignoreBlur: true,
   hint: md(

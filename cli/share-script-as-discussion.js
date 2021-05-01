@@ -1,11 +1,10 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 let { menu } = await cli("fns");
-let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN";
 let script = await arg({
     placeholder: `Which script do you want to share?`,
 }, menu);
-let token = await env(GITHUB_GIST_TOKEN, {
+let token = await env("GITHUB_GIST_TOKEN", {
     secret: true,
     ignoreBlur: true,
     hint: md(`Click to create a [github gist token](https://github.com/settings/tokens/new?scopes=gist&description=kit+share+script+token)`),
