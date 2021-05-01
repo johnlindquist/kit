@@ -126,16 +126,12 @@ global.env = async (
   envKey,
   promptConfig = {
     placeholder: `Set ${envKey} to:`,
-    reset: false,
   }
 ) => {
   if (global.env[envKey] && !promptConfig?.reset)
     return global.env[envKey]
 
-  let input = await global.kitPrompt({
-    placeholder: `Set ${envKey} env to:`,
-    ...promptConfig,
-  })
+  let input = await global.kitPrompt(promptConfig)
 
   if (input.startsWith("~"))
     input = input.replace("~", global.env.HOME)

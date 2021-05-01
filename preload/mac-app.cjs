@@ -103,14 +103,11 @@ global.isBin = async (bin) => Boolean(exec(`command -v ${bin}`, {
 }).stdout);
 global.args = [];
 global.env = async (envKey, promptConfig = {
-  placeholder: `Set ${envKey} to:`,
-  reset: false
+  placeholder: `Set ${envKey} to:`
 }) => {
   if (global.env[envKey] && !promptConfig?.reset)
     return global.env[envKey];
-  let input = await global.kitPrompt(__objSpread({
-    placeholder: `Set ${envKey} env to:`
-  }, promptConfig));
+  let input = await global.kitPrompt(promptConfig);
   if (input.startsWith("~"))
     input = input.replace("~", global.env.HOME);
   await global.cli("set-env-var", envKey, input);
