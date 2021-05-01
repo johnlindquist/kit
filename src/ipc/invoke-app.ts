@@ -9,7 +9,7 @@ ipc.connectTo("kit", kitPath("tmp", "ipc"), () => {
   ipc.of.kit.on("connect", () => {
     ipc.of.kit.emit("message", {
       scriptPath,
-      scriptArgs: process.argv.slice(2),
+      scriptArgs: process.argv.slice(3),
     })
     ipc.disconnect("kit")
   })
