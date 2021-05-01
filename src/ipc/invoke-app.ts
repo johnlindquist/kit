@@ -7,10 +7,7 @@ ipc.config.silent = true
 
 ipc.connectTo("kit", kitPath("tmp", "ipc"), () => {
   ipc.of.kit.on("connect", () => {
-    ipc.of.kit.emit("message", {
-      scriptPath,
-      scriptArgs: process.argv.slice(3),
-    })
+    ipc.of.kit.emit("message", process.argv)
     ipc.disconnect("kit")
   })
 })
