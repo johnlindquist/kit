@@ -1,23 +1,15 @@
-//Menu: Share Script as ScriptKit.app link
+//Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
 let { menu } = await cli("fns");
-let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN";
-if (!env[GITHUB_GIST_TOKEN]) {
-    show(`
-<div class="p-2">
-<h1>GitHub token not found</h1>
-<div>Create one here (Select the "gist" scope):</div>
-<a href="https://github.com/settings/tokens/new">https://github.com/settings/tokens/new</a>
-</div>
-  `);
-}
-let token = await env(GITHUB_GIST_TOKEN, {
-    secret: true,
-    placeholder: chalk `Enter GitHub gist token:`,
-});
 let script = await arg({
     placeholder: `Which script do you want to share?`,
 }, menu);
+let token = await env("GITHUB_GIST_TOKEN", {
+    secret: true,
+    ignoreBlur: true,
+    hint: md(`Click to create a [github gist token](https://github.com/settings/tokens/new?scopes=gist&description=kit+share+script+token)`),
+    placeholder: chalk `Enter GitHub gist token:`,
+});
 let scriptJS = `${script}.js`;
 let scriptPath = kenvPath("scripts", scriptJS);
 let isPublic = await arg("Make gist public?", [
@@ -40,7 +32,7 @@ let config = {
     },
 };
 const response = await post(`https://api.github.com/gists`, body, config);
-let link = `https://scriptkit.app/api/new?name=${script}&url=${response.data.files[scriptJS].raw_url}`;
+let link = `https://scriptkit.com/api/new?name=${script}&url=${response.data.files[scriptJS].raw_url}`;
 exec(`open ` + response.data.html_url);
 copy(link);
 setPlaceholder(`Copied share link to clipboard`);

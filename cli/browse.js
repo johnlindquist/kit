@@ -1,2 +1,2 @@
-exec(`open https://scriptkit.app`);
+exec(`open https://scriptkit.com`);
 export {};

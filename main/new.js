@@ -11,7 +11,7 @@ let newOptions = [
     },
     {
         name: "Browse Community Examples",
-        description: "Visit scriptkit.app/scripts/johnlindquist for a variety of examples",
+        description: "Visit scriptkit.com/scripts/johnlindquist for a variety of examples",
         value: "browse-examples",
     },
 ];
