@@ -10,7 +10,7 @@ import * as fs from "fs"
 import * as handlebars from "handlebars"
 import * as uuidType from "uuid"
 import * as clipboardy from "clipboardy"
-import { AdapterOptions, lowdb, LowdbSync } from "lowdb"
+import { AdapterOptions, LowdbSync } from "lowdb"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
@@ -22,12 +22,12 @@ type Panel =
   | (() => Promise<string>)
   | ((input: string) => Promise<string | File[]>)
 
-interface Arg<Value> {
+interface Arg {
   [key: string]: any
-  (
+  <T = string>(
     placeholderOrConfig?: string | PromptConfig,
-    choicesOrPanel?: Choices<Value> | Panel
-  ): Promise<string | Value | File[]>
+    choicesOrPanel?: Choices<T> | Panel
+  ): Promise<T>
 }
 interface Drop {
   (hint?: string): Promise<any>
@@ -140,7 +140,7 @@ interface SelectKitEditor {
 }
 
 declare global {
-  interface Script {
+  interface Script extends Choice<any> {
     file: string
     filePath: string
     command: string
@@ -152,13 +152,16 @@ declare global {
     author?: string
     twitter?: string
     exclude?: string
-    cron?: string
-    system: string
+    schedule?: string
+    system?: string
+    watch?: string
+    background?: string
+    isRunning?: boolean
   }
 
   interface MenuItem extends Script {
     name: string
-    value: string
+    value: Script
   }
   interface Choice<Value> {
     name: string
@@ -168,6 +171,7 @@ declare global {
     img?: string
     html?: string
     preview?: string
+    id?: string
   }
 
   type Choices<Value> =
@@ -175,6 +179,7 @@ declare global {
     | Choice<Value>[]
     | (() => Choice<Value>[])
     | (() => Promise<Choice<Value>[]>)
+    | Promise<Choice<any>[]>
     | GenerateChoices
 
   interface GenerateChoices {
@@ -192,6 +197,20 @@ declare global {
     drop?: boolean
     ignoreBlur?: boolean
     mode?: MODE
+  }
+
+  interface Background {
+    filePath: string
+    process: {
+      spawnargs: string[]
+      pid: number
+      start: string
+    }
+  }
+
+  interface Schedule {
+    filePath: string
+    date: Date
   }
 
   namespace NodeJS {
@@ -256,7 +275,7 @@ declare global {
       isBin: IsCheck
 
       //preload/kit.cjs
-      arg: Arg<any>
+      arg: Arg
       drop: Drop
       hotkey: Hotkey
       env: Env
@@ -330,6 +349,20 @@ declare global {
 
       setChoices: (choices: Choices<any>) => void
       sendResponse: (value: any) => void
+      getDataFromApp: (channel: string) => Promise<any>
+      getBackgroundTasks: () => Promise<{
+        channel: string
+        tasks: Background[]
+      }>
+      getSchedule: () => Promise<{
+        channel: string
+        schedule: Schedule[]
+      }>
+      getScriptsState: () => Promise<{
+        channel: string
+        tasks: Background[]
+        schedule: Schedule[]
+      }>
 
       notify: typeof notifyType
 
@@ -394,7 +427,7 @@ declare global {
   let run: KitModuleLoader
 
   let env: Env
-  let arg: Arg<any>
+  let arg: Arg
   let drop: Drop
   let hotkey: Hotkey
   let onTab: OnTab

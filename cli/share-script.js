@@ -1,21 +1,21 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
-let { menu } = await cli("fns");
-let script = await arg(`Which script do you want to share?`, menu);
+let { scriptValue } = (await cli("fns"));
+let command = await arg(`Which script do you want to share?`, scriptValue("command"));
 let token = await env("GITHUB_GIST_TOKEN", {
     secret: true,
     ignoreBlur: true,
     hint: md(`Click to create a [github gist token](https://github.com/settings/tokens/new?scopes=gist&description=kit+share+script+token)`),
     placeholder: chalk `Enter GitHub gist token:`,
 });
-let scriptPath = kenvPath("scripts", script) + ".js";
+let scriptPath = kenvPath("scripts", command) + ".js";
 let isPublic = await arg("Make gist public?", [
-    { name: `No, keep ${script} private`, value: false },
-    { name: `Yes, make ${script} public`, value: true },
+    { name: `No, keep ${command} private`, value: false },
+    { name: `Yes, make ${command} public`, value: true },
 ]);
 let body = {
     files: {
-        [script + ".js"]: {
+        [command + ".js"]: {
             content: await readFile(scriptPath, "utf8"),
         },
     },
@@ -30,7 +30,7 @@ let config = {
 };
 const response = await post(`https://api.github.com/gists`, body, config);
 exec(`open ` + response.data.html_url);
-copy(response.data.files[script + ".js"].raw_url);
+copy(response.data.files[command + ".js"].raw_url);
 setPlaceholder(`Copied raw gist url to clipboard`);
 await wait(1000);
 export {};

@@ -1,10 +1,9 @@
-let { exists, scripts, validate } = await cli("fns")
+let { exists, scripts } = (await cli(
+  "fns"
+)) as typeof import("./fns")
 
 let script = await arg(
-  {
-    placeholder: `Which script do you want to duplicate?`,
-    validate,
-  },
+  `Which script do you want to duplicate?`,
   scripts
 )
 

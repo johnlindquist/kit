@@ -1,14 +1,5 @@
 let { formatDistanceToNowStrict, format, compareAsc, } = await npm("date-fns");
-let schedule = await new Promise((res, rej) => {
-    let messageHandler = data => {
-        if (data.channel === "SCHEDULE") {
-            res(data.schedule);
-            process.off("message", messageHandler);
-        }
-    };
-    process.on("message", messageHandler);
-    send("GET_SCHEDULE");
-});
+let { schedule } = await global.getSchedule();
 let choices = (await Promise.all(schedule.map(async ({ filePath, date }) => {
     let script = await cli("info", filePath.split("/").pop());
     let d = new Date(date);

@@ -1,13 +1,13 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 
-let { menu } = await cli("fns")
+let { scriptValue } = (await cli(
+  "fns"
+)) as typeof import("./fns")
 
-let script: string = await arg(
-  {
-    placeholder: `Which script do you want to share?`,
-  },
-  menu
+let command = await arg(
+  `Which script do you want to share?`,
+  scriptValue("command")
 )
 
 let token = await env("GITHUB_GIST_TOKEN", {
@@ -19,13 +19,13 @@ let token = await env("GITHUB_GIST_TOKEN", {
   placeholder: chalk`Enter GitHub gist token:`,
 })
 
-let scriptJS = `${script}.js`
+let scriptJS = `${command}.js`
 
 let scriptPath = kenvPath("scripts", scriptJS)
 
 let isPublic = await arg("Make gist public?", [
-  { name: `No, keep ${script} private`, value: false },
-  { name: `Yes, make ${script} public`, value: true },
+  { name: `No, keep ${command} private`, value: false },
+  { name: `Yes, make ${command} public`, value: true },
 ])
 
 let content = await readFile(scriptPath, "utf8")
@@ -55,10 +55,10 @@ let response = await post(
 
 let gistUrl = response.data.files[scriptJS].raw_url
 
-let link = `https://scriptkit.com/api/new?name=${script}&url=${gistUrl}`
+let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}`
 
 let discussionPost = `
-[Install ${script}](${link})
+[Install ${command}](${link})
 
 \`\`\`js
 ${content}
@@ -67,24 +67,14 @@ ${content}
 
 copy(discussionPost)
 
-await arg(
-  {
-    placeholder: "Post ready",
-    hint: `JS fenced content copied to clipboard`,
-    ignoreBlur: true,
-  },
-  md(`
-* "Escape" to close prompt
-
-## Open Kit Discussions
-[Click to open new Kit discussion](https://github.com/johnlindquist/kit/discussions/new)
-
-## View gist
-[${gistUrl}](${gistUrl})
-
-## Install Link
-[${link}](${link})
-`)
+exec(
+  `open https://github.com/johnlindquist/kit/discussions/new`
 )
+
+await arg({
+  placeholder: "Copied to clipboard",
+  hint: `Hit "escape" to close prompt`,
+  ignoreBlur: true,
+})
 
 export {}

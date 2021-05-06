@@ -46,12 +46,6 @@ let waitForPrompt = async ({ choices, validate }) => {
   let value = await new Promise(async (resolve, reject) => {
     let currentPromptId = promptId
 
-    global.setMode(
-      typeof choices === "function" && choices?.length > 0
-        ? MODE.GENERATE
-        : MODE.FILTER
-    )
-
     let invokeChoices = (input: string) => {
       let resultOrPromise = choices(input)
       if (resultOrPromise.then) {
@@ -128,7 +122,11 @@ global.kitPrompt = async (config: PromptConfig) => {
     mode = MODE.FILTER,
   } = config
 
-  global.setMode(mode)
+  global.setMode(
+    typeof choices === "function" && choices?.length > 0
+      ? MODE.GENERATE
+      : mode
+  )
 
   let scriptInfo = await global.cli(
     "info",
@@ -238,47 +236,52 @@ global.updateArgs = arrayOfArgs => {
 }
 global.updateArgs(process.argv.slice(2))
 
+let npmInstall = async packageName => {
+  if (!global.arg?.trust) {
+    let placeholder = `${packageName} is required for this script`
+
+    let packageLink = `https://npmjs.com/package/${packageName}`
+
+    let hint = `[${packageName}](${packageLink}) has had ${
+      (
+        await get(
+          `https://api.npmjs.org/downloads/point/last-week/` +
+            packageName
+        )
+      ).data.downloads
+    } downloads from npm in the past week`
+
+    let trust = await global.arg(
+      { placeholder, hint: md(hint) },
+      [
+        {
+          name: `Abort`,
+          value: "false",
+        },
+        {
+          name: `Install ${packageName}`,
+          value: "true",
+        },
+      ]
+    )
+
+    if (trust === "false") {
+      echo(`Ok. Exiting...`)
+      exit()
+    }
+  }
+
+  setHint(`Installing ${packageName}...`)
+
+  await global.cli("install", packageName)
+}
+
 global.npm = async packageName => {
   try {
     return require(packageName)
   } catch {
-    if (!global.arg?.trust) {
-      let placeholder = `${packageName} is required for this script`
+    await npmInstall(packageName)
 
-      let packageLink = `https://npmjs.com/package/${packageName}`
-
-      let hint = `[${packageName}](${packageLink}) has had ${
-        (
-          await get(
-            `https://api.npmjs.org/downloads/point/last-week/` +
-              packageName
-          )
-        ).data.downloads
-      } downloads from npm in the past week`
-
-      let trust = await global.arg(
-        { placeholder, hint: md(hint) },
-        [
-          {
-            name: `Abort`,
-            value: "false",
-          },
-          {
-            name: `Install ${packageName}`,
-            value: "true",
-          },
-        ]
-      )
-
-      if (trust === "false") {
-        echo(`Ok. Exiting...`)
-        exit()
-      }
-    }
-
-    setHint(`Installing ${packageName}...`)
-
-    await global.cli("install", packageName)
     let packageJson = require(global.kenvPath(
       "node_modules",
       packageName,
@@ -293,6 +296,57 @@ global.npm = async packageName => {
       packageJson.main
     ))
   }
+}
+
+global.npm = async packageName => {
+  let pkg = null
+  try {
+    pkg = require(packageName)
+  } catch (error) {
+    let kenvPackageJson = require(global.kenvPath(
+      "package.json"
+    ))
+
+    let isESM = (packageJson: any) =>
+      packageJson.type === "module" && packageJson.exports
+
+    let getModulePackageJson = () => {
+      let pkgJsonFilePath = global.kenvPath(
+        "node_modules",
+        packageName,
+        "package.json"
+      )
+      let pkgJson = require(pkgJsonFilePath)
+      delete require.cache[pkgJsonFilePath]
+      return pkgJson
+    }
+
+    if (!kenvPackageJson.dependencies[packageName]) {
+      await npmInstall(packageName)
+      if (isESM(getModulePackageJson())) {
+        // TODO: Figure out how to immediately import ESM after install
+      }
+    }
+
+    let packageJson = getModulePackageJson()
+    if (isESM(packageJson)) {
+      let modulePath = global.kenvPath(
+        "node_modules",
+        packageName,
+        packageJson.exports
+      )
+
+      pkg = await global.attemptImport(modulePath)
+    } else {
+      console.log(`NOT ESM`)
+      pkg = require(global.kenvPath(
+        "node_modules",
+        packageName,
+        packageJson.main
+      ))
+    }
+  }
+  return pkg
 }
 
 global.setPanel = async html => {
@@ -326,3 +380,29 @@ global.sendResponse = async value => {
     value,
   })
 }
+
+global.getDataFromApp = async channel => {
+  if (process?.send) {
+    return await new Promise((res, rej) => {
+      let messageHandler = data => {
+        if (data.channel === channel) {
+          res(data)
+          process.off("message", messageHandler)
+        }
+      }
+      process.on("message", messageHandler)
+
+      send(`GET_${channel}`)
+    })
+  } else {
+    return {}
+  }
+}
+
+global.getBackgroundTasks = () =>
+  global.getDataFromApp("BACKGROUND")
+
+global.getSchedule = () => global.getDataFromApp("SCHEDULE")
+
+global.getScriptsState = () =>
+  global.getDataFromApp("SCRIPTS_STATE")

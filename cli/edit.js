@@ -1,8 +1,5 @@
 // Description: Opens the selected script in your editor
-let { menu } = await cli("fns");
-let file = await arg({
-    placeholder: `Which script do you want to edit?`,
-}, menu);
-file = file.endsWith(".js") ? file : `${file}.js`;
-edit(kenvPath(`scripts/${file}`), kenvPath());
+let { scriptValue } = (await cli("fns"));
+let filePath = await arg(`Which script do you want to edit?`, scriptValue("filePath"));
+edit(filePath, kenvPath());
 export {};

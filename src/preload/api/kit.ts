@@ -309,7 +309,7 @@ global.onTab = async (name, fn) => {
 global.kitPrevChoices = []
 global.setChoices = async choices => {
   if (typeof choices === "object") {
-    choices = choices.map(choice => {
+    choices = (choices as Choice<any>[]).map(choice => {
       if (typeof choice === "string") {
         return {
           name: choice,

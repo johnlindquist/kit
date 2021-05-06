@@ -1,11 +1,13 @@
 //Menu: Share Script
 //Description: Share the selected script
 
-let { menu } = await cli("fns")
+let { scriptValue } = (await cli(
+  "fns"
+)) as typeof import("./fns")
 
-let script = await arg(
+let command = await arg(
   `Which script do you want to share?`,
-  menu
+  scriptValue("command")
 )
 
 let how = await arg("How would you like to share?", [
@@ -23,6 +25,6 @@ let how = await arg("How would you like to share?", [
   },
 ])
 
-await cli(how, script)
+await cli(how, command)
 
 export {}
