@@ -1,13 +1,13 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 
-let { menu } = await cli("fns")
+let { scriptValue } = (await cli(
+  "fns"
+)) as typeof import("./fns")
 
-let { command }: Script = await arg(
-  {
-    placeholder: `Which script do you want to share?`,
-  },
-  menu
+let command = await arg(
+  `Which script do you want to share?`,
+  scriptValue("command")
 )
 
 let token = await env("GITHUB_GIST_TOKEN", {
@@ -67,24 +67,14 @@ ${content}
 
 copy(discussionPost)
 
-await arg(
-  {
-    placeholder: "Post ready",
-    hint: `JS fenced content copied to clipboard`,
-    ignoreBlur: true,
-  },
-  md(`
-* "Escape" to close prompt
-
-## Open Kit Discussions
-[Click to open new Kit discussion](https://github.com/johnlindquist/kit/discussions/new)
-
-## View gist
-[${gistUrl}](${gistUrl})
-
-## Install Link
-[${link}](${link})
-`)
+exec(
+  `open https://github.com/johnlindquist/kit/discussions/new`
 )
+
+await arg({
+  placeholder: "Copied to clipboard",
+  hint: `Hit "escape" to close prompt`,
+  ignoreBlur: true,
+})
 
 export {}
