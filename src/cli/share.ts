@@ -3,7 +3,7 @@
 
 let { menu } = await cli("fns")
 
-let script = await arg(
+let { command }: Script = await arg(
   `Which script do you want to share?`,
   menu
 )
@@ -23,6 +23,6 @@ let how = await arg("How would you like to share?", [
   },
 ])
 
-await cli(how, script)
+await cli(how, command)
 
 export {}

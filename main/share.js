@@ -1,7 +1,7 @@
 //Menu: Share Script
 //Description: Share the selected script
-let { menu } = await cli("fns");
-let script = await arg(`Which script do you want to share?`, menu);
+let { scriptValue } = (await cli("fns"));
+let command = await arg(`Which script do you want to share?`, scriptValue("command"));
 let how = await arg("How would you like to share?", [
     {
         name: "Copy script to clipboard",
@@ -20,5 +20,5 @@ let how = await arg("How would you like to share?", [
         value: "share-script-as-discussion",
     },
 ]);
-await cli(how, script);
+await cli(how, command);
 export {};

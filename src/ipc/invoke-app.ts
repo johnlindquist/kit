@@ -1,5 +1,4 @@
 let ipc = await npm("node-ipc")
-let scriptPath = await arg()
 
 ipc.config.id = "kenv"
 ipc.config.retry = 1500

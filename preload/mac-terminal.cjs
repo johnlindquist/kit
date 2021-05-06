@@ -1,5 +1,9 @@
+var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value}) : obj[key] = value;
@@ -14,6 +18,21 @@ var __objSpread = (a, b) => {
     }
   return a;
 };
+var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
+var __reExport = (target, module2, desc) => {
+  if (module2 && typeof module2 === "object" || typeof module2 === "function") {
+    for (let key of __getOwnPropNames(module2))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
+        __defProp(target, key, {get: () => module2[key], enumerable: !(desc = __getOwnPropDesc(module2, key)) || desc.enumerable});
+  }
+  return target;
+};
+var __toModule = (module2) => {
+  return __reExport(__markAsModule(__defProp(module2 != null ? __create(__getProtoOf(module2)) : {}, "default", module2 && module2.__esModule && "default" in module2 ? {get: () => module2.default, enumerable: true} : {value: module2, enumerable: true})), module2);
+};
+
+// src/preload/api/global.ts
+var import_dotenv = __toModule(require("dotenv"));
 
 // src/preload/utils.ts
 var assignPropsTo = (source, target) => {
@@ -23,6 +42,7 @@ var assignPropsTo = (source, target) => {
 };
 
 // src/preload/api/global.ts
+(0, import_dotenv.config)({path: process.env.DOTENV_CONFIG_PATH});
 var globalApi = {
   cd: "shelljs",
   cp: "shelljs",
@@ -102,12 +122,14 @@ global.isBin = async (bin) => Boolean(exec(`command -v ${bin}`, {
   silent: false
 }).stdout);
 global.args = [];
-global.env = async (envKey, promptConfig = {
-  placeholder: `Set ${envKey} to:`
-}) => {
-  if (global.env[envKey] && !promptConfig?.reset)
+global.env = async (envKey, promptConfig) => {
+  let config2 = __objSpread({
+    placeholder: `Set ${envKey} to:`,
+    reset: false
+  }, promptConfig);
+  if (global.env[envKey] && !config2?.reset)
     return global.env[envKey];
-  let input = await global.kitPrompt(promptConfig);
+  let input = await global.kitPrompt(config2);
   if (input.startsWith("~"))
     input = input.replace("~", global.env.HOME);
   await global.cli("set-env-var", envKey, input);
@@ -482,8 +504,8 @@ var code = async (file, dir, line = 0, col = 0) => {
   if (dir)
     codeArgs = [...codeArgs, "--folder-uri", dir];
   let command = `code ${codeArgs.join(" ")}`;
-  let config = execConfig();
-  exec(command, config);
+  let config2 = execConfig();
+  exec(command, config2);
 };
 var vim = terminalEditor("vim");
 var nvim = terminalEditor("nvim");
@@ -514,22 +536,22 @@ global.edit = async (file, dir, line = 0, col = 0) => {
 };
 
 // src/preload/target/terminal.ts
-global.kitPrompt = async (config) => {
-  if (config?.choices) {
-    config = __objSpread(__objSpread({}, config), {type: "autocomplete"});
+global.kitPrompt = async (config2) => {
+  if (config2?.choices) {
+    config2 = __objSpread(__objSpread({}, config2), {type: "autocomplete"});
   }
-  config = __objSpread({type: "input", name: "value"}, config);
-  if (typeof config.choices === "function") {
-    let f = config.choices;
-    if (config.choices.length === 0) {
-      let choices = config.choices();
+  config2 = __objSpread({type: "input", name: "value"}, config2);
+  if (typeof config2.choices === "function") {
+    let f = config2.choices;
+    if (config2.choices.length === 0) {
+      let choices = config2.choices();
       if (typeof choices?.then === "function")
         choices = await choices;
       choices = choices.map(({name, value}) => ({
         name,
         value
       }));
-      config = __objSpread(__objSpread({}, config), {
+      config2 = __objSpread(__objSpread({}, config2), {
         choices
       });
     } else {
@@ -539,14 +561,14 @@ global.kitPrompt = async (config) => {
         await this.render();
         return this.choices;
       }, 250);
-      config = __objSpread(__objSpread({}, config), {
+      config2 = __objSpread(__objSpread({}, config2), {
         choices: [],
         suggest
       });
     }
   }
-  let promptConfig = __objSpread(__objSpread({}, config), {
-    message: config.placeholder
+  let promptConfig = __objSpread(__objSpread({}, config2), {
+    message: config2.placeholder
   });
   let result = await require("enquirer").prompt(promptConfig);
   return result.value;
@@ -566,14 +588,14 @@ global.arg = async (messageOrConfig = "Input", choices) => {
       return firstArg;
     }
   }
-  let config = {placeholder: ""};
+  let config2 = {placeholder: ""};
   if (typeof messageOrConfig === "string") {
-    config.placeholder = messageOrConfig;
+    config2.placeholder = messageOrConfig;
   } else {
-    config = messageOrConfig;
+    config2 = messageOrConfig;
   }
-  config.choices = choices;
-  let input = await global.kitPrompt(config);
+  config2.choices = choices;
+  let input = await global.kitPrompt(config2);
   return input;
 };
 global.updateArgs = (arrayOfArgs) => {
@@ -606,14 +628,14 @@ global.npm = async (packageName) => {
       echo(downloadsMessage);
       echo(readMore);
       let message = global.chalk`Do you trust {yellow ${packageName}}?`;
-      let config = {
+      let config2 = {
         placeholder: message,
         choices: [
           {name: "Yes", value: true},
           {name: "No", value: false}
         ]
       };
-      let trust = await global.kitPrompt(config);
+      let trust = await global.kitPrompt(config2);
       if (!trust) {
         echo(`Ok. Exiting...`);
         exit();
@@ -627,4 +649,17 @@ global.npm = async (packageName) => {
     return require(packageImport);
   }
 };
+global.getBackgroundTasks = async () => ({
+  channel: "",
+  tasks: []
+});
+global.getSchedule = async () => ({
+  channel: "",
+  schedule: []
+});
+global.getScriptsState = async () => ({
+  channel: "",
+  tasks: [],
+  schedule: []
+});
 //# sourceMappingURL=mac-terminal.cjs.map

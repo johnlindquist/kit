@@ -82,16 +82,6 @@ const cliScripts: CLIMenuItem[] = [
 
 let script = await arg("What do you want to do?", () =>
   cliScripts.map(({ name, placeholder, alias }) => {
-    if (env.KIT_CONTEXT === "app") {
-      return {
-        name: chalk`{green.bold ${name}}${
-          alias ? chalk` {yellow (${alias})}` : ""
-        }`,
-        description: placeholder,
-        value: name,
-      }
-    }
-
     return {
       name: chalk`{green.bold ${name}}${
         alias ? chalk` {yellow (${alias})}` : ""

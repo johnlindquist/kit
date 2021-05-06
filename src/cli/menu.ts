@@ -7,7 +7,7 @@ let infoToMenuItem = (script: Script): MenuItem => {
     ...script,
     name:
       (menu || command) + (shortcut ? `: ${shortcut}` : ``),
-    value: command,
+    value: script,
     description,
   }
 }

@@ -5,7 +5,7 @@ let { menu } = await cli("fns")
 global.onTabs = []
 
 onTab("Run", async () => {
-  await cli("run")
+  await cli("app-run")
 })
 onTab("Edit", async () => {
   await main("edit")
@@ -16,12 +16,6 @@ onTab("New", async () => {
 onTab("Share", async () => {
   await main("share")
 })
-
-if ((await menu()).some(script => script?.schedule)) {
-  onTab("Cron", async () => {
-    await cli("schedule")
-  })
-}
 
 onTab("Hot 🔥", async () => {
   await main("hot")

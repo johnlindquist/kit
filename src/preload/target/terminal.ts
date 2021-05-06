@@ -172,3 +172,19 @@ global.npm = async packageName => {
     return require(packageImport)
   }
 }
+
+global.getBackgroundTasks = async () => ({
+  channel: "",
+  tasks: [],
+})
+
+global.getSchedule = async () => ({
+  channel: "",
+  schedule: [],
+})
+
+global.getScriptsState = async () => ({
+  channel: "",
+  tasks: [],
+  schedule: [],
+})

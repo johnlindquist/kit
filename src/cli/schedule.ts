@@ -4,20 +4,7 @@ let {
   compareAsc,
 } = await npm("date-fns")
 
-let schedule: {
-  filePath: string
-  date: Date
-}[] = await new Promise((res, rej) => {
-  let messageHandler = data => {
-    if (data.channel === "SCHEDULE") {
-      res(data.schedule)
-      process.off("message", messageHandler)
-    }
-  }
-  process.on("message", messageHandler)
-
-  send("GET_SCHEDULE")
-})
+let { schedule } = await global.getSchedule()
 
 let choices = (
   await Promise.all(

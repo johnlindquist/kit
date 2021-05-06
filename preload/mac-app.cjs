@@ -1,5 +1,9 @@
+var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value}) : obj[key] = value;
@@ -14,6 +18,21 @@ var __objSpread = (a, b) => {
     }
   return a;
 };
+var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
+var __reExport = (target, module2, desc) => {
+  if (module2 && typeof module2 === "object" || typeof module2 === "function") {
+    for (let key of __getOwnPropNames(module2))
+      if (!__hasOwnProp.call(target, key) && key !== "default")
+        __defProp(target, key, {get: () => module2[key], enumerable: !(desc = __getOwnPropDesc(module2, key)) || desc.enumerable});
+  }
+  return target;
+};
+var __toModule = (module2) => {
+  return __reExport(__markAsModule(__defProp(module2 != null ? __create(__getProtoOf(module2)) : {}, "default", module2 && module2.__esModule && "default" in module2 ? {get: () => module2.default, enumerable: true} : {value: module2, enumerable: true})), module2);
+};
+
+// src/preload/api/global.ts
+var import_dotenv = __toModule(require("dotenv"));
 
 // src/preload/utils.ts
 var assignPropsTo = (source, target) => {
@@ -23,6 +42,7 @@ var assignPropsTo = (source, target) => {
 };
 
 // src/preload/api/global.ts
+(0, import_dotenv.config)({path: process.env.DOTENV_CONFIG_PATH});
 var globalApi = {
   cd: "shelljs",
   cp: "shelljs",
@@ -102,12 +122,14 @@ global.isBin = async (bin) => Boolean(exec(`command -v ${bin}`, {
   silent: false
 }).stdout);
 global.args = [];
-global.env = async (envKey, promptConfig = {
-  placeholder: `Set ${envKey} to:`
-}) => {
-  if (global.env[envKey] && !promptConfig?.reset)
+global.env = async (envKey, promptConfig) => {
+  let config2 = __objSpread({
+    placeholder: `Set ${envKey} to:`,
+    reset: false
+  }, promptConfig);
+  if (global.env[envKey] && !config2?.reset)
     return global.env[envKey];
-  let input = await global.kitPrompt(promptConfig);
+  let input = await global.kitPrompt(config2);
   if (input.startsWith("~"))
     input = input.replace("~", global.env.HOME);
   await global.cli("set-env-var", envKey, input);
@@ -482,8 +504,8 @@ var code = async (file, dir, line = 0, col = 0) => {
   if (dir)
     codeArgs = [...codeArgs, "--folder-uri", dir];
   let command = `code ${codeArgs.join(" ")}`;
-  let config = execConfig();
-  exec(command, config);
+  let config2 = execConfig();
+  exec(command, config2);
 };
 var vim = terminalEditor("vim");
 var nvim = terminalEditor("nvim");
@@ -561,7 +583,6 @@ var waitForPrompt = async ({choices, validate}) => {
   let errorHandler;
   let value = await new Promise(async (resolve, reject) => {
     let currentPromptId = promptId;
-    global.setMode(typeof choices === "function" && choices?.length > 0 ? MODE.GENERATE : MODE.FILTER);
     let invokeChoices = (input) => {
       let resultOrPromise = choices(input);
       if (resultOrPromise.then) {
@@ -610,7 +631,7 @@ var waitForPrompt = async ({choices, validate}) => {
   process.off("error", errorHandler);
   return value;
 };
-global.kitPrompt = async (config) => {
+global.kitPrompt = async (config2) => {
   let {
     placeholder = "",
     validate = null,
@@ -621,8 +642,8 @@ global.kitPrompt = async (config) => {
     drop = false,
     ignoreBlur = false,
     mode = MODE.FILTER
-  } = config;
-  global.setMode(mode);
+  } = config2;
+  global.setMode(typeof choices === "function" && choices?.length > 0 ? MODE.GENERATE : mode);
   let scriptInfo = await global.cli("info", global.kitScript);
   global.send("SHOW_PROMPT", {
     tabs: global.onTabs?.length ? global.onTabs.map(({name}) => name) : [],
@@ -702,35 +723,67 @@ global.updateArgs = (arrayOfArgs) => {
   assignPropsTo(argv, global.arg);
 };
 global.updateArgs(process.argv.slice(2));
+var npmInstall = async (packageName) => {
+  if (!global.arg?.trust) {
+    let placeholder = `${packageName} is required for this script`;
+    let packageLink = `https://npmjs.com/package/${packageName}`;
+    let hint = `[${packageName}](${packageLink}) has had ${(await get(`https://api.npmjs.org/downloads/point/last-week/` + packageName)).data.downloads} downloads from npm in the past week`;
+    let trust = await global.arg({placeholder, hint: md(hint)}, [
+      {
+        name: `Abort`,
+        value: "false"
+      },
+      {
+        name: `Install ${packageName}`,
+        value: "true"
+      }
+    ]);
+    if (trust === "false") {
+      echo(`Ok. Exiting...`);
+      exit();
+    }
+  }
+  setHint(`Installing ${packageName}...`);
+  await global.cli("install", packageName);
+};
 global.npm = async (packageName) => {
   try {
     return require(packageName);
   } catch {
-    if (!global.arg?.trust) {
-      let placeholder = `${packageName} is required for this script`;
-      let packageLink = `https://npmjs.com/package/${packageName}`;
-      let hint = `[${packageName}](${packageLink}) has had ${(await get(`https://api.npmjs.org/downloads/point/last-week/` + packageName)).data.downloads} downloads from npm in the past week`;
-      let trust = await global.arg({placeholder, hint: md(hint)}, [
-        {
-          name: `Abort`,
-          value: "false"
-        },
-        {
-          name: `Install ${packageName}`,
-          value: "true"
-        }
-      ]);
-      if (trust === "false") {
-        echo(`Ok. Exiting...`);
-        exit();
-      }
-    }
-    setHint(`Installing ${packageName}...`);
-    await global.cli("install", packageName);
+    await npmInstall(packageName);
     let packageJson = require(global.kenvPath("node_modules", packageName, "package.json"));
     setHint("");
     return require(global.kenvPath("node_modules", packageName, packageJson.main));
   }
+};
+global.npm = async (packageName) => {
+  let pkg = null;
+  try {
+    pkg = require(packageName);
+  } catch (error) {
+    let kenvPackageJson = require(global.kenvPath("package.json"));
+    let isESM = (packageJson2) => packageJson2.type === "module" && packageJson2.exports;
+    let getModulePackageJson = () => {
+      let pkgJsonFilePath = global.kenvPath("node_modules", packageName, "package.json");
+      let pkgJson = require(pkgJsonFilePath);
+      delete require.cache[pkgJsonFilePath];
+      return pkgJson;
+    };
+    if (!kenvPackageJson.dependencies[packageName]) {
+      await npmInstall(packageName);
+      if (isESM(getModulePackageJson())) {
+      }
+    }
+    let packageJson = getModulePackageJson();
+    if (isESM(packageJson)) {
+      let modulePath = global.kenvPath("node_modules", packageName, packageJson.exports);
+      pkg = await global.attemptImport(modulePath);
+    } else {
+      console.log(`NOT ESM`);
+      pkg = require(global.kenvPath("node_modules", packageName, packageJson.main));
+    }
+  }
+  return pkg;
 };
 global.setPanel = async (html) => {
   global.send("SET_PANEL", {html});
@@ -758,4 +811,23 @@ global.sendResponse = async (value) => {
     value
   });
 };
+global.getDataFromApp = async (channel) => {
+  if (process?.send) {
+    return await new Promise((res, rej) => {
+      let messageHandler = (data) => {
+        if (data.channel === channel) {
+          res(data);
+          process.off("message", messageHandler);
+        }
+      };
+      process.on("message", messageHandler);
+      send(`GET_${channel}`);
+    });
+  } else {
+    return {};
+  }
+};
+global.getBackgroundTasks = () => global.getDataFromApp("BACKGROUND");
+global.getSchedule = () => global.getDataFromApp("SCHEDULE");
+global.getScriptsState = () => global.getDataFromApp("SCRIPTS_STATE");
 //# sourceMappingURL=mac-app.cjs.map

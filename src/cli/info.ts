@@ -33,5 +33,9 @@ export let twitter = getByMarker("Twitter:")(fileLines)
 export let shortcode = getByMarker("Shortcode:")(fileLines)
 export let exclude = getByMarker("Exclude:")(fileLines)
 export let schedule = getByMarker("Schedule:")(fileLines)
+export let watch = getByMarker("Watch:")(fileLines)
 export let system = getByMarker("System:")(fileLines)
+export let background = getByMarker("Background:")(
+  fileLines
+)
 export let command = file.replace(".js", "")

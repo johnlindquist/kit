@@ -3,7 +3,6 @@
 NODE_PATH={{KENV}}/node_modules:{{KIT}}/node_modules \
 DOTENV_CONFIG_PATH={{KENV}}/.env \
 {{KIT_NODE}} \
---require dotenv/config \
 --require "{{KIT}}/preload/mac-terminal.cjs" \
 {{TARGET_PATH}}/{{type}}/{{name}}.js \
 "$@"

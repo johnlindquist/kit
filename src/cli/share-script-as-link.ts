@@ -1,13 +1,13 @@
 //Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
 
-let { menu } = await cli("fns")
+let { scriptValue } = (await cli(
+  "fns"
+)) as typeof import("./fns")
 
-let script = await arg(
-  {
-    placeholder: `Which script do you want to share?`,
-  },
-  menu
+let command = await arg(
+  `Which script do you want to share?`,
+  scriptValue("command")
 )
 
 let token = await env("GITHUB_GIST_TOKEN", {
@@ -19,13 +19,13 @@ let token = await env("GITHUB_GIST_TOKEN", {
   placeholder: chalk`Enter GitHub gist token:`,
 })
 
-let scriptJS = `${script}.js`
+let scriptJS = `${command}.js`
 
 let scriptPath = kenvPath("scripts", scriptJS)
 
 let isPublic = await arg("Make gist public?", [
-  { name: `No, keep ${script} private`, value: false },
-  { name: `Yes, make ${script} public`, value: true },
+  { name: `No, keep ${command} private`, value: false },
+  { name: `Yes, make ${command} public`, value: true },
 ])
 
 let body: any = {
@@ -51,7 +51,7 @@ const response = await post(
   config
 )
 
-let link = `https://scriptkit.com/api/new?name=${script}&url=${response.data.files[scriptJS].raw_url}`
+let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[scriptJS].raw_url}`
 exec(`open ` + response.data.html_url)
 copy(link)
 setPlaceholder(`Copied share link to clipboard`)

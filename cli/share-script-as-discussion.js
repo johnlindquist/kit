@@ -1,7 +1,7 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 let { menu } = await cli("fns");
-let script = await arg({
+let { command } = await arg({
     placeholder: `Which script do you want to share?`,
 }, menu);
 let token = await env("GITHUB_GIST_TOKEN", {
@@ -10,11 +10,11 @@ let token = await env("GITHUB_GIST_TOKEN", {
     hint: md(`Click to create a [github gist token](https://github.com/settings/tokens/new?scopes=gist&description=kit+share+script+token)`),
     placeholder: chalk `Enter GitHub gist token:`,
 });
-let scriptJS = `${script}.js`;
+let scriptJS = `${command}.js`;
 let scriptPath = kenvPath("scripts", scriptJS);
 let isPublic = await arg("Make gist public?", [
-    { name: `No, keep ${script} private`, value: false },
-    { name: `Yes, make ${script} public`, value: true },
+    { name: `No, keep ${command} private`, value: false },
+    { name: `Yes, make ${command} public`, value: true },
 ]);
 let content = await readFile(scriptPath, "utf8");
 let body = {
@@ -34,9 +34,9 @@ let config = {
 };
 let response = await post(`https://api.github.com/gists`, body, config);
 let gistUrl = response.data.files[scriptJS].raw_url;
-let link = `https://scriptkit.com/api/new?name=${script}&url=${gistUrl}`;
+let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}`;
 let discussionPost = `
-[Install ${script}](${link})
+[Install ${command}](${link})
 
 \`\`\`js
 ${content}

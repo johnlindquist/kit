@@ -1,6 +1,9 @@
+import { config } from "dotenv"
 import { LoDashStatic } from "lodash"
 import { Options } from "trash"
 import { assignPropsTo } from "../utils"
+
+config({ path: process.env.DOTENV_CONFIG_PATH })
 
 let globalApi = {
   cd: "shelljs",
@@ -122,16 +125,16 @@ global.isBin = async bin =>
 // TODO: Strip out minimist
 global.args = []
 
-global.env = async (
-  envKey,
-  promptConfig = {
+global.env = async (envKey, promptConfig) => {
+  let config = {
     placeholder: `Set ${envKey} to:`,
+    reset: false,
+    ...promptConfig,
   }
-) => {
-  if (global.env[envKey] && !promptConfig?.reset)
+  if (global.env[envKey] && !config?.reset)
     return global.env[envKey]
 
-  let input = await global.kitPrompt(promptConfig)
+  let input = await global.kitPrompt(config)
 
   if (input.startsWith("~"))
     input = input.replace("~", global.env.HOME)

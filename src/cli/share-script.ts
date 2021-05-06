@@ -1,11 +1,13 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
 
-let { menu } = await cli("fns")
+let { scriptValue } = (await cli(
+  "fns"
+)) as typeof import("./fns")
 
-let script = await arg(
+let command = await arg(
   `Which script do you want to share?`,
-  menu
+  scriptValue("command")
 )
 
 let token = await env("GITHUB_GIST_TOKEN", {
@@ -17,16 +19,16 @@ let token = await env("GITHUB_GIST_TOKEN", {
   placeholder: chalk`Enter GitHub gist token:`,
 })
 
-let scriptPath = kenvPath("scripts", script) + ".js"
+let scriptPath = kenvPath("scripts", command) + ".js"
 
 let isPublic = await arg("Make gist public?", [
-  { name: `No, keep ${script} private`, value: false },
-  { name: `Yes, make ${script} public`, value: true },
+  { name: `No, keep ${command} private`, value: false },
+  { name: `Yes, make ${command} public`, value: true },
 ])
 
 let body: any = {
   files: {
-    [script + ".js"]: {
+    [command + ".js"]: {
       content: await readFile(scriptPath, "utf8"),
     },
   },
@@ -48,7 +50,7 @@ const response = await post(
 )
 
 exec(`open ` + response.data.html_url)
-copy(response.data.files[script + ".js"].raw_url)
+copy(response.data.files[command + ".js"].raw_url)
 setPlaceholder(`Copied raw gist url to clipboard`)
 await wait(1000)
 

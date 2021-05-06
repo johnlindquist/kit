@@ -1,6 +1,6 @@
 let { menu } = await cli("fns")
 
-let script = await arg(
+let script: Script = await arg(
   "Change shortcut of which script?",
   (await menu(false))
     .sort((a, b) => {
