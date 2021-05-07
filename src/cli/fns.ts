@@ -136,3 +136,8 @@ export let toggleBackground = async (script: Script) => {
     )
   }
 }
+
+export let scriptPathFromCommand = (command: string) =>
+  kenvPath("scripts", `${command}.js`)
+
+export let oldNew = async () => {}

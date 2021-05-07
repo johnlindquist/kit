@@ -1,11 +1,11 @@
 //Menu: Edit Menu
 //Description: The right-click action of the app
 //Shortcut: cmd shift ;
-let { menu, validate } = await cli("fns");
-let { filePath, command } = await arg({
+let { scriptValue, validate } = await cli("fns");
+let command = await arg({
     placeholder: `Which script do you want to edit?`,
     validate,
-}, menu);
+}, scriptValue("command"));
 let editActions = [
     {
         name: "Open",
@@ -29,5 +29,5 @@ let editActions = [
     },
 ];
 let editAction = await arg("Which action?", editActions);
-await cli(editAction, filePath);
+await cli(editAction, command);
 export {};

@@ -1,30 +1,27 @@
-let { exists, scripts } = (await cli(
+let { scriptValue, scriptPathFromCommand } = (await cli(
   "fns"
 )) as typeof import("./fns")
 
-let script = await arg(
+let command = await arg(
   `Which script do you want to duplicate?`,
-  scripts
+  scriptValue("command")
 )
 
-let newScript = await arg({
+let newCommand = await arg({
   placeholder: `Enter the new script name:`,
-  validate: exists,
 })
 
-let oldFilePath = path.join(kenvPath("scripts"), script)
+let oldFilePath = scriptPathFromCommand(command)
 
 if (!(await isFile(oldFilePath))) {
   console.warn(`${oldFilePath} doesn't exist...`)
   exit()
 }
 
-let newFilePath = path.join(
-  kenvPath("scripts"),
-  newScript + ".js"
-)
+let newFilePath = scriptPathFromCommand(newCommand)
+
 cp(oldFilePath, newFilePath)
-await cli("create-bin", "scripts", newScript)
+await cli("create-bin", "scripts", newCommand)
 
 edit(newFilePath, kenvPath())
 

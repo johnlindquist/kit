@@ -74,3 +74,5 @@ export let toggleBackground = async (script) => {
         await edit(kenvPath("logs", `${script.command}.log`), kenvPath());
     }
 };
+export let scriptPathFromCommand = (command) => kenvPath("scripts", `${command}.js`);
+export let oldNew = async () => { };
