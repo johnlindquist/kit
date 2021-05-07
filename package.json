@@ -28,6 +28,7 @@
     "node-ipc": "^9.1.4",
     "node-notifier": "^9.0.1",
     "rxjs": "^6.6.7",
+    "scriptkit-octokit": "^1.0.4",
     "shelljs": "^0.8.4",
     "strip-ansi": "^6.0.0",
     "trash": "^7.0.0",
