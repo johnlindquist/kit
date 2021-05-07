@@ -3,7 +3,7 @@
 
 let { scriptValue } = (await cli(
   "fns"
-)) as typeof import("./fns")
+)) as typeof import("../cli/fns")
 
 let command = await arg(
   `Which script do you want to share?`,
@@ -22,6 +22,10 @@ let how = await arg("How would you like to share?", [
   {
     name: "Create install link",
     value: "share-script-as-link",
+  },
+  {
+    name: "Prep for discussion",
+    value: "share-script-as-discussion",
   },
 ])
 
