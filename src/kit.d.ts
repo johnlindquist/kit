@@ -14,7 +14,8 @@ import { AdapterOptions, LowdbSync } from "lowdb"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
-import { notify as notifyType } from "node-notifier"
+import { Notification } from "node-notifier/notifiers/notificationcenter"
+import * as Notifier from "node-notifier"
 
 type Panel =
   | string
@@ -364,7 +365,7 @@ declare global {
         schedule: Schedule[]
       }>
 
-      notify: typeof notifyType
+      notify: typeof Notifier.notify
 
       getScripts: GetScripts
 
@@ -459,7 +460,7 @@ declare global {
   let db: DB
 
   let md: Markdown
-  let notify: typeof notifyType
+  let notify: typeof Notifier.notify
 
   let getScripts: GetScripts
 

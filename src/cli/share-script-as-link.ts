@@ -1,5 +1,6 @@
 //Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
+let { Octokit } = await npm("scriptkit-octokit")
 
 let { scriptValue } = (await cli(
   "fns"
@@ -10,51 +11,29 @@ let command = await arg(
   scriptValue("command")
 )
 
-let token = await env("GITHUB_GIST_TOKEN", {
-  secret: true,
-  ignoreBlur: true,
-  hint: md(
-    `Click to create a [github gist token](https://github.com/settings/tokens/new?scopes=gist&description=kit+share+script+token)`
-  ),
-  placeholder: chalk`Enter GitHub gist token:`,
+let octokit = new Octokit({
+  auth: {
+    scopes: ["gist"],
+    env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
+  },
 })
 
 let scriptJS = `${command}.js`
 
 let scriptPath = kenvPath("scripts", scriptJS)
 
-let isPublic = await arg("Make gist public?", [
-  { name: `No, keep ${command} private`, value: false },
-  { name: `Yes, make ${command} public`, value: true },
-])
-
-let body: any = {
+let response = await octokit.rest.gists.create({
   files: {
-    [scriptJS]: {
+    [command + ".js"]: {
       content: await readFile(scriptPath, "utf8"),
     },
   },
-}
-
-if (isPublic) body.public = true
-
-let config = {
-  headers: {
-    Accept: "application/vnd.github.v3+json",
-    Authorization: `Bearer ${token}`,
-  },
-}
-
-const response = await post(
-  `https://api.github.com/gists`,
-  body,
-  config
-)
+  public: true,
+})
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[scriptJS].raw_url}`
-exec(`open ` + response.data.html_url)
 copy(link)
 setPlaceholder(`Copied share link to clipboard`)
-await wait(1000)
+await wait(2000)
 
 export {}

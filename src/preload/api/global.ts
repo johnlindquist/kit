@@ -69,8 +69,11 @@ global.paste = (...args: any) =>
 global.copy = (...args: any) =>
   require("clipboardy").write(...args)
 
-global.notify = (...args: any) =>
-  require("node-notifier").notify(...args)
+global.notify = (...args: any) => {
+  let notifier = require("node-notifier")
+  notifier.notify(...args)
+  return notifier
+}
 
 global.trash = async (
   input: string | readonly string[],

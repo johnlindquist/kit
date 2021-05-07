@@ -15,6 +15,10 @@ let how = await arg("How would you like to share?", [
         name: "Create install link",
         value: "share-script-as-link",
     },
+    {
+        name: "Prep for discussion",
+        value: "share-script-as-discussion",
+    },
 ]);
 await cli(how, command);
 export {};

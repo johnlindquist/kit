@@ -1,14 +1,14 @@
 // Description: Opens the selected script in your editor
 
-let { scriptValue } = (await cli(
+let { scriptValue, scriptPathFromCommand } = (await cli(
   "fns"
 )) as typeof import("./fns")
 
-let filePath = await arg(
+let command = await arg(
   `Which script do you want to edit?`,
-  scriptValue("filePath")
+  scriptValue("command")
 )
 
-edit(filePath, kenvPath())
+edit(scriptPathFromCommand(command), kenvPath())
 
 export {}

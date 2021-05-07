@@ -1,6 +1,5 @@
 // Menu: Main
 // Description: Script Kit
-let { menu } = await cli("fns");
 global.onTabs = [];
 onTab("Run", async () => {
     await cli("app-run");
@@ -12,7 +11,7 @@ onTab("New", async () => {
     await main("new");
 });
 onTab("Share", async () => {
-    await main("share");
+    await cli("share");
 });
 onTab("Hot 🔥", async () => {
     await main("hot");
