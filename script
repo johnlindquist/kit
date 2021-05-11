@@ -1,6 +1,21 @@
 #!/bin/bash
 # ../../ of this script
-KIT=$(builtin cd "$(dirname ${BASH_SOURCE[0]})"; pwd)
+# KIT=$(builtin cd "$(dirname ${BASH_SOURCE[0]})"; pwd)
+KIT="$HOME/.kit"
+
+if [ -z "$KENV" ] 
+then
+    echo $1
+    if [[ "$1" == *"$KIT"* ]]
+    then
+    cp -f $2 $KIT/tmp
+    set -- "$1" "$KIT/tmp/$(basename $2)" "${@:3}"
+    else
+    cp -f $1 $KIT/tmp
+    set -- "$KIT/tmp/$(basename $1)" "${@:2}"
+    fi
+    
+fi
 
 PATH="$KIT/node/bin:$PATH"
 NODE_PATH="$KIT/node_modules"
