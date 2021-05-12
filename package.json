@@ -5,9 +5,8 @@
   "types": "./src/kit.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
-    "preload": "concurrently \"tsc --watch --noEmit --project ./src/preload/\" \"./node/bin/node ./build/build.cjs\"",
     "scripts": "tsc --watch",
-    "dev": "npm run clean && concurrently --kill-others \"npm run preload\" \"npm run scripts\""
+    "dev": "npm run clean && concurrently --kill-others \"npm run scripts\""
   },
   "author": "",
   "license": "ISC",
@@ -25,23 +24,26 @@
     "lowdb": "^1.0.0",
     "marked": "^2.0.1",
     "minimist": "^1.2.5",
+    "node-fetch": "^2.6.1",
     "node-ipc": "^9.1.4",
     "node-notifier": "^9.0.1",
+    "project-name-generator": "^2.1.9",
     "rxjs": "^6.6.7",
     "scriptkit-octokit": "^1.0.4",
     "shelljs": "^0.8.4",
     "strip-ansi": "^6.0.0",
     "trash": "^7.0.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "zx": "^1.4.0"
   },
   "type": "module",
   "devDependencies": {
+    "@types/lowdb": "^1.0.9",
+    "@types/marked": "^2.0.2",
+    "@types/minimist": "^1.2.1",
     "@types/node-notifier": "^8.0.0",
     "@types/shelljs": "^0.8.8",
     "concurrently": "^6.0.1",
-    "esbuild": "^0.11.6",
-    "esbuild-register": "^2.4.0",
-    "project-name-generator": "^2.1.9",
     "rimraf": "^3.0.2",
     "typescript": "^4.2.3"
   },

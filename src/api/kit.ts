@@ -3,11 +3,12 @@
 //https://github.com/nodejs/node/issues/35103
 
 global.attemptImport = async (path, ..._args) => {
-  global.updateArgs(_args)
   try {
+    global.updateArgs(_args)
+
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM
-    return await import(path + `?uuid=${global.uuid()}`)
+    return await import(path + "?uuid=" + global.uuid())
   } catch (error) {
     console.warn(error.message)
     global.setPlaceholder(error.message)
@@ -87,7 +88,7 @@ global.runSub = async (scriptPath, ...runArgs) => {
       },
     })
 
-    let name = process.argv[1].replace(
+    let name = process.argv[2].replace(
       global.kenvPath() + global.path.sep,
       ""
     )
@@ -125,7 +126,6 @@ global.runSub = async (scriptPath, ...runArgs) => {
 
 process.on("uncaughtException", async err => {
   console.warn(`UNCAUGHT EXCEPTION: ${err}`)
-  exit()
 })
 
 global.send = async (channel, data) => {
@@ -182,23 +182,31 @@ global.setPlaceholder = text => {
   })
 }
 
-global.run = async (name, ..._args) => {
+let resolveToScriptPath = script => {
+  if (!script.endsWith(".js")) script += ".js"
+  if (script.startsWith(path.sep)) return script
+  if (!script.includes(path.sep))
+    return global.kenvPath("scripts", script)
+
+  return script
+}
+
+global.run = async (script, ..._args) => {
+  let resolvedScript = resolveToScriptPath(script)
   global.onTabs = []
-  global.kitScript = name
+  global.kitScript = resolvedScript
   global.send("RUN_SCRIPT", {
-    name,
+    name: resolvedScript,
     args: _args,
   })
-  // setPlaceholder(`>_ ${kitScript}...`)
-  let kitScriptPath =
-    global.kenvPath("scripts", global.kitScript) + ".js"
 
-  return global.attemptImport(kitScriptPath, ..._args)
+  return global.attemptImport(resolvedScript, ..._args)
 }
 
 global.kit = async (scriptPath, ..._args) => {
   let kitScriptPath =
     global.kitPath("lib", scriptPath) + ".js"
+  console.log({ kitScriptPath, _args })
   return await global.attemptImport(kitScriptPath, ..._args)
 }
 
@@ -332,4 +340,4 @@ global.setChoices = async choices => {
   global.kitPrevChoices = choices
 }
 
-global.md = markdown => require("marked")(markdown)
+export {}

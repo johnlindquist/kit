@@ -1,0 +1,4 @@
+let value = await arg("value")
+let again = await arg("again")
+
+console.log(`${value} ${again}`)

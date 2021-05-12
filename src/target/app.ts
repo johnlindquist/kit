@@ -1,5 +1,5 @@
-import { MODE, CHANNELS } from "../../enums"
-import { assignPropsTo } from "../utils"
+import { MODE, CHANNELS } from "../enums.js"
+import { assignPropsTo } from "../utils.js"
 
 let displayChoices = (choices: Choice<any>[]) => {
   switch (typeof choices) {
@@ -178,6 +178,7 @@ global.arg = async (placeholderOrConfig, choices) => {
   let firstArg = global.args.length
     ? global.args.shift()
     : null
+
   let placeholderOrValidateMessage = ""
   if (firstArg) {
     let valid = true
@@ -219,8 +220,13 @@ global.arg = async (placeholderOrConfig, choices) => {
   })
 }
 
+let { default: minimist } = (await import(
+  "minimist"
+)) as any
+
+global.args = []
 global.updateArgs = arrayOfArgs => {
-  let argv = require("minimist")(arrayOfArgs)
+  let argv = minimist(arrayOfArgs)
   global.args = [...global.args, ...argv._]
   global.argOpts = Object.entries(argv)
     .filter(([key]) => key != "_")
@@ -234,9 +240,10 @@ global.updateArgs = arrayOfArgs => {
 
   assignPropsTo(argv, global.arg)
 }
+
 global.updateArgs(process.argv.slice(2))
 
-let npmInstall = async packageName => {
+let appInstall = async packageName => {
   if (!global.arg?.trust) {
     let placeholder = `${packageName} is required for this script`
 
@@ -276,78 +283,8 @@ let npmInstall = async packageName => {
   await global.cli("install", packageName)
 }
 
-global.npm = async packageName => {
-  try {
-    return require(packageName)
-  } catch {
-    await npmInstall(packageName)
-
-    let packageJson = require(global.kenvPath(
-      "node_modules",
-      packageName,
-      "package.json"
-    ))
-
-    setHint("")
-
-    return require(global.kenvPath(
-      "node_modules",
-      packageName,
-      packageJson.main
-    ))
-  }
-}
-
-global.npm = async packageName => {
-  let pkg = null
-  try {
-    pkg = require(packageName)
-  } catch (error) {
-    let kenvPackageJson = require(global.kenvPath(
-      "package.json"
-    ))
-
-    let isESM = (packageJson: any) =>
-      packageJson.type === "module" && packageJson.exports
-
-    let getModulePackageJson = () => {
-      let pkgJsonFilePath = global.kenvPath(
-        "node_modules",
-        packageName,
-        "package.json"
-      )
-      let pkgJson = require(pkgJsonFilePath)
-      delete require.cache[pkgJsonFilePath]
-      return pkgJson
-    }
-
-    if (!kenvPackageJson.dependencies[packageName]) {
-      await npmInstall(packageName)
-      if (isESM(getModulePackageJson())) {
-        // TODO: Figure out how to immediately import ESM after install
-      }
-    }
-
-    let packageJson = getModulePackageJson()
-    if (isESM(packageJson)) {
-      let modulePath = global.kenvPath(
-        "node_modules",
-        packageName,
-        packageJson.exports
-      )
-
-      pkg = await global.attemptImport(modulePath)
-    } else {
-      console.log(`NOT ESM`)
-      pkg = require(global.kenvPath(
-        "node_modules",
-        packageName,
-        packageJson.main
-      ))
-    }
-  }
-  return pkg
-}
+let { createNpm } = await import("../api/npm.js")
+global.npm = createNpm(appInstall)
 
 global.setPanel = async html => {
   global.send("SET_PANEL", { html })

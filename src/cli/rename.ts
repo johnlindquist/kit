@@ -1,8 +1,5 @@
-let {
-  exists,
-  scriptValue,
-  scriptPathFromCommand,
-} = await cli("fns")
+let { exists, scriptValue, scriptPathFromCommand } =
+  await cli("fns")
 
 let command = await arg(
   `Which script do you want to rename?`,

@@ -3,22 +3,26 @@
 # KIT=$(builtin cd "$(dirname ${BASH_SOURCE[0]})"; pwd)
 KIT="$HOME/.kit"
 
-if [ -z "$KENV" ] 
-then
-    echo $1
-    if [[ "$1" == *"$KIT"* ]]
-    then
-    cp -f $2 $KIT/tmp
-    set -- "$1" "$KIT/tmp/$(basename $2)" "${@:3}"
-    else
-    cp -f $1 $KIT/tmp
-    set -- "$KIT/tmp/$(basename $1)" "${@:2}"
-    fi
+# if [ -z "$KENV" ] 
+# then
+#     echo $1
+#     if [[ "$1" == *"$KIT"* ]]
+#     then
+#     cp -f $2 $KIT/tmp
+#     set -- "$1" "$KIT/tmp/$(basename $2)" "${@:3}"
+#     else
+#     cp -f $1 $KIT/tmp
+#     set -- "$KIT/tmp/$(basename $1)" "${@:2}"
+#     fi
     
+# fi
+
+if [ -z "$KENV" ]
+then
+    KENV="$HOME/.kenv"
 fi
 
 PATH="$KIT/node/bin:$PATH"
-NODE_PATH="$KIT/node_modules"
 KIT_NODE="$KIT/node/bin/node"
 KIT_NPM="$KIT/node/bin/npm"
 KIT_PRELOAD="$KIT/preload"
@@ -31,5 +35,5 @@ KIT_NODE="$KIT_NODE" \
 KIT_NPM="$KIT_NPM" \
 KIT_PRELOAD="$KIT_PRELOAD" \
 node \
---require "$KIT_PRELOAD/mac-terminal.cjs" \
+$KIT/mac-terminal.js \
 "$@"

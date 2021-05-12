@@ -1,4 +1,8 @@
-import { assignPropsTo } from "../utils"
+import { assignPropsTo } from "../utils.js"
+
+let { default: enquirer } = (await import(
+  "enquirer"
+)) as any
 
 global.kitPrompt = async (config: any) => {
   if (config?.choices) {
@@ -48,9 +52,9 @@ global.kitPrompt = async (config: any) => {
   }
 
   // TODO: Strip out enquirer autocomplete
-  let result = await require("enquirer").prompt(
-    promptConfig
-  )
+
+  let { prompt } = enquirer
+  let result = (await prompt(promptConfig)) as any
 
   return result.value
 }
@@ -94,8 +98,14 @@ global.arg = async (messageOrConfig = "Input", choices) => {
   return input
 }
 
+let { default: minimist } = (await import(
+  "minimist"
+)) as any
+
+global.args = []
 global.updateArgs = arrayOfArgs => {
-  let argv = require("minimist")(arrayOfArgs)
+  let argv = minimist(arrayOfArgs)
+
   global.args = [...global.args, ...argv._]
   global.argOpts = Object.entries(argv)
     .filter(([key]) => key != "_")
@@ -111,67 +121,46 @@ global.updateArgs = arrayOfArgs => {
 }
 global.updateArgs(process.argv.slice(2))
 
-global.npm = async packageName => {
-  try {
-    return require(packageName)
-  } catch (error) {
-    if (!global.arg?.trust) {
-      let installMessage = global.chalk`\n{green ${global.env.KIT_SCRIPT_NAME}} needs to install the npm library: {yellow ${packageName}}`
-
-      let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${
-        (
-          await get(
-            `https://api.npmjs.org/downloads/point/last-week/` +
-              packageName
-          )
-        ).data.downloads
-      }} downloads from npm in the past week`
-
-      let packageLink = `https://npmjs.com/package/${packageName}`
-      let readMore = global.chalk`
-    Read more about {yellow ${packageName}} here: {yellow ${packageLink}}
-    `
-      echo(installMessage)
-      echo(downloadsMessage)
-      echo(readMore)
-
-      let message = global.chalk`Do you trust {yellow ${packageName}}?`
-
-      let config: PromptConfig = {
-        placeholder: message,
-        choices: [
-          { name: "Yes", value: true },
-          { name: "No", value: false },
-        ],
-      }
-
-      let trust = await global.kitPrompt(config)
-      if (!trust) {
-        echo(`Ok. Exiting...`)
-        exit()
-      }
+let terminalInstall = async packageName => {
+  if (!global.arg?.trust) {
+    let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`
+    let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${
+      (
+        await get(
+          `https://api.npmjs.org/downloads/point/last-week/` +
+            packageName
+        )
+      ).data.downloads
+    }} downloads from npm in the past week`
+    let packageLink = `https://npmjs.com/package/${packageName}`
+    let readMore = global.chalk`
+  Read more about {yellow ${packageName}} here: {yellow ${packageLink}}
+  `
+    echo(installMessage)
+    echo(downloadsMessage)
+    echo(readMore)
+    let message = global.chalk`Do you trust {yellow ${packageName}}?`
+    let config: PromptConfig = {
+      placeholder: message,
+      choices: [
+        { name: "Yes", value: true },
+        { name: "No", value: false },
+      ],
     }
-    echo(
-      global.chalk`Installing {yellow ${packageName}} and continuing.`
-    )
-
-    await global.cli("install", packageName)
-    let packageJsonPath = global.kenvPath(
-      "node_modules",
-      packageName,
-      "package.json"
-    )
-    let packageJson = require(packageJsonPath)
-
-    let packageImport = global.kenvPath(
-      "node_modules",
-      packageName,
-      packageJson?.main || "index.js"
-    )
-
-    return require(packageImport)
+    let trust = await global.kitPrompt(config)
+    if (!trust) {
+      echo(`Ok. Exiting...`)
+      exit()
+    }
   }
+  echo(
+    global.chalk`Installing {yellow ${packageName}} and continuing.`
+  )
+  await global.cli("install", packageName)
 }
+
+let { createNpm } = await import("../api/npm.js")
+global.npm = createNpm(terminalInstall)
 
 global.getBackgroundTasks = async () => ({
   channel: "",

@@ -27,3 +27,27 @@ build({
   watch: true,
   logLevel: "error",
 })
+
+build({
+  entryPoints: ["./src/preload/mac-app.ts"],
+  bundle: false,
+  platform: "node",
+
+  outfile: "./preload/mac-app.mjs",
+  sourcemap: true,
+  target: "node15",
+  watch: true,
+  logLevel: "error",
+})
+
+build({
+  entryPoints: ["./src/preload/mac-terminal.ts"],
+  bundle: false,
+  platform: "node",
+
+  outfile: "./preload/mac-terminal.mjs",
+  sourcemap: true,
+  target: "node15",
+  watch: true,
+  logLevel: "error",
+})

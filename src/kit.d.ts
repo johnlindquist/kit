@@ -133,7 +133,7 @@ interface DB {
 }
 
 interface GetScripts {
-  (): Script[]
+  (): Promise<Script[]>
 }
 
 interface SelectKitEditor {
@@ -372,6 +372,8 @@ declare global {
       memoryMap: Map<string, any>
 
       selectKitEditor: SelectKitEditor
+
+      $: typeof import("zx").$
     }
   }
   //preload/api.cjs
