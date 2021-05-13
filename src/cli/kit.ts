@@ -1,5 +1,7 @@
 //Description: Script Kit CLI
 
+import { CLI } from "../cli"
+
 interface CLIMenuItem {
   name?: string
   placeholder?: string
@@ -95,7 +97,7 @@ let found = cliScripts.find(
   config => config.name == script || config.alias == script
 )
 if (found) {
-  await cli(found.name)
+  await cli(found.name as keyof CLI)
 }
 
 export {}

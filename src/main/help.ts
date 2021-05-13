@@ -1,3 +1,5 @@
+import { CLI } from "../cli"
+
 let { host, port } = await new Promise((res, rej) => {
   let messageHandler = (data: any) => {
     if (data.channel === "SERVER") {
@@ -10,7 +12,7 @@ let { host, port } = await new Promise((res, rej) => {
   send("GET_SERVER_STATE")
 })
 
-let otherOptions: Choice<string>[] = [
+let otherOptions: Choice<keyof CLI>[] = [
   {
     name: "Get Help",
     description: `Post a question to Script Kit GitHub discussions`,

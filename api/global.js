@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { assignPropsTo } from "../utils.js";
-import * as os from "os";
-config({ path: process.env.DOTENV_CONFIG_PATH });
+import { homedir } from "os";
+config({ path: process.env.DOTENV });
 global.cwd = process.cwd;
 global.pid = process.pid;
 global.stderr = process.stderr;
@@ -31,7 +31,7 @@ global.checkProcess = (pid) => {
     return stdout;
 };
 global.home = (...pathParts) => {
-    return path.resolve(os.homedir(), ...pathParts);
+    return path.resolve(homedir(), ...pathParts);
 };
 global.isFile = async (file) => test("-f", file);
 global.isDir = async (dir) => test("-d", dir);

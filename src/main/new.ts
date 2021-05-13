@@ -1,4 +1,6 @@
-let newOptions: Choice<string>[] = [
+import { CLI } from "../cli"
+
+let newOptions: Choice<keyof CLI>[] = [
   {
     name: "New from name",
     description: "Enter a script name",

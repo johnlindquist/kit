@@ -40,6 +40,7 @@ global.kitPrompt = async (config) => {
     };
     // TODO: Strip out enquirer autocomplete
     let { prompt } = enquirer;
+    prompt.on("cancel", () => process.exit());
     let result = (await prompt(promptConfig));
     return result.value;
 };

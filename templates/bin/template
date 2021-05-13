@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DOTENV_CONFIG_PATH={{KENV}}/.env \
+DOTENV={{KENV}}/.env \
 {{KIT_NODE}} \
 {{KIT}}/mac-terminal.js \
 {{TARGET_PATH}}/{{type}}/{{name}}.js \

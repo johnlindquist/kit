@@ -77,7 +77,7 @@ global.runSub = async (scriptPath, ...runArgs) => {
         global.kitPath("preload/mac.js"),
       ],
       //Manually set node. Shouldn't have to worry about PATH
-      execPath: global.env.KIT_NODE,
+      execPath: kitPath("node", "bin", "node"),
       env: {
         ...global.env,
         KIT_PARENT_NAME:
@@ -126,6 +126,7 @@ global.runSub = async (scriptPath, ...runArgs) => {
 
 process.on("uncaughtException", async err => {
   console.warn(`UNCAUGHT EXCEPTION: ${err}`)
+  process.exit()
 })
 
 global.send = async (channel, data) => {
@@ -201,13 +202,6 @@ global.run = async (script, ..._args) => {
   })
 
   return global.attemptImport(resolvedScript, ..._args)
-}
-
-global.kit = async (scriptPath, ..._args) => {
-  let kitScriptPath =
-    global.kitPath("lib", scriptPath) + ".js"
-  console.log({ kitScriptPath, _args })
-  return await global.attemptImport(kitScriptPath, ..._args)
 }
 
 global.main = async (scriptPath, ..._args) => {
@@ -339,5 +333,45 @@ global.setChoices = async choices => {
   global.send("SET_CHOICES", { choices })
   global.kitPrevChoices = choices
 }
+
+let dirs = ["cli", "lib", "main"]
+
+let kitGet = (
+  _target: any,
+  dir: string,
+  _receiver: any
+) => {
+  if (global[dir] && !dirs.includes(dir)) return global[dir]
+  try {
+    return new Proxy(
+      {},
+      {
+        get: async (_target, module: string, _receiver) => {
+          let modulePath = `../${dir}/${module}.js?${global.uuid()}`
+          return await import(modulePath)
+        },
+      }
+    )
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+let kitFn = async (
+  _target: any,
+  _obj: any,
+  [scriptPath, ..._args]
+) => {
+  let kitScriptPath =
+    global.kitPath("lib", scriptPath) + ".js"
+  return await global.attemptImport(kitScriptPath, ..._args)
+}
+
+global.kit = new Proxy(() => {}, {
+  get: kitGet,
+  apply: kitFn,
+})
+
+export {}
 
 export {}

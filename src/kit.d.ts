@@ -14,8 +14,10 @@ import { AdapterOptions, LowdbSync } from "lowdb"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
-import { Notification } from "node-notifier/notifiers/notificationcenter"
 import * as Notifier from "node-notifier"
+import { CLI } from "./cli"
+import { Main } from "./main"
+import { Lib } from "./lib"
 
 type Panel =
   | string
@@ -102,6 +104,25 @@ interface KitModuleLoader {
     ...moduleArgs: string[]
   ): Promise<any>
 }
+interface CliModuleLoader {
+  (
+    packageName: keyof CLI,
+    ...moduleArgs: string[]
+  ): Promise<any>
+}
+interface LibModuleLoader {
+  (
+    packageName: keyof Lib,
+    ...moduleArgs: string[]
+  ): Promise<any>
+}
+
+interface MainModuleLoader {
+  (
+    packageName: keyof Main,
+    ...moduleArgs: string[]
+  ): Promise<any>
+}
 
 interface SetAppProp {
   (value: any): void
@@ -138,6 +159,165 @@ interface GetScripts {
 
 interface SelectKitEditor {
   (reset: boolean): Promise<string>
+}
+
+interface KitGlobal {
+  cd: typeof shelljs.cd
+  cp: typeof shelljs.cp
+  chmod: typeof shelljs.chmod
+  echo: typeof shelljs.echo
+  exec: typeof shelljs.exec
+  exit: typeof shelljs.exit
+  grep: typeof shelljs.grep
+  ln: typeof shelljs.ln
+  ls: typeof shelljs.ls
+  mkdir: typeof shelljs.mkdir
+  mv: typeof shelljs.mv
+  sed: typeof shelljs.sed
+  tempdir: typeof shelljs.tempdir
+  test: typeof shelljs.test
+  which: typeof shelljs.which
+  spawn: typeof child_process.spawn
+  spawnSync: typeof child_process.spawnSync
+  fork: typeof child_process.fork
+  get: AxiosInstance["get"]
+  put: AxiosInstance["put"]
+  post: AxiosInstance["post"]
+  patch: AxiosInstance["patch"]
+  readFile: typeof fsPromises.readFile
+  writeFile: typeof fsPromises.writeFile
+  appendFile: typeof fsPromises.appendFile
+  createWriteStream: typeof fs.createWriteStream
+  readdir: typeof fsPromises.readdir
+  compile: typeof handlebars.compile
+
+  cwd: typeof process.cwd
+  pid: typeof process.pid
+  stderr: typeof process.stderr
+  stdin: typeof process.stdin
+  stdout: typeof process.stdout
+  uptime: typeof process.uptime
+
+  path: typeof import("path")
+
+  _: LoDashStatic
+
+  uuid: typeof uuidType.v4
+  chalk: ChalkFunction
+  paste: typeof clipboardy.read
+  copy: typeof clipboardy.write
+  db: DB
+
+  trash: typeof trashType
+  rm: typeof trashType
+
+  wait: Wait
+
+  checkProcess: (processId: number) => string
+
+  home: PathFn
+  isFile: IsCheck
+  isDir: IsCheck
+  isBin: IsCheck
+
+  //preload/kit.cjs
+  arg: Arg
+  drop: Drop
+  hotkey: Hotkey
+  env: Env
+  argOpts: any
+
+  kitPrompt: (promptConfig: PromptConfig) => Promise<any>
+
+  kitPath: PathFn
+  kenvPath: PathFn
+  libPath: PathFn
+  kitScriptFromPath: PathFn
+  kitFromPath: PathFn
+
+  tmp: PathFn
+  inspect: Inspect
+
+  compileTemplate: CompileTemplate
+
+  onTab: OnTab
+  md: Markdown
+
+  applescript: AppleScript
+  send: Send
+
+  attemptImport: KitModuleLoader
+  npm: KitModuleLoader
+  main: MainModuleLoader
+  lib: LibModuleLoader
+  cli: CliModuleLoader
+  setup: KitModuleLoader
+  run: KitModuleLoader
+
+  setPlaceholder: SetAppProp
+  setPanel: SetAppProp
+  setHint: SetAppProp
+  setInput: SetAppProp
+  setIgnoreBlur: SetAppProp
+
+  show: ShowAppWindow
+  showImage: ShowAppWindow
+
+  edit: Edit
+
+  args: Args
+  updateArgs: UpdateArgs
+
+  kitScript: string
+
+  terminal: (script: string) => Promise<string>
+  iterm: (iterm: string) => Promise<string>
+
+  onTabs: {
+    name: string
+    fn: (input?: string) => void | Promise<any>
+  }[]
+  onTabIndex: number
+  kitLib: (lib: string) => Promise<string>
+
+  runSub: (
+    scriptPath: string,
+    ...runArgs: string[]
+  ) => Promise<any>
+
+  setMode: (mode: MODE) => void
+
+  currentOnTab: any
+  kitPrevChoices: Choices<any>
+
+  setChoices: (choices: Choices<any>) => void
+  sendResponse: (value: any) => void
+  getDataFromApp: (channel: string) => Promise<any>
+  getBackgroundTasks: () => Promise<{
+    channel: string
+    tasks: Background[]
+  }>
+  getSchedule: () => Promise<{
+    channel: string
+    schedule: Schedule[]
+  }>
+  getScriptsState: () => Promise<{
+    channel: string
+    tasks: Background[]
+    schedule: Schedule[]
+  }>
+
+  notify: typeof Notifier.notify
+
+  getScripts: GetScripts
+
+  memoryMap: Map<string, any>
+
+  selectKitEditor: SelectKitEditor
+
+  $: typeof import("zx").$
+
+  kit: Kit
 }
 
 declare global {
@@ -215,166 +395,7 @@ declare global {
   }
 
   namespace NodeJS {
-    interface Global {
-      //preload/api.cjs
-      cd: typeof shelljs.cd
-      cp: typeof shelljs.cp
-      chmod: typeof shelljs.chmod
-      echo: typeof shelljs.echo
-      exec: typeof shelljs.exec
-      exit: typeof shelljs.exit
-      grep: typeof shelljs.grep
-      ln: typeof shelljs.ln
-      ls: typeof shelljs.ls
-      mkdir: typeof shelljs.mkdir
-      mv: typeof shelljs.mv
-      sed: typeof shelljs.sed
-      tempdir: typeof shelljs.tempdir
-      test: typeof shelljs.test
-      which: typeof shelljs.which
-      spawn: typeof child_process.spawn
-      spawnSync: typeof child_process.spawnSync
-      fork: typeof child_process.fork
-      get: AxiosInstance["get"]
-      put: AxiosInstance["put"]
-      post: AxiosInstance["post"]
-      patch: AxiosInstance["patch"]
-      readFile: typeof fsPromises.readFile
-      writeFile: typeof fsPromises.writeFile
-      appendFile: typeof fsPromises.appendFile
-      createWriteStream: typeof fs.createWriteStream
-      readdir: typeof fsPromises.readdir
-      compile: typeof handlebars.compile
-
-      cwd: typeof process.cwd
-      pid: typeof process.pid
-      stderr: typeof process.stderr
-      stdin: typeof process.stdin
-      stdout: typeof process.stdout
-      uptime: typeof process.uptime
-
-      path: typeof import("path")
-
-      _: LoDashStatic
-
-      uuid: typeof uuidType.v4
-      chalk: ChalkFunction
-      paste: typeof clipboardy.read
-      copy: typeof clipboardy.write
-      db: DB
-
-      trash: typeof trashType
-      rm: typeof trashType
-
-      wait: Wait
-
-      checkProcess: (processId: number) => string
-
-      home: PathFn
-      isFile: IsCheck
-      isDir: IsCheck
-      isBin: IsCheck
-
-      //preload/kit.cjs
-      arg: Arg
-      drop: Drop
-      hotkey: Hotkey
-      env: Env
-      argOpts: any
-
-      kitPrompt: (
-        promptConfig: PromptConfig
-      ) => Promise<any>
-
-      kitPath: PathFn
-      kenvPath: PathFn
-      libPath: PathFn
-      kitScriptFromPath: PathFn
-      kitFromPath: PathFn
-
-      tmp: PathFn
-      inspect: Inspect
-
-      compileTemplate: CompileTemplate
-
-      onTab: OnTab
-      md: Markdown
-
-      applescript: AppleScript
-      send: Send
-
-      attemptImport: KitModuleLoader
-      npm: KitModuleLoader
-      main: KitModuleLoader
-      kit: KitModuleLoader
-      lib: KitModuleLoader
-      cli: KitModuleLoader
-      setup: KitModuleLoader
-      run: KitModuleLoader
-
-      setPlaceholder: SetAppProp
-      setPanel: SetAppProp
-      setHint: SetAppProp
-      setInput: SetAppProp
-      setIgnoreBlur: SetAppProp
-
-      show: ShowAppWindow
-      showImage: ShowAppWindow
-
-      edit: Edit
-
-      args: Args
-      updateArgs: UpdateArgs
-
-      kitScript: string
-
-      terminal: (script: string) => Promise<string>
-      iterm: (iterm: string) => Promise<string>
-
-      onTabs: {
-        name: string
-        fn: (input?: string) => void | Promise<any>
-      }[]
-      onTabIndex: number
-      kitLib: (lib: string) => Promise<string>
-
-      runSub: (
-        scriptPath: string,
-        ...runArgs: string[]
-      ) => Promise<any>
-
-      setMode: (mode: MODE) => void
-
-      currentOnTab: any
-      kitPrevChoices: Choices<any>
-
-      setChoices: (choices: Choices<any>) => void
-      sendResponse: (value: any) => void
-      getDataFromApp: (channel: string) => Promise<any>
-      getBackgroundTasks: () => Promise<{
-        channel: string
-        tasks: Background[]
-      }>
-      getSchedule: () => Promise<{
-        channel: string
-        schedule: Schedule[]
-      }>
-      getScriptsState: () => Promise<{
-        channel: string
-        tasks: Background[]
-        schedule: Schedule[]
-      }>
-
-      notify: typeof Notifier.notify
-
-      getScripts: GetScripts
-
-      memoryMap: Map<string, any>
-
-      selectKitEditor: SelectKitEditor
-
-      $: typeof import("zx").$
-    }
+    interface Global extends KitGlobal {}
   }
   //preload/api.cjs
   let cd: typeof shelljs.cd
@@ -423,9 +444,9 @@ declare global {
   let attemptImport: KitModuleLoader
   let npm: KitModuleLoader
   let main: KitModuleLoader
-  let kit: KitModuleLoader
+  let kit: Kit
   let lib: KitModuleLoader
-  let cli: KitModuleLoader
+  let cli: CliModuleLoader
   let setup: KitModuleLoader
   let run: KitModuleLoader
 
@@ -472,3 +493,9 @@ declare global {
 
   let selectKitEditor: SelectKitEditor
 }
+
+type Kit = KitModuleLoader & {
+  main: Main
+  cli: CLI
+  lib: Lib
+} & Omit<KitGlobal, "kit">

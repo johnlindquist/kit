@@ -1,0 +1,4 @@
+#!/bin/bash
+
+THIS_DIR=$(builtin cd "$(dirname ${BASH_SOURCE[0]})"; pwd)
+$THIS_DIR/../script "$@"
