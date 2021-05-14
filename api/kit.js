@@ -10,28 +10,27 @@ global.attemptImport = async (path, ..._args) => {
     }
     catch (error) {
         console.warn(error.message);
-        global.setPlaceholder(error.message);
-        await global.wait(1000);
         try {
             let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
             console.warn(stackWithoutId);
-            let errorFile = stackWithoutId
-                .split("\n")[1]
-                .replace("at file://", "")
-                .replace(/:.*/, "")
-                .trim();
-            let [, line, col] = stackWithoutId
-                .split("\n")[1]
-                .replace("at file://", "")
-                .split(":");
-            console.log({ line, col });
-            if (errorFile.includes(global.kenvPath())) {
-                global.edit(errorFile, global.kenvPath(), line, col);
+            let errorFile = global.kitScript;
+            let line = 0;
+            let col = 0;
+            let secondLine = stackWithoutId.split("\n")[1];
+            if (secondLine.match("at file://")) {
+                errorFile = secondLine
+                    .replace("at file://", "")
+                    .replace(/:.*/, "")
+                    .trim();
+                [, line, col] = secondLine
+                    .replace("at file://", "")
+                    .split(":");
             }
+            console.log({ errorFile, line, col });
+            global.edit(errorFile, global.kenvPath(), line, col);
         }
         catch { }
-        await global.wait(2000);
-        exit(1);
+        await arg(`🤕 Error in ${global.kitScript.replace(/.*\//, "")}`, error.stack);
     }
 };
 global.runSub = async (scriptPath, ...runArgs) => {

@@ -526,6 +526,8 @@ declare global {
   let shutdown: typeof import("./lib/system").shutdown
   let sleep: typeof import("./lib/system").sleep
   let tileWindow: typeof import("./lib/desktop").tileWindow
+  let scrapeSelector: typeof import("./lib/browser").scrapeSelector
+  let scrapeAttribute: typeof import("./lib/browser").scrapeAttribute
 }
 
 type Kit = LibModuleLoader & Omit<GlobalKit, "kit">
