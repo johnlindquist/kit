@@ -107,6 +107,7 @@ process.on("uncaughtException", async (err) => {
 global.send = async (channel, data) => {
     if (process?.send) {
         process.send({
+            pid: process.pid,
             kitScript: global.kitScript,
             channel,
             ...data,
