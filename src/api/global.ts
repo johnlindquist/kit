@@ -85,7 +85,7 @@ global.kenvPath = (...parts: string[]) => {
 }
 
 global.libPath = (...parts) =>
-  global.path.join(global.kenvPath("lib"), ...parts)
+  global.path.join(global.kitPath("lib"), ...parts)
 
 global.kitScriptFromPath = path => {
   path = path.replace(global.kenvPath() + "/", "")

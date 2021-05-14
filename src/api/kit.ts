@@ -2,6 +2,8 @@
 //we may be able to convert this to .js if an "--import" flag is added
 //https://github.com/nodejs/node/issues/35103
 
+import { CLI } from "../cli"
+
 global.attemptImport = async (path, ..._args) => {
   try {
     global.updateArgs(_args)
@@ -185,9 +187,25 @@ global.setPlaceholder = text => {
 
 let resolveToScriptPath = script => {
   if (!script.endsWith(".js")) script += ".js"
-  if (script.startsWith(path.sep)) return script
+
+  if (script.startsWith("."))
+    script = path.resolve(process.cwd(), script)
+
   if (!script.includes(path.sep))
     return global.kenvPath("scripts", script)
+
+  if (
+    !script.includes(kenvPath()) &&
+    !script.includes(kitPath())
+  ) {
+    global.cp(script, kitPath("tmp"))
+
+    let tmpScript = kitPath(
+      "tmp",
+      script.replace(/.*\//gi, "")
+    )
+    return tmpScript
+  }
 
   return script
 }
@@ -210,7 +228,7 @@ global.main = async (scriptPath, ..._args) => {
   return await global.attemptImport(kitScriptPath, ..._args)
 }
 
-global.lib = async (scriptPath, ..._args) => {
+global.lib = async (scriptPath: string, ..._args) => {
   let kitScriptPath = global.libPath(scriptPath) + ".js"
   return await global.attemptImport(kitScriptPath, ..._args)
 }
@@ -229,10 +247,6 @@ global.setup = async (setupPath, ..._args) => {
     setupScriptPath,
     ..._args
   )
-}
-
-global.kitLib = async lib => {
-  return await global.kit(`kit/${lib}`)
 }
 
 global.tmp = file => {
@@ -336,18 +350,19 @@ global.setChoices = async choices => {
 
 let dirs = ["cli", "lib", "main"]
 
-let kitGet = (
+let kitGet = async (
   _target: any,
-  dir: string,
+  key: string,
   _receiver: any
 ) => {
-  if (global[dir] && !dirs.includes(dir)) return global[dir]
+  if (global[key] && !dirs.includes(key)) return global[key]
+
   try {
     return new Proxy(
       {},
       {
         get: async (_target, module: string, _receiver) => {
-          let modulePath = `../${dir}/${module}.js?${global.uuid()}`
+          let modulePath = `../${key}/${module}.js?${global.uuid()}`
           return await import(modulePath)
         },
       }

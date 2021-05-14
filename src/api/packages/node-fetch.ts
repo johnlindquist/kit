@@ -1,2 +1,4 @@
-import fetch from "node-fetch"
+let { default: fetch } = (await import("node-fetch")) as any
 global.fetch = fetch
+
+export {}

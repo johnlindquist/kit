@@ -23,7 +23,7 @@ type Panel =
   | string
   | (() => string)
   | (() => Promise<string>)
-  | ((input: string) => Promise<string | File[]>)
+  | ((input: string) => Promise<any>)
 
 interface Arg {
   [key: string]: any
@@ -161,7 +161,7 @@ interface SelectKitEditor {
   (reset: boolean): Promise<string>
 }
 
-interface KitGlobal {
+interface KitApi {
   cd: typeof shelljs.cd
   cp: typeof shelljs.cp
   chmod: typeof shelljs.chmod
@@ -184,6 +184,7 @@ interface KitGlobal {
   put: AxiosInstance["put"]
   post: AxiosInstance["post"]
   patch: AxiosInstance["patch"]
+  fetch: typeof import("node-fetch")
   readFile: typeof fsPromises.readFile
   writeFile: typeof fsPromises.writeFile
   appendFile: typeof fsPromises.appendFile
@@ -278,7 +279,6 @@ interface KitGlobal {
     fn: (input?: string) => void | Promise<any>
   }[]
   onTabIndex: number
-  kitLib: (lib: string) => Promise<string>
 
   runSub: (
     scriptPath: string,
@@ -319,6 +319,8 @@ interface KitGlobal {
 
   kit: Kit
 }
+
+type GlobalKit = KitApi & typeof import("./api/lib")
 
 declare global {
   interface Script extends Choice<any> {
@@ -395,9 +397,9 @@ declare global {
   }
 
   namespace NodeJS {
-    interface Global extends KitGlobal {}
+    interface Global extends GlobalKit {}
   }
-  //preload/api.cjs
+
   let cd: typeof shelljs.cd
   let cp: typeof shelljs.cp
   let chmod: typeof shelljs.chmod
@@ -492,10 +494,38 @@ declare global {
   let onTabIndex: number
 
   let selectKitEditor: SelectKitEditor
+
+  let copyPathAsPicture: typeof import("./lib/file").copyPathAsPicture
+  let fileSearch: typeof import("./lib/file").fileSearch
+  let focusTab: typeof import("./lib/browser").focusTab
+  let focusWindow: typeof import("./lib/desktop").focusWindow
+  let getActiveAppBounds: typeof import("./lib/desktop").getActiveAppBounds
+  let getActiveScreen: typeof import("./lib/desktop").getActiveScreen
+  let getActiveTab: typeof import("./lib/browser").getActiveTab
+  let getMousePosition: typeof import("./lib/desktop").getMousePosition
+  let getScreens: typeof import("./lib/desktop").getScreens
+  let getSelectedFile: typeof import("./lib/file").getSelectedFile
+  let getSelectedText: typeof import("./lib/text").getSelectedText
+  let getTabs: typeof import("./lib/browser").getTabs
+  let getWindows: typeof import("./lib/desktop").getWindows
+  let getWindowsBounds: typeof import("./lib/desktop").getWindowsBounds
+  let lock: typeof import("./lib/system").lock
+  let organizeWindows: typeof import("./lib/desktop").organizeWindows
+  let playAudioFile: typeof import("./lib/audio").playAudioFile
+  let quitAllApps: typeof import("./lib/system").quitAllApps
+  let say: typeof import("./lib/speech").say
+  let scatterWindows: typeof import("./lib/desktop").scatterWindows
+  let setActiveAppBounds: typeof import("./lib/desktop").setActiveAppBounds
+  let setSelectedText: typeof import("./lib/text").setSelectedText
+  let setWindowBoundsByIndex: typeof import("./lib/desktop").setWindowBoundsByIndex
+  let setWindowPosition: typeof import("./lib/desktop").setWindowPosition
+  let setWindowPositionByIndex: typeof import("./lib/desktop").setWindowPositionByIndex
+  let setWindowSize: typeof import("./lib/desktop").setWindowSize
+  let setWindowSizeByIndex: typeof import("./lib/desktop").setWindowSizeByIndex
+  let shortcut: typeof import("./lib/keyboard").shortcut
+  let shutdown: typeof import("./lib/system").shutdown
+  let sleep: typeof import("./lib/system").sleep
+  let tileWindow: typeof import("./lib/desktop").tileWindow
 }
 
-type Kit = KitModuleLoader & {
-  main: Main
-  cli: CLI
-  lib: Lib
-} & Omit<KitGlobal, "kit">
+type Kit = LibModuleLoader & Omit<GlobalKit, "kit">

@@ -58,7 +58,7 @@ global.kitPath = (...parts) => global.path.join(global.env.KIT, ...parts);
 global.kenvPath = (...parts) => {
     return global.path.join(global.env.KENV || home(".kenv"), ...parts.filter(Boolean));
 };
-global.libPath = (...parts) => global.path.join(global.kenvPath("lib"), ...parts);
+global.libPath = (...parts) => global.path.join(global.kitPath("lib"), ...parts);
 global.kitScriptFromPath = path => {
     path = path.replace(global.kenvPath() + "/", "");
     path = path.replace(/\.js$/, "");

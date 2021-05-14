@@ -64,7 +64,9 @@ let waitForPrompt = async ({ choices, validate }) => {
                     if (validate) {
                         let validateMessage = await validate(value);
                         if (typeof validateMessage === "string") {
-                            global.setPlaceholder(validateMessage);
+                            let Convert = await npm("ansi-to-html");
+                            let convert = new Convert();
+                            global.setHint(convert.toHtml(validateMessage));
                             global.setChoices(global.kitPrevChoices);
                             return;
                         }

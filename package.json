@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ansi-to-html": "^0.6.15",
     "axios": "^0.21.1",
     "chalk": "^4.1.0",
     "clipboardy": "^2.3.0",
@@ -41,6 +42,7 @@
     "@types/lowdb": "^1.0.9",
     "@types/marked": "^2.0.2",
     "@types/minimist": "^1.2.1",
+    "@types/node-fetch": "^2.5.10",
     "@types/node-notifier": "^8.0.0",
     "@types/shelljs": "^0.8.8",
     "concurrently": "^6.0.1",

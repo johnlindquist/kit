@@ -392,9 +392,3 @@ get V's JSON
     {}
   )
 }
-
-export let notify = async (title, subtitle) => {
-  applescript(
-    String.raw`display notification with title "${title}" subtitle "${subtitle}"`
-  )
-}

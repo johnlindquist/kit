@@ -1,2 +1,3 @@
-import fetch from "node-fetch";
+let { default: fetch } = (await import("node-fetch"));
 global.fetch = fetch;
+export {};

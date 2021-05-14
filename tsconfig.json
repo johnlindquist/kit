@@ -4,7 +4,8 @@
     "module": "esnext",
     "outDir": "./",
     "rootDir": "./src",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "lib": ["es2020"]
   },
   "include": ["./src/**/*.ts", "src/kit.d.ts"],
   "exclude": ["./src/preload/**/*"]

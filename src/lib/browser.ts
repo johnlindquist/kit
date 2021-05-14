@@ -1,9 +1,15 @@
-export let getActiveTab = async () => {
-    let result = await applescript(String.raw `tell application "Google Chrome" to return URL of active tab of front window`);
-    return result;
-};
-export let getTabs = async () => {
-    let result = await applescript(String.raw `
+export let getActiveTab = async (
+  browser = "Google Chrome"
+) => {
+  let result = await applescript(
+    String.raw`tell application "${browser}" to return URL of active tab of front window`
+  )
+
+  return result
+}
+
+export let getTabs = async (browser = "Google Chrome") => {
+  let result = await applescript(String.raw`
     on findAndReplaceInText(theText, theSearchString, theReplacementString)
 	set AppleScript's text item delimiters to theSearchString
 	set theTextItems to every text item of theText
@@ -37,7 +43,7 @@ end script
 
 set tabData to ""
 
-tell application "Google Chrome"
+tell application "${browser}"
 	set window_list to every window # get the windows
 	
 	repeat with the_window in window_list # for every window
@@ -58,14 +64,19 @@ end tell
 
 get V's JSON
 
-    `);
-    return JSON.parse(result);
-};
-export let focusTab = async (url) => {
-    return await applescript(String.raw `
+    `)
+
+  return JSON.parse(result)
+}
+
+export let focusTab = async (
+  url: string,
+  browser = "Google Chrome"
+) => {
+  return await applescript(String.raw`
 set address to "${url}"
 
-tell application "Google Chrome"
+tell application "${browser}"
     activate
         if not (exists window 1) then reopen
         repeat with w in windows
@@ -82,5 +93,52 @@ tell application "Google Chrome"
         open location address
         return address
 end tell
-`);
-};
+`)
+}
+
+export let scrapeSelector = async (
+  url: string,
+  selector: string,
+  xf: (element: any) => any,
+  { headless, timeout } = { headless: true, timeout: 5000 }
+) => {
+  let { chromium } = await npm("playwright")
+
+  if (!xf) xf = el => el.innerText
+  let browser = await chromium.launch({ headless })
+  let context = await browser.newContext()
+  let page = await context.newPage()
+  page.setDefaultTimeout(timeout)
+
+  if (!url.startsWith("http")) url = "https://" + url
+  await page.goto(url)
+  // await page.waitForSelector(selector)
+  let selectorHandle = await page.$(selector)
+  let results = await selectorHandle.evaluate(xf)
+  await selectorHandle.dispose()
+
+  await browser.close()
+  return results
+}
+
+export let scrapeAttribute = async (
+  url: string,
+  selector: string,
+  attribute: string,
+  { headless, timeout } = { headless: true, timeout: 5000 }
+) => {
+  let { chromium } = await npm("playwright")
+
+  let browser = await chromium.launch({ headless, timeout })
+  let context = await browser.newContext()
+  let page = await context.newPage()
+  page.setDefaultTimeout(timeout)
+
+  if (!url.startsWith("http")) url = "https://" + url
+  await page.goto(url)
+  // await page.waitForSelector(selector)
+  let results = await page.getAttribute(selector, attribute)
+
+  await browser.close()
+  return results
+}

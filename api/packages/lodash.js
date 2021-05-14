@@ -1,2 +1,3 @@
-import * as _ from "lodash";
+let { default: _ } = (await import("lodash"));
 global._ = _;
+export {};
