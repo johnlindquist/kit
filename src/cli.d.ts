@@ -2,6 +2,9 @@ export interface CLI {
   "add-kenv-to-profile": Promise<
     typeof import("./cli/add-kenv-to-profile")
   >
+  "add-kit-to-profile": Promise<
+    typeof import("./cli/add-kenv-to-profile")
+  >
   "app-run": Promise<typeof import("./cli/app-run")>
   "browse-examples": Promise<
     typeof import("./cli/browse-examples")
@@ -53,9 +56,6 @@ export interface CLI {
   "stream-deck": Promise<typeof import("./cli/stream-deck")>
   "system-events": Promise<
     typeof import("./cli/system-events")
-  >
-  "toggle-server": Promise<
-    typeof import("./cli/toggle-server")
   >
 
   background: Promise<typeof import("./cli/background")>

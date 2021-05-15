@@ -62,14 +62,14 @@ const cliScripts = [
         name: "add-kenv-to-profile",
         placeholder: "Add .kenv/bin to your path",
     },
+    {
+        name: "add-kit-to-profile",
+        placeholder: "Add .kit/bin to your path",
+    },
     { name: "env", placeholder: "Modify .env" },
     { name: "issue", placeholder: "File an issue on github" },
     { name: "open-at-login", placeholder: "Open at login" },
     { name: "open-log", placeholder: "Open kit.log" },
-    {
-        name: "toggle-server",
-        placeholder: "Start/stop the server",
-    },
     { name: "quit", placeholder: "Quit Kit" },
 ];
 let script = await arg("What do you want to do?", () => cliScripts.map(({ name, placeholder, alias }) => {
