@@ -264,9 +264,10 @@ global.setChoices = async (choices) => {
     global.kitPrevChoices = choices;
 };
 let dirs = ["cli", "lib", "main"];
-let kitGet = async (_target, key, _receiver) => {
-    if (global[key] && !dirs.includes(key))
+let kitGet = (_target, key, _receiver) => {
+    if (global[key] && !dirs.includes(key)) {
         return global[key];
+    }
     try {
         return new Proxy({}, {
             get: async (_target, module, _receiver) => {
