@@ -315,6 +315,7 @@ interface KitApi {
 
   $: typeof import("zx").$
   download: typeof import("download")
+  degit: typeof import("degit")
 
   kit: Kit
 }
@@ -438,6 +439,7 @@ declare global {
   let chalk: ChalkFunction
 
   let download: typeof import("download")
+  let degit: typeof import("degit")
 
   let trash: typeof trashType
   let rm: typeof trashType
