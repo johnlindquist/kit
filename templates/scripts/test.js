@@ -102,19 +102,23 @@ console.log("PATH:", env.PATH)
 
 let newDefault = "new-default"
 let newChild = spawnSync(
-  `kit`,
-  [`new`, newDefault, "--trust", "--no-edit"],
+  `bash`,
+  [
+    kitPath("bin", "kit"),
+    `new`,
+    newDefault,
+    "--trust",
+    "--no-edit",
+  ],
   {
     stdio: "inherit",
     env: {
       KENV: kenvPath(),
-      PATH: kitPath("bin") + ":" + env.PATH,
     },
   }
 )
 
 console.log("scripts:", ls(kenvPath("scripts")).toString())
-console.log("new:", which("new"))
 
 let newDefaultContentPath = kenvPath(
   "scripts",
