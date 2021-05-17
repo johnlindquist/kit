@@ -93,7 +93,7 @@ jobs:
 
       - name: Create a Test Script
         run: >
-          KENV="~/.kenv" kit new running-test-template --template test
+          KENV="~/.kenv" bash ~/.kit/bin/kit new running-test-template --template test
 
       - name: Run the Test Script
         run: >

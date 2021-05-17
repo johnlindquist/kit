@@ -1,9 +1,6 @@
 #!/bin/sh
 
-echo ">>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo ${BASH_SOURCE}
-
-KIT=$(cd "$(dirname ${BASH_SOURCE})/.." &> /dev/null && pwd)
+KIT=$(cd "$(dirname ${BASH_SOURCE[0]})/.." &> /dev/null && pwd)
 
 $KIT/node/bin/node \
 $KIT/mac-terminal.js \
