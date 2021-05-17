@@ -101,8 +101,10 @@ console.log("bin:", ls(kenvPath("bin")).toString())
 console.log("PATH:", env.PATH)
 
 let newDefault = "new-default"
+let kit = kitPath("bin", "kit")
+console.log({ kit })
 let newChild = spawnSync(
-  kitPath("bin", "kit"),
+  kit,
   [`new`, newDefault, "--trust", "--no-edit"],
   {
     stdio: "inherit",

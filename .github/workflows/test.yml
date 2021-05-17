@@ -91,6 +91,9 @@ jobs:
       - name: Adding ~/.kenv/bin to Path
         run: echo "~/.kenv/bin" >> $GITHUB_PATH
 
+      - name: Chmod ~/.kit/bin/kit
+        run: chmod +x ~/.kit/bin/kit
+
       - name: Create a Test Script
         run: >
           KENV="~/.kenv" bash ~/.kit/bin/kit new running-test-template --template test
