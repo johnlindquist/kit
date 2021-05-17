@@ -1,5 +1,3 @@
-await import("../setup/create-cli-bins.js")
-
 let { scripts }: typeof import("./fns") = await cli("fns")
 
 let scriptNames = await scripts()

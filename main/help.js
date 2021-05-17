@@ -45,13 +45,6 @@ let otherOptions = [
         value: "system-events",
     },
     {
-        name: host && port ? "Stop Server" : "Start Server",
-        description: host && port
-            ? `Server running on http://${host}:${port}`
-            : "",
-        value: "toggle-server",
-    },
-    {
         name: "Open Script Kit at Login",
         description: "Sets Script Kit to launch at login",
         value: "open-at-login",
@@ -60,6 +53,11 @@ let otherOptions = [
         name: "Add ~/.kenv/bin to $PATH",
         description: `Looks for your profile and appends to $PATH`,
         value: "add-kenv-to-profile",
+    },
+    {
+        name: "Add ~/.kit/bin to $PATH",
+        description: `Looks for your profile and appends to $PATH`,
+        value: "add-kit-to-profile",
     },
     {
         name: "Generate bin files",

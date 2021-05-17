@@ -1,5 +1,8 @@
 //Menu: Edit Menu
 //Description: The right-click action of the app
+
+import { CLI } from "../cli"
+
 //Shortcut: cmd shift ;
 let { scriptValue, validate } = await cli("fns")
 
@@ -11,7 +14,7 @@ let command = await arg(
   scriptValue("command")
 )
 
-let editActions: Choice<string>[] = [
+let editActions: Choice<keyof CLI>[] = [
   {
     name: "Open",
     description: `Open ${command}${
@@ -37,6 +40,7 @@ let editActions: Choice<string>[] = [
     value: "remove",
   },
 ]
+
 let editAction = await arg("Which action?", editActions)
 await cli(editAction, command)
 

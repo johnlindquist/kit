@@ -1,11 +1,11 @@
 let rimraf = require("rimraf")
 let scriptDirs = [
+  "api",
   "ci",
   "cli",
   "ipc",
   "lib",
   "main",
-  "preload",
   "setup",
 ]
 

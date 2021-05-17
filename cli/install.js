@@ -3,12 +3,17 @@ let { formatDistanceToNow, parseISO } = await npm("date-fns");
 let install = async (packageNames) => {
     return await new Promise((res, rej) => {
         let npm = spawn(kitPath("node", "bin", "npm"), ["i", "--prefix", kenvPath(), ...packageNames], {
-            stdio: "inherit",
+            stdio: "pipe",
             cwd: kenvPath(),
             env: {
                 //need to prioritize our node over any nodes on the path
                 PATH: kitPath("node", "bin") + ":" + env.PATH,
             },
+        });
+        npm.stdout.on("data", data => {
+            let line = data?.toString();
+            console.log(line);
+            setHint(line);
         });
         npm.on("error", error => {
             console.log({ error });

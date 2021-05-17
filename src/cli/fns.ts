@@ -18,7 +18,9 @@ export let buildMenu = async (fromCache = true) => {
   if (fromCache && (await isFile(menuCachePath))) {
     return getScripts()
   }
-  return await (await cli("menu")).menu
+  return await (
+    await cli("menu")
+  ).menu
 }
 
 export let enhancedMenu = async (fromCache = true) => {
@@ -88,17 +90,15 @@ interface ScriptValue {
   >
 }
 
-export let scriptValue: ScriptValue = (
-  pluck,
-  fromCache
-) => async () => {
-  let menuItems: MenuItem[] = await menu(fromCache)
+export let scriptValue: ScriptValue =
+  (pluck, fromCache) => async () => {
+    let menuItems: MenuItem[] = await menu(fromCache)
 
-  return menuItems.map((script: Script) => ({
-    ...script,
-    value: script[pluck],
-  }))
-}
+    return menuItems.map((script: Script) => ({
+      ...script,
+      value: script[pluck],
+    }))
+  }
 
 export let toggleBackground = async (script: Script) => {
   let { tasks } = await global.getBackgroundTasks()

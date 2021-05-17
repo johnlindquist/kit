@@ -12,6 +12,14 @@ export let getSelectedText = async () => {
   return selectedText.trim()
 }
 
+/**
+@param text - a string to paste at the cursor
+@example
+```
+await setSelectedText(`Script Kit is awesome!`)
+```
+*/
+
 export let setSelectedText = async text => {
   await applescript(
     String.raw`set the clipboard to "${text.replaceAll(

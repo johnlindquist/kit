@@ -9,7 +9,7 @@ let install = async packageNames => {
       kitPath("node", "bin", "npm"),
       ["i", "--prefix", kenvPath(), ...packageNames],
       {
-        stdio: "inherit",
+        stdio: "pipe",
         cwd: kenvPath(),
         env: {
           //need to prioritize our node over any nodes on the path
@@ -17,6 +17,12 @@ let install = async packageNames => {
         },
       }
     )
+
+    npm.stdout.on("data", data => {
+      let line = data?.toString()
+      console.log(line)
+      setHint(line)
+    })
 
     npm.on("error", error => {
       console.log({ error })

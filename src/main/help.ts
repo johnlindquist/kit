@@ -1,3 +1,5 @@
+import { CLI } from "../cli"
+
 let { host, port } = await new Promise((res, rej) => {
   let messageHandler = (data: any) => {
     if (data.channel === "SERVER") {
@@ -10,7 +12,7 @@ let { host, port } = await new Promise((res, rej) => {
   send("GET_SERVER_STATE")
 })
 
-let otherOptions: Choice<string>[] = [
+let otherOptions: Choice<keyof CLI>[] = [
   {
     name: "Get Help",
     description: `Post a question to Script Kit GitHub discussions`,
@@ -47,14 +49,6 @@ let otherOptions: Choice<string>[] = [
     value: "system-events",
   },
   {
-    name: host && port ? "Stop Server" : "Start Server",
-    description:
-      host && port
-        ? `Server running on http://${host}:${port}`
-        : "",
-    value: "toggle-server",
-  },
-  {
     name: "Open Script Kit at Login",
     description: "Sets Script Kit to launch at login",
     value: "open-at-login",
@@ -63,6 +57,11 @@ let otherOptions: Choice<string>[] = [
     name: "Add ~/.kenv/bin to $PATH",
     description: `Looks for your profile and appends to $PATH`,
     value: "add-kenv-to-profile",
+  },
+  {
+    name: "Add ~/.kit/bin to $PATH",
+    description: `Looks for your profile and appends to $PATH`,
+    value: "add-kit-to-profile",
   },
   {
     name: "Generate bin files",

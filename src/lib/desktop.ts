@@ -77,7 +77,8 @@ end tell
 }
 
 export let getWindowsBounds = async () => {
-  let result = await applescript(String.raw`set listOfWindows to ""
+  let result =
+    await applescript(String.raw`set listOfWindows to ""
 	tell application "System Events"
 		
 		set listOfProcesses to name of every process whose visible is true
@@ -389,11 +390,5 @@ get V's JSON
       return acc
     },
     {}
-  )
-}
-
-export let notify = async (title, subtitle) => {
-  applescript(
-    String.raw`display notification with title "${title}" subtitle "${subtitle}"`
   )
 }

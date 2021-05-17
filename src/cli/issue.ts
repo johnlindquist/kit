@@ -3,3 +3,5 @@
 exec(
   `open "https://github.com/johnlindquist/kit/issues/new"`
 )
+
+export {}

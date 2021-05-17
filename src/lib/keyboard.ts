@@ -1,11 +1,32 @@
 /**
- * @description Presses a keyboard shortcut
- * @param {string} application - the application form which this keyboard shortcut should be run
- * @param {string} key - a single key such as "j" or "q"
- * @typedef {('command'|'control'|'option')} Command - 'command' | 'control | 'option'
- * @param {Command[]} commands - an array of commands.
- * @example pressKeyboardShortcut("j", ["command", "control"]) would press `j + ⌘ + ^`
- */
+@param keyString - Accepts string of shortcut
+@example
+```
+await keystroke("command option e")
+```
+*/
+
+export let keystroke = async (keyString: string) => {
+  send("HIDE_APP")
+  let keys = keyString.split(" ")
+
+  let key = keys.pop()
+  let modifiers = keys
+    .map(modifier => `${modifier} down,`)
+    .join(" ")
+    .slice(0, -1)
+
+  return await applescript(
+    String.raw`
+    tell application "System Events"
+      keystroke "${key}" ${
+      modifiers.length ? `using {${modifiers}}` : ``
+    }
+    end tell
+    `
+  )
+}
+
 export async function pressKeyboardShortcut(
   application = "",
   key = "",

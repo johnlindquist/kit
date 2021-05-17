@@ -1,5 +1,7 @@
 //Description: Script Kit CLI
 
+import { CLI } from "../cli"
+
 interface CLIMenuItem {
   name?: string
   placeholder?: string
@@ -69,14 +71,18 @@ const cliScripts: CLIMenuItem[] = [
     name: "add-kenv-to-profile",
     placeholder: "Add .kenv/bin to your path",
   },
+  {
+    name: "add-kit-to-profile",
+    placeholder: "Add .kit/bin to your path",
+  },
   { name: "env", placeholder: "Modify .env" },
   { name: "issue", placeholder: "File an issue on github" },
   { name: "open-at-login", placeholder: "Open at login" },
-  { name: "open-log", placeholder: "Open kit.log" },
   {
-    name: "toggle-server",
-    placeholder: "Start/stop the server",
+    name: "create-all-bins",
+    placeholder: "Regen bin files",
   },
+  { name: "open-log", placeholder: "Open kit.log" },
   { name: "quit", placeholder: "Quit Kit" },
 ]
 
@@ -95,7 +101,7 @@ let found = cliScripts.find(
   config => config.name == script || config.alias == script
 )
 if (found) {
-  await cli(found.name)
+  await cli(found.name as keyof CLI)
 }
 
 export {}

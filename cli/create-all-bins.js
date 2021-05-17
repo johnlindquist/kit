@@ -1,4 +1,3 @@
-await import("../setup/create-cli-bins.js");
 let { scripts } = await cli("fns");
 let scriptNames = await scripts();
 for await (let script of scriptNames) {

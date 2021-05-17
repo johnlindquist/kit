@@ -36,11 +36,9 @@ export let getSelectedFile = async () => {
   )
 }
 
-export let copyPathAsPicture = async path =>
+export let copyPathAsImage = async path =>
   await applescript(
     String.raw`set the clipboard to (read (POSIX file "${path}") as JPEG picture)`
   )
 
-export let preview = async file => {
-  exec(`qlmanage -p "${file}"`, { silent: true })
-}
+export let copyPathAsPicture = copyPathAsImage

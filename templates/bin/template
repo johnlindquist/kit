@@ -1,8 +1,6 @@
 #!/bin/sh
 
-NODE_PATH={{KENV}}/node_modules:{{KIT}}/node_modules \
-DOTENV_CONFIG_PATH={{KENV}}/.env \
-{{KIT_NODE}} \
---require "{{KIT}}/preload/mac-terminal.cjs" \
+{{KIT}}/node/bin/node \
+{{KIT}}/mac-terminal.js \
 {{TARGET_PATH}}/{{type}}/{{name}}.js \
 "$@"
