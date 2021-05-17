@@ -3,7 +3,9 @@
 //Author: John Lindquist
 //Twitter: @johnlindquist
 
-let { menu } = await cli("fns")
+let { scriptValue } = (await cli(
+  "fns"
+)) as typeof import("../cli/fns")
 
 let createCommand = (launchApp: boolean, script: string) =>
   launchApp
@@ -12,7 +14,7 @@ let createCommand = (launchApp: boolean, script: string) =>
 
 let script = await arg(
   "Prepare which script for Stream Deck?",
-  menu
+  scriptValue("command")
 )
 
 let launchApp = await arg("Run the script:", [
@@ -39,7 +41,7 @@ copy(resolvedPath)
 
 await arg(
   {
-    placeholder: `.sh file is ready`,
+    placeholder: `${script}.sh file is ready`,
     ignoreBlur: true,
     hint: `${resolvedPath} copied to clipboard`,
   },

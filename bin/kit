@@ -1,0 +1,8 @@
+#!/bin/sh
+
+KIT=$(builtin cd "$(dirname ${BASH_SOURCE[0]})"/..; pwd)
+
+$KIT/node/bin/node \
+$KIT/mac-terminal.js \
+$KIT/cli/kit.js \
+"$@"

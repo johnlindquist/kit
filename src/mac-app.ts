@@ -1,4 +1,3 @@
-import "./env.js"
 import "./api/global.js"
 import "./api/kit.js"
 import "./api/lib.js"

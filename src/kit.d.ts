@@ -188,6 +188,7 @@ interface KitApi {
   readFile: typeof fsPromises.readFile
   writeFile: typeof fsPromises.writeFile
   appendFile: typeof fsPromises.appendFile
+  createReadStream: typeof fs.createReadStream
   createWriteStream: typeof fs.createWriteStream
   readdir: typeof fsPromises.readdir
   compile: typeof handlebars.compile
@@ -233,8 +234,6 @@ interface KitApi {
   kitPath: PathFn
   kenvPath: PathFn
   libPath: PathFn
-  kitScriptFromPath: PathFn
-  kitFromPath: PathFn
 
   tmp: PathFn
   inspect: Inspect
@@ -291,7 +290,6 @@ interface KitApi {
   kitPrevChoices: Choices<any>
 
   setChoices: (choices: Choices<any>) => void
-  sendResponse: (value: any) => void
   getDataFromApp: (channel: string) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
@@ -316,6 +314,7 @@ interface KitApi {
   selectKitEditor: SelectKitEditor
 
   $: typeof import("zx").$
+  download: typeof import("download")
 
   kit: Kit
 }
@@ -426,6 +425,7 @@ declare global {
   let writeFile: typeof fsPromises.writeFile
   let appendFile: typeof fsPromises.appendFile
   let createWriteStream: typeof fs.createWriteStream
+  let createReadStream: typeof fs.createReadStream
   let readdir: typeof fsPromises.readdir
   let compile: typeof handlebars.compile
 
@@ -436,6 +436,8 @@ declare global {
   let edit: Edit
 
   let chalk: ChalkFunction
+
+  let download: typeof import("download")
 
   let trash: typeof trashType
   let rm: typeof trashType
@@ -522,7 +524,7 @@ declare global {
   let setWindowPositionByIndex: typeof import("./lib/desktop").setWindowPositionByIndex
   let setWindowSize: typeof import("./lib/desktop").setWindowSize
   let setWindowSizeByIndex: typeof import("./lib/desktop").setWindowSizeByIndex
-  let shortcut: typeof import("./lib/keyboard").shortcut
+  let keystroke: typeof import("./lib/keyboard").keystorke
   let shutdown: typeof import("./lib/system").shutdown
   let sleep: typeof import("./lib/system").sleep
   let tileWindow: typeof import("./lib/desktop").tileWindow

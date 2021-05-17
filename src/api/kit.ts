@@ -2,7 +2,10 @@
 //we may be able to convert this to .js if an "--import" flag is added
 //https://github.com/nodejs/node/issues/35103
 
-import { CLI } from "../cli"
+import {
+  resolveScriptToCommand,
+  resolveToScriptPath,
+} from "../utils.js"
 
 global.attemptImport = async (path, ..._args) => {
   try {
@@ -191,31 +194,6 @@ global.setPlaceholder = text => {
   })
 }
 
-let resolveToScriptPath = script => {
-  if (!script.endsWith(".js")) script += ".js"
-
-  if (script.startsWith("."))
-    script = path.resolve(process.cwd(), script)
-
-  if (!script.includes(path.sep))
-    return global.kenvPath("scripts", script)
-
-  if (
-    !script.includes(kenvPath()) &&
-    !script.includes(kitPath())
-  ) {
-    global.cp(script, kitPath("tmp"))
-
-    let tmpScript = kitPath(
-      "tmp",
-      script.replace(/.*\//gi, "")
-    )
-    return tmpScript
-  }
-
-  return script
-}
-
 global.run = async (script, ..._args) => {
   let resolvedScript = resolveToScriptPath(script)
   global.onTabs = []
@@ -235,8 +213,8 @@ global.main = async (scriptPath, ..._args) => {
 }
 
 global.lib = async (scriptPath: string, ..._args) => {
-  let kitScriptPath = global.libPath(scriptPath) + ".js"
-  return await global.attemptImport(kitScriptPath, ..._args)
+  let libScriptPath = global.libPath(scriptPath) + ".js"
+  return await global.attemptImport(libScriptPath, ..._args)
 }
 
 global.cli = async (cliPath, ..._args) => {
@@ -255,13 +233,15 @@ global.setup = async (setupPath, ..._args) => {
   )
 }
 
-global.tmp = file => {
+global.tmp = (...parts) => {
+  let command = resolveScriptToCommand(global.kitScript)
   let scriptTmpDir = global.kenvPath(
     "tmp",
-    global.kitScript
+    command,
+    ...parts
   )
-  mkdir("-p", scriptTmpDir)
-  return global.kenvPath("tmp", global.kitScript, file)
+  mkdir("-p", scriptTmpDir.replace(/.*\//, ""))
+  return scriptTmpDir
 }
 global.inspect = async (data, extension) => {
   let dashedDate = () =>
@@ -271,7 +251,7 @@ global.inspect = async (data, extension) => {
       .replace(/:/g, "-")
       .split(".")[0]
 
-  let tmpFilePath = global.kenvPath("tmp", global.kitScript)
+  let tmpFilePath = global.tmp()
   let formattedData = data
   let tmpFullPath = global.path.join(
     tmpFilePath,
@@ -354,7 +334,7 @@ global.setChoices = async choices => {
   global.kitPrevChoices = choices
 }
 
-let dirs = ["cli", "lib", "main"]
+let dirs = ["cli", "main"]
 
 let kitGet = (
   _target: any,

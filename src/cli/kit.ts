@@ -78,6 +78,10 @@ const cliScripts: CLIMenuItem[] = [
   { name: "env", placeholder: "Modify .env" },
   { name: "issue", placeholder: "File an issue on github" },
   { name: "open-at-login", placeholder: "Open at login" },
+  {
+    name: "create-all-bins",
+    placeholder: "Regen bin files",
+  },
   { name: "open-log", placeholder: "Open kit.log" },
   { name: "quit", placeholder: "Quit Kit" },
 ]

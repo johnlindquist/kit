@@ -1,18 +1,16 @@
 /**
-@param shortcut - Accepts string of shortcut
+@param keyString - Accepts string of shortcut
 @example
 ```
-await shortcut("command option e")
+await keystroke("command option e")
 ```
 */
 
-export let shortcut = async (shortcutString: string) => {
+export let keystorke = async (keyString: string) => {
   send("HIDE_APP")
-  let keys = shortcutString.split(" ")
+  let keys = keyString.split(" ")
   if (keys.length < 2)
-    throw new Error(
-      `${shortcutString} isn't formatted properly`
-    )
+    throw new Error(`${keyString} isn't formatted properly`)
 
   let key = keys.pop()
   let modifiers = keys

@@ -2,11 +2,11 @@
 //Description: Creates a .sh file around a script
 //Author: John Lindquist
 //Twitter: @johnlindquist
-let { menu } = await cli("fns");
+let { scriptValue } = (await cli("fns"));
 let createCommand = (launchApp, script) => launchApp
     ? `~/.kit/kar ${script}`
     : `~/.kit/script ~/.kenv/scripts/${script}.js`;
-let script = await arg("Prepare which script for Stream Deck?", menu);
+let script = await arg("Prepare which script for Stream Deck?", scriptValue("command"));
 let launchApp = await arg("Run the script:", [
     {
         name: "with the prompt",
@@ -27,7 +27,7 @@ chmod(755, binPath);
 let resolvedPath = path.resolve(binPath);
 copy(resolvedPath);
 await arg({
-    placeholder: `.sh file is ready`,
+    placeholder: `${script}.sh file is ready`,
     ignoreBlur: true,
     hint: `${resolvedPath} copied to clipboard`,
 }, md(`

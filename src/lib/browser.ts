@@ -102,6 +102,7 @@ export let scrapeSelector = async (
   xf: (element: any) => any,
   { headless, timeout } = { headless: true, timeout: 5000 }
 ) => {
+  /** @type typeof import("playwright") */
   let { chromium } = await npm("playwright")
 
   if (!xf) xf = el => el.innerText
@@ -113,9 +114,14 @@ export let scrapeSelector = async (
   if (!url.startsWith("http")) url = "https://" + url
   await page.goto(url)
   // await page.waitForSelector(selector)
-  let selectorHandle = await page.$(selector)
-  let results = await selectorHandle.evaluate(xf)
-  await selectorHandle.dispose()
+  let selectorHandles = await page.$$(selector)
+  let results = await Promise.all(
+    selectorHandles.map(async handle => {
+      let result = await handle.evaluate(xf)
+      await handle.dispose()
+      return result
+    })
+  )
 
   await browser.close()
   return results

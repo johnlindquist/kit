@@ -1,7 +1,6 @@
 #!/bin/sh
 
-DOTENV={{KENV}}/.env \
-{{KIT_NODE}} \
+{{KIT}}/node/bin/node \
 {{KIT}}/mac-terminal.js \
 {{TARGET_PATH}}/{{type}}/{{name}}.js \
 "$@"

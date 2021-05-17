@@ -1,17 +1,29 @@
+import { homedir } from "os";
+import { resolve } from "path";
 import { config } from "dotenv";
 import { assignPropsTo } from "../utils.js";
-import { homedir } from "os";
-config({ path: process.env.DOTENV });
+if (!process.env.KIT)
+    process.env.KIT = import.meta.url
+        .replace("file://", "")
+        .replace("/api/global.js", "");
+if (!process.env.KENV)
+    process.env.KENV = resolve(homedir(), ".kenv");
+config({
+    path: process.env.DOTENV || resolve(process.env.KENV, ".env"),
+});
 global.cwd = process.cwd;
 global.pid = process.pid;
 global.stderr = process.stderr;
 global.stdin = process.stdin;
 global.stdout = process.stdout;
 global.uptime = process.uptime;
+global.path = await import("path");
 await import("./packages/axios.js");
 await import("./packages/chalk.js");
 await import("./packages/clipboardy.js");
 await import("./packages/child_process.js");
+await import("./packages/download.js");
+await import("./packages/fs.js");
 await import("./packages/fsPromises.js");
 await import("./packages/handlebars.js");
 await import("./packages/lodash.js");
@@ -23,7 +35,6 @@ await import("./packages/shelljs.js");
 await import("./packages/trash.js");
 await import("./packages/uuid.js");
 await import("./packages/zx.js");
-global.path = await import("path");
 global.wait = async (time) => new Promise(res => setTimeout(res, time));
 global.checkProcess = (pid) => {
     let { stdout, stderr } = exec(`kill -0 ` + pid);
@@ -58,16 +69,6 @@ global.kitPath = (...parts) => global.path.join(global.env.KIT, ...parts);
 global.kenvPath = (...parts) => {
     return global.path.join(global.env.KENV || home(".kenv"), ...parts.filter(Boolean));
 };
-global.libPath = (...parts) => global.path.join(global.kitPath("lib"), ...parts);
-global.kitScriptFromPath = path => {
-    path = path.replace(global.kenvPath() + "/", "");
-    path = path.replace(/\.js$/, "");
-    return path;
-};
-global.kitFromPath = path => {
-    path = path.replace(global.env.KIT + "/", "");
-    path = path.replace(/\.js$/, "");
-    return path;
-};
+global.libPath = (...parts) => global.path.join(global.kenvPath("lib"), ...parts);
 global.getScripts = async () => JSON.parse(await readFile(kenvPath("cache", "menu-cache.json"), "utf-8"));
 global.memoryMap = new Map();

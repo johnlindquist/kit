@@ -228,11 +228,6 @@ global.setInput = async (input) => {
 global.setIgnoreBlur = async (ignore) => {
     global.send("SET_IGNORE_BLUR", { ignore });
 };
-global.sendResponse = async (value) => {
-    global.send("SEND_RESPONSE", {
-        value,
-    });
-};
 global.getDataFromApp = async (channel) => {
     if (process?.send) {
         return await new Promise((res, rej) => {
