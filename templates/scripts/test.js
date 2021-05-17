@@ -107,7 +107,8 @@ let newChild = spawnSync(
   {
     stdio: "inherit",
     env: {
-      PATH: kenvPath("bin") + ":" + env.PATH,
+      KENV: kenvPath(),
+      PATH: kitPath("bin") + ":" + env.PATH,
     },
   }
 )
