@@ -4,10 +4,10 @@ on: [pull_request, workflow_dispatch]
 
 jobs:
   install:
-    defaults:
-    run:
-      shell: bash
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Extract Branch Name
         uses: rlespinasse/github-slug-action@3.1.0
