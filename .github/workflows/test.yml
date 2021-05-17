@@ -4,6 +4,9 @@ on: [pull_request, workflow_dispatch]
 
 jobs:
   install:
+    defaults:
+    run:
+      shell: bash
     runs-on: ubuntu-latest
     steps:
       - name: Extract Branch Name
