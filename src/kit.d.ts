@@ -497,7 +497,7 @@ declare global {
 
   let selectKitEditor: SelectKitEditor
 
-  let copyPathAsPicture: typeof import("./lib/file").copyPathAsPicture
+  let copyPathAsImage: typeof import("./lib/file").copyPathAsImage
   let fileSearch: typeof import("./lib/file").fileSearch
   let focusTab: typeof import("./lib/browser").focusTab
   let focusWindow: typeof import("./lib/desktop").focusWindow
@@ -524,7 +524,7 @@ declare global {
   let setWindowPositionByIndex: typeof import("./lib/desktop").setWindowPositionByIndex
   let setWindowSize: typeof import("./lib/desktop").setWindowSize
   let setWindowSizeByIndex: typeof import("./lib/desktop").setWindowSizeByIndex
-  let keystroke: typeof import("./lib/keyboard").keystorke
+  let keystroke: typeof import("./lib/keyboard").keystroke
   let shutdown: typeof import("./lib/system").shutdown
   let sleep: typeof import("./lib/system").sleep
   let tileWindow: typeof import("./lib/desktop").tileWindow
