@@ -76,18 +76,21 @@ jobs:
 
       - name: View bin
         run: >
-          cat ~/.kenv/bin/new
+          cat ~/.kit/bin/kit
 
       - name: View .env
         run: >
           cat ~/.kenv/.env
 
-      - name: Adding sk to Path
+      - name: Adding ~/.kit/bin to Path
+        run: echo "~/.kit/bin" >> $GITHUB_PATH
+
+      - name: Adding ~/.kenv/bin to Path
         run: echo "~/.kenv/bin" >> $GITHUB_PATH
 
       - name: Create a Test Script
         run: >
-          new running-test-template --template test
+          KENV="~/.kenv" kit new running-test-template --template test
 
       - name: Run the Test Script
         run: >
