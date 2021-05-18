@@ -179,7 +179,7 @@ global.setup = async (setupPath, ..._args) => {
 global.tmp = (...parts) => {
     let command = resolveScriptToCommand(global.kitScript);
     let scriptTmpDir = global.kenvPath("tmp", command, ...parts);
-    mkdir("-p", scriptTmpDir.replace(/.*\//, ""));
+    mkdir("-p", path.dirname(scriptTmpDir));
     return scriptTmpDir;
 };
 global.inspect = async (data, extension) => {
@@ -188,17 +188,20 @@ global.inspect = async (data, extension) => {
         .replace("T", "-")
         .replace(/:/g, "-")
         .split(".")[0];
-    let tmpFilePath = global.tmp();
     let formattedData = data;
-    let tmpFullPath = global.path.join(tmpFilePath, `${dashedDate()}.txt`);
+    let tmpFullPath = "";
     if (typeof data === "object") {
         formattedData = JSON.stringify(data, null, "\t");
-        tmpFullPath = global.path.join(tmpFilePath, `${dashedDate()}.json`);
     }
     if (extension) {
-        tmpFullPath = global.path.join(tmpFilePath, `${dashedDate()}.${extension}`);
+        tmpFullPath = global.tmp(`${dashedDate()}.${extension}`);
     }
-    mkdir("-p", tmpFilePath);
+    else if (typeof data === "object") {
+        tmpFullPath = global.tmp(`${dashedDate()}.json`);
+    }
+    else {
+        tmpFullPath = global.tmp(`${dashedDate()}.txt`);
+    }
     await writeFile(tmpFullPath, formattedData);
     await global.edit(tmpFullPath);
 };

@@ -240,7 +240,8 @@ global.tmp = (...parts) => {
     command,
     ...parts
   )
-  mkdir("-p", scriptTmpDir.replace(/.*\//, ""))
+
+  mkdir("-p", path.dirname(scriptTmpDir))
   return scriptTmpDir
 }
 global.inspect = async (data, extension) => {
@@ -251,28 +252,21 @@ global.inspect = async (data, extension) => {
       .replace(/:/g, "-")
       .split(".")[0]
 
-  let tmpFilePath = global.tmp()
   let formattedData = data
-  let tmpFullPath = global.path.join(
-    tmpFilePath,
-    `${dashedDate()}.txt`
-  )
+  let tmpFullPath = ""
+
   if (typeof data === "object") {
     formattedData = JSON.stringify(data, null, "\t")
-    tmpFullPath = global.path.join(
-      tmpFilePath,
-      `${dashedDate()}.json`
-    )
   }
 
   if (extension) {
-    tmpFullPath = global.path.join(
-      tmpFilePath,
-      `${dashedDate()}.${extension}`
-    )
+    tmpFullPath = global.tmp(`${dashedDate()}.${extension}`)
+  } else if (typeof data === "object") {
+    tmpFullPath = global.tmp(`${dashedDate()}.json`)
+  } else {
+    tmpFullPath = global.tmp(`${dashedDate()}.txt`)
   }
 
-  mkdir("-p", tmpFilePath)
   await writeFile(tmpFullPath, formattedData)
 
   await global.edit(tmpFullPath)
