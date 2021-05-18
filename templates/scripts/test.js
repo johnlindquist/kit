@@ -101,15 +101,21 @@ console.log("bin:", ls(kenvPath("bin")).toString())
 console.log("PATH:", env.PATH)
 
 let newDefault = "new-default"
-let kit = kitPath("bin", "kit")
-console.log({ kit })
+
 let newChild = spawnSync(
-  kit,
-  [`new`, newDefault, "--trust", "--no-edit"],
+  `bash`,
+  [
+    kitPath("bin", "kit"),
+    `new`,
+    newDefault,
+    "--trust",
+    "--no-edit",
+  ],
   {
     stdio: "inherit",
     env: {
       KENV: kenvPath(),
+      PATH: kitPath("bin") + ":" + env.PATH,
     },
   }
 )
@@ -136,49 +142,3 @@ if (
   echo(await readFile(newDefaultContentPath, "utf8"))
   exit()
 }
-
-let testFile = "test.txt"
-await writeFile(testFile, "testing")
-
-exec(
-  `new share-file --url https://scriptkit.com/scripts/johnlindquist/share-file.js --no-edit`,
-  {
-    stdio: "inherit",
-    env: {
-      PATH: kenvPath("bin") + ":" + env.PATH,
-    },
-  }
-)
-
-console.log(`--- AFTER EXEC ---`)
-console.log("PATH: ", env.PATH)
-console.log(ls(kenvPath("bin")).toString())
-console.log(ls(kenvPath("scripts")).toString())
-
-let shareFileChild = spawn(
-  `share-file`,
-  [testFile, "--trust"],
-  {
-    stdio: "inherit",
-    env: {
-      PATH: kenvPath("bin") + ":" + env.PATH,
-    },
-  }
-)
-
-await new Promise((res, rej) => {
-  setTimeout(res, 2000)
-})
-trash(testFile)
-kill(shareFileChild.pid)
-echo(`"share-file" passed`)
-
-exec(
-  `new hello-world --url https://scriptkit.com/scripts/johnlindquist/hello-world.js --no-edit`,
-  {
-    stdio: "inherit",
-    env: {
-      PATH: kenvPath("bin") + ":" + env.PATH,
-    },
-  }
-)

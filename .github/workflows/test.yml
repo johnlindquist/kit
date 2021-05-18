@@ -104,5 +104,4 @@ jobs:
 
       - name: Test kit script with new-and-rm
         run: |
-          cd ~/.kenv
-          KENV=. KIT_TEMPLATE=default ~/.kit/script ~/.kit/test/new-and-rm.js
+          KENV=~/.kenv KIT_TEMPLATE=default ~/.kit/script ~/.kit/test/new-and-rm.js
