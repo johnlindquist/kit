@@ -22,12 +22,13 @@ let kenvImport = async packageName => {
         "node_modules",
         packageName,
         pkgPackageJson.module ||
-          pkgPackageJson.main ||
+          (pkgPackageJson?.main?.endsWith(".js") &&
+            pkgPackageJson.main) ||
           "index.js"
       )
     )
   } catch (error) {
-    throw new Error()
+    throw new Error(error)
   }
 }
 
