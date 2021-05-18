@@ -5,6 +5,9 @@ on: [pull_request, workflow_dispatch]
 jobs:
   install:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Extract Branch Name
         uses: rlespinasse/github-slug-action@3.1.0
@@ -76,18 +79,24 @@ jobs:
 
       - name: View bin
         run: >
-          cat ~/.kenv/bin/new
+          cat ~/.kit/bin/kit
 
       - name: View .env
         run: >
           cat ~/.kenv/.env
 
-      - name: Adding sk to Path
+      - name: Adding ~/.kit/bin to Path
+        run: echo "~/.kit/bin" >> $GITHUB_PATH
+
+      - name: Adding ~/.kenv/bin to Path
         run: echo "~/.kenv/bin" >> $GITHUB_PATH
+
+      - name: Chmod ~/.kit/bin/kit
+        run: chmod +x ~/.kit/bin/kit
 
       - name: Create a Test Script
         run: >
-          new running-test-template --template test
+          KENV="~/.kenv" bash ~/.kit/bin/kit new running-test-template --template test
 
       - name: Run the Test Script
         run: >
@@ -95,5 +104,4 @@ jobs:
 
       - name: Test kit script with new-and-rm
         run: |
-          cd ~/.kenv
-          KENV=. KIT_TEMPLATE=default ~/.kit/script ~/.kit/test/new-and-rm.js
+          KENV=~/.kenv KIT_TEMPLATE=default ~/.kit/script ~/.kit/test/new-and-rm.js

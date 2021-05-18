@@ -21,7 +21,7 @@ let install = async packageNames => {
     npm.stdout.on("data", data => {
       let line = data?.toString()
       console.log(line)
-      setHint(line)
+      if (global.setHint) global.setHint(line)
     })
 
     npm.on("error", error => {
