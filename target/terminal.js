@@ -109,8 +109,8 @@ let terminalInstall = async (packageName) => {
         let config = {
             placeholder: message,
             choices: [
-                { name: "Yes", value: true },
                 { name: "No", value: false },
+                { name: "Yes", value: true },
             ],
         };
         let trust = await global.kitPrompt(config);

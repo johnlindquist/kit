@@ -1,5 +1,6 @@
 #!/bin/sh
 
+KENV=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd) \
 {{KIT}}/node/bin/node \
 {{KIT}}/mac-terminal.js \
 {{TARGET_PATH}}/{{type}}/{{name}}.js \

@@ -1,5 +1,10 @@
 let { scripts }: typeof import("./fns") = await cli("fns")
 
+await trash([
+  `!${kenvPath("bin", ".gitignore")}`,
+  kenvPath("bin", "*"),
+])
+
 let scriptNames = await scripts()
 
 for await (let script of scriptNames) {
