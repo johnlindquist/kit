@@ -13,7 +13,8 @@ if (!process.env.KENV)
 
 config({
   path:
-    process.env.DOTENV || resolve(process.env.KENV, ".env"),
+    process.env.KIT_DOTENV ||
+    resolve(process.env.KENV, ".env"),
 })
 
 global.cwd = process.cwd
