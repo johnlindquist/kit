@@ -23,7 +23,7 @@ onTab("Help", async () => {
   await main("help")
 })
 
-let join = db("kit").get("join").value()
+let { join } = await db("kit")
 
 if (join !== "false") {
   onTab("Join", async () => {

@@ -10,8 +10,9 @@ let confirm = await arg(`Accept: "${shortcut}"`, [
     },
 ]);
 if (confirm) {
-    let kitDb = db("kit", { shortcuts: { main: "" } });
-    kitDb.set("shortcuts.kit.main.index", shortcut).write();
+    let kitDb = await db("kit", { shortcuts: { main: "" } });
+    kitDb.data.shortcuts.kit.main.index = shortcut;
+    await kitDb.write();
 }
 else {
     await cli("change-main-shortcut");

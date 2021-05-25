@@ -86,7 +86,7 @@ let waitForPrompt = async ({ choices, validate }) => {
     return value;
 };
 global.kitPrompt = async (config) => {
-    let { placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", drop = false, ignoreBlur = false, mode = MODE.FILTER, } = config;
+    let { placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", drop = false, ignoreBlur = false, mode = MODE.FILTER, textarea = false, } = config;
     global.setMode(typeof choices === "function" && choices?.length > 0
         ? MODE.GENERATE
         : mode);
@@ -103,11 +103,12 @@ global.kitPrompt = async (config) => {
         kitArgs: global.args.join(" "),
         secret,
         drop,
+        textarea,
     });
     global.setHint(hint);
     if (input)
         global.setInput(input);
-    if (ignoreBlur)
+    if (ignoreBlur || textarea)
         global.setIgnoreBlur(true);
     return await waitForPrompt({ choices, validate });
 };
@@ -162,11 +163,17 @@ global.arg = async (placeholderOrConfig, choices) => {
         ...placeholderOrConfig,
     });
 };
+global.textarea = async (placeholder = "Hit cmd+enter to submit") => {
+    return await global.kitPrompt({
+        placeholder,
+        textarea: true,
+    });
+};
 let { default: minimist } = (await import("minimist"));
 global.args = [];
 global.updateArgs = arrayOfArgs => {
     let argv = minimist(arrayOfArgs);
-    global.args = [...global.args, ...argv._];
+    global.args = [...argv._, ...global.args];
     global.argOpts = Object.entries(argv)
         .filter(([key]) => key != "_")
         .flatMap(([key, value]) => {

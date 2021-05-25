@@ -10,10 +10,10 @@ global.attemptImport = async (path, ..._args) => {
         return await import(path + "?uuid=" + global.uuid());
     }
     catch (error) {
-        console.warn(error.message);
+        console.warn(error);
         try {
             let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
-            console.warn(stackWithoutId);
+            // console.warn(stackWithoutId)
             let errorFile = global.kitScript;
             let line = 0;
             let col = 0;
@@ -31,7 +31,9 @@ global.attemptImport = async (path, ..._args) => {
             global.edit(errorFile, global.kenvPath(), line, col);
         }
         catch { }
-        await arg(`🤕 Error in ${global.kitScript.replace(/.*\//, "")}`, error.stack);
+        if (env.KIT_CONTEXT === "app") {
+            await arg(`🤕 Error in ${global.kitScript.replace(/.*\//, "")}`, error.stack);
+        }
     }
 };
 global.runSub = async (scriptPath, ...runArgs) => {

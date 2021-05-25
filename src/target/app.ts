@@ -124,6 +124,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     drop = false,
     ignoreBlur = false,
     mode = MODE.FILTER,
+    textarea = false,
   } = config
 
   global.setMode(
@@ -151,11 +152,12 @@ global.kitPrompt = async (config: PromptConfig) => {
     kitArgs: global.args.join(" "),
     secret,
     drop,
+    textarea,
   })
 
   global.setHint(hint)
   if (input) global.setInput(input)
-  if (ignoreBlur) global.setIgnoreBlur(true)
+  if (ignoreBlur || textarea) global.setIgnoreBlur(true)
 
   return await waitForPrompt({ choices, validate })
 }
@@ -224,6 +226,15 @@ global.arg = async (placeholderOrConfig, choices) => {
   })
 }
 
+global.textarea = async (
+  placeholder: string = "Hit cmd+enter to submit"
+) => {
+  return await global.kitPrompt({
+    placeholder,
+    textarea: true,
+  })
+}
+
 let { default: minimist } = (await import(
   "minimist"
 )) as any
@@ -231,7 +242,7 @@ let { default: minimist } = (await import(
 global.args = []
 global.updateArgs = arrayOfArgs => {
   let argv = minimist(arrayOfArgs)
-  global.args = [...global.args, ...argv._]
+  global.args = [...argv._, ...global.args]
   global.argOpts = Object.entries(argv)
     .filter(([key]) => key != "_")
     .flatMap(([key, value]) => {

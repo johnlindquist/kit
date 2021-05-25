@@ -15,14 +15,14 @@ global.attemptImport = async (path, ..._args) => {
     //must use `import` for ESM
     return await import(path + "?uuid=" + global.uuid())
   } catch (error) {
-    console.warn(error.message)
+    console.warn(error)
 
     try {
       let stackWithoutId = error.stack.replace(
         /\?[^:]*/,
         ""
       )
-      console.warn(stackWithoutId)
+      // console.warn(stackWithoutId)
 
       let errorFile = global.kitScript
       let line = 0
@@ -44,10 +44,15 @@ global.attemptImport = async (path, ..._args) => {
       global.edit(errorFile, global.kenvPath(), line, col)
     } catch {}
 
-    await arg(
-      `🤕 Error in ${global.kitScript.replace(/.*\//, "")}`,
-      error.stack
-    )
+    if (env.KIT_CONTEXT === "app") {
+      await arg(
+        `🤕 Error in ${global.kitScript.replace(
+          /.*\//,
+          ""
+        )}`,
+        error.stack
+      )
+    }
   }
 }
 
@@ -368,7 +373,5 @@ global.kit = new Proxy(() => {}, {
   get: kitGet,
   apply: kitFn,
 })
-
-export {}
 
 export {}

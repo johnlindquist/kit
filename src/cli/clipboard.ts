@@ -1,8 +1,8 @@
 let { setSelectedText } = await kit("text")
 
-let clipboardDb = db("clipboard-history")
+let clipboardDb = await db("clipboard-history")
 
-let history = clipboardDb.get("history").value()
+let history = clipboardDb.data.history
 
 let value = await arg("What to paste?", () => {
   return history.map(

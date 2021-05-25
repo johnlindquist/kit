@@ -17,8 +17,8 @@ let fn = exists ? updateEnv : writeNewEnv
 
 console.log(
   chalk`${
-    exists ? "Updating" : "Setting"
-  } {yellow.bold ${envKey}} to {green ${envValue}}`
+    exists ? "Updated" : "Set"
+  } {yellow.bold ${envKey}} in ${kenvPath(".env")}`
 )
 
 await fn(envKey, envValue)

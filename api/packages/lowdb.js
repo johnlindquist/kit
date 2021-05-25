@@ -1,10 +1,22 @@
-let { default: low } = await import("lowdb");
-let { default: FileSync } = await import("lowdb/adapters/FileSync.js");
-let { default: lodashId } = await import("lodash-id");
-global.db = (key, defaults) => {
-    let _db = low(new FileSync(global.kenvPath("db", `${key}.json`)));
-    _db._.mixin(lodashId);
-    _db.defaults(defaults).write();
-    return _db;
+let { Low, JSONFile } = await import("lowdb");
+global.db = async (key, defaults = {}) => {
+    let _db = new Low(new JSONFile(global.kenvPath("db", `${key}.json`)));
+    await _db.read();
+    if (!_db.data) {
+        _db.data = defaults;
+        await _db.write();
+    }
+    return new Proxy({}, {
+        get: (_target, k) => {
+            if (k === "then")
+                return _db;
+            if (_db[k]) {
+                return typeof _db[k] === "function"
+                    ? _db[k].bind(_db)
+                    : _db[k];
+            }
+            return _db?.data?.[k];
+        },
+    });
 };
 export {};

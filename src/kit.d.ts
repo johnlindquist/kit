@@ -10,7 +10,6 @@ import * as fs from "fs"
 import * as handlebars from "handlebars"
 import * as uuidType from "uuid"
 import * as clipboardy from "clipboardy"
-import { AdapterOptions, LowdbSync } from "lowdb"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
@@ -18,6 +17,7 @@ import * as Notifier from "node-notifier"
 import { CLI } from "./cli"
 import { Main } from "./main"
 import { Lib } from "./lib"
+import { JSONFile, Low } from "lowdb"
 
 type Panel =
   | string
@@ -31,6 +31,10 @@ interface Arg {
     placeholderOrConfig?: string | PromptConfig,
     choicesOrPanel?: Choices<T> | Panel
   ): Promise<T>
+}
+
+interface TextArea {
+  (placeholder?: string): Promise<string>
 }
 interface Drop {
   (hint?: string): Promise<any>
@@ -150,7 +154,7 @@ interface IsCheck {
 }
 
 interface DB {
-  (key: string, defaults?: any): LowdbSync<AdapterOptions>
+  (key: string, defaults?: any): Promise<Low<any> | any>
 }
 
 interface GetScripts {
@@ -224,6 +228,7 @@ interface KitApi {
 
   //preload/kit.cjs
   arg: Arg
+  textarea: TextArea
   drop: Drop
   hotkey: Hotkey
   env: Env
@@ -380,6 +385,7 @@ declare global {
     drop?: boolean
     ignoreBlur?: boolean
     mode?: MODE
+    textarea?: boolean
   }
 
   interface Background {
@@ -458,6 +464,7 @@ declare global {
 
   let env: Env
   let arg: Arg
+  let textarea: TextArea
   let drop: Drop
   let hotkey: Hotkey
   let onTab: OnTab
