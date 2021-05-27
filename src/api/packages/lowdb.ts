@@ -1,6 +1,6 @@
 let { Low, JSONFile } = await import("lowdb")
 
-global.db = async (key: any, defaults: any = {}) => {
+global.db = async (key: any, defaults) => {
   let _db = new Low(
     new JSONFile(global.kenvPath("db", `${key}.json`))
   )
@@ -8,7 +8,10 @@ global.db = async (key: any, defaults: any = {}) => {
   await _db.read()
 
   if (!_db.data) {
-    _db.data = defaults
+    _db.data =
+      typeof defaults === "function"
+        ? await defaults()
+        : defaults
     await _db.write()
   }
 

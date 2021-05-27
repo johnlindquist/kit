@@ -1,9 +1,12 @@
 let { Low, JSONFile } = await import("lowdb");
-global.db = async (key, defaults = {}) => {
+global.db = async (key, defaults) => {
     let _db = new Low(new JSONFile(global.kenvPath("db", `${key}.json`)));
     await _db.read();
     if (!_db.data) {
-        _db.data = defaults;
+        _db.data =
+            typeof defaults === "function"
+                ? await defaults()
+                : defaults;
         await _db.write();
     }
     return new Proxy({}, {
