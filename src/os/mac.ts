@@ -185,6 +185,6 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   }
 
   console.log(
-    global.chalk`> Opening {yellow ${file}} with {green.bold ${global.env.KIT_EDITOR}}`
+    `Opening ${file} with ${global.env.KIT_EDITOR}`
   )
 }

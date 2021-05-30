@@ -1,5 +1,5 @@
 import { MODE, CHANNELS } from "../enums.js"
-import { assignPropsTo } from "../utils.js"
+import { assignPropsTo, info } from "../utils.js"
 
 let displayChoices = (choices: Choice<any>[]) => {
   switch (typeof choices) {
@@ -45,29 +45,37 @@ let waitForPrompt = async ({ choices, validate }) => {
 
   let value = await new Promise(async (resolve, reject) => {
     let currentPromptId = promptId
+    let currentChoices = []
 
-    let invokeChoices = (input: string) => {
+    let invokeChoices = async (input: string) => {
       let resultOrPromise = choices(input)
       if (resultOrPromise.then) {
-        resultOrPromise.then(result => {
-          if (currentPromptId === promptId)
-            displayChoices(result)
-        })
+        let result = await resultOrPromise
+        if (currentPromptId === promptId) {
+          displayChoices(result)
+          return result
+        }
       } else {
         displayChoices(resultOrPromise)
+        return resultOrPromise
       }
     }
 
     if (typeof choices === "function") {
-      invokeChoices("")
+      currentChoices = await invokeChoices("")
     } else {
       displayChoices(choices as any)
+      currentChoices = choices
     }
 
     messageHandler = async data => {
       switch (data?.channel) {
+        case CHANNELS.CHOICE_FOCUSED:
+          //console.log(currentChoices[data?.index])
+          break
+
         case CHANNELS.GENERATE_CHOICES:
-          invokeChoices(data?.input)
+          await invokeChoices(data?.input)
           break
 
         case CHANNELS.TAB_CHANGED:
@@ -133,10 +141,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       : mode
   )
 
-  let scriptInfo = await global.cli(
-    "info",
-    global.kitScript
-  )
+  let scriptInfo = await info(global.kitScript)
 
   global.send("SHOW_PROMPT", {
     tabs: global.onTabs?.length

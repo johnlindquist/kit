@@ -1,4 +1,4 @@
-let { scripts } = await cli("fns")
+let { scripts } = await import("../utils.js")
 
 let input = await arg("Enter Script name:")
 

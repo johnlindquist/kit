@@ -1,4 +1,5 @@
 // Menu: Main
+let { getPrefs } = await import("../utils.js");
 // Description: Script Kit
 global.onTabs = [];
 onTab("Run", async () => {
@@ -19,7 +20,7 @@ onTab("Hot 🔥", async () => {
 onTab("Help", async () => {
     await main("help");
 });
-let { join } = await db("kit");
+let { join } = await getPrefs();
 if (join !== "false") {
     onTab("Join", async () => {
         await cli("join");

@@ -1,10 +1,9 @@
 //Menu: Edit Menu
 //Description: The right-click action of the app
 //Shortcut: cmd shift ;
-let { scriptValue, validate } = await cli("fns");
+let { scriptValue } = await import("../utils.js");
 let command = await arg({
     placeholder: `Which script do you want to edit?`,
-    validate,
 }, scriptValue("command"));
 let editActions = [
     {
@@ -26,6 +25,11 @@ let editActions = [
         name: "Remove",
         description: `Delete ${command} to trash`,
         value: "remove",
+    },
+    {
+        name: `Open ${command}.log`,
+        description: `Opens ${command}.log in your editor`,
+        value: "open-command-log",
     },
 ];
 let editAction = await arg("Which action?", editActions);

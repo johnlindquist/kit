@@ -1,6 +1,6 @@
 //Menu: Share Script
 //Description: Share the selected script
-let { scriptValue } = (await cli("fns"));
+let { scriptValue } = await import("../utils.js");
 let command = await arg(`Which script do you want to share?`, scriptValue("command"));
 let how = await arg("How would you like to share?", [
     {

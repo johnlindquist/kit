@@ -1,11 +1,10 @@
 // Description: Run the selected script
-let { menu, toggleBackground } = (await cli(
-  "fns"
-)) as typeof import("./fns")
+let { buildMainPromptChoices, toggleBackground } =
+  await import("../utils.js")
 
 let script = await arg<Script>(
   `Which script do you want to run?`,
-  menu
+  await buildMainPromptChoices(true)
 )
 
 console.log({ script })

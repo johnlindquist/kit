@@ -1,4 +1,4 @@
-let { scripts }: typeof import("./fns") = await cli("fns")
+let { scripts } = await import("../utils.js")
 
 await trash([
   `!${kenvPath("bin", ".gitignore")}`,

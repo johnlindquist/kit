@@ -7,8 +7,8 @@ export let findScript = async (input) => {
     return (await cli("find-script", input)).found;
 };
 export let scripts = async () => (await cli("scripts")).scripts;
+export let menuCachePath = kitAppPath("db", "menu-cache.json");
 export let buildMenu = async (fromCache = true) => {
-    let menuCachePath = kenvPath("cache", "menu-cache.json");
     if (fromCache && (await isFile(menuCachePath))) {
         return getScripts();
     }

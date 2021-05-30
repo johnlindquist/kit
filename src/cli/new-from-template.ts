@@ -1,6 +1,6 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-let { exists } = await cli("fns")
+let { exists } = await import("../utils.js")
 
 let name = await arg({
   placeholder: "Enter a name for your script:",

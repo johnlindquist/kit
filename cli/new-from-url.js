@@ -1,5 +1,5 @@
 // Description: Creates a script from an entered url
-let { exists } = await cli("fns");
+let { exists } = await import("../utils.js");
 let url = await arg("Enter script url:");
 let contents = (await get(url)).data;
 if (url.endsWith(".js")) {

@@ -1,4 +1,4 @@
-let { scriptValue, scriptPathFromCommand } = (await cli("fns"));
+let { scriptValue, scriptPathFromCommand } = await import("../utils.js");
 let command = await arg(`Which script do you want to duplicate?`, scriptValue("command"));
 let newCommand = await arg({
     placeholder: `Enter the new script name:`,

@@ -1,7 +1,3 @@
-//cjs is required to load/assign the content of this script synchronously
-//we may be able to convert this to .js if an "--import" flag is added
-//https://github.com/nodejs/node/issues/35103
-
 import {
   resolveScriptToCommand,
   resolveToScriptPath,
@@ -15,7 +11,8 @@ global.attemptImport = async (path, ..._args) => {
     //must use `import` for ESM
     return await import(path + "?uuid=" + global.uuid())
   } catch (error) {
-    console.warn(error)
+    console.warn(error.message)
+    console.warn(error.stack)
 
     try {
       let stackWithoutId = error.stack.replace(
@@ -323,13 +320,19 @@ global.setChoices = async choices => {
         if (!choice?.id) {
           choice.id = global.uuid()
         }
+        if (!choice?.value) {
+          return {
+            ...choice,
+            value: choice,
+          }
+        }
       }
 
       return choice
     })
   }
 
-  global.send("SET_CHOICES", { choices })
+  global.send("SET_CHOICES", { choices, scripts: true })
   global.kitPrevChoices = choices
 }
 

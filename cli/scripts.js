@@ -1,7 +1,7 @@
-let scriptsPath = "scripts";
+let scriptsPath = kenvPath("scripts");
 if (arg.dir)
     scriptsPath = `${scriptsPath}/${arg.dir}`;
-let result = await readdir(kenvPath(scriptsPath), {
+let result = await readdir(scriptsPath, {
     withFileTypes: true,
 });
 export let scripts = result

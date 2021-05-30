@@ -1,8 +1,10 @@
-let { menu } = await cli("fns")
+let { buildMainPromptChoices } = await import("../utils.js")
 
 let script: Script = await arg(
   "Change shortcut of which script?",
-  (await menu(false))
+  (
+    await buildMainPromptChoices(true)
+  )
     .sort((a, b) => {
       if (a?.shortcut && !b?.shortcut) return -1
       if (b?.shortcut && !a?.shortcut) return 1

@@ -26,6 +26,7 @@ export interface CLI {
     typeof import("./cli/create-all-bins")
   >
   "create-bin": Promise<typeof import("./cli/create-bin")>
+  "create-kenv": Promise<typeof import("./cli/create-kenv")>
   "find-script": Promise<typeof import("./cli/find-script")>
   "get-help": Promise<typeof import("./cli/get-help")>
   "goto-docs": Promise<typeof import("./cli/goto-docs")>
@@ -39,6 +40,9 @@ export interface CLI {
   >
   "open-at-login": Promise<
     typeof import("./cli/open-at-login")
+  >
+  "open-command-log": Promise<
+    typeof import("./cli/open-command-log")
   >
   "open-kit": Promise<typeof import("./cli/open-kit")>
   "open-log": Promise<typeof import("./cli/open-log")>
@@ -54,6 +58,7 @@ export interface CLI {
     typeof import("./cli/share-script")
   >
   "stream-deck": Promise<typeof import("./cli/stream-deck")>
+  "switch-kenv": Promise<typeof import("./cli/switch-kenv")>
   "system-events": Promise<
     typeof import("./cli/system-events")
   >
@@ -63,19 +68,20 @@ export interface CLI {
   clear: Promise<typeof import("./cli/clear")>
   clipboard: Promise<typeof import("./cli/clipboard")>
   credits: Promise<typeof import("./cli/credits")>
+  ["create-kenv"]: Promise<
+    typeof import("./cli/create-kenv")
+  >
   duplicate: Promise<typeof import("./cli/duplicate")>
   edit: Promise<typeof import("./cli/edit")>
   env: Promise<typeof import("./cli/env")>
   exists: Promise<typeof import("./cli/exists")>
-  fns: Promise<typeof import("./cli/fns")>
-  info: Promise<typeof import("./cli/info")>
   install: Promise<typeof import("./cli/install")>
   issue: Promise<typeof import("./cli/issue")>
   join: Promise<typeof import("./cli/join")>
   kit: Promise<typeof import("./cli/kit")>
-  menu: Promise<typeof import("./cli/menu")>
   new: Promise<typeof import("./cli/new")>
   open: Promise<typeof import("./cli/open")>
+  prefs: Promise<typeof import("./cli/prefs")>
   quit: Promise<typeof import("./cli/quit")>
   remove: Promise<typeof import("./cli/remove")>
   rename: Promise<typeof import("./cli/rename")>
@@ -83,8 +89,10 @@ export interface CLI {
   schedule: Promise<typeof import("./cli/schedule")>
   scripts: Promise<typeof import("./cli/scripts")>
   sdk: Promise<typeof import("./cli/sdk")>
-  settings: Promise<typeof import("./cli/settings")>
   share: Promise<typeof import("./cli/share")>
+  ["switch-kenv"]: Promise<
+    typeof import("./cli/switch-kenv")
+  >
   tutorial: Promise<typeof import("./cli/tutorial")>
   uninstall: Promise<typeof import("./cli/uninstall")>
   update: Promise<typeof import("./cli/update")>

@@ -1,10 +1,5 @@
-let { buildMenu } = await cli("fns")
+let { buildMainPromptChoices } = await import("../utils.js")
 
-let menuData = await buildMenu(false)
-
-await writeFile(
-  kenvPath("cache", "menu-cache.json"),
-  JSON.stringify(menuData)
-)
+await buildMainPromptChoices(false)
 
 export {}

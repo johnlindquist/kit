@@ -138,5 +138,5 @@ global.edit = async (file, dir, line = 0, col = 0) => {
         console.warn(`STDERR ${result.stderr}`);
         exit();
     }
-    console.log(global.chalk `> Opening {yellow ${file}} with {green.bold ${global.env.KIT_EDITOR}}`);
+    console.log(`Opening ${file} with ${global.env.KIT_EDITOR}`);
 };

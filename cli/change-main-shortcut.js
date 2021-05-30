@@ -10,8 +10,9 @@ let confirm = await arg(`Accept: "${shortcut}"`, [
     },
 ]);
 if (confirm) {
-    let kitDb = await db("kit", { shortcuts: { main: "" } });
-    kitDb.data.shortcuts.kit.main.index = shortcut;
+    let kitDb = await db(kitAppPath("db", "shortcuts.json"));
+    kitDb.data.shortcuts[kitPath("main", "index.js")] =
+        shortcut;
     await kitDb.write();
 }
 else {

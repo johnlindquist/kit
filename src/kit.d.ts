@@ -154,7 +154,11 @@ interface IsCheck {
 }
 
 interface DB {
-  (key: string, defaults?: any): Promise<Low<any> | any>
+  (
+    key: string,
+    defaults?: any,
+    forceReload?: boolean
+  ): Promise<Low<any> | any>
 }
 
 interface GetScripts {
@@ -238,7 +242,10 @@ interface KitApi {
 
   kitPath: PathFn
   kenvPath: PathFn
+  kitAppPath: PathFn
   libPath: PathFn
+
+  kitMenuCachePath: () => string
 
   tmp: PathFn
   inspect: Inspect
@@ -328,7 +335,7 @@ interface KitApi {
 type GlobalKit = KitApi & typeof import("./api/lib")
 
 declare global {
-  interface Script extends Choice<any> {
+  interface Script extends Choice {
     file: string
     filePath: string
     command: string
@@ -346,12 +353,7 @@ declare global {
     background?: string
     isRunning?: boolean
   }
-
-  interface MenuItem extends Script {
-    name: string
-    value: Script
-  }
-  interface Choice<Value> {
+  interface Choice<Value = any> {
     name: string
     value: Value
     description?: string
@@ -436,6 +438,8 @@ declare global {
   let readdir: typeof fsPromises.readdir
   let compile: typeof handlebars.compile
 
+  let cwd: typeof process.cwd
+
   let path: typeof import("path")
 
   let paste: typeof clipboardy.read
@@ -452,6 +456,7 @@ declare global {
 
   let kitPath: PathFn
   let kenvPath: PathFn
+  let kitAppPath: PathFn
 
   let attemptImport: KitModuleLoader
   let npm: KitModuleLoader

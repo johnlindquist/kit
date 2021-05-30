@@ -3,9 +3,7 @@
 //Author: John Lindquist
 //Twitter: @johnlindquist
 
-let { scriptValue } = (await cli(
-  "fns"
-)) as typeof import("../cli/fns")
+let { scriptValue } = await import("../utils.js")
 
 let createCommand = (launchApp: boolean, script: string) =>
   launchApp

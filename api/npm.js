@@ -22,7 +22,7 @@ let findMain = async (packageName, packageJson) => {
                 return kPath(main, "index.js");
             }
         }
-        return "index.js";
+        return kPath("index.js");
     }
     catch (error) {
         throw new Error(error);

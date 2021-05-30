@@ -1,9 +1,7 @@
 //Menu: Copy Script to Clipboard
 //Description: Copies Script to Clipboard
 
-let { scriptValue } = (await cli(
-  "fns"
-)) as typeof import("./fns")
+let { scriptValue } = await import("../utils.js")
 
 let command = await arg(
   `Which script do you want to share?`,

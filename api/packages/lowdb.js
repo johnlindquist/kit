@@ -1,8 +1,13 @@
 let { Low, JSONFile } = await import("lowdb");
-global.db = async (key, defaults) => {
-    let _db = new Low(new JSONFile(global.kenvPath("db", `${key}.json`)));
+global.db = async (key, defaults, fromCache = true) => {
+    let dbPath = global.kenvPath("db", `${key}.json`);
+    if (key.startsWith(path.sep)) {
+        dbPath = key;
+    }
+    let _db = new Low(new JSONFile(dbPath));
     await _db.read();
-    if (!_db.data) {
+    if (!_db.data || !fromCache) {
+        console.log(`>>>>>>>>>>>>>> Refresh db ${key}`);
         _db.data =
             typeof defaults === "function"
                 ? await defaults()

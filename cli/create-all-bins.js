@@ -1,4 +1,4 @@
-let { scripts } = await cli("fns");
+let { scripts } = await import("../utils.js");
 await trash([
     `!${kenvPath("bin", ".gitignore")}`,
     kenvPath("bin", "*"),
