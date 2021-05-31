@@ -1,6 +1,6 @@
 export {}
 
-import { MODE } from "./enums"
+import { MODE } from "./enums.js"
 
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
@@ -242,7 +242,6 @@ interface KitApi {
 
   kitPath: PathFn
   kenvPath: PathFn
-  kitAppPath: PathFn
   libPath: PathFn
 
   kitMenuCachePath: () => string
@@ -355,7 +354,7 @@ declare global {
   }
   interface Choice<Value = any> {
     name: string
-    value: Value
+    value?: Value
     description?: string
     focused?: string
     img?: string
@@ -456,7 +455,6 @@ declare global {
 
   let kitPath: PathFn
   let kenvPath: PathFn
-  let kitAppPath: PathFn
 
   let attemptImport: KitModuleLoader
   let npm: KitModuleLoader

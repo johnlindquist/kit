@@ -1,3 +1,5 @@
-send("SET_LOGIN", { openAtLogin: true })
+import { Channel } from "../enums.js"
+
+send(Channel.SET_LOGIN, { openAtLogin: true })
 
 export {}

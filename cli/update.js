@@ -1,2 +1,2 @@
-send("UPDATE_APP");
-export {};
+import { Channel } from "../enums.js";
+send(Channel.UPDATE_APP);

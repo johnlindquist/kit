@@ -100,13 +100,6 @@ global.kenvPath = (...parts: string[]) => {
   )
 }
 
-global.kitAppPath = (...parts: string[]) => {
-  return global.path.join(
-    global.env.KIT_APP_PATH || home(".kitApp"),
-    ...parts.filter(Boolean)
-  )
-}
-
 global.libPath = (...parts) =>
   global.path.join(global.kenvPath("lib"), ...parts)
 

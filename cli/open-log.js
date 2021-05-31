@@ -1,3 +1,3 @@
 // Description: Open Log
-edit(kitAppPath("logs", "kit.log"));
+edit(kitPath("logs", "kit.log"));
 export {};

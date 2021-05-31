@@ -1,3 +1,4 @@
+import { Channel } from "../enums.js"
 import {
   resolveScriptToCommand,
   resolveToScriptPath,
@@ -158,7 +159,7 @@ if (process?.send) {
   let _consoleLog = console.log.bind(console)
   let _consoleWarn = console.warn.bind(console)
   console.log = async (...args) => {
-    global.send("CONSOLE_LOG", {
+    global.send(Channel.CONSOLE_LOG, {
       log: args
         .map(a =>
           typeof a != "string" ? JSON.stringify(a) : a
@@ -168,7 +169,7 @@ if (process?.send) {
   }
 
   console.warn = async (...args) => {
-    global.send("CONSOLE_WARN", {
+    global.send(Channel.CONSOLE_WARN, {
       warn: args
         .map(a =>
           typeof a != "string" ? JSON.stringify(a) : a
@@ -179,11 +180,11 @@ if (process?.send) {
 }
 
 global.show = (html, options) => {
-  global.send("SHOW", { options, html })
+  global.send(Channel.SHOW, { options, html })
 }
 
 global.showImage = (image, options) => {
-  global.send("SHOW_IMAGE", {
+  global.send(Channel.SHOW_IMAGE, {
     options,
     image:
       typeof image === "string" ? { src: image } : image,
@@ -191,7 +192,7 @@ global.showImage = (image, options) => {
 }
 
 global.setPlaceholder = text => {
-  global.send("SET_PLACEHOLDER", {
+  global.send(Channel.SET_PLACEHOLDER, {
     text,
   })
 }
@@ -200,10 +201,12 @@ global.run = async (script, ..._args) => {
   let resolvedScript = resolveToScriptPath(script)
   global.onTabs = []
   global.kitScript = resolvedScript
-  global.send("RUN_SCRIPT", {
-    name: resolvedScript,
-    args: _args,
-  })
+  if (process.env.KIT_SCRIPT_TYPE === "prompt") {
+    global.send(Channel.RUN_SCRIPT, {
+      name: resolvedScript,
+      args: _args,
+    })
+  }
 
   return global.attemptImport(resolvedScript, ..._args)
 }
@@ -292,14 +295,14 @@ global.onTab = async (name, fn) => {
     if (global.arg.tab === name) {
       let tabIndex = global.onTabs.length - 1
       global.onTabIndex = tabIndex
-      global.send("SET_TAB_INDEX", {
+      global.send(Channel.SET_TAB_INDEX, {
         tabIndex,
       })
       global.currentOnTab = await fn()
     }
   } else if (global.onTabs.length === 1) {
     global.onTabIndex = 0
-    global.send("SET_TAB_INDEX", { tabIndex: 0 })
+    global.send(Channel.SET_TAB_INDEX, { tabIndex: 0 })
     global.currentOnTab = await fn()
   }
 }
@@ -332,7 +335,10 @@ global.setChoices = async choices => {
     })
   }
 
-  global.send("SET_CHOICES", { choices, scripts: true })
+  global.send(Channel.SET_CHOICES, {
+    choices,
+    scripts: true,
+  })
   global.kitPrevChoices = choices
 }
 

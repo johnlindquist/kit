@@ -1,3 +1,4 @@
+import { Channel } from "../enums.js";
 let { host, port } = await new Promise((res, rej) => {
     let messageHandler = (data) => {
         if (data.channel === "SERVER") {
@@ -6,7 +7,7 @@ let { host, port } = await new Promise((res, rej) => {
         }
     };
     process.on("message", messageHandler);
-    send("GET_SERVER_STATE");
+    send(Channel.GET_SERVER_STATE);
 });
 let otherOptions = [
     {
@@ -108,4 +109,3 @@ let otherOptions = [
 ];
 let cliScript = await arg(`Other options:`, otherOptions);
 await cli(cliScript);
-export {};

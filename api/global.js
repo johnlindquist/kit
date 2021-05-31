@@ -71,8 +71,5 @@ global.kitPath = (...parts) => global.path.join(process.env.KIT, ...parts);
 global.kenvPath = (...parts) => {
     return global.path.join(global.env.KENV || home(".kenv"), ...parts.filter(Boolean));
 };
-global.kitAppPath = (...parts) => {
-    return global.path.join(global.env.KIT_APP_PATH || home(".kitApp"), ...parts.filter(Boolean));
-};
 global.libPath = (...parts) => global.path.join(global.kenvPath("lib"), ...parts);
 global.memoryMap = new Map();

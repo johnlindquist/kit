@@ -1,7 +1,15 @@
-let kitAppDb = await db(kitAppPath("db", "app.json"))
+import { Channel } from "../enums.js"
 
-let kenv = await arg(`Select kenv`, kitAppDb.KENVS)
+let kitAppDb = await db(kitPath("db", "app.json"))
 
-global.send("SWITCH_KENV", { kenvPath: kenv })
+let kenv = await arg(
+  {
+    placeholder: `Select kenv`,
+    hint: `Current Kenv: ${process.env.KENV}`,
+  },
+  kitAppDb.KENVS
+)
+
+global.send(Channel.SWITCH_KENV, { kenvPath: kenv })
 
 export {}

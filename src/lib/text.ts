@@ -1,5 +1,7 @@
+import { Channel } from "../enums.js"
+
 export let getSelectedText = async () => {
-  send("HIDE_APP")
+  send(Channel.HIDE_APP)
 
   await applescript(
     String.raw`tell application "System Events" to keystroke "c" using command down`
@@ -27,7 +29,7 @@ export let setSelectedText = async text => {
       '\\"'
     )}"`
   )
-  send("HIDE_APP")
+  send(Channel.HIDE_APP)
 
   await applescript(
     String.raw`tell application "System Events" to keystroke "v" using command down`

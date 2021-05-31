@@ -1,4 +1,5 @@
 import { CLI } from "../cli"
+import { Channel } from "../enums.js"
 
 let { host, port } = await new Promise((res, rej) => {
   let messageHandler = (data: any) => {
@@ -9,7 +10,7 @@ let { host, port } = await new Promise((res, rej) => {
   }
   process.on("message", messageHandler)
 
-  send("GET_SERVER_STATE")
+  send(Channel.GET_SERVER_STATE)
 })
 
 let otherOptions: Choice<keyof CLI>[] = [

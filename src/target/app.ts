@@ -1,4 +1,4 @@
-import { MODE, CHANNELS } from "../enums.js"
+import { MODE, Channel } from "../enums.js"
 import { assignPropsTo, info } from "../utils.js"
 
 let displayChoices = (choices: Choice<any>[]) => {
@@ -70,15 +70,15 @@ let waitForPrompt = async ({ choices, validate }) => {
 
     messageHandler = async data => {
       switch (data?.channel) {
-        case CHANNELS.CHOICE_FOCUSED:
+        case Channel.CHOICE_FOCUSED:
           //console.log(currentChoices[data?.index])
           break
 
-        case CHANNELS.GENERATE_CHOICES:
+        case Channel.GENERATE_CHOICES:
           await invokeChoices(data?.input)
           break
 
-        case CHANNELS.TAB_CHANGED:
+        case Channel.TAB_CHANGED:
           checkTabChanged(
             data,
             messageHandler,
@@ -86,7 +86,7 @@ let waitForPrompt = async ({ choices, validate }) => {
           )
           break
 
-        case CHANNELS.VALUE_SUBMITTED:
+        case Channel.VALUE_SUBMITTED:
           let { value } = data
           if (validate) {
             let validateMessage = await validate(value)
@@ -143,7 +143,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   let scriptInfo = await info(global.kitScript)
 
-  global.send("SHOW_PROMPT", {
+  global.send(Channel.SHOW_PROMPT, {
     tabs: global.onTabs?.length
       ? global.onTabs.map(({ name }) => name)
       : [],
@@ -307,29 +307,29 @@ let { createNpm } = await import("../api/npm.js")
 global.npm = createNpm(appInstall)
 
 global.setPanel = async html => {
-  global.send("SET_PANEL", { html })
+  global.send(Channel.SET_PANEL, { html })
 }
 
 global.setMode = async mode => {
-  global.send("SET_MODE", {
+  global.send(Channel.SET_MODE, {
     mode,
   })
 }
 
 global.setHint = async hint => {
-  global.send("SET_HINT", {
+  global.send(Channel.SET_HINT, {
     hint,
   })
 }
 
 global.setInput = async input => {
-  global.send("SET_INPUT", {
+  global.send(Channel.SET_INPUT, {
     input,
   })
 }
 
 global.setIgnoreBlur = async ignore => {
-  global.send("SET_IGNORE_BLUR", { ignore })
+  global.send(Channel.SET_IGNORE_BLUR, { ignore })
 }
 
 global.getDataFromApp = async channel => {

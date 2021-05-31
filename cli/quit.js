@@ -1,2 +1,2 @@
-send("QUIT_APP");
-export {};
+import { Channel } from "../enums.js";
+send(Channel.QUIT_APP);

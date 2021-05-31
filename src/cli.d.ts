@@ -19,9 +19,6 @@ export interface CLI {
   "change-shortcut": Promise<
     typeof import("./cli/change-shortcut")
   >
-  "check-for-update": Promise<
-    typeof import("./cli/check-for-update")
-  >
   "create-all-bins": Promise<
     typeof import("./cli/create-all-bins")
   >
@@ -87,7 +84,6 @@ export interface CLI {
   rename: Promise<typeof import("./cli/rename")>
   run: Promise<typeof import("./cli/run")>
   schedule: Promise<typeof import("./cli/schedule")>
-  scripts: Promise<typeof import("./cli/scripts")>
   sdk: Promise<typeof import("./cli/sdk")>
   share: Promise<typeof import("./cli/share")>
   ["switch-kenv"]: Promise<

@@ -1,3 +1,4 @@
+import { Channel } from "./enums.js";
 export let assignPropsTo = (source, target) => {
     Object.entries(source).forEach(([key, value]) => {
         target[key] = value;
@@ -28,12 +29,27 @@ export let exists = async (input) => {
 export let findScript = async (input) => {
     return (await cli("find-script", input)).found;
 };
-export let scripts = async () => (await cli("scripts")).scripts;
-export let scriptsCachePath = () => kitAppPath("db", "main.json");
+export let getScripts = async () => {
+    let scriptsPath = kenvPath("scripts");
+    if (arg.dir)
+        scriptsPath = `${scriptsPath}/${arg.dir}`;
+    let result = await readdir(scriptsPath, {
+        withFileTypes: true,
+    });
+    return result
+        .filter(file => file.isFile())
+        .map(file => {
+        let name = file.name;
+        if (arg.dir)
+            name = `${arg.dir}/${name}`;
+        return name;
+    })
+        .filter(name => name.endsWith(".js"));
+};
 export let buildMainPromptChoices = async (fromCache = true) => {
-    return (await db(scriptsCachePath(), async () => ({
-        choices: await scriptsAsChoices(),
-    }), fromCache)).choices;
+    return (await db("scripts", async () => ({
+        scripts: await writeScriptsDb(),
+    }), fromCache)).scripts;
 };
 export let scriptValue = (pluck, fromCache) => async () => {
     let menuItems = await buildMainPromptChoices(fromCache);
@@ -54,7 +70,9 @@ export let toggleBackground = async (script) => {
         { name: `View ${script.command}.log`, value: `log` },
     ]);
     if (toggleOrLog === "toggle") {
-        send("TOGGLE_BACKGROUND", { filePath: script.filePath });
+        send(Channel.TOGGLE_BACKGROUND, {
+            filePath: script.filePath,
+        });
     }
     if (toggleOrLog === "edit") {
         await edit(script.filePath, kenvPath());
@@ -96,13 +114,15 @@ export let info = async (infoFor) => {
         watch: getByMarker("Watch:")(fileLines),
         system: getByMarker("System:")(fileLines),
         background: getByMarker("Background:")(fileLines),
+        file,
         id: filePath,
         filePath,
     };
 };
-export let scriptsAsChoices = async () => {
-    let scriptFiles = await scripts();
-    return (await Promise.all(scriptFiles.map(info)))
+export let writeScriptsDb = async () => {
+    let scriptFiles = await getScripts();
+    let scriptInfo = await Promise.all(scriptFiles.map(info));
+    return scriptInfo
         .filter((script) => !(script?.exclude && script?.exclude === "true"))
         .sort((a, b) => {
         let aName = a.name.toLowerCase();
@@ -111,5 +131,5 @@ export let scriptsAsChoices = async () => {
     });
 };
 export let getPrefs = async () => {
-    return await db(kitAppPath("db", "prefs.json"));
+    return await db(kitPath("db", "prefs.json"));
 };
