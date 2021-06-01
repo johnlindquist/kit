@@ -31,7 +31,7 @@
     "node-ipc": "^9.1.4",
     "node-notifier": "^9.0.1",
     "project-name-generator": "^2.1.9",
-    "rxjs": "^6.6.7",
+    "rxjs": "^7.1.0",
     "scriptkit-octokit": "^1.0.4",
     "shelljs": "^0.8.4",
     "strip-ansi": "^6.0.0",

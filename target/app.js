@@ -1,5 +1,38 @@
+import { Observable, firstValueFrom, merge, } from "rxjs";
+import { filter, map, share, switchMap, take, tap, } from "rxjs/operators";
 import { MODE, Channel } from "../enums.js";
 import { assignPropsTo, info } from "../utils.js";
+let exception$ = new Observable(observer => {
+    let e = (error) => observer.next(error);
+    process.on("uncaughtException", e);
+    return () => {
+        process.off("uncaughtException", e);
+    };
+}).pipe(share());
+let rejection$ = new Observable(observer => {
+    let e = (error) => observer.next(error);
+    process.on("unhandledRejection", e);
+    return () => {
+        process.off("unhandledRejection", e);
+    };
+}).pipe(share());
+merge(exception$, rejection$).subscribe(console.log);
+let updateTab = (data) => {
+    let tabIndex = global.onTabs.findIndex(({ name }) => {
+        return name == data?.tab;
+    });
+    console.log(`\nUPDATING TAB: ${tabIndex}`);
+    global.onTabIndex = tabIndex;
+    global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
+};
+let checkTabChanged = (data, messageHandler, errorHandler) => {
+    if (data?.tab && global.onTabs) {
+        process.off("message", messageHandler);
+        if (errorHandler)
+            process.off("error", errorHandler);
+        updateTab(data);
+    }
+};
 let displayChoices = (choices) => {
     switch (typeof choices) {
         case "string":
@@ -10,25 +43,85 @@ let displayChoices = (choices) => {
             break;
     }
 };
-let checkTabChanged = (data, messageHandler, errorHandler) => {
-    if (data?.tab && global.onTabs) {
-        process.off("message", messageHandler);
-        if (errorHandler)
-            process.off("error", errorHandler);
-        updateTab(data);
+let promptId = 0;
+let invokeChoices = (ct) => choices => async (input) => {
+    let resultOrPromise = choices(input);
+    if (resultOrPromise.then) {
+        let result = await resultOrPromise;
+        if (ct.promptId === promptId &&
+            ct.tabIndex === global.onTabIndex) {
+            displayChoices(result);
+            return result;
+        }
+    }
+    else {
+        displayChoices(resultOrPromise);
+        return resultOrPromise;
     }
 };
-let updateTab = data => {
-    let tabIndex = global.onTabs.findIndex(({ name }) => {
-        return name == data?.tab;
+let getCurrentChoices = (ct) => async (choices) => {
+    if (typeof choices === "function") {
+        return await invokeChoices(ct)(choices)("");
+    }
+    else {
+        displayChoices(choices);
+        return choices;
+    }
+};
+let tabIndex = global.onTabIndex;
+let waitForPromptValue = async ({ choices, validate }) => {
+    promptId++;
+    let currentChoices = await getCurrentChoices({
+        promptId,
+        tabIndex,
+    })(choices);
+    let message$ = new Observable(observer => {
+        let m = (data) => observer.next(data);
+        let e = (error) => observer.error(error);
+        process.on("message", m);
+        process.on("error", e);
+        return () => {
+            process.off("message", m);
+            process.off("error", e);
+        };
+    }).pipe(share());
+    message$
+        .pipe(filter(data => data.channel === Channel.GENERATE_CHOICES), map(data => data.input), switchMap(input => invokeChoices({ promptId, tabIndex })(choices)(input)))
+        .subscribe();
+    message$
+        .pipe(filter(data => data.channel === Channel.TAB_CHANGED), take(1))
+        .subscribe(data => {
+        if (data?.tab && global.onTabs) {
+            updateTab(data);
+        }
     });
-    global.onTabIndex = tabIndex;
-    global.currentOnTab = global.onTabs[tabIndex].fn(data?.input);
+    let value$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED), tap(() => console.log({
+        tabIndex,
+        onTabIndex: global.onTabIndex,
+    })), map(data => data.value), switchMap(async (value) => {
+        if (validate) {
+            let validateMessage = await validate(value);
+            if (typeof validateMessage === "string") {
+                let Convert = await npm("ansi-to-html");
+                let convert = new Convert();
+                global.setHint(convert.toHtml(validateMessage));
+                global.setChoices(global.kitPrevChoices);
+            }
+            else {
+                return value;
+            }
+        }
+        else {
+            return value;
+        }
+    }));
+    return await firstValueFrom(value$);
 };
 // TODO: Refactor into RxJS :D
-let promptId = 0;
-let waitForPrompt = async ({ choices, validate }) => {
+let waitForPromptOld = async ({ choices, validate }) => {
     promptId++;
+    let tabIndex = global.onTabIndex;
+    console.log({ promptId, tabIndex });
     let messageHandler;
     let errorHandler;
     let value = await new Promise(async (resolve, reject) => {
@@ -36,9 +129,14 @@ let waitForPrompt = async ({ choices, validate }) => {
         let currentChoices = [];
         let invokeChoices = async (input) => {
             let resultOrPromise = choices(input);
+            console.log({
+                tabIndex,
+                globalTabIndex: global.onTabIndex,
+            });
             if (resultOrPromise.then) {
                 let result = await resultOrPromise;
-                if (currentPromptId === promptId) {
+                if (currentPromptId === promptId &&
+                    tabIndex === global.onTabIndex) {
                     displayChoices(result);
                     return result;
                 }
@@ -56,6 +154,7 @@ let waitForPrompt = async ({ choices, validate }) => {
             currentChoices = choices;
         }
         messageHandler = async (data) => {
+            console.log(`\n>>> CHANNEL ${data.channel} ${data.tab}\n`);
             switch (data?.channel) {
                 case Channel.CHOICE_FOCUSED:
                     //console.log(currentChoices[data?.index])
@@ -65,6 +164,7 @@ let waitForPrompt = async ({ choices, validate }) => {
                     break;
                 case Channel.TAB_CHANGED:
                     checkTabChanged(data, messageHandler, errorHandler);
+                    reject(Channel.TAB_CHANGED);
                     break;
                 case Channel.VALUE_SUBMITTED:
                     let { value } = data;
@@ -117,7 +217,7 @@ global.kitPrompt = async (config) => {
         global.setInput(input);
     if (ignoreBlur || textarea)
         global.setIgnoreBlur(true);
-    return await waitForPrompt({ choices, validate });
+    return await waitForPromptValue({ choices, validate });
 };
 global.drop = async (hint = "") => {
     return await global.kitPrompt({
