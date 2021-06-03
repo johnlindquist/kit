@@ -1,10 +1,9 @@
 //Menu: Edit Menu
 //Description: The right-click action of the app
-//Shortcut: cmd shift ;
-let { scriptValue } = await import("../utils.js");
-let command = await arg({
+let { buildMainPromptChoices } = await import("../utils.js");
+let { command } = await arg({
     placeholder: `Which script do you want to edit?`,
-}, scriptValue("command"));
+}, await buildMainPromptChoices());
 let editActions = [
     {
         name: "Open",

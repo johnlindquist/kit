@@ -1,4 +1,4 @@
-import { Channel } from "./enums.js";
+import { Channel, ProcessType } from "./enums.js";
 export let assignPropsTo = (source, target) => {
     Object.entries(source).forEach(([key, value]) => {
         target[key] = value;
@@ -99,8 +99,23 @@ export let info = async (infoFor) => {
     let command = file.replace(".js", "");
     let shortcut = getByMarker("Shortcut:")(fileLines);
     let menu = getByMarker("Menu:")(fileLines);
+    let schedule = getByMarker("Schedule:")(fileLines);
+    let watch = getByMarker("Watch:")(fileLines);
+    let system = getByMarker("System:")(fileLines);
+    let background = getByMarker("Background:")(fileLines);
+    let requiresPrompt = Boolean(fileLines.find(line => line.match(/await arg|await drop|await textarea|await hotkey|await main/g)));
+    let type = schedule
+        ? ProcessType.Schedule
+        : watch
+            ? ProcessType.Watch
+            : system
+                ? ProcessType.System
+                : background
+                    ? ProcessType.Background
+                    : ProcessType.Prompt;
     return {
         command,
+        type,
         shortcut,
         menu,
         name: (menu || command) + (shortcut ? `: ${shortcut}` : ``),
@@ -110,13 +125,14 @@ export let info = async (infoFor) => {
         twitter: getByMarker("Twitter:")(fileLines),
         shortcode: getByMarker("Shortcode:")(fileLines),
         exclude: getByMarker("Exclude:")(fileLines),
-        schedule: getByMarker("Schedule:")(fileLines),
-        watch: getByMarker("Watch:")(fileLines),
-        system: getByMarker("System:")(fileLines),
-        background: getByMarker("Background:")(fileLines),
+        schedule,
+        watch,
+        system,
+        background,
         file,
         id: filePath,
         filePath,
+        requiresPrompt,
     };
 };
 export let writeScriptsDb = async () => {

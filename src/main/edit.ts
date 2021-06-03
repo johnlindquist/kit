@@ -3,14 +3,13 @@
 
 import { CLI } from "../cli"
 
-//Shortcut: cmd shift ;
-let { scriptValue } = await import("../utils.js")
+let { buildMainPromptChoices } = await import("../utils.js")
 
-let command = await arg(
+let { command } = await arg<Script>(
   {
     placeholder: `Which script do you want to edit?`,
   },
-  scriptValue("command")
+  await buildMainPromptChoices()
 )
 
 let editActions: Choice<keyof CLI>[] = [

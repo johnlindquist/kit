@@ -28,7 +28,7 @@ export enum Channel {
   PROMPT_ERROR = "PROMPT_ERROR",
   QUIT_APP = "QUIT_APP",
   RESET_PROMPT = "RESET_PROMPT",
-  RUN_SCRIPT = "RUN_SCRIPT",
+  PROMPT_INFO = "PROMPT_INFO",
   SEND_RESPONSE = "SEND_RESPONSE",
   SET_CHOICES = "SET_CHOICES",
   SET_HINT = "SET_HINT",
@@ -53,4 +53,13 @@ export enum Channel {
   USER_RESIZED = "USER_RESIZED",
   VALUE_SUBMITTED = "VALUE_SUBMITTED",
   SET_PREVIEW = "SET_PREVIEW",
+}
+
+export enum ProcessType {
+  Schedule = "Schedule",
+  App = "App",
+  Background = "Background",
+  Prompt = "Prompt",
+  Watch = "Watch",
+  System = "System",
 }

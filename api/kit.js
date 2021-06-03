@@ -1,5 +1,5 @@
 import { Channel } from "../enums.js";
-import { resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
+import { info, resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
 global.attemptImport = async (path, ..._args) => {
     try {
         global.updateArgs(_args);
@@ -150,14 +150,19 @@ global.setPlaceholder = text => {
         text,
     });
 };
-global.run = async (script, ..._args) => {
-    let resolvedScript = resolveToScriptPath(script);
+global.run = async (scriptToRun, ..._args) => {
+    let resolvedScript = resolveToScriptPath(scriptToRun);
     global.onTabs = [];
     global.kitScript = resolvedScript;
-    if (process.env.KIT_SCRIPT_TYPE === "prompt") {
-        global.send(Channel.RUN_SCRIPT, {
+    let script = await info(global.kitScript);
+    console.log(script);
+    if (script.requiresPrompt) {
+        console.log(`Sending PROMPT_INFO`);
+        global.send(Channel.PROMPT_INFO, {
             name: resolvedScript,
             args: _args,
+            type: script.type,
+            script,
         });
     }
     return global.attemptImport(resolvedScript, ..._args);

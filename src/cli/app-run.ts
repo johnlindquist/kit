@@ -4,7 +4,7 @@ let { buildMainPromptChoices, toggleBackground } =
 
 let script = await arg<Script>(
   `Which script do you want to run?`,
-  await buildMainPromptChoices(true)
+  await buildMainPromptChoices()
 )
 
 console.log({ script })

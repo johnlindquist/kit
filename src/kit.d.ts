@@ -1,6 +1,6 @@
 export {}
 
-import { MODE } from "./enums.js"
+import { MODE, ProcessType } from "./enums.js"
 
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
@@ -351,6 +351,8 @@ declare global {
     watch?: string
     background?: string
     isRunning?: boolean
+    type: ProcessType
+    requiresPrompt: boolean
   }
   interface Choice<Value = any> {
     name: string
