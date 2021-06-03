@@ -1,4 +1,4 @@
-import { Channel } from "../enums.js";
+import { Channel, } from "../enums.js";
 import { info, resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
 global.attemptImport = async (path, ..._args) => {
     try {
@@ -10,28 +10,32 @@ global.attemptImport = async (path, ..._args) => {
     catch (error) {
         console.warn(error.message);
         console.warn(error.stack);
-        try {
-            let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
-            // console.warn(stackWithoutId)
-            let errorFile = global.kitScript;
-            let line = 0;
-            let col = 0;
-            let secondLine = stackWithoutId.split("\n")[1];
-            if (secondLine.match("at file://")) {
-                errorFile = secondLine
-                    .replace("at file://", "")
-                    .replace(/:.*/, "")
-                    .trim();
-                [, line, col] = secondLine
-                    .replace("at file://", "")
-                    .split(":");
-            }
-            console.log({ errorFile, line, col });
-            global.edit(errorFile, global.kenvPath(), line, col);
+        let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
+        // console.warn(stackWithoutId)
+        let errorFile = global.kitScript;
+        let line = "0";
+        let col = "0";
+        let secondLine = stackWithoutId.split("\n")[1];
+        if (secondLine.match("at file://")) {
+            errorFile = secondLine
+                .replace("at file://", "")
+                .replace(/:.*/, "")
+                .trim();
+            [, line, col] = secondLine
+                .replace("at file://", "")
+                .split(":");
         }
-        catch { }
         if (env.KIT_CONTEXT === "app") {
-            await arg(`🤕 Error in ${global.kitScript.replace(/.*\//, "")}`, error.stack);
+            let script = global.kitScript.replace(/.*\//, "");
+            let errorToCopy = `${error.message}\n${error.stack}`;
+            let child = spawnSync(kitPath("bin", "sk"), [
+                kitPath("cli", "error-action.js"),
+                script,
+                errorToCopy,
+                errorFile,
+                line,
+                col,
+            ]);
         }
     }
 };

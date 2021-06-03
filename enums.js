@@ -64,3 +64,9 @@ export var ProcessType;
     ProcessType["Watch"] = "Watch";
     ProcessType["System"] = "System";
 })(ProcessType || (ProcessType = {}));
+export var ErrorAction;
+(function (ErrorAction) {
+    ErrorAction["Open"] = "Open";
+    ErrorAction["Log"] = "Log";
+    ErrorAction["Ask"] = "Ask";
+})(ErrorAction || (ErrorAction = {}));

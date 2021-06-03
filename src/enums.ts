@@ -63,3 +63,9 @@ export enum ProcessType {
   Watch = "Watch",
   System = "System",
 }
+
+export enum ErrorAction {
+  Open = "Open",
+  Log = "Log",
+  Ask = "Ask",
+}
