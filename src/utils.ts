@@ -172,6 +172,10 @@ export let info = async (
   let watch = getByMarker("Watch:")(fileLines)
   let system = getByMarker("System:")(fileLines)
   let background = getByMarker("Background:")(fileLines)
+  let timeout = parseInt(
+    getByMarker("Timeout:")(fileLines),
+    10
+  )
 
   let requiresPrompt = Boolean(
     fileLines.find(line =>
@@ -213,6 +217,7 @@ export let info = async (
     id: filePath,
     filePath,
     requiresPrompt,
+    timeout,
   }
 }
 

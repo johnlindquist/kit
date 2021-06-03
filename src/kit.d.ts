@@ -353,6 +353,7 @@ declare global {
     isRunning?: boolean
     type: ProcessType
     requiresPrompt: boolean
+    timeout?: number
   }
   interface Choice<Value = any> {
     name: string

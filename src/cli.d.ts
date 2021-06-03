@@ -9,7 +9,9 @@ export interface CLI {
   "browse-examples": Promise<
     typeof import("./cli/browse-examples")
   >
-  "cache-menu": Promise<typeof import("./cli/cache-menu")>
+  "refresh-scripts-db": Promise<
+    typeof import("./cli/refresh-scripts-db")
+  >
   "change-editor": Promise<
     typeof import("./cli/change-editor")
   >

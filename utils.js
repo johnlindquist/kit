@@ -103,6 +103,7 @@ export let info = async (infoFor) => {
     let watch = getByMarker("Watch:")(fileLines);
     let system = getByMarker("System:")(fileLines);
     let background = getByMarker("Background:")(fileLines);
+    let timeout = parseInt(getByMarker("Timeout:")(fileLines), 10);
     let requiresPrompt = Boolean(fileLines.find(line => line.match(/await arg|await drop|await textarea|await hotkey|await main/g)));
     let type = schedule
         ? ProcessType.Schedule
@@ -133,6 +134,7 @@ export let info = async (infoFor) => {
         id: filePath,
         filePath,
         requiresPrompt,
+        timeout,
     };
 };
 export let writeScriptsDb = async () => {
