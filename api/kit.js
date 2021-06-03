@@ -155,7 +155,6 @@ global.run = async (scriptToRun, ..._args) => {
     global.onTabs = [];
     global.kitScript = resolvedScript;
     let script = await info(global.kitScript);
-    console.log(script);
     if (script.requiresPrompt) {
         console.log(`Sending PROMPT_INFO`);
         global.send(Channel.PROMPT_INFO, {
