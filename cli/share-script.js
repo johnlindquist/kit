@@ -1,7 +1,7 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
 let { Octokit } = await npm("scriptkit-octokit");
-let { scriptValue } = (await cli("fns"));
+let { scriptValue } = await import("../utils.js");
 let command = await arg(`Which script do you want to share?`, scriptValue("command"));
 let octokit = new Octokit({
     auth: {

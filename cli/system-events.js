@@ -1,5 +1,5 @@
-let { menu } = await cli("fns");
-let scriptsCache = await menu();
+let { buildMainPromptChoices } = await import("../utils.js");
+let scriptsCache = await buildMainPromptChoices();
 let filePath = await arg("Which script do you want to edit?", scriptsCache
     .filter(script => script?.system)
     .map(script => {

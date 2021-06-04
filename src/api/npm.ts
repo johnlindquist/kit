@@ -4,28 +4,59 @@ let defaultImport = async modulePath => {
   return pkg
 }
 
+interface PackageJson {
+  main?: string
+  module?: string
+  exports?: any
+}
+
+let findMain = async (
+  packageName: string,
+  packageJson: PackageJson
+) => {
+  try {
+    let kPath = (...pathParts: string[]) =>
+      kenvPath("node_modules", packageName, ...pathParts)
+
+    let { module, main } = packageJson
+
+    if (module) return kPath(module)
+    if (main && main.endsWith(".js")) return kPath(main)
+    if (main && !main.endsWith(".js")) {
+      // Author forgot to add .js
+      if (await isFile(kPath(`${main}.js`))) {
+        return kPath(`${main}.js`)
+      }
+
+      // "main" is just a path that contains index.js
+      if (await isFile(kPath(main, "index.js"))) {
+        return kPath(main, "index.js")
+      }
+    }
+    return kPath("index.js")
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 let kenvImport = async packageName => {
   try {
+    let packageJson = kenvPath(
+      "node_modules",
+      packageName,
+      "package.json"
+    )
+
+    if (!(await isFile(packageJson))) {
+      throw new Error(`${packageJson} doesn't exist`)
+    }
+
     let pkgPackageJson = JSON.parse(
-      await readFile(
-        kenvPath(
-          "node_modules",
-          packageName,
-          "package.json"
-        ),
-        "utf-8"
-      )
+      await readFile(packageJson, "utf-8")
     )
 
     return await defaultImport(
-      kenvPath(
-        "node_modules",
-        packageName,
-        pkgPackageJson.module ||
-          (pkgPackageJson?.main?.endsWith(".js") &&
-            pkgPackageJson.main) ||
-          "index.js"
-      )
+      await findMain(packageName, pkgPackageJson)
     )
   } catch (error) {
     throw new Error(error)
@@ -33,19 +64,25 @@ let kenvImport = async packageName => {
 }
 
 export let createNpm = npmInstall => async packageName => {
-  try {
-    let { dependencies: kitDeps } = JSON.parse(
-      await readFile(kitPath("package.json"), "utf-8")
-    )
+  let { dependencies: kitDeps } = JSON.parse(
+    await readFile(kitPath("package.json"), "utf-8")
+  )
 
-    if (kitDeps[packageName]) {
-      return await defaultImport(packageName)
-    }
+  let isKitDep = kitDeps[packageName]
 
-    return await kenvImport(packageName)
-    // }
-  } catch (error) {
-    await npmInstall(packageName)
-    return await kenvImport(packageName)
+  if (isKitDep) {
+    return defaultImport(packageName)
   }
+
+  let { dependencies: kenvDeps } = JSON.parse(
+    await readFile(kenvPath("package.json"), "utf-8")
+  )
+
+  let isKenvDep = kenvDeps[packageName]
+  if (isKenvDep) {
+    return kenvImport(packageName)
+  }
+
+  await npmInstall(packageName)
+  return await kenvImport(packageName)
 }

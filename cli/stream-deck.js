@@ -2,7 +2,7 @@
 //Description: Creates a .sh file around a script
 //Author: John Lindquist
 //Twitter: @johnlindquist
-let { scriptValue } = (await cli("fns"));
+let { scriptValue } = await import("../utils.js");
 let createCommand = (launchApp, script) => launchApp
     ? `~/.kit/kar ${script}`
     : `~/.kit/script ~/.kenv/scripts/${script}.js`;

@@ -1,13 +1,3 @@
-let { host, port } = await new Promise((res, rej) => {
-    let messageHandler = (data) => {
-        if (data.channel === "SERVER") {
-            res(data);
-            process.off("message", messageHandler);
-        }
-    };
-    process.on("message", messageHandler);
-    send("GET_SERVER_STATE");
-});
 let otherOptions = [
     {
         name: "Get Help",
@@ -83,6 +73,21 @@ let otherOptions = [
         name: "Prepare Script for Stream Deck",
         description: "Launch a script from a Stream Deck button",
         value: "stream-deck",
+    },
+    {
+        name: "Switch Kenv",
+        description: "Switch to a different Kit environment",
+        value: "kenv-switch",
+    },
+    {
+        name: "Create Kenv",
+        description: "Create a new Kit environment",
+        value: "kenv-create",
+    },
+    {
+        name: "Add Kenv",
+        description: "Add an existing kenv",
+        value: "kenv-add",
     },
     {
         name: "Created by John Lindquist",

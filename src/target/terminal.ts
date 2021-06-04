@@ -8,6 +8,10 @@ global.kitPrompt = async (config: any) => {
   if (config?.choices) {
     config = { ...config, type: "autocomplete" }
   }
+  if (config?.secret) {
+    config = { type: "password", ...config }
+  }
+
   config = { type: "input", name: "value", ...config }
 
   if (typeof config.choices === "function") {
@@ -99,6 +103,8 @@ global.arg = async (messageOrConfig = "Input", choices) => {
   return input
 }
 
+global.textarea = global.arg
+
 let { default: minimist } = (await import(
   "minimist"
 )) as any
@@ -107,7 +113,7 @@ global.args = []
 global.updateArgs = arrayOfArgs => {
   let argv = minimist(arrayOfArgs)
 
-  global.args = [...global.args, ...argv._]
+  global.args = [...argv._, ...global.args]
   global.argOpts = Object.entries(argv)
     .filter(([key]) => key != "_")
     .flatMap(([key, value]) => {
@@ -123,6 +129,7 @@ global.updateArgs = arrayOfArgs => {
 global.updateArgs(process.argv.slice(2))
 
 let terminalInstall = async packageName => {
+  console.log({ packageName })
   if (!global.arg?.trust) {
     let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`
     let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${
@@ -157,6 +164,7 @@ let terminalInstall = async packageName => {
   echo(
     global.chalk`Installing {yellow ${packageName}} and continuing.`
   )
+  console.log(`global.cli install ${packageName}`)
   await global.cli("install", packageName)
 }
 

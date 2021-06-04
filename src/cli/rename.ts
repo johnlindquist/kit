@@ -1,5 +1,5 @@
 let { exists, scriptValue, scriptPathFromCommand } =
-  await cli("fns")
+  await import("../utils.js")
 
 let command = await arg(
   `Which script do you want to rename?`,

@@ -2,7 +2,8 @@
 let { formatDistanceToNow, parseISO } = await npm("date-fns");
 let install = async (packageNames) => {
     return await new Promise((res, rej) => {
-        let npm = spawn(kitPath("node", "bin", "npm"), ["i", "--prefix", kenvPath(), ...packageNames], {
+        console.log(`npm i `, ...packageNames);
+        let npm = spawn(`npm`, ["i", ...packageNames], {
             stdio: "pipe",
             cwd: kenvPath(),
             env: {
@@ -10,12 +11,14 @@ let install = async (packageNames) => {
                 PATH: kitPath("node", "bin") + ":" + env.PATH,
             },
         });
-        npm.stdout.on("data", data => {
-            let line = data?.toString();
-            console.log(line);
-            if (global.setHint)
-                global.setHint(line);
-        });
+        if (npm?.stdout) {
+            npm.stdout.on("data", data => {
+                let line = data?.toString();
+                console.log(line);
+                if (global.setHint)
+                    global.setHint(line);
+            });
+        }
         npm.on("error", error => {
             console.log({ error });
             rej(error);
@@ -38,6 +41,6 @@ let packageNames = await arg("Which npm package/s would you like to install?", a
         };
     });
 });
-let installNames = [...packageNames.split(" "), ...args];
+let installNames = [...packageNames.split(" ")];
 await install([...installNames, ...argOpts]);
 export {};

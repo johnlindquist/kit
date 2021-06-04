@@ -5,24 +5,23 @@ let { formatDistanceToNow, parseISO } = await npm(
 
 let install = async packageNames => {
   return await new Promise((res, rej) => {
-    let npm = spawn(
-      kitPath("node", "bin", "npm"),
-      ["i", "--prefix", kenvPath(), ...packageNames],
-      {
-        stdio: "pipe",
-        cwd: kenvPath(),
-        env: {
-          //need to prioritize our node over any nodes on the path
-          PATH: kitPath("node", "bin") + ":" + env.PATH,
-        },
-      }
-    )
-
-    npm.stdout.on("data", data => {
-      let line = data?.toString()
-      console.log(line)
-      if (global.setHint) global.setHint(line)
+    console.log(`npm i `, ...packageNames)
+    let npm = spawn(`npm`, ["i", ...packageNames], {
+      stdio: "pipe",
+      cwd: kenvPath(),
+      env: {
+        //need to prioritize our node over any nodes on the path
+        PATH: kitPath("node", "bin") + ":" + env.PATH,
+      },
     })
+
+    if (npm?.stdout) {
+      npm.stdout.on("data", data => {
+        let line = data?.toString()
+        console.log(line)
+        if (global.setHint) global.setHint(line)
+      })
+    }
 
     npm.on("error", error => {
       console.log({ error })
@@ -57,7 +56,7 @@ let packageNames = await arg(
   }
 )
 
-let installNames = [...packageNames.split(" "), ...args]
+let installNames = [...packageNames.split(" ")]
 
 await install([...installNames, ...argOpts])
 

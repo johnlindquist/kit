@@ -1,5 +1,5 @@
 // Description: Open Log
 
-edit(kenvPath("logs", "kit.log"))
+edit(kitPath("logs", "kit.log"))
 
 export {}

@@ -1,8 +1,8 @@
-let { scripts } = await cli("fns")
+let { getScripts } = await import("../utils.js")
 
 let input = await arg("Enter Script name:")
 
-let valid = (await scripts()).find(
+let valid = (await getScripts()).find(
   script =>
     script.replace(".js", "") === input.replace(".js", "")
 )

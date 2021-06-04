@@ -12,6 +12,6 @@ let writeNewEnv = async (envKey, envValue) => {
 };
 let exists = env[envKey];
 let fn = exists ? updateEnv : writeNewEnv;
-console.log(chalk `${exists ? "Updating" : "Setting"} {yellow.bold ${envKey}} to {green ${envValue}}`);
+console.log(chalk `${exists ? "Updated" : "Set"} {yellow.bold ${envKey}} in ${kenvPath(".env")}`);
 await fn(envKey, envValue);
 export {};

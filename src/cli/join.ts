@@ -13,7 +13,7 @@ let email_address = await arg(
 )
 
 if (email_address === "no") {
-  await cli("settings", "join", "false")
+  await cli("prefs", "showJoin", "false")
 } else {
   await post(
     `https://app.convertkit.com/forms/2216586/subscriptions`,
@@ -21,13 +21,12 @@ if (email_address === "no") {
       email_address,
     }
   )
+  await cli("prefs", "showJoin", "false")
 
   setPlaceholder(
     `Thanks! Make sure to confirm in your mail app 😇`
   )
   await wait(2000)
-
-  await cli("settings", "join", "false")
 }
 
 await main("index")

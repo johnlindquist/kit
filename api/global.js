@@ -67,10 +67,9 @@ global.env = async (envKey, promptConfig) => {
     return input;
 };
 assignPropsTo(process.env, global.env);
-global.kitPath = (...parts) => global.path.join(global.env.KIT, ...parts);
+global.kitPath = (...parts) => global.path.join(process.env.KIT, ...parts);
 global.kenvPath = (...parts) => {
     return global.path.join(global.env.KENV || home(".kenv"), ...parts.filter(Boolean));
 };
 global.libPath = (...parts) => global.path.join(global.kenvPath("lib"), ...parts);
-global.getScripts = async () => JSON.parse(await readFile(kenvPath("cache", "menu-cache.json"), "utf-8"));
 global.memoryMap = new Map();

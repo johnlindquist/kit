@@ -1,5 +1,49 @@
-import { MODE, CHANNELS } from "../enums.js"
-import { assignPropsTo } from "../utils.js"
+import { Observable, merge, NEVER, of, Subject } from "rxjs"
+import {
+  filter,
+  map,
+  share,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+} from "rxjs/operators"
+import { MODE, Channel } from "../enums.js"
+import { assignPropsTo, info } from "../utils.js"
+
+// let exception$ = new Observable(observer => {
+//   let e = (error: Error) => observer.next(error)
+//   process.on("uncaughtException", e)
+
+//   return () => {
+//     process.off("uncaughtException", e)
+//   }
+// }).pipe(share())
+
+// let rejection$ = new Observable(observer => {
+//   let e = (error: Error) => observer.next(error)
+
+//   process.on("unhandledRejection", e)
+
+//   return () => {
+//     process.off("unhandledRejection", e)
+//   }
+// }).pipe(share())
+
+interface MessageHandler {
+  (data: AppMessage): void
+}
+
+interface ErrorHandler {
+  (error: Error): void
+}
+
+interface AppMessage {
+  channel: Channel
+  value?: any
+  input?: string
+  tab?: string
+}
 
 let displayChoices = (choices: Choice<any>[]) => {
   switch (typeof choices) {
@@ -13,107 +57,145 @@ let displayChoices = (choices: Choice<any>[]) => {
   }
 }
 
-let checkTabChanged = (
-  data,
-  messageHandler,
-  errorHandler?
-) => {
-  if (data?.tab && global.onTabs) {
-    process.off("message", messageHandler)
-    if (errorHandler) process.off("error", errorHandler)
-    updateTab(data)
+interface ChoicesTarget {
+  promptId: number
+  tabIndex: number
+}
+let promptId = 0
+let invokeChoices =
+  ({ ct, choices }) =>
+  async (input: string) => {
+    let resultOrPromise = choices(input)
+
+    if (resultOrPromise.then) {
+      let result = await resultOrPromise
+
+      if (
+        ct.promptId === promptId &&
+        ct.tabIndex === global.onTabIndex
+      ) {
+        displayChoices(result)
+        return result
+      }
+    } else {
+      displayChoices(resultOrPromise)
+      return resultOrPromise
+    }
+  }
+
+let getInitialChoices = async ({ ct, choices }) => {
+  if (typeof choices === "function") {
+    return await invokeChoices({ ct, choices })("")
+  } else {
+    displayChoices(choices as any)
+    return choices
   }
 }
 
-let updateTab = data => {
-  let tabIndex = global.onTabs.findIndex(({ name }) => {
-    return name == data?.tab
-  })
+let waitForPromptValue = ({ choices, validate }) =>
+  new Promise((resolve, reject) => {
+    promptId++
+    let ct = {
+      promptId,
+      tabIndex: global.onTabIndex,
+    }
 
-  global.onTabIndex = tabIndex
-  global.currentOnTab = global.onTabs[tabIndex].fn(
-    data?.input
-  )
-}
-
-// TODO: Refactor into RxJS :D
-let promptId = 0
-let waitForPrompt = async ({ choices, validate }) => {
-  promptId++
-  let messageHandler: (data: any) => void
-  let errorHandler: () => void
-
-  let value = await new Promise(async (resolve, reject) => {
-    let currentPromptId = promptId
-
-    let invokeChoices = (input: string) => {
-      let resultOrPromise = choices(input)
-      if (resultOrPromise.then) {
-        resultOrPromise.then(result => {
-          if (currentPromptId === promptId)
-            displayChoices(result)
-        })
-      } else {
-        displayChoices(resultOrPromise)
+    let process$ = new Observable<AppMessage>(observer => {
+      let m = (data: AppMessage) => observer.next(data)
+      let e = (error: Error) => observer.error(error)
+      process.on("message", m)
+      process.on("error", e)
+      return () => {
+        process.off("message", m)
+        process.off("error", e)
       }
-    }
+    }).pipe(
+      switchMap(data => of(data)),
+      share()
+    )
 
-    if (typeof choices === "function") {
-      invokeChoices("")
-    } else {
-      displayChoices(choices as any)
-    }
-
-    messageHandler = async data => {
-      switch (data?.channel) {
-        case CHANNELS.GENERATE_CHOICES:
-          invokeChoices(data?.input)
-          break
-
-        case CHANNELS.TAB_CHANGED:
-          checkTabChanged(
-            data,
-            messageHandler,
-            errorHandler
-          )
-          break
-
-        case CHANNELS.VALUE_SUBMITTED:
-          let { value } = data
-          if (validate) {
-            let validateMessage = await validate(value)
-
-            if (typeof validateMessage === "string") {
-              let Convert = await npm("ansi-to-html")
-              let convert = new Convert()
-              global.setHint(
-                convert.toHtml(validateMessage)
-              )
-              global.setChoices(global.kitPrevChoices)
-
-              return
-            }
+    let tab$ = process$.pipe(
+      filter(data => data.channel === Channel.TAB_CHANGED),
+      tap(data => {
+        let tabIndex = global.onTabs.findIndex(
+          ({ name }) => {
+            return name == data?.tab
           }
-          resolve(value)
-          break
-      }
-    }
+        )
 
-    errorHandler = () => {
-      reject()
-    }
+        // console.log(`\nUPDATING TAB: ${tabIndex}`)
+        global.onTabIndex = tabIndex
+        global.currentOnTab = global.onTabs[tabIndex].fn(
+          data?.input
+        )
+      }),
+      share()
+    )
 
-    process.on("message", messageHandler)
-    process.on("error", errorHandler)
+    let message$ = process$.pipe(share(), takeUntil(tab$))
+
+    let generate$ = message$.pipe(
+      filter(
+        data => data.channel === Channel.GENERATE_CHOICES
+      ),
+      map(data => data.input),
+      switchMap(input => {
+        let ct = {
+          promptId,
+          tabIndex: +Number(global.onTabIndex),
+        }
+        return invokeChoices({ ct, choices })(input)
+      }),
+      switchMap(choice => NEVER)
+    )
+
+    let value$ = message$.pipe(
+      filter(
+        data => data.channel === Channel.VALUE_SUBMITTED
+      ),
+      map(data => data.value),
+      switchMap(async value => {
+        if (validate) {
+          let validateMessage = await validate(value)
+
+          if (typeof validateMessage === "string") {
+            let Convert = await npm("ansi-to-html")
+            let convert = new Convert()
+            global.setHint(convert.toHtml(validateMessage))
+            global.setChoices(global.kitPrevChoices)
+          } else {
+            return value
+          }
+        } else {
+          return value
+        }
+      }),
+      take(1)
+    )
+
+    generate$.pipe(takeUntil(value$)).subscribe()
+
+    let initialChoices$ = of({ ct, choices }).pipe(
+      switchMap(getInitialChoices)
+    )
+
+    initialChoices$.pipe(takeUntil(value$)).subscribe()
+
+    merge(value$).subscribe({
+      next: value => {
+        resolve(value)
+      },
+      complete: () => {
+        // console.log(`Complete: ${promptId}`)
+      },
+      error: error => {
+        reject(error)
+      },
+    })
   })
-
-  process.off("message", messageHandler)
-  process.off("error", errorHandler)
-
-  return value
-}
 
 global.kitPrompt = async (config: PromptConfig) => {
+  await wait(0) //need to let tabs finish...
   let {
     placeholder = "",
     validate = null,
@@ -124,6 +206,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     drop = false,
     ignoreBlur = false,
     mode = MODE.FILTER,
+    textarea = false,
   } = config
 
   global.setMode(
@@ -132,32 +215,29 @@ global.kitPrompt = async (config: PromptConfig) => {
       : mode
   )
 
-  let scriptInfo = await global.cli(
-    "info",
-    global.kitScript
-  )
+  let tabs = global.onTabs?.length
+    ? global.onTabs.map(({ name }) => name)
+    : []
 
-  global.send("SHOW_PROMPT", {
-    tabs: global.onTabs?.length
-      ? global.onTabs.map(({ name }) => name)
-      : [],
+  global.send(Channel.SHOW_PROMPT, {
+    tabs,
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
-    scriptInfo,
     placeholder,
     kitScript: global.kitScript,
     parentScript: global.env.KIT_PARENT_NAME,
     kitArgs: global.args.join(" "),
     secret,
     drop,
+    textarea,
   })
 
   global.setHint(hint)
   if (input) global.setInput(input)
-  if (ignoreBlur) global.setIgnoreBlur(true)
+  if (ignoreBlur || textarea) global.setIgnoreBlur(true)
 
-  return await waitForPrompt({ choices, validate })
+  return await waitForPromptValue({ choices, validate })
 }
 
 global.drop = async (hint = "") => {
@@ -224,6 +304,15 @@ global.arg = async (placeholderOrConfig, choices) => {
   })
 }
 
+global.textarea = async (
+  placeholder: string = "Hit cmd+enter to submit"
+) => {
+  return await global.kitPrompt({
+    placeholder,
+    textarea: true,
+  })
+}
+
 let { default: minimist } = (await import(
   "minimist"
 )) as any
@@ -231,7 +320,7 @@ let { default: minimist } = (await import(
 global.args = []
 global.updateArgs = arrayOfArgs => {
   let argv = minimist(arrayOfArgs)
-  global.args = [...global.args, ...argv._]
+  global.args = [...argv._, ...global.args]
   global.argOpts = Object.entries(argv)
     .filter(([key]) => key != "_")
     .flatMap(([key, value]) => {
@@ -291,29 +380,29 @@ let { createNpm } = await import("../api/npm.js")
 global.npm = createNpm(appInstall)
 
 global.setPanel = async html => {
-  global.send("SET_PANEL", { html })
+  global.send(Channel.SET_PANEL, { html })
 }
 
 global.setMode = async mode => {
-  global.send("SET_MODE", {
+  global.send(Channel.SET_MODE, {
     mode,
   })
 }
 
 global.setHint = async hint => {
-  global.send("SET_HINT", {
+  global.send(Channel.SET_HINT, {
     hint,
   })
 }
 
 global.setInput = async input => {
-  global.send("SET_INPUT", {
+  global.send(Channel.SET_INPUT, {
     input,
   })
 }
 
 global.setIgnoreBlur = async ignore => {
-  global.send("SET_IGNORE_BLUR", { ignore })
+  global.send(Channel.SET_IGNORE_BLUR, { ignore })
 }
 
 global.getDataFromApp = async channel => {

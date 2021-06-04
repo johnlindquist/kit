@@ -91,7 +91,7 @@ global.env = async (envKey, promptConfig) => {
 assignPropsTo(process.env, global.env)
 
 global.kitPath = (...parts) =>
-  global.path.join(global.env.KIT, ...parts)
+  global.path.join(process.env.KIT, ...parts)
 
 global.kenvPath = (...parts: string[]) => {
   return global.path.join(
@@ -102,13 +102,5 @@ global.kenvPath = (...parts: string[]) => {
 
 global.libPath = (...parts) =>
   global.path.join(global.kenvPath("lib"), ...parts)
-
-global.getScripts = async () =>
-  JSON.parse(
-    await readFile(
-      kenvPath("cache", "menu-cache.json"),
-      "utf-8"
-    )
-  )
 
 global.memoryMap = new Map()

@@ -3,13 +3,11 @@
 
 import { CLI } from "../cli"
 
-let { scriptValue } = (await cli(
-  "fns"
-)) as typeof import("../cli/fns")
+let { buildMainPromptChoices } = await import("../utils.js")
 
-let command = await arg(
+let { command }: Script = await arg(
   `Which script do you want to share?`,
-  scriptValue("command")
+  await buildMainPromptChoices()
 )
 
 let how: keyof CLI = await arg(

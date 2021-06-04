@@ -1,6 +1,6 @@
 export {}
 
-import { MODE } from "./enums"
+import { MODE, ProcessType } from "./enums.js"
 
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
@@ -10,7 +10,6 @@ import * as fs from "fs"
 import * as handlebars from "handlebars"
 import * as uuidType from "uuid"
 import * as clipboardy from "clipboardy"
-import { AdapterOptions, LowdbSync } from "lowdb"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
@@ -18,6 +17,7 @@ import * as Notifier from "node-notifier"
 import { CLI } from "./cli"
 import { Main } from "./main"
 import { Lib } from "./lib"
+import { JSONFile, Low } from "lowdb"
 
 type Panel =
   | string
@@ -31,6 +31,10 @@ interface Arg {
     placeholderOrConfig?: string | PromptConfig,
     choicesOrPanel?: Choices<T> | Panel
   ): Promise<T>
+}
+
+interface TextArea {
+  (placeholder?: string): Promise<string>
 }
 interface Drop {
   (hint?: string): Promise<any>
@@ -83,7 +87,7 @@ interface CompileTemplate {
 }
 
 interface OnTab {
-  (name: string, fn: () => void): Promise<void>
+  (name: string, fn: () => void): void
 }
 
 interface Markdown {
@@ -150,7 +154,11 @@ interface IsCheck {
 }
 
 interface DB {
-  (key: string, defaults?: any): LowdbSync<AdapterOptions>
+  (
+    key: string,
+    defaults?: any,
+    forceReload?: boolean
+  ): Promise<Low<any> | any>
 }
 
 interface GetScripts {
@@ -224,6 +232,7 @@ interface KitApi {
 
   //preload/kit.cjs
   arg: Arg
+  textarea: TextArea
   drop: Drop
   hotkey: Hotkey
   env: Env
@@ -234,6 +243,8 @@ interface KitApi {
   kitPath: PathFn
   kenvPath: PathFn
   libPath: PathFn
+
+  kitMenuCachePath: () => string
 
   tmp: PathFn
   inspect: Inspect
@@ -323,7 +334,7 @@ interface KitApi {
 type GlobalKit = KitApi & typeof import("./api/lib")
 
 declare global {
-  interface Script extends Choice<any> {
+  interface Script extends Choice {
     file: string
     filePath: string
     command: string
@@ -340,15 +351,13 @@ declare global {
     watch?: string
     background?: string
     isRunning?: boolean
+    type: ProcessType
+    requiresPrompt: boolean
+    timeout?: number
   }
-
-  interface MenuItem extends Script {
+  interface Choice<Value = any> {
     name: string
-    value: Script
-  }
-  interface Choice<Value> {
-    name: string
-    value: Value
+    value?: Value
     description?: string
     focused?: string
     img?: string
@@ -380,6 +389,7 @@ declare global {
     drop?: boolean
     ignoreBlur?: boolean
     mode?: MODE
+    textarea?: boolean
   }
 
   interface Background {
@@ -430,6 +440,8 @@ declare global {
   let readdir: typeof fsPromises.readdir
   let compile: typeof handlebars.compile
 
+  let cwd: typeof process.cwd
+
   let path: typeof import("path")
 
   let paste: typeof clipboardy.read
@@ -458,6 +470,7 @@ declare global {
 
   let env: Env
   let arg: Arg
+  let textarea: TextArea
   let drop: Drop
   let hotkey: Hotkey
   let onTab: OnTab

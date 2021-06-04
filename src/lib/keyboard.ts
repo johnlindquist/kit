@@ -6,8 +6,10 @@ await keystroke("command option e")
 ```
 */
 
+import { Channel } from "../enums.js"
+
 export let keystroke = async (keyString: string) => {
-  send("HIDE_APP")
+  send(Channel.HIDE_APP)
   let keys = keyString.split(" ")
 
   let key = keys.pop()

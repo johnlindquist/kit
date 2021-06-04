@@ -1,8 +1,10 @@
-//cjs is required to load/assign the content of this script synchronously
-//we may be able to convert this to .js if an "--import" flag is added
-//https://github.com/nodejs/node/issues/35103
-
 import {
+  Channel,
+  ProcessType,
+  ErrorAction,
+} from "../enums.js"
+import {
+  info,
   resolveScriptToCommand,
   resolveToScriptPath,
 } from "../utils.js"
@@ -16,38 +18,39 @@ global.attemptImport = async (path, ..._args) => {
     return await import(path + "?uuid=" + global.uuid())
   } catch (error) {
     console.warn(error.message)
+    console.warn(error.stack)
 
-    try {
-      let stackWithoutId = error.stack.replace(
-        /\?[^:]*/,
-        ""
-      )
-      console.warn(stackWithoutId)
+    let stackWithoutId = error.stack.replace(/\?[^:]*/, "")
+    // console.warn(stackWithoutId)
 
-      let errorFile = global.kitScript
-      let line = 0
-      let col = 0
+    let errorFile = global.kitScript
+    let line: string = "0"
+    let col: string = "0"
 
-      let secondLine = stackWithoutId.split("\n")[1]
+    let secondLine = stackWithoutId.split("\n")[1]
 
-      if (secondLine.match("at file://")) {
-        errorFile = secondLine
-          .replace("at file://", "")
-          .replace(/:.*/, "")
-          .trim()
-        ;[, line, col] = secondLine
-          .replace("at file://", "")
-          .split(":")
-      }
+    if (secondLine.match("at file://")) {
+      errorFile = secondLine
+        .replace("at file://", "")
+        .replace(/:.*/, "")
+        .trim()
+      ;[, line, col] = secondLine
+        .replace("at file://", "")
+        .split(":")
+    }
 
-      console.log({ errorFile, line, col })
-      global.edit(errorFile, global.kenvPath(), line, col)
-    } catch {}
-
-    await arg(
-      `🤕 Error in ${global.kitScript.replace(/.*\//, "")}`,
-      error.stack
-    )
+    if (env.KIT_CONTEXT === "app") {
+      let script = global.kitScript.replace(/.*\//, "")
+      let errorToCopy = `${error.message}\n${error.stack}`
+      let child = spawnSync(kitPath("bin", "sk"), [
+        kitPath("cli", "error-action.js"),
+        script,
+        errorToCopy,
+        errorFile,
+        line,
+        col,
+      ])
+    }
   }
 }
 
@@ -156,7 +159,7 @@ if (process?.send) {
   let _consoleLog = console.log.bind(console)
   let _consoleWarn = console.warn.bind(console)
   console.log = async (...args) => {
-    global.send("CONSOLE_LOG", {
+    global.send(Channel.CONSOLE_LOG, {
       log: args
         .map(a =>
           typeof a != "string" ? JSON.stringify(a) : a
@@ -166,7 +169,7 @@ if (process?.send) {
   }
 
   console.warn = async (...args) => {
-    global.send("CONSOLE_WARN", {
+    global.send(Channel.CONSOLE_WARN, {
       warn: args
         .map(a =>
           typeof a != "string" ? JSON.stringify(a) : a
@@ -177,11 +180,11 @@ if (process?.send) {
 }
 
 global.show = (html, options) => {
-  global.send("SHOW", { options, html })
+  global.send(Channel.SHOW, { options, html })
 }
 
 global.showImage = (image, options) => {
-  global.send("SHOW_IMAGE", {
+  global.send(Channel.SHOW_IMAGE, {
     options,
     image:
       typeof image === "string" ? { src: image } : image,
@@ -189,19 +192,27 @@ global.showImage = (image, options) => {
 }
 
 global.setPlaceholder = text => {
-  global.send("SET_PLACEHOLDER", {
+  global.send(Channel.SET_PLACEHOLDER, {
     text,
   })
 }
 
-global.run = async (script, ..._args) => {
-  let resolvedScript = resolveToScriptPath(script)
+global.run = async (scriptToRun, ..._args) => {
+  let resolvedScript = resolveToScriptPath(scriptToRun)
   global.onTabs = []
   global.kitScript = resolvedScript
-  global.send("RUN_SCRIPT", {
-    name: resolvedScript,
-    args: _args,
-  })
+
+  let script = await info(global.kitScript)
+
+  if (script.requiresPrompt) {
+    console.log(`Sending PROMPT_INFO`)
+    global.send(Channel.PROMPT_INFO, {
+      name: resolvedScript,
+      args: _args,
+      type: script.type,
+      script,
+    })
+  }
 
   return global.attemptImport(resolvedScript, ..._args)
 }
@@ -284,21 +295,21 @@ global.compileTemplate = async (template, vars) => {
 global.currentOnTab = null
 global.onTabs = []
 global.onTabIndex = 0
-global.onTab = async (name, fn) => {
+global.onTab = (name, fn) => {
   global.onTabs.push({ name, fn })
   if (global.arg.tab) {
     if (global.arg.tab === name) {
       let tabIndex = global.onTabs.length - 1
       global.onTabIndex = tabIndex
-      global.send("SET_TAB_INDEX", {
+      global.send(Channel.SET_TAB_INDEX, {
         tabIndex,
       })
-      global.currentOnTab = await fn()
+      global.currentOnTab = fn()
     }
   } else if (global.onTabs.length === 1) {
     global.onTabIndex = 0
-    global.send("SET_TAB_INDEX", { tabIndex: 0 })
-    global.currentOnTab = await fn()
+    global.send(Channel.SET_TAB_INDEX, { tabIndex: 0 })
+    global.currentOnTab = fn()
   }
 }
 
@@ -318,13 +329,22 @@ global.setChoices = async choices => {
         if (!choice?.id) {
           choice.id = global.uuid()
         }
+        if (!choice?.value) {
+          return {
+            ...choice,
+            value: choice,
+          }
+        }
       }
 
       return choice
     })
   }
 
-  global.send("SET_CHOICES", { choices })
+  global.send(Channel.SET_CHOICES, {
+    choices,
+    scripts: true,
+  })
   global.kitPrevChoices = choices
 }
 
@@ -368,7 +388,5 @@ global.kit = new Proxy(() => {}, {
   get: kitGet,
   apply: kitFn,
 })
-
-export {}
 
 export {}

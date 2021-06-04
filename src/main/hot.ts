@@ -1,11 +1,15 @@
 let url = await arg(
   "Browse community scripts",
   async () => {
-    let response = await get(
-      "https://scriptkit.com/data/showandtell.json"
-    )
+    try {
+      let response = await get(
+        "https://scriptkit.com/data/showandtell.json"
+      )
 
-    return response.data
+      return response.data
+    } catch (error) {
+      return [error.message]
+    }
   }
 )
 

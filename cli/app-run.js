@@ -1,7 +1,6 @@
 // Description: Run the selected script
-let { menu, toggleBackground } = (await cli("fns"));
-let script = await arg(`Which script do you want to run?`, menu);
-console.log({ script });
+let { buildMainPromptChoices, toggleBackground } = await import("../utils.js");
+let script = await arg(`Which script do you want to run?`, await buildMainPromptChoices());
 let shouldEdit = script.watch || script.schedule || script.system;
 if (script.background) {
     toggleBackground(script);
