@@ -7,7 +7,7 @@ global.db = async (key, defaults, fromCache = true) => {
     let _db = new Low(new JSONFile(dbPath));
     await _db.read();
     if (!_db.data || !fromCache) {
-        console.log(`>>>>>>>>>>>>>> Refresh db ${key}`);
+        console.log(`🧼 Refresh db ${key}`);
         _db.data =
             typeof defaults === "function"
                 ? await defaults()

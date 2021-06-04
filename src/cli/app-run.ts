@@ -7,8 +7,6 @@ let script = await arg<Script>(
   await buildMainPromptChoices()
 )
 
-console.log({ script })
-
 let shouldEdit =
   script.watch || script.schedule || script.system
 
