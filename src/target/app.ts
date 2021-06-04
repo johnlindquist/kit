@@ -65,11 +65,6 @@ let promptId = 0
 let invokeChoices =
   ({ ct, choices }) =>
   async (input: string) => {
-    console.log(ct, {
-      promptId,
-      onTabIndex: +Number(global.onTabIndex),
-    })
-
     let resultOrPromise = choices(input)
 
     if (resultOrPromise.then) {
@@ -200,6 +195,7 @@ let waitForPromptValue = ({ choices, validate }) =>
   })
 
 global.kitPrompt = async (config: PromptConfig) => {
+  await wait(0) //need to let tabs finish...
   let {
     placeholder = "",
     validate = null,
@@ -219,10 +215,12 @@ global.kitPrompt = async (config: PromptConfig) => {
       : mode
   )
 
+  let tabs = global.onTabs?.length
+    ? global.onTabs.map(({ name }) => name)
+    : []
+
   global.send(Channel.SHOW_PROMPT, {
-    tabs: global.onTabs?.length
-      ? global.onTabs.map(({ name }) => name)
-      : [],
+    tabs,
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),

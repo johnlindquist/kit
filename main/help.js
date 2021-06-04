@@ -75,14 +75,19 @@ let otherOptions = [
         value: "stream-deck",
     },
     {
-        name: "Create Kenv",
-        description: "Create a new Kit environment",
-        value: "create-kenv",
-    },
-    {
         name: "Switch Kenv",
         description: "Switch to a different Kit environment",
-        value: "switch-kenv",
+        value: "kenv-switch",
+    },
+    {
+        name: "Create Kenv",
+        description: "Create a new Kit environment",
+        value: "kenv-create",
+    },
+    {
+        name: "Add Kenv",
+        description: "Add an existing kenv",
+        value: "kenv-add",
     },
     {
         name: "Created by John Lindquist",

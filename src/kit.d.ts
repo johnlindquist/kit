@@ -87,7 +87,7 @@ interface CompileTemplate {
 }
 
 interface OnTab {
-  (name: string, fn: () => void): Promise<void>
+  (name: string, fn: () => void): void
 }
 
 interface Markdown {

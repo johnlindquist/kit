@@ -25,7 +25,7 @@ export interface CLI {
     typeof import("./cli/create-all-bins")
   >
   "create-bin": Promise<typeof import("./cli/create-bin")>
-  "create-kenv": Promise<typeof import("./cli/create-kenv")>
+  "kenv-create": Promise<typeof import("./cli/kenv-create")>
   "find-script": Promise<typeof import("./cli/find-script")>
   "get-help": Promise<typeof import("./cli/get-help")>
   "goto-docs": Promise<typeof import("./cli/goto-docs")>
@@ -57,7 +57,7 @@ export interface CLI {
     typeof import("./cli/share-script")
   >
   "stream-deck": Promise<typeof import("./cli/stream-deck")>
-  "switch-kenv": Promise<typeof import("./cli/switch-kenv")>
+  "kenv-switch": Promise<typeof import("./cli/kenv-switch")>
   "system-events": Promise<
     typeof import("./cli/system-events")
   >
@@ -67,9 +67,10 @@ export interface CLI {
   clear: Promise<typeof import("./cli/clear")>
   clipboard: Promise<typeof import("./cli/clipboard")>
   credits: Promise<typeof import("./cli/credits")>
-  ["create-kenv"]: Promise<
-    typeof import("./cli/create-kenv")
+  ["kenv-create"]: Promise<
+    typeof import("./cli/kenv-create")
   >
+  ["kenv-add"]: Promise<typeof import("./cli/kenv-add")>
   duplicate: Promise<typeof import("./cli/duplicate")>
   edit: Promise<typeof import("./cli/edit")>
   env: Promise<typeof import("./cli/env")>
@@ -88,8 +89,8 @@ export interface CLI {
   schedule: Promise<typeof import("./cli/schedule")>
   sdk: Promise<typeof import("./cli/sdk")>
   share: Promise<typeof import("./cli/share")>
-  ["switch-kenv"]: Promise<
-    typeof import("./cli/switch-kenv")
+  ["kenv-switch"]: Promise<
+    typeof import("./cli/kenv-switch")
   >
   tutorial: Promise<typeof import("./cli/tutorial")>
   uninstall: Promise<typeof import("./cli/uninstall")>

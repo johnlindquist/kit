@@ -14,10 +14,6 @@ let displayChoices = (choices) => {
 };
 let promptId = 0;
 let invokeChoices = ({ ct, choices }) => async (input) => {
-    console.log(ct, {
-        promptId,
-        onTabIndex: +Number(global.onTabIndex),
-    });
     let resultOrPromise = choices(input);
     if (resultOrPromise.then) {
         let result = await resultOrPromise;
@@ -106,14 +102,16 @@ let waitForPromptValue = ({ choices, validate }) => new Promise((resolve, reject
     });
 });
 global.kitPrompt = async (config) => {
+    await wait(0); //need to let tabs finish...
     let { placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", drop = false, ignoreBlur = false, mode = MODE.FILTER, textarea = false, } = config;
     global.setMode(typeof choices === "function" && choices?.length > 0
         ? MODE.GENERATE
         : mode);
+    let tabs = global.onTabs?.length
+        ? global.onTabs.map(({ name }) => name)
+        : [];
     global.send(Channel.SHOW_PROMPT, {
-        tabs: global.onTabs?.length
-            ? global.onTabs.map(({ name }) => name)
-            : [],
+        tabs,
         tabIndex: global.onTabs?.findIndex(({ name }) => global.arg?.tab),
         placeholder,
         kitScript: global.kitScript,
