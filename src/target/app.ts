@@ -155,7 +155,6 @@ let waitForPromptValue = ({ choices, validate }) =>
       ),
       map(data => data.value),
       switchMap(async value => {
-        console.log(` >><< Value `, value, validate)
         if (validate) {
           let validateMessage = await validate(value)
 
@@ -185,7 +184,6 @@ let waitForPromptValue = ({ choices, validate }) =>
 
     merge(value$).subscribe({
       next: value => {
-        console.log(`>>>>>>>>>>>> RESOLVING ${value}`)
         resolve(value)
       },
       complete: () => {
