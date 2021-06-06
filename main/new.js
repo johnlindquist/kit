@@ -16,5 +16,11 @@ let newOptions = [
     },
 ];
 let cliScript = await arg("How would you like to create a script?", newOptions);
-await cli(cliScript);
+console.log({ cliScript });
+if (newOptions.find(script => script.value === cliScript)) {
+    await cli(cliScript);
+}
+else {
+    await cli("new", cliScript);
+}
 export {};

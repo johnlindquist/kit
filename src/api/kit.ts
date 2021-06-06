@@ -24,8 +24,8 @@ global.attemptImport = async (path, ..._args) => {
     // console.warn(stackWithoutId)
 
     let errorFile = global.kitScript
-    let line: string = "0"
-    let col: string = "0"
+    let line: string = "1"
+    let col: string = "1"
 
     let secondLine = stackWithoutId.split("\n")[1]
 
@@ -42,6 +42,7 @@ global.attemptImport = async (path, ..._args) => {
     if (env.KIT_CONTEXT === "app") {
       let script = global.kitScript.replace(/.*\//, "")
       let errorToCopy = `${error.message}\n${error.stack}`
+
       let child = spawnSync(kitPath("bin", "sk"), [
         kitPath("cli", "error-action.js"),
         script,
@@ -204,15 +205,9 @@ global.run = async (scriptToRun, ..._args) => {
 
   let script = await info(global.kitScript)
 
-  if (script.requiresPrompt) {
-    console.log(`Sending PROMPT_INFO`)
-    global.send(Channel.PROMPT_INFO, {
-      name: resolvedScript,
-      args: _args,
-      type: script.type,
-      script,
-    })
-  }
+  global.send(Channel.SET_SCRIPT, {
+    script,
+  })
 
   return global.attemptImport(resolvedScript, ..._args)
 }

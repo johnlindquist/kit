@@ -155,6 +155,7 @@ let waitForPromptValue = ({ choices, validate }) =>
       ),
       map(data => data.value),
       switchMap(async value => {
+        console.log(` >><< Value `, value, validate)
         if (validate) {
           let validateMessage = await validate(value)
 
@@ -170,6 +171,7 @@ let waitForPromptValue = ({ choices, validate }) =>
           return value
         }
       }),
+      filter(value => typeof value !== "undefined"),
       take(1)
     )
 
@@ -183,6 +185,7 @@ let waitForPromptValue = ({ choices, validate }) =>
 
     merge(value$).subscribe({
       next: value => {
+        console.log(`>>>>>>>>>>>> RESOLVING ${value}`)
         resolve(value)
       },
       complete: () => {
@@ -219,7 +222,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     ? global.onTabs.map(({ name }) => name)
     : []
 
-  global.send(Channel.SHOW_PROMPT, {
+  global.send(Channel.SET_PROMPT_DATA, {
     tabs,
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
@@ -258,38 +261,59 @@ global.hotkey = async (
   })
 }
 
-global.arg = async (placeholderOrConfig, choices) => {
+global.arg = async (
+  placeholderOrConfig = "Type a value:",
+  choices
+) => {
   let firstArg = global.args.length
     ? global.args.shift()
     : null
 
-  let placeholderOrValidateMessage = ""
   if (firstArg) {
-    let valid = true
-    if (
-      typeof placeholderOrConfig !== "string" &&
-      placeholderOrConfig?.validate
-    ) {
-      let { validate } = placeholderOrConfig
-      let validOrMessage = await validate(firstArg)
-      valid =
-        typeof validOrMessage === "boolean" &&
-        validOrMessage
+    let validate = (placeholderOrConfig as PromptConfig)
+      ?.validate
 
-      if (typeof validOrMessage === "string")
-        placeholderOrValidateMessage = validOrMessage
-    }
+    if (typeof validate === "function") {
+      let valid = await validate(firstArg)
+      console.log({ valid })
 
-    if (valid) {
+      if (valid === true) return firstArg
+
+      let Convert = await npm("ansi-to-html")
+      let convert = new Convert()
+
+      let hint =
+        valid === false
+          ? `${firstArg} is not a valid value`
+          : convert.toHtml(valid)
+      return global.arg({
+        ...(placeholderOrConfig as PromptConfig),
+        hint,
+      })
+    } else {
       return firstArg
     }
   }
+  // if (firstArg) {
+  //   let valid = true
+  //   if (
+  //     typeof placeholderOrConfig !== "string" &&
+  //     placeholderOrConfig?.validate
+  //   ) {
+  //     let { validate } = placeholderOrConfig
+  //     let validOrMessage = await validate(firstArg)
+  //     valid =
+  //       typeof validOrMessage === "boolean" &&
+  //       validOrMessage
 
-  if (typeof placeholderOrConfig === "undefined") {
-    return await global.kitPrompt({
-      placeholder: placeholderOrValidateMessage,
-    })
-  }
+  //     if (typeof validOrMessage === "string")
+  //       placeholderOrValidateMessage = validOrMessage
+  //   }
+
+  //   if (valid) {
+  //     return firstArg
+  //   }
+  // }
 
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({

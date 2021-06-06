@@ -1,4 +1,4 @@
-let otherOptions = [
+let kitManagementChoices = [
     {
         name: "Get Help",
         description: `Post a question to Script Kit GitHub discussions`,
@@ -13,16 +13,6 @@ let otherOptions = [
         name: "Check for Update",
         description: `Version: ${env.KIT_APP_VERSION}`,
         value: "update",
-    },
-    {
-        name: "Manage npm packages",
-        description: `add or remove npm package`,
-        value: "manage-npm",
-    },
-    {
-        name: "Clipboard history",
-        description: "Paste from clipboard history",
-        value: "clipboard",
     },
     {
         name: "View schedule",
@@ -40,24 +30,9 @@ let otherOptions = [
         value: "open-at-login",
     },
     {
-        name: "Add ~/.kenv/bin to $PATH",
-        description: `Looks for your profile and appends to $PATH`,
-        value: "add-kenv-to-profile",
-    },
-    {
         name: "Add ~/.kit/bin to $PATH",
         description: `Looks for your profile and appends to $PATH`,
         value: "add-kit-to-profile",
-    },
-    {
-        name: "Generate bin files",
-        description: "Recreate all the terminal executables",
-        value: "create-all-bins",
-    },
-    {
-        name: "Change script shortcut",
-        description: "Pick a new keyboard shortcut for a script",
-        value: "change-shortcut",
     },
     {
         name: "Change main keyboard shortcut",
@@ -65,29 +40,9 @@ let otherOptions = [
         value: "change-main-shortcut",
     },
     {
-        name: "Change editor",
-        description: "Pick a new editor",
-        value: "change-editor",
-    },
-    {
-        name: "Prepare Script for Stream Deck",
-        description: "Launch a script from a Stream Deck button",
-        value: "stream-deck",
-    },
-    {
-        name: "Switch Kenv",
-        description: "Switch to a different Kit environment",
-        value: "kenv-switch",
-    },
-    {
-        name: "Create Kenv",
-        description: "Create a new Kit environment",
-        value: "kenv-create",
-    },
-    {
-        name: "Add Kenv",
-        description: "Add an existing kenv",
-        value: "kenv-add",
+        name: "Clear Kit prompt cache",
+        description: "Reset prompt position and sizes",
+        value: "kit-clear-prompt",
     },
     {
         name: "Created by John Lindquist",
@@ -101,6 +56,7 @@ let otherOptions = [
         value: "quit",
     },
 ];
-let cliScript = await arg(`Other options:`, otherOptions);
+let cliScript = await arg(`Kit Options`, kitManagementChoices);
+console.log({ cliScript });
 await cli(cliScript);
 export {};

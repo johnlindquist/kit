@@ -8,6 +8,7 @@ interface PackageJson {
   main?: string
   module?: string
   exports?: any
+  type?: string
 }
 
 let findMain = async (
@@ -18,9 +19,9 @@ let findMain = async (
     let kPath = (...pathParts: string[]) =>
       kenvPath("node_modules", packageName, ...pathParts)
 
-    let { module, main } = packageJson
+    let { module, main, type } = packageJson
 
-    if (module) return kPath(module)
+    if (module && type == "module") return kPath(module)
     if (main && main.endsWith(".js")) return kPath(main)
     if (main && !main.endsWith(".js")) {
       // Author forgot to add .js
@@ -55,9 +56,14 @@ let kenvImport = async packageName => {
       await readFile(packageJson, "utf-8")
     )
 
-    return await defaultImport(
-      await findMain(packageName, pkgPackageJson)
+    let mainModule = await findMain(
+      packageName,
+      pkgPackageJson
     )
+
+    console.log({ mainModule })
+
+    return await defaultImport(mainModule)
   } catch (error) {
     throw new Error(error)
   }

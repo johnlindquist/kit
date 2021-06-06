@@ -44,6 +44,10 @@ export interface CLI {
     typeof import("./cli/open-command-log")
   >
   "open-kit": Promise<typeof import("./cli/open-kit")>
+  "kit-clear-prompt": Promise<
+    typeof import("./cli/kit-clear-prompt")
+  >
+  "open-kenv": Promise<typeof import("./cli/open-kenv")>
   "open-log": Promise<typeof import("./cli/open-log")>
   "set-env-var": Promise<typeof import("./cli/set-env-var")>
   "share-copy": Promise<typeof import("./cli/share-copy")>
@@ -65,7 +69,6 @@ export interface CLI {
   background: Promise<typeof import("./cli/background")>
   browse: Promise<typeof import("./cli/browse")>
   clear: Promise<typeof import("./cli/clear")>
-  clipboard: Promise<typeof import("./cli/clipboard")>
   credits: Promise<typeof import("./cli/credits")>
   ["kenv-create"]: Promise<
     typeof import("./cli/kenv-create")

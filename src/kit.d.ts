@@ -354,6 +354,9 @@ declare global {
     type: ProcessType
     requiresPrompt: boolean
     timeout?: number
+    tabs?: string[]
+    placeholder?: string
+    input?: string
   }
   interface Choice<Value = any> {
     name: string

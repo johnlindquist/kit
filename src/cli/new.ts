@@ -7,12 +7,16 @@ let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
 
+console.log({ args })
+
 let name = await arg({
   placeholder:
     arg?.placeholder || "Enter a name for your script:",
   validate: exists,
   hint: `examples: ${examples}`,
 })
+
+console.log(`Name was ${name}`)
 
 let scriptPath = path.join(
   kenvPath("scripts"),

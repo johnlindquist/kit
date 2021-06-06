@@ -13,8 +13,8 @@ global.attemptImport = async (path, ..._args) => {
         let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
         // console.warn(stackWithoutId)
         let errorFile = global.kitScript;
-        let line = "0";
-        let col = "0";
+        let line = "1";
+        let col = "1";
         let secondLine = stackWithoutId.split("\n")[1];
         if (secondLine.match("at file://")) {
             errorFile = secondLine
@@ -159,15 +159,9 @@ global.run = async (scriptToRun, ..._args) => {
     global.onTabs = [];
     global.kitScript = resolvedScript;
     let script = await info(global.kitScript);
-    if (script.requiresPrompt) {
-        console.log(`Sending PROMPT_INFO`);
-        global.send(Channel.PROMPT_INFO, {
-            name: resolvedScript,
-            args: _args,
-            type: script.type,
-            script,
-        });
-    }
+    global.send(Channel.SET_SCRIPT, {
+        script,
+    });
     return global.attemptImport(resolvedScript, ..._args);
 };
 global.main = async (scriptPath, ..._args) => {

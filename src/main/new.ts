@@ -23,6 +23,11 @@ let cliScript = await arg(
   newOptions
 )
 
-await cli(cliScript)
+console.log({ cliScript })
+if (newOptions.find(script => script.value === cliScript)) {
+  await cli(cliScript)
+} else {
+  await cli("new", cliScript)
+}
 
 export {}
