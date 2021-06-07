@@ -89,7 +89,6 @@ let waitForPromptValue = ({ choices, validate }) => new Promise((resolve, reject
     let blur$ = message$.pipe(filter(data => data.channel === Channel.PROMPT_BLURRED));
     blur$.pipe(takeUntil(value$)).subscribe({
         next: () => {
-            console.log(`BLURRED!!!`);
             exit();
         },
     });

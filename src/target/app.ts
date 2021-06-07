@@ -182,7 +182,6 @@ let waitForPromptValue = ({ choices, validate }) =>
 
     blur$.pipe(takeUntil(value$)).subscribe({
       next: () => {
-        console.log(`BLURRED!!!`)
         exit()
       },
     })
