@@ -1,8 +1,9 @@
 // Menu: Main
+// Description: Script Kit
+// Placeholder: Which script do you want to run?
 
 let { getPrefs, getScripts } = await import("../utils.js")
 
-// Description: Script Kit
 global.onTabs = []
 
 let { showJoin } = await getPrefs()
@@ -30,8 +31,12 @@ onTab("Hot 🔥", async () => {
   await main("hot")
 })
 
-onTab("Help", async () => {
-  await main("help")
+onTab("Kenv", async () => {
+  await main("kenv")
+})
+
+onTab("Kit", async () => {
+  await main("kit")
 })
 
 if (showJoin !== "false") {

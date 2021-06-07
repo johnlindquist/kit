@@ -37,9 +37,9 @@ let promptToRemoveFiles = async (dir, pattern) => {
     const confirm =
       arg?.force ||
       (await arg(
-        chalk`Delete "{red.bold ${
+        `Delete "${
           targetDir ? `${targetDir}/` : ``
-        }${scriptName}}"?`,
+        }${scriptName}"?`,
         [
           { name: `No, keep ${scriptName}`, value: false },
           {

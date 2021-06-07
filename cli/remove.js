@@ -26,7 +26,7 @@ let promptToRemoveFiles = async (dir, pattern) => {
         let targetDir = dir.replace(kenvPath("scripts"), "");
         let scriptName = script.replace(".js", "");
         const confirm = arg?.force ||
-            (await arg(chalk `Delete "{red.bold ${targetDir ? `${targetDir}/` : ``}${scriptName}}"?`, [
+            (await arg(`Delete "${targetDir ? `${targetDir}/` : ``}${scriptName}"?`, [
                 { name: `No, keep ${scriptName}`, value: false },
                 {
                     name: `Yes, remove ${scriptName}`,

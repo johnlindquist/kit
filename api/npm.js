@@ -7,8 +7,8 @@ let defaultImport = async (modulePath) => {
 let findMain = async (packageName, packageJson) => {
     try {
         let kPath = (...pathParts) => kenvPath("node_modules", packageName, ...pathParts);
-        let { module, main } = packageJson;
-        if (module)
+        let { module, main, type } = packageJson;
+        if (module && type == "module")
             return kPath(module);
         if (main && main.endsWith(".js"))
             return kPath(main);
@@ -35,7 +35,9 @@ let kenvImport = async (packageName) => {
             throw new Error(`${packageJson} doesn't exist`);
         }
         let pkgPackageJson = JSON.parse(await readFile(packageJson, "utf-8"));
-        return await defaultImport(await findMain(packageName, pkgPackageJson));
+        let mainModule = await findMain(packageName, pkgPackageJson);
+        console.log({ mainModule });
+        return await defaultImport(mainModule);
     }
     catch (error) {
         throw new Error(error);

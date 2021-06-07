@@ -1,10 +1,18 @@
 let { Low, JSONFile } = await import("lowdb")
+import { resolveScriptToCommand } from "../../utils.js"
 
 global.db = async (
   key: any,
   defaults,
   fromCache = true
 ) => {
+  if (
+    typeof defaults === "undefined" &&
+    typeof key !== "string"
+  ) {
+    defaults = key
+    key = "_" + resolveScriptToCommand(global.kitScript)
+  }
   let dbPath = global.kenvPath("db", `${key}.json`)
   if (key.startsWith(path.sep)) {
     dbPath = key
@@ -14,11 +22,24 @@ global.db = async (
   await _db.read()
 
   if (!_db.data || !fromCache) {
-    console.log(`🧼 Refresh db ${key}`)
-    _db.data =
-      typeof defaults === "function"
-        ? await defaults()
-        : defaults
+    console.log(`🔄 Refresh db ${key}`)
+
+    let getData = async () => {
+      if (typeof defaults === "function") {
+        let data = await defaults()
+        if (Array.isArray(data)) return { items: data }
+
+        return data
+      }
+
+      if (Array.isArray(defaults))
+        return { items: defaults }
+
+      return defaults
+    }
+
+    _db.data = await getData()
+
     await _db.write()
   }
 

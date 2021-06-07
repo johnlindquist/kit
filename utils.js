@@ -22,10 +22,17 @@ export let resolveToScriptPath = (script) => {
 export let resolveScriptToCommand = (script) => {
     return script.replace(/.*\//, "").replace(".js", "");
 };
-export let exists = async (input) => {
-    let check = (await cli("exists", input)).exists;
-    return check;
-};
+export let exists = async (input) => (await isBin(kenvPath("bin", input)))
+    ? chalk `{red.bold ${input}} already exists. Try again:`
+    : (await isDir(kenvPath("bin", input)))
+        ? chalk `{red.bold ${input}} exists as group. Enter different name:`
+        : exec(`command -v ${input}`, {
+            silent: true,
+        }).stdout
+            ? chalk `{red.bold ${input}} is a system command. Enter different name:`
+            : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
+                ? chalk `{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
+                : true;
 export let findScript = async (input) => {
     return (await cli("find-script", input)).found;
 };
@@ -96,14 +103,20 @@ export let info = async (infoFor) => {
             : kenvPath(!file.includes("/") && "scripts", file);
     let fileContents = await readFile(filePath, "utf8");
     let fileLines = fileContents.split("\n");
-    let command = file.replace(".js", "");
+    const command = filePath
+        .split(path.sep)
+        ?.pop()
+        ?.replace(".js", "");
     let shortcut = getByMarker("Shortcut:")(fileLines);
     let menu = getByMarker("Menu:")(fileLines);
+    let placeholder = getByMarker("Placeholder:")(fileLines) || menu;
     let schedule = getByMarker("Schedule:")(fileLines);
     let watch = getByMarker("Watch:")(fileLines);
     let system = getByMarker("System:")(fileLines);
     let background = getByMarker("Background:")(fileLines);
+    let input = getByMarker("Input:")(fileLines) || "text";
     let timeout = parseInt(getByMarker("Timeout:")(fileLines), 10);
+    let tabs = fileContents.match(new RegExp(`(?<=onTab[(]['"]).*(?=\s*['"])`, "gim")) || [];
     let requiresPrompt = Boolean(fileLines.find(line => line.match(/await arg|await drop|await textarea|await hotkey|await main/g)));
     let type = schedule
         ? ProcessType.Schedule
@@ -120,6 +133,7 @@ export let info = async (infoFor) => {
         shortcut,
         menu,
         name: (menu || command) + (shortcut ? `: ${shortcut}` : ``),
+        placeholder,
         description: getByMarker("Description:")(fileLines),
         alias: getByMarker("Alias:")(fileLines),
         author: getByMarker("Author:")(fileLines),
@@ -135,6 +149,8 @@ export let info = async (infoFor) => {
         filePath,
         requiresPrompt,
         timeout,
+        tabs,
+        input,
     };
 };
 export let writeScriptsDb = async () => {
