@@ -1,5 +1,11 @@
 let { Low, JSONFile } = await import("lowdb");
+import { resolveScriptToCommand } from "../../utils.js";
 global.db = async (key, defaults, fromCache = true) => {
+    if (typeof defaults === "undefined" &&
+        typeof key !== "string") {
+        defaults = key;
+        key = "_" + resolveScriptToCommand(global.kitScript);
+    }
     let dbPath = global.kenvPath("db", `${key}.json`);
     if (key.startsWith(path.sep)) {
         dbPath = key;
@@ -35,4 +41,3 @@ global.db = async (key, defaults, fromCache = true) => {
         },
     });
 };
-export {};

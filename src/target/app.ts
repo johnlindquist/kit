@@ -174,6 +174,19 @@ let waitForPromptValue = ({ choices, validate }) =>
       take(1)
     )
 
+    let blur$ = message$.pipe(
+      filter(
+        data => data.channel === Channel.PROMPT_BLURRED
+      )
+    )
+
+    blur$.pipe(takeUntil(value$)).subscribe({
+      next: () => {
+        console.log(`BLURRED!!!`)
+        exit()
+      },
+    })
+
     generate$.pipe(takeUntil(value$)).subscribe()
 
     let initialChoices$ = of({ ct, choices }).pipe(

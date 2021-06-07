@@ -55,6 +55,7 @@ export var Channel;
     Channel["VALUE_SUBMITTED"] = "VALUE_SUBMITTED";
     Channel["SET_PREVIEW"] = "SET_PREVIEW";
     Channel["CLEAR_PROMPT_CACHE"] = "CLEAR_PROMPT_CACHE";
+    Channel["PROMPT_BLURRED"] = "PROMPT_BLURRED";
 })(Channel || (Channel = {}));
 export var ProcessType;
 (function (ProcessType) {

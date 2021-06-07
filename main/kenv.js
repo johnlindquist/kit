@@ -1,13 +1,13 @@
 let otherOptions = [
     {
-        name: `Open Kenv in Editor`,
-        description: `Open ${kitPath()}`,
-        value: "open-kenv",
-    },
-    {
         name: "Switch Kenv",
         description: "Switch to a different Kit environment",
         value: "kenv-switch",
+    },
+    {
+        name: `Open Kenv in Editor`,
+        description: `Open ${kitPath()}`,
+        value: "open-kenv",
     },
     {
         name: "Create Kenv",

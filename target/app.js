@@ -70,7 +70,6 @@ let waitForPromptValue = ({ choices, validate }) => new Promise((resolve, reject
         return invokeChoices({ ct, choices })(input);
     }), switchMap(choice => NEVER));
     let value$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED), map(data => data.value), switchMap(async (value) => {
-        console.log(` >><< Value `, value, validate);
         if (validate) {
             let validateMessage = await validate(value);
             if (typeof validateMessage === "string") {
@@ -87,12 +86,18 @@ let waitForPromptValue = ({ choices, validate }) => new Promise((resolve, reject
             return value;
         }
     }), filter(value => typeof value !== "undefined"), take(1));
+    let blur$ = message$.pipe(filter(data => data.channel === Channel.PROMPT_BLURRED));
+    blur$.pipe(takeUntil(value$)).subscribe({
+        next: () => {
+            console.log(`BLURRED!!!`);
+            exit();
+        },
+    });
     generate$.pipe(takeUntil(value$)).subscribe();
     let initialChoices$ = of({ ct, choices }).pipe(switchMap(getInitialChoices));
     initialChoices$.pipe(takeUntil(value$)).subscribe();
     merge(value$).subscribe({
         next: value => {
-            console.log(`>>>>>>>>>>>> RESOLVING ${value}`);
             resolve(value);
         },
         complete: () => {
