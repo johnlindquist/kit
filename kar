@@ -1,4 +1,4 @@
 #!/bin/bash
 
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
-$KIT/script $KIT/ipc/invoke-app.js "$@"
+curl --unix-socket $KIT/kit.sock "http://localhost/$@"
