@@ -3,7 +3,6 @@ export var MODE;
     MODE["GENERATE"] = "GENERATE";
     MODE["FILTER"] = "FILTER";
     MODE["MANUAL"] = "MANUAL";
-    MODE["HOTKEY"] = "HOTKEY";
 })(MODE || (MODE = {}));
 export var Channel;
 (function (Channel) {
@@ -72,3 +71,11 @@ export var ErrorAction;
     ErrorAction["Log"] = "Log";
     ErrorAction["Ask"] = "Ask";
 })(ErrorAction || (ErrorAction = {}));
+export var UI;
+(function (UI) {
+    UI["arg"] = "arg";
+    UI["textarea"] = "textarea";
+    UI["hotkey"] = "hotkey";
+    UI["drop"] = "drop";
+    UI["none"] = "none";
+})(UI || (UI = {}));

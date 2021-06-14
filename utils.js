@@ -89,10 +89,16 @@ export let toggleBackground = async (script) => {
     }
 };
 export let scriptPathFromCommand = (command) => kenvPath("scripts", `${command}.js`);
-let getByMarker = (marker) => (lines) => lines
-    ?.find(line => line.match(new RegExp(`^\/\/\\s*${marker}\\s*`, "gim")))
-    ?.split(marker)[1]
-    ?.trim();
+export const shortcutNormalizer = (shortcut) => shortcut
+    ? shortcut
+        .replace(/(option|opt)/i, "Alt")
+        .replace(/(command|cmd)/i, "CommandOrControl")
+        .replace(/(ctl|cntrl|ctrl)/, "Control")
+        .split(/\s/)
+        .filter(Boolean)
+        .map(part => (part[0].toUpperCase() + part.slice(1)).trim())
+        .join("+")
+    : "";
 export let info = async (infoFor) => {
     let file = infoFor || (await arg("Get info for:"));
     !file.endsWith(".js") && (file = `${file}.js`); //Append .js if you only give script name
@@ -102,22 +108,29 @@ export let info = async (infoFor) => {
             ? file
             : kenvPath(!file.includes("/") && "scripts", file);
     let fileContents = await readFile(filePath, "utf8");
-    let fileLines = fileContents.split("\n");
-    const command = filePath
+    let getByMarker = (marker) => fileContents
+        .match(new RegExp(`(?<=^//\\s*${marker}\\s*).*`, "gim"))?.[0]
+        .trim();
+    let command = filePath
         .split(path.sep)
         ?.pop()
         ?.replace(".js", "");
-    let shortcut = getByMarker("Shortcut:")(fileLines);
-    let menu = getByMarker("Menu:")(fileLines);
-    let placeholder = getByMarker("Placeholder:")(fileLines) || menu;
-    let schedule = getByMarker("Schedule:")(fileLines);
-    let watch = getByMarker("Watch:")(fileLines);
-    let system = getByMarker("System:")(fileLines);
-    let background = getByMarker("Background:")(fileLines);
-    let input = getByMarker("Input:")(fileLines) || "text";
-    let timeout = parseInt(getByMarker("Timeout:")(fileLines), 10);
+    let shortcut = shortcutNormalizer(getByMarker("Shortcut:"));
+    let menu = getByMarker("Menu:");
+    let placeholder = getByMarker("Placeholder:") || menu;
+    let schedule = getByMarker("Schedule:");
+    let watch = getByMarker("Watch:");
+    let system = getByMarker("System:");
+    let background = getByMarker("Background:");
+    let input = getByMarker("Input:") || "text";
+    let timeout = parseInt(getByMarker("Timeout:"), 10);
     let tabs = fileContents.match(new RegExp(`(?<=onTab[(]['"]).*(?=\s*['"])`, "gim")) || [];
-    let requiresPrompt = Boolean(fileLines.find(line => line.match(/await arg|await drop|await textarea|await hotkey|await main/g)));
+    let ui = (getByMarker("UI:") ||
+        fileContents
+            .match(/(?<=await )arg|textarea|hotkey|drop/g)?.[0]
+            .trim() ||
+        "none");
+    let requiresPrompt = Boolean(ui);
     let type = schedule
         ? ProcessType.Schedule
         : watch
@@ -134,12 +147,12 @@ export let info = async (infoFor) => {
         menu,
         name: (menu || command) + (shortcut ? `: ${shortcut}` : ``),
         placeholder,
-        description: getByMarker("Description:")(fileLines),
-        alias: getByMarker("Alias:")(fileLines),
-        author: getByMarker("Author:")(fileLines),
-        twitter: getByMarker("Twitter:")(fileLines),
-        shortcode: getByMarker("Shortcode:")(fileLines),
-        exclude: getByMarker("Exclude:")(fileLines),
+        description: getByMarker("Description:"),
+        alias: getByMarker("Alias:"),
+        author: getByMarker("Author:"),
+        twitter: getByMarker("Twitter:"),
+        shortcode: getByMarker("Shortcode:"),
+        exclude: getByMarker("Exclude:"),
         schedule,
         watch,
         system,
@@ -151,6 +164,7 @@ export let info = async (infoFor) => {
         timeout,
         tabs,
         input,
+        ui,
     };
 };
 export let writeScriptsDb = async () => {

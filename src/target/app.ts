@@ -8,7 +8,7 @@ import {
   takeUntil,
   tap,
 } from "rxjs/operators"
-import { MODE, Channel } from "../enums.js"
+import { MODE, Channel, UI } from "../enums.js"
 import { assignPropsTo, info } from "../utils.js"
 
 // let exception$ = new Observable(observer => {
@@ -210,16 +210,15 @@ let waitForPromptValue = ({ choices, validate }) =>
 global.kitPrompt = async (config: PromptConfig) => {
   await wait(0) //need to let tabs finish...
   let {
+    ui = UI.arg,
     placeholder = "",
     validate = null,
     choices = [],
     secret = false,
     hint = "",
     input = "",
-    drop = false,
     ignoreBlur = false,
     mode = MODE.FILTER,
-    textarea = false,
   } = config
 
   global.setMode(
@@ -242,8 +241,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     parentScript: global.env.KIT_PARENT_NAME,
     kitArgs: global.args.join(" "),
     secret,
-    drop,
-    textarea,
+    ui,
   })
 
   global.setHint(hint)
@@ -255,9 +253,9 @@ global.kitPrompt = async (config: PromptConfig) => {
 
 global.drop = async (hint = "") => {
   return await global.kitPrompt({
+    ui: UI.drop,
     placeholder: "Waiting for drop...",
     hint,
-    drop: true,
     ignoreBlur: true,
   })
 }
@@ -266,8 +264,8 @@ global.hotkey = async (
   placeholder = "Press a key combo:"
 ) => {
   return await global.kitPrompt({
+    ui: UI.hotkey,
     placeholder,
-    mode: MODE.HOTKEY,
   })
 }
 
@@ -327,6 +325,7 @@ global.arg = async (
 
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({
+      ui: UI.arg,
       placeholder: placeholderOrConfig,
       choices,
     })
@@ -342,8 +341,8 @@ global.textarea = async (
   placeholder: string = "Hit cmd+enter to submit"
 ) => {
   return await global.kitPrompt({
+    ui: UI.textarea,
     placeholder,
-    textarea: true,
   })
 }
 

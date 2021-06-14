@@ -1,6 +1,6 @@
 import { Observable, merge, NEVER, of } from "rxjs";
 import { filter, map, share, switchMap, take, takeUntil, tap, } from "rxjs/operators";
-import { MODE, Channel } from "../enums.js";
+import { MODE, Channel, UI } from "../enums.js";
 import { assignPropsTo } from "../utils.js";
 let displayChoices = (choices) => {
     switch (typeof choices) {
@@ -109,7 +109,7 @@ let waitForPromptValue = ({ choices, validate }) => new Promise((resolve, reject
 });
 global.kitPrompt = async (config) => {
     await wait(0); //need to let tabs finish...
-    let { placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", drop = false, ignoreBlur = false, mode = MODE.FILTER, textarea = false, } = config;
+    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = MODE.FILTER, } = config;
     global.setMode(typeof choices === "function" && choices?.length > 0
         ? MODE.GENERATE
         : mode);
@@ -124,8 +124,7 @@ global.kitPrompt = async (config) => {
         parentScript: global.env.KIT_PARENT_NAME,
         kitArgs: global.args.join(" "),
         secret,
-        drop,
-        textarea,
+        ui,
     });
     global.setHint(hint);
     if (input)
@@ -136,16 +135,16 @@ global.kitPrompt = async (config) => {
 };
 global.drop = async (hint = "") => {
     return await global.kitPrompt({
+        ui: UI.drop,
         placeholder: "Waiting for drop...",
         hint,
-        drop: true,
         ignoreBlur: true,
     });
 };
 global.hotkey = async (placeholder = "Press a key combo:") => {
     return await global.kitPrompt({
+        ui: UI.hotkey,
         placeholder,
-        mode: MODE.HOTKEY,
     });
 };
 global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
@@ -194,6 +193,7 @@ global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
     // }
     if (typeof placeholderOrConfig === "string") {
         return await global.kitPrompt({
+            ui: UI.arg,
             placeholder: placeholderOrConfig,
             choices,
         });
@@ -205,8 +205,8 @@ global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
 };
 global.textarea = async (placeholder = "Hit cmd+enter to submit") => {
     return await global.kitPrompt({
+        ui: UI.textarea,
         placeholder,
-        textarea: true,
     });
 };
 let { default: minimist } = (await import("minimist"));

@@ -1,6 +1,6 @@
 export {}
 
-import { MODE, ProcessType } from "./enums.js"
+import { MODE, ProcessType, UI } from "./enums.js"
 
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
@@ -357,6 +357,7 @@ declare global {
     tabs?: string[]
     placeholder?: string
     input?: string
+    ui?: UI
   }
   interface Choice<Value = any> {
     name: string
@@ -381,6 +382,7 @@ declare global {
     (input: string): Choice<any>[] | Promise<Choice<any>[]>
   }
   interface PromptConfig {
+    ui?: UI
     placeholder: string
     validate?: (
       choice: string
@@ -389,10 +391,8 @@ declare global {
     input?: string
     secret?: boolean
     choices?: Choices<any> | Panel
-    drop?: boolean
     ignoreBlur?: boolean
     mode?: MODE
-    textarea?: boolean
   }
 
   interface Background {

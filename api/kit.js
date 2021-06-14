@@ -1,5 +1,34 @@
 import { Channel, } from "../enums.js";
 import { info, resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
+let errorPrompt = error => {
+    let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
+    // console.warn(stackWithoutId)
+    let errorFile = global.kitScript;
+    let line = "1";
+    let col = "1";
+    let secondLine = stackWithoutId.split("\n")[1];
+    if (secondLine.match("at file://")) {
+        errorFile = secondLine
+            .replace("at file://", "")
+            .replace(/:.*/, "")
+            .trim();
+        [, line, col] = secondLine
+            .replace("at file://", "")
+            .split(":");
+    }
+    if (env.KIT_CONTEXT === "app") {
+        let script = global.kitScript.replace(/.*\//, "");
+        let errorToCopy = `${error.message}\n${error.stack}`;
+        let child = spawnSync(kitPath("bin", "sk"), [
+            kitPath("cli", "error-action.js"),
+            script,
+            errorToCopy,
+            errorFile,
+            line,
+            col,
+        ]);
+    }
+};
 global.attemptImport = async (path, ..._args) => {
     try {
         global.updateArgs(_args);
@@ -10,33 +39,7 @@ global.attemptImport = async (path, ..._args) => {
     catch (error) {
         console.warn(error.message);
         console.warn(error.stack);
-        let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
-        // console.warn(stackWithoutId)
-        let errorFile = global.kitScript;
-        let line = "1";
-        let col = "1";
-        let secondLine = stackWithoutId.split("\n")[1];
-        if (secondLine.match("at file://")) {
-            errorFile = secondLine
-                .replace("at file://", "")
-                .replace(/:.*/, "")
-                .trim();
-            [, line, col] = secondLine
-                .replace("at file://", "")
-                .split(":");
-        }
-        if (env.KIT_CONTEXT === "app") {
-            let script = global.kitScript.replace(/.*\//, "");
-            let errorToCopy = `${error.message}\n${error.stack}`;
-            let child = spawnSync(kitPath("bin", "sk"), [
-                kitPath("cli", "error-action.js"),
-                script,
-                errorToCopy,
-                errorFile,
-                line,
-                col,
-            ]);
-        }
+        errorPrompt(error);
     }
 };
 global.runSub = async (scriptPath, ...runArgs) => {
@@ -107,7 +110,7 @@ global.runSub = async (scriptPath, ...runArgs) => {
 };
 process.on("uncaughtException", async (err) => {
     console.warn(`UNCAUGHT EXCEPTION: ${err}`);
-    process.exit();
+    errorPrompt(err);
 });
 global.send = async (channel, data) => {
     if (process?.send) {

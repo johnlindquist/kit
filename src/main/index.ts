@@ -1,6 +1,7 @@
 // Menu: Main
 // Description: Script Kit
 // Placeholder: Which script do you want to run?
+// UI: arg
 
 let { getPrefs, getScripts } = await import("../utils.js")
 

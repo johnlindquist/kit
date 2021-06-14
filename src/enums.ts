@@ -2,7 +2,6 @@ export enum MODE {
   GENERATE = "GENERATE",
   FILTER = "FILTER",
   MANUAL = "MANUAL",
-  HOTKEY = "HOTKEY",
 }
 
 export enum Channel {
@@ -70,4 +69,12 @@ export enum ErrorAction {
   Open = "Open",
   Log = "Log",
   Ask = "Ask",
+}
+
+export enum UI {
+  arg = "arg",
+  textarea = "textarea",
+  hotkey = "hotkey",
+  drop = "drop",
+  none = "none",
 }
