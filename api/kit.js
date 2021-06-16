@@ -1,6 +1,7 @@
 import { Channel, } from "../enums.js";
 import { info, resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
-let errorPrompt = error => {
+let errorPrompt = (error) => {
+    console.log(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
     let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
     // console.warn(stackWithoutId)
     let errorFile = global.kitScript;
@@ -18,7 +19,7 @@ let errorPrompt = error => {
     }
     if (env.KIT_CONTEXT === "app") {
         let script = global.kitScript.replace(/.*\//, "");
-        let errorToCopy = `${error.message}\n${error.stack}`;
+        let errorToCopy = `${error.message}\n${error.stack}`.replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$");
         let child = spawnSync(kitPath("bin", "sk"), [
             kitPath("cli", "error-action.js"),
             script,

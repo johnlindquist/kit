@@ -37,7 +37,7 @@ let getInitialChoices = async ({ ct, choices }) => {
         return choices;
     }
 };
-let waitForPromptValue = ({ choices, validate }) => new Promise((resolve, reject) => {
+let waitForPromptValue = ({ choices, validate, ui }) => new Promise((resolve, reject) => {
     promptId++;
     let ct = {
         promptId,
@@ -93,7 +93,9 @@ let waitForPromptValue = ({ choices, validate }) => new Promise((resolve, reject
         },
     });
     generate$.pipe(takeUntil(value$)).subscribe();
-    let initialChoices$ = of({ ct, choices }).pipe(switchMap(getInitialChoices));
+    let initialChoices$ = of({ ct, choices }).pipe(
+    // filter(() => ui === UI.arg),
+    switchMap(getInitialChoices));
     initialChoices$.pipe(takeUntil(value$)).subscribe();
     merge(value$).subscribe({
         next: value => {
@@ -131,7 +133,7 @@ global.kitPrompt = async (config) => {
         global.setInput(input);
     if (ignoreBlur || textarea)
         global.setIgnoreBlur(true);
-    return await waitForPromptValue({ choices, validate });
+    return await waitForPromptValue({ choices, validate, ui });
 };
 global.drop = async (hint = "") => {
     return await global.kitPrompt({

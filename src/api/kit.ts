@@ -9,7 +9,8 @@ import {
   resolveToScriptPath,
 } from "../utils.js"
 
-let errorPrompt = error => {
+let errorPrompt = (error: Error) => {
+  console.log(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
   let stackWithoutId = error.stack.replace(/\?[^:]*/, "")
   // console.warn(stackWithoutId)
 
@@ -31,7 +32,11 @@ let errorPrompt = error => {
 
   if (env.KIT_CONTEXT === "app") {
     let script = global.kitScript.replace(/.*\//, "")
-    let errorToCopy = `${error.message}\n${error.stack}`
+    let errorToCopy =
+      `${error.message}\n${error.stack}`.replaceAll(
+        /(?:\r\n|\r|\n)/gm,
+        "$newline$"
+      )
 
     let child = spawnSync(kitPath("bin", "sk"), [
       kitPath("cli", "error-action.js"),

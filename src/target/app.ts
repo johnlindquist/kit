@@ -92,7 +92,7 @@ let getInitialChoices = async ({ ct, choices }) => {
   }
 }
 
-let waitForPromptValue = ({ choices, validate }) =>
+let waitForPromptValue = ({ choices, validate, ui }) =>
   new Promise((resolve, reject) => {
     promptId++
     let ct = {
@@ -189,6 +189,7 @@ let waitForPromptValue = ({ choices, validate }) =>
     generate$.pipe(takeUntil(value$)).subscribe()
 
     let initialChoices$ = of({ ct, choices }).pipe(
+      // filter(() => ui === UI.arg),
       switchMap(getInitialChoices)
     )
 
@@ -248,7 +249,7 @@ global.kitPrompt = async (config: PromptConfig) => {
   if (input) global.setInput(input)
   if (ignoreBlur || textarea) global.setIgnoreBlur(true)
 
-  return await waitForPromptValue({ choices, validate })
+  return await waitForPromptValue({ choices, validate, ui })
 }
 
 global.drop = async (hint = "") => {

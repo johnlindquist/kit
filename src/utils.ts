@@ -1,4 +1,4 @@
-import { Channel, UI, ProcessType } from "./enums.js"
+import { Channel, ProcessType, UI } from "./enums.js"
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -161,6 +161,13 @@ export const shortcutNormalizer = (shortcut: string) =>
         .join("+")
     : ""
 
+export const friendlyShortcut = (shortcut: string) =>
+  shortcut
+    .replace(`CommandOrControl`, `cmd`)
+    .replace(`Alt`, `opt`)
+    .replace(`Control`, `ctrl`)
+    .replace(`Shift`, `shift`)
+
 export let info = async (
   infoFor: string
 ): Promise<Script> => {
@@ -207,9 +214,9 @@ export let info = async (
     fileContents
       .match(/(?<=await )arg|textarea|hotkey|drop/g)?.[0]
       .trim() ||
-    "none") as UI
+    UI.none) as UI
 
-  let requiresPrompt = Boolean(ui)
+  let requiresPrompt = ui !== UI.none
 
   let type = schedule
     ? ProcessType.Schedule
@@ -227,7 +234,8 @@ export let info = async (
     shortcut,
     menu,
     name:
-      (menu || command) + (shortcut ? `: ${shortcut}` : ``),
+      (menu || command) +
+      (shortcut ? `: ${friendlyShortcut(shortcut)}` : ``),
     placeholder,
 
     description: getByMarker("Description:"),
@@ -247,7 +255,6 @@ export let info = async (
     timeout,
     tabs,
     input,
-    ui,
   }
 }
 

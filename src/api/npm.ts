@@ -60,9 +60,6 @@ let kenvImport = async packageName => {
       packageName,
       pkgPackageJson
     )
-
-    console.log({ mainModule })
-
     return await defaultImport(mainModule)
   } catch (error) {
     throw new Error(error)

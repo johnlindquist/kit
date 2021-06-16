@@ -357,7 +357,6 @@ declare global {
     tabs?: string[]
     placeholder?: string
     input?: string
-    ui?: UI
   }
   interface Choice<Value = any> {
     name: string

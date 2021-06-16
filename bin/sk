@@ -1,4 +1,22 @@
 #!/bin/bash
 
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
-curl --unix-socket $KIT/kit.sock "http://localhost/$@"
+args="["
+first=true
+for var in "${@:2}"
+do
+  if [ $first = true ]
+  then
+    first=false
+  else
+    args+=","
+  fi
+  args+='"'$var'"'
+done
+args+="]"
+
+json="{\"script\":\"$1\",\"args\":$args}"
+echo $json
+curl --unix-socket $KIT/kit.sock --header "Content-Type: application/json" \
+  --data "$json" \
+   "http://localhost"

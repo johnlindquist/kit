@@ -1,4 +1,4 @@
-import { Channel, ProcessType } from "./enums.js";
+import { Channel, ProcessType, UI } from "./enums.js";
 export let assignPropsTo = (source, target) => {
     Object.entries(source).forEach(([key, value]) => {
         target[key] = value;
@@ -99,6 +99,11 @@ export const shortcutNormalizer = (shortcut) => shortcut
         .map(part => (part[0].toUpperCase() + part.slice(1)).trim())
         .join("+")
     : "";
+export const friendlyShortcut = (shortcut) => shortcut
+    .replace(`CommandOrControl`, `cmd`)
+    .replace(`Alt`, `opt`)
+    .replace(`Control`, `ctrl`)
+    .replace(`Shift`, `shift`);
 export let info = async (infoFor) => {
     let file = infoFor || (await arg("Get info for:"));
     !file.endsWith(".js") && (file = `${file}.js`); //Append .js if you only give script name
@@ -129,8 +134,8 @@ export let info = async (infoFor) => {
         fileContents
             .match(/(?<=await )arg|textarea|hotkey|drop/g)?.[0]
             .trim() ||
-        "none");
-    let requiresPrompt = Boolean(ui);
+        UI.none);
+    let requiresPrompt = ui !== UI.none;
     let type = schedule
         ? ProcessType.Schedule
         : watch
@@ -145,7 +150,8 @@ export let info = async (infoFor) => {
         type,
         shortcut,
         menu,
-        name: (menu || command) + (shortcut ? `: ${shortcut}` : ``),
+        name: (menu || command) +
+            (shortcut ? `: ${friendlyShortcut(shortcut)}` : ``),
         placeholder,
         description: getByMarker("Description:"),
         alias: getByMarker("Alias:"),
@@ -164,7 +170,6 @@ export let info = async (infoFor) => {
         timeout,
         tabs,
         input,
-        ui,
     };
 };
 export let writeScriptsDb = async () => {

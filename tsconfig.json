@@ -5,7 +5,7 @@
     "outDir": "./",
     "rootDir": "./src",
     "moduleResolution": "Node",
-    "lib": ["es2020"]
+    "lib": ["esnext"]
   },
   "include": ["./src/**/*.ts", "src/kit.d.ts"],
   "exclude": ["./src/preload/**/*"]
