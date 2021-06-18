@@ -261,6 +261,24 @@ global.drop = async (hint = "") => {
   })
 }
 
+global.editor = async (
+  language?: string,
+  content?: string,
+  options?: any
+) => {
+  send(Channel.SET_EDITOR_CONFIG, {
+    options: {
+      ...options,
+      language,
+      content,
+    },
+  })
+  return await global.kitPrompt({
+    ui: UI.editor,
+    ignoreBlur: true,
+  })
+}
+
 global.hotkey = async (
   placeholder = "Press a key combo:"
 ) => {

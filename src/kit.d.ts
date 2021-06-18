@@ -39,6 +39,13 @@ interface TextArea {
 interface Drop {
   (hint?: string): Promise<any>
 }
+interface Editor {
+  (
+    language?: string,
+    content?: string,
+    options?: any
+  ): Promise<any>
+}
 
 interface KeyData {
   key: string
@@ -234,6 +241,7 @@ interface KitApi {
   arg: Arg
   textarea: TextArea
   drop: Drop
+  editor: Editor
   hotkey: Hotkey
   env: Env
   argOpts: any
@@ -382,7 +390,7 @@ declare global {
   }
   interface PromptConfig {
     ui?: UI
-    placeholder: string
+    placeholder?: string
     validate?: (
       choice: string
     ) => boolean | string | Promise<boolean | string>
@@ -392,6 +400,12 @@ declare global {
     choices?: Choices<any> | Panel
     ignoreBlur?: boolean
     mode?: MODE
+  }
+
+  interface EditorConfig {
+    language?: string
+    content?: string
+    options?: any
   }
 
   interface Background {
@@ -474,6 +488,7 @@ declare global {
   let arg: Arg
   let textarea: TextArea
   let drop: Drop
+  let editor: Editor
   let hotkey: Hotkey
   let onTab: OnTab
   let applescript: AppleScript

@@ -143,6 +143,19 @@ global.drop = async (hint = "") => {
         ignoreBlur: true,
     });
 };
+global.editor = async (language, content, options) => {
+    send(Channel.SET_EDITOR_CONFIG, {
+        options: {
+            ...options,
+            language,
+            content,
+        },
+    });
+    return await global.kitPrompt({
+        ui: UI.editor,
+        ignoreBlur: true,
+    });
+};
 global.hotkey = async (placeholder = "Press a key combo:") => {
     return await global.kitPrompt({
         ui: UI.hotkey,

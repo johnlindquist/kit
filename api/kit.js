@@ -19,11 +19,13 @@ let errorPrompt = (error) => {
     }
     if (env.KIT_CONTEXT === "app") {
         let script = global.kitScript.replace(/.*\//, "");
-        let errorToCopy = `${error.message}\n${error.stack}`.replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$");
+        let errorToCopy = `${error.message}\n${error.stack}`;
+        // .replaceAll('"', '\\"')
+        // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
         let child = spawnSync(kitPath("bin", "sk"), [
             kitPath("cli", "error-action.js"),
             script,
-            errorToCopy,
+            JSON.stringify(errorToCopy).replaceAll('"', '\\"'),
             errorFile,
             line,
             col,
