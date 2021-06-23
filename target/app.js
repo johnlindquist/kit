@@ -131,7 +131,7 @@ global.kitPrompt = async (config) => {
     global.setHint(hint);
     if (input)
         global.setInput(input);
-    if (ignoreBlur || textarea)
+    if (ignoreBlur)
         global.setIgnoreBlur(true);
     return await waitForPromptValue({ choices, validate, ui });
 };
