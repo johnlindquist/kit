@@ -218,7 +218,7 @@ global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
         ...placeholderOrConfig,
     });
 };
-global.textarea = async (placeholder = "Hit cmd+enter to submit") => {
+global.textarea = async (placeholder = "cmd+s to submit\ncmd+w to cancel") => {
     return await global.kitPrompt({
         ui: UI.textarea,
         placeholder,

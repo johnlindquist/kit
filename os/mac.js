@@ -92,7 +92,7 @@ global.selectKitEditor = async (reset) => {
     return await global.env("KIT_EDITOR", {
         reset,
         placeholder: "Which code editor do you use? (You can always change this later in .env)",
-        choices: [
+        choices: () => [
             ...possibleEditors(),
             {
                 name: "None. Always copy path to clipboard",
