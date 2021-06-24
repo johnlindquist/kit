@@ -70,7 +70,7 @@ interface EnvConfig extends PromptConfig {
 interface Env {
   (
     envKey: string,
-    promptConfig?: EnvConfig
+    promptConfig?: EnvConfig | (() => Promise<string>)
   ): Promise<string>
   [key: string]: any
 }

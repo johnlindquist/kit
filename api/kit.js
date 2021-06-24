@@ -1,14 +1,14 @@
 import { Channel, } from "../enums.js";
 import { info, resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
-let errorPrompt = (error) => {
+let errorPrompt = async (error) => {
     console.log(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
     let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
     // console.warn(stackWithoutId)
     let errorFile = global.kitScript;
     let line = "1";
     let col = "1";
-    let secondLine = stackWithoutId.split("\n")[1];
-    if (secondLine.match("at file://")) {
+    let secondLine = stackWithoutId.split("\n")[1] || "";
+    if (secondLine?.match("at file://")) {
         errorFile = secondLine
             .replace("at file://", "")
             .replace(/:.*/, "")
@@ -20,12 +20,19 @@ let errorPrompt = (error) => {
     if (env.KIT_CONTEXT === "app") {
         let script = global.kitScript.replace(/.*\//, "");
         let errorToCopy = `${error.message}\n${error.stack}`;
+        let dashedDate = () => new Date()
+            .toISOString()
+            .replace("T", "-")
+            .replace(/:/g, "-")
+            .split(".")[0];
+        let errorJsonPath = global.tmp(`error-${dashedDate()}.txt`);
+        await writeFile(errorJsonPath, errorToCopy);
         // .replaceAll('"', '\\"')
         // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
         let child = spawnSync(kitPath("bin", "sk"), [
             kitPath("cli", "error-action.js"),
             script,
-            JSON.stringify(errorToCopy).replaceAll('"', '\\"'),
+            errorJsonPath,
             errorFile,
             line,
             col,
@@ -42,7 +49,7 @@ global.attemptImport = async (path, ..._args) => {
     catch (error) {
         console.warn(error.message);
         console.warn(error.stack);
-        errorPrompt(error);
+        await errorPrompt(error);
     }
 };
 global.runSub = async (scriptPath, ...runArgs) => {
@@ -113,7 +120,7 @@ global.runSub = async (scriptPath, ...runArgs) => {
 };
 process.on("uncaughtException", async (err) => {
     console.warn(`UNCAUGHT EXCEPTION: ${err}`);
-    errorPrompt(err);
+    await errorPrompt(err);
 });
 global.send = async (channel, data) => {
     if (process?.send) {

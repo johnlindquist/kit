@@ -1,10 +1,11 @@
 //Description: An error has occurred
 import { ErrorAction } from "../enums.js";
 let script = await arg();
-let stack = await arg();
+let stackFile = await arg();
 let errorFile = await arg();
 let line = await arg();
 let col = await arg();
+let stack = await readFile(stackFile, "utf-8");
 let errorActions = {
     [ErrorAction.Open]: async () => {
         edit(errorFile, kenvPath(), line, col);

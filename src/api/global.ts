@@ -70,18 +70,21 @@ global.isBin = async bin =>
   )
 
 global.env = async (envKey, promptConfig) => {
-  let config = {
-    placeholder: `Set ${envKey} to:`,
-    reset: false,
-    ...promptConfig,
+  if ((promptConfig as any)?.reset !== true) {
+    if (global.env[envKey]) return global.env[envKey]
   }
-  if (global.env[envKey] && !config?.reset)
-    return global.env[envKey]
 
-  let input = await global.kitPrompt(config)
+  let input =
+    typeof promptConfig === "function"
+      ? await promptConfig()
+      : await global.kitPrompt({
+          placeholder: `Set ${envKey} to:`,
+          ...promptConfig,
+        })
 
+  console.log(`😱`, { input })
   if (input.startsWith("~"))
-    input = input.replace("~", global.env.HOME)
+    input = input.replace("~", home())
 
   await global.cli("set-env-var", envKey, input)
   global.env[envKey] = input
