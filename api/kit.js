@@ -29,16 +29,14 @@ let errorPrompt = async (error) => {
         await writeFile(errorJsonPath, errorToCopy);
         // .replaceAll('"', '\\"')
         // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
-        setTimeout(() => {
-            let child = spawnSync(kitPath("bin", "sk"), [
-                kitPath("cli", "error-action.js"),
-                script,
-                errorJsonPath,
-                errorFile,
-                line,
-                col,
-            ]);
-        }, 1000);
+        let child = spawnSync(kitPath("bin", "sk"), [
+            kitPath("cli", "error-action.js"),
+            script,
+            errorJsonPath,
+            errorFile,
+            line,
+            col,
+        ]);
     }
     else {
         console.log(error);
