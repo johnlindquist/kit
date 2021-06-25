@@ -1,21 +1,5 @@
 import { homedir } from "os"
-import { resolve } from "path"
-import { config } from "dotenv"
 import { assignPropsTo } from "../utils.js"
-
-if (!process.env.KIT)
-  process.env.KIT = import.meta.url
-    .replace("file://", "")
-    .replace("/api/global.js", "")
-
-if (!process.env.KENV)
-  process.env.KENV = resolve(homedir(), ".kenv")
-
-config({
-  path:
-    process.env.KIT_DOTENV ||
-    resolve(process.env.KENV, ".env"),
-})
 
 global.cwd = process.cwd
 global.pid = process.pid
@@ -82,7 +66,6 @@ global.env = async (envKey, promptConfig) => {
           ...promptConfig,
         })
 
-  console.log(`😱`, { input })
   if (input.startsWith("~"))
     input = input.replace("~", home())
 

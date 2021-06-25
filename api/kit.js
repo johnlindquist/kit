@@ -1,23 +1,23 @@
 import { Channel, } from "../enums.js";
 import { info, resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
 let errorPrompt = async (error) => {
-    console.log(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
-    let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
-    // console.warn(stackWithoutId)
-    let errorFile = global.kitScript;
-    let line = "1";
-    let col = "1";
-    let secondLine = stackWithoutId.split("\n")[1] || "";
-    if (secondLine?.match("at file://")) {
-        errorFile = secondLine
-            .replace("at file://", "")
-            .replace(/:.*/, "")
-            .trim();
-        [, line, col] = secondLine
-            .replace("at file://", "")
-            .split(":");
-    }
     if (env.KIT_CONTEXT === "app") {
+        console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
+        let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
+        // console.warn(stackWithoutId)
+        let errorFile = global.kitScript;
+        let line = "1";
+        let col = "1";
+        let secondLine = stackWithoutId.split("\n")[1] || "";
+        if (secondLine?.match("at file://")) {
+            errorFile = secondLine
+                .replace("at file://", "")
+                .replace(/:.*/, "")
+                .trim();
+            [, line, col] = secondLine
+                .replace("at file://", "")
+                .split(":");
+        }
         let script = global.kitScript.replace(/.*\//, "");
         let errorToCopy = `${error.message}\n${error.stack}`;
         let dashedDate = () => new Date()
@@ -29,14 +29,19 @@ let errorPrompt = async (error) => {
         await writeFile(errorJsonPath, errorToCopy);
         // .replaceAll('"', '\\"')
         // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
-        let child = spawnSync(kitPath("bin", "sk"), [
-            kitPath("cli", "error-action.js"),
-            script,
-            errorJsonPath,
-            errorFile,
-            line,
-            col,
-        ]);
+        setTimeout(() => {
+            let child = spawnSync(kitPath("bin", "sk"), [
+                kitPath("cli", "error-action.js"),
+                script,
+                errorJsonPath,
+                errorFile,
+                line,
+                col,
+            ]);
+        }, 1000);
+    }
+    else {
+        console.log(error);
     }
 };
 global.attemptImport = async (path, ..._args) => {
@@ -119,7 +124,6 @@ global.runSub = async (scriptPath, ...runArgs) => {
     });
 };
 process.on("uncaughtException", async (err) => {
-    console.warn(`UNCAUGHT EXCEPTION: ${err}`);
     await errorPrompt(err);
 });
 global.send = async (channel, data) => {

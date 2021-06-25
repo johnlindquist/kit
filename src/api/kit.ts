@@ -10,27 +10,27 @@ import {
 } from "../utils.js"
 
 let errorPrompt = async (error: Error) => {
-  console.log(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
-  let stackWithoutId = error.stack.replace(/\?[^:]*/, "")
-  // console.warn(stackWithoutId)
-
-  let errorFile = global.kitScript
-  let line: string = "1"
-  let col: string = "1"
-
-  let secondLine = stackWithoutId.split("\n")[1] || ""
-
-  if (secondLine?.match("at file://")) {
-    errorFile = secondLine
-      .replace("at file://", "")
-      .replace(/:.*/, "")
-      .trim()
-    ;[, line, col] = secondLine
-      .replace("at file://", "")
-      .split(":")
-  }
-
   if (env.KIT_CONTEXT === "app") {
+    console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
+    let stackWithoutId = error.stack.replace(/\?[^:]*/, "")
+    // console.warn(stackWithoutId)
+
+    let errorFile = global.kitScript
+    let line: string = "1"
+    let col: string = "1"
+
+    let secondLine = stackWithoutId.split("\n")[1] || ""
+
+    if (secondLine?.match("at file://")) {
+      errorFile = secondLine
+        .replace("at file://", "")
+        .replace(/:.*/, "")
+        .trim()
+      ;[, line, col] = secondLine
+        .replace("at file://", "")
+        .split(":")
+    }
+
     let script = global.kitScript.replace(/.*\//, "")
     let errorToCopy = `${error.message}\n${error.stack}`
     let dashedDate = () =>
@@ -46,14 +46,18 @@ let errorPrompt = async (error: Error) => {
     // .replaceAll('"', '\\"')
     // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
 
-    let child = spawnSync(kitPath("bin", "sk"), [
-      kitPath("cli", "error-action.js"),
-      script,
-      errorJsonPath, //.replaceAll('"', '\\"'),
-      errorFile,
-      line,
-      col,
-    ])
+    setTimeout(() => {
+      let child = spawnSync(kitPath("bin", "sk"), [
+        kitPath("cli", "error-action.js"),
+        script,
+        errorJsonPath, //.replaceAll('"', '\\"'),
+        errorFile,
+        line,
+        col,
+      ])
+    }, 1000)
+  } else {
+    console.log(error)
   }
 }
 global.attemptImport = async (path, ..._args) => {
@@ -154,7 +158,6 @@ global.runSub = async (scriptPath, ...runArgs) => {
 }
 
 process.on("uncaughtException", async err => {
-  console.warn(`UNCAUGHT EXCEPTION: ${err}`)
   await errorPrompt(err)
 })
 
