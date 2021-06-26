@@ -36,7 +36,6 @@ let kenvImport = async (packageName) => {
         }
         let pkgPackageJson = JSON.parse(await readFile(packageJson, "utf-8"));
         let mainModule = await findMain(packageName, pkgPackageJson);
-        console.log({ mainModule });
         return await defaultImport(mainModule);
     }
     catch (error) {

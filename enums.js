@@ -3,7 +3,6 @@ export var MODE;
     MODE["GENERATE"] = "GENERATE";
     MODE["FILTER"] = "FILTER";
     MODE["MANUAL"] = "MANUAL";
-    MODE["HOTKEY"] = "HOTKEY";
 })(MODE || (MODE = {}));
 export var Channel;
 (function (Channel) {
@@ -31,6 +30,7 @@ export var Channel;
     Channel["RESET_PROMPT"] = "RESET_PROMPT";
     Channel["SET_SCRIPT"] = "SET_SCRIPT";
     Channel["SEND_RESPONSE"] = "SEND_RESPONSE";
+    Channel["SET_EDITOR_CONFIG"] = "SET_EDITOR_CONFIG";
     Channel["SET_CHOICES"] = "SET_CHOICES";
     Channel["SET_HINT"] = "SET_HINT";
     Channel["SET_IGNORE_BLUR"] = "SET_IGNORE_BLUR";
@@ -72,3 +72,12 @@ export var ErrorAction;
     ErrorAction["Log"] = "Log";
     ErrorAction["Ask"] = "Ask";
 })(ErrorAction || (ErrorAction = {}));
+export var UI;
+(function (UI) {
+    UI["arg"] = "arg";
+    UI["textarea"] = "textarea";
+    UI["hotkey"] = "hotkey";
+    UI["drop"] = "drop";
+    UI["editor"] = "editor";
+    UI["none"] = "none";
+})(UI || (UI = {}));

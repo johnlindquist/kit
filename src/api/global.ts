@@ -1,21 +1,5 @@
 import { homedir } from "os"
-import { resolve } from "path"
-import { config } from "dotenv"
 import { assignPropsTo } from "../utils.js"
-
-if (!process.env.KIT)
-  process.env.KIT = import.meta.url
-    .replace("file://", "")
-    .replace("/api/global.js", "")
-
-if (!process.env.KENV)
-  process.env.KENV = resolve(homedir(), ".kenv")
-
-config({
-  path:
-    process.env.KIT_DOTENV ||
-    resolve(process.env.KENV, ".env"),
-})
 
 global.cwd = process.cwd
 global.pid = process.pid
@@ -70,18 +54,20 @@ global.isBin = async bin =>
   )
 
 global.env = async (envKey, promptConfig) => {
-  let config = {
-    placeholder: `Set ${envKey} to:`,
-    reset: false,
-    ...promptConfig,
+  if ((promptConfig as any)?.reset !== true) {
+    if (global.env[envKey]) return global.env[envKey]
   }
-  if (global.env[envKey] && !config?.reset)
-    return global.env[envKey]
 
-  let input = await global.kitPrompt(config)
+  let input =
+    typeof promptConfig === "function"
+      ? await promptConfig()
+      : await global.kitPrompt({
+          placeholder: `Set ${envKey} to:`,
+          ...promptConfig,
+        })
 
   if (input.startsWith("~"))
-    input = input.replace("~", global.env.HOME)
+    input = input.replace("~", home())
 
   await global.cli("set-env-var", envKey, input)
   global.env[envKey] = input

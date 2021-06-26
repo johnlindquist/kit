@@ -8,7 +8,7 @@ import {
   takeUntil,
   tap,
 } from "rxjs/operators"
-import { MODE, Channel } from "../enums.js"
+import { MODE, Channel, UI } from "../enums.js"
 import { assignPropsTo, info } from "../utils.js"
 
 // let exception$ = new Observable(observer => {
@@ -92,7 +92,7 @@ let getInitialChoices = async ({ ct, choices }) => {
   }
 }
 
-let waitForPromptValue = ({ choices, validate }) =>
+let waitForPromptValue = ({ choices, validate, ui }) =>
   new Promise((resolve, reject) => {
     promptId++
     let ct = {
@@ -189,6 +189,7 @@ let waitForPromptValue = ({ choices, validate }) =>
     generate$.pipe(takeUntil(value$)).subscribe()
 
     let initialChoices$ = of({ ct, choices }).pipe(
+      // filter(() => ui === UI.arg),
       switchMap(getInitialChoices)
     )
 
@@ -210,16 +211,15 @@ let waitForPromptValue = ({ choices, validate }) =>
 global.kitPrompt = async (config: PromptConfig) => {
   await wait(0) //need to let tabs finish...
   let {
+    ui = UI.arg,
     placeholder = "",
     validate = null,
     choices = [],
     secret = false,
     hint = "",
     input = "",
-    drop = false,
     ignoreBlur = false,
     mode = MODE.FILTER,
-    textarea = false,
   } = config
 
   global.setMode(
@@ -242,22 +242,39 @@ global.kitPrompt = async (config: PromptConfig) => {
     parentScript: global.env.KIT_PARENT_NAME,
     kitArgs: global.args.join(" "),
     secret,
-    drop,
-    textarea,
+    ui,
   })
 
   global.setHint(hint)
   if (input) global.setInput(input)
-  if (ignoreBlur || textarea) global.setIgnoreBlur(true)
+  if (ignoreBlur) global.setIgnoreBlur(true)
 
-  return await waitForPromptValue({ choices, validate })
+  return await waitForPromptValue({ choices, validate, ui })
 }
 
 global.drop = async (hint = "") => {
   return await global.kitPrompt({
+    ui: UI.drop,
     placeholder: "Waiting for drop...",
     hint,
-    drop: true,
+    ignoreBlur: true,
+  })
+}
+
+global.editor = async (
+  language?: string,
+  content?: string,
+  options?: any
+) => {
+  send(Channel.SET_EDITOR_CONFIG, {
+    options: {
+      ...options,
+      language,
+      content,
+    },
+  })
+  return await global.kitPrompt({
+    ui: UI.editor,
     ignoreBlur: true,
   })
 }
@@ -266,8 +283,8 @@ global.hotkey = async (
   placeholder = "Press a key combo:"
 ) => {
   return await global.kitPrompt({
+    ui: UI.hotkey,
     placeholder,
-    mode: MODE.HOTKEY,
   })
 }
 
@@ -327,6 +344,7 @@ global.arg = async (
 
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({
+      ui: UI.arg,
       placeholder: placeholderOrConfig,
       choices,
     })
@@ -339,11 +357,11 @@ global.arg = async (
 }
 
 global.textarea = async (
-  placeholder: string = "Hit cmd+enter to submit"
+  placeholder: string = "cmd+s to submit\ncmd+w to cancel"
 ) => {
   return await global.kitPrompt({
+    ui: UI.textarea,
     placeholder,
-    textarea: true,
   })
 }
 

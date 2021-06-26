@@ -2,7 +2,6 @@ export enum MODE {
   GENERATE = "GENERATE",
   FILTER = "FILTER",
   MANUAL = "MANUAL",
-  HOTKEY = "HOTKEY",
 }
 
 export enum Channel {
@@ -30,6 +29,7 @@ export enum Channel {
   RESET_PROMPT = "RESET_PROMPT",
   SET_SCRIPT = "SET_SCRIPT",
   SEND_RESPONSE = "SEND_RESPONSE",
+  SET_EDITOR_CONFIG = "SET_EDITOR_CONFIG",
   SET_CHOICES = "SET_CHOICES",
   SET_HINT = "SET_HINT",
   SET_IGNORE_BLUR = "SET_IGNORE_BLUR",
@@ -70,4 +70,13 @@ export enum ErrorAction {
   Open = "Open",
   Log = "Log",
   Ask = "Ask",
+}
+
+export enum UI {
+  arg = "arg",
+  textarea = "textarea",
+  hotkey = "hotkey",
+  drop = "drop",
+  editor = "editor",
+  none = "none",
 }

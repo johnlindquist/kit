@@ -1,6 +1,6 @@
 export {}
 
-import { MODE, ProcessType } from "./enums.js"
+import { MODE, ProcessType, UI } from "./enums.js"
 
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
@@ -39,6 +39,13 @@ interface TextArea {
 interface Drop {
   (hint?: string): Promise<any>
 }
+interface Editor {
+  (
+    language?: string,
+    content?: string,
+    options?: any
+  ): Promise<any>
+}
 
 interface KeyData {
   key: string
@@ -63,7 +70,7 @@ interface EnvConfig extends PromptConfig {
 interface Env {
   (
     envKey: string,
-    promptConfig?: EnvConfig
+    promptConfig?: EnvConfig | (() => Promise<string>)
   ): Promise<string>
   [key: string]: any
 }
@@ -234,6 +241,7 @@ interface KitApi {
   arg: Arg
   textarea: TextArea
   drop: Drop
+  editor: Editor
   hotkey: Hotkey
   env: Env
   argOpts: any
@@ -381,7 +389,8 @@ declare global {
     (input: string): Choice<any>[] | Promise<Choice<any>[]>
   }
   interface PromptConfig {
-    placeholder: string
+    ui?: UI
+    placeholder?: string
     validate?: (
       choice: string
     ) => boolean | string | Promise<boolean | string>
@@ -389,10 +398,14 @@ declare global {
     input?: string
     secret?: boolean
     choices?: Choices<any> | Panel
-    drop?: boolean
     ignoreBlur?: boolean
     mode?: MODE
-    textarea?: boolean
+  }
+
+  interface EditorConfig {
+    language?: string
+    content?: string
+    options?: any
   }
 
   interface Background {
@@ -475,6 +488,7 @@ declare global {
   let arg: Arg
   let textarea: TextArea
   let drop: Drop
+  let editor: Editor
   let hotkey: Hotkey
   let onTab: OnTab
   let applescript: AppleScript
