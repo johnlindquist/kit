@@ -1,26 +1,27 @@
-let { scriptValue, scriptPathFromCommand } = await import(
-  "../utils.js"
-)
+import { selectScript, stripMetadata } from "../utils.js"
 
-let command = await arg(
-  `Which script do you want to duplicate?`,
-  scriptValue("command")
+let { filePath } = await selectScript(
+  `Which script do you want to duplicate?`
 )
 
 let newCommand = await arg({
   placeholder: `Enter the new script name:`,
 })
 
-let oldFilePath = scriptPathFromCommand(command)
-
-if (!(await isFile(oldFilePath))) {
-  console.warn(`${oldFilePath} doesn't exist...`)
+if (!(await isFile(filePath))) {
+  console.warn(`${filePath} doesn't exist...`)
   exit()
 }
 
-let newFilePath = scriptPathFromCommand(newCommand)
+let newFilePath = kenvPath(
+  "scripts",
+  newCommand.replace(/(?<!\.js)$/, ".js")
+)
+let oldContent = await readFile(filePath, "utf-8")
 
-cp(oldFilePath, newFilePath)
+let newContent = stripMetadata(oldContent)
+await writeFile(newFilePath, newContent)
+
 await cli("create-bin", "scripts", newCommand)
 
 edit(newFilePath, kenvPath())

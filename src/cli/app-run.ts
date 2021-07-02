@@ -1,10 +1,10 @@
 // Description: Run the selected script
-let { buildMainPromptChoices, toggleBackground } =
-  await import("../utils.js")
+let { toggleBackground, selectScript } = await import(
+  "../utils.js"
+)
 
-let script = await arg<Script>(
-  `Which script do you want to run?`,
-  await buildMainPromptChoices()
+let script = await selectScript(
+  `Which script do you want to run?`
 )
 
 let shouldEdit =
@@ -15,7 +15,7 @@ if (script.background) {
 } else if (shouldEdit) {
   await edit(script.filePath, kenvPath())
 } else {
-  await run(script.command)
+  await run(script.filePath)
 }
 
 export {}

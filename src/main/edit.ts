@@ -2,14 +2,10 @@
 //Description: The right-click action of the app
 
 import { CLI } from "../cli"
+import { selectScript } from "../utils.js"
 
-let { buildMainPromptChoices } = await import("../utils.js")
-
-let { command } = await arg<Script>(
-  {
-    placeholder: `Which script do you want to edit?`,
-  },
-  await buildMainPromptChoices()
+let { command, filePath } = await selectScript(
+  `Which script do you want to edit?`
 )
 
 let editActions: Choice<keyof CLI>[] = [
@@ -45,6 +41,6 @@ let editActions: Choice<keyof CLI>[] = [
 ]
 
 let editAction = await arg("Which action?", editActions)
-await cli(editAction, command)
+await cli(editAction, filePath)
 
 export {}

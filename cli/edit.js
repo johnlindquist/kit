@@ -1,5 +1,5 @@
 // Description: Opens the selected script in your editor
-let { scriptValue, scriptPathFromCommand } = await import("../utils.js");
-let command = await arg(`Which script do you want to edit?`, scriptValue("command"));
-edit(scriptPathFromCommand(command), kenvPath());
+let { selectScript } = await import("../utils.js");
+let script = await selectScript(`Select script to open in ${env.KIT_EDITOR}?`);
+edit(await script.filePath, kenvPath());
 export {};

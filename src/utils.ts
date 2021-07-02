@@ -1,4 +1,4 @@
-import { Channel, ProcessType, UI } from "./enums.js"
+import { Bin, Channel, ProcessType, UI } from "./enums.js"
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -11,6 +11,8 @@ export let assignPropsTo = (
 
 export let resolveToScriptPath = (script: string) => {
   if (!script.endsWith(".js")) script += ".js"
+
+  if (script.startsWith(path.sep)) return script
 
   if (script.startsWith("."))
     script = path.resolve(process.cwd(), script)
@@ -29,6 +31,60 @@ export let resolveToScriptPath = (script: string) => {
       script.replace(/.*\//gi, "")
     )
     return tmpScript
+  }
+
+  return script
+}
+
+export let getScriptFromString = async (
+  script: string
+): Promise<Script> => {
+  let { scripts } = await getScriptsDb()
+
+  if (!script.includes(path.sep)) {
+    let result = scripts.find(
+      s =>
+        s.name === script ||
+        s.command === script.replace(/\.js$/g, "")
+    )
+
+    if (!result) {
+      throw new Error(
+        `Cannot find script based on name or command: ${script}`
+      )
+    }
+
+    return result
+  }
+
+  if (script.startsWith(path.sep)) {
+    let result = scripts.find(s => s.filePath === script)
+
+    if (!result) {
+      throw new Error(
+        `Cannot find script based on path: ${script}`
+      )
+    }
+
+    return result
+  }
+
+  throw new Error(
+    `Cannot find script: ${script}. Input should either be the "command-name" of the "/path/to/the/script"`
+  )
+}
+
+export let selectScript = async (
+  message = "Select a script",
+  includePreview = false
+): Promise<Script> => {
+  let script = await arg<Script | string>(
+    message,
+    await buildMainPromptChoices()
+  )
+
+  if (typeof script === "string") {
+    return await getScriptFromString(script)
   }
 
   return script
@@ -55,9 +111,12 @@ export let findScript = async (input: string) => {
   return (await cli("find-script", input)).found
 }
 
-export let getScripts = async () => {
-  let scriptsPath = kenvPath("scripts")
-
+export let getScripts = async (kenv = kenvPath()) => {
+  let scriptsPath = path.join(kenv, "scripts")
+  if (!(await isDir(scriptsPath))) {
+    console.warn(`${scriptsPath} isn't a valid kenv dir`)
+    return []
+  }
   if (arg.dir) scriptsPath = `${scriptsPath}/${arg.dir}`
 
   let result = await readdir(scriptsPath, {
@@ -72,21 +131,12 @@ export let getScripts = async () => {
       return name
     })
     .filter(name => name.endsWith(".js"))
+    .map(file => path.join(scriptsPath, file))
 }
 
 export let buildMainPromptChoices = async (
   fromCache = true
-) => {
-  return (
-    await db(
-      "scripts",
-      async () => ({
-        scripts: await writeScriptsDb(),
-      }),
-      fromCache
-    )
-  ).scripts
-}
+) => (await getScriptsDb(fromCache)).scripts
 interface ScriptValue {
   (pluck: keyof Script, fromCache?: boolean): () => Promise<
     Choice<string>[]
@@ -144,9 +194,6 @@ export let toggleBackground = async (script: Script) => {
   }
 }
 
-export let scriptPathFromCommand = (command: string) =>
-  kenvPath("scripts", `${command}.js`)
-
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
@@ -197,12 +244,11 @@ export let info = async (
     getByMarker("Shortcut:")
   )
   let menu = getByMarker("Menu:")
-  let placeholder = getByMarker("Placeholder:") || menu
   let schedule = getByMarker("Schedule:")
   let watch = getByMarker("Watch:")
   let system = getByMarker("System:")
+  let image = getByMarker("Image:")
   let background = getByMarker("Background:")
-  let input = getByMarker("Input:") || "text"
   let timeout = parseInt(getByMarker("Timeout:"), 10)
 
   let tabs =
@@ -228,6 +274,18 @@ export let info = async (
     ? ProcessType.Background
     : ProcessType.Prompt
 
+  let kenv =
+    filePath.match(
+      new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
+    )?.[0] || ""
+
+  let iconPath = kenv
+    ? kenvPath("kenvs", kenv, "icon.png")
+    : ""
+
+  let icon =
+    kenv && (await isFile(iconPath)) ? iconPath : ""
+
   return {
     command,
     type,
@@ -236,7 +294,6 @@ export let info = async (
     name:
       (menu || command) +
       (shortcut ? `: ${friendlyShortcut(shortcut)}` : ``),
-    placeholder,
 
     description: getByMarker("Description:"),
     alias: getByMarker("Alias:"),
@@ -248,18 +305,52 @@ export let info = async (
     watch,
     system,
     background,
-    file,
     id: filePath,
     filePath,
     requiresPrompt,
     timeout,
     tabs,
-    input,
+    kenv,
+    image,
+    icon,
   }
+}
+
+export let getLastSlashSeparated = (
+  string: string,
+  count: number
+) => {
+  return (
+    string
+      .replace(/\/$/, "")
+      .split("/")
+      .slice(-count)
+      .join("/") || ""
+  )
+}
+
+export let getKenvs = async (): Promise<string[]> => {
+  let kenvs = []
+  if (!(await isDir(kenvPath("kenvs")))) return kenvs
+
+  let kenvsDir = (...parts: string[]) =>
+    kenvPath("kenvs", ...parts)
+
+  for await (let kenvDir of await readdir(kenvsDir())) {
+    kenvs.push(kenvsDir(kenvDir))
+  }
+
+  return kenvs
 }
 
 export let writeScriptsDb = async () => {
   let scriptFiles = await getScripts()
+  let kenvDirs = await getKenvs()
+  for await (let kenvDir of kenvDirs) {
+    let scripts = await getScripts(kenvDir)
+    scriptFiles = [...scriptFiles, ...scripts]
+  }
+
   let scriptInfo = await Promise.all(scriptFiles.map(info))
   return scriptInfo
     .filter(
@@ -274,6 +365,67 @@ export let writeScriptsDb = async () => {
     })
 }
 
+export let getScriptsDb = async (
+  fromCache = true
+): Promise<{
+  scripts: Script[]
+}> => {
+  return await db(
+    kitPath("db", "scripts.json"),
+    async () => ({
+      scripts: await writeScriptsDb(),
+    }),
+    fromCache
+  )
+}
+
 export let getPrefs = async () => {
   return await db(kitPath("db", "prefs.json"))
+}
+
+export let stripMetadata = (fileContents: string) => {
+  let markers = [
+    "Menu",
+    "Description",
+    "Schedule",
+    "Watch",
+    "System",
+    "Background",
+    "Author",
+    "Twitter",
+    "Shortcode",
+    "Exclude",
+    "Alias",
+  ]
+  return fileContents.replace(
+    new RegExp(`(^//\\s*(${markers.join("|")}):).*`, "gim"),
+    "$1"
+  )
+}
+
+export let createBinFromScript = async (
+  type: Bin,
+  { kenv, command }: Script
+) => {
+  let binTemplate = await readFile(
+    kitPath("templates", "bin", "template"),
+    "utf8"
+  )
+
+  let targetPath = (...parts) =>
+    kenvPath(kenv && `kenvs/${kenv}`, ...parts)
+
+  let binTemplateCompiler = compile(binTemplate)
+  let compiledBinTemplate = binTemplateCompiler({
+    command,
+    type,
+    ...env,
+    TARGET_PATH: targetPath(),
+  })
+
+  let binFilePath = targetPath("bin", command)
+
+  mkdir("-p", path.dirname(binFilePath))
+  await writeFile(binFilePath, compiledBinTemplate)
+  chmod(755, binFilePath)
 }

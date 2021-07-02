@@ -261,17 +261,12 @@ global.drop = async (hint = "") => {
   })
 }
 
-global.editor = async (
-  language?: string,
-  content?: string,
-  options?: any
-) => {
+global.editor = async (options?: any) => {
   send(Channel.SET_EDITOR_CONFIG, {
-    options: {
-      ...options,
-      language,
-      content,
-    },
+    options:
+      typeof options === "string"
+        ? { value: options }
+        : options,
   })
   return await global.kitPrompt({
     ui: UI.editor,
@@ -356,12 +351,16 @@ global.arg = async (
   })
 }
 
-global.textarea = async (
-  placeholder: string = "cmd+s to submit\ncmd+w to cancel"
-) => {
+global.textarea = async (options?: any) => {
+  send(Channel.SET_TEXTAREA_CONFIG, {
+    options:
+      typeof options === "string"
+        ? { value: options }
+        : options,
+  })
   return await global.kitPrompt({
     ui: UI.textarea,
-    placeholder,
+    ignoreBlur: true,
   })
 }
 

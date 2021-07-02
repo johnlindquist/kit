@@ -62,6 +62,9 @@ export interface CLI {
   >
   "stream-deck": Promise<typeof import("./cli/stream-deck")>
   "kenv-switch": Promise<typeof import("./cli/kenv-switch")>
+  "kenv-clone": Promise<typeof import("./cli/kenv-clone")>
+  "kit-log": Promise<typeof import("./cli/kit-log")>
+  "kenv-rm": Promise<typeof import("./cli/kenv-rm")>
   "system-events": Promise<
     typeof import("./cli/system-events")
   >

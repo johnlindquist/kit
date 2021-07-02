@@ -14,6 +14,16 @@ let newOptions = [
         description: "Visit scriptkit.com/scripts/johnlindquist for a variety of examples",
         value: "browse-examples",
     },
+    {
+        name: "Clone repo of scripts",
+        description: `Clone a repo of scripts (AKA kenv)`,
+        value: "kenv-clone",
+    },
+    {
+        name: "Create a repo of scripts",
+        description: `Create a kenv dir to share`,
+        value: "kenv-create",
+    },
 ];
 let cliScript = await arg("How would you like to create a script?", newOptions);
 if (newOptions.find(script => script.value === cliScript)) {

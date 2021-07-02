@@ -25,8 +25,11 @@ if (scripts.length) {
 onTab("Hot 🔥", async () => {
     await main("hot");
 });
-onTab("Kenv", async () => {
-    await main("kenv");
+// onTab("Kenv", async () => {
+//   await main("kenv")
+// })
+onTab("Help", async () => {
+    await main("help");
 });
 onTab("Kit", async () => {
     await main("kit");

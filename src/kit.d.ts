@@ -343,7 +343,6 @@ type GlobalKit = KitApi & typeof import("./api/lib")
 
 declare global {
   interface Script extends Choice {
-    file: string
     filePath: string
     command: string
     menu?: string
@@ -363,8 +362,9 @@ declare global {
     requiresPrompt: boolean
     timeout?: number
     tabs?: string[]
-    placeholder?: string
-    input?: string
+    kenv: string
+    image?: string
+    icon?: string
   }
   interface Choice<Value = any> {
     name: string

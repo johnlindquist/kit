@@ -1,13 +1,9 @@
+import { getKenvs } from "../utils.js";
 let kitManagementChoices = [
     {
-        name: "Get Help",
-        description: `Post a question to Script Kit GitHub discussions`,
-        value: "get-help",
-    },
-    {
-        name: "Visit docs",
-        description: `Work in progress...`,
-        value: "goto-docs",
+        name: "Open kit.log",
+        description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
+        value: "kit-log",
     },
     {
         name: "Check for Update",
@@ -40,9 +36,29 @@ let kitManagementChoices = [
         value: "change-main-shortcut",
     },
     {
+        name: "Change script shortcut",
+        description: "Pick a new keyboard shortcut for a script",
+        value: "change-shortcut",
+    },
+    {
+        name: "Generate bin files",
+        description: "Recreate all the terminal executables",
+        value: "create-all-bins",
+    },
+    {
+        name: "Change editor",
+        description: "Pick a new editor",
+        value: "change-editor",
+    },
+    {
         name: "Clear Kit prompt cache",
         description: "Reset prompt position and sizes",
         value: "kit-clear-prompt",
+    },
+    (await getKenvs()).length && {
+        name: `Remove kenv`,
+        description: `Remove a kenv`,
+        value: "kenv-rm",
     },
     {
         name: "Created by John Lindquist",
@@ -57,6 +73,4 @@ let kitManagementChoices = [
     },
 ];
 let cliScript = await arg(`Kit Options`, kitManagementChoices);
-console.log({ cliScript });
 await cli(cliScript);
-export {};

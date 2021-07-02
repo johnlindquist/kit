@@ -1,10 +1,10 @@
-let { getScripts } = await import("../utils.js");
+import { Bin } from "../enums.js";
+import { buildMainPromptChoices, createBinFromScript, } from "../utils.js";
 await trash([
     `!${kenvPath("bin", ".gitignore")}`,
     kenvPath("bin", "*"),
 ]);
-let scriptNames = await getScripts();
-for await (let script of scriptNames) {
-    await cli("create-bin", "scripts", script.replace(".js", ""));
+let scripts = await buildMainPromptChoices();
+for await (let script of scripts) {
+    await createBinFromScript(Bin.scripts, script);
 }
-export {};

@@ -30,6 +30,7 @@ export enum Channel {
   SET_SCRIPT = "SET_SCRIPT",
   SEND_RESPONSE = "SEND_RESPONSE",
   SET_EDITOR_CONFIG = "SET_EDITOR_CONFIG",
+  SET_TEXTAREA_CONFIG = "SET_TEXTAREA_CONFIG",
   SET_CHOICES = "SET_CHOICES",
   SET_HINT = "SET_HINT",
   SET_IGNORE_BLUR = "SET_IGNORE_BLUR",
@@ -69,6 +70,7 @@ export enum ProcessType {
 export enum ErrorAction {
   Open = "Open",
   Log = "Log",
+  KitLog = "KitLog",
   Ask = "Ask",
 }
 
@@ -79,4 +81,9 @@ export enum UI {
   drop = "drop",
   editor = "editor",
   none = "none",
+}
+
+export enum Bin {
+  scripts = "scripts",
+  cli = "cli",
 }
