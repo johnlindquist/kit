@@ -1,4 +1,3 @@
-import { resolve } from "path";
 import { config } from "dotenv";
 import { assignPropsTo } from "kit-bridge/esm/util";
 import "./api/global.js";
@@ -7,7 +6,7 @@ import "./api/lib.js";
 import "./os/mac.js";
 import "./target/app.js";
 config({
-    path: resolve(process.env.KENV || home(".kenv", ".env")),
+    path: process.env.KIT_DOTENV || kenvPath(".env"),
 });
 assignPropsTo(process.env, global.env);
 let script = await arg("Path to script:");
