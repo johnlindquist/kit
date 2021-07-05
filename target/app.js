@@ -1,7 +1,7 @@
 import { Observable, merge, NEVER, of } from "rxjs";
 import { filter, map, share, switchMap, take, takeUntil, tap, } from "rxjs/operators";
-import { MODE, Channel, UI } from "../enums.js";
-import { assignPropsTo } from "../utils.js";
+import { Mode, Channel, UI } from "kit-bridge/esm/enum";
+import { assignPropsTo } from "kit-bridge/esm/util";
 let displayChoices = (choices) => {
     switch (typeof choices) {
         case "string":
@@ -111,9 +111,9 @@ let waitForPromptValue = ({ choices, validate, ui }) => new Promise((resolve, re
 });
 global.kitPrompt = async (config) => {
     await wait(0); //need to let tabs finish...
-    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = MODE.FILTER, } = config;
+    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, } = config;
     global.setMode(typeof choices === "function" && choices?.length > 0
-        ? MODE.GENERATE
+        ? Mode.GENERATE
         : mode);
     let tabs = global.onTabs?.length
         ? global.onTabs.map(({ name }) => name)

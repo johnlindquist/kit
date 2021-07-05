@@ -3,7 +3,7 @@
 
 let { Octokit } = await npm("scriptkit-octokit")
 
-let { scriptValue } = await import("../utils.js")
+import { scriptValue } from "kit-bridge/esm/db"
 
 let command = await arg(
   `Which script do you want to share?`,

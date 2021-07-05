@@ -81,6 +81,7 @@ export var UI;
     UI["hotkey"] = "hotkey";
     UI["drop"] = "drop";
     UI["editor"] = "editor";
+    UI["form"] = "form";
     UI["none"] = "none";
 })(UI || (UI = {}));
 export var Bin;

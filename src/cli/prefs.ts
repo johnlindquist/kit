@@ -1,4 +1,4 @@
-let { getPrefs } = await import("../utils.js")
+import { getPrefs } from "kit-bridge/esm/db"
 
 let kitPrefs = await getPrefs()
 

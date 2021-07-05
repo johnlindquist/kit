@@ -1,4 +1,4 @@
-import { Channel } from "../enums.js"
+import { Channel } from "kit-bridge/esm/enum"
 
 export let getSelectedText = async () => {
   send(Channel.HIDE_APP)

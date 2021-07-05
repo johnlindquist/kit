@@ -1,5 +1,5 @@
 // Description: Creates a new empty script you can invoke from the terminal
-let { exists } = await import("../utils.js");
+import { exists } from "../utils.js";
 let name = await arg({
     placeholder: "Enter a name for your script:",
     validate: exists,
@@ -24,4 +24,3 @@ await writeFile(scriptPath, contents);
 await cli("create-bin", "scripts", name);
 console.log(chalk `\nCreated a {green ${name}} script using the {yellow ${template}} template`);
 edit(scriptPath, kenvPath());
-export {};

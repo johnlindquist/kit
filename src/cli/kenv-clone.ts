@@ -1,4 +1,4 @@
-import { getLastSlashSeparated } from "../utils.js"
+import { getLastSlashSeparated } from "kit-bridge/esm/util"
 
 let kenvsDir = kenvPath("kenvs")
 

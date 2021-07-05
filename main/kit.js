@@ -1,4 +1,4 @@
-import { getKenvs } from "../utils.js";
+import { getKenvs } from "kit-bridge/esm/util";
 let kitManagementChoices = [
     {
         name: "Open kit.log",

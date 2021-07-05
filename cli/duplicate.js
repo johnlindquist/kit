@@ -1,4 +1,5 @@
-import { selectScript, stripMetadata } from "../utils.js";
+import { stripMetadata } from "kit-bridge/esm/util";
+import { selectScript } from "../utils.js";
 let { filePath } = await selectScript(`Which script do you want to duplicate?`);
 let newCommand = await arg({
     placeholder: `Enter the new script name:`,

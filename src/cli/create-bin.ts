@@ -1,4 +1,4 @@
-import { Bin } from "../enums.js"
+import { Bin } from "kit-bridge/esm/enum"
 import {
   createBinFromScript,
   selectScript,
@@ -9,5 +9,9 @@ let type = await arg<Bin>(
   Object.values(Bin)
 )
 
-await createBinFromScript(type, await selectScript())
+let script = await selectScript(
+  `Create bin from which script?`,
+  false
+)
+await createBinFromScript(type, script)
 export {}

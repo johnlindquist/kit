@@ -8,8 +8,9 @@ import {
   takeUntil,
   tap,
 } from "rxjs/operators"
-import { MODE, Channel, UI } from "../enums.js"
-import { assignPropsTo, info } from "../utils.js"
+import { Mode, Channel, UI } from "kit-bridge/esm/enum"
+import { Choice, EditorConfig } from "kit-bridge/esm/type"
+import { assignPropsTo } from "kit-bridge/esm/util"
 
 // let exception$ = new Observable(observer => {
 //   let e = (error: Error) => observer.next(error)
@@ -219,12 +220,12 @@ global.kitPrompt = async (config: PromptConfig) => {
     hint = "",
     input = "",
     ignoreBlur = false,
-    mode = MODE.FILTER,
+    mode = Mode.FILTER,
   } = config
 
   global.setMode(
     typeof choices === "function" && choices?.length > 0
-      ? MODE.GENERATE
+      ? Mode.GENERATE
       : mode
   )
 
@@ -261,7 +262,7 @@ global.drop = async (hint = "") => {
   })
 }
 
-global.editor = async (options?: any) => {
+global.editor = async (options?: EditorConfig) => {
   send(Channel.SET_EDITOR_CONFIG, {
     options:
       typeof options === "string"

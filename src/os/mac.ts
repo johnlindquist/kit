@@ -5,7 +5,7 @@ global.applescript = async (
   let formattedScript = script.replace(/'/g, "'\"'\"'")
   if (global.env?.DEBUG) {
     await writeFile(
-      global.kenvPath("tmp", "_debug.applescript"),
+      kenvPath("tmp", "_debug.applescript"),
       script
     )
   }

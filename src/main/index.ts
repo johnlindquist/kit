@@ -3,7 +3,8 @@
 // Placeholder: Which script do you want to run?
 // UI: arg
 
-let { getPrefs, getScripts } = await import("../utils.js")
+import { getPrefs } from "kit-bridge/esm/db"
+import { getScripts } from "kit-bridge/esm/util"
 
 global.onTabs = []
 

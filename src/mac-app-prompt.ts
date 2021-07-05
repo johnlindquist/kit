@@ -1,14 +1,11 @@
-import { resolve } from "path"
 import { config } from "dotenv"
-import { homedir } from "os"
-
-import { Channel } from "./enums.js"
+import { assignPropsTo } from "kit-bridge/esm/util"
+import { Channel } from "kit-bridge/esm/enum"
 import "./api/global.js"
 import "./api/kit.js"
 import "./api/lib.js"
 import "./os/mac.js"
 import "./target/app.js"
-import { assignPropsTo } from "./utils.js"
 
 let { script, args } = await new Promise<{
   script: string

@@ -1,7 +1,7 @@
 //Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
 let { Octokit } = await npm("scriptkit-octokit");
-let { scriptValue } = await import("../utils.js");
+import { scriptValue } from "kit-bridge/esm/db";
 let command = await arg(`Which script do you want to share?`, scriptValue("command"));
 let octokit = new Octokit({
     auth: {
@@ -23,4 +23,3 @@ let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.fi
 copy(link);
 setPlaceholder(`Copied share link to clipboard`);
 await wait(2000);
-export {};

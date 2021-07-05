@@ -2,7 +2,7 @@
 //Description: Creates a .sh file around a script
 //Author: John Lindquist
 //Twitter: @johnlindquist
-let { scriptValue } = await import("../utils.js");
+import { scriptValue } from "kit-bridge/esm/db";
 let createCommand = (launchApp, script) => launchApp
     ? `~/.kit/kar ${script}`
     : `~/.kit/script ~/.kenv/scripts/${script}.js`;
@@ -39,4 +39,3 @@ await arg({
 ![Stream Deck Setup](${kitPath("images", "stream-deck.png")})
 `));
 exec(`open -a "Stream Deck.app"`);
-export {};

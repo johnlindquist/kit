@@ -1,6 +1,7 @@
-let { buildMainPromptChoices } = await import("../utils.js")
+import { Script } from "kit-bridge/esm/type"
+import { getScripts } from "kit-bridge/esm/db"
 
-let scriptsCache: Script[] = await buildMainPromptChoices()
+let scriptsCache: Script[] = await getScripts()
 
 let filePath = await arg(
   "Which script do you want to edit?",

@@ -1,7 +1,11 @@
 export {}
 
-import { MODE, ProcessType, UI } from "./enums.js"
-
+import {
+  Script,
+  Choice,
+  EditorConfig,
+} from "kit-bridge/esm/type"
+import { Mode, UI } from "kit-bridge/esm/enum"
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"
@@ -40,11 +44,7 @@ interface Drop {
   (hint?: string): Promise<any>
 }
 interface Editor {
-  (
-    language?: string,
-    content?: string,
-    options?: any
-  ): Promise<any>
+  (config?: EditorConfig): Promise<any>
 }
 
 interface KeyData {
@@ -153,7 +153,7 @@ interface Edit {
 }
 
 interface Wait {
-  (time: number): Promise<undefined>
+  (time: number): Promise<void>
 }
 
 interface IsCheck {
@@ -303,7 +303,7 @@ interface KitApi {
     ...runArgs: string[]
   ) => Promise<any>
 
-  setMode: (mode: MODE) => void
+  setMode: (mode: Mode) => void
 
   currentOnTab: any
   kitPrevChoices: Choices<any>
@@ -342,41 +342,6 @@ interface KitApi {
 type GlobalKit = KitApi & typeof import("./api/lib")
 
 declare global {
-  interface Script extends Choice {
-    filePath: string
-    command: string
-    menu?: string
-    shortcut?: string
-    description?: string
-    shortcode?: string
-    alias?: string
-    author?: string
-    twitter?: string
-    exclude?: string
-    schedule?: string
-    system?: string
-    watch?: string
-    background?: string
-    isRunning?: boolean
-    type: ProcessType
-    requiresPrompt: boolean
-    timeout?: number
-    tabs?: string[]
-    kenv: string
-    image?: string
-    icon?: string
-  }
-  interface Choice<Value = any> {
-    name: string
-    value?: Value
-    description?: string
-    focused?: string
-    img?: string
-    html?: string
-    preview?: string
-    id?: string
-  }
-
   type Choices<Value> =
     | string[]
     | Choice<Value>[]
@@ -399,13 +364,7 @@ declare global {
     secret?: boolean
     choices?: Choices<any> | Panel
     ignoreBlur?: boolean
-    mode?: MODE
-  }
-
-  interface EditorConfig {
-    language?: string
-    content?: string
-    options?: any
+    mode?: Mode
   }
 
   interface Background {
@@ -469,7 +428,7 @@ declare global {
   let download: typeof import("download")
   let degit: typeof import("degit")
 
-  let trash: typeof trashType
+  let trash: typeof trashType.default
   let rm: typeof trashType
 
   let kitPath: PathFn

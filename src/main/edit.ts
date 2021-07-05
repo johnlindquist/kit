@@ -1,6 +1,7 @@
 //Menu: Edit Menu
 //Description: The right-click action of the app
 
+import { Choice } from "kit-bridge/esm/type"
 import { CLI } from "../cli"
 import { selectScript } from "../utils.js"
 

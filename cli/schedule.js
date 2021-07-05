@@ -1,4 +1,4 @@
-import { info } from "../utils.js";
+import { info } from "kit-bridge/esm/util";
 let { formatDistanceToNowStrict, format, compareAsc } = await npm("date-fns");
 let { schedule } = await global.getSchedule();
 let choices = (await Promise.all(schedule.map(async ({ filePath, date }) => {

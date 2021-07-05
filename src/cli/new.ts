@@ -1,6 +1,6 @@
 // Menu: New Script
 // Description: Creates a new empty script you can invoke from the terminal
-let { exists } = await import("../utils.js")
+import { exists } from "../utils.js"
 let generate = await npm("project-name-generator")
 
 let examples = Array.from({ length: 3 })

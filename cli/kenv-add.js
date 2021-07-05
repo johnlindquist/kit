@@ -1,4 +1,4 @@
-import { Channel } from "../enums.js";
+import { Channel } from "kit-bridge/esm/enum";
 let createKenvPathFromName = async (name) => {
     let addKenvPath = "";
     if (name.startsWith(path.sep)) {

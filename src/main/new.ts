@@ -1,3 +1,4 @@
+import { Choice } from "kit-bridge/esm/type"
 import { CLI } from "../cli"
 
 let newOptions: Choice<keyof CLI>[] = [
@@ -28,7 +29,7 @@ let newOptions: Choice<keyof CLI>[] = [
     value: "kenv-create",
   },
 ]
-let cliScript = await arg(
+let cliScript = await arg<keyof CLI>(
   "How would you like to create a script?",
   newOptions
 )
