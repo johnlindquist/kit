@@ -89,6 +89,7 @@ export interface CLI {
   prefs: Promise<typeof import("./cli/prefs")>
   quit: Promise<typeof import("./cli/quit")>
   remove: Promise<typeof import("./cli/remove")>
+  move: Promise<typeof import("./cli/move")>
   rename: Promise<typeof import("./cli/rename")>
   run: Promise<typeof import("./cli/run")>
   schedule: Promise<typeof import("./cli/schedule")>

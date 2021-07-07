@@ -29,5 +29,13 @@ let editActions = [
         value: "open-command-log",
     },
 ];
+let kenvDirs = (await readdir(kenvPath("kenvs"))) || [];
+if (kenvDirs.length) {
+    editActions.splice(4, 0, {
+        name: "Move",
+        description: `Move ${command} to a selected kenv`,
+        value: "move",
+    });
+}
 let editAction = await arg("Which action?", editActions);
 await cli(editAction, filePath);

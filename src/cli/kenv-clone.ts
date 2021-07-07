@@ -1,3 +1,5 @@
+//Description: Name your kenv
+
 import { getLastSlashSeparated } from "kit-bridge/esm/util"
 
 let kenvsDir = kenvPath("kenvs")
@@ -11,11 +13,55 @@ let repo = await arg({
   ignoreBlur: true,
 })
 
-let kenvName = await arg({
-  placeholder: `Enter a kenv name`,
-  input: getLastSlashSeparated(repo, 1),
-  hint: `Name kenv dir`,
-})
+let input = getLastSlashSeparated(repo, 2)
+  .replace(/\.git|\./g, "")
+  .replace(/\//g, "-")
+
+let panelContainer = content =>
+  `<div class="p-4">${content}</div>`
+
+let setPanelContainer = content => {
+  setPanel(panelContainer(content))
+}
+
+let kenvName = await arg(
+  {
+    placeholder: `Enter a kenv name`,
+    input,
+    hint: `Enter a name for ${getLastSlashSeparated(
+      repo,
+      2
+    )}`,
+    validate: async input => {
+      let exists = await isDir(kenvPath("kenvs", input))
+      if (exists) {
+        return `${input} already exists`
+      }
+
+      return true
+    },
+  },
+  async input => {
+    console.log({ input })
+    let exists = await isDir(kenvPath("kenvs", input))
+    if (!input) {
+      setPanelContainer(`A kenv name is required`)
+    } else if (exists) {
+      setPanelContainer(
+        `A kenv named "${input}" already exists`
+      )
+    } else {
+      setPanelContainer(
+        `
+        <p>Will clone to:</p>
+        <p class="font-mono">${kenvPath(
+          "kenvs",
+          input
+        )}</p>`
+      )
+    }
+  }
+)
 
 let kenvDir = kenvPath("kenvs", kenvName)
 
@@ -23,5 +69,6 @@ let simpleGit = await npm("simple-git")
 let git = simpleGit()
 
 await git.clone(repo, kenvDir)
+await cli("create-all-bins")
 
 export {}

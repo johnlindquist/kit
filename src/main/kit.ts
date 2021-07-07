@@ -4,6 +4,16 @@ import { CLI } from "../cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
+    name: "Clone repo of scripts",
+    description: `Clone a repo of scripts (AKA kenv)`,
+    value: "kenv-clone",
+  },
+  {
+    name: "Create a repo of scripts",
+    description: `Create a kenv dir to share`,
+    value: "kenv-create",
+  },
+  {
     name: "Open kit.log",
     description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
     value: "kit-log",
@@ -58,16 +68,10 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: "Pick a new editor",
     value: "change-editor",
   },
-
   {
     name: "Clear Kit prompt cache",
     description: "Reset prompt position and sizes",
     value: "kit-clear-prompt",
-  },
-  (await getKenvs()).length && {
-    name: `Remove kenv`,
-    description: `Remove a kenv`,
-    value: "kenv-rm",
   },
   {
     name: "Created by John Lindquist",
@@ -81,6 +85,14 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "quit",
   },
 ]
+
+if ((await getKenvs()).length) {
+  kitManagementChoices.splice(-3, 0, {
+    name: `Remove kenv`,
+    description: `Remove a kenv`,
+    value: "kenv-rm",
+  })
+}
 
 let cliScript = await arg(
   `Kit Options`,

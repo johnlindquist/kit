@@ -1,3 +1,3 @@
-exec(`open https://scriptkit.com/scripts/johnlindquist`)
+exec(`open https://scriptkit.com/scripts/`)
 
 export {}

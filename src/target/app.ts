@@ -253,12 +253,20 @@ global.kitPrompt = async (config: PromptConfig) => {
   return await waitForPromptValue({ choices, validate, ui })
 }
 
-global.drop = async (hint = "") => {
+global.drop = async (
+  placeholder = "Waiting for drop..."
+) => {
   return await global.kitPrompt({
     ui: UI.drop,
-    placeholder: "Waiting for drop...",
-    hint,
+    placeholder,
     ignoreBlur: true,
+  })
+}
+
+global.form = async (html = "", formData = {}) => {
+  send(Channel.SET_FORM_HTML, { html, formData })
+  return await global.kitPrompt({
+    ui: UI.form,
   })
 }
 

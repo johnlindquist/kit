@@ -15,18 +15,8 @@ let newOptions: Choice<keyof CLI>[] = [
   {
     name: "Browse Community Examples",
     description:
-      "Visit scriptkit.com/scripts/johnlindquist for a variety of examples",
+      "Visit scriptkit.com/scripts/ for a variety of examples",
     value: "browse-examples",
-  },
-  {
-    name: "Clone repo of scripts",
-    description: `Clone a repo of scripts (AKA kenv)`,
-    value: "kenv-clone",
-  },
-  {
-    name: "Create a repo of scripts",
-    description: `Create a kenv dir to share`,
-    value: "kenv-create",
   },
 ]
 let cliScript = await arg<keyof CLI>(

@@ -7,7 +7,7 @@ import {
 } from "kit-bridge/esm/db"
 
 export let selectScript = async (
-  message = "Select a script",
+  message: string | PromptConfig = "Select a script",
   fromCache = true
 ): Promise<Script> => {
   let script = await arg<Script | string>(
@@ -100,4 +100,14 @@ export let createBinFromScript = async (
   mkdir("-p", path.dirname(binFilePath))
   await writeFile(binFilePath, compiledBinTemplate)
   chmod(755, binFilePath)
+}
+
+export let trashBinFromScript = async (script: Script) => {
+  trash([
+    kenvPath(
+      script.kenv && `kenvs/${script.kenv}`,
+      "bin",
+      script.command
+    ),
+  ])
 }

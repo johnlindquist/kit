@@ -34,12 +34,22 @@ let editActions: Choice<keyof CLI>[] = [
     description: `Delete ${command} to trash`,
     value: "remove",
   },
+
   {
     name: `Open ${command}.log`,
     description: `Opens ${command}.log in your editor`,
     value: "open-command-log",
   },
 ]
+
+let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
+if (kenvDirs.length) {
+  editActions.splice(4, 0, {
+    name: "Move",
+    description: `Move ${command} to a selected kenv`,
+    value: "move",
+  })
+}
 
 let editAction = await arg("Which action?", editActions)
 await cli(editAction, filePath)

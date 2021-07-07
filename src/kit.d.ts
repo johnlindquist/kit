@@ -46,6 +46,9 @@ interface Drop {
 interface Editor {
   (config?: EditorConfig): Promise<any>
 }
+interface Form {
+  (html?: string, formData?: any): Promise<any>
+}
 
 interface KeyData {
   key: string
@@ -169,7 +172,7 @@ interface DB {
 }
 
 interface GetScripts {
-  (): Promise<Script[]>
+  (fromCache: boolean): Promise<Script[]>
 }
 
 interface SelectKitEditor {
@@ -242,6 +245,7 @@ interface KitApi {
   textarea: TextArea
   drop: Drop
   editor: Editor
+  form: Form
   hotkey: Hotkey
   env: Env
   argOpts: any
@@ -480,8 +484,6 @@ declare global {
   let md: Markdown
   let notify: typeof Notifier.notify
 
-  let getScripts: GetScripts
-
   let memoryMap: Map<string, any>
 
   let onTabIndex: number
@@ -521,6 +523,8 @@ declare global {
   let tileWindow: typeof import("./lib/desktop").tileWindow
   let scrapeSelector: typeof import("./lib/browser").scrapeSelector
   let scrapeAttribute: typeof import("./lib/browser").scrapeAttribute
+
+  let getScripts: GetScripts
 }
 
 type Kit = LibModuleLoader & Omit<GlobalKit, "kit">

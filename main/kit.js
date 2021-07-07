@@ -1,6 +1,16 @@
 import { getKenvs } from "kit-bridge/esm/util";
 let kitManagementChoices = [
     {
+        name: "Clone repo of scripts",
+        description: `Clone a repo of scripts (AKA kenv)`,
+        value: "kenv-clone",
+    },
+    {
+        name: "Create a repo of scripts",
+        description: `Create a kenv dir to share`,
+        value: "kenv-create",
+    },
+    {
         name: "Open kit.log",
         description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
         value: "kit-log",
@@ -55,11 +65,6 @@ let kitManagementChoices = [
         description: "Reset prompt position and sizes",
         value: "kit-clear-prompt",
     },
-    (await getKenvs()).length && {
-        name: `Remove kenv`,
-        description: `Remove a kenv`,
-        value: "kenv-rm",
-    },
     {
         name: "Created by John Lindquist",
         description: `Follow @johnlindquist on twitter`,
@@ -72,5 +77,12 @@ let kitManagementChoices = [
         value: "quit",
     },
 ];
+if ((await getKenvs()).length) {
+    kitManagementChoices.splice(-3, 0, {
+        name: `Remove kenv`,
+        description: `Remove a kenv`,
+        value: "kenv-rm",
+    });
+}
 let cliScript = await arg(`Kit Options`, kitManagementChoices);
 await cli(cliScript);

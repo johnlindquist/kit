@@ -1,4 +1,6 @@
 import { assignPropsTo, home, isBin, isDir, isFile, kitPath, kenvPath, wait, } from "kit-bridge/esm/util";
+import { getScripts } from "kit-bridge/esm/db";
+global.getScripts = getScripts;
 global.cwd = process.cwd;
 global.pid = process.pid;
 global.stderr = process.stderr;

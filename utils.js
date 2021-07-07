@@ -57,3 +57,8 @@ export let createBinFromScript = async (type, { kenv, command }) => {
     await writeFile(binFilePath, compiledBinTemplate);
     chmod(755, binFilePath);
 };
+export let trashBinFromScript = async (script) => {
+    trash([
+        kenvPath(script.kenv && `kenvs/${script.kenv}`, "bin", script.command),
+    ]);
+};

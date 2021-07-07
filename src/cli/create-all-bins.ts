@@ -8,7 +8,7 @@ await trash([
   kenvPath("bin", "*"),
 ])
 
-let scripts = await getScripts()
+let scripts = await getScripts(false)
 
 for await (let script of scripts) {
   await createBinFromScript(Bin.scripts, script)
