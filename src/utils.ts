@@ -102,6 +102,30 @@ export let createBinFromScript = async (
   chmod(755, binFilePath)
 }
 
+export let createBinFromName = async (
+  command: string,
+  kenv: string
+) => {
+  let binTemplate = await readFile(
+    kitPath("templates", "bin", "template"),
+    "utf8"
+  )
+
+  let binTemplateCompiler = compile(binTemplate)
+  let compiledBinTemplate = binTemplateCompiler({
+    command,
+    type: Bin.scripts,
+    ...env,
+    TARGET_PATH: kenv,
+  })
+
+  let binFilePath = path.resolve(kenv, "bin", command)
+
+  mkdir("-p", path.dirname(binFilePath))
+  await writeFile(binFilePath, compiledBinTemplate)
+  chmod(755, binFilePath)
+}
+
 export let trashBinFromScript = async (script: Script) => {
   trash([
     kenvPath(

@@ -4,6 +4,7 @@ import {
   Script,
   Choice,
   EditorConfig,
+  TextareaConfig,
 } from "kit-bridge/esm/type"
 import { Mode, UI } from "kit-bridge/esm/enum"
 import { AxiosInstance } from "axios"
@@ -38,7 +39,9 @@ interface Arg {
 }
 
 interface TextArea {
-  (placeholder?: string): Promise<string>
+  (
+    placeholderOrOptions?: string | TextareaConfig
+  ): Promise<string>
 }
 interface Drop {
   (hint?: string): Promise<any>

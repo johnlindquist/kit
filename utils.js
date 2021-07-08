@@ -1,4 +1,4 @@
-import { Channel } from "kit-bridge/esm/enum";
+import { Bin, Channel } from "kit-bridge/esm/enum";
 import { getScripts, getScriptFromString, } from "kit-bridge/esm/db";
 export let selectScript = async (message = "Select a script", fromCache = true) => {
     let script = await arg(message, await getScripts(fromCache));
@@ -53,6 +53,20 @@ export let createBinFromScript = async (type, { kenv, command }) => {
         TARGET_PATH: targetPath(),
     });
     let binFilePath = targetPath("bin", command);
+    mkdir("-p", path.dirname(binFilePath));
+    await writeFile(binFilePath, compiledBinTemplate);
+    chmod(755, binFilePath);
+};
+export let createBinFromName = async (command, kenv) => {
+    let binTemplate = await readFile(kitPath("templates", "bin", "template"), "utf8");
+    let binTemplateCompiler = compile(binTemplate);
+    let compiledBinTemplate = binTemplateCompiler({
+        command,
+        type: Bin.scripts,
+        ...env,
+        TARGET_PATH: kenv,
+    });
+    let binFilePath = path.resolve(kenv, "bin", command);
     mkdir("-p", path.dirname(binFilePath));
     await writeFile(binFilePath, compiledBinTemplate);
     chmod(755, binFilePath);

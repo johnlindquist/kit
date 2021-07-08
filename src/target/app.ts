@@ -360,7 +360,12 @@ global.arg = async (
   })
 }
 
-global.textarea = async (options?: any) => {
+global.textarea = async (
+  options: any = {
+    value: "",
+    placeholder: `cmd + s to submit\ncmd + w to close`,
+  }
+) => {
   send(Channel.SET_TEXTAREA_CONFIG, {
     options:
       typeof options === "string"
@@ -370,6 +375,7 @@ global.textarea = async (options?: any) => {
   return await global.kitPrompt({
     ui: UI.textarea,
     ignoreBlur: true,
+    hint: `cmd + s to submit\ncmd + w to close`,
   })
 }
 

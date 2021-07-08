@@ -1,3 +1,6 @@
+// Menu: Manage Kit
+// Description: Options and Helpers
+
 import { Choice } from "kit-bridge/esm/type"
 import { getKenvs } from "kit-bridge/esm/util"
 import { CLI } from "../cli"
