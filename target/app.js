@@ -221,7 +221,10 @@ global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
         ...placeholderOrConfig,
     });
 };
-global.textarea = async (options) => {
+global.textarea = async (options = {
+    value: "",
+    placeholder: `cmd + s to submit\ncmd + w to close`,
+}) => {
     send(Channel.SET_TEXTAREA_CONFIG, {
         options: typeof options === "string"
             ? { value: options }
@@ -230,6 +233,7 @@ global.textarea = async (options) => {
     return await global.kitPrompt({
         ui: UI.textarea,
         ignoreBlur: true,
+        hint: `cmd + s to submit\ncmd + w to close`,
     });
 };
 let { default: minimist } = (await import("minimist"));

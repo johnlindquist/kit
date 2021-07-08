@@ -1,3 +1,5 @@
+// Menu: Manage Kit
+// Description: Options and Helpers
 import { getKenvs } from "kit-bridge/esm/util";
 let kitManagementChoices = [
     {
