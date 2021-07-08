@@ -375,7 +375,6 @@ global.textarea = async (
   return await global.kitPrompt({
     ui: UI.textarea,
     ignoreBlur: true,
-    hint: `cmd + s to submit\ncmd + w to close`,
   })
 }
 

@@ -233,7 +233,6 @@ global.textarea = async (options = {
     return await global.kitPrompt({
         ui: UI.textarea,
         ignoreBlur: true,
-        hint: `cmd + s to submit\ncmd + w to close`,
     });
 };
 let { default: minimist } = (await import("minimist"));
