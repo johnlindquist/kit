@@ -183,8 +183,9 @@ global.main = async (scriptPath, ..._args) => {
     let kitScriptPath = kitPath("main", scriptPath) + ".js";
     return await global.attemptImport(kitScriptPath, ..._args);
 };
-global.lib = async (scriptPath, ..._args) => {
-    let libScriptPath = global.libPath(scriptPath) + ".js";
+global.lib = async (lib, ..._args) => {
+    let libScriptPath = path.resolve(global.kitScript, "..", "..", "lib", lib) +
+        ".js";
     return await global.attemptImport(libScriptPath, ..._args);
 };
 global.cli = async (cliPath, ..._args) => {
