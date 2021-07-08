@@ -1,7 +1,7 @@
 global.applescript = async (script, options = { silent: true }) => {
     let formattedScript = script.replace(/'/g, "'\"'\"'");
     if (global.env?.DEBUG) {
-        await writeFile(global.kenvPath("tmp", "_debug.applescript"), script);
+        await writeFile(kenvPath("tmp", "_debug.applescript"), script);
     }
     let { stdout, stderr } = exec(`osascript -e '${formattedScript}'`, options);
     if (stderr) {

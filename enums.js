@@ -31,6 +31,7 @@ export var Channel;
     Channel["SET_SCRIPT"] = "SET_SCRIPT";
     Channel["SEND_RESPONSE"] = "SEND_RESPONSE";
     Channel["SET_EDITOR_CONFIG"] = "SET_EDITOR_CONFIG";
+    Channel["SET_TEXTAREA_CONFIG"] = "SET_TEXTAREA_CONFIG";
     Channel["SET_CHOICES"] = "SET_CHOICES";
     Channel["SET_HINT"] = "SET_HINT";
     Channel["SET_IGNORE_BLUR"] = "SET_IGNORE_BLUR";
@@ -70,6 +71,7 @@ export var ErrorAction;
 (function (ErrorAction) {
     ErrorAction["Open"] = "Open";
     ErrorAction["Log"] = "Log";
+    ErrorAction["KitLog"] = "KitLog";
     ErrorAction["Ask"] = "Ask";
 })(ErrorAction || (ErrorAction = {}));
 export var UI;
@@ -79,5 +81,11 @@ export var UI;
     UI["hotkey"] = "hotkey";
     UI["drop"] = "drop";
     UI["editor"] = "editor";
+    UI["form"] = "form";
     UI["none"] = "none";
 })(UI || (UI = {}));
+export var Bin;
+(function (Bin) {
+    Bin["scripts"] = "scripts";
+    Bin["cli"] = "cli";
+})(Bin || (Bin = {}));

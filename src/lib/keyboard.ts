@@ -6,7 +6,7 @@ await keystroke("command option e")
 ```
 */
 
-import { Channel } from "../enums.js"
+import { Channel } from "kit-bridge/esm/enum"
 
 export let keystroke = async (keyString: string) => {
   send(Channel.HIDE_APP)

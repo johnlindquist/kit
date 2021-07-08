@@ -1,5 +1,5 @@
-import { Channel, } from "../enums.js";
-import { info, resolveScriptToCommand, resolveToScriptPath, } from "../utils.js";
+import { Channel } from "kit-bridge/esm/enum";
+import { kitPath, kenvPath, info, resolveScriptToCommand, resolveToScriptPath, } from "kit-bridge/esm/util";
 let errorPrompt = async (error) => {
     if (env.KIT_CONTEXT === "app") {
         console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
@@ -59,10 +59,10 @@ global.runSub = async (scriptPath, ...runArgs) => {
     return new Promise(async (res, rej) => {
         let values = [];
         if (!scriptPath.includes("/")) {
-            scriptPath = global.kenvPath("scripts", scriptPath);
+            scriptPath = kenvPath("scripts", scriptPath);
         }
         if (!scriptPath.startsWith(global.path.sep)) {
-            scriptPath = global.kenvPath(scriptPath);
+            scriptPath = kenvPath(scriptPath);
         }
         if (!scriptPath.endsWith(".js"))
             scriptPath = scriptPath + ".js";
@@ -82,11 +82,11 @@ global.runSub = async (scriptPath, ...runArgs) => {
                 "--require",
                 "dotenv/config",
                 "--require",
-                global.kitPath("preload/api.js"),
+                kitPath("preload/api.js"),
                 "--require",
-                global.kitPath("preload/kit.js"),
+                kitPath("preload/kit.js"),
                 "--require",
-                global.kitPath("preload/mac.js"),
+                kitPath("preload/mac.js"),
             ],
             //Manually set node. Shouldn't have to worry about PATH
             execPath: kitPath("node", "bin", "node"),
@@ -97,8 +97,8 @@ global.runSub = async (scriptPath, ...runArgs) => {
                 KIT_ARGS: global.env.KIT_ARGS || scriptArgs.join("."),
             },
         });
-        let name = process.argv[2].replace(global.kenvPath() + global.path.sep, "");
-        let childName = scriptPath.replace(global.kenvPath() + global.path.sep, "");
+        let name = process.argv[2].replace(kenvPath() + global.path.sep, "");
+        let childName = scriptPath.replace(kenvPath() + global.path.sep, "");
         console.log(childName, child.pid);
         let forwardToChild = message => {
             console.log(name, "->", childName);
@@ -170,7 +170,7 @@ global.setPlaceholder = text => {
     });
 };
 global.run = async (scriptToRun, ..._args) => {
-    let resolvedScript = resolveToScriptPath(scriptToRun);
+    let resolvedScript = await resolveToScriptPath(scriptToRun);
     global.onTabs = [];
     global.kitScript = resolvedScript;
     let script = await info(global.kitScript);
@@ -180,25 +180,26 @@ global.run = async (scriptToRun, ..._args) => {
     return global.attemptImport(resolvedScript, ..._args);
 };
 global.main = async (scriptPath, ..._args) => {
-    let kitScriptPath = global.kitPath("main", scriptPath) + ".js";
+    let kitScriptPath = kitPath("main", scriptPath) + ".js";
     return await global.attemptImport(kitScriptPath, ..._args);
 };
-global.lib = async (scriptPath, ..._args) => {
-    let libScriptPath = global.libPath(scriptPath) + ".js";
+global.lib = async (lib, ..._args) => {
+    let libScriptPath = path.resolve(global.kitScript, "..", "..", "lib", lib) +
+        ".js";
     return await global.attemptImport(libScriptPath, ..._args);
 };
 global.cli = async (cliPath, ..._args) => {
-    let cliScriptPath = global.kitPath("cli/" + cliPath) + ".js";
+    let cliScriptPath = kitPath("cli/" + cliPath) + ".js";
     return await global.attemptImport(cliScriptPath, ..._args);
 };
 global.setup = async (setupPath, ..._args) => {
     global.setPlaceholder(`>_ setup: ${setupPath}...`);
-    let setupScriptPath = global.kitPath("setup/" + setupPath) + ".js";
+    let setupScriptPath = kitPath("setup/" + setupPath) + ".js";
     return await global.attemptImport(setupScriptPath, ..._args);
 };
 global.tmp = (...parts) => {
     let command = resolveScriptToCommand(global.kitScript);
-    let scriptTmpDir = global.kenvPath("tmp", command, ...parts);
+    let scriptTmpDir = kenvPath("tmp", command, ...parts);
     mkdir("-p", path.dirname(scriptTmpDir));
     return scriptTmpDir;
 };
@@ -226,7 +227,7 @@ global.inspect = async (data, extension) => {
     await global.edit(tmpFullPath);
 };
 global.compileTemplate = async (template, vars) => {
-    let templateContent = await readFile(global.kenvPath("templates", template), "utf8");
+    let templateContent = await readFile(kenvPath("templates", template), "utf8");
     let templateCompiler = compile(templateContent);
     return templateCompiler(vars);
 };
@@ -300,7 +301,7 @@ let kitGet = (_target, key, _receiver) => {
     }
 };
 let kitFn = async (_target, _obj, [scriptPath, ..._args]) => {
-    let kitScriptPath = global.kitPath("lib", scriptPath) + ".js";
+    let kitScriptPath = kitPath("lib", scriptPath) + ".js";
     return await global.attemptImport(kitScriptPath, ..._args);
 };
 global.kit = new Proxy(() => { }, {

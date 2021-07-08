@@ -8,8 +8,9 @@ import {
   takeUntil,
   tap,
 } from "rxjs/operators"
-import { MODE, Channel, UI } from "../enums.js"
-import { assignPropsTo, info } from "../utils.js"
+import { Mode, Channel, UI } from "kit-bridge/esm/enum"
+import { Choice, EditorConfig } from "kit-bridge/esm/type"
+import { assignPropsTo } from "kit-bridge/esm/util"
 
 // let exception$ = new Observable(observer => {
 //   let e = (error: Error) => observer.next(error)
@@ -219,12 +220,12 @@ global.kitPrompt = async (config: PromptConfig) => {
     hint = "",
     input = "",
     ignoreBlur = false,
-    mode = MODE.FILTER,
+    mode = Mode.FILTER,
   } = config
 
   global.setMode(
     typeof choices === "function" && choices?.length > 0
-      ? MODE.GENERATE
+      ? Mode.GENERATE
       : mode
   )
 
@@ -252,26 +253,29 @@ global.kitPrompt = async (config: PromptConfig) => {
   return await waitForPromptValue({ choices, validate, ui })
 }
 
-global.drop = async (hint = "") => {
+global.drop = async (
+  placeholder = "Waiting for drop..."
+) => {
   return await global.kitPrompt({
     ui: UI.drop,
-    placeholder: "Waiting for drop...",
-    hint,
+    placeholder,
     ignoreBlur: true,
   })
 }
 
-global.editor = async (
-  language?: string,
-  content?: string,
-  options?: any
-) => {
+global.form = async (html = "", formData = {}) => {
+  send(Channel.SET_FORM_HTML, { html, formData })
+  return await global.kitPrompt({
+    ui: UI.form,
+  })
+}
+
+global.editor = async (options?: EditorConfig) => {
   send(Channel.SET_EDITOR_CONFIG, {
-    options: {
-      ...options,
-      language,
-      content,
-    },
+    options:
+      typeof options === "string"
+        ? { value: options }
+        : options,
   })
   return await global.kitPrompt({
     ui: UI.editor,
@@ -356,12 +360,16 @@ global.arg = async (
   })
 }
 
-global.textarea = async (
-  placeholder: string = "cmd+s to submit\ncmd+w to cancel"
-) => {
+global.textarea = async (options?: any) => {
+  send(Channel.SET_TEXTAREA_CONFIG, {
+    options:
+      typeof options === "string"
+        ? { value: options }
+        : options,
+  })
   return await global.kitPrompt({
     ui: UI.textarea,
-    placeholder,
+    ignoreBlur: true,
   })
 }
 

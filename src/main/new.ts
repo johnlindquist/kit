@@ -1,3 +1,4 @@
+import { Choice } from "kit-bridge/esm/type"
 import { CLI } from "../cli"
 
 let newOptions: Choice<keyof CLI>[] = [
@@ -14,11 +15,11 @@ let newOptions: Choice<keyof CLI>[] = [
   {
     name: "Browse Community Examples",
     description:
-      "Visit scriptkit.com/scripts/johnlindquist for a variety of examples",
+      "Visit scriptkit.com/scripts/ for a variety of examples",
     value: "browse-examples",
   },
 ]
-let cliScript = await arg(
+let cliScript = await arg<keyof CLI>(
   "How would you like to create a script?",
   newOptions
 )

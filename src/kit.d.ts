@@ -1,7 +1,11 @@
 export {}
 
-import { MODE, ProcessType, UI } from "./enums.js"
-
+import {
+  Script,
+  Choice,
+  EditorConfig,
+} from "kit-bridge/esm/type"
+import { Mode, UI } from "kit-bridge/esm/enum"
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"
@@ -40,11 +44,10 @@ interface Drop {
   (hint?: string): Promise<any>
 }
 interface Editor {
-  (
-    language?: string,
-    content?: string,
-    options?: any
-  ): Promise<any>
+  (config?: EditorConfig): Promise<any>
+}
+interface Form {
+  (html?: string, formData?: any): Promise<any>
 }
 
 interface KeyData {
@@ -153,7 +156,7 @@ interface Edit {
 }
 
 interface Wait {
-  (time: number): Promise<undefined>
+  (time: number): Promise<void>
 }
 
 interface IsCheck {
@@ -169,7 +172,7 @@ interface DB {
 }
 
 interface GetScripts {
-  (): Promise<Script[]>
+  (fromCache: boolean): Promise<Script[]>
 }
 
 interface SelectKitEditor {
@@ -242,6 +245,7 @@ interface KitApi {
   textarea: TextArea
   drop: Drop
   editor: Editor
+  form: Form
   hotkey: Hotkey
   env: Env
   argOpts: any
@@ -303,7 +307,7 @@ interface KitApi {
     ...runArgs: string[]
   ) => Promise<any>
 
-  setMode: (mode: MODE) => void
+  setMode: (mode: Mode) => void
 
   currentOnTab: any
   kitPrevChoices: Choices<any>
@@ -342,41 +346,6 @@ interface KitApi {
 type GlobalKit = KitApi & typeof import("./api/lib")
 
 declare global {
-  interface Script extends Choice {
-    file: string
-    filePath: string
-    command: string
-    menu?: string
-    shortcut?: string
-    description?: string
-    shortcode?: string
-    alias?: string
-    author?: string
-    twitter?: string
-    exclude?: string
-    schedule?: string
-    system?: string
-    watch?: string
-    background?: string
-    isRunning?: boolean
-    type: ProcessType
-    requiresPrompt: boolean
-    timeout?: number
-    tabs?: string[]
-    placeholder?: string
-    input?: string
-  }
-  interface Choice<Value = any> {
-    name: string
-    value?: Value
-    description?: string
-    focused?: string
-    img?: string
-    html?: string
-    preview?: string
-    id?: string
-  }
-
   type Choices<Value> =
     | string[]
     | Choice<Value>[]
@@ -399,13 +368,7 @@ declare global {
     secret?: boolean
     choices?: Choices<any> | Panel
     ignoreBlur?: boolean
-    mode?: MODE
-  }
-
-  interface EditorConfig {
-    language?: string
-    content?: string
-    options?: any
+    mode?: Mode
   }
 
   interface Background {
@@ -469,7 +432,7 @@ declare global {
   let download: typeof import("download")
   let degit: typeof import("degit")
 
-  let trash: typeof trashType
+  let trash: typeof trashType.default
   let rm: typeof trashType
 
   let kitPath: PathFn
@@ -521,8 +484,6 @@ declare global {
   let md: Markdown
   let notify: typeof Notifier.notify
 
-  let getScripts: GetScripts
-
   let memoryMap: Map<string, any>
 
   let onTabIndex: number
@@ -562,6 +523,8 @@ declare global {
   let tileWindow: typeof import("./lib/desktop").tileWindow
   let scrapeSelector: typeof import("./lib/browser").scrapeSelector
   let scrapeAttribute: typeof import("./lib/browser").scrapeAttribute
+
+  let getScripts: GetScripts
 }
 
 type Kit = LibModuleLoader & Omit<GlobalKit, "kit">

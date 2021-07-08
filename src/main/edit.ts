@@ -1,15 +1,12 @@
 //Menu: Edit Menu
 //Description: The right-click action of the app
 
+import { Choice } from "kit-bridge/esm/type"
 import { CLI } from "../cli"
+import { selectScript } from "../utils.js"
 
-let { buildMainPromptChoices } = await import("../utils.js")
-
-let { command } = await arg<Script>(
-  {
-    placeholder: `Which script do you want to edit?`,
-  },
-  await buildMainPromptChoices()
+let { command, filePath } = await selectScript(
+  `Which script do you want to edit?`
 )
 
 let editActions: Choice<keyof CLI>[] = [
@@ -37,6 +34,7 @@ let editActions: Choice<keyof CLI>[] = [
     description: `Delete ${command} to trash`,
     value: "remove",
   },
+
   {
     name: `Open ${command}.log`,
     description: `Opens ${command}.log in your editor`,
@@ -44,7 +42,16 @@ let editActions: Choice<keyof CLI>[] = [
   },
 ]
 
+let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
+if (kenvDirs.length) {
+  editActions.splice(4, 0, {
+    name: "Move",
+    description: `Move ${command} to a selected kenv`,
+    value: "move",
+  })
+}
+
 let editAction = await arg("Which action?", editActions)
-await cli(editAction, command)
+await cli(editAction, filePath)
 
 export {}

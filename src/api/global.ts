@@ -1,13 +1,23 @@
-import { homedir } from "os"
-import { assignPropsTo } from "../utils.js"
+import {
+  assignPropsTo,
+  home,
+  isBin,
+  isDir,
+  isFile,
+  kitPath,
+  kenvPath,
+  wait,
+} from "kit-bridge/esm/util"
 
+import { getScripts } from "kit-bridge/esm/db"
+
+global.getScripts = getScripts
 global.cwd = process.cwd
 global.pid = process.pid
 global.stderr = process.stderr
 global.stdin = process.stdin
 global.stdout = process.stdout
 global.uptime = process.uptime
-
 global.path = await import("path")
 
 await import("./packages/axios.js")
@@ -28,30 +38,6 @@ await import("./packages/shelljs.js")
 await import("./packages/trash.js")
 await import("./packages/uuid.js")
 await import("./packages/zx.js")
-
-global.wait = async (time: number) =>
-  new Promise(res => setTimeout(res, time))
-
-global.checkProcess = (pid: string | number) => {
-  let { stdout, stderr } = exec(`kill -0 ` + pid)
-  //if running, stdout has text. If not, stdout is an empty string
-  return stdout
-}
-
-global.home = (...pathParts) => {
-  return path.resolve(homedir(), ...pathParts)
-}
-
-global.isFile = async file => test("-f", file)
-
-global.isDir = async dir => test("-d", dir)
-
-global.isBin = async bin =>
-  Boolean(
-    exec(`command -v ${bin}`, {
-      silent: false,
-    }).stdout
-  )
 
 global.env = async (envKey, promptConfig) => {
   if ((promptConfig as any)?.reset !== true) {
@@ -76,17 +62,12 @@ global.env = async (envKey, promptConfig) => {
 
 assignPropsTo(process.env, global.env)
 
-global.kitPath = (...parts) =>
-  global.path.join(process.env.KIT, ...parts)
-
-global.kenvPath = (...parts: string[]) => {
-  return global.path.join(
-    global.env.KENV || home(".kenv"),
-    ...parts.filter(Boolean)
-  )
-}
-
-global.libPath = (...parts) =>
-  global.path.join(global.kenvPath("lib"), ...parts)
+global.wait = wait
+global.kitPath = kitPath
+global.kenvPath = kenvPath
+global.isBin = isBin
+global.isDir = isDir
+global.isFile = isFile
+global.home = home
 
 global.memoryMap = new Map()

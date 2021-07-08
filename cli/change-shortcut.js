@@ -1,5 +1,5 @@
-let { buildMainPromptChoices } = await import("../utils.js");
-let script = await arg("Change shortcut of which script?", (await buildMainPromptChoices(true))
+import { getScripts } from "kit-bridge/esm/db";
+let script = await arg("Change shortcut of which script?", (await getScripts(true))
     .sort((a, b) => {
     if (a?.shortcut && !b?.shortcut)
         return -1;
@@ -35,4 +35,3 @@ let message = `${shortcut} assigned to ${script?.menu || script.command}`;
 setHint(message);
 await wait(2000);
 await cli("change-shortcut");
-export {};

@@ -1,15 +1,16 @@
-let { scriptValue, scriptPathFromCommand } = await import("../utils.js");
-let command = await arg(`Which script do you want to duplicate?`, scriptValue("command"));
+import { stripMetadata } from "kit-bridge/esm/util";
+import { selectScript } from "../utils.js";
+let { filePath } = await selectScript(`Which script do you want to duplicate?`);
 let newCommand = await arg({
     placeholder: `Enter the new script name:`,
 });
-let oldFilePath = scriptPathFromCommand(command);
-if (!(await isFile(oldFilePath))) {
-    console.warn(`${oldFilePath} doesn't exist...`);
+if (!(await isFile(filePath))) {
+    console.warn(`${filePath} doesn't exist...`);
     exit();
 }
-let newFilePath = scriptPathFromCommand(newCommand);
-cp(oldFilePath, newFilePath);
+let newFilePath = kenvPath("scripts", newCommand.replace(/(?<!\.js)$/, ".js"));
+let oldContent = await readFile(filePath, "utf-8");
+let newContent = stripMetadata(oldContent);
+await writeFile(newFilePath, newContent);
 await cli("create-bin", "scripts", newCommand);
 edit(newFilePath, kenvPath());
-export {};

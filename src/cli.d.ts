@@ -26,7 +26,6 @@ export interface CLI {
   >
   "create-bin": Promise<typeof import("./cli/create-bin")>
   "kenv-create": Promise<typeof import("./cli/kenv-create")>
-  "find-script": Promise<typeof import("./cli/find-script")>
   "get-help": Promise<typeof import("./cli/get-help")>
   "goto-docs": Promise<typeof import("./cli/goto-docs")>
   "manage-npm": Promise<typeof import("./cli/manage-npm")>
@@ -62,6 +61,9 @@ export interface CLI {
   >
   "stream-deck": Promise<typeof import("./cli/stream-deck")>
   "kenv-switch": Promise<typeof import("./cli/kenv-switch")>
+  "kenv-clone": Promise<typeof import("./cli/kenv-clone")>
+  "kit-log": Promise<typeof import("./cli/kit-log")>
+  "kenv-rm": Promise<typeof import("./cli/kenv-rm")>
   "system-events": Promise<
     typeof import("./cli/system-events")
   >
@@ -87,6 +89,7 @@ export interface CLI {
   prefs: Promise<typeof import("./cli/prefs")>
   quit: Promise<typeof import("./cli/quit")>
   remove: Promise<typeof import("./cli/remove")>
+  move: Promise<typeof import("./cli/move")>
   rename: Promise<typeof import("./cli/rename")>
   run: Promise<typeof import("./cli/run")>
   schedule: Promise<typeof import("./cli/schedule")>

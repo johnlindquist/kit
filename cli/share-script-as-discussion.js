@@ -1,7 +1,7 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 let { Octokit } = await npm("scriptkit-octokit");
-let { scriptValue } = await import("../utils.js");
+import { scriptValue } from "kit-bridge/esm/db";
 let command = await arg(`Which script do you want to share?`, scriptValue("command"));
 let octokit = new Octokit({
     auth: {
@@ -36,4 +36,3 @@ await arg({
     hint: `Paste into Discussion. Hit "escape" to close prompt`,
     ignoreBlur: true,
 });
-export {};

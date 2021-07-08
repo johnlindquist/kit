@@ -1,18 +1,35 @@
 // Menu: New Script
 // Description: Creates a new empty script you can invoke from the terminal
-let { exists } = await import("../utils.js");
+import { exists } from "../utils.js";
 let generate = await npm("project-name-generator");
 let examples = Array.from({ length: 3 })
     .map((_, i) => generate({ words: 2 }).dashed)
     .join(", ");
-console.log({ args });
 let name = await arg({
     placeholder: arg?.placeholder || "Enter a name for your script:",
     validate: exists,
     hint: `examples: ${examples}`,
 });
-console.log(`Name was ${name}`);
-let scriptPath = path.join(kenvPath("scripts"), name + ".js");
+let kenvDirs = (await readdir(kenvPath("kenvs"))) || [];
+let selectedKenvDir = kenvPath();
+if (kenvDirs.length) {
+    selectedKenvDir = await arg(`Select target kenv`, [
+        {
+            name: "home",
+            description: `Your main kenv: ${kenvPath()}`,
+            value: kenvPath(),
+        },
+        ...kenvDirs.map(kenvDir => {
+            let value = kenvPath("kenvs", kenvDir);
+            return {
+                name: kenvDir,
+                description: value,
+                value,
+            };
+        }),
+    ]);
+}
+let scriptPath = path.join(selectedKenvDir, "scripts", name + ".js");
 let contents = [arg?.npm]
     .flatMap(x => x)
     .filter(Boolean)
@@ -30,4 +47,3 @@ await writeFile(scriptPath, contents);
 await cli("create-bin", "scripts", name);
 console.log(chalk `\nCreated a {green ${name}} script using the {yellow ${template}} template`);
 edit(scriptPath, kenvPath());
-export {};

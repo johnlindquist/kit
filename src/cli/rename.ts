@@ -1,9 +1,7 @@
-let { exists, scriptValue, scriptPathFromCommand } =
-  await import("../utils.js")
+import { exists, selectScript } from "../utils.js"
 
-let command = await arg(
-  `Which script do you want to rename?`,
-  scriptValue("command")
+let { command, filePath } = await selectScript(
+  `Which script do you want to rename?`
 )
 
 let newCommand = await arg({
@@ -11,22 +9,15 @@ let newCommand = await arg({
   validate: exists,
 })
 
-let oldFilePath = scriptPathFromCommand(command)
+let lenientCommand = newCommand.replace(/(?<!\.js)$/, ".js")
 
-if (!(await isFile(oldFilePath))) {
-  console.warn(`${oldFilePath} doesn't exist...`)
-  exit()
-}
+let newFilePath = kenvPath("scripts", lenientCommand)
 
-let newFilePath = scriptPathFromCommand(newCommand)
-
-console.log({ oldFilePath, newFilePath })
-
-mv(oldFilePath, newFilePath)
+mv(filePath, newFilePath)
 
 let oldBin = kenvPath("bin", command.replace(".js", ""))
 await trash(oldBin)
-await cli("create-bin", "scripts", newCommand)
+await cli("create-bin", "scripts", lenientCommand)
 edit(newFilePath, kenvPath())
 
 export {}

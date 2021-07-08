@@ -1,7 +1,7 @@
 //Menu: Copy Script to Clipboard
 //Description: Copies Script to Clipboard
 
-let { scriptValue } = await import("../utils.js")
+import { scriptValue } from "kit-bridge/esm/db"
 
 let command = await arg(
   `Which script do you want to share?`,

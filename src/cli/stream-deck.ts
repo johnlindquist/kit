@@ -3,7 +3,7 @@
 //Author: John Lindquist
 //Twitter: @johnlindquist
 
-let { scriptValue } = await import("../utils.js")
+import { scriptValue } from "kit-bridge/esm/db"
 
 let createCommand = (launchApp: boolean, script: string) =>
   launchApp
@@ -15,7 +15,7 @@ let script = await arg(
   scriptValue("command")
 )
 
-let launchApp = await arg("Run the script:", [
+let launchApp = await arg<boolean>("Run the script:", [
   {
     name: "with the prompt",
     value: true,

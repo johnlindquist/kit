@@ -1,5 +1,5 @@
-let { buildMainPromptChoices } = await import("../utils.js")
+import { getScripts } from "kit-bridge/esm/db"
 
-await buildMainPromptChoices(false)
+await getScripts(false)
 
 export {}

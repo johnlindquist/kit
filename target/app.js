@@ -1,7 +1,7 @@
 import { Observable, merge, NEVER, of } from "rxjs";
 import { filter, map, share, switchMap, take, takeUntil, tap, } from "rxjs/operators";
-import { MODE, Channel, UI } from "../enums.js";
-import { assignPropsTo } from "../utils.js";
+import { Mode, Channel, UI } from "kit-bridge/esm/enum";
+import { assignPropsTo } from "kit-bridge/esm/util";
 let displayChoices = (choices) => {
     switch (typeof choices) {
         case "string":
@@ -111,9 +111,9 @@ let waitForPromptValue = ({ choices, validate, ui }) => new Promise((resolve, re
 });
 global.kitPrompt = async (config) => {
     await wait(0); //need to let tabs finish...
-    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = MODE.FILTER, } = config;
+    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, } = config;
     global.setMode(typeof choices === "function" && choices?.length > 0
-        ? MODE.GENERATE
+        ? Mode.GENERATE
         : mode);
     let tabs = global.onTabs?.length
         ? global.onTabs.map(({ name }) => name)
@@ -135,21 +135,24 @@ global.kitPrompt = async (config) => {
         global.setIgnoreBlur(true);
     return await waitForPromptValue({ choices, validate, ui });
 };
-global.drop = async (hint = "") => {
+global.drop = async (placeholder = "Waiting for drop...") => {
     return await global.kitPrompt({
         ui: UI.drop,
-        placeholder: "Waiting for drop...",
-        hint,
+        placeholder,
         ignoreBlur: true,
     });
 };
-global.editor = async (language, content, options) => {
+global.form = async (html = "", formData = {}) => {
+    send(Channel.SET_FORM_HTML, { html, formData });
+    return await global.kitPrompt({
+        ui: UI.form,
+    });
+};
+global.editor = async (options) => {
     send(Channel.SET_EDITOR_CONFIG, {
-        options: {
-            ...options,
-            language,
-            content,
-        },
+        options: typeof options === "string"
+            ? { value: options }
+            : options,
     });
     return await global.kitPrompt({
         ui: UI.editor,
@@ -218,10 +221,15 @@ global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
         ...placeholderOrConfig,
     });
 };
-global.textarea = async (placeholder = "cmd+s to submit\ncmd+w to cancel") => {
+global.textarea = async (options) => {
+    send(Channel.SET_TEXTAREA_CONFIG, {
+        options: typeof options === "string"
+            ? { value: options }
+            : options,
+    });
     return await global.kitPrompt({
         ui: UI.textarea,
-        placeholder,
+        ignoreBlur: true,
     });
 };
 let { default: minimist } = (await import("minimist"));

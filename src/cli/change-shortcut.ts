@@ -1,9 +1,10 @@
-let { buildMainPromptChoices } = await import("../utils.js")
+import { Script } from "kit-bridge/esm/type"
+import { getScripts } from "kit-bridge/esm/db"
 
 let script: Script = await arg(
   "Change shortcut of which script?",
   (
-    await buildMainPromptChoices(true)
+    await getScripts(true)
   )
     .sort((a, b) => {
       if (a?.shortcut && !b?.shortcut) return -1

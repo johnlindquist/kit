@@ -1,4 +1,4 @@
-import { Channel } from "../enums.js"
+import { Channel } from "kit-bridge/esm/enum"
 
 let kitAppDb = await db(kitPath("db", "app.json"))
 

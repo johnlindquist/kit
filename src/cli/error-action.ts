@@ -1,6 +1,7 @@
 //Description: An error has occurred
 
-import { ErrorAction } from "../enums.js"
+import { getLastSlashSeparated } from "kit-bridge/esm/util"
+import { ErrorAction } from "kit-bridge/esm/enum"
 
 let script = await arg()
 let stackFile = await arg()
@@ -10,14 +11,23 @@ let col = await arg()
 
 let stack = await readFile(stackFile, "utf-8")
 
+let errorLog = `${getLastSlashSeparated(
+  errorFile,
+  1
+).replace(/\.js$/, "")}.log`
+let errorLogPath = kenvPath("logs", errorLog)
+
 let errorActions: {
   [key in ErrorAction]: () => Promise<void>
 } = {
   [ErrorAction.Open]: async () => {
     edit(errorFile, kenvPath(), line, col)
   },
-  [ErrorAction.Log]: async () => {
+  [ErrorAction.KitLog]: async () => {
     edit(kitPath("logs", "kit.log"), kenvPath())
+  },
+  [ErrorAction.Log]: async () => {
+    edit(errorLogPath, kenvPath())
   },
   [ErrorAction.Ask]: async () => {
     copy(stack)
@@ -42,7 +52,11 @@ let errorAction: ErrorAction = await arg(
       value: ErrorAction.Open,
     },
     {
-      name: `Open log ~/.kit/logs/kit.log in editor`,
+      name: `Open ${errorLog} in editor`,
+      value: ErrorAction.Log,
+    },
+    {
+      name: `Open log kit.log in editor`,
       value: ErrorAction.Log,
     },
     {

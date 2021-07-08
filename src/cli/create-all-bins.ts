@@ -1,18 +1,17 @@
-let { getScripts } = await import("../utils.js")
+import { Bin } from "kit-bridge/esm/enum"
+import { getScripts } from "kit-bridge/esm/db"
+
+import { createBinFromScript } from "../utils.js"
 
 await trash([
   `!${kenvPath("bin", ".gitignore")}`,
   kenvPath("bin", "*"),
 ])
 
-let scriptNames = await getScripts()
+let scripts = await getScripts(false)
 
-for await (let script of scriptNames) {
-  await cli(
-    "create-bin",
-    "scripts",
-    script.replace(".js", "")
-  )
+for await (let script of scripts) {
+  await createBinFromScript(Bin.scripts, script)
 }
 
 export {}
