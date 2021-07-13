@@ -338,7 +338,7 @@ global.setChoices = async choices => {
         if (!choice?.id) {
           choice.id = global.uuid()
         }
-        if (!choice?.value) {
+        if (typeof choice.value === "undefined") {
           return {
             ...choice,
             value: choice,
