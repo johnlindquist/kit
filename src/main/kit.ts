@@ -17,6 +17,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "kenv-create",
   },
   {
+    name: "Add existing local kenv",
+    description: "Add a kenv from your hard drive",
+    value: "kenv-add",
+  },
+  {
     name: "Open kit.log",
     description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
     value: "kit-log",

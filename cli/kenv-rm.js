@@ -4,3 +4,4 @@ let dir = await arg("Remove which kenv", (await getKenvs()).map(value => ({
     value,
 })));
 await trash(dir);
+await getScripts(false);
