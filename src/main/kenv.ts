@@ -23,16 +23,6 @@ let otherOptions: Choice<keyof CLI>[] = [
     value: "kenv-add",
   },
   {
-    name: "Manage npm packages",
-    description: `add or remove npm package`,
-    value: "manage-npm",
-  },
-  {
-    name: "Add Kenv bin to $PATH",
-    description: `Looks for your profile and appends ${kenvPath()} to $PATH`,
-    value: "add-kenv-to-profile",
-  },
-  {
     name: "Generate bin files",
     description: "Recreate all the terminal executables",
     value: "create-all-bins",
@@ -42,18 +32,6 @@ let otherOptions: Choice<keyof CLI>[] = [
     description:
       "Pick a new keyboard shortcut for a script",
     value: "change-shortcut",
-  },
-
-  {
-    name: "Change editor",
-    description: "Pick a new editor",
-    value: "change-editor",
-  },
-  {
-    name: "Prepare Script for Stream Deck",
-    description:
-      "Launch a script from a Stream Deck button",
-    value: "stream-deck",
   },
 ]
 

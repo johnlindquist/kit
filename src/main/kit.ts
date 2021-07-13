@@ -49,6 +49,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "add-kit-to-profile",
   },
   {
+    name: "Add ~/.kenv/bin to $PATH",
+    description: `Looks for your profile and appends ${kenvPath()} to $PATH`,
+    value: "add-kenv-to-profile",
+  },
+  {
     name: "Change main keyboard shortcut",
     description:
       "Pick a new keyboard shortcut for the main menu",
@@ -59,6 +64,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description:
       "Pick a new keyboard shortcut for a script",
     value: "change-shortcut",
+  },
+  {
+    name: "Change editor",
+    description: "Pick a new editor",
+    value: "change-editor",
   },
   {
     name: "Generate bin files",
@@ -75,6 +85,17 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     name: "Clear Kit prompt cache",
     description: "Reset prompt position and sizes",
     value: "kit-clear-prompt",
+  },
+  {
+    name: "Manage npm packages",
+    description: `add or remove npm package`,
+    value: "manage-npm",
+  },
+  {
+    name: "Prepare Script for Stream Deck",
+    description:
+      "Launch a script from a Stream Deck button",
+    value: "stream-deck",
   },
   {
     name: "Created by John Lindquist",
