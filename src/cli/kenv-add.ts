@@ -1,4 +1,4 @@
-import { Channel } from "kit-bridge/esm/enum"
+import { getLastSlashSeparated } from "kit-bridge/esm/util"
 
 let createKenvPathFromName = async name => {
   let addKenvPath = ""
@@ -14,41 +14,75 @@ let createKenvPathFromName = async name => {
   return addKenvPath
 }
 
-let existingKenvPath = await arg(
+let existingKenvPath = await arg({
+  placeholder: "Path to kenv:",
+  validate: async input => {
+    let attemptPath = await createKenvPathFromName(input)
+    let exists = await isDir(
+      path.join(attemptPath, "scripts")
+    )
+    if (!exists) {
+      return `${attemptPath} doesn't look like a kenv dir...`
+    }
+
+    return true
+  },
+})
+
+if (!existingKenvPath) exit()
+
+let input = getLastSlashSeparated(existingKenvPath, 2)
+  .replace(/\.git|\./g, "")
+  .replace(/\//g, "-")
+
+let panelContainer = content =>
+  `<div class="p-4">${content}</div>`
+
+let setPanelContainer = content => {
+  setPanel(panelContainer(content))
+}
+
+let kenvName = await arg(
   {
-    placeholder: "Path to kenv:",
+    placeholder: `Enter a kenv name`,
+    input,
+    hint: `Enter a name for ${getLastSlashSeparated(
+      existingKenvPath,
+      2
+    )}`,
     validate: async input => {
-      let attemptPath = await createKenvPathFromName(input)
-      let exists = await isDir(
-        path.join(attemptPath, "scripts")
-      )
-      if (!exists) {
-        return `${attemptPath} doesn't look like a kenv dir...`
+      let exists = await isDir(kenvPath("kenvs", input))
+      if (exists) {
+        return `${input} already exists`
       }
 
       return true
     },
   },
   async input => {
-    let attemptPath = await createKenvPathFromName(input)
-    let exists = await isDir(
-      path.join(attemptPath, "scripts")
-    )
-    if (exists) {
-      setHint(`${attemptPath} looks like a kenv dir ✅ `)
-    }
-    if (!exists) {
-      setHint(`${attemptPath} is not a kenv dir ❌`)
+    console.log({ input })
+    let exists = await isDir(kenvPath("kenvs", input))
+    if (!input) {
+      setPanelContainer(`A kenv name is required`)
+    } else if (exists) {
+      setPanelContainer(
+        `A kenv named "${input}" already exists`
+      )
+    } else {
+      setPanelContainer(
+        `
+        <p>Will clone to:</p>
+        <p class="font-mono">${kenvPath(
+          "kenvs",
+          input
+        )}</p>`
+      )
     }
   }
 )
 
-if (!existingKenvPath) exit()
+let kenvDir = kenvPath("kenvs", kenvName)
 
-let addKenvPath = await createKenvPathFromName(
-  existingKenvPath
-)
-
-global.send(Channel.CREATE_KENV, { kenvPath: addKenvPath })
+ln("-s", existingKenvPath, kenvDir)
 
 export {}
