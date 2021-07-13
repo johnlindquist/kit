@@ -10,7 +10,7 @@ while (true) {
         hint: filePath,
     }, [
         { name: "No, cancel.", value: false },
-        { name: `Yes, remove ${command}`, value: false },
+        { name: `Yes, remove ${command}`, value: true },
     ]);
     if (confirm) {
         await trash([filePath, kenvPath("bin", command)]);

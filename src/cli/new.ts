@@ -1,5 +1,5 @@
 // Menu: New Script
-// Description: Creates a new empty script you can invoke from the terminal
+// Description: Creates a new script
 import { exists } from "../utils.js"
 let generate = await npm("project-name-generator")
 
@@ -13,6 +13,8 @@ let name = await arg({
   validate: exists,
   hint: `examples: ${examples}`,
 })
+
+console.log({ name })
 
 let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
 
@@ -34,6 +36,8 @@ if (kenvDirs.length) {
     }),
   ])
 }
+
+console.log({ name, selectedKenvDir })
 
 let scriptPath = path.join(
   selectedKenvDir,

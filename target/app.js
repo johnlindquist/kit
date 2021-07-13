@@ -174,7 +174,6 @@ global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
             ?.validate;
         if (typeof validate === "function") {
             let valid = await validate(firstArg);
-            console.log({ valid });
             if (valid === true)
                 return firstArg;
             let Convert = await npm("ansi-to-html");
