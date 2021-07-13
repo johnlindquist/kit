@@ -14,21 +14,38 @@ let createKenvPathFromName = async name => {
   return addKenvPath
 }
 
-let existingKenvPath = await arg({
-  placeholder: "Path to kenv:",
-  validate: async input => {
+let existingKenvPath = await arg(
+  {
+    placeholder: "Path to kenv:",
+    validate: async input => {
+      let attemptPath = await createKenvPathFromName(input)
+      let exists = await isDir(
+        path.join(attemptPath, "scripts")
+      )
+      if (!exists) {
+        return `${attemptPath} doesn't look like a kenv dir...`
+      }
+
+      return true
+    },
+  },
+  async input => {
     let attemptPath = await createKenvPathFromName(input)
     let exists = await isDir(
       path.join(attemptPath, "scripts")
     )
-    if (!exists) {
-      return `${attemptPath} doesn't look like a kenv dir...`
+
+    if (!input) {
+      setHint(`Type path to kenv`)
+    } else if (!exists) {
+      setHint(`⚠️ No "scripts" dir in ${input}`)
+    } else {
+      setHint(`✅ found "scripts" dir`)
     }
+  }
+)
 
-    return true
-  },
-})
-
+console.log(`😱 AFTER Path to Kenv:`)
 if (!existingKenvPath) exit()
 
 let input = getLastSlashSeparated(existingKenvPath, 2)
@@ -71,7 +88,7 @@ let kenvName = await arg(
     } else {
       setPanelContainer(
         `
-        <p>Will clone to:</p>
+        <p>Will symlink to to:</p>
         <p class="font-mono">${kenvPath(
           "kenvs",
           input
@@ -84,5 +101,7 @@ let kenvName = await arg(
 let kenvDir = kenvPath("kenvs", kenvName)
 
 ln("-s", existingKenvPath, kenvDir)
+await getScripts(false)
+await cli("create-all-bins")
 
 export {}

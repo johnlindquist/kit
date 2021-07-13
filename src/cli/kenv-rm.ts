@@ -14,4 +14,6 @@ let dir = await arg(
 )
 await trash(dir)
 
+await getScripts(false)
+
 export {}
