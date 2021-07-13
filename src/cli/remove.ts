@@ -16,7 +16,7 @@ while (true) {
     },
     [
       { name: "No, cancel.", value: false },
-      { name: `Yes, remove ${command}`, value: false },
+      { name: `Yes, remove ${command}`, value: true },
     ]
   )
 

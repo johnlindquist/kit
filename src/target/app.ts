@@ -306,7 +306,6 @@ global.arg = async (
 
     if (typeof validate === "function") {
       let valid = await validate(firstArg)
-      console.log({ valid })
 
       if (valid === true) return firstArg
 
