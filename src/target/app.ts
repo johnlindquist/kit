@@ -270,7 +270,13 @@ global.form = async (html = "", formData = {}) => {
   })
 }
 
-global.editor = async (options?: EditorConfig) => {
+global.editor = async (
+  options: EditorConfig = {
+    value: "",
+    language: "",
+    scrollTo: "top",
+  }
+) => {
   send(Channel.SET_EDITOR_CONFIG, {
     options:
       typeof options === "string"
