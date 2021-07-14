@@ -528,6 +528,8 @@ declare global {
   let scrapeAttribute: typeof import("./lib/browser").scrapeAttribute
 
   let getScripts: GetScripts
+
+  let $: typeof import("zx").$
 }
 
 type Kit = LibModuleLoader & Omit<GlobalKit, "kit">
