@@ -244,11 +244,6 @@ global.lib = async (lib: string, ..._args) => {
 
 global.cli = async (cliPath, ..._args) => {
   let cliScriptPath = kitPath("cli/" + cliPath) + ".js"
-  let script = await info(cliScriptPath)
-
-  global.send(Channel.SET_SCRIPT, {
-    script,
-  })
 
   return await global.attemptImport(cliScriptPath, ..._args)
 }

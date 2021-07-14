@@ -128,6 +128,6 @@ let cliScript = await arg(
   kitManagementChoices
 )
 
-await cli(cliScript)
+await run(kitPath("cli", cliScript) + ".js")
 
 export {}

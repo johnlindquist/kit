@@ -45,4 +45,5 @@ let kenvDir = kenvPath("kenvs", kenvName);
 let simpleGit = await npm("simple-git");
 let git = simpleGit();
 await git.clone(repo, kenvDir);
+await getScripts(false);
 await cli("create-all-bins");
