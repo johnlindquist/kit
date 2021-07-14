@@ -112,4 +112,4 @@ if ((await getKenvs()).length) {
     });
 }
 let cliScript = await arg(`Kit Options`, kitManagementChoices);
-await cli(cliScript);
+await run(kitPath("cli", cliScript) + ".js");
