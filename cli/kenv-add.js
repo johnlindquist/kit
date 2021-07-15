@@ -32,7 +32,6 @@ let existingKenvPath = await arg({
         setHint(`✅ found "scripts" dir`);
     }
 });
-console.log(`😱 AFTER Path to Kenv:`);
 if (!existingKenvPath)
     exit();
 let input = getLastSlashSeparated(existingKenvPath, 2)
@@ -54,7 +53,6 @@ let kenvName = await arg({
         return true;
     },
 }, async (input) => {
-    console.log({ input });
     let exists = await isDir(kenvPath("kenvs", input));
     if (!input) {
         setPanelContainer(`A kenv name is required`);

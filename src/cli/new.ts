@@ -14,8 +14,6 @@ let name = await arg({
   hint: `examples: ${examples}`,
 })
 
-console.log({ name })
-
 let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
 
 let selectedKenvDir = kenvPath()
@@ -36,8 +34,6 @@ if (kenvDirs.length) {
     }),
   ])
 }
-
-console.log({ name, selectedKenvDir })
 
 let scriptPath = path.join(
   selectedKenvDir,

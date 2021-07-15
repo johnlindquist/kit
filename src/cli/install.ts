@@ -5,7 +5,7 @@ let { formatDistanceToNow, parseISO } = await npm(
 
 let install = async packageNames => {
   return await new Promise((res, rej) => {
-    console.log(`npm i `, ...packageNames)
+    console.log(`npm i`, ...packageNames)
     let npm = spawn(`npm`, ["i", ...packageNames], {
       stdio: "pipe",
       cwd: kenvPath(),

@@ -4,7 +4,6 @@ let showAndTell = `https://scriptkit.com/api/showandtell`
 let getChoices = async () => {
   let choices = memoryMap.get(showAndTell)
 
-  console.log({ choices })
   if (choices) return choices
 
   return memoryMap

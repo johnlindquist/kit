@@ -22,7 +22,7 @@
     "download": "^8.0.0",
     "enquirer": "^2.3.6",
     "handlebars": "^4.7.6",
-    "kit-bridge": "^1.0.21",
+    "kit-bridge": "^2.0.0",
     "lodash": "^4.17.20",
     "lodash-id": "^0.14.0",
     "lowdb": "^2.0.3",
@@ -38,7 +38,7 @@
     "strip-ansi": "^6.0.0",
     "trash": "^7.0.0",
     "uuid": "^8.3.2",
-    "zx": "^1.4.0"
+    "zx": "^2.0.0"
   },
   "type": "module",
   "devDependencies": {

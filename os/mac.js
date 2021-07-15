@@ -140,3 +140,10 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     }
     console.log(`Opening ${file} with ${global.env.KIT_EDITOR}`);
 };
+global.openLog = () => {
+    let logPath = global.kitScript
+        .replace("scripts", "logs")
+        .replace(".js", ".log");
+    console.log(`📂 Open log ${logPath}`);
+    global.edit(logPath);
+};

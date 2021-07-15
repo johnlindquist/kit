@@ -7,6 +7,11 @@ import { CLI } from "../cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
+    name: "View kenv",
+    description: `View scripts from specified kenv`,
+    value: "kenv-view",
+  },
+  {
     name: "Clone repo of scripts",
     description: `Clone a repo of scripts (AKA kenv)`,
     value: "kenv-clone",
