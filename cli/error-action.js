@@ -42,7 +42,7 @@ let errorAction = await arg({
     },
     {
         name: `Open log kit.log in editor`,
-        value: ErrorAction.Log,
+        value: ErrorAction.KitLog,
     },
     {
         name: `Ask for help on forum`,

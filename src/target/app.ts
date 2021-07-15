@@ -8,6 +8,8 @@ import {
   takeUntil,
   tap,
 } from "rxjs/operators"
+import stripAnsi from "strip-ansi"
+
 import { Mode, Channel, UI } from "kit-bridge/esm/enum"
 import { Choice, EditorConfig } from "kit-bridge/esm/type"
 import { assignPropsTo } from "kit-bridge/esm/util"
@@ -238,7 +240,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
-    placeholder,
+    placeholder: stripAnsi(placeholder),
     kitScript: global.kitScript,
     parentScript: global.env.KIT_PARENT_NAME,
     kitArgs: global.args.join(" "),
@@ -366,7 +368,7 @@ global.arg = async (
 }
 
 global.textarea = async (
-  options: any = {
+  options = {
     value: "",
     placeholder: `cmd + s to submit\ncmd + w to close`,
   }
@@ -449,8 +451,11 @@ let appInstall = async packageName => {
 let { createNpm } = await import("../api/npm.js")
 global.npm = createNpm(appInstall)
 
-global.setPanel = async html => {
-  global.send(Channel.SET_PANEL, { html })
+global.setPanel = async (html, containerClasses = "") => {
+  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
+  global.send(Channel.SET_PANEL, {
+    html: wrapHtml,
+  })
 }
 
 global.setMode = async mode => {

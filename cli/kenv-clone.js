@@ -27,7 +27,6 @@ let kenvName = await arg({
         return true;
     },
 }, async (input) => {
-    console.log({ input });
     let exists = await isDir(kenvPath("kenvs", input));
     if (!input) {
         setPanelContainer(`A kenv name is required`);

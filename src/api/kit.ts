@@ -7,6 +7,7 @@ import {
   resolveScriptToCommand,
   resolveToScriptPath,
 } from "kit-bridge/esm/util"
+import stripAnsi from "strip-ansi"
 
 let errorPrompt = async (error: Error) => {
   if (env.KIT_CONTEXT === "app") {
@@ -171,27 +172,47 @@ global.send = async (channel, data) => {
   }
 }
 
+let _currentLog = ``
+let panelLog = async log => {
+  let Convert = await npm("ansi-to-html")
+  let convert = new Convert()
+
+  _currentLog += log + `<br>`
+  setPanel(
+    convert.toHtml(_currentLog),
+    `font-mono text-xs px-4 py-2 bg-black text-white`
+  )
+}
+
 if (process?.send) {
   let _consoleLog = console.log.bind(console)
   let _consoleWarn = console.warn.bind(console)
   console.log = async (...args) => {
+    let log = args
+      .map(a =>
+        typeof a != "string" ? JSON.stringify(a) : a
+      )
+      .join(" ")
+
     global.send(Channel.CONSOLE_LOG, {
-      log: args
-        .map(a =>
-          typeof a != "string" ? JSON.stringify(a) : a
-        )
-        .join(" "),
+      log,
     })
+
+    panelLog(log)
   }
 
   console.warn = async (...args) => {
+    let warn = args
+      .map(a =>
+        typeof a != "string" ? JSON.stringify(a) : a
+      )
+      .join(" ")
+
     global.send(Channel.CONSOLE_WARN, {
-      warn: args
-        .map(a =>
-          typeof a != "string" ? JSON.stringify(a) : a
-        )
-        .join(" "),
+      warn,
     })
+
+    panelLog(warn)
   }
 }
 
@@ -209,7 +230,7 @@ global.showImage = (image, options) => {
 
 global.setPlaceholder = text => {
   global.send(Channel.SET_PLACEHOLDER, {
-    text,
+    text: stripAnsi(text),
   })
 }
 

@@ -1,5 +1,6 @@
 import { Observable, merge, NEVER, of } from "rxjs";
 import { filter, map, share, switchMap, take, takeUntil, tap, } from "rxjs/operators";
+import stripAnsi from "strip-ansi";
 import { Mode, Channel, UI } from "kit-bridge/esm/enum";
 import { assignPropsTo } from "kit-bridge/esm/util";
 let displayChoices = (choices) => {
@@ -121,7 +122,7 @@ global.kitPrompt = async (config) => {
     global.send(Channel.SET_PROMPT_DATA, {
         tabs,
         tabIndex: global.onTabs?.findIndex(({ name }) => global.arg?.tab),
-        placeholder,
+        placeholder: stripAnsi(placeholder),
         kitScript: global.kitScript,
         parentScript: global.env.KIT_PARENT_NAME,
         kitArgs: global.args.join(" "),
@@ -283,8 +284,11 @@ let appInstall = async (packageName) => {
 };
 let { createNpm } = await import("../api/npm.js");
 global.npm = createNpm(appInstall);
-global.setPanel = async (html) => {
-    global.send(Channel.SET_PANEL, { html });
+global.setPanel = async (html, containerClasses = "") => {
+    let wrapHtml = `<div class="${containerClasses}">${html}</div>`;
+    global.send(Channel.SET_PANEL, {
+        html: wrapHtml,
+    });
 };
 global.setMode = async (mode) => {
     global.send(Channel.SET_MODE, {

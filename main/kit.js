@@ -3,6 +3,11 @@
 import { getKenvs } from "kit-bridge/esm/util";
 let kitManagementChoices = [
     {
+        name: "View kenv",
+        description: `View scripts from specified kenv`,
+        value: "kenv-view",
+    },
+    {
         name: "Clone repo of scripts",
         description: `Clone a repo of scripts (AKA kenv)`,
         value: "kenv-clone",

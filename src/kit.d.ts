@@ -144,6 +144,9 @@ interface MainModuleLoader {
 interface SetAppProp {
   (value: any): void
 }
+interface SetPanel {
+  (html: string, containerClasses?: string): void
+}
 
 interface ShowAppWindow {
   (content: string, options?: any): void
@@ -281,7 +284,7 @@ interface KitApi {
   run: KitModuleLoader
 
   setPlaceholder: SetAppProp
-  setPanel: SetAppProp
+  setPanel: SetPanel
   setHint: SetAppProp
   setInput: SetAppProp
   setIgnoreBlur: SetAppProp
@@ -344,6 +347,8 @@ interface KitApi {
   degit: typeof import("degit")
 
   kit: Kit
+
+  openLog: () => void
 }
 
 type GlobalKit = KitApi & typeof import("./api/lib")
@@ -465,7 +470,7 @@ declare global {
   let argOpts: any
 
   let setPlaceholder: SetAppProp
-  let setPanel: SetAppProp
+  let setPanel: SetPanel
   let setHint: SetAppProp
   let setInput: SetAppProp
   let setIgnoreBluer: SetAppProp
@@ -530,6 +535,8 @@ declare global {
   let getScripts: GetScripts
 
   let $: typeof import("zx").$
+
+  let openLog: () => void
 }
 
 type Kit = LibModuleLoader & Omit<GlobalKit, "kit">

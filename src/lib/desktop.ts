@@ -203,7 +203,6 @@ end tell
 export let organizeWindows = async () => {
   let { workArea } = await getActiveScreen()
   let { x, y, width, height } = workArea
-  console.log({ x, y, width, height })
 
   let windows = await getWindows()
   let rows = Math.floor(Math.sqrt(windows.length))

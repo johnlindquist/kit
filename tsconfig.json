@@ -5,10 +5,13 @@
     "outDir": "./",
     "rootDir": "./src",
     "moduleResolution": "Node",
-    "lib": ["esnext"],
+    "lib": ["esnext", "DOM"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": true
+    "allowJs": true,
+    "paths": {
+      "*": ["./src/*", "./declarations/*"]
+    }
   },
   "include": ["./src/**/*.ts", "src/kit.d.ts"],
   "exclude": ["./src/preload/**/*"]

@@ -10,7 +10,6 @@ let name = await arg({
     validate: exists,
     hint: `examples: ${examples}`,
 });
-console.log({ name });
 let kenvDirs = (await readdir(kenvPath("kenvs"))) || [];
 let selectedKenvDir = kenvPath();
 if (kenvDirs.length) {
@@ -30,7 +29,6 @@ if (kenvDirs.length) {
         }),
     ]);
 }
-console.log({ name, selectedKenvDir });
 let scriptPath = path.join(selectedKenvDir, "scripts", name + ".js");
 let contents = [arg?.npm]
     .flatMap(x => x)
