@@ -177,10 +177,10 @@ let panelLog = async log => {
   let Convert = await npm("ansi-to-html")
   let convert = new Convert()
 
-  _currentLog += log + `<br>`
+  _currentLog += convert.toHtml(log) + `<br>`
   setPanel(
-    convert.toHtml(_currentLog),
-    `font-mono text-xs px-4 py-2 bg-black text-white`
+    _currentLog,
+    `font-mono text-xs px-4 py-2 bg-black text-white w-screen`
   )
 }
 
