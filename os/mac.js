@@ -132,13 +132,12 @@ global.edit = async (file, dir, line = 0, col = 0) => {
         exec(editCommand, execConfig());
     };
     let editorFn = fullySupportedEditors[KIT_EDITOR] || execEditor;
-    global.setPlaceholder(`Opening ${file} with ${global.env.KIT_EDITOR}`);
+    console.log(`Opening ${file} with ${global.env.KIT_EDITOR}`);
     let result = await editorFn(file, dir, line, col);
     if (result?.stderr) {
         console.warn(`STDERR ${result.stderr}`);
         exit();
     }
-    console.log(`Opening ${file} with ${global.env.KIT_EDITOR}`);
 };
 global.openLog = () => {
     let logPath = global.kitScript

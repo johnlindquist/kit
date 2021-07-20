@@ -24,12 +24,9 @@ let errorActions = {
         exec(`open "https://github.com/johnlindquist/kit/discussions/categories/errors"`);
     },
 };
+console.log(stack);
 let errorAction = await arg({
     placeholder: `🤕 Error in ${script}`,
-    hint: `<div class="font-mono text-xs">${stack
-        .split("\n")
-        .map(line => `<p>${line}</p>`)
-        .join("")}<div>`,
     ignoreBlur: true,
 }, [
     {

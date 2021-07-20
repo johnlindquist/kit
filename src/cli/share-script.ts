@@ -29,7 +29,7 @@ let response = await octokit.rest.gists.create({
 })
 
 copy(response.data.files[command + ".js"].raw_url)
-setPlaceholder(`Copied raw gist url to clipboard`)
+console.log(`Copied raw gist url to clipboard`)
 await wait(2000)
 
 export {}

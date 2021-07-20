@@ -114,7 +114,12 @@ if ((await getKenvs()).length) {
         name: `Remove kenv`,
         description: `Remove a kenv`,
         value: "kenv-rm",
-    });
+    }),
+        kitManagementChoices.splice(-3, 0, {
+            name: `Update kenv`,
+            description: `Runs git pull on kenv repo`,
+            value: "kenv-pull",
+        });
 }
 let cliScript = await arg(`Kit Options`, kitManagementChoices);
 await run(kitPath("cli", cliScript) + ".js");

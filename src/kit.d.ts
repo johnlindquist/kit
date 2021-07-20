@@ -285,6 +285,7 @@ interface KitApi {
 
   setPlaceholder: SetAppProp
   setPanel: SetPanel
+  setLog: SetPanel
   setHint: SetAppProp
   setInput: SetAppProp
   setIgnoreBlur: SetAppProp
@@ -471,6 +472,7 @@ declare global {
 
   let setPlaceholder: SetAppProp
   let setPanel: SetPanel
+  let setLog: SetPanel
   let setHint: SetAppProp
   let setInput: SetAppProp
   let setIgnoreBluer: SetAppProp

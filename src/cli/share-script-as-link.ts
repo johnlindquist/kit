@@ -31,7 +31,7 @@ let response = await octokit.rest.gists.create({
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[scriptJS].raw_url}`
 copy(link)
-setPlaceholder(`Copied share link to clipboard`)
+console.log(`Copied share link to clipboard`)
 await wait(2000)
 
 export {}

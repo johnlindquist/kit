@@ -172,22 +172,11 @@ global.send = async (channel, data) => {
   }
 }
 
-let _currentLog = ``
-let panelLog = async log => {
-  let Convert = await npm("ansi-to-html")
-  let convert = new Convert()
-
-  _currentLog += convert.toHtml(log) + `<br>`
-  setPanel(
-    _currentLog,
-    `font-mono text-xs px-4 py-2 bg-black text-white w-screen`
-  )
-}
-
 if (process?.send) {
   let _consoleLog = console.log.bind(console)
   let _consoleWarn = console.warn.bind(console)
-  console.log = async (...args) => {
+  let _consoleClear = console.clear.bind(console)
+  console.log = (...args) => {
     let log = args
       .map(a =>
         typeof a != "string" ? JSON.stringify(a) : a
@@ -197,11 +186,9 @@ if (process?.send) {
     global.send(Channel.CONSOLE_LOG, {
       log,
     })
-
-    panelLog(log)
   }
 
-  console.warn = async (...args) => {
+  console.warn = (...args) => {
     let warn = args
       .map(a =>
         typeof a != "string" ? JSON.stringify(a) : a
@@ -211,8 +198,10 @@ if (process?.send) {
     global.send(Channel.CONSOLE_WARN, {
       warn,
     })
+  }
 
-    panelLog(warn)
+  console.clear = () => {
+    global.send(Channel.CONSOLE_CLEAR, {})
   }
 }
 

@@ -173,7 +173,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   }
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor
-  global.setPlaceholder(
+  console.log(
     `Opening ${file} with ${global.env.KIT_EDITOR}`
   )
 
@@ -183,10 +183,6 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     console.warn(`STDERR ${result.stderr}`)
     exit()
   }
-
-  console.log(
-    `Opening ${file} with ${global.env.KIT_EDITOR}`
-  )
 }
 
 global.openLog = () => {

@@ -11,7 +11,7 @@ let command = await arg(
 let scriptPath = kenvPath("scripts", command) + ".js"
 
 copy(await readFile(scriptPath, "utf8"))
-setPlaceholder(
+console.log(
   `Copied content of "${command}.js" to clipboard`
 )
 await wait(2000)

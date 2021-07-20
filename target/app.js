@@ -16,7 +16,7 @@ let displayChoices = (choices) => {
 let promptId = 0;
 let invokeChoices = ({ ct, choices }) => async (input) => {
     let resultOrPromise = choices(input);
-    if (resultOrPromise.then) {
+    if (resultOrPromise && resultOrPromise.then) {
         let result = await resultOrPromise;
         if (ct.promptId === promptId &&
             ct.tabIndex === global.onTabIndex) {
