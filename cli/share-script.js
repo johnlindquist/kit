@@ -19,5 +19,5 @@ let response = await octokit.rest.gists.create({
     public: true,
 });
 copy(response.data.files[command + ".js"].raw_url);
-setPlaceholder(`Copied raw gist url to clipboard`);
+console.log(`Copied raw gist url to clipboard`);
 await wait(2000);
