@@ -70,7 +70,7 @@ let invokeChoices =
   async (input: string) => {
     let resultOrPromise = choices(input)
 
-    if (resultOrPromise.then) {
+    if (resultOrPromise && resultOrPromise.then) {
       let result = await resultOrPromise
 
       if (

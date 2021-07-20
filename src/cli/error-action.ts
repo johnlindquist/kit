@@ -37,13 +37,11 @@ let errorActions: {
   },
 }
 
+console.log(stack)
+
 let errorAction: ErrorAction = await arg(
   {
     placeholder: `🤕 Error in ${script}`,
-    hint: `<div class="font-mono text-xs">${stack
-      .split("\n")
-      .map(line => `<p>${line}</p>`)
-      .join("")}<div>`,
     ignoreBlur: true,
   },
   [
