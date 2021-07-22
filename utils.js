@@ -1,7 +1,7 @@
 import { Bin, Channel } from "kit-bridge/esm/enum";
 import { getScripts, getScriptFromString, } from "kit-bridge/esm/db";
-export let selectScript = async (message = "Select a script", fromCache = true) => {
-    let script = await arg(message, await getScripts(fromCache));
+export let selectScript = async (message = "Select a script", fromCache = true, xf = x => x) => {
+    let script = await arg(message, xf(await getScripts(fromCache)));
     if (typeof script === "string") {
         return await getScriptFromString(script);
     }

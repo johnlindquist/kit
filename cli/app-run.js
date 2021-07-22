@@ -1,6 +1,6 @@
 // Description: Run the selected script
 let { toggleBackground, selectScript } = await import("../utils.js");
-let script = await selectScript(`Which script do you want to run?`);
+let script = await selectScript(`Which script do you want to run?`, true, scripts => scripts.filter(script => !script?.exclude));
 let shouldEdit = script.watch || script.schedule || script.system;
 if (script.background) {
     toggleBackground(script);
