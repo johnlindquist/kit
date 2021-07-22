@@ -1,5 +1,5 @@
 //Menu: Edit Menu
-//Description: The right-click action of the app
+//Description: Select a script then edit action.
 import { selectScript } from "../utils.js";
 let { command, filePath } = await selectScript(`Which script do you want to edit?`);
 let editActions = [

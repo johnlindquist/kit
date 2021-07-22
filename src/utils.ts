@@ -8,11 +8,12 @@ import {
 
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
-  fromCache = true
+  fromCache = true,
+  xf = x => x
 ): Promise<Script> => {
   let script = await arg<Script | string>(
     message,
-    await getScripts(fromCache)
+    xf(await getScripts(fromCache))
   )
 
   if (typeof script === "string") {

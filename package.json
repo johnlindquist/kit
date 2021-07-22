@@ -22,7 +22,7 @@
     "download": "^8.0.0",
     "enquirer": "^2.3.6",
     "handlebars": "^4.7.6",
-    "kit-bridge": "^3.0.3",
+    "kit-bridge": "^4.0.4",
     "lodash": "^4.17.20",
     "lodash-id": "^0.14.0",
     "lowdb": "^2.0.3",

@@ -5,7 +5,9 @@ let { toggleBackground, selectScript } = await import(
 )
 
 let script = await selectScript(
-  `Which script do you want to run?`
+  `Which script do you want to run?`,
+  true,
+  scripts => scripts.filter(script => !script?.exclude)
 )
 
 let shouldEdit =

@@ -1,5 +1,5 @@
 //Menu: Edit Menu
-//Description: The right-click action of the app
+//Description: Select a script then edit action.
 
 import { Choice } from "kit-bridge/esm/type"
 import { CLI } from "../cli"
