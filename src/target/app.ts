@@ -48,14 +48,17 @@ interface AppMessage {
   tab?: string
 }
 
-let displayChoices = (choices: Choice<any>[]) => {
+let displayChoices = (
+  choices: Choice<any>[],
+  className = ""
+) => {
   switch (typeof choices) {
     case "string":
-      global.setPanel(choices)
+      global.setPanel(choices, className)
       break
 
     case "object":
-      global.setChoices(choices)
+      global.setChoices(choices, className)
       break
   }
 }
@@ -66,7 +69,7 @@ interface ChoicesTarget {
 }
 let promptId = 0
 let invokeChoices =
-  ({ ct, choices }) =>
+  ({ ct, choices, className }) =>
   async (input: string) => {
     let resultOrPromise = choices(input)
 
@@ -77,25 +80,36 @@ let invokeChoices =
         ct.promptId === promptId &&
         ct.tabIndex === global.onTabIndex
       ) {
-        displayChoices(result)
+        displayChoices(result, className)
         return result
       }
     } else {
-      displayChoices(resultOrPromise)
+      displayChoices(resultOrPromise, className)
       return resultOrPromise
     }
   }
 
-let getInitialChoices = async ({ ct, choices }) => {
+let getInitialChoices = async ({
+  ct,
+  choices,
+  className,
+}) => {
   if (typeof choices === "function") {
-    return await invokeChoices({ ct, choices })("")
+    return await invokeChoices({ ct, choices, className })(
+      ""
+    )
   } else {
-    displayChoices(choices as any)
+    displayChoices(choices as any, className)
     return choices
   }
 }
 
-let waitForPromptValue = ({ choices, validate, ui }) =>
+let waitForPromptValue = ({
+  choices,
+  validate,
+  ui,
+  className,
+}) =>
   new Promise((resolve, reject) => {
     promptId++
     let ct = {
@@ -147,7 +161,9 @@ let waitForPromptValue = ({ choices, validate, ui }) =>
           promptId,
           tabIndex: +Number(global.onTabIndex),
         }
-        return invokeChoices({ ct, choices })(input)
+        return invokeChoices({ ct, choices, className })(
+          input
+        )
       }),
       switchMap(choice => NEVER)
     )
@@ -191,7 +207,11 @@ let waitForPromptValue = ({ choices, validate, ui }) =>
 
     generate$.pipe(takeUntil(value$)).subscribe()
 
-    let initialChoices$ = of({ ct, choices }).pipe(
+    let initialChoices$ = of({
+      ct,
+      choices,
+      className,
+    }).pipe(
       // filter(() => ui === UI.arg),
       switchMap(getInitialChoices)
     )
@@ -223,6 +243,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     input = "",
     ignoreBlur = false,
     mode = Mode.FILTER,
+    className = "",
   } = config
 
   global.setMode(
@@ -252,7 +273,12 @@ global.kitPrompt = async (config: PromptConfig) => {
   if (input) global.setInput(input)
   if (ignoreBlur) global.setIgnoreBlur(true)
 
-  return await waitForPromptValue({ choices, validate, ui })
+  return await waitForPromptValue({
+    choices,
+    validate,
+    ui,
+    className,
+  })
 }
 
 global.drop = async (
