@@ -260,13 +260,14 @@ global.onTab = (name, fn) => {
     }
 };
 global.kitPrevChoices = [];
-global.setChoices = async (choices) => {
+global.setChoices = async (choices, className = "") => {
     if (typeof choices === "object") {
         choices = choices.map(choice => {
             if (typeof choice === "string") {
                 return {
                     name: choice,
                     value: choice,
+                    className,
                     id: global.uuid(),
                 };
             }
@@ -276,6 +277,7 @@ global.setChoices = async (choices) => {
                 }
                 if (typeof choice.value === "undefined") {
                     return {
+                        className,
                         ...choice,
                         value: choice,
                     };

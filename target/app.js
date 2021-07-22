@@ -3,42 +3,42 @@ import { filter, map, share, switchMap, take, takeUntil, tap, } from "rxjs/opera
 import stripAnsi from "strip-ansi";
 import { Mode, Channel, UI } from "kit-bridge/esm/enum";
 import { assignPropsTo } from "kit-bridge/esm/util";
-let displayChoices = (choices) => {
+let displayChoices = (choices, className = "") => {
     switch (typeof choices) {
         case "string":
-            global.setPanel(choices);
+            global.setPanel(choices, className);
             break;
         case "object":
-            global.setChoices(choices);
+            global.setChoices(choices, className);
             break;
     }
 };
 let promptId = 0;
-let invokeChoices = ({ ct, choices }) => async (input) => {
+let invokeChoices = ({ ct, choices, className }) => async (input) => {
     let resultOrPromise = choices(input);
     if (resultOrPromise && resultOrPromise.then) {
         let result = await resultOrPromise;
         if (ct.promptId === promptId &&
             ct.tabIndex === global.onTabIndex) {
-            displayChoices(result);
+            displayChoices(result, className);
             return result;
         }
     }
     else {
-        displayChoices(resultOrPromise);
+        displayChoices(resultOrPromise, className);
         return resultOrPromise;
     }
 };
-let getInitialChoices = async ({ ct, choices }) => {
+let getInitialChoices = async ({ ct, choices, className, }) => {
     if (typeof choices === "function") {
-        return await invokeChoices({ ct, choices })("");
+        return await invokeChoices({ ct, choices, className })("");
     }
     else {
-        displayChoices(choices);
+        displayChoices(choices, className);
         return choices;
     }
 };
-let waitForPromptValue = ({ choices, validate, ui }) => new Promise((resolve, reject) => {
+let waitForPromptValue = ({ choices, validate, ui, className, }) => new Promise((resolve, reject) => {
     promptId++;
     let ct = {
         promptId,
@@ -68,7 +68,7 @@ let waitForPromptValue = ({ choices, validate, ui }) => new Promise((resolve, re
             promptId,
             tabIndex: +Number(global.onTabIndex),
         };
-        return invokeChoices({ ct, choices })(input);
+        return invokeChoices({ ct, choices, className })(input);
     }), switchMap(choice => NEVER));
     let value$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED), map(data => data.value), switchMap(async (value) => {
         if (validate) {
@@ -94,7 +94,11 @@ let waitForPromptValue = ({ choices, validate, ui }) => new Promise((resolve, re
         },
     });
     generate$.pipe(takeUntil(value$)).subscribe();
-    let initialChoices$ = of({ ct, choices }).pipe(
+    let initialChoices$ = of({
+        ct,
+        choices,
+        className,
+    }).pipe(
     // filter(() => ui === UI.arg),
     switchMap(getInitialChoices));
     initialChoices$.pipe(takeUntil(value$)).subscribe();
@@ -112,7 +116,7 @@ let waitForPromptValue = ({ choices, validate, ui }) => new Promise((resolve, re
 });
 global.kitPrompt = async (config) => {
     await wait(0); //need to let tabs finish...
-    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, } = config;
+    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, className = "", } = config;
     global.setMode(typeof choices === "function" && choices?.length > 0
         ? Mode.GENERATE
         : mode);
@@ -134,7 +138,12 @@ global.kitPrompt = async (config) => {
         global.setInput(input);
     if (ignoreBlur)
         global.setIgnoreBlur(true);
-    return await waitForPromptValue({ choices, validate, ui });
+    return await waitForPromptValue({
+        choices,
+        validate,
+        ui,
+        className,
+    });
 };
 global.drop = async (placeholder = "Waiting for drop...") => {
     return await global.kitPrompt({

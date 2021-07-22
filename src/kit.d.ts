@@ -319,7 +319,10 @@ interface KitApi {
   currentOnTab: any
   kitPrevChoices: Choices<any>
 
-  setChoices: (choices: Choices<any>) => void
+  setChoices: (
+    choices: Choices<any>,
+    className?: string
+  ) => void
   getDataFromApp: (channel: string) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
@@ -378,6 +381,7 @@ declare global {
     choices?: Choices<any> | Panel
     ignoreBlur?: boolean
     mode?: Mode
+    className?: string
   }
 
   interface Background {
