@@ -15,8 +15,7 @@ do
 done
 args+="]"
 
-json="{\"script\":\"$1\",\"args\":$args}"
-echo $json
+json="{\"script\":\"$1\",\"args\":$args,\"cwd\":\"$(pwd)\"}"
 curl --unix-socket $KIT/kit.sock --header "Content-Type: application/json" \
   --data "$json" \
    "http://localhost"
