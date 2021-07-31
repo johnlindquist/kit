@@ -46,6 +46,7 @@ interface AppMessage {
   value?: any
   input?: string
   tab?: string
+  flag?: string
 }
 
 let displayChoices = (
@@ -168,10 +169,18 @@ let waitForPromptValue = ({
       switchMap(choice => NEVER)
     )
 
-    let value$ = message$.pipe(
+    let valueSubmitted$ = message$.pipe(
       filter(
         data => data.channel === Channel.VALUE_SUBMITTED
-      ),
+      )
+    )
+
+    let value$ = valueSubmitted$.pipe(
+      tap(data => {
+        if (data.flag) {
+          global.flags[data.flag] = true
+        }
+      }),
       map(data => data.value),
       switchMap(async value => {
         if (validate) {

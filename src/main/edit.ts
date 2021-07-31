@@ -6,7 +6,7 @@ import { CLI } from "../cli"
 import { selectScript } from "../utils.js"
 
 let { command, filePath } = await selectScript(
-  `Which script do you want to edit?`
+  `Edit script:`
 )
 
 let editActions: Choice<keyof CLI>[] = [

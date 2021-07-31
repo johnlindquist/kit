@@ -1,8 +1,8 @@
 //Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
 let { Octokit } = await npm("scriptkit-octokit");
-import { scriptValue } from "kit-bridge/esm/db";
-let command = await arg(`Which script do you want to share?`, scriptValue("command"));
+import { selectScript } from "../utils.js";
+let { filePath, command } = await selectScript(`Share which script?`);
 let octokit = new Octokit({
     auth: {
         scopes: ["gist"],
@@ -10,11 +10,10 @@ let octokit = new Octokit({
     },
 });
 let scriptJS = `${command}.js`;
-let scriptPath = kenvPath("scripts", scriptJS);
 let response = await octokit.rest.gists.create({
     files: {
         [command + ".js"]: {
-            content: await readFile(scriptPath, "utf8"),
+            content: await readFile(filePath, "utf8"),
         },
     },
     public: true,

@@ -10,18 +10,29 @@ import { Channel } from "kit-bridge/esm/enum"
 
 export let keystroke = async (keyString: string) => {
   send(Channel.HIDE_APP)
+  let keyCodes = {
+    left: "123",
+    right: "124",
+    down: "125",
+    up: "126",
+  }
+
   let keys = keyString.split(" ")
 
-  let key = keys.pop()
+  let key = keys.pop().toLowerCase()
   let modifiers = keys
     .map(modifier => `${modifier} down,`)
     .join(" ")
     .slice(0, -1)
 
+  let strokeOrCode = keyCodes[key]
+    ? `key code ${keyCodes[key]}`
+    : `keystroke "${key}"`
+
   return await applescript(
     String.raw`
     tell application "System Events"
-      keystroke "${key}" ${
+       ${strokeOrCode} ${
       modifiers.length ? `using {${modifiers}}` : ``
     }
     end tell

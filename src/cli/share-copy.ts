@@ -1,16 +1,13 @@
 //Menu: Copy Script to Clipboard
 //Description: Copies Script to Clipboard
 
-import { scriptValue } from "kit-bridge/esm/db"
+import { selectScript } from "../utils.js"
 
-let command = await arg(
-  `Which script do you want to share?`,
-  scriptValue("command")
+let { filePath, command } = await selectScript(
+  `Share which script?`
 )
 
-let scriptPath = kenvPath("scripts", command) + ".js"
-
-copy(await readFile(scriptPath, "utf8"))
+copy(await readFile(filePath, "utf8"))
 console.log(
   `Copied content of "${command}.js" to clipboard`
 )

@@ -224,9 +224,7 @@ global.setPlaceholder = text => {
 }
 
 global.run = async (scriptToRun, ..._args) => {
-  let resolvedScript = await resolveToScriptPath(
-    scriptToRun
-  )
+  let resolvedScript = resolveToScriptPath(scriptToRun)
   global.onTabs = []
   global.kitScript = resolvedScript
 
@@ -245,10 +243,7 @@ global.main = async (scriptPath, ..._args) => {
 }
 
 global.lib = async (lib: string, ..._args) => {
-  let libScriptPath =
-    path.resolve(global.kitScript, "..", "..", "lib", lib) +
-    ".js"
-
+  let libScriptPath = kenvPath("lib", lib) + ".js"
   return await global.attemptImport(libScriptPath, ..._args)
 }
 
@@ -409,5 +404,13 @@ global.kit = new Proxy(() => {}, {
   get: kitGet,
   apply: kitFn,
 })
+
+global.flags = {}
+global.setFlags = flags => {
+  send(Channel.SET_FLAGS, { flags })
+}
+global.hide = () => {
+  send(Channel.HIDE_APP)
+}
 
 export {}

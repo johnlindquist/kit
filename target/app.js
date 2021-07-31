@@ -70,7 +70,12 @@ let waitForPromptValue = ({ choices, validate, ui, className, }) => new Promise(
         };
         return invokeChoices({ ct, choices, className })(input);
     }), switchMap(choice => NEVER));
-    let value$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED), map(data => data.value), switchMap(async (value) => {
+    let valueSubmitted$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED));
+    let value$ = valueSubmitted$.pipe(tap(data => {
+        if (data.flag) {
+            global.flags[data.flag] = true;
+        }
+    }), map(data => data.value), switchMap(async (value) => {
         if (validate) {
             let validateMessage = await validate(value);
             if (typeof validateMessage === "string") {

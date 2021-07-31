@@ -181,6 +181,22 @@ interface GetScripts {
   (fromCache: boolean): Promise<Script[]>
 }
 
+type FlagsOptions =
+  | {
+      [key: string]:
+        | {
+            shortcut?: string
+            name?: string
+          }
+        | undefined
+    }
+  | undefined
+
+export type FlagFn = (flags: FlagsOptions) => void
+type Flags = {
+  [key: string]: boolean
+}
+
 interface SelectKitEditor {
   (reset: boolean): Promise<string>
 }
@@ -339,6 +355,7 @@ interface KitApi {
   }>
 
   notify: typeof Notifier.notify
+  notifier: typeof Notifier
 
   getScripts: GetScripts
 
@@ -353,6 +370,10 @@ interface KitApi {
   kit: Kit
 
   openLog: () => void
+
+  hide: () => void
+  flags: Flags
+  setFlags: FlagFn
 }
 
 type GlobalKit = KitApi & typeof import("./api/lib")
@@ -497,6 +518,7 @@ declare global {
 
   let md: Markdown
   let notify: typeof Notifier.notify
+  let notifier: typeof Notifier
 
   let memoryMap: Map<string, any>
 
@@ -543,6 +565,9 @@ declare global {
   let $: typeof import("zx").$
 
   let openLog: () => void
+  let hide: () => void
+  let flags: Flags
+  let setFlags: FlagFn
 }
 
 type Kit = LibModuleLoader & Omit<GlobalKit, "kit">
