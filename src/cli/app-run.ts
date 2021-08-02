@@ -10,6 +10,10 @@ setFlags({
     name: "Open script in editor",
     shortcut: "cmd+o",
   },
+  ["share-copy"]: {
+    name: "Copy script content to clipboard",
+    shortcut: "cmd+c",
+  },
   duplicate: {
     name: "Duplicate script",
     shortcut: "cmd+d",
@@ -26,10 +30,6 @@ setFlags({
     name: `Open script log`,
     shortcut: "cmd+l",
   },
-  ["share-copy"]: {
-    name: "Copy script to clipboard",
-    shortcut: "cmd+c",
-  },
   ["share-script"]: {
     name: "Share as Gist",
     shortcut: "cmd+g",
@@ -41,6 +41,9 @@ setFlags({
   ["share-script-as-discussion"]: {
     name: "Prep for discussion",
     shortcut: "cmd+p",
+  },
+  ["change-shortcut"]: {
+    name: "Change shortcut",
   },
 })
 

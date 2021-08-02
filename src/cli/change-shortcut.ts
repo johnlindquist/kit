@@ -20,9 +20,11 @@ while (true) {
         })
         .map((script: Script) => {
           return {
-            name: script?.menu || script.command,
+            name:
+              (script?.menu || script.command) +
+              ` ` +
+              friendlyShortcut(script?.shortcut),
             description: script?.description,
-            tag: friendlyShortcut(script?.shortcut),
             value: script,
           }
         })
