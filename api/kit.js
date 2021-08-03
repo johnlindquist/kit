@@ -318,7 +318,16 @@ global.kit = new Proxy(() => { }, {
 });
 global.flags = {};
 global.setFlags = flags => {
-    send(Channel.SET_FLAGS, { flags });
+    let validFlags = {};
+    for (let [key, value] of Object.entries(flags)) {
+        validFlags[key] = {
+            name: value?.name || key,
+            shortcut: value?.shortcut || "",
+            description: value?.description || "",
+            value: key,
+        };
+    }
+    send(Channel.SET_FLAGS, { flags: validFlags });
 };
 global.hide = () => {
     send(Channel.HIDE_APP);

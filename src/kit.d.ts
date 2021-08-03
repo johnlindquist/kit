@@ -187,6 +187,7 @@ type FlagsOptions =
         | {
             shortcut?: string
             name?: string
+            description?: string
           }
         | undefined
     }
