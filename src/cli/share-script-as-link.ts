@@ -2,11 +2,10 @@
 //Description: Create a gist and share from ScriptKit
 let { Octokit } = await npm("scriptkit-octokit")
 
-import { scriptValue } from "kit-bridge/esm/db"
+import { selectScript } from "../utils.js"
 
-let command = await arg(
-  `Which script do you want to share?`,
-  scriptValue("command")
+let { filePath, command } = await selectScript(
+  `Share which script?`
 )
 
 let octokit = new Octokit({
@@ -18,12 +17,10 @@ let octokit = new Octokit({
 
 let scriptJS = `${command}.js`
 
-let scriptPath = kenvPath("scripts", scriptJS)
-
 let response = await octokit.rest.gists.create({
   files: {
     [command + ".js"]: {
-      content: await readFile(scriptPath, "utf8"),
+      content: await readFile(filePath, "utf8"),
     },
   },
   public: true,

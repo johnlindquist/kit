@@ -5,9 +5,9 @@ let newCommand = await arg({
     validate: exists,
 });
 let lenientCommand = newCommand.replace(/(?<!\.js)$/, ".js");
-let newFilePath = kenvPath("scripts", lenientCommand);
+let newFilePath = path.resolve(path.dirname(filePath), lenientCommand);
 mv(filePath, newFilePath);
-let oldBin = kenvPath("bin", command.replace(".js", ""));
-await trash(oldBin);
-await cli("create-bin", "scripts", lenientCommand);
+let oldBin = path.resolve(path.dirname(filePath), "..", "bin", command);
+let newBin = path.resolve(path.dirname(oldBin), newCommand);
+mv(oldBin, newBin);
 edit(newFilePath, kenvPath());

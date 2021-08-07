@@ -1,13 +1,11 @@
 //Menu: Share Script
 //Description: Share the selected script
 
-import { Script } from "kit-bridge/esm/type"
-import { getScripts } from "kit-bridge/esm/db"
-import { CLI } from "../cli"
+import { CLI } from "cli.js"
+import { selectScript } from "../utils.js"
 
-let { command }: Script = await arg(
-  `Which script do you want to share?`,
-  await getScripts()
+let { filePath, command } = await selectScript(
+  `Share which script?`
 )
 
 let how: keyof CLI = await arg(
@@ -32,6 +30,6 @@ let how: keyof CLI = await arg(
   ]
 )
 
-await cli(how, command)
+await cli(how, filePath)
 
 export {}

@@ -94,6 +94,7 @@ global.updateArgs = arrayOfArgs => {
         }
         return [`--${key}`, value];
     });
+    global.flags = global.argOpts;
     assignPropsTo(argv, global.arg);
 };
 global.updateArgs(process.argv.slice(2));

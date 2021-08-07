@@ -1,6 +1,6 @@
 // Menu: Main
 // Description: Script Kit
-// Placeholder: Which script do you want to run?
+// Placeholder: Run script
 // UI: arg
 
 global.onTabs = []
@@ -8,15 +8,9 @@ global.onTabs = []
 onTab("Run", async () => {
   await cli("app-run")
 })
-onTab("Edit", async () => {
-  await main("edit")
-})
 
 onTab("New", async () => {
   await main("new")
-})
-onTab("Share", async () => {
-  await cli("share")
 })
 
 onTab("Hot 🔥", async () => {

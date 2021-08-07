@@ -11,7 +11,7 @@ export let getSelectedText = async () => {
     String.raw`get the clipboard`
   )
 
-  return selectedText.trim()
+  return await paste()
 }
 
 /**

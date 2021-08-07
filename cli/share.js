@@ -1,7 +1,7 @@
 //Menu: Share Script
 //Description: Share the selected script
-import { getScripts } from "kit-bridge/esm/db";
-let { command } = await arg(`Which script do you want to share?`, await getScripts());
+import { selectScript } from "../utils.js";
+let { filePath, command } = await selectScript(`Share which script?`);
 let how = await arg("How would you like to share?", [
     {
         name: "Copy script to clipboard",
@@ -20,4 +20,4 @@ let how = await arg("How would you like to share?", [
         value: "share-script-as-discussion",
     },
 ]);
-await cli(how, command);
+await cli(how, filePath);

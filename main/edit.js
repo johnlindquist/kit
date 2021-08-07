@@ -1,7 +1,7 @@
 //Menu: Edit Menu
 //Description: Select a script then edit action.
 import { selectScript } from "../utils.js";
-let { command, filePath } = await selectScript(`Which script do you want to edit?`);
+let { command, filePath } = await selectScript(`Edit script:`);
 let editActions = [
     {
         name: "Open",

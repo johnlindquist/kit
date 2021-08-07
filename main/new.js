@@ -15,7 +15,10 @@ let newOptions = [
         value: "browse-examples",
     },
 ];
-let cliScript = await arg("How would you like to create a script?", newOptions);
+let cliScript = await arg({
+    placeholder: "Create a new script",
+    strict: false,
+}, newOptions);
 if (newOptions.find(script => script.value === cliScript)) {
     await cli(cliScript);
 }

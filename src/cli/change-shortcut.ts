@@ -1,34 +1,34 @@
+import { friendlyShortcut } from "kit-bridge/esm/util"
 import { Script } from "kit-bridge/esm/type"
-import { getScripts } from "kit-bridge/esm/db"
+import { selectScript } from "../utils.js"
 
 while (true) {
-  let script: Script = await arg(
-    "Change shortcut of which script?",
-    (
-      await getScripts(true)
-    )
-      .sort((a, b) => {
-        if (a?.shortcut && !b?.shortcut) return -1
-        if (b?.shortcut && !a?.shortcut) return 1
-        if (!a?.shortcut && !b?.shortcut) return 0
-        return a?.shortcut > b?.shortcut
-          ? 1
-          : a?.shortcut < b?.shortcut
-          ? -1
-          : 0
-      })
-      .map((script: Script) => {
-        return {
-          name: script?.menu || script.command,
-          description: `${
-            script?.shortcut ? `${script?.shortcut} :` : ``
-          }${script?.description || ""}`,
-          value: script,
-        }
-      })
+  let { filePath, command, menu } = await selectScript(
+    `Change shortcut of which script?`,
+    true,
+    scripts =>
+      scripts
+        .sort((a, b) => {
+          if (a?.shortcut && !b?.shortcut) return -1
+          if (b?.shortcut && !a?.shortcut) return 1
+          if (!a?.shortcut && !b?.shortcut) return 0
+          return a?.shortcut > b?.shortcut
+            ? 1
+            : a?.shortcut < b?.shortcut
+            ? -1
+            : 0
+        })
+        .map((script: Script) => {
+          return {
+            name:
+              (script?.menu || script.command) +
+              ` ` +
+              friendlyShortcut(script?.shortcut),
+            description: script?.description,
+            value: script,
+          }
+        })
   )
-
-  let { filePath } = script
 
   let { shortcut } = await hotkey()
 
@@ -46,13 +46,8 @@ while (true) {
       `//Shortcut: ${shortcut}\n${fileContents}`
     )
   }
-  let message = `${shortcut} assigned ${
-    script?.menu || script.command
-  }`
-
-  setPanel(`<div class="px-6 py-4">
- ${message}
-  </div>`)
+  let message = `${shortcut} assigned to ${menu || command}`
+  console.log(message)
 
   await wait(1500)
 }

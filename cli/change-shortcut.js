@@ -1,6 +1,7 @@
-import { getScripts } from "kit-bridge/esm/db";
+import { friendlyShortcut } from "kit-bridge/esm/util";
+import { selectScript } from "../utils.js";
 while (true) {
-    let script = await arg("Change shortcut of which script?", (await getScripts(true))
+    let { filePath, command, menu } = await selectScript(`Change shortcut of which script?`, true, scripts => scripts
         .sort((a, b) => {
         if (a?.shortcut && !b?.shortcut)
             return -1;
@@ -16,12 +17,13 @@ while (true) {
     })
         .map((script) => {
         return {
-            name: script?.menu || script.command,
-            description: `${script?.shortcut ? `${script?.shortcut} :` : ``}${script?.description || ""}`,
+            name: (script?.menu || script.command) +
+                ` ` +
+                friendlyShortcut(script?.shortcut),
+            description: script?.description,
             value: script,
         };
     }));
-    let { filePath } = script;
     let { shortcut } = await hotkey();
     let fileContents = await readFile(filePath, "utf-8");
     let reg = /(?<=^\/\/\s*Shortcut:\s).*(?=$)/gim;
@@ -32,9 +34,7 @@ while (true) {
     else {
         await writeFile(filePath, `//Shortcut: ${shortcut}\n${fileContents}`);
     }
-    let message = `${shortcut} assigned ${script?.menu || script.command}`;
-    setPanel(`<div class="px-6 py-4">
- ${message}
-  </div>`);
+    let message = `${shortcut} assigned to ${menu || command}`;
+    console.log(message);
     await wait(1500);
 }

@@ -1,5 +1,5 @@
 let url = await arg(
-  "Browse community scripts",
+  "Open discussion in browser",
   async () => {
     try {
       let response = await get(

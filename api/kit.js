@@ -177,7 +177,7 @@ global.setPlaceholder = text => {
     });
 };
 global.run = async (scriptToRun, ..._args) => {
-    let resolvedScript = await resolveToScriptPath(scriptToRun);
+    let resolvedScript = resolveToScriptPath(scriptToRun);
     global.onTabs = [];
     global.kitScript = resolvedScript;
     let script = await info(global.kitScript);
@@ -191,8 +191,7 @@ global.main = async (scriptPath, ..._args) => {
     return await global.attemptImport(kitScriptPath, ..._args);
 };
 global.lib = async (lib, ..._args) => {
-    let libScriptPath = path.resolve(global.kitScript, "..", "..", "lib", lib) +
-        ".js";
+    let libScriptPath = kenvPath("lib", lib) + ".js";
     return await global.attemptImport(libScriptPath, ..._args);
 };
 global.cli = async (cliPath, ..._args) => {
@@ -317,3 +316,19 @@ global.kit = new Proxy(() => { }, {
     get: kitGet,
     apply: kitFn,
 });
+global.flags = {};
+global.setFlags = flags => {
+    let validFlags = {};
+    for (let [key, value] of Object.entries(flags)) {
+        validFlags[key] = {
+            name: value?.name || key,
+            shortcut: value?.shortcut || "",
+            description: value?.description || "",
+            value: key,
+        };
+    }
+    send(Channel.SET_FLAGS, { flags: validFlags });
+};
+global.hide = () => {
+    send(Channel.HIDE_APP);
+};

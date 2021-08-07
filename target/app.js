@@ -70,7 +70,12 @@ let waitForPromptValue = ({ choices, validate, ui, className, }) => new Promise(
         };
         return invokeChoices({ ct, choices, className })(input);
     }), switchMap(choice => NEVER));
-    let value$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED), map(data => data.value), switchMap(async (value) => {
+    let valueSubmitted$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED));
+    let value$ = valueSubmitted$.pipe(tap(data => {
+        if (data.flag) {
+            global.flags[data.flag] = true;
+        }
+    }), map(data => data.value), switchMap(async (value) => {
         if (validate) {
             let validateMessage = await validate(value);
             if (typeof validateMessage === "string") {
@@ -116,7 +121,7 @@ let waitForPromptValue = ({ choices, validate, ui, className, }) => new Promise(
 });
 global.kitPrompt = async (config) => {
     await wait(0); //need to let tabs finish...
-    let { ui = UI.arg, placeholder = "", validate = null, choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, className = "", } = config;
+    let { ui = UI.arg, placeholder = "", validate = null, strict = Boolean(config?.choices), choices: choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, className = "", } = config;
     global.setMode(typeof choices === "function" && choices?.length > 0
         ? Mode.GENERATE
         : mode);
@@ -132,6 +137,7 @@ global.kitPrompt = async (config) => {
         kitArgs: global.args.join(" "),
         secret,
         ui,
+        strict,
     });
     global.setHint(hint);
     if (input)
@@ -156,6 +162,13 @@ global.form = async (html = "", formData = {}) => {
     send(Channel.SET_FORM_HTML, { html, formData });
     return await global.kitPrompt({
         ui: UI.form,
+    });
+};
+global.div = async (html = "", containerClasses = "") => {
+    let wrapHtml = `<div class="${containerClasses}">${html}</div>`;
+    return await global.kitPrompt({
+        choices: wrapHtml,
+        ui: UI.div,
     });
 };
 global.editor = async (options = {
@@ -226,11 +239,11 @@ global.arg = async (placeholderOrConfig = "Type a value:", choices) => {
         return await global.kitPrompt({
             ui: UI.arg,
             placeholder: placeholderOrConfig,
-            choices,
+            choices: choices,
         });
     }
     return await global.kitPrompt({
-        choices,
+        choices: choices,
         ...placeholderOrConfig,
     });
 };

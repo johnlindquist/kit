@@ -1,6 +1,7 @@
 export {}
 
 import {
+  PromptData,
   Script,
   Choice,
   EditorConfig,
@@ -18,11 +19,11 @@ import * as clipboardy from "clipboardy"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
-import * as Notifier from "node-notifier"
 import { CLI } from "./cli"
 import { Main } from "./main"
 import { Lib } from "./lib"
 import { JSONFile, Low } from "lowdb"
+import { NodeNotifier } from "node-notifier/index"
 
 type Panel =
   | string
@@ -51,6 +52,9 @@ interface Editor {
 }
 interface Form {
   (html?: string, formData?: any): Promise<any>
+}
+interface Div {
+  (html?: string, containerClass?: string): Promise<void>
 }
 
 interface KeyData {
@@ -181,6 +185,23 @@ interface GetScripts {
   (fromCache: boolean): Promise<Script[]>
 }
 
+type FlagsOptions =
+  | {
+      [key: string]:
+        | {
+            shortcut?: string
+            name?: string
+            description?: string
+          }
+        | undefined
+    }
+  | undefined
+
+export type FlagFn = (flags: FlagsOptions) => void
+type Flags = {
+  [key: string]: boolean
+}
+
 interface SelectKitEditor {
   (reset: boolean): Promise<string>
 }
@@ -252,6 +273,7 @@ interface KitApi {
   drop: Drop
   editor: Editor
   form: Form
+  div: Div
   hotkey: Hotkey
   env: Env
   argOpts: any
@@ -338,7 +360,7 @@ interface KitApi {
     schedule: Schedule[]
   }>
 
-  notify: typeof Notifier.notify
+  notify: Notify
 
   getScripts: GetScripts
 
@@ -353,6 +375,10 @@ interface KitApi {
   kit: Kit
 
   openLog: () => void
+
+  hide: () => void
+  flags: Flags
+  setFlags: FlagFn
 }
 
 type GlobalKit = KitApi & typeof import("./api/lib")
@@ -369,19 +395,14 @@ declare global {
   interface GenerateChoices {
     (input: string): Choice<any>[] | Promise<Choice<any>[]>
   }
-  interface PromptConfig {
-    ui?: UI
-    placeholder?: string
+  interface PromptConfig
+    extends Partial<
+      Omit<PromptData, "choices" | "id" | "script">
+    > {
     validate?: (
       choice: string
     ) => boolean | string | Promise<boolean | string>
-    hint?: string
-    input?: string
-    secret?: boolean
     choices?: Choices<any> | Panel
-    ignoreBlur?: boolean
-    mode?: Mode
-    className?: string
   }
 
   interface Background {
@@ -396,6 +417,10 @@ declare global {
   interface Schedule {
     filePath: string
     date: Date
+  }
+
+  interface Notify {
+    (notification: string | Notification): NodeNotifier
   }
 
   namespace NodeJS {
@@ -496,7 +521,7 @@ declare global {
   let db: DB
 
   let md: Markdown
-  let notify: typeof Notifier.notify
+  let notify: Notify
 
   let memoryMap: Map<string, any>
 
@@ -543,6 +568,9 @@ declare global {
   let $: typeof import("zx").$
 
   let openLog: () => void
+  let hide: () => void
+  let flags: Flags
+  let setFlags: FlagFn
 }
 
 type Kit = LibModuleLoader & Omit<GlobalKit, "kit">

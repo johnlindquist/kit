@@ -1,19 +1,18 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
 let { Octokit } = await npm("scriptkit-octokit");
-import { scriptValue } from "kit-bridge/esm/db";
-let command = await arg(`Which script do you want to share?`, scriptValue("command"));
+import { selectScript } from "../utils.js";
+let { filePath, command } = await selectScript(`Share which script?`);
 let octokit = new Octokit({
     auth: {
         scopes: ["gist"],
         env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
     },
 });
-let scriptPath = kenvPath("scripts", command) + ".js";
 let response = await octokit.rest.gists.create({
     files: {
         [command + ".js"]: {
-            content: await readFile(scriptPath, "utf8"),
+            content: await readFile(filePath, "utf8"),
         },
     },
     public: true,

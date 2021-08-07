@@ -46,6 +46,7 @@ interface AppMessage {
   value?: any
   input?: string
   tab?: string
+  flag?: string
 }
 
 let displayChoices = (
@@ -168,10 +169,18 @@ let waitForPromptValue = ({
       switchMap(choice => NEVER)
     )
 
-    let value$ = message$.pipe(
+    let valueSubmitted$ = message$.pipe(
       filter(
         data => data.channel === Channel.VALUE_SUBMITTED
-      ),
+      )
+    )
+
+    let value$ = valueSubmitted$.pipe(
+      tap(data => {
+        if (data.flag) {
+          global.flags[data.flag] = true
+        }
+      }),
       map(data => data.value),
       switchMap(async value => {
         if (validate) {
@@ -237,7 +246,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     ui = UI.arg,
     placeholder = "",
     validate = null,
-    choices = [],
+    strict = Boolean(config?.choices),
+    choices: choices = [],
     secret = false,
     hint = "",
     input = "",
@@ -267,6 +277,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     kitArgs: global.args.join(" "),
     secret,
     ui,
+    strict,
   })
 
   global.setHint(hint)
@@ -295,6 +306,14 @@ global.form = async (html = "", formData = {}) => {
   send(Channel.SET_FORM_HTML, { html, formData })
   return await global.kitPrompt({
     ui: UI.form,
+  })
+}
+
+global.div = async (html = "", containerClasses = "") => {
+  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
+  return await global.kitPrompt({
+    choices: wrapHtml,
+    ui: UI.div,
   })
 }
 
@@ -383,12 +402,12 @@ global.arg = async (
     return await global.kitPrompt({
       ui: UI.arg,
       placeholder: placeholderOrConfig,
-      choices,
+      choices: choices,
     })
   }
 
   return await global.kitPrompt({
-    choices,
+    choices: choices,
     ...placeholderOrConfig,
   })
 }
