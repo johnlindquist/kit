@@ -20,7 +20,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
 ]
 
 let cliScript = await arg(
-  `Kit Options`,
+  `Got questions?`,
   kitManagementChoices
 )
 

@@ -20,7 +20,10 @@ let newOptions: Choice<keyof CLI>[] = [
   },
 ]
 let cliScript = await arg<keyof CLI>(
-  "How would you like to create a script?",
+  {
+    placeholder: "Create a new script",
+    strict: false,
+  },
   newOptions
 )
 

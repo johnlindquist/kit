@@ -1,6 +1,7 @@
 export {}
 
 import {
+  PromptData,
   Script,
   Choice,
   EditorConfig,
@@ -18,11 +19,11 @@ import * as clipboardy from "clipboardy"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
-import * as Notifier from "node-notifier"
 import { CLI } from "./cli"
 import { Main } from "./main"
 import { Lib } from "./lib"
 import { JSONFile, Low } from "lowdb"
+import { NodeNotifier } from "node-notifier/index"
 
 type Panel =
   | string
@@ -51,6 +52,9 @@ interface Editor {
 }
 interface Form {
   (html?: string, formData?: any): Promise<any>
+}
+interface Div {
+  (html?: string, containerClass?: string): Promise<void>
 }
 
 interface KeyData {
@@ -269,6 +273,7 @@ interface KitApi {
   drop: Drop
   editor: Editor
   form: Form
+  div: Div
   hotkey: Hotkey
   env: Env
   argOpts: any
@@ -355,8 +360,7 @@ interface KitApi {
     schedule: Schedule[]
   }>
 
-  notify: typeof Notifier.notify
-  notifier: typeof Notifier
+  notify: Notify
 
   getScripts: GetScripts
 
@@ -391,19 +395,14 @@ declare global {
   interface GenerateChoices {
     (input: string): Choice<any>[] | Promise<Choice<any>[]>
   }
-  interface PromptConfig {
-    ui?: UI
-    placeholder?: string
+  interface PromptConfig
+    extends Partial<
+      Omit<PromptData, "choices" | "id" | "script">
+    > {
     validate?: (
       choice: string
     ) => boolean | string | Promise<boolean | string>
-    hint?: string
-    input?: string
-    secret?: boolean
     choices?: Choices<any> | Panel
-    ignoreBlur?: boolean
-    mode?: Mode
-    className?: string
   }
 
   interface Background {
@@ -418,6 +417,10 @@ declare global {
   interface Schedule {
     filePath: string
     date: Date
+  }
+
+  interface Notify {
+    (notification: string | Notification): NodeNotifier
   }
 
   namespace NodeJS {
@@ -518,8 +521,7 @@ declare global {
   let db: DB
 
   let md: Markdown
-  let notify: typeof Notifier.notify
-  let notifier: typeof Notifier
+  let notify: Notify
 
   let memoryMap: Map<string, any>
 

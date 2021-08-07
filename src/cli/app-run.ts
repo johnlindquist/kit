@@ -48,7 +48,7 @@ setFlags({
 })
 
 let script = await selectScript(
-  `Select a script to run`,
+  `Run script`,
   true,
   scripts => scripts.filter(script => !script?.exclude)
 )

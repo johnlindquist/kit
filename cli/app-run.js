@@ -45,7 +45,7 @@ setFlags({
         name: "Change shortcut",
     },
 });
-let script = await selectScript(`Select a script to run`, true, scripts => scripts.filter(script => !script?.exclude));
+let script = await selectScript(`Run script`, true, scripts => scripts.filter(script => !script?.exclude));
 let shouldEdit = script.watch ||
     script.schedule ||
     script.system ||

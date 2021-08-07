@@ -1,5 +1,5 @@
 let url = await arg(
-  "Open discussion in browser:",
+  "Open discussion in browser",
   async () => {
     try {
       let response = await get(

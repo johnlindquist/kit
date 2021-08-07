@@ -34,9 +34,7 @@ while (true) {
     else {
         await writeFile(filePath, `//Shortcut: ${shortcut}\n${fileContents}`);
     }
-    let message = `${shortcut} assigned ${menu || command}`;
-    setPanel(`<div class="px-6 py-4">
- ${message}
-  </div>`);
+    let message = `${shortcut} assigned to ${menu || command}`;
+    console.log(message);
     await wait(1500);
 }

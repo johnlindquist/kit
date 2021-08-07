@@ -1,6 +1,6 @@
 // Menu: Main
 // Description: Script Kit
-// Placeholder: Which script do you want to run?
+// Placeholder: Run script
 // UI: arg
 
 global.onTabs = []

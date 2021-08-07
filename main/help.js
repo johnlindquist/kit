@@ -15,6 +15,6 @@ let kitManagementChoices = [
         value: "join",
     },
 ];
-let cliScript = await arg(`Kit Options`, kitManagementChoices);
+let cliScript = await arg(`Got questions?`, kitManagementChoices);
 await cli(cliScript);
 export {};

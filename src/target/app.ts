@@ -246,7 +246,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     ui = UI.arg,
     placeholder = "",
     validate = null,
-    choices = [],
+    strict = Boolean(config?.choices),
+    choices: choices = [],
     secret = false,
     hint = "",
     input = "",
@@ -276,6 +277,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     kitArgs: global.args.join(" "),
     secret,
     ui,
+    strict,
   })
 
   global.setHint(hint)
@@ -304,6 +306,14 @@ global.form = async (html = "", formData = {}) => {
   send(Channel.SET_FORM_HTML, { html, formData })
   return await global.kitPrompt({
     ui: UI.form,
+  })
+}
+
+global.div = async (html = "", containerClasses = "") => {
+  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
+  return await global.kitPrompt({
+    choices: wrapHtml,
+    ui: UI.div,
   })
 }
 
@@ -392,12 +402,12 @@ global.arg = async (
     return await global.kitPrompt({
       ui: UI.arg,
       placeholder: placeholderOrConfig,
-      choices,
+      choices: choices,
     })
   }
 
   return await global.kitPrompt({
-    choices,
+    choices: choices,
     ...placeholderOrConfig,
   })
 }
