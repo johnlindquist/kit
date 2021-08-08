@@ -3,6 +3,7 @@ let { default: notifier }: any = await import(
 )
 
 global.notify = notification => {
+  hide()
   return typeof notification === "string"
     ? notifier.notify({ message: notification })
     : notifier.notify(notification)
