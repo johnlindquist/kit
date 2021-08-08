@@ -25,7 +25,7 @@ setFlags({
         name: "Remove script",
         shortcut: "cmd+delete",
     },
-    ["open-log"]: {
+    ["open-script-log"]: {
         name: `Open script log`,
         shortcut: "cmd+l",
     },
@@ -56,10 +56,12 @@ if (script.background) {
 else if (shouldEdit) {
     await edit(script.filePath, kenvPath());
 }
-let flag = Object.keys(flags).find(Boolean);
-if (flag) {
-    await cli(flag, script.filePath);
-}
 else {
-    await run(script.filePath);
+    let flag = Object.keys(flags).find(Boolean);
+    if (flag) {
+        await cli(flag, script.filePath);
+    }
+    else {
+        await run(script.filePath);
+    }
 }

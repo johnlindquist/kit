@@ -1,3 +1,3 @@
-await edit(kenvPath())
+console.log(`👀 Running OPEN`)
 
 export {}
