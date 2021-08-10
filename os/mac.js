@@ -3,7 +3,9 @@ global.applescript = async (script, options = { silent: true }) => {
     if (global.env?.DEBUG) {
         await writeFile(kenvPath("tmp", "_debug.applescript"), script);
     }
-    let { stdout, stderr } = exec(`osascript -e '${formattedScript}'`, options);
+    let command = `osascript -e '${formattedScript}'`;
+    console.log(command);
+    let { stdout, stderr } = exec(command, options);
     if (stderr) {
         console.log(stderr);
         exit();

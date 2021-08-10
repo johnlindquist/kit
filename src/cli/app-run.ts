@@ -30,6 +30,10 @@ setFlags({
     name: `Open script log`,
     shortcut: "cmd+l",
   },
+  ["open-script-database"]: {
+    name: `Open script database`,
+    shortcut: "cmd+b",
+  },
   ["share-script"]: {
     name: "Share as Gist",
     shortcut: "cmd+g",
