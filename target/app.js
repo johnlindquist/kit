@@ -73,7 +73,7 @@ let waitForPromptValue = ({ choices, validate, ui, className, }) => new Promise(
     let valueSubmitted$ = message$.pipe(filter(data => data.channel === Channel.VALUE_SUBMITTED));
     let value$ = valueSubmitted$.pipe(tap(data => {
         if (data.flag) {
-            global.flags[data.flag] = true;
+            global.flag[data.flag] = true;
         }
     }), map(data => data.value), switchMap(async (value) => {
         if (validate) {
@@ -121,7 +121,10 @@ let waitForPromptValue = ({ choices, validate, ui, className, }) => new Promise(
 });
 global.kitPrompt = async (config) => {
     await wait(0); //need to let tabs finish...
-    let { ui = UI.arg, placeholder = "", validate = null, strict = Boolean(config?.choices), choices: choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, className = "", } = config;
+    let { ui = UI.arg, placeholder = "", validate = null, strict = Boolean(config?.choices), choices: choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, className = "", flags = undefined, } = config;
+    if (flags) {
+        setFlags(flags);
+    }
     global.setMode(typeof choices === "function" && choices?.length > 0
         ? Mode.GENERATE
         : mode);
@@ -278,6 +281,8 @@ global.updateArgs = arrayOfArgs => {
         return [`--${key}`, value];
     });
     assignPropsTo(argv, global.arg);
+    global.flag = argv;
+    delete global.flag._;
 };
 global.updateArgs(process.argv.slice(2));
 let appInstall = async (packageName) => {

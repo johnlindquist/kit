@@ -45,7 +45,9 @@ let errorPrompt = async (error) => {
 };
 global.attemptImport = async (path, ..._args) => {
     try {
-        global.updateArgs(_args);
+        if (env.KIT_CONTEXT === "app") {
+            global.updateArgs(_args);
+        }
         //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
         //must use `import` for ESM
         return await import(path + "?uuid=" + global.uuid());
@@ -176,7 +178,8 @@ global.setPlaceholder = text => {
         text: stripAnsi(text),
     });
 };
-global.run = async (scriptToRun, ..._args) => {
+global.run = async (command, ..._args) => {
+    let [scriptToRun, ...scriptArgs] = command.split(" ");
     let resolvedScript = resolveToScriptPath(scriptToRun);
     global.onTabs = [];
     global.kitScript = resolvedScript;
@@ -184,7 +187,7 @@ global.run = async (scriptToRun, ..._args) => {
     global.send(Channel.SET_SCRIPT, {
         script,
     });
-    return global.attemptImport(resolvedScript, ..._args);
+    return global.attemptImport(resolvedScript, ...scriptArgs, ..._args);
 };
 global.main = async (scriptPath, ..._args) => {
     let kitScriptPath = kitPath("main", scriptPath) + ".js";
@@ -242,8 +245,8 @@ global.onTabs = [];
 global.onTabIndex = 0;
 global.onTab = (name, fn) => {
     global.onTabs.push({ name, fn });
-    if (global.arg.tab) {
-        if (global.arg.tab === name) {
+    if (global.flag?.tab) {
+        if (global.flag?.tab === name) {
             let tabIndex = global.onTabs.length - 1;
             global.onTabIndex = tabIndex;
             global.send(Channel.SET_TAB_INDEX, {
@@ -316,7 +319,7 @@ global.kit = new Proxy(() => { }, {
     get: kitGet,
     apply: kitFn,
 });
-global.flags = {};
+global.flag = {};
 global.setFlags = flags => {
     let validFlags = {};
     for (let [key, value] of Object.entries(flags)) {

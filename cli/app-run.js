@@ -53,7 +53,7 @@ let script = await selectScript(`Run script`, true, scripts => scripts.filter(sc
 let shouldEdit = script.watch ||
     script.schedule ||
     script.system ||
-    flags?.open;
+    flag?.open;
 if (script.background) {
     toggleBackground(script);
 }
@@ -61,9 +61,9 @@ else if (shouldEdit) {
     await edit(script.filePath, kenvPath());
 }
 else {
-    let flag = Object.keys(flags).find(Boolean);
-    if (flag) {
-        await cli(flag, script.filePath);
+    let selectedFlag = Object.keys(flag).find(Boolean);
+    if (selectedFlag) {
+        await cli(selectedFlag, script.filePath);
     }
     else {
         await run(script.filePath);

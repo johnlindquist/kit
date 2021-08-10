@@ -61,17 +61,17 @@ let shouldEdit =
   script.watch ||
   script.schedule ||
   script.system ||
-  flags?.open
+  flag?.open
 
 if (script.background) {
   toggleBackground(script)
 } else if (shouldEdit) {
   await edit(script.filePath, kenvPath())
 } else {
-  let flag: any = Object.keys(flags).find(Boolean)
+  let selectedFlag: any = Object.keys(flag).find(Boolean)
 
-  if (flag) {
-    await cli(flag, script.filePath)
+  if (selectedFlag) {
+    await cli(selectedFlag, script.filePath)
   } else {
     await run(script.filePath)
   }

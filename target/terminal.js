@@ -1,4 +1,3 @@
-import { assignPropsTo } from "kit-bridge/esm/util";
 let { default: enquirer } = (await import("enquirer"));
 global.kitPrompt = async (config) => {
     if (config?.choices) {
@@ -83,24 +82,12 @@ global.args = [];
 global.updateArgs = arrayOfArgs => {
     let argv = minimist(arrayOfArgs);
     global.args = [...argv._, ...global.args];
-    global.argOpts = Object.entries(argv)
-        .filter(([key]) => key != "_")
-        .flatMap(([key, value]) => {
-        if (typeof value === "boolean") {
-            if (value)
-                return [`--${key}`];
-            if (!value)
-                return [`--no-${key}`];
-        }
-        return [`--${key}`, value];
-    });
-    global.flags = global.argOpts;
-    assignPropsTo(argv, global.arg);
+    global.flag = argv;
 };
 global.updateArgs(process.argv.slice(2));
 let terminalInstall = async (packageName) => {
     console.log({ packageName });
-    if (!global.arg?.trust) {
+    if (!global.flag?.trust) {
         let installMessage = global.chalk `\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`;
         let downloadsMessage = global.chalk `{yellow ${packageName}} has had {yellow ${(await get(`https://api.npmjs.org/downloads/point/last-week/` +
             packageName)).data.downloads}} downloads from npm in the past week`;
@@ -143,3 +130,7 @@ global.getScriptsState = async () => ({
     tasks: [],
     schedule: [],
 });
+global.div = async (html = "", containerClasses = "") => {
+    console.log(html);
+};
+export {};
