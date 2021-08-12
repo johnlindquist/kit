@@ -1,3 +1,5 @@
+// Description: Rename Script
+
 import { exists, selectScript } from "../utils.js"
 
 let { command, filePath } = await selectScript(
@@ -6,6 +8,7 @@ let { command, filePath } = await selectScript(
 
 let newCommand = await arg({
   placeholder: `Enter the new script name:`,
+  selected: filePath,
   validate: exists,
 })
 
