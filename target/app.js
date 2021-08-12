@@ -121,7 +121,7 @@ let waitForPromptValue = ({ choices, validate, ui, className, }) => new Promise(
 });
 global.kitPrompt = async (config) => {
     await wait(0); //need to let tabs finish...
-    let { ui = UI.arg, placeholder = "", validate = null, strict = Boolean(config?.choices), choices: choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, className = "", flags = undefined, selected = "", } = config;
+    let { ui = UI.arg, placeholder = "", validate = null, strict = Boolean(config?.choices), choices: choices = [], secret = false, hint = "", input = "", ignoreBlur = false, mode = Mode.FILTER, className = "", flags = undefined, selected = "", type = "text", } = config;
     if (flags) {
         setFlags(flags);
     }
@@ -142,6 +142,7 @@ global.kitPrompt = async (config) => {
         ui,
         strict,
         selected,
+        type,
     });
     global.setHint(hint);
     if (input)

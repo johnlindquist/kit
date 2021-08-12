@@ -11,7 +11,7 @@ let repo = await arg({
 let input = getLastSlashSeparated(repo, 2)
     .replace(/\.git|\./g, "")
     .replace(/\//g, "-");
-let panelContainer = content => `<div class="p-4">${content}</div>`;
+let panelContainer = content => `<div class="p-4 break-all">${content}</div>`;
 let setPanelContainer = content => {
     setPanel(panelContainer(content));
 };
