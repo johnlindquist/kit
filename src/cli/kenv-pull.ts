@@ -13,8 +13,10 @@ let dir = await arg(
   }))
 )
 
-await $`cd ${dir} && git pull`
+await $`cd ${dir} && git stash && git pull`
 
 await getScripts(false)
+
+// Prompt if stash exists to re-apply changes
 
 export {}

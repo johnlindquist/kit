@@ -178,7 +178,7 @@ let waitForPromptValue = ({
     let value$ = valueSubmitted$.pipe(
       tap(data => {
         if (data.flag) {
-          global.flags[data.flag] = true
+          global.flag[data.flag] = true
         }
       }),
       map(data => data.value),
@@ -254,7 +254,12 @@ global.kitPrompt = async (config: PromptConfig) => {
     ignoreBlur = false,
     mode = Mode.FILTER,
     className = "",
+    flags = undefined,
+    selected = "",
   } = config
+  if (flags) {
+    setFlags(flags)
+  }
 
   global.setMode(
     typeof choices === "function" && choices?.length > 0
@@ -278,6 +283,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     secret,
     ui,
     strict,
+    selected,
   })
 
   global.setHint(hint)
@@ -449,6 +455,8 @@ global.updateArgs = arrayOfArgs => {
     })
 
   assignPropsTo(argv, global.arg)
+  global.flag = argv
+  delete global.flag._
 }
 
 global.updateArgs(process.argv.slice(2))

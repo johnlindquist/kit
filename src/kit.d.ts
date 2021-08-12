@@ -199,7 +199,7 @@ type FlagsOptions =
 
 export type FlagFn = (flags: FlagsOptions) => void
 type Flags = {
-  [key: string]: boolean
+  [key: string]: boolean | string
 }
 
 interface SelectKitEditor {
@@ -377,7 +377,7 @@ interface KitApi {
   openLog: () => void
 
   hide: () => void
-  flags: Flags
+  flag: Flags
   setFlags: FlagFn
 }
 
@@ -403,6 +403,7 @@ declare global {
       choice: string
     ) => boolean | string | Promise<boolean | string>
     choices?: Choices<any> | Panel
+    flags?: FlagsOptions
   }
 
   interface Background {
@@ -569,7 +570,7 @@ declare global {
 
   let openLog: () => void
   let hide: () => void
-  let flags: Flags
+  let flag: Flags
   let setFlags: FlagFn
 }
 

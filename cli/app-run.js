@@ -13,6 +13,10 @@ setFlags({
         name: "Copy script content to clipboard",
         shortcut: "cmd+c",
     },
+    ["new-quick"]: {
+        name: "Quick new script",
+        shortcut: "cmd+n",
+    },
     duplicate: {
         name: "Duplicate script",
         shortcut: "cmd+d",
@@ -23,7 +27,7 @@ setFlags({
     },
     remove: {
         name: "Remove script",
-        shortcut: "cmd+delete",
+        shortcut: "cmd+backspace",
     },
     ["open-script-log"]: {
         name: `Open script log`,
@@ -48,12 +52,15 @@ setFlags({
     ["change-shortcut"]: {
         name: "Change shortcut",
     },
+    move: {
+        name: "Move script to kenv",
+    },
 });
 let script = await selectScript(`Run script`, true, scripts => scripts.filter(script => !script?.exclude));
 let shouldEdit = script.watch ||
     script.schedule ||
     script.system ||
-    flags?.open;
+    flag?.open;
 if (script.background) {
     toggleBackground(script);
 }
@@ -61,9 +68,9 @@ else if (shouldEdit) {
     await edit(script.filePath, kenvPath());
 }
 else {
-    let flag = Object.keys(flags).find(Boolean);
-    if (flag) {
-        await cli(flag, script.filePath);
+    let selectedFlag = Object.keys(flag).find(Boolean);
+    if (selectedFlag) {
+        await run(`${kitPath("cli", selectedFlag)}.js ${script.filePath}`);
     }
     else {
         await run(script.filePath);

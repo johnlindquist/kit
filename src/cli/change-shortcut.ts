@@ -1,3 +1,4 @@
+// Description: Change Script Shortcut
 import { friendlyShortcut } from "kit-bridge/esm/util"
 import { Script } from "kit-bridge/esm/type"
 import { selectScript } from "../utils.js"

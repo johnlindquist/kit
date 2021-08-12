@@ -11,7 +11,6 @@ global.applescript = async (
   }
 
   let command = `osascript -e '${formattedScript}'`
-  console.log(command)
   let { stdout, stderr } = exec(command, options)
 
   if (stderr) {
@@ -161,7 +160,7 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (file, dir, line = 0, col = 0) => {
-  if (global.arg?.edit === false) return
+  if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)
 

@@ -9,13 +9,13 @@ onTab("Run", async () => {
 onTab("New", async () => {
     await main("new");
 });
-onTab("Hot 🔥", async () => {
-    await main("hot");
+onTab("Kit", async () => {
+    await main("kit");
 });
 onTab("Help", async () => {
     await main("help");
 });
-onTab("Kit", async () => {
-    await main("kit");
+onTab("Hot 🔥", async () => {
+    await main("hot");
 });
 export {};

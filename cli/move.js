@@ -1,9 +1,13 @@
+// Description: Move script to different kenv
 import { createBinFromScript, selectScript, trashBinFromScript, } from "../utils.js";
 import { Bin } from "kit-bridge/esm/enum";
 let script = await selectScript();
 let kenvDirs = (await readdir(kenvPath("kenvs"))) || [];
 let selectedKenvDir = kenvPath();
-selectedKenvDir = await arg(`Select target kenv`, [
+selectedKenvDir = await arg({
+    placeholder: `Select target kenv`,
+    hint: script.filePath,
+}, [
     {
         name: "home",
         description: `Your main kenv: ${kenvPath()}`,
