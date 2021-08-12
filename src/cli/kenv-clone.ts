@@ -18,7 +18,7 @@ let input = getLastSlashSeparated(repo, 2)
   .replace(/\//g, "-")
 
 let panelContainer = content =>
-  `<div class="p-4">${content}</div>`
+  `<div class="p-4 break-all">${content}</div>`
 
 let setPanelContainer = content => {
   setPanel(panelContainer(content))

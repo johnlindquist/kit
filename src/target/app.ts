@@ -256,6 +256,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     className = "",
     flags = undefined,
     selected = "",
+    type = "text",
   } = config
   if (flags) {
     setFlags(flags)
@@ -284,6 +285,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     ui,
     strict,
     selected,
+    type,
   })
 
   global.setHint(hint)
