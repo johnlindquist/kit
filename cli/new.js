@@ -1,5 +1,4 @@
-// Menu: New Script
-// Description: Creates a new script
+// Description: Create a new script
 import { exists } from "../utils.js";
 let generate = await npm("project-name-generator");
 let examples = Array.from({ length: 3 })

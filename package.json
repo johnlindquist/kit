@@ -14,6 +14,7 @@
     "ansi-to-html": "^0.6.15",
     "axios": "^0.21.1",
     "chalk": "^4.1.0",
+    "cli-html": "^1.8.4",
     "clipboardy": "^2.3.0",
     "date-fns": "^2.21.1",
     "debug": "^4.3.1",
@@ -22,7 +23,7 @@
     "download": "^8.0.0",
     "enquirer": "^2.3.6",
     "handlebars": "^4.7.6",
-    "kit-bridge": "^6.0.18",
+    "kit-bridge": "^7.0.1",
     "lodash": "^4.17.20",
     "lodash-id": "^0.14.0",
     "lowdb": "^2.0.3",
@@ -38,7 +39,7 @@
     "strip-ansi": "^6.0.0",
     "trash": "^7.0.0",
     "uuid": "^8.3.2",
-    "zx": "^2.0.0"
+    "zx": "^2.1.0"
   },
   "type": "module",
   "devDependencies": {

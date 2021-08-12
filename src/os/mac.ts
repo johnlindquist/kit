@@ -11,7 +11,6 @@ global.applescript = async (
   }
 
   let command = `osascript -e '${formattedScript}'`
-  console.log(command)
   let { stdout, stderr } = exec(command, options)
 
   if (stderr) {

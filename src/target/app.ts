@@ -255,6 +255,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     mode = Mode.FILTER,
     className = "",
     flags = undefined,
+    selected = "",
   } = config
   if (flags) {
     setFlags(flags)
@@ -282,6 +283,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     secret,
     ui,
     strict,
+    selected,
   })
 
   global.setHint(hint)

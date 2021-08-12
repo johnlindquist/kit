@@ -1,3 +1,5 @@
+// Description: Move script to different kenv
+
 import {
   createBinFromScript,
   selectScript,
@@ -12,21 +14,27 @@ let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
 
 let selectedKenvDir = kenvPath()
 
-selectedKenvDir = await arg(`Select target kenv`, [
+selectedKenvDir = await arg(
   {
-    name: "home",
-    description: `Your main kenv: ${kenvPath()}`,
-    value: kenvPath(),
+    placeholder: `Select target kenv`,
+    hint: script.filePath,
   },
-  ...kenvDirs.map(kenvDir => {
-    let value = kenvPath("kenvs", kenvDir)
-    return {
-      name: kenvDir,
-      description: value,
-      value,
-    }
-  }),
-])
+  [
+    {
+      name: "home",
+      description: `Your main kenv: ${kenvPath()}`,
+      value: kenvPath(),
+    },
+    ...kenvDirs.map(kenvDir => {
+      let value = kenvPath("kenvs", kenvDir)
+      return {
+        name: kenvDir,
+        description: value,
+        value,
+      }
+    }),
+  ]
+)
 
 let exists = false
 let target = filePath =>

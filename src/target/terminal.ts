@@ -177,5 +177,24 @@ global.getScriptsState = async () => ({
 })
 
 global.div = async (html = "", containerClasses = "") => {
-  console.log(html)
+  let { default: cliHtml } = await import("cli-html")
+  console.log(cliHtml(html))
+}
+
+global.textarea = async () => {
+  console.warn(`"textarea" is not support in the terminal`)
+
+  exit()
+}
+
+global.editor = async () => {
+  console.warn(`"editor" is not support in the terminal`)
+
+  exit()
+}
+
+global.drop = async () => {
+  console.warn(`"drop" is not support in the terminal`)
+
+  exit()
 }

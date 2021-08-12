@@ -1,10 +1,13 @@
 import { selectScript } from "../utils.js";
-let firstPass = true;
+let command, filePath;
 while (true) {
-    let { command, filePath } = await selectScript(firstPass
-        ? `Which script do you want to remove?`
-        : `Remove another script?`);
-    firstPass = false;
+    let hint = command
+        ? `Removed ${command}. Remove another?`
+        : ``;
+    ({ command, filePath } = await selectScript({
+        placeholder: `Remove a script:`,
+        hint,
+    }));
     let confirm = await arg({
         placeholder: `Remove ${command}?`,
         hint: filePath,
