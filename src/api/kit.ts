@@ -60,9 +60,7 @@ let errorPrompt = async (error: Error) => {
 }
 global.attemptImport = async (path, ..._args) => {
   try {
-    if (env.KIT_CONTEXT === "app") {
-      global.updateArgs(_args)
-    }
+    global.updateArgs(_args)
 
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM

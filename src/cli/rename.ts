@@ -27,9 +27,8 @@ let oldBin = path.resolve(
   "bin",
   command
 )
-
-let newBin = path.resolve(path.dirname(oldBin), newCommand)
-mv(oldBin, newBin)
+await trash([oldBin])
+await cli("create-bin", "scripts", newFilePath)
 edit(newFilePath, kenvPath())
 
 export {}

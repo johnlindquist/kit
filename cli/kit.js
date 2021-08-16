@@ -1,15 +1,13 @@
 //Description: Script Kit CLI
 const cliScripts = [
+    { name: "run", placeholder: "Run a script" },
+    { name: "edit", placeholder: "Edit a script" },
+    { name: "new", placeholder: "Create a new script" },
     {
         name: "open",
         placeholder: "Open .kenv directory in editor",
     },
-    {
-        name: "open-kit",
-        placeholder: "Open .kit directory in editor",
-    },
     { name: "browse", placeholder: "Go to scriptkit.com" },
-    { name: "new", placeholder: "Create a new script" },
     {
         name: "new-from-template",
         placeholder: "Create a new script from a template",
@@ -26,8 +24,6 @@ const cliScripts = [
         name: "share-script-as-link",
         placeholder: "Share a script as a scriptkit.com link",
     },
-    { name: "run", placeholder: "Run a script" },
-    { name: "edit", placeholder: "Edit a script" },
     {
         name: "duplicate",
         alias: "cp",
@@ -72,6 +68,10 @@ const cliScripts = [
     {
         name: "create-all-bins",
         placeholder: "Regen bin files",
+    },
+    {
+        name: "open-kit",
+        placeholder: "Open .kit directory in editor",
     },
     { name: "open-log", placeholder: "Open kit.log" },
     { name: "quit", placeholder: "Quit Kit" },

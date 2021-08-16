@@ -1,3 +1,4 @@
+import { assignPropsTo } from "kit-bridge/esm/util";
 let { default: enquirer } = (await import("enquirer"));
 global.kitPrompt = async (config) => {
     if (config?.choices) {
@@ -82,11 +83,23 @@ global.args = [];
 global.updateArgs = arrayOfArgs => {
     let argv = minimist(arrayOfArgs);
     global.args = [...argv._, ...global.args];
-    global.flag = argv;
+    global.argOpts = Object.entries(argv)
+        .filter(([key]) => key != "_")
+        .flatMap(([key, value]) => {
+        if (typeof value === "boolean") {
+            if (value)
+                return [`--${key}`];
+            if (!value)
+                return [`--no-${key}`];
+        }
+        return [`--${key}`, value];
+    });
+    assignPropsTo(argv, global.arg);
+    global.flag = { ...argv, ...global.flag };
+    delete global.flag._;
 };
 global.updateArgs(process.argv.slice(2));
 let terminalInstall = async (packageName) => {
-    console.log({ packageName });
     if (!global.flag?.trust) {
         let installMessage = global.chalk `\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`;
         let downloadsMessage = global.chalk `{yellow ${packageName}} has had {yellow ${(await get(`https://api.npmjs.org/downloads/point/last-week/` +
@@ -112,7 +125,7 @@ let terminalInstall = async (packageName) => {
             exit();
         }
     }
-    echo(global.chalk `Installing {yellow ${packageName}} and continuing.`);
+    echo(global.chalk `Installing {yellow ${packageName}} and continuing...`);
     await global.cli("install", packageName);
 };
 let { createNpm } = await import("../api/npm.js");
@@ -146,4 +159,3 @@ global.drop = async () => {
     console.warn(`"drop" is not support in the terminal`);
     exit();
 };
-export {};
