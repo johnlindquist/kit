@@ -10,6 +10,6 @@ let lenientCommand = newCommand.replace(/(?<!\.js)$/, ".js");
 let newFilePath = path.resolve(path.dirname(filePath), lenientCommand);
 mv(filePath, newFilePath);
 let oldBin = path.resolve(path.dirname(filePath), "..", "bin", command);
-let newBin = path.resolve(path.dirname(oldBin), newCommand);
-mv(oldBin, newBin);
+await trash([oldBin]);
+await cli("create-bin", "scripts", newFilePath);
 edit(newFilePath, kenvPath());

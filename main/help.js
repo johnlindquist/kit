@@ -5,9 +5,14 @@ let kitManagementChoices = [
         value: "get-help",
     },
     {
-        name: "Visit docs",
+        name: "Online Docs",
         description: `Work in progress...`,
         value: "goto-docs",
+    },
+    {
+        name: "Search Docs",
+        description: `Work in progress...`,
+        value: "search-docs",
     },
     {
         name: "Subscribe to Newsletter",
@@ -16,5 +21,5 @@ let kitManagementChoices = [
     },
 ];
 let cliScript = await arg(`Got questions?`, kitManagementChoices);
-await cli(cliScript);
+await run(kitPath(`cli`, cliScript + ".js"));
 export {};

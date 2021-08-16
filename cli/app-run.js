@@ -54,6 +54,7 @@ setFlags({
     },
     move: {
         name: "Move script to kenv",
+        shortcut: "cmd+m",
     },
 });
 let script = await selectScript(`Run script`, true, scripts => scripts.filter(script => !script?.exclude));

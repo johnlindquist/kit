@@ -1,2 +1,2 @@
-console.log(`👀 Running OPEN`);
+edit(kenvPath());
 export {};

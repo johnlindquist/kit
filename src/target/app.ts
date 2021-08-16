@@ -457,7 +457,7 @@ global.updateArgs = arrayOfArgs => {
     })
 
   assignPropsTo(argv, global.arg)
-  global.flag = argv
+  global.flag = {...argv, ...global.flag}
   delete global.flag._
 }
 

@@ -8,9 +8,14 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "get-help",
   },
   {
-    name: "Visit docs",
+    name: "Online Docs",
     description: `Work in progress...`,
     value: "goto-docs",
+  },
+  {
+    name: "Search Docs",
+    description: `Work in progress...`,
+    value: "search-docs",
   },
   {
     name: "Subscribe to Newsletter",
@@ -24,6 +29,6 @@ let cliScript = await arg(
   kitManagementChoices
 )
 
-await cli(cliScript)
+await run(kitPath(`cli`, cliScript + ".js"))
 
 export {}

@@ -55,6 +55,7 @@ setFlags({
   },
   move: {
     name: "Move script to kenv",
+    shortcut: "cmd+m",
   },
 })
 

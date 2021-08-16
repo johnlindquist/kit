@@ -283,7 +283,7 @@ global.updateArgs = arrayOfArgs => {
         return [`--${key}`, value];
     });
     assignPropsTo(argv, global.arg);
-    global.flag = argv;
+    global.flag = { ...argv, ...global.flag };
     delete global.flag._;
 };
 global.updateArgs(process.argv.slice(2));

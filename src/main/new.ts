@@ -28,7 +28,7 @@ let cliScript = await arg<keyof CLI>(
 )
 
 if (newOptions.find(script => script.value === cliScript)) {
-  await cli(cliScript)
+  await run(kitPath(`cli`, cliScript + ".js"))
 } else {
   await cli("new", cliScript)
 }
