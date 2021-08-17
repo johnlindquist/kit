@@ -20,7 +20,7 @@ let response = await octokit.rest.gists.create({
     public: true,
 });
 let gistUrl = response.data.files[scriptJS].raw_url;
-let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}`;
+let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`;
 let discussionPost = `
 [Install ${command}](${link})
 
@@ -29,7 +29,7 @@ ${content}
 \`\`\`
 `;
 copy(discussionPost);
-exec(`open https://github.com/johnlindquist/kit/discussions/new`);
+exec(`open 'https://github.com/johnlindquist/kit/discussions/new?category=share'`);
 await arg({
     placeholder: "Copied script to clipboard",
     hint: `Paste into Discussion. Hit "escape" to close prompt`,
