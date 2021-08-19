@@ -143,6 +143,7 @@ global.kitPrompt = async (config) => {
         strict,
         selected,
         type,
+        ignoreBlur,
     });
     global.setHint(hint);
     if (input)
