@@ -286,6 +286,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     strict,
     selected,
     type,
+    ignoreBlur,
   })
 
   global.setHint(hint)
@@ -457,7 +458,7 @@ global.updateArgs = arrayOfArgs => {
     })
 
   assignPropsTo(argv, global.arg)
-  global.flag = {...argv, ...global.flag}
+  global.flag = { ...argv, ...global.flag }
   delete global.flag._
 }
 
