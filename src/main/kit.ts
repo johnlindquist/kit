@@ -32,7 +32,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "kit-log",
   },
   {
-    name: "Check for Update",
+    name: "Update Kit.app",
     description: `Version: ${env.KIT_APP_VERSION}`,
     value: "update",
   },
@@ -127,7 +127,7 @@ if ((await getKenvs()).length) {
     value: "kenv-rm",
   }),
     kitManagementChoices.splice(-3, 0, {
-      name: `Update kenv`,
+      name: `Pull kenv`,
       description: `Runs git pull on kenv repo`,
       value: "kenv-pull",
     })
