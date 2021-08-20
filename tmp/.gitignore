@@ -1,2 +1,4 @@
 *
 !.gitignore
+!downloads
+!clipboard
