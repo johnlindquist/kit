@@ -7,11 +7,6 @@ import { CLI } from "../cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
-    name: "View kenv",
-    description: `View scripts from specified kenv`,
-    value: "kenv-view",
-  },
-  {
     name: "Clone repo of scripts",
     description: `Clone a repo of scripts (AKA kenv)`,
     value: "kenv-clone",
@@ -76,11 +71,6 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "change-shortcut",
   },
   {
-    name: "Change editor",
-    description: "Pick a new editor",
-    value: "change-editor",
-  },
-  {
     name: "Generate bin files",
     description: "Recreate all the terminal executables",
     value: "create-all-bins",
@@ -122,15 +112,20 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
 
 if ((await getKenvs()).length) {
   kitManagementChoices.splice(-3, 0, {
+    name: "View kenv",
+    description: `View scripts from specified kenv`,
+    value: "kenv-view",
+  })
+  kitManagementChoices.splice(-3, 0, {
     name: `Remove kenv`,
     description: `Remove a kenv`,
     value: "kenv-rm",
-  }),
-    kitManagementChoices.splice(-3, 0, {
-      name: `Pull kenv`,
-      description: `Runs git pull on kenv repo`,
-      value: "kenv-pull",
-    })
+  })
+  kitManagementChoices.splice(-3, 0, {
+    name: `Pull kenv`,
+    description: `Runs git pull on kenv repo`,
+    value: "kenv-pull",
+  })
 }
 
 let cliScript = await arg(

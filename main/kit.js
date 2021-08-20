@@ -3,11 +3,6 @@
 import { getKenvs } from "kit-bridge/esm/util";
 let kitManagementChoices = [
     {
-        name: "View kenv",
-        description: `View scripts from specified kenv`,
-        value: "kenv-view",
-    },
-    {
         name: "Clone repo of scripts",
         description: `Clone a repo of scripts (AKA kenv)`,
         value: "kenv-clone",
@@ -28,7 +23,7 @@ let kitManagementChoices = [
         value: "kit-log",
     },
     {
-        name: "Check for Update",
+        name: "Update Kit.app",
         description: `Version: ${env.KIT_APP_VERSION}`,
         value: "update",
     },
@@ -66,11 +61,6 @@ let kitManagementChoices = [
         name: "Change script shortcut",
         description: "Pick a new keyboard shortcut for a script",
         value: "change-shortcut",
-    },
-    {
-        name: "Change editor",
-        description: "Pick a new editor",
-        value: "change-editor",
     },
     {
         name: "Generate bin files",
@@ -111,15 +101,20 @@ let kitManagementChoices = [
 ];
 if ((await getKenvs()).length) {
     kitManagementChoices.splice(-3, 0, {
+        name: "View kenv",
+        description: `View scripts from specified kenv`,
+        value: "kenv-view",
+    });
+    kitManagementChoices.splice(-3, 0, {
         name: `Remove kenv`,
         description: `Remove a kenv`,
         value: "kenv-rm",
-    }),
-        kitManagementChoices.splice(-3, 0, {
-            name: `Update kenv`,
-            description: `Runs git pull on kenv repo`,
-            value: "kenv-pull",
-        });
+    });
+    kitManagementChoices.splice(-3, 0, {
+        name: `Pull kenv`,
+        description: `Runs git pull on kenv repo`,
+        value: "kenv-pull",
+    });
 }
 let cliScript = await arg(`Kit Options`, kitManagementChoices);
 await run(kitPath("cli", cliScript) + ".js");
