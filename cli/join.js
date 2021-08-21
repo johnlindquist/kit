@@ -1,3 +1,4 @@
+// Description: Subscribe to the Script Kit Newsletter
 let email_address = await arg({
     placeholder: "Enter e-mail to join newsletter:",
 }, md(`<div class="p-6">

@@ -34,4 +34,6 @@ export let setSelectedText = async text => {
   await applescript(
     String.raw`tell application "System Events" to keystroke "v" using command down`
   )
+
+  await applescript(String.raw`set the clipboard to ""`)
 }

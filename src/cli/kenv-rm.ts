@@ -1,3 +1,5 @@
+// Description: Delete a Kenv Repo
+
 import {
   getLastSlashSeparated,
   getKenvs,
