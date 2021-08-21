@@ -7,10 +7,6 @@ export let getSelectedText = async () => {
     String.raw`tell application "System Events" to keystroke "c" using command down`
   )
 
-  let selectedText = await applescript(
-    String.raw`get the clipboard`
-  )
-
   return await paste()
 }
 
