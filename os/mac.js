@@ -7,7 +7,7 @@ global.applescript = async (script, options = { silent: true }) => {
     let { stdout, stderr } = exec(command, options);
     if (stderr) {
         console.log(stderr);
-        exit();
+        throw new Error(stderr);
     }
     return stdout.trim();
 };

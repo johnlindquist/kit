@@ -39,7 +39,7 @@ let kitManagementChoices = [
     },
     {
         name: "Open Script Kit at Login",
-        description: "Sets Script Kit to launch at login",
+        description: "Open toggle login at launch at login",
         value: "open-at-login",
     },
     {
@@ -109,6 +109,11 @@ if ((await getKenvs()).length) {
         name: `Remove kenv`,
         description: `Remove a kenv`,
         value: "kenv-rm",
+    });
+    kitManagementChoices.splice(-3, 0, {
+        name: `Push kenv`,
+        description: `Runs git push on kenv repo`,
+        value: "kenv-push",
     });
     kitManagementChoices.splice(-3, 0, {
         name: `Pull kenv`,

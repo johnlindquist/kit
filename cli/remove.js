@@ -1,3 +1,4 @@
+// Description: Remove a script
 import { selectScript } from "../utils.js";
 let command, filePath;
 while (true) {
