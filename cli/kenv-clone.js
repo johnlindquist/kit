@@ -1,4 +1,4 @@
-//Description: Name your kenv
+//Description: Clone a Kenv repo
 import { getLastSlashSeparated } from "kit-bridge/esm/util";
 let kenvsDir = kenvPath("kenvs");
 if (!(await isDir(kenvsDir))) {
