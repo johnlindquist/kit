@@ -43,6 +43,7 @@ let errorAction: ErrorAction = await arg(
   {
     placeholder: `🤕 Error in ${script}`,
     ignoreBlur: true,
+    hint: stack.split("\n")[0],
   },
   [
     {

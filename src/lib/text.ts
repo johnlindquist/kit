@@ -19,13 +19,14 @@ await setSelectedText(`Script Kit is awesome!`)
 */
 
 export let setSelectedText = async text => {
+  send(Channel.HIDE_APP)
+
   await applescript(
     String.raw`set the clipboard to "${text.replaceAll(
       '"',
       '\\"'
     )}"`
   )
-  send(Channel.HIDE_APP)
 
   await applescript(
     String.raw`tell application "System Events" to keystroke "v" using command down`

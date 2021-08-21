@@ -9,7 +9,7 @@ import {
 } from "kit-bridge/esm/util"
 import stripAnsi from "strip-ansi"
 
-let errorPrompt = async (error: Error) => {
+export let errorPrompt = async (error: Error) => {
   if (env.KIT_CONTEXT === "app") {
     console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
     let stackWithoutId = error.stack.replace(/\?[^:]*/, "")

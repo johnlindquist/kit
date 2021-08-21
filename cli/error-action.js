@@ -28,6 +28,7 @@ console.log(stack);
 let errorAction = await arg({
     placeholder: `🤕 Error in ${script}`,
     ignoreBlur: true,
+    hint: stack.split("\n")[0],
 }, [
     {
         name: `Open ${script} in editor`,

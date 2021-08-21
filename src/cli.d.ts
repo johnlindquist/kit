@@ -68,6 +68,7 @@ export interface CLI {
   "kit-log": Promise<typeof import("./cli/kit-log")>
   "kenv-rm": Promise<typeof import("./cli/kenv-rm")>
   "kenv-pull": Promise<typeof import("./cli/kenv-pull")>
+  "kenv-push": Promise<typeof import("./cli/kenv-push")>
   "system-events": Promise<
     typeof import("./cli/system-events")
   >
