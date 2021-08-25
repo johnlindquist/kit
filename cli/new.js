@@ -1,4 +1,5 @@
 // Description: Create a new script
+import { getKenvs } from "kit-bridge/esm/util";
 import { exists } from "../utils.js";
 let generate = await npm("project-name-generator");
 let examples = Array.from({ length: 3 })
@@ -9,7 +10,7 @@ let name = await arg({
     validate: exists,
     hint: `examples: ${examples}`,
 });
-let kenvDirs = (await readdir(kenvPath("kenvs"))) || [];
+let kenvDirs = await getKenvs();
 let selectedKenvDir = kenvPath();
 if (kenvDirs.length) {
     selectedKenvDir = await arg(`Select target kenv`, [
@@ -19,11 +20,10 @@ if (kenvDirs.length) {
             value: kenvPath(),
         },
         ...kenvDirs.map(kenvDir => {
-            let value = kenvPath("kenvs", kenvDir);
             return {
-                name: kenvDir,
-                description: value,
-                value,
+                name: path.basename(kenvDir),
+                description: kenvDir,
+                value: kenvDir,
             };
         }),
     ]);
