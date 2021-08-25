@@ -1,3 +1,4 @@
+process.env.KIT = path.dirname(new URL(import.meta.url).pathname);
 import { config } from "dotenv";
 import { assignPropsTo } from "kit-bridge/esm/util";
 import "./api/global.js";
