@@ -44,6 +44,7 @@ export let errorPrompt = async (error) => {
     }
 };
 global.attemptImport = async (path, ..._args) => {
+    console.log({ path, args });
     try {
         global.updateArgs(_args);
         //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice

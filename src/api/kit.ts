@@ -59,6 +59,7 @@ export let errorPrompt = async (error: Error) => {
   }
 }
 global.attemptImport = async (path, ..._args) => {
+  console.log({ path, args })
   try {
     global.updateArgs(_args)
 
