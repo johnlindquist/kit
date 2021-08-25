@@ -1,5 +1,6 @@
 {
   "name": "kit",
+  "bin": "./kit",
   "version": "1.0.0",
   "description": "",
   "types": "./src/kit.d.ts",
