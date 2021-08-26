@@ -378,8 +378,8 @@ let kitGet = (
   key: string,
   _receiver: any
 ) => {
-  if (global[key] && !dirs.includes(key)) {
-    return global[key]
+  if ((global as any)[key] && !dirs.includes(key)) {
+    return (global as any)[key]
   }
 
   try {
