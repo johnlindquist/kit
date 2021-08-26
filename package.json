@@ -4,9 +4,9 @@
   "bin": {
     "kit": "./kit"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
-  "types": "./src/global.d.ts",
+  "types": "./types/kit.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
     "scripts": "tsc --watch",
