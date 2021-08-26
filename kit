@@ -1,7 +1,10 @@
 #!/bin/bash
 
-KIT="$PWD/node_modules/@johnlindquist/kit" 
-KENV="$PWD" 
+KIT_CWD="$PWD/node_modules/@johnlindquist/kit" 
+KENV_CWD="$PWD" 
+
+KIT="${KIT:=$KIT_CWD}"
+KENV="${KENV:=$KENV_CWD}"
 
 KIT="$KIT" KENV="$KENV" node \
 $KIT/kit.js \
