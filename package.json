@@ -4,13 +4,13 @@
   "bin": {
     "kit": "./kit"
   },
-  "version": "1.0.14",
+  "version": "1.0.17",
   "description": "",
   "types": "./types/kit.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
     "scripts": "tsc --watch",
-    "postinstall": "echo '😤' && node --version && echo '👀'",
+    "postinstall": "echo '👀 Postinstalling...\n' && KIT='.' ./kit ./cli/postinstall.js",
     "dev": "npm run clean && concurrently --kill-others \"npm run scripts\""
   },
   "author": "",
