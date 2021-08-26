@@ -14,6 +14,3 @@ config({
     path: process.env.KIT_DOTENV || kenvPath(".env"),
 });
 assignPropsTo(process.env, global.env);
-export default async (command) => {
-    await run(command);
-};

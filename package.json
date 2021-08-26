@@ -57,13 +57,5 @@
     "concurrently": "^6.0.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.2.3"
-  },
-  "exports": {
-    "./ci/*": "./ci/*.js",
-    "./cli/*": "./cli/*.js",
-    "./ipc/*": "./ipc/*.js",
-    "./lib/*": "./lib/*.js",
-    "./main/*": "./main/*.js",
-    "./setup/*": "./setup/*.js"
   }
 }

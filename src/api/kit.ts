@@ -8,6 +8,7 @@ import {
   resolveToScriptPath,
 } from "kit-bridge/esm/util"
 import stripAnsi from "strip-ansi"
+import { copyFileSync } from "fs"
 
 export let errorPrompt = async (error: Error) => {
   if (env.KIT_CONTEXT === "app") {
@@ -405,7 +406,16 @@ let kitFn = async (
   return await global.attemptImport(kitScriptPath, ..._args)
 }
 
-global.kit = new Proxy(() => {}, {
+async function kit(command: string) {
+  let [script, ...args] = command.split(" ")
+  let file = `${script}.js`
+  let tmpFilePath = kitPath("tmp", file)
+  copyFileSync(kenvPath("scripts", file), tmpFilePath)
+
+  return (await run(tmpFilePath, ...args)).default
+}
+
+global.kit = new Proxy(kit, {
   get: kitGet,
   apply: kitFn,
 })

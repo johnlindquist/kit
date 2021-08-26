@@ -21,7 +21,3 @@ config({
 })
 
 assignPropsTo(process.env, global.env)
-
-export default async (command: string) => {
-  await run(command)
-}

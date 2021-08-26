@@ -574,4 +574,5 @@ declare global {
   let setFlags: FlagFn
 }
 
-type Kit = LibModuleLoader & Omit<GlobalKit, "kit">
+type Run = (command: string) => Promise<any>
+type Kit = LibModuleLoader & Omit<GlobalKit, "kit"> & Run
