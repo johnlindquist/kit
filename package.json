@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
     "scripts": "tsc --watch",
-    "postinstall": "KIT=. kit ./cli/postinstall.js",
+    "postinstall": "echo '😤' && node --version && echo '👀'",
     "dev": "npm run clean && concurrently --kill-others \"npm run scripts\""
   },
   "author": "",
