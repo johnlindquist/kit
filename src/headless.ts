@@ -1,8 +1,3 @@
-// process.env.KIT = path.dirname(
-//   new URL(import.meta.url).pathname
-// )
-// process.env.KENV = process.cwd()
-
 import { config } from "dotenv"
 import { assignPropsTo } from "kit-bridge/esm/util"
 

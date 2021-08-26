@@ -1,6 +1,8 @@
 #!/bin/bash
 
-KIT="$PWD/node_modules/kit" KENV="$PWD" 
-node \
+KIT="$PWD/node_modules/kit" 
+KENV="$PWD" 
+
+KIT="$KIT" KENV="$KENV" node \
 $KIT/headless.js \
 "$@"
