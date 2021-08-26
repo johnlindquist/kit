@@ -4,12 +4,13 @@
   "bin": {
     "kit": "./kit"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "types": "./src/global.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
     "scripts": "tsc --watch",
+    "postinstall": "rm -rf ./src",
     "dev": "npm run clean && concurrently --kill-others \"npm run scripts\""
   },
   "author": "",
