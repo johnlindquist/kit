@@ -310,10 +310,6 @@ let kitGet = (_target, key, _receiver) => {
         console.warn(error);
     }
 };
-let kitFn = async (_target, _obj, [scriptPath, ..._args]) => {
-    let kitScriptPath = kitPath("lib", scriptPath) + ".js";
-    return await global.attemptImport(kitScriptPath, ..._args);
-};
 async function kit(command) {
     let [script, ...args] = command.split(" ");
     let file = `${script}.js`;
@@ -323,7 +319,6 @@ async function kit(command) {
 }
 global.kit = new Proxy(kit, {
     get: kitGet,
-    apply: kitFn,
 });
 global.flag = {};
 global.setFlags = flags => {

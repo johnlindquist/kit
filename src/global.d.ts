@@ -575,4 +575,4 @@ declare global {
 }
 
 type Run = (command: string) => Promise<any>
-type Kit = LibModuleLoader & Omit<GlobalKit, "kit"> & Run
+type Kit = Omit<GlobalKit, "kit"> & Run

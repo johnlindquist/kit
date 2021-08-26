@@ -397,15 +397,6 @@ let kitGet = (
   }
 }
 
-let kitFn = async (
-  _target: any,
-  _obj: any,
-  [scriptPath, ..._args]
-) => {
-  let kitScriptPath = kitPath("lib", scriptPath) + ".js"
-  return await global.attemptImport(kitScriptPath, ..._args)
-}
-
 async function kit(command: string) {
   let [script, ...args] = command.split(" ")
   let file = `${script}.js`
@@ -417,7 +408,6 @@ async function kit(command: string) {
 
 global.kit = new Proxy(kit, {
   get: kitGet,
-  apply: kitFn,
 })
 
 global.flag = {}
