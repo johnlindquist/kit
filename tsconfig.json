@@ -10,9 +10,9 @@
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "paths": {
-      "*": ["./src/*", "./declarations/*"]
+      "*": ["./src/*", "./declarations/*", "./types/*"]
     }
   },
-  "include": ["./src/**/*.ts", "src/global.d.ts"],
+  "include": ["./src/**/*.ts", "types/*.d.ts"],
   "exclude": ["./src/preload/**/*"]
 }

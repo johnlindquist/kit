@@ -1,5 +1,5 @@
 import { Choice } from "kit-bridge/esm/type"
-import { CLI } from "../cli"
+import { CLI } from "cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {

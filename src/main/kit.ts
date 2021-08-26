@@ -3,7 +3,7 @@
 
 import { Choice } from "kit-bridge/esm/type"
 import { getKenvs } from "kit-bridge/esm/util"
-import { CLI } from "../cli"
+import { CLI } from "cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {

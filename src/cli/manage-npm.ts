@@ -1,7 +1,7 @@
 // Menu: Manage npm
 // Description: Add/remove npm packages
 
-import { CLI } from "../cli"
+import { CLI } from "cli"
 
 while (true) {
   let script = await arg("Manage npm packages", [

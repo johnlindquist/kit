@@ -381,7 +381,7 @@ interface KitApi {
   setFlags: FlagFn
 }
 
-type GlobalKit = KitApi & typeof import("./api/lib")
+type GlobalKit = KitApi & typeof import("../src/api/lib")
 
 declare global {
   type Choices<Value> =
@@ -530,39 +530,39 @@ declare global {
 
   let selectKitEditor: SelectKitEditor
 
-  let copyPathAsImage: typeof import("./lib/file").copyPathAsImage
-  let fileSearch: typeof import("./lib/file").fileSearch
-  let focusTab: typeof import("./lib/browser").focusTab
-  let focusWindow: typeof import("./lib/desktop").focusWindow
-  let getActiveAppBounds: typeof import("./lib/desktop").getActiveAppBounds
-  let getActiveScreen: typeof import("./lib/desktop").getActiveScreen
-  let getActiveTab: typeof import("./lib/browser").getActiveTab
-  let getMousePosition: typeof import("./lib/desktop").getMousePosition
-  let getScreens: typeof import("./lib/desktop").getScreens
-  let getSelectedFile: typeof import("./lib/file").getSelectedFile
-  let getSelectedText: typeof import("./lib/text").getSelectedText
-  let getTabs: typeof import("./lib/browser").getTabs
-  let getWindows: typeof import("./lib/desktop").getWindows
-  let getWindowsBounds: typeof import("./lib/desktop").getWindowsBounds
-  let lock: typeof import("./lib/system").lock
-  let organizeWindows: typeof import("./lib/desktop").organizeWindows
-  let playAudioFile: typeof import("./lib/audio").playAudioFile
-  let quitAllApps: typeof import("./lib/system").quitAllApps
-  let say: typeof import("./lib/speech").say
-  let scatterWindows: typeof import("./lib/desktop").scatterWindows
-  let setActiveAppBounds: typeof import("./lib/desktop").setActiveAppBounds
-  let setSelectedText: typeof import("./lib/text").setSelectedText
-  let setWindowBoundsByIndex: typeof import("./lib/desktop").setWindowBoundsByIndex
-  let setWindowPosition: typeof import("./lib/desktop").setWindowPosition
-  let setWindowPositionByIndex: typeof import("./lib/desktop").setWindowPositionByIndex
-  let setWindowSize: typeof import("./lib/desktop").setWindowSize
-  let setWindowSizeByIndex: typeof import("./lib/desktop").setWindowSizeByIndex
-  let keystroke: typeof import("./lib/keyboard").keystroke
-  let shutdown: typeof import("./lib/system").shutdown
-  let sleep: typeof import("./lib/system").sleep
-  let tileWindow: typeof import("./lib/desktop").tileWindow
-  let scrapeSelector: typeof import("./lib/browser").scrapeSelector
-  let scrapeAttribute: typeof import("./lib/browser").scrapeAttribute
+  let copyPathAsImage: typeof import("../src/lib/file").copyPathAsImage
+  let fileSearch: typeof import("../src/lib/file").fileSearch
+  let focusTab: typeof import("../src/lib/browser").focusTab
+  let focusWindow: typeof import("../src/lib/desktop").focusWindow
+  let getActiveAppBounds: typeof import("../src/lib/desktop").getActiveAppBounds
+  let getActiveScreen: typeof import("../src/lib/desktop").getActiveScreen
+  let getActiveTab: typeof import("../src/lib/browser").getActiveTab
+  let getMousePosition: typeof import("../src/lib/desktop").getMousePosition
+  let getScreens: typeof import("../src/lib/desktop").getScreens
+  let getSelectedFile: typeof import("../src/lib/file").getSelectedFile
+  let getSelectedText: typeof import("../src/lib/text").getSelectedText
+  let getTabs: typeof import("../src/lib/browser").getTabs
+  let getWindows: typeof import("../src/lib/desktop").getWindows
+  let getWindowsBounds: typeof import("../src/lib/desktop").getWindowsBounds
+  let lock: typeof import("../src/lib/system").lock
+  let organizeWindows: typeof import("../src/lib/desktop").organizeWindows
+  let playAudioFile: typeof import("../src/lib/audio").playAudioFile
+  let quitAllApps: typeof import("../src/lib/system").quitAllApps
+  let say: typeof import("../src/lib/speech").say
+  let scatterWindows: typeof import("../src/lib/desktop").scatterWindows
+  let setActiveAppBounds: typeof import("../src/lib/desktop").setActiveAppBounds
+  let setSelectedText: typeof import("../src/lib/text").setSelectedText
+  let setWindowBoundsByIndex: typeof import("../src/lib/desktop").setWindowBoundsByIndex
+  let setWindowPosition: typeof import("../src/lib/desktop").setWindowPosition
+  let setWindowPositionByIndex: typeof import("../src/lib/desktop").setWindowPositionByIndex
+  let setWindowSize: typeof import("../src/lib/desktop").setWindowSize
+  let setWindowSizeByIndex: typeof import("../src/lib/desktop").setWindowSizeByIndex
+  let keystroke: typeof import("../src/lib/keyboard").keystroke
+  let shutdown: typeof import("../src/lib/system").shutdown
+  let sleep: typeof import("../src/lib/system").sleep
+  let tileWindow: typeof import("../src/lib/desktop").tileWindow
+  let scrapeSelector: typeof import("../src/lib/browser").scrapeSelector
+  let scrapeAttribute: typeof import("../src/lib/browser").scrapeAttribute
 
   let getScripts: GetScripts
 

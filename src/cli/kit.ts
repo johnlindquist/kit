@@ -1,6 +1,6 @@
 //Description: Script Kit CLI
 
-import { CLI } from "../cli"
+import { CLI } from "cli"
 
 interface CLIMenuItem {
   name?: string
