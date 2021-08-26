@@ -8,7 +8,7 @@ import {
   resolveToScriptPath,
 } from "kit-bridge/esm/util"
 import stripAnsi from "strip-ansi"
-import { copyFileSync } from "fs"
+import { copyFileSync, existsSync } from "fs"
 
 export let errorPrompt = async (error: Error) => {
   if (env.KIT_CONTEXT === "app") {
@@ -243,7 +243,7 @@ global.run = async (command, ..._args) => {
   )
 }
 
-global.main = async (scriptPath, ..._args) => {
+global.main = async (scriptPath: string, ..._args) => {
   let kitScriptPath = kitPath("main", scriptPath) + ".js"
   return await global.attemptImport(kitScriptPath, ..._args)
 }
@@ -400,8 +400,11 @@ let kitGet = (
 async function kit(command: string) {
   let [script, ...args] = command.split(" ")
   let file = `${script}.js`
-  let tmpFilePath = kitPath("tmp", file)
-  copyFileSync(kenvPath("scripts", file), tmpFilePath)
+  let tmpFilePath = kitPath("tmp", "scripts", file)
+  if (!existsSync(tmpFilePath)) {
+    mkdir("-r", kitPath("tmp", "scripts"))
+    copyFileSync(kenvPath("scripts", file), tmpFilePath)
+  }
 
   return (await run(tmpFilePath, ...args)).default
 }
@@ -411,7 +414,7 @@ global.kit = new Proxy(kit, {
 })
 
 global.flag = {}
-global.setFlags = flags => {
+global.setFlags = (flags: FlagsOptions) => {
   let validFlags = {}
   for (let [key, value] of Object.entries(flags)) {
     validFlags[key] = {

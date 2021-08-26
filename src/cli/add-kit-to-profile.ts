@@ -1,3 +1,5 @@
+import { existsSync } from "fs"
+
 //Description: Adds the .kenv bin dir to your $PATH
 export {}
 
@@ -15,7 +17,7 @@ let choices = [
 
 let profiles = choices
   .map(profile => `${env.HOME}/${profile}`)
-  .filter(profile => test("-f", profile))
+  .filter(profile => existsSync(profile))
 
 let selectedProfile = await arg(
   "Select your profile:",

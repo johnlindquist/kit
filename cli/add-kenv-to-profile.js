@@ -1,3 +1,4 @@
+import { existsSync } from "fs";
 let exportKenvPath = `export PATH="$PATH:${kenvPath("bin")}"`;
 let choices = [
     `.zshrc`,
@@ -8,7 +9,7 @@ let choices = [
 ];
 let profiles = choices
     .map(profile => `${env.HOME}/${profile}`)
-    .filter(profile => test("-f", profile));
+    .filter(profile => existsSync(profile));
 let selectedProfile = await arg("Select your profile:", profiles);
 await appendFile(selectedProfile, `\n${exportKenvPath}`);
 let { stdout } = exec(`wc ${selectedProfile}`, {
@@ -16,4 +17,3 @@ let { stdout } = exec(`wc ${selectedProfile}`, {
 });
 let lineCount = stdout.trim().split(" ").shift();
 edit(selectedProfile, kenvPath(), lineCount);
-export {};
