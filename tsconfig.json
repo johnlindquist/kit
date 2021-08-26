@@ -13,6 +13,6 @@
       "*": ["./src/*", "./declarations/*"]
     }
   },
-  "include": ["./src/**/*.ts", "src/kit.d.ts"],
+  "include": ["./src/**/*.ts", "src/global.d.ts"],
   "exclude": ["./src/preload/**/*"]
 }

@@ -1,9 +1,12 @@
 {
-  "name": "kit",
-  "bin": "./kit",
+  "name": "@johnlindquist/kit",
+  "main": "./run.js",
+  "bin": {
+    "kit": "./kit"
+  },
   "version": "1.0.0",
   "description": "",
-  "types": "./src/kit.d.ts",
+  "types": "./src/global.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
     "scripts": "tsc --watch",
