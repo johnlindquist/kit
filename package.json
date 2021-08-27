@@ -4,7 +4,7 @@
   "bin": {
     "kit": "./kit"
   },
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "",
   "types": "./types/kit.d.ts",
   "scripts": {
