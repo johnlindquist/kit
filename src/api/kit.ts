@@ -412,7 +412,7 @@ async function kit(command: string) {
 
   console.log(`Tree import`)
   t = await tree({
-    base: new URL(import.meta.url).pathname,
+    base: path.dirname(new URL(import.meta.url).pathname),
     l: 3,
   })
   console.log(t?.report)
