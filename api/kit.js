@@ -313,17 +313,8 @@ let kitGet = (_target, key, _receiver) => {
 async function kit(command) {
     let [script, ...args] = command.split(" ");
     let file = `${script}.js`;
-    console.log(`Tree`);
-    let t = await tree({ l: 3 });
-    console.log(t?.report);
     console.log(`Tree Kit`);
-    t = await tree({ base: kitPath(), l: 3 });
-    console.log(t?.report);
-    console.log(`Tree import`);
-    t = await tree({
-        base: path.dirname(new URL(import.meta.url).pathname),
-        l: 3,
-    });
+    let t = await tree({ base: kitPath("tmp"), l: 3 });
     console.log(t?.report);
     return t;
 }
