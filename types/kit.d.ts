@@ -565,6 +565,7 @@ declare global {
   let getScripts: GetScripts
 
   let $: typeof import("zx").$
+  let _: LoDashStatic
 
   let openLog: () => void
   let hide: () => void
