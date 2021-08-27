@@ -315,7 +315,7 @@ async function kit(command) {
     let file = `${script}.js`;
     let tmpFilePath = kitPath("tmp", "scripts", file);
     if (!existsSync(tmpFilePath)) {
-        mkdir("-r", kitPath("tmp", "scripts"));
+        mkdir("-p", kitPath("tmp", "scripts"));
         copyFileSync(kenvPath("scripts", file), tmpFilePath);
     }
     return (await run(tmpFilePath, ...args)).default;

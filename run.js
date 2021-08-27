@@ -1,3 +1,5 @@
+console.log(`⚠️ KIT:`, process.env.KIT);
+console.log(`❤️ import.meta.url`, new URL(import.meta.url).pathname);
 if (!process.env?.KIT) {
     process.env.KIT = path.dirname(new URL(import.meta.url).pathname);
 }
