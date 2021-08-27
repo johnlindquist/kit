@@ -407,7 +407,7 @@ async function kit(command: string) {
 
   console.log(t?.report)
 
-  return t
+  return t?.report
 }
 
 global.kit = new Proxy(kit, {

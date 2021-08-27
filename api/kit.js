@@ -316,7 +316,7 @@ async function kit(command) {
     console.log(`Tree Kit`);
     let t = await tree({ base: kitPath(), l: 2 });
     console.log(t?.report);
-    return t;
+    return t?.report;
 }
 global.kit = new Proxy(kit, {
     get: kitGet,
