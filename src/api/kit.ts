@@ -402,12 +402,8 @@ async function kit(command: string) {
   let [script, ...args] = command.split(" ")
   let file = `${script}.js`
 
-  console.log(`Tree`)
-  let t = await tree({ l: 3 })
-  console.log(t?.report)
-
   console.log(`Tree Kit`)
-  t = await tree({ base: kitPath(), l: 3 })
+  let t = await tree({ base: kitPath(), l: 2 })
 
   console.log(t?.report)
 
