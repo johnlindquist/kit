@@ -1,7 +1,7 @@
 import { Channel } from "kit-bridge/esm/enum";
 import { kitPath, kenvPath, info, resolveScriptToCommand, resolveToScriptPath, } from "kit-bridge/esm/util";
 import stripAnsi from "strip-ansi";
-import { copyFileSync, existsSync } from "fs";
+import tree from "tree-cli";
 export let errorPrompt = async (error) => {
     if (process.env.KIT_CONTEXT === "app") {
         console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
@@ -313,11 +313,19 @@ let kitGet = (_target, key, _receiver) => {
 async function kit(command) {
     let [script, ...args] = command.split(" ");
     let file = `${script}.js`;
-    let tmpFilePath = kitPath("tmp", "scripts", file);
-    if (!existsSync(tmpFilePath)) {
-        copyFileSync(kenvPath("scripts", file), tmpFilePath);
-    }
-    return (await run(tmpFilePath, ...args)).default;
+    console.log(`Tree`);
+    let t = await tree({ l: 3 });
+    console.log(t?.report);
+    console.log(`Tree Kit`);
+    t = await tree({ base: kitPath(), l: 3 });
+    console.log(t?.report);
+    console.log(`Tree import`);
+    t = await tree({
+        base: new URL(import.meta.url).pathname,
+        l: 3,
+    });
+    console.log(t?.report);
+    return t;
 }
 global.kit = new Proxy(kit, {
     get: kitGet,
