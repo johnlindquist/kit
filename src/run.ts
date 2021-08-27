@@ -15,6 +15,7 @@ if (!process.env?.KENV) {
 }
 
 import { config } from "dotenv"
+import { copyFileSync, existsSync } from "fs"
 import { assignPropsTo } from "kit-bridge/esm/util"
 
 import "./api/global.js"
@@ -27,3 +28,14 @@ config({
 })
 
 assignPropsTo(process.env, global.env)
+
+export async function kit(command: string) {
+  let [script, ...args] = command.split(" ")
+  let file = `${script}.js`
+  let tmpFilePath = kitPath("tmp", "scripts", file)
+  if (!existsSync(tmpFilePath)) {
+    copyFileSync(kenvPath("scripts", file), tmpFilePath)
+  }
+
+  return (await run(tmpFilePath, ...args)).default
+}
