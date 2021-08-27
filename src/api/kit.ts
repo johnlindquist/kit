@@ -398,12 +398,32 @@ let kitGet = (
 }
 
 async function kit(command: string) {
+  let { default: tree } = await npm("tree-cli")
+  let tmpTree = await tree({ l: 4 })
+  console.log(`kit root`)
+  console.log(tmpTree.report)
+
+  let kitTree = await tree({ base: kitPath(), l: 4 })
+  console.log(`kit tree`)
+  console.log(kitTree.report)
+
+  let pathNameTree = await tree({
+    base: new URL(import.meta.url).pathname,
+    l: 4,
+  })
+  console.log(`pathname tree`)
+  console.log(pathNameTree.report)
+
   let [script, ...args] = command.split(" ")
   let file = `${script}.js`
   let tmpFilePath = kitPath("tmp", "scripts", file)
+  console.log(tmpFilePath)
+  console.log(
+    `Exists? ${existsSync(tmpFilePath) ? "yes" : "no"}`
+  )
   if (!existsSync(tmpFilePath)) {
     console.log(`readdir`)
-    console.log(await readdir(kitPath("scripts")))
+    console.log(await readdir(kitPath("tmp", "scripts")))
     copyFileSync(kenvPath("scripts", file), tmpFilePath)
   }
 
