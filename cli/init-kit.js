@@ -1,3 +1,4 @@
+let tree = await npm("tree-cli");
 console.log(kenvPath("scripts"));
 console.log(kitPath("scripts"));
 let removeSrc = await isDir(kitPath("src"));
@@ -23,4 +24,9 @@ let runFile = kitPath("run.js");
 let contents = await readFile(runFile, "utf-8");
 let replaced = contents.replace(/(codegen).*/gs, keepFn);
 await writeFile(runFile, replaced);
+console.log(`Tree Kit`);
+let t = await tree({ base: kitPath(), l: 2 });
+console.log(t?.report);
+contents = await readFile(kitPath("run.js"), "utf-8");
+console.log(contents);
 export {};
