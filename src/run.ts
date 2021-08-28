@@ -15,7 +15,6 @@ if (!process.env?.KENV) {
 }
 
 import { config } from "dotenv"
-import { copyFileSync, existsSync } from "fs"
 import { assignPropsTo } from "kit-bridge/esm/util"
 
 import "./api/global.js"
@@ -29,7 +28,4 @@ config({
 
 assignPropsTo(process.env, global.env)
 
-let keep = async () => {
-  //@ts-ignore
-  await import(`./tmp/scripts/repos.js`)
-}
+//keep

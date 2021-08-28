@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./kit "./cli/copy-to-scripts.js"

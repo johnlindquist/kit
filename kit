@@ -5,11 +5,6 @@ KENV_CWD="$PWD"
 KIT="${KIT:=$KIT_CWD}"
 KENV="${KENV:="$(cd $KIT/../../..; pwd)"}"
 
-echo 'KIT:'
-echo $KIT
-echo 'KENV:'
-echo $KENV
-
 KIT="$KIT" KENV="$KENV" node \
 $KIT/kit.js \
 "$@"

@@ -2,7 +2,8 @@
   "name": "@johnlindquist/kit",
   "main": "./run.js",
   "bin": {
-    "kit": "./kit"
+    "kit": "./kit",
+    "init-kit": "./init-kit"
   },
   "engines": {
     "node": "14.x.x"

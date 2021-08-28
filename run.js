@@ -16,7 +16,4 @@ config({
     path: process.env.KIT_DOTENV || kenvPath(".env"),
 });
 assignPropsTo(process.env, global.env);
-let keep = async () => {
-    //@ts-ignore
-    await import(`./tmp/scripts/repos.js`);
-};
+//keep
