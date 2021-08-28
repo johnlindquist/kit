@@ -406,12 +406,12 @@ async function kit(command: string) {
 
   console.log(t?.report)
 
-  let tmpFilePath = kitPath("tmp", "scripts", file)
-  if (!existsSync(tmpFilePath)) {
-    copyFileSync(kenvPath("scripts", file), tmpFilePath)
+  let scriptsFilePath = kitPath("scripts", file)
+  if (!existsSync(scriptsFilePath)) {
+    copyFileSync(kenvPath("scripts", file), scriptsFilePath)
   }
 
-  return (await run(tmpFilePath, ...args)).default
+  return (await run(scriptsFilePath, ...args)).default
 }
 
 global.kit = new Proxy(kit, {
