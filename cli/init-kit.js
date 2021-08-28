@@ -5,17 +5,17 @@ if (removeSrc) {
     await trash([kitPath("src")]);
 }
 let kitScriptsPath = kitPath("scripts");
-cp("-r", kenvPath("scripts/*"), kitScriptsPath);
+cp(kenvPath("scripts/*"), kitScriptsPath);
 let scripts = await readdir(kitScriptsPath);
 console.log(scripts);
 let scriptImports = scripts
     .filter(s => s.endsWith(".js"))
-    .map(s => `await import("./scripts/${s}")`)
+    .map(s => `\tawait import("./scripts/${s}")`)
     .join("\n");
 let keepFn = `$1
 
 async function keep(){
-    ${scriptImports}
+${scriptImports}
 }
 `;
 console.log(keepFn);
