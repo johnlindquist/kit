@@ -1,7 +1,6 @@
 import { Channel } from "kit-bridge/esm/enum";
 import { kitPath, kenvPath, info, resolveScriptToCommand, resolveToScriptPath, } from "kit-bridge/esm/util";
 import stripAnsi from "strip-ansi";
-import { copyFileSync, existsSync } from "fs";
 export let errorPrompt = async (error) => {
     if (process.env.KIT_CONTEXT === "app") {
         console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
@@ -313,10 +312,10 @@ let kitGet = (_target, key, _receiver) => {
 async function kit(command) {
     let [script, ...args] = command.split(" ");
     let file = `${script}.js`;
-    let scriptsFilePath = kitPath("scripts", file);
-    if (!existsSync(scriptsFilePath)) {
-        copyFileSync(kenvPath("scripts", file), scriptsFilePath);
-    }
+    // let scriptsFilePath = kitPath("scripts", file)
+    // if (!existsSync(scriptsFilePath)) {
+    //   copyFileSync(kenvPath("scripts", file), scriptsFilePath)
+    // }
     return (await run(scriptsFilePath, ...args)).default;
 }
 global.kit = new Proxy(kit, {
