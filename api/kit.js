@@ -312,6 +312,8 @@ let kitGet = (_target, key, _receiver) => {
     }
 };
 async function kit(command) {
+    let contents = await readFile(kitPath("run.js"), "utf-8");
+    console.log(contents);
     let [script, ...args] = command.split(" ");
     let file = `${script}.js`;
     console.log(`Tree Kit`);
