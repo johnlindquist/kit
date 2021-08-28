@@ -28,4 +28,4 @@ config({
 
 assignPropsTo(process.env, global.env)
 
-//keep
+//codegen

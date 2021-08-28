@@ -1,3 +1,6 @@
+console.log(kenvPath("scripts"))
+console.log(kitPath("scripts"))
+
 let removeSrc = await isDir(kitPath("src"))
 if (removeSrc) {
   await trash([kitPath("src")])
@@ -5,8 +8,10 @@ if (removeSrc) {
 
 let kitScriptsPath = kitPath("scripts")
 
-cp(kenvPath("scripts/*"), kitScriptsPath)
+cp("-r", kenvPath("scripts/*"), kitScriptsPath)
 let scripts = await readdir(kitScriptsPath)
+console.log(scripts)
+
 let scriptImports = scripts
   .filter(s => s.endsWith(".js"))
   .map(s => `await import("./scripts/${s}")`)
@@ -18,6 +23,7 @@ async function keep(){
     ${scriptImports}
 }
 `
+console.log(keepFn)
 
 let runFile = kitPath("run.js")
 let contents = await readFile(runFile, "utf-8")

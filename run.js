@@ -16,4 +16,4 @@ config({
     path: process.env.KIT_DOTENV || kenvPath(".env"),
 });
 assignPropsTo(process.env, global.env);
-//keep
+//codegen
