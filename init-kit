@@ -1,3 +1,12 @@
 #!/bin/bash
 
-./kit "./cli/copy-to-scripts.js"
+#!/bin/bash
+KIT_CWD="$PWD/node_modules/@johnlindquist/kit" 
+KENV_CWD="$PWD" 
+
+KIT="${KIT:=$KIT_CWD}"
+KENV="${KENV:="$(cd $KIT/../../..; pwd)"}"
+
+KIT="$KIT" KENV="$KENV" node \
+$KIT/kit.js \
+"./cli/init-kit.js"

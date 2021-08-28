@@ -1,3 +1,8 @@
+let removeSrc = await isDir(kitPath("src"))
+if (removeSrc) {
+  await trash([kitPath("src")])
+}
+
 let kitScriptsPath = kitPath("scripts")
 
 cp(kenvPath("scripts"), kitScriptsPath)
