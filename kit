@@ -6,5 +6,5 @@ KIT="${KIT:=$KIT_CWD}"
 KENV="${KENV:="$(cd $KIT/../../..; pwd)"}"
 
 KIT="$KIT" KENV="$KENV" node \
-$KIT/kit.js \
+"$KIT/kit.js" \
 "$@"
