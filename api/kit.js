@@ -319,6 +319,8 @@ async function kit(command) {
     console.log(`Tree Kit`);
     let t = await tree({ base: kitPath(), l: 2 });
     console.log(t?.report);
+    t = await tree({ base: kenvPath(), l: 2 });
+    console.log(t?.report);
     let scriptsFilePath = kitPath("scripts", file);
     if (!existsSync(scriptsFilePath)) {
         copyFileSync(kenvPath("scripts", file), scriptsFilePath);

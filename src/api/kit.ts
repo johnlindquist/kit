@@ -407,6 +407,9 @@ async function kit(command: string) {
   let t = await tree({ base: kitPath(), l: 2 })
 
   console.log(t?.report)
+  t = await tree({ base: kenvPath(), l: 2 })
+
+  console.log(t?.report)
 
   let scriptsFilePath = kitPath("scripts", file)
   if (!existsSync(scriptsFilePath)) {
