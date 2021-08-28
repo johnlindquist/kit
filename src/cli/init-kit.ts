@@ -19,7 +19,7 @@ async function keep(){
 }
 `
 
-let runFile = "./run.js"
+let runFile = kitPath("run.js")
 let contents = await readFile(runFile, "utf-8")
 let replaced = contents.replace(/(codegen).*/gs, keepFn)
 await writeFile(runFile, replaced)
