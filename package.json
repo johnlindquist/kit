@@ -1,9 +1,6 @@
 {
   "name": "@johnlindquist/kit",
-  "exports": {
-    ".": "./runjs",
-    "./scripts/*": "./tmp/scripts/*.js"
-  },
+  "main": "./run.js",
   "bin": {
     "kit": "./kit"
   },
