@@ -399,17 +399,8 @@ let kitGet = (
 }
 
 async function kit(command: string) {
-  let contents = await readFile(kitPath("run.js"), "utf-8")
-  console.log(contents)
   let [script, ...args] = command.split(" ")
   let file = `${script}.js`
-  console.log(`Tree Kit`)
-  let t = await tree({ base: kitPath(), l: 2 })
-
-  console.log(t?.report)
-  t = await tree({ base: kenvPath(), l: 2 })
-
-  console.log(t?.report)
 
   let scriptsFilePath = kitPath("scripts", file)
   if (!existsSync(scriptsFilePath)) {
