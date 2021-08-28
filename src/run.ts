@@ -29,4 +29,7 @@ config({
 
 assignPropsTo(process.env, global.env)
 
-await import("./../tmp/scripts/repos.js")
+let keep = async () => {
+  //@ts-ignore
+  await import(`./tmp/scripts/repos.js`)
+}

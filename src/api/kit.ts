@@ -401,13 +401,17 @@ let kitGet = (
 async function kit(command: string) {
   let [script, ...args] = command.split(" ")
   let file = `${script}.js`
-
-  console.log(_.upperCase(`Tree Kit`))
+  console.log(`Tree Kit`)
   let t = await tree({ base: kitPath(), l: 2 })
 
   console.log(t?.report)
 
-  return t?.report
+  let tmpFilePath = kitPath("tmp", "scripts", file)
+  if (!existsSync(tmpFilePath)) {
+    copyFileSync(kenvPath("scripts", file), tmpFilePath)
+  }
+
+  return (await run(tmpFilePath, ...args)).default
 }
 
 global.kit = new Proxy(kit, {
