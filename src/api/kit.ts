@@ -402,7 +402,7 @@ async function kit(command: string) {
   let [script, ...args] = command.split(" ")
   let file = `${script}.js`
 
-  // let scriptsFilePath = kitPath("scripts", file)
+  let scriptsFilePath = kitPath("scripts", file)
   // if (!existsSync(scriptsFilePath)) {
   //   copyFileSync(kenvPath("scripts", file), scriptsFilePath)
   // }
