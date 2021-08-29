@@ -313,9 +313,10 @@ async function kit(command) {
     let [script, ...args] = command.split(" ");
     let file = `${script}.js`;
     let scriptsFilePath = kitPath("scripts", file);
-    // if (!existsSync(scriptsFilePath)) {
-    //   copyFileSync(kenvPath("scripts", file), scriptsFilePath)
-    // }
+    let kenvScriptPath = kenvPath("scripts", file);
+    if (test("-f", kenvScriptPath)) {
+        cp(kenvScriptPath, scriptsFilePath);
+    }
     return (await run(scriptsFilePath, ...args)).default;
 }
 global.kit = new Proxy(kit, {

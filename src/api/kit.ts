@@ -8,8 +8,6 @@ import {
   resolveToScriptPath,
 } from "kit-bridge/esm/util"
 import stripAnsi from "strip-ansi"
-import { copyFileSync, existsSync } from "fs"
-import tree from "tree-cli"
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -403,9 +401,11 @@ async function kit(command: string) {
   let file = `${script}.js`
 
   let scriptsFilePath = kitPath("scripts", file)
-  // if (!existsSync(scriptsFilePath)) {
-  //   copyFileSync(kenvPath("scripts", file), scriptsFilePath)
-  // }
+
+  let kenvScriptPath = kenvPath("scripts", file)
+  if (test("-f", kenvScriptPath)) {
+    cp(kenvScriptPath, scriptsFilePath)
+  }
 
   return (await run(scriptsFilePath, ...args)).default
 }
