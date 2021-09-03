@@ -39,9 +39,10 @@ jobs:
         run: >
           bash "${{ env.kit_path }}/install-node.sh" --prefix "${{ env.kit_path }}/node" --platform darwin
 
-      - name: Add node to PATH
+      - name: Add node and kit to PATH
         run: |
           echo "${{ env.kit_path }}/node/bin" >> $GITHUB_PATH
+          echo "${{ env.kit_path }}/bin/bin" >> $GITHUB_PATH
           echo $GITHUB_PATH
 
       - name: npm install packages
@@ -52,7 +53,6 @@ jobs:
       - name: Run tests
         run: |
           cd "${{ env.kit_path }}"
-          find . -maxdepth 2  -type f
           npm run test
 
       - name: npm prune
