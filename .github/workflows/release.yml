@@ -44,16 +44,21 @@ jobs:
           echo "${{ env.kit_path }}/node/bin" >> $GITHUB_PATH
           echo $GITHUB_PATH
 
-      - name: Run tests
-        run: |
-          cd "${{ env.kit_path }}"
-          ls -R
-          npm run test
-
       - name: npm install packages
         run: |
           cd "${{ env.kit_path }}"
           npm i
+
+      - name: Run tests
+        run: |
+          cd "${{ env.kit_path }}"
+          find . -maxdepth 2  -type f
+          npm run test
+
+      - name: npm prune
+        run: |
+          cd "${{ env.kit_path }}"
+          npm prune --production
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master
