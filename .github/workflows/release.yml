@@ -54,11 +54,6 @@ jobs:
           cd "${{ env.kit_path }}"
           npm run test
 
-      - name: npm prune
-        run: |
-          cd "${{ env.kit_path }}"
-          npm prune --production
-
       - name: Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v2.5.3
@@ -80,6 +75,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: npm prune
+        run: |
+          cd "${{ env.kit_path }}"
+          npm prune --production
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master
