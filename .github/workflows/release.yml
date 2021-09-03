@@ -48,7 +48,7 @@ jobs:
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
-          path: "$HOME/release"
+          path: "$HOME/kit"
           filename: kit-${{ env.GITHUB_REF_SLUG_URL }}.zip
           exclusions: "*.git* *src/* *test/*"
 
