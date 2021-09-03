@@ -18,9 +18,6 @@ jobs:
         os: [macos-latest]
 
     steps:
-      - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x
-
       - name: Get Time
         id: time
         uses: nanzm/get-time-action@v1.1
