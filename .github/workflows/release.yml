@@ -28,7 +28,7 @@ jobs:
 
       - name: Set env vars
         run: |
-          echo "kit_path=$PWD/kit/kit" >> $GITHUB_ENV
+          echo "kit_path=$PWD" >> $GITHUB_ENV
 
       - name: Bundle latest node
         run: >

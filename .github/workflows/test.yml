@@ -1,8 +1,6 @@
 name: Test Install, New Script, Run Script
 
 on:
-  workflow_dispatch:
-  pull_request:
   push:
     branches:
       - main
@@ -48,15 +46,10 @@ jobs:
       - name: Log Ref Name
         run: echo "Running install from ${{ env.GITHUB_REF_SLUG }}"
 
-      - name: Clone kit
-        run: |
-          git clone ${{ github.event.pull_request.head.repo.clone_url }} ~/.kit
-          ls ~/.kit
-
-      - name: Checkout to ref - ${{ github.event.pull_request.head.sha }}
-        run: |
-          cd ~/.kit
-          git checkout ${{ github.event.pull_request.head.sha }}
+      - name: Checkout kit
+        uses: actions/checkout@master
+        with:
+          path: "$HOME/kit"
 
       - name: Install latest node
         run: >
