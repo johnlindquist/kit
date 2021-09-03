@@ -1,5 +1,5 @@
 process.env.KIT =
-    process.env.KIT_DEV ||
+    process.env.KIT_OVERRIDE ||
         path.dirname(new URL(import.meta.url).pathname);
 process.env.KENV = process.env.KIT_TEST
     ? path.resolve(process.env.KIT, "test")

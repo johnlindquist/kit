@@ -38,6 +38,12 @@ ava.serial("kit rm", async t => {
   t.true(binRmed)
 })
 
+ava.serial("kit hook", async t => {
+  let message = "hello"
+  let { value } = await kit(`script-with-export ${message}`)
+  t.is(value, message)
+})
+
 ava.serial("clean .env", async t => {
   await trash(kenvPath(".env"))
   let fileRmed = !test("-f", kenvPath(".env"))
