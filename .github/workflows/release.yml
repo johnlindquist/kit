@@ -42,8 +42,10 @@ jobs:
       - name: Add node and kit to PATH
         run: |
           echo "${{ env.kit_path }}/node/bin" >> $GITHUB_PATH
-          echo "${{ env.kit_path }}/bin/bin" >> $GITHUB_PATH
-          echo $GITHUB_PATH
+          echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
+          echo "---"
+          echo "$GITHUB_PATH"
+          echo "$PATH"
 
       - name: npm install packages
         run: |
