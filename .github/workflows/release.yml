@@ -25,25 +25,24 @@ jobs:
 
       - name: Checkout kit
         uses: actions/checkout@master
-        with:
-          path: release
 
       - name: Bundle latest node
         run: >
-          bash release/install-node.sh --prefix release/node --platform darwin
+          bash ./kit/install-node.sh --prefix ./kit/node --platform darwin
 
       - name: Add node to PATH
-        run: >
-          echo "$HOME/release/node/bin" >> $GITHUB_PATH
+        run: |
+          echo "$HOME/kit/node/bin" >> $GITHUB_PATH
+          echo $GITHUB_PATH
 
       - name: Run tests
         run: |
-          cd "$HOME/release"
+          cd "$HOME/kit"
           npm run test
 
       - name: npm install packages
         run: |
-          cd "$HOME/release"
+          cd "$HOME/kit"
           npm i
 
       - name: Archive Release
