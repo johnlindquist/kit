@@ -62,7 +62,11 @@ const cliScripts = [
         name: "add-kit-to-profile",
         placeholder: "Add .kit/bin to your path",
     },
-    { name: "env", placeholder: "Modify .env" },
+    { name: "env", placeholder: "Edit .env" },
+    {
+        name: "set-env-var",
+        placeholder: "Add env var to .env",
+    },
     { name: "issue", placeholder: "File an issue on github" },
     { name: "open-at-login", placeholder: "Open at login" },
     {

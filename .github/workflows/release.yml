@@ -28,9 +28,20 @@ jobs:
         with:
           path: kit
 
-      - name: Install latest node
+      - name: Bundle latest node
         run: >
           bash kit/install-node.sh --prefix kit/node --platform darwin
+
+      - name: Add node to PATH
+        run: >
+          echo "~/.kit/bin" >> $GITHUB_PATH
+
+      - name: Run tests
+        run: >
+          npm run test
+
+      - name: npm install packages
+        run: cd kit && npm i
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master

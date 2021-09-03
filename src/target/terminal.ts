@@ -76,6 +76,9 @@ global.arg = async (messageOrConfig = "Input", choices) => {
     ) {
       let { validate } = messageOrConfig
       let validOrMessage = await validate(firstArg)
+      if (typeof validOrMessage === "string") {
+        console.log(validOrMessage)
+      }
       if (
         typeof validOrMessage === "string" ||
         !validOrMessage

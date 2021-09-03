@@ -1,5 +1,6 @@
 {
   "name": "@johnlindquist/kit",
+  "type": "module",
   "main": "./run.js",
   "bin": {
     "kit": "./kit"
@@ -7,13 +8,14 @@
   "engines": {
     "node": ">=14.8.0"
   },
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "types": "./types/kit.d.ts",
   "scripts": {
     "clean": "./node/bin/node ./build/clean.cjs",
     "scripts": "tsc --watch",
-    "dev": "npm run clean && concurrently --kill-others \"npm run scripts\""
+    "dev": "npm run clean && concurrently --kill-others \"npm run scripts\"",
+    "test": "ava"
   },
   "author": "",
   "license": "ISC",
@@ -30,7 +32,7 @@
     "download": "^8.0.0",
     "enquirer": "^2.3.6",
     "handlebars": "^4.7.6",
-    "kit-bridge": "^15.0.3",
+    "kit-bridge": "^16.0.0",
     "lodash": "^4.17.20",
     "lodash-id": "^0.14.0",
     "lowdb": "^2.0.3",
@@ -46,9 +48,8 @@
     "strip-ansi": "^6.0.0",
     "trash": "^7.0.0",
     "uuid": "^8.3.2",
-    "zx": "^2.1.0"
+    "zx": "^4.1.1"
   },
-  "type": "module",
   "devDependencies": {
     "@types/concurrently": "^6.2.1",
     "@types/debug": "^4.1.7",
@@ -58,15 +59,25 @@
     "@types/lowdb": "^1.0.9",
     "@types/marked": "^2.0.2",
     "@types/minimist": "^1.2.1",
-    "@types/node": "^15.3.0",
+    "@types/node": "^15.14.9",
     "@types/node-fetch": "^2.5.10",
     "@types/node-ipc": "^9.1.5",
     "@types/node-notifier": "^8.0.0",
     "@types/rimraf": "^3.0.2",
     "@types/shelljs": "^0.8.8",
     "@types/uuid": "^8.3.1",
+    "ava": "^3.15.0",
     "concurrently": "^6.0.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.2.3"
+  },
+  "ava": {
+    "environmentVariables": {
+      "KIT_TEST": "true"
+    },
+    "verbose": true,
+    "files": [
+      "test/*.js"
+    ]
   }
 }

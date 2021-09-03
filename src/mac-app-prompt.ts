@@ -4,7 +4,7 @@ import { Channel } from "kit-bridge/esm/enum"
 import "./api/global.js"
 import "./api/kit.js"
 import "./api/lib.js"
-import "./os/mac.js"
+import "./system/mac.js"
 import "./target/app.js"
 
 let { script, args } = await new Promise<{

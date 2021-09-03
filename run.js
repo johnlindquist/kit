@@ -1,9 +1,9 @@
-if (!process.env?.KIT) {
-    process.env.KIT = path.dirname(new URL(import.meta.url).pathname);
-}
-if (!process.env?.KENV) {
-    process.env.KENV = process.cwd();
-}
+process.env.KIT =
+    process.env.KIT_DEV ||
+        path.dirname(new URL(import.meta.url).pathname);
+process.env.KENV = process.env.KIT_TEST
+    ? path.resolve(process.env.KIT, "test")
+    : process.cwd();
 import { config } from "dotenv";
 import { assignPropsTo } from "kit-bridge/esm/util";
 import "./api/global.js";

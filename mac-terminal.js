@@ -3,7 +3,7 @@ import { assignPropsTo } from "kit-bridge/esm/util";
 import "./api/global.js";
 import "./api/kit.js";
 import "./api/lib.js";
-import "./os/mac.js";
+import "./system/mac.js";
 import "./target/terminal.js";
 config({
     path: process.env.KIT_DOTENV || kenvPath(".env"),

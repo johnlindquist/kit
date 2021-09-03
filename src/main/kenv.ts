@@ -35,7 +35,7 @@ let otherOptions: Choice<keyof CLI>[] = [
   },
 ]
 
-let cliScript = await arg(
+let cliScript = await arg<keyof CLI>(
   `Manage Kit environment`,
   otherOptions
 )

@@ -1,7 +1,6 @@
-/** @type typeof import("date-fns") */
-let { formatDistanceToNow, parseISO } = await npm(
+let { formatDistanceToNow, parseISO } = (await npm(
   "date-fns"
-)
+)) as typeof import("date-fns")
 
 let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))

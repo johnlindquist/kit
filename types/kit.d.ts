@@ -6,8 +6,8 @@ import {
   Choice,
   EditorConfig,
   TextareaConfig,
-} from "kit-bridge/esm/type"
-import { Mode, UI } from "kit-bridge/esm/enum"
+} from "kit-bridge/dist/esm/type"
+import { Mode, UI } from "kit-bridge/dist/esm/enum"
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"

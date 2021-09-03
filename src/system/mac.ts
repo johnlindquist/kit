@@ -160,7 +160,7 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (file, dir, line = 0, col = 0) => {
-  if (global.flag?.edit === false) return
+  if (!global.flag?.edit) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)
 

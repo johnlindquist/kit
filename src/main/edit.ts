@@ -51,7 +51,10 @@ if (kenvDirs.length) {
   })
 }
 
-let editAction = await arg("Which action?", editActions)
+let editAction = await arg<keyof CLI>(
+  "Which action?",
+  editActions
+)
 await cli(editAction, filePath)
 
 export {}

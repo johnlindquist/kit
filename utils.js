@@ -8,17 +8,19 @@ export let selectScript = async (message = "Select a script", fromCache = true, 
     return script;
 };
 //validator
-export let exists = async (input) => (await isBin(kenvPath("bin", input)))
-    ? chalk `{red.bold ${input}} already exists. Try again:`
-    : (await isDir(kenvPath("bin", input)))
-        ? chalk `{red.bold ${input}} exists as group. Enter different name:`
-        : exec(`command -v ${input}`, {
-            silent: true,
-        }).stdout
-            ? chalk `{red.bold ${input}} is a system command. Enter different name:`
-            : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
-                ? chalk `{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
-                : true;
+export let exists = async (input) => {
+    return (await isBin(kenvPath("bin", input)))
+        ? chalk `{red.bold ${input}} already exists. Try again:`
+        : (await isDir(kenvPath("bin", input)))
+            ? chalk `{red.bold ${input}} exists as group. Enter different name:`
+            : exec(`command -v ${input}`, {
+                silent: true,
+            }).stdout
+                ? chalk `{red.bold ${input}} is a system command. Enter different name:`
+                : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
+                    ? chalk `{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
+                    : true;
+};
 export let toggleBackground = async (script) => {
     let { tasks } = await global.getBackgroundTasks();
     let task = tasks.find(task => task.filePath === script.filePath);
