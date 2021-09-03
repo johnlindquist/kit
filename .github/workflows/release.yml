@@ -65,17 +65,31 @@ jobs:
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
-          path: "${{ env.kit_path }}"
-          filename: kit-${{ env.GITHUB_REF_SLUG_URL }}.zip
-          exclusions: "*.git* *src/* *test/*"
+          filename: "kit.zip"
+          exclusions: "*.git* *.github* *.vscode* .editorconfig *src/*"
 
-      - name: Upload Release
-        uses: ncipollo/release-action@v1
+      - name: Create Draft Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          artifacts: kit-${{ env.GITHUB_REF_SLUG_URL }}.zip
-          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.time.outputs.time }}
+          release_name: kit-${{ env.GITHUB_REF_SLUG_URL }}.zip
+          draft: true
+          prerelease: false
+
+      - uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./kit.zip
+          asset_name: kit.zip
+          asset_content_type: application/zip
 
       - uses: eregon/publish-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.time.outputs.time }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
