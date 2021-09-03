@@ -11,7 +11,12 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+
     steps:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v3.x
@@ -42,6 +47,7 @@ jobs:
       - name: Run tests
         run: |
           cd "${{ env.kit_path }}"
+          ls -R
           npm run test
 
       - name: npm install packages

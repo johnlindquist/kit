@@ -13,7 +13,12 @@ on:
 
 jobs:
   install:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+
     defaults:
       run:
         shell: bash
@@ -51,7 +56,7 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
         with:
-          path: "$HOME/kit"
+          path: ~/.kit
 
       - name: Install latest node
         run: >
