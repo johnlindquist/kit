@@ -26,29 +26,33 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
+      - name: Set env vars
+        run: |
+          echo "kit_path=$HOME/kit/kit" >> $GITHUB_ENV
+
       - name: Bundle latest node
         run: >
-          bash ./kit/install-node.sh --prefix ./kit/node --platform darwin
+          bash "${{ env.kit_path }}/install-node.sh" --prefix "${{ env.kit_path }}/node" --platform darwin
 
       - name: Add node to PATH
         run: |
-          echo "$HOME/kit/node/bin" >> $GITHUB_PATH
+          echo "${{ env.kit_path }}/node/bin" >> $GITHUB_PATH
           echo $GITHUB_PATH
 
       - name: Run tests
         run: |
-          cd "$HOME/kit"
+          cd "${{ env.kit_path }}"
           npm run test
 
       - name: npm install packages
         run: |
-          cd "$HOME/kit"
+          cd "${{ env.kit_path }}"
           npm i
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
-          path: "$HOME/kit"
+          path: "${{ env.kit_path }}"
           filename: kit-${{ env.GITHUB_REF_SLUG_URL }}.zip
           exclusions: "*.git* *src/* *test/*"
 
