@@ -30,7 +30,7 @@ jobs:
 
       - name: npm run build-ci
         run: |
-          cd "${{ env.kit_path }}"
+          npm run build-ci
 
       - name: Set env vars
         run: |
