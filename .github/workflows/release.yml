@@ -28,7 +28,7 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
-      - name: npm run build
+      - name: npm run build-ci
         run: |
           cd "${{ env.kit_path }}"
 
