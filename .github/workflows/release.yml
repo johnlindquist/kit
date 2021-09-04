@@ -48,6 +48,7 @@ jobs:
       - name: Run tests
         run: |
           cd "${{ env.wd_path }}"
+          npm i --only=dev
           npm run test
 
       - name: Semantic Release

@@ -13,4 +13,4 @@ cp *.md *.json LICENSE $KIT
 ./build/install-node.sh --prefix $KIT/node
 
 cd $KIT
-PATH=./node/bin npm i
+PATH=./node/bin npm i --production
