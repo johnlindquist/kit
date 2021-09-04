@@ -1,6 +1,6 @@
 import ava from "ava"
 
-import "../run.js"
+import "../dist/run.js"
 
 ava.serial(
   "kit set-env-var KIT_TEMPLATE default",

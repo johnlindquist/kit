@@ -28,22 +28,14 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
+      - name: npm run build
+        run: |
+          cd "${{ env.kit_path }}"
+
       - name: Set env vars
         run: |
-          echo "kit_path=$PWD" >> $GITHUB_ENV
-
-      - name: Get npm cache
-        id: npm-cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Bundle latest node
-        run: >
-          bash "${{ env.kit_path }}/install-node.sh" --prefix "${{ env.kit_path }}/node" --platform darwin
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/dist" >> $GITHUB_ENV
 
       - name: Add node and kit to PATH
         run: |
@@ -53,14 +45,9 @@ jobs:
           echo "$GITHUB_PATH"
           echo "$PATH"
 
-      - name: npm install packages
-        run: |
-          cd "${{ env.kit_path }}"
-          npm i
-
       - name: Run tests
         run: |
-          cd "${{ env.kit_path }}"
+          cd "${{ env.wd_path }}"
           npm run test
 
       - name: Semantic Release
