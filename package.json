@@ -8,14 +8,15 @@
   "engines": {
     "node": ">=14.8.0"
   },
-  "version": "1.0.7",
+  "version": "0.0.0-development",
   "description": "",
   "types": "./types/kit.d.ts",
   "scripts": {
-    "clean": "./node/bin/node ./build/clean.cjs",
-    "scripts": "tsc --watch",
-    "dev": "npm run clean && concurrently --kill-others \"npm run scripts\"",
-    "test": "ava"
+    "build-kit": "./build/build-kit.sh",
+    "scripts": "npm run build-kit --watch",
+    "dev": "npm run build-kit && ~/.kit/script ~/scripts/dist.js",
+    "test": "ava",
+    "dist": "./script ./scripts/dist.js"
   },
   "author": "",
   "license": "ISC",
@@ -51,11 +52,6 @@
     "zx": "^4.1.1"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^5.0.1",
-    "@semantic-release/commit-analyzer": "^8.0.1",
-    "@semantic-release/git": "^9.0.0",
-    "@semantic-release/npm": "^7.1.3",
-    "@semantic-release/release-notes-generator": "^9.0.3",
     "@types/concurrently": "^6.2.1",
     "@types/debug": "^4.1.7",
     "@types/degit": "^2.8.3",
@@ -74,6 +70,8 @@
     "ava": "^3.15.0",
     "concurrently": "^6.0.1",
     "rimraf": "^3.0.2",
+    "semantic-release": "^17.4.7",
+    "semantic-release-plugin-update-version-in-files": "^1.1.0",
     "typescript": "^4.2.3"
   },
   "ava": {
@@ -87,35 +85,33 @@
   },
   "release": {
     "branches": [
+      "+([0-9]).x",
       "main",
-      "beta",
-      "alpha"
+      "next",
+      {
+        "name": "beta",
+        "prerelease": true
+      },
+      {
+        "name": "alpha",
+        "prerelease": true
+      }
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
       [
-        "@semantic-release/changelog",
+        "semantic-release-plugin-update-version-in-files",
         {
-          "changelogFile": "CHANGELOG.md"
-        }
-      ],
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": true
-        }
-      ],
-      [
-        "@semantic-release/git",
-        {
-          "assets": [
-            "package.json",
-            "CHANGELOG.md"
-          ],
-          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+          "files": [
+            "package.json"
+          ]
         }
       ]
     ]
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

@@ -9,14 +9,18 @@ let install = async packageNames => {
   ).split(" ")
   return await new Promise((res, rej) => {
     console.log(tool, command, ...packageNames)
-    let npm = spawn(tool, [command, ...packageNames], {
-      stdio: "pipe",
-      cwd: kenvPath(),
-      env: {
-        //need to prioritize our node over any nodes on the path
-        PATH: kitPath("node", "bin") + ":" + env.PATH,
-      },
-    })
+    let npm = spawn(
+      tool,
+      [command, "--loglevel", "verbose", ...packageNames],
+      {
+        stdio: "pipe",
+        cwd: kenvPath(),
+        env: {
+          //need to prioritize our node over any nodes on the path
+          PATH: kitPath("node", "bin") + ":" + env.PATH,
+        },
+      }
+    )
 
     if (npm?.stdout) {
       npm.stdout.on("data", data => {

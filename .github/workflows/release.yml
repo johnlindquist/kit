@@ -32,6 +32,15 @@ jobs:
         run: |
           echo "kit_path=$PWD" >> $GITHUB_ENV
 
+      - name: Get npm cache
+        id: npm-cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Bundle latest node
         run: >
           bash "${{ env.kit_path }}/install-node.sh" --prefix "${{ env.kit_path }}/node" --platform darwin
@@ -55,23 +64,8 @@ jobs:
           npm run test
 
       - name: Semantic Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@v2.5.3
-        with:
-          semantic_version: 16
-          branches: |
-            [
-              '+([0-9])?(.{+([0-9]),x}).x',
-              'main',
-              {
-                name: 'beta',
-                prerelease: true
-              },
-              {
-                name: 'alpha',
-                prerelease: true
-              }
-            ]
+        run: |
+          npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

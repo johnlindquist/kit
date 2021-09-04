@@ -4,7 +4,7 @@ let install = async (packageNames) => {
     let [tool, command] = (isYarn ? `yarn add` : `npm i`).split(" ");
     return await new Promise((res, rej) => {
         console.log(tool, command, ...packageNames);
-        let npm = spawn(tool, [command, ...packageNames], {
+        let npm = spawn(tool, [command, "--loglevel", "verbose", ...packageNames], {
             stdio: "pipe",
             cwd: kenvPath(),
             env: {

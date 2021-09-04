@@ -1,4 +1,4 @@
-let rimraf = require("rimraf")
+import rimraf from "rimraf"
 let scriptDirs = [
   "api",
   "ci",
