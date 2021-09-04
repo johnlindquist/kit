@@ -13,7 +13,7 @@
   "types": "./types/kit.d.ts",
   "scripts": {
     "build-dist": "./build/build-dist.sh",
-    "build-ci": "./build/build-dist.sh",
+    "build-ci": "./build/build-ci.sh",
     "build-kit": "./build/build-kit.sh",
     "scripts": "npm run build-kit --watch",
     "dev": "npm run build-kit && ~/.kit/script ~/scripts/dist.js",
