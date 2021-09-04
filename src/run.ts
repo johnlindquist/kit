@@ -5,7 +5,7 @@ process.env.KIT =
   path.dirname(new URL(import.meta.url).pathname)
 
 process.env.KENV = process.env.KIT_TEST
-  ? path.resolve(process.env.KIT, "test")
+  ? path.resolve(process.cwd(), "test")
   : process.cwd()
 
 import { config } from "dotenv"
