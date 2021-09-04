@@ -10,9 +10,9 @@ cp -a root/. $KIT
 cp *.md *.json LICENSE $KIT
 
 ./build/install-node.sh --prefix $KIT/node
-PATH=./node/bin npm i
+PATH="$KIT/node/bin" npm i
 
 npx tsc --outDir $KIT
 
 cd $KIT
-PATH=./node/bin npm i --production
+PATH="$KIT/node/bin" npm i --production
