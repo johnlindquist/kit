@@ -7,6 +7,7 @@ echo $WD
 rm -r $KIT 2> /dev/null
 mkdir -p $KIT
 cp -a root/. $KIT
+cp types $KIT
 cp *.md *.json LICENSE .npmignore $KIT
 
 ./build/install-node.sh --prefix $KIT/node

@@ -8,6 +8,7 @@ rm -r $KIT 2> /dev/null
 mkdir -p $KIT
 npx tsc --outDir $KIT
 cp -a root/. $KIT
+cp -r types $KIT
 cp *.md *.json LICENSE $KIT
 
 ./build/install-node.sh --prefix $KIT/node
