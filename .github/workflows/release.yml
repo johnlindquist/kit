@@ -75,7 +75,7 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           filename: "kit.zip"
-          exclusions: "*.git* *.github* *.vscode* .editorconfig *src/*"
+          path: "${{ env.kit_path }}"
 
       - name: Create Draft Release
         id: create_release
