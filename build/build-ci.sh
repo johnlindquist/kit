@@ -7,7 +7,7 @@ echo $WD
 rm -r $KIT 2> /dev/null
 mkdir -p $KIT
 cp -a root/. $KIT
-cp *.md *.json LICENSE $KIT
+cp *.md *.json LICENSE .npmignore $KIT
 
 ./build/install-node.sh --prefix $KIT/node
 PATH="$KIT/node/bin" npm i
