@@ -13,7 +13,7 @@ cp -a root/. $KIT
 cp -r types $KIT
 cp *.md package*.json LICENSE $KIT
 
-npm i --only=dev
+npm i
 npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
 node ./scripts/fix-cjs.js
