@@ -15,7 +15,6 @@
   },
   "types": "./types/kit.d.ts",
   "scripts": {
-    "build-ci": "./build/build-ci.sh",
     "build-kit": "./build/build-kit.sh",
     "dev": "./build/dev.sh",
     "cjs": "npx tsc --outDir $KITha --watch",

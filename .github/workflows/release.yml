@@ -33,7 +33,7 @@ jobs:
 
       - name: build-ci
         run: |
-          npm run build-ci
+          ./build/build-ci.sh
 
       - name: Set env vars
         run: |
