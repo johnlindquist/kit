@@ -1,4 +1,4 @@
-import { resolveToScriptPath } from "@core/util"
+import { resolveToScriptPath } from "../core/util.js"
 
 let ipc = await npm("node-ipc")
 

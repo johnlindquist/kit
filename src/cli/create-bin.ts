@@ -1,4 +1,4 @@
-import { Bin } from "@core/enum"
+import { Bin } from "../core/enum.js"
 import {
   createBinFromScript,
   selectScript,

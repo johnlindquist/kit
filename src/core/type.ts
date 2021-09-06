@@ -1,4 +1,4 @@
-import { editor } from "@declarations/editor.api"
+import { editor } from "../../declarations/editor.api"
 import { ProcessType, UI, Channel, Mode } from "./enum.js"
 
 export interface Choice<Value = any> {

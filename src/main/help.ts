@@ -1,4 +1,4 @@
-import { Choice } from "@core/type"
+import { Choice } from "../core/type.js"
 import { CLI } from "cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [

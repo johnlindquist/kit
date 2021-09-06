@@ -1,12 +1,12 @@
-import { Channel } from "@core/enum"
-import { Choice } from "@core/type"
+import { Channel } from "../core/enum.js"
+import { Choice } from "../core/type.js"
 import {
   kitPath,
   kenvPath,
   info,
   resolveScriptToCommand,
   resolveToScriptPath,
-} from "@core/util"
+} from "../core/util.js"
 import stripAnsi from "strip-ansi"
 
 export let errorPrompt = async (error: Error) => {

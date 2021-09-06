@@ -7,9 +7,9 @@ import {
   kitPath,
   kenvPath,
   wait,
-} from "@core/util"
+} from "../core/util.js"
 
-import { getScripts } from "@core/db"
+import { getScripts } from "../core/db.js"
 
 global.getScripts = getScripts
 global.cwd = process.cwd

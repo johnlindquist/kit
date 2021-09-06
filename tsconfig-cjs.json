@@ -7,5 +7,5 @@
     "rootDir": "./src/core",
     "outDir": "./dist/cjs"
   },
-  "include": ["./src/core/**/*"]
+  "include": ["./src/core/**/*.js"]
 }

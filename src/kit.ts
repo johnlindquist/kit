@@ -1,5 +1,5 @@
 import { config } from "dotenv"
-import { assignPropsTo } from "@core/util"
+import { assignPropsTo } from "./core/util.js"
 
 import "./api/global.js"
 import "./api/kit.js"

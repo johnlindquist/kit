@@ -1,4 +1,4 @@
-import { assignPropsTo } from "@core/util"
+import { assignPropsTo } from "../core/util.js"
 
 let { default: enquirer } = (await import(
   "enquirer"

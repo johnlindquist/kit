@@ -1,6 +1,9 @@
 // Description: Delete a Kenv Repo
 
-import { getLastSlashSeparated, getKenvs } from "@core/util"
+import {
+  getLastSlashSeparated,
+  getKenvs,
+} from "../core/util.js"
 
 let dir = await arg(
   "Remove which kenv",

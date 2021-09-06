@@ -6,8 +6,8 @@ import {
   Choice,
   EditorConfig,
   TextareaConfig,
-} from "@core/type"
-import { Mode, UI } from "@core/enum"
+} from "../src/core/type"
+import { Mode, UI } from "../src/core/enum"
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"

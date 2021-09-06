@@ -1,6 +1,9 @@
 // Description: Git Pull Kenv Repo
 
-import { getLastSlashSeparated, getKenvs } from "@core/util"
+import {
+  getLastSlashSeparated,
+  getKenvs,
+} from "../core/util.js"
 
 let dir = await arg(
   "Update which kenv",

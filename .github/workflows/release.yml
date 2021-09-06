@@ -48,15 +48,15 @@ jobs:
           echo "$GITHUB_PATH"
           echo "$PATH"
 
+      - name: Log ./dist
+        run: |
+          ls ./dist/*/*
+
       - name: Run tests
         run: |
           cd "${{ env.wd_path }}"
           npm i
           npm run test
-
-      - name: Log ./dist
-        run: |
-          ls ./dist/*/*
 
       - name: Semantic Release
         run: |

@@ -6,7 +6,7 @@ await keystroke("command option e")
 ```
 */
 
-import { Channel } from "@core/enum"
+import { Channel } from "../core/enum.js"
 
 export let keystroke = async (keyString: string) => {
   send(Channel.HIDE_APP)

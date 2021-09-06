@@ -1,8 +1,8 @@
 // Menu: Manage Kit
 // Description: Options and Helpers
 
-import { Choice } from "@core/type"
-import { getKenvs } from "@core/util"
+import { Choice } from "../core/type.js"
+import { getKenvs } from "../core/util.js"
 import { CLI } from "cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [

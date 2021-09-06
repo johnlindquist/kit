@@ -1,7 +1,10 @@
-import { Bin, Channel } from "@core/enum"
+import { Bin, Channel } from "./core/enum.js"
 
-import { Script } from "@core/type"
-import { getScripts, getScriptFromString } from "@core/db"
+import { Script } from "./core/type.js"
+import {
+  getScripts,
+  getScriptFromString,
+} from "./core/db.js"
 
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",

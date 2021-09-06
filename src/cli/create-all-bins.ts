@@ -1,5 +1,5 @@
-import { Bin } from "@core/enum"
-import { getScripts } from "@core/db"
+import { Bin } from "../core/enum.js"
+import { getScripts } from "../core/db.js"
 
 import { createBinFromScript } from "../utils.js"
 

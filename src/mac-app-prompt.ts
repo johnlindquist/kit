@@ -1,6 +1,6 @@
 import { config } from "dotenv"
-import { assignPropsTo } from "@core/util"
-import { Channel } from "@core/enum"
+import { assignPropsTo } from "./core/util.js"
+import { Channel } from "./core/enum.js"
 import "./api/global.js"
 import "./api/kit.js"
 import "./api/lib.js"

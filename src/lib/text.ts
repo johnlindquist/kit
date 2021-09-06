@@ -1,4 +1,4 @@
-import { Channel } from "@core/enum"
+import { Channel } from "../core/enum.js"
 
 export let getSelectedText = async () => {
   send(Channel.HIDE_APP)

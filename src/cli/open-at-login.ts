@@ -1,7 +1,7 @@
 // Description: Toggle Open at Login
 
-import { Channel } from "@core/enum"
-import { getAppDb } from "@core/db"
+import { Channel } from "../core/enum.js"
+import { getAppDb } from "../core/db.js"
 
 let { openAtLogin } = await getAppDb()
 

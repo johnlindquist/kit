@@ -1,6 +1,9 @@
 // Description: Git Push Kenv Repo
 
-import { getLastSlashSeparated, getKenvs } from "@core/util"
+import {
+  getLastSlashSeparated,
+  getKenvs,
+} from "../core/util.js"
 
 let dir = await arg(
   "Push which kenv",

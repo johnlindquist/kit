@@ -1,4 +1,4 @@
-import { getScripts } from "@core/db"
+import { getScripts } from "../core/db.js"
 
 await getScripts(false)
 

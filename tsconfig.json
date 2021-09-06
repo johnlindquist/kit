@@ -10,9 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "paths": {
       "*": ["./src/*", "./declarations/*", "./types/*"],
-      "src/*": ["./src/*"],
-      "@core/*": ["./src/core/*"],
-      "@declarations/*": ["./declarations/*"]
+      "src/*": ["./src/*"]
     }
   }
 }

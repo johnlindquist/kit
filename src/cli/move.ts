@@ -6,7 +6,7 @@ import {
   trashBinFromScript,
 } from "../utils.js"
 
-import { Bin } from "@core/enum"
+import { Bin } from "../core/enum.js"
 
 let script = await selectScript()
 

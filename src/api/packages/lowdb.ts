@@ -1,5 +1,5 @@
-import { db as _db } from "@core/db"
-import { resolveScriptToCommand } from "@core/util"
+import { db as _db } from "../../core/db.js"
+import { resolveScriptToCommand } from "../../core/util.js"
 
 global.db = async (
   key: any,

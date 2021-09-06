@@ -9,7 +9,7 @@ process.env.KENV = process.env.KIT_TEST
   : process.cwd()
 
 import { config } from "dotenv"
-import { assignPropsTo } from "@core/util"
+import { assignPropsTo } from "./core/util.js"
 
 import "./api/global.js"
 import "./api/kit.js"

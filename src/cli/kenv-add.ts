@@ -1,6 +1,6 @@
 // Description: Add Local Kenv Repo
 
-import { getLastSlashSeparated } from "@core/util"
+import { getLastSlashSeparated } from "../core/util.js"
 
 let createKenvPathFromName = async name => {
   let addKenvPath = ""
