@@ -3,7 +3,7 @@
 //Author: John Lindquist
 //Twitter: @johnlindquist
 
-import { scriptValue } from "kit-bridge/esm/db"
+import { scriptValue } from "@core/db"
 
 let createCommand = (launchApp: boolean, script: string) =>
   launchApp

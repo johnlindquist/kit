@@ -1,19 +1,9 @@
-KIT="${KIT:="$HOME/.kit"}"
-WD=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
+set -e
 
-cd $WD
-echo $WD
+export KIT="${KIT:="$HOME/.kit"}"
+export PATH="$KIT/node/bin:$PATH"
+export WD=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
 
-rm -r $KIT 2> /dev/null
-mkdir -p $KIT
-npx tsc --outDir $KIT
-cp -a root/. $KIT
-cp -r types $KIT
-cp *.md *.json LICENSE $KIT
+"$WD/build/build-base.sh"
 
-./build/install-node.sh --prefix $KIT/node
-
-cd $KIT
-PATH=./node/bin npm i --production
-
-echo "DEV=true" >> .env
+echo "*" >> .kitignore

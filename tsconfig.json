@@ -8,12 +8,11 @@
     "lib": ["esnext", "DOM"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": true,
     "paths": {
       "*": ["./src/*", "./declarations/*", "./types/*"],
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "@core/*": ["./src/core/*"],
+      "@declarations/*": ["./declarations/*"]
     }
-  },
-  "include": ["./src/**/*.ts", "types/*.d.ts"],
-  "exclude": ["./src/preload/**/*"]
+  }
 }

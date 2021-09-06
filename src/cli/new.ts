@@ -1,5 +1,5 @@
 // Description: Create a new script
-import { getKenvs } from "kit-bridge/esm/util"
+import { getKenvs } from "@core/util"
 import { exists } from "../utils.js"
 let generate = await npm("project-name-generator")
 

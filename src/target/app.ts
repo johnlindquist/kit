@@ -10,9 +10,9 @@ import {
 } from "rxjs/operators"
 import stripAnsi from "strip-ansi"
 
-import { Mode, Channel, UI } from "kit-bridge/esm/enum"
-import { Choice, EditorConfig } from "kit-bridge/esm/type"
-import { assignPropsTo } from "kit-bridge/esm/util"
+import { Mode, Channel, UI } from "@core/enum"
+import { Choice, EditorConfig } from "@core/type"
+import { assignPropsTo } from "@core/util"
 
 // let exception$ = new Observable(observer => {
 //   let e = (error: Error) => observer.next(error)

@@ -1,7 +1,7 @@
 //Menu: Edit Menu
 //Description: Select a script then edit action.
 
-import { Choice } from "kit-bridge/esm/type"
+import { Choice } from "@core/type"
 import { CLI } from "cli"
 import { selectScript } from "../utils.js"
 

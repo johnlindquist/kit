@@ -7,9 +7,9 @@ import {
   kitPath,
   kenvPath,
   wait,
-} from "kit-bridge/esm/util"
+} from "@core/util"
 
-import { getScripts } from "kit-bridge/esm/db"
+import { getScripts } from "@core/db"
 
 global.getScripts = getScripts
 global.cwd = process.cwd

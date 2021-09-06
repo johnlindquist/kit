@@ -1,4 +1,4 @@
-import { Channel } from "kit-bridge/esm/enum"
+import { Channel } from "@core/enum"
 
 let utils = String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
 set AppleScript's text item delimiters to theSearchString

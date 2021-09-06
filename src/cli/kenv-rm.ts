@@ -1,9 +1,6 @@
 // Description: Delete a Kenv Repo
 
-import {
-  getLastSlashSeparated,
-  getKenvs,
-} from "kit-bridge/esm/util"
+import { getLastSlashSeparated, getKenvs } from "@core/util"
 
 let dir = await arg(
   "Remove which kenv",

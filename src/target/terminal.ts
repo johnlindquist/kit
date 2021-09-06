@@ -1,4 +1,4 @@
-import { assignPropsTo } from "kit-bridge/esm/util"
+import { assignPropsTo } from "@core/util"
 
 let { default: enquirer } = (await import(
   "enquirer"

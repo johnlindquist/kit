@@ -1,6 +1,6 @@
 //Description: Clone a Kenv repo
 
-import { getLastSlashSeparated } from "kit-bridge/esm/util"
+import { getLastSlashSeparated } from "@core/util"
 
 let kenvsDir = kenvPath("kenvs")
 

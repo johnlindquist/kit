@@ -1,6 +1,6 @@
 import { config } from "dotenv"
-import { assignPropsTo } from "kit-bridge/esm/util"
-import { Channel } from "kit-bridge/esm/enum"
+import { assignPropsTo } from "@core/util"
+import { Channel } from "@core/enum"
 import "./api/global.js"
 import "./api/kit.js"
 import "./api/lib.js"

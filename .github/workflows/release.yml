@@ -31,7 +31,7 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
-      - name: npm run build-ci
+      - name: build-ci
         run: |
           npm run build-ci
 

@@ -1,5 +1,5 @@
 import { config } from "dotenv"
-import { assignPropsTo } from "kit-bridge/esm/util"
+import { assignPropsTo } from "@core/util"
 
 import "./api/global.js"
 import "./api/kit.js"

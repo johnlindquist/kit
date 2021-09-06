@@ -1,9 +1,6 @@
 // Description: Git Push Kenv Repo
 
-import {
-  getLastSlashSeparated,
-  getKenvs,
-} from "kit-bridge/esm/util"
+import { getLastSlashSeparated, getKenvs } from "@core/util"
 
 let dir = await arg(
   "Push which kenv",

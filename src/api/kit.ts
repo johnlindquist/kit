@@ -1,12 +1,12 @@
-import { Channel } from "kit-bridge/esm/enum"
-import { Choice } from "kit-bridge/esm/type"
+import { Channel } from "@core/enum"
+import { Choice } from "@core/type"
 import {
   kitPath,
   kenvPath,
   info,
   resolveScriptToCommand,
   resolveToScriptPath,
-} from "kit-bridge/esm/util"
+} from "@core/util"
 import stripAnsi from "strip-ansi"
 
 export let errorPrompt = async (error: Error) => {

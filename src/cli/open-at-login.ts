@@ -1,7 +1,7 @@
 // Description: Toggle Open at Login
 
-import { Channel } from "kit-bridge/esm/enum"
-import { getAppDb } from "kit-bridge/esm/db"
+import { Channel } from "@core/enum"
+import { getAppDb } from "@core/db"
 
 let { openAtLogin } = await getAppDb()
 

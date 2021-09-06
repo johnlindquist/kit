@@ -1,6 +1,6 @@
 // Description: Change Script Shortcut
-import { friendlyShortcut } from "kit-bridge/esm/util"
-import { Script } from "kit-bridge/esm/type"
+import { friendlyShortcut } from "@core/util"
+import { Script } from "@core/type"
 import { selectScript } from "../utils.js"
 
 while (true) {

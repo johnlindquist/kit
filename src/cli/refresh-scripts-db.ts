@@ -1,4 +1,4 @@
-import { getScripts } from "kit-bridge/esm/db"
+import { getScripts } from "@core/db"
 
 await getScripts(false)
 

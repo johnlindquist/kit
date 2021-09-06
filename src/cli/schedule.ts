@@ -1,4 +1,4 @@
-import { info } from "kit-bridge/esm/util"
+import { info } from "@core/util"
 
 let { formatDistanceToNowStrict, format, compareAsc } =
   await npm("date-fns")

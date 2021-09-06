@@ -1,10 +1,7 @@
-import { Bin, Channel } from "kit-bridge/esm/enum"
+import { Bin, Channel } from "@core/enum"
 
-import { Script } from "kit-bridge/esm/type"
-import {
-  getScripts,
-  getScriptFromString,
-} from "kit-bridge/esm/db"
+import { Script } from "@core/type"
+import { getScripts, getScriptFromString } from "@core/db"
 
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",

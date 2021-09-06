@@ -1,5 +1,5 @@
-import { Script } from "kit-bridge/esm/type"
-import { getScripts } from "kit-bridge/esm/db"
+import { Script } from "@core/type"
+import { getScripts } from "@core/db"
 
 let scriptsCache: Script[] = await getScripts()
 
