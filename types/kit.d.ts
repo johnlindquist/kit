@@ -413,8 +413,7 @@ declare global {
     }
   }
 
-  interface Schedule {
-    filePath: string
+  interface Schedule extends Choice {
     date: Date
   }
 
@@ -426,151 +425,150 @@ declare global {
     interface Global extends GlobalKit {}
   }
 
-  let cd: typeof shelljs.cd
-  let cp: typeof shelljs.cp
-  let chmod: typeof shelljs.chmod
-  let echo: typeof shelljs.echo
-  let exec: typeof shelljs.exec
-  let exit: typeof shelljs.exit
-  let grep: typeof shelljs.grep
-  let ln: typeof shelljs.ln
-  let ls: typeof shelljs.ls
-  let mkdir: typeof shelljs.mkdir
-  let mv: typeof shelljs.mv
-  let sed: typeof shelljs.sed
-  let tempdir: typeof shelljs.tempdir
-  let test: typeof shelljs.test
-  let which: typeof shelljs.which
-  let spawn: typeof child_process.spawn
-  let spawnSync: typeof child_process.spawnSync
-  let fork: typeof child_process.fork
-  let get: AxiosInstance["get"]
-  let put: AxiosInstance["put"]
-  let post: AxiosInstance["post"]
-  let patch: AxiosInstance["patch"]
-  let readFile: typeof fsPromises.readFile
-  let writeFile: typeof fsPromises.writeFile
-  let appendFile: typeof fsPromises.appendFile
-  let createWriteStream: typeof fs.createWriteStream
-  let createReadStream: typeof fs.createReadStream
-  let readdir: typeof fsPromises.readdir
-  let compile: typeof handlebars.compile
+  var cd: typeof shelljs.cd
+  var cp: typeof shelljs.cp
+  var chmod: typeof shelljs.chmod
+  var echo: typeof shelljs.echo
+  var exec: typeof shelljs.exec
+  var exit: typeof shelljs.exit
+  var grep: typeof shelljs.grep
+  var ln: typeof shelljs.ln
+  var ls: typeof shelljs.ls
+  var mkdir: typeof shelljs.mkdir
+  var mv: typeof shelljs.mv
+  var sed: typeof shelljs.sed
+  var tempdir: typeof shelljs.tempdir
+  var test: typeof shelljs.test
+  var which: typeof shelljs.which
+  var spawn: typeof child_process.spawn
+  var spawnSync: typeof child_process.spawnSync
+  var fork: typeof child_process.fork
+  var get: AxiosInstance["get"]
+  var put: AxiosInstance["put"]
+  var post: AxiosInstance["post"]
+  var patch: AxiosInstance["patch"]
+  var readFile: typeof fsPromises.readFile
+  var writeFile: typeof fsPromises.writeFile
+  var appendFile: typeof fsPromises.appendFile
+  var createWriteStream: typeof fs.createWriteStream
+  var createReadStream: typeof fs.createReadStream
+  var readdir: typeof fsPromises.readdir
+  var compile: typeof handlebars.compile
 
-  let cwd: typeof process.cwd
+  var cwd: typeof process.cwd
 
-  let path: typeof import("path")
+  var path: typeof import("path")
 
-  let paste: typeof clipboardy.read
-  let copy: typeof clipboardy.write
-  let edit: Edit
+  var paste: typeof clipboardy.read
+  var copy: typeof clipboardy.write
+  var edit: Edit
 
-  let chalk: ChalkFunction
+  var chalk: ChalkFunction
 
-  let download: typeof import("download")
-  let degit: typeof import("degit")
+  var download: typeof import("download")
+  var degit: typeof import("degit")
 
-  let trash: typeof trashType.default
-  let rm: typeof trashType
+  var trash: typeof trashType.default
+  var rm: typeof trashType
 
-  let kitPath: PathFn
-  let kenvPath: PathFn
+  var kitPath: PathFn
+  var kenvPath: PathFn
 
-  let attemptImport: KitModuleLoader
-  let npm: KitModuleLoader
-  let main: KitModuleLoader
-  let kit: Kit
-  let lib: KitModuleLoader
-  let cli: CliModuleLoader
-  let setup: KitModuleLoader
-  let run: KitModuleLoader
+  var attemptImport: KitModuleLoader
+  var npm: KitModuleLoader
+  var main: KitModuleLoader
+  var kit: Kit
+  var lib: KitModuleLoader
+  var cli: CliModuleLoader
+  var setup: KitModuleLoader
+  var run: KitModuleLoader
 
-  let env: Env
-  let arg: Arg
-  let textarea: TextArea
-  let drop: Drop
-  let editor: Editor
-  let hotkey: Hotkey
-  let onTab: OnTab
-  let applescript: AppleScript
-  let send: Send
-  let args: Args
+  var env: Env
+  var arg: Arg
+  var textarea: TextArea
+  var drop: Drop
+  var editor: Editor
+  var hotkey: Hotkey
+  var onTab: OnTab
+  var applescript: AppleScript
+  var send: Send
+  var args: Args
 
-  let updateArgs: UpdateArgs
-  let argOpts: any
+  var updateArgs: UpdateArgs
+  var argOpts: any
 
-  let setPlaceholder: SetAppProp
-  let setPanel: SetPanel
-  let setLog: SetPanel
-  let setHint: SetAppProp
-  let setInput: SetAppProp
-  let setIgnoreBluer: SetAppProp
+  var setPlaceholder: SetAppProp
+  var setPanel: SetPanel
+  var setLog: SetPanel
+  var setHint: SetAppProp
+  var setInput: SetAppProp
+  var setIgnoreBluer: SetAppProp
 
-  let show: ShowAppWindow
-  let showImage: ShowAppWindow
+  var show: ShowAppWindow
+  var showImage: ShowAppWindow
 
-  let wait: Wait
+  var wait: Wait
 
-  let home: PathFn
-  let isFile: IsCheck
-  let isDir: IsCheck
-  let isBin: IsCheck
+  var home: PathFn
+  var isFile: IsCheck
+  var isDir: IsCheck
+  var isBin: IsCheck
 
-  let inspect: Inspect
+  var inspect: Inspect
 
-  let db: DB
+  var db: DB
 
-  let md: Markdown
-  let notify: Notify
+  var md: Markdown
+  var notify: Notify
 
-  let memoryMap: Map<string, any>
+  var memoryMap: Map<string, any>
 
-  let onTabIndex: number
+  var onTabIndex: number
 
-  let selectKitEditor: SelectKitEditor
+  var selectKitEditor: SelectKitEditor
 
-  let copyPathAsImage: typeof import("lib/file").copyPathAsImage
-  let fileSearch: typeof import("lib/file").fileSearch
-  let focusTab: typeof import("lib/browser").focusTab
-  let focusWindow: typeof import("lib/desktop").focusWindow
-  let getActiveAppBounds: typeof import("lib/desktop").getActiveAppBounds
-  let getActiveScreen: typeof import("lib/desktop").getActiveScreen
-  let getActiveTab: typeof import("lib/browser").getActiveTab
-  let getMousePosition: typeof import("lib/desktop").getMousePosition
-  let getScreens: typeof import("lib/desktop").getScreens
-  let getSelectedFile: typeof import("lib/file").getSelectedFile
-  let getSelectedText: typeof import("lib/text").getSelectedText
-  let getTabs: typeof import("lib/browser").getTabs
-  let getWindows: typeof import("lib/desktop").getWindows
-  let getWindowsBounds: typeof import("lib/desktop").getWindowsBounds
-  let lock: typeof import("lib/system").lock
-  let organizeWindows: typeof import("lib/desktop").organizeWindows
-  let playAudioFile: typeof import("lib/audio").playAudioFile
-  let quitAllApps: typeof import("lib/system").quitAllApps
-  let say: typeof import("lib/speech").say
-  let scatterWindows: typeof import("lib/desktop").scatterWindows
-  let setActiveAppBounds: typeof import("lib/desktop").setActiveAppBounds
-  let setSelectedText: typeof import("lib/text").setSelectedText
-  let setWindowBoundsByIndex: typeof import("lib/desktop").setWindowBoundsByIndex
-  let setWindowPosition: typeof import("lib/desktop").setWindowPosition
-  let setWindowPositionByIndex: typeof import("lib/desktop").setWindowPositionByIndex
-  let setWindowSize: typeof import("lib/desktop").setWindowSize
-  let setWindowSizeByIndex: typeof import("lib/desktop").setWindowSizeByIndex
-  let keystroke: typeof import("lib/keyboard").keystroke
-  let shutdown: typeof import("lib/system").shutdown
-  let sleep: typeof import("lib/system").sleep
-  let tileWindow: typeof import("lib/desktop").tileWindow
-  let scrapeSelector: typeof import("lib/browser").scrapeSelector
-  let scrapeAttribute: typeof import("lib/browser").scrapeAttribute
+  var copyPathAsImage: typeof import("lib/file").copyPathAsImage
+  var fileSearch: typeof import("lib/file").fileSearch
+  var focusTab: typeof import("lib/browser").focusTab
+  var focusWindow: typeof import("lib/desktop").focusWindow
+  var getActiveAppBounds: typeof import("lib/desktop").getActiveAppBounds
+  var getActiveScreen: typeof import("lib/desktop").getActiveScreen
+  var getActiveTab: typeof import("lib/browser").getActiveTab
+  var getMousePosition: typeof import("lib/desktop").getMousePosition
+  var getScreens: typeof import("lib/desktop").getScreens
+  var getSelectedFile: typeof import("lib/file").getSelectedFile
+  var getSelectedText: typeof import("lib/text").getSelectedText
+  var getTabs: typeof import("lib/browser").getTabs
+  var getWindows: typeof import("lib/desktop").getWindows
+  var getWindowsBounds: typeof import("lib/desktop").getWindowsBounds
+  var lock: typeof import("lib/system").lock
+  var organizeWindows: typeof import("lib/desktop").organizeWindows
+  var playAudioFile: typeof import("lib/audio").playAudioFile
+  var quitAllApps: typeof import("lib/system").quitAllApps
+  var say: typeof import("lib/speech").say
+  var scatterWindows: typeof import("lib/desktop").scatterWindows
+  var setActiveAppBounds: typeof import("lib/desktop").setActiveAppBounds
+  var setSelectedText: typeof import("lib/text").setSelectedText
+  var setWindowBoundsByIndex: typeof import("lib/desktop").setWindowBoundsByIndex
+  var setWindowPosition: typeof import("lib/desktop").setWindowPosition
+  var setWindowPositionByIndex: typeof import("lib/desktop").setWindowPositionByIndex
+  var setWindowSize: typeof import("lib/desktop").setWindowSize
+  var setWindowSizeByIndex: typeof import("lib/desktop").setWindowSizeByIndex
+  var keystroke: typeof import("lib/keyboard").keystroke
+  var shutdown: typeof import("lib/system").shutdown
+  var sleep: typeof import("lib/system").sleep
+  var tileWindow: typeof import("lib/desktop").tileWindow
+  var scrapeSelector: typeof import("lib/browser").scrapeSelector
+  var scrapeAttribute: typeof import("lib/browser").scrapeAttribute
 
-  let getScripts: GetScripts
+  var getScripts: GetScripts
 
-  let $: typeof import("zx").$
-  let _: LoDashStatic
+  var $: typeof import("zx").$
 
-  let openLog: () => void
-  let hide: () => void
-  let flag: Flags
-  let setFlags: FlagFn
+  var openLog: () => void
+  var hide: () => void
+  var flag: Flags
+  var setFlags: FlagFn
 }
 
 type Run = (command: string) => Promise<any>
