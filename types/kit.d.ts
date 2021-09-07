@@ -14,7 +14,6 @@ import * as child_process from "child_process"
 import * as fsPromises from "fs/promises"
 import * as fs from "fs"
 import * as handlebars from "handlebars"
-import * as uuidType from "uuid"
 import * as clipboardy from "clipboardy"
 import * as trashType from "trash"
 import { LoDashStatic } from "lodash"
@@ -194,6 +193,8 @@ interface SelectKitEditor {
   (reset: boolean): Promise<string>
 }
 
+type UUID = typeof import("crypto").randomUUID
+
 interface KitApi {
   cd: typeof shelljs.cd
   cp: typeof shelljs.cp
@@ -237,7 +238,7 @@ interface KitApi {
 
   _: LoDashStatic
 
-  uuid: typeof uuidType.v4
+  uuid: UUID
   chalk: ChalkFunction
   paste: typeof clipboardy.read
   copy: typeof clipboardy.write
@@ -569,6 +570,7 @@ declare global {
   var hide: () => void
   var flag: Flags
   var setFlags: FlagFn
+  var uuid: UUID
 }
 
 type Run = (command: string) => Promise<any>
