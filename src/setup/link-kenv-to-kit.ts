@@ -1,3 +1,3 @@
-await cli("install", "~/.kit")
+await cli("install", home(".kit"))
 
 export {}
