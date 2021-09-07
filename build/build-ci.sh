@@ -1,7 +1,7 @@
 set -e
 
 export WD=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
-export KIT="$WD/dist"
+export KIT="$WD/.kit"
 export PATH="$KIT/node/bin:$PATH"
 
 cd $WD
