@@ -1,6 +1,6 @@
 //Description: Script Kit CLI
 
-import { CLI } from "../cli"
+import { CLI } from "cli"
 
 interface CLIMenuItem {
   name?: string
@@ -71,7 +71,11 @@ const cliScripts: CLIMenuItem[] = [
     name: "add-kit-to-profile",
     placeholder: "Add .kit/bin to your path",
   },
-  { name: "env", placeholder: "Modify .env" },
+  { name: "env", placeholder: "Edit .env" },
+  {
+    name: "set-env-var",
+    placeholder: "Add env var to .env",
+  },
   { name: "issue", placeholder: "File an issue on github" },
   { name: "open-at-login", placeholder: "Open at login" },
   {
@@ -100,6 +104,7 @@ let script = await arg("What do you want to do?", () =>
 let found = cliScripts.find(
   config => config.name == script || config.alias == script
 )
+
 if (found) {
   await cli(found.name as keyof CLI)
 }

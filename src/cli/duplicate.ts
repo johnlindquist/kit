@@ -7,7 +7,7 @@ let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
 
-import { stripMetadata } from "kit-bridge/esm/util"
+import { stripMetadata } from "../core/util.js"
 import { selectScript } from "../utils.js"
 
 let { filePath } = await selectScript(

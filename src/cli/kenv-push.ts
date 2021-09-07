@@ -3,7 +3,7 @@
 import {
   getLastSlashSeparated,
   getKenvs,
-} from "kit-bridge/esm/util"
+} from "../core/util.js"
 
 let dir = await arg(
   "Push which kenv",

@@ -1,5 +1,5 @@
-import { Bin } from "kit-bridge/esm/enum"
-import { getScripts } from "kit-bridge/esm/db"
+import { Bin } from "../core/enum.js"
+import { getScripts } from "../core/db.js"
 
 import { createBinFromScript } from "../utils.js"
 

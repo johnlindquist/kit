@@ -1,4 +1,4 @@
-import { Bin } from "kit-bridge/esm/enum"
+import { Bin } from "../core/enum.js"
 import {
   createBinFromScript,
   selectScript,

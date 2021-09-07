@@ -1,7 +1,7 @@
 //Description: An error has occurred
 
-import { getLastSlashSeparated } from "kit-bridge/esm/util"
-import { ErrorAction } from "kit-bridge/esm/enum"
+import { getLastSlashSeparated } from "../core/util.js"
+import { ErrorAction } from "../core/enum.js"
 
 let script = await arg()
 let stackFile = await arg()

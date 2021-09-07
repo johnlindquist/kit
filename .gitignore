@@ -122,3 +122,5 @@ ROADMAP.md
 .lsp
 kit.code-workspace
 .vscode
+fifo
+kit.sock

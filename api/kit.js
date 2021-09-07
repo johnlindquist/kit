@@ -2,7 +2,7 @@ import { Channel } from "kit-bridge/esm/enum";
 import { kitPath, kenvPath, info, resolveScriptToCommand, resolveToScriptPath, } from "kit-bridge/esm/util";
 import stripAnsi from "strip-ansi";
 export let errorPrompt = async (error) => {
-    if (env.KIT_CONTEXT === "app") {
+    if (process.env.KIT_CONTEXT === "app") {
         console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`);
         let stackWithoutId = error.stack.replace(/\?[^:]*/, "");
         // console.warn(stackWithoutId)
@@ -309,16 +309,21 @@ let kitGet = (_target, key, _receiver) => {
         console.warn(error);
     }
 };
-let kitFn = async (_target, _obj, [scriptPath, ..._args]) => {
-    let kitScriptPath = kitPath("lib", scriptPath) + ".js";
-    return await global.attemptImport(kitScriptPath, ..._args);
-};
-global.kit = new Proxy(() => { }, {
+async function kit(command) {
+    let [script, ...args] = command.split(" ");
+    let file = `${script}.js`;
+    let scriptsFilePath = kitPath("scripts", file);
+    let kenvScriptPath = kenvPath("scripts", file);
+    if (test("-f", kenvScriptPath)) {
+        cp(kenvScriptPath, scriptsFilePath);
+    }
+    return (await run(scriptsFilePath, ...args)).default;
+}
+global.kit = new Proxy(kit, {
     get: kitGet,
-    apply: kitFn,
 });
 global.flag = {};
-global.setFlags = flags => {
+global.setFlags = (flags) => {
     let validFlags = {};
     for (let [key, value] of Object.entries(flags)) {
         validFlags[key] = {

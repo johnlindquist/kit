@@ -1,9 +1,10 @@
-/** @type typeof import("date-fns") */
-let { formatDistanceToNow, parseISO } = await npm("date-fns");
+let { formatDistanceToNow, parseISO } = (await npm("date-fns"));
 let install = async (packageNames) => {
+    let isYarn = await isFile(kenvPath("yarn.lock"));
+    let [tool, command] = (isYarn ? `yarn add` : `npm i`).split(" ");
     return await new Promise((res, rej) => {
-        console.log(`npm i`, ...packageNames);
-        let npm = spawn(`npm`, ["i", ...packageNames], {
+        console.log(tool, command, ...packageNames);
+        let npm = spawn(tool, [command, "--loglevel", "verbose", ...packageNames], {
             stdio: "pipe",
             cwd: kenvPath(),
             env: {

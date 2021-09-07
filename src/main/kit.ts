@@ -1,9 +1,9 @@
 // Menu: Manage Kit
 // Description: Options and Helpers
 
-import { Choice } from "kit-bridge/esm/type"
-import { getKenvs } from "kit-bridge/esm/util"
-import { CLI } from "../cli"
+import { Choice } from "../core/type.js"
+import { getKenvs } from "../core/util.js"
+import { CLI } from "cli"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {

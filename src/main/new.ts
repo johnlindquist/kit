@@ -1,5 +1,5 @@
-import { Choice } from "kit-bridge/esm/type"
-import { CLI } from "../cli"
+import { Choice } from "../core/type.js"
+import { CLI } from "cli"
 
 let newOptions: Choice<keyof CLI>[] = [
   {

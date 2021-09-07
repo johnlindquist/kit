@@ -1,6 +1,6 @@
 import { config } from "dotenv"
-import { assignPropsTo } from "kit-bridge/esm/util"
-import { Channel } from "kit-bridge/esm/enum"
+import { assignPropsTo } from "./core/util.js"
+import { Channel } from "./core/enum.js"
 import "./api/global.js"
 import "./api/kit.js"
 import "./api/lib.js"
@@ -25,5 +25,4 @@ config({
 })
 
 assignPropsTo(process.env, global.env)
-
 await run(script, ...args)

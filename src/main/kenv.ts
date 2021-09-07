@@ -1,5 +1,5 @@
-import { Choice } from "kit-bridge/esm/type"
-import { CLI } from "../cli"
+import { Choice } from "../core/type.js"
+import { CLI } from "cli"
 
 let otherOptions: Choice<keyof CLI>[] = [
   {
@@ -35,7 +35,7 @@ let otherOptions: Choice<keyof CLI>[] = [
   },
 ]
 
-let cliScript = await arg(
+let cliScript = await arg<keyof CLI>(
   `Manage Kit environment`,
   otherOptions
 )

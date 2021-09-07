@@ -1,8 +1,8 @@
 //Menu: Edit Menu
 //Description: Select a script then edit action.
 
-import { Choice } from "kit-bridge/esm/type"
-import { CLI } from "../cli"
+import { Choice } from "../core/type.js"
+import { CLI } from "cli"
 import { selectScript } from "../utils.js"
 
 let { command, filePath } = await selectScript(
@@ -51,7 +51,10 @@ if (kenvDirs.length) {
   })
 }
 
-let editAction = await arg("Which action?", editActions)
+let editAction = await arg<keyof CLI>(
+  "Which action?",
+  editActions
+)
 await cli(editAction, filePath)
 
 export {}

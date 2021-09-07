@@ -1,10 +1,10 @@
-import { Bin, Channel } from "kit-bridge/esm/enum"
+import { Bin, Channel } from "./core/enum.js"
 
-import { Script } from "kit-bridge/esm/type"
+import { Script } from "./core/type.js"
 import {
   getScripts,
   getScriptFromString,
-} from "kit-bridge/esm/db"
+} from "./core/db.js"
 
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
@@ -24,8 +24,8 @@ export let selectScript = async (
 }
 
 //validator
-export let exists = async (input: string) =>
-  (await isBin(kenvPath("bin", input)))
+export let exists = async (input: string) => {
+  return (await isBin(kenvPath("bin", input)))
     ? chalk`{red.bold ${input}} already exists. Try again:`
     : (await isDir(kenvPath("bin", input)))
     ? chalk`{red.bold ${input}} exists as group. Enter different name:`
@@ -36,6 +36,7 @@ export let exists = async (input: string) =>
     : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
     ? chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
     : true
+}
 
 export let toggleBackground = async (script: Script) => {
   let { tasks } = await global.getBackgroundTasks()

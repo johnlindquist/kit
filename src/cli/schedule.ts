@@ -1,4 +1,4 @@
-import { info } from "kit-bridge/esm/util"
+import { info } from "../core/util.js"
 
 let { formatDistanceToNowStrict, format, compareAsc } =
   await npm("date-fns")
@@ -19,12 +19,12 @@ let choices = (
           script.schedule
         }`,
         value: filePath,
-      }
+      } as Schedule
     })
   )
 ).sort(({ date: a }, { date: b }) =>
   compareAsc(new Date(a), new Date(b))
-)
+) as Schedule[]
 
 let filePath = await arg(
   "Which script do you want to edit?",

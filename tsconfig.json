@@ -2,17 +2,15 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "outDir": "./",
+    "outDir": "./dist",
     "rootDir": "./src",
     "moduleResolution": "Node",
     "lib": ["esnext", "DOM"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": true,
     "paths": {
-      "*": ["./src/*", "./declarations/*"]
+      "*": ["./src/*", "./declarations/*", "./types/*"],
+      "src/*": ["./src/*"]
     }
-  },
-  "include": ["./src/**/*.ts", "src/kit.d.ts"],
-  "exclude": ["./src/preload/**/*"]
+  }
 }

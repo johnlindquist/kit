@@ -29,6 +29,4 @@ setPanel(
 
 await wait(2000)
 
-await main("index")
-
 export {}

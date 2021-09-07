@@ -1,4 +1,4 @@
-import { resolveToScriptPath } from "kit-bridge/esm/util"
+import { resolveToScriptPath } from "../core/util.js"
 
 let ipc = await npm("node-ipc")
 

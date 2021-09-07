@@ -1,4 +1,4 @@
-import { getPrefs } from "kit-bridge/esm/db"
+import { getPrefs } from "../core/db.js"
 
 let kitPrefs = await getPrefs()
 

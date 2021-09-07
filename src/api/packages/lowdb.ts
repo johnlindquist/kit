@@ -1,5 +1,5 @@
-import { db as _db } from "kit-bridge/esm/db"
-import { resolveScriptToCommand } from "kit-bridge/esm/util"
+import { db as _db } from "../../core/db.js"
+import { resolveScriptToCommand } from "../../core/util.js"
 
 global.db = async (
   key: any,

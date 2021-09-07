@@ -1,19 +1,26 @@
-/** @type typeof import("date-fns") */
-let { formatDistanceToNow, parseISO } = await npm(
+let { formatDistanceToNow, parseISO } = (await npm(
   "date-fns"
-)
+)) as typeof import("date-fns")
 
 let install = async packageNames => {
+  let isYarn = await isFile(kenvPath("yarn.lock"))
+  let [tool, command] = (
+    isYarn ? `yarn add` : `npm i`
+  ).split(" ")
   return await new Promise((res, rej) => {
-    console.log(`npm i`, ...packageNames)
-    let npm = spawn(`npm`, ["i", ...packageNames], {
-      stdio: "pipe",
-      cwd: kenvPath(),
-      env: {
-        //need to prioritize our node over any nodes on the path
-        PATH: kitPath("node", "bin") + ":" + env.PATH,
-      },
-    })
+    console.log(tool, command, ...packageNames)
+    let npm = spawn(
+      tool,
+      [command, "--loglevel", "verbose", ...packageNames],
+      {
+        stdio: "pipe",
+        cwd: kenvPath(),
+        env: {
+          //need to prioritize our node over any nodes on the path
+          PATH: kitPath("node", "bin") + ":" + env.PATH,
+        },
+      }
+    )
 
     if (npm?.stdout) {
       npm.stdout.on("data", data => {

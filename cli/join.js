@@ -15,5 +15,4 @@ await post(`https://app.convertkit.com/forms/2216586/subscriptions`, {
 });
 setPanel(`Thanks! Make sure to confirm in your mail app 😇`, `p-6 text-xl`);
 await wait(2000);
-await main("index");
 export {};

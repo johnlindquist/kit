@@ -1,16 +1,16 @@
-import { Channel } from "kit-bridge/esm/enum"
-import { Choice } from "kit-bridge/esm/type"
+import { Channel } from "../core/enum.js"
+import { Choice } from "../core/type.js"
 import {
   kitPath,
   kenvPath,
   info,
   resolveScriptToCommand,
   resolveToScriptPath,
-} from "kit-bridge/esm/util"
+} from "../core/util.js"
 import stripAnsi from "strip-ansi"
 
 export let errorPrompt = async (error: Error) => {
-  if (env.KIT_CONTEXT === "app") {
+  if (process.env.KIT_CONTEXT === "app") {
     console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
     let stackWithoutId = error.stack.replace(/\?[^:]*/, "")
     // console.warn(stackWithoutId)
@@ -242,7 +242,7 @@ global.run = async (command, ..._args) => {
   )
 }
 
-global.main = async (scriptPath, ..._args) => {
+global.main = async (scriptPath: string, ..._args) => {
   let kitScriptPath = kitPath("main", scriptPath) + ".js"
   return await global.attemptImport(kitScriptPath, ..._args)
 }
@@ -377,8 +377,8 @@ let kitGet = (
   key: string,
   _receiver: any
 ) => {
-  if (global[key] && !dirs.includes(key)) {
-    return global[key]
+  if ((global as any)[key] && !dirs.includes(key)) {
+    return (global as any)[key]
   }
 
   try {
@@ -396,22 +396,26 @@ let kitGet = (
   }
 }
 
-let kitFn = async (
-  _target: any,
-  _obj: any,
-  [scriptPath, ..._args]
-) => {
-  let kitScriptPath = kitPath("lib", scriptPath) + ".js"
-  return await global.attemptImport(kitScriptPath, ..._args)
+async function kit(command: string) {
+  let [script, ...args] = command.split(" ")
+  let file = `${script}.js`
+
+  let scriptsFilePath = kitPath("scripts", file)
+
+  let kenvScriptPath = kenvPath("scripts", file)
+  if (test("-f", kenvScriptPath)) {
+    cp(kenvScriptPath, scriptsFilePath)
+  }
+
+  return (await run(scriptsFilePath, ...args)).default
 }
 
-global.kit = new Proxy(() => {}, {
+global.kit = new Proxy(kit, {
   get: kitGet,
-  apply: kitFn,
 })
 
 global.flag = {}
-global.setFlags = flags => {
+global.setFlags = (flags: FlagsOptions) => {
   let validFlags = {}
   for (let [key, value] of Object.entries(flags)) {
     validFlags[key] = {
