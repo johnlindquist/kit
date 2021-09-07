@@ -11,14 +11,14 @@
   "version": "0.0.0-development",
   "description": "",
   "exports": {
-    "./cjs/*": "./dist/cjs/*.cjs"
+    "./*": "./*",
+    "./cjs/*": "./cjs/*.cjs"
   },
   "types": "./types/kit.d.ts",
   "scripts": {
     "build-kit": "./build/build-kit.sh",
-    "dev": "./build/dev.sh",
-    "cjs": "npx tsc --outDir $KITha --watch",
-    "test": "ava"
+    "dev": "tsc --watch",
+    "test": "NODE_NO_WARNINGS=1 ava"
   },
   "author": "",
   "license": "ISC",

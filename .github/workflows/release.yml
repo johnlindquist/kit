@@ -52,11 +52,16 @@ jobs:
         run: |
           ls ./dist/*/*
 
-      - name: Run tests
+      - name: npm i
         run: |
           cd "${{ env.wd_path }}"
           npm i
+
+      - name: npm run test
+        run: |
           npm run test
+        env:
+          KIT: ${{ env.kit_path }}
 
       - name: Semantic Release
         run: |

@@ -25,5 +25,4 @@ config({
 })
 
 assignPropsTo(process.env, global.env)
-
 await run(script, ...args)
