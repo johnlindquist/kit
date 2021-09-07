@@ -11,7 +11,7 @@
   "description": "",
   "exports": {
     ".": "./run.js",
-    "./*": "./core/*.js",
+    "./utils": "./utils.js",
     "./cjs/*": "./cjs/*.cjs"
   },
   "types": "./types/kit.d.ts",
