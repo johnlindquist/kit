@@ -124,3 +124,4 @@ kit.code-workspace
 .vscode
 fifo
 kit.sock
+.kitignore

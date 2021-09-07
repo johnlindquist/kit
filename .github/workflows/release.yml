@@ -86,7 +86,8 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           filename: "kit.zip"
-          path: "./dist"
+          path: "dist"
+          directory: ".kit"
 
       - name: Create Draft Release
         id: create_release
