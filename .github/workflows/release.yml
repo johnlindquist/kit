@@ -54,9 +54,9 @@ jobs:
           node --version
           npm --version
 
-      - name: Log ./dist
+      - name: Log ./.kit
         run: |
-          ls ./dist/*/*
+          ls ./.kit/*/*
 
       - name: npm i
         run: |
