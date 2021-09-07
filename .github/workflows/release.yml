@@ -48,6 +48,11 @@ jobs:
           echo "$GITHUB_PATH"
           echo "$PATH"
 
+      - name: Check node $PATH version
+        run: |
+          node --version
+          npm --version
+
       - name: Log ./dist
         run: |
           ls ./dist/*/*
