@@ -38,7 +38,7 @@ jobs:
       - name: Set env vars
         run: |
           echo "wd_path=$PWD" >> $GITHUB_ENV
-          echo "kit_path=$PWD/dist" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
           echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Add node and kit to PATH
