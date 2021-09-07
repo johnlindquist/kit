@@ -104,14 +104,14 @@
       [
         "@semantic-release/npm",
         {
-          "pkgRoot": "./dist"
+          "pkgRoot": "./.kit"
         }
       ],
       [
         "semantic-release-plugin-update-version-in-files",
         {
           "files": [
-            "./dist/package.json"
+            "./.kit/package.json"
           ]
         }
       ]
