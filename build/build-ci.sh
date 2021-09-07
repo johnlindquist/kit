@@ -19,7 +19,3 @@ npm i
 npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
 node ./scripts/fix-cjs.js
-
-cd $KIT
-echo $KIT
-npm i --production
