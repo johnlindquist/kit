@@ -13,6 +13,8 @@ cp -r build/. $KIT
 cp -r types $KIT
 cp *.md package*.json LICENSE $KIT
 
+./build/install-node.sh --prefix $KIT/node
+
 node --version
 npm --version
 npm i
