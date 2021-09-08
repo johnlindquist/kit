@@ -7,7 +7,7 @@ let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
 
-import { stripMetadata } from "../core/util.js"
+import { selectKenv, stripMetadata } from "../core/util.js"
 import { selectScript } from "../utils.js"
 
 let { filePath } = await selectScript(
@@ -26,25 +26,7 @@ if (!(await isFile(filePath))) {
   exit()
 }
 
-let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
-
-let selectedKenvDir = kenvPath()
-
-selectedKenvDir = await arg(`Select target kenv`, [
-  {
-    name: "home",
-    description: `Your main kenv: ${kenvPath()}`,
-    value: kenvPath(),
-  },
-  ...kenvDirs.map(kenvDir => {
-    let value = kenvPath("kenvs", kenvDir)
-    return {
-      name: kenvDir,
-      description: value,
-      value,
-    }
-  }),
-])
+let selectedKenvDir = await selectKenv()
 
 let newFilePath = path.join(
   selectedKenvDir,

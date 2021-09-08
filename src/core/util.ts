@@ -2,7 +2,7 @@ import * as path from "path"
 import * as os from "os"
 
 import { ProcessType, UI } from "./enum.js"
-import { Script } from "./type.js"
+import { Choice, Script } from "./type.js"
 import { copyFileSync, lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
@@ -320,6 +320,29 @@ export let getKenvs = async (): Promise<string[]> => {
   return dirs
     .filter(d => d.isDirectory())
     .map(d => kenvPath("kenvs", d.name))
+}
+
+export let getKenvsAsChoices = async (): Promise<
+  Choice[]
+> => {
+  let kenvs = await getKenvs()
+  return kenvs.map(value => ({
+    name: getLastSlashSeparated(value, 1),
+    description: value,
+    value,
+  }))
+}
+
+export let selectKenv = async (): Promise<string> => {
+  let kenvs = await getKenvsAsChoices()
+  return await arg<string>(`Select target kenv`, [
+    {
+      name: "home",
+      description: `Your main kenv: ${kenvPath()}`,
+      value: kenvPath(),
+    },
+    ...kenvs,
+  ])
 }
 
 export let writeScriptsDb = async () => {
