@@ -5,6 +5,7 @@ import {
   getScripts,
   getScriptFromString,
 } from "./core/db.js"
+import { getKenvsAsChoices } from "core/util.js"
 
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
@@ -135,5 +136,17 @@ export let trashBinFromScript = async (script: Script) => {
       "bin",
       script.command
     ),
+  ])
+}
+
+export let selectKenv = async (): Promise<string> => {
+  let kenvs = await getKenvsAsChoices()
+  return await arg<string>(`Select target kenv`, [
+    {
+      name: "home",
+      description: `Your main kenv: ${kenvPath()}`,
+      value: kenvPath(),
+    },
+    ...kenvs,
   ])
 }

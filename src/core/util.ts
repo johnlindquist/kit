@@ -333,18 +333,6 @@ export let getKenvsAsChoices = async (): Promise<
   }))
 }
 
-export let selectKenv = async (): Promise<string> => {
-  let kenvs = await getKenvsAsChoices()
-  return await arg<string>(`Select target kenv`, [
-    {
-      name: "home",
-      description: `Your main kenv: ${kenvPath()}`,
-      value: kenvPath(),
-    },
-    ...kenvs,
-  ])
-}
-
 export let writeScriptsDb = async () => {
   let scriptFiles = await getScriptFiles()
   let kenvDirs = await getKenvs()
