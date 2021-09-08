@@ -5,7 +5,7 @@ import {
   getScripts,
   getScriptFromString,
 } from "./core/db.js"
-import { getKenvsAsChoices } from "core/util.js"
+import { getKenvsAsChoices } from "./core/util.js"
 
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
