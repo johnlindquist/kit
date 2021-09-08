@@ -9,7 +9,7 @@ echo $WD
 
 mkdir -p $KIT
 cp -a root/. $KIT
-cp -r build/. $KIT
+cp -r build $KIT
 cp -r types $KIT
 cp *.md package*.json LICENSE $KIT
 
