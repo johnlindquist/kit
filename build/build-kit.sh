@@ -7,5 +7,3 @@ export WD=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
 "$WD/build/build-base.sh"
 
 echo "*" >> "$KIT/.kitignore"
-
-chmod +x $KIT/{bin/*,node/bin/*,kar,kit,script,sk}
