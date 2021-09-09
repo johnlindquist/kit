@@ -148,7 +148,7 @@ type Kenv = {
 }
 export let selectKenv = async (): Promise<Kenv> => {
   let kenvs = await getKenvs()
-  return await arg<Kenv>(`Select target kenv`, [
+  let kenvChoices = [
     {
       name: "home",
       description: `Your main kenv: ${kenvPath()}`,
@@ -168,5 +168,21 @@ export let selectKenv = async (): Promise<Kenv> => {
         },
       }
     }),
-  ])
+  ]
+
+  let selectedKenv = await arg<Kenv | string>(
+    `Select target kenv`,
+    kenvChoices
+  )
+
+  if (typeof selectedKenv === "string") {
+    return kenvChoices.find(
+      c =>
+        c.value.name === selectedKenv ||
+        path.resolve(c.value.path) ===
+          path.resolve(selectedKenv as string)
+    ).value
+  }
+
+  return selectedKenv as Kenv
 }

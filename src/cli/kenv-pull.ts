@@ -1,21 +1,12 @@
 // Description: Git Pull Kenv Repo
 
-import {
-  getLastSlashSeparated,
-  getKenvs,
-} from "../core/util.js"
+import { selectKenv } from "../utils.js"
 
-let dir = await arg(
-  "Update which kenv",
-  (
-    await getKenvs()
-  ).map(value => ({
-    name: getLastSlashSeparated(value, 1),
-    value,
-  }))
-)
+let { path: kPath } = await selectKenv()
 
-await $`cd ${dir} && git stash && git pull`
+console.log({ kPath })
+
+await $`cd ${kPath} && git stash && git pull`
 
 await getScripts(false)
 
