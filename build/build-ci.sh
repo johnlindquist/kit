@@ -22,5 +22,4 @@ npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
 node ./scripts/fix-cjs.js
 
-cd $KIT
-chmod +x ./bin/* ./kar ./kit ./script ./sk
+chmod +x $KIT/{bin/*,node/bin/*,kar,kit,script,sk}
