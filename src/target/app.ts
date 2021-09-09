@@ -59,7 +59,7 @@ let displayChoices = (
       break
 
     case "object":
-      global.setChoices(choices, className)
+      global.setChoices(checkResultInfo(choices), className)
       break
   }
 }
@@ -68,6 +68,21 @@ interface ChoicesTarget {
   promptId: number
   tabIndex: number
 }
+
+let checkResultInfo = result => {
+  if (result?.panel) {
+    global.setPanel(result.panel, result?.className || "")
+  }
+  if (result?.hint) {
+    global.setHint(result.hint)
+  }
+  if (result?.choices) {
+    return result.choices
+  }
+
+  return result
+}
+
 let promptId = 0
 let invokeChoices =
   ({ ct, choices, className }) =>

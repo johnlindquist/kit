@@ -7,4 +7,4 @@ echo $WD
 npx tsc-watch --outDir $KIT & \
 KIT=$KIT node ./scripts/dev-cjs.js
 
-echo "*" >> .kitignore
+echo "*" >> "$KIT/.kitignore"

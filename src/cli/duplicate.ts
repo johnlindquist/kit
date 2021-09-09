@@ -26,7 +26,7 @@ if (!(await isFile(filePath))) {
   exit()
 }
 
-let selectedKenvDir = await selectKenv()
+let { path: selectedKenvDir } = await selectKenv()
 
 let newFilePath = path.join(
   selectedKenvDir,

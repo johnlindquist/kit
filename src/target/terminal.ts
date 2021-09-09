@@ -1,8 +1,11 @@
 import { assignPropsTo } from "../core/util.js"
-
 let { default: enquirer } = (await import(
   "enquirer"
 )) as any
+
+type Enquirer = typeof import("enquirer")
+type Prompt = Enquirer["prompt"]
+type EnquirerPromptConfig = Parameters<Prompt>[0]
 
 global.kitPrompt = async (config: any) => {
   if (config?.choices) {
@@ -33,10 +36,17 @@ global.kitPrompt = async (config: any) => {
       let suggest = global._.debounce(async function (
         input
       ) {
-        let results = await f(
-          input.replace(/[^0-9a-z]/gi, "")
+        let results = await f(input)
+
+        if (
+          global._.isUndefined(results) ||
+          global._.isString(results)
         )
-        this.choices = await this.toChoices(results)
+          results = [input]
+
+        this.choices = await this.toChoices(
+          results?.choices || results
+        )
         await this.render()
 
         return this.choices
@@ -44,21 +54,21 @@ global.kitPrompt = async (config: any) => {
       250)
       config = {
         ...config,
-        choices: [],
+        choices: config?.input ? [config?.input] : [],
         suggest,
       }
     }
   }
 
-  let promptConfig = {
+  let promptConfig: EnquirerPromptConfig = {
     ...config,
     message: config.placeholder,
   }
-
+  let { prompt }: Enquirer = enquirer
   // TODO: Strip out enquirer autocomplete
 
-  let { prompt } = enquirer
-  prompt.on("cancel", () => process.exit())
+  ;(prompt as any).on("cancel", () => process.exit())
+
   let result = (await prompt(promptConfig)) as any
 
   return result.value
@@ -212,3 +222,9 @@ global.drop = async () => {
 
   exit()
 }
+
+global.setPanel = async (html, containerClasses = "") => {}
+global.setPanelContainer = async (
+  html,
+  containerClasses = ""
+) => {}

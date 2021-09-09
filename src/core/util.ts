@@ -85,10 +85,9 @@ export const KIT_MAC_APP = kitPath("mac-app.js")
 export const KIT_MAC_APP_PROMPT = kitPath(
   "mac-app-prompt.js"
 )
-export const PATH = `${kitPath(
-  "node",
-  "bin"
-)}:/usr/local/bin:/usr/bin:${process.env.PATH}`
+export const PROCESS_PATH = `${kitPath("node", "bin")}:${
+  process.env.PATH
+}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -320,17 +319,6 @@ export let getKenvs = async (): Promise<string[]> => {
   return dirs
     .filter(d => d.isDirectory())
     .map(d => kenvPath("kenvs", d.name))
-}
-
-export let getKenvsAsChoices = async (): Promise<
-  Choice[]
-> => {
-  let kenvs = await getKenvs()
-  return kenvs.map(value => ({
-    name: getLastSlashSeparated(value, 1),
-    description: value,
-    value,
-  }))
 }
 
 export let writeScriptsDb = async () => {
