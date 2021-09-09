@@ -85,7 +85,10 @@ export const KIT_MAC_APP = kitPath("mac-app.js")
 export const KIT_MAC_APP_PROMPT = kitPath(
   "mac-app-prompt.js"
 )
-export const PROCESS_PATH = `${kitPath("node", "bin")}:${
+export const PROCESS_PATH = `${kitPath(
+  "node",
+  "bin"
+)}:${kitPath("bin")}:${
   process.env.PATH
 }:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 

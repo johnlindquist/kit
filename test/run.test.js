@@ -7,20 +7,31 @@ process.env.KIT =
   process.env.KIT || path.resolve(os.homedir(), ".kit")
 
 await import(path.resolve(`${process.env.KIT}`, "run.js"))
+
 /** @type {import("../src/core/util.js")} */
-let { KIT_MAC_APP, KIT_MAC_APP_PROMPT } = await import(
-  path.resolve(`${process.env.KIT}`, "core", "util.js")
-)
+let { KIT_MAC_APP, KIT_MAC_APP_PROMPT, PROCESS_PATH } =
+  await import(
+    path.resolve(`${process.env.KIT}`, "core", "util.js")
+  )
 /** @type {import("../src/core/enum.js")} */
 let { Channel } = await import(
   path.resolve(`${process.env.KIT}`, "core", "enum.js")
 )
 
+process.env.PATH = PROCESS_PATH
+let options = {
+  env: {
+    PATH: PROCESS_PATH,
+  },
+}
+
 ava.serial(
   "kit set-env-var KIT_TEMPLATE default",
   async t => {
+    exec(`which kit`, options)
+
     let envPath = kenvPath(".env")
-    await $`kit set-env-var KIT_TEMPLATE default`
+    await $`kit set-env-var KIT_TEMPLATE default --no-edit`
     let fileCreated = test("-f", envPath)
 
     t.true(fileCreated, process.env.KENV_DEV)
