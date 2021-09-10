@@ -5,6 +5,6 @@ KENV_CWD="$PWD"
 KIT="${KIT:=$KIT_CWD}"
 KENV="${KENV:="$(cd $KIT/../../..; pwd)"}"
 
-KIT="$KIT" KENV="$KENV" node \
+NODE_NO_WARNINGS=1 KIT="$KIT" KENV="$KENV" node \
 "$KIT/kit.js" \
 "$@"

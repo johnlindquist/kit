@@ -38,7 +38,8 @@ jobs:
       - name: Set env vars
         run: |
           echo "wd_path=$PWD" >> $GITHUB_ENV
-          echo "kit_path=$PWD/dist" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Add node and kit to PATH
         run: |
@@ -53,9 +54,9 @@ jobs:
           node --version
           npm --version
 
-      - name: Log ./dist
+      - name: Log ./.kit
         run: |
-          ls ./dist/*/*
+          ls ./.kit/*/*
 
       - name: npm i
         run: |
@@ -76,16 +77,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: npm prune
-        run: |
-          cd "${{ env.kit_path }}"
-          npm prune --production
-
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
           filename: "kit.zip"
-          path: "${{ env.kit_path }}"
+          path: ".kit"
 
       - name: Create Draft Release
         id: create_release
@@ -94,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.time.outputs.time }}
-          release_name: kit-${{ env.GITHUB_REF_SLUG_URL }}.zip
+          release_name: ${{ env.release_channel }}
           draft: true
           prerelease: false
 

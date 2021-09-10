@@ -1,3 +1,5 @@
+import { PROCESS_PATH } from "../core/util.js"
+
 export {}
 
 let file = JSON.parse(
@@ -32,8 +34,7 @@ let uninstallPackage = spawn(
     stdio: "inherit",
     cwd: env.KENV,
     env: {
-      //need to prioritize our node over any nodes on the path
-      PATH: kitPath("node", "bin") + ":" + env.PATH,
+      PATH: PROCESS_PATH,
     },
   }
 )

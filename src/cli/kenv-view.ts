@@ -1,11 +1,13 @@
 // Menu: Kit Environment
 // Description: Script Kit
 
-import { toggleBackground, selectScript } from "../utils.js"
+import {
+  toggleBackground,
+  selectScript,
+  selectKenv,
+} from "../utils.js"
 
-let kenvs = await readdir(kenvPath("kenvs"))
-
-let kenv = await arg("Select kenv:", kenvs)
+let { name: kenv } = await selectKenv()
 
 setFlags({
   [""]: {

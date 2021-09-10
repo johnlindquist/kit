@@ -17,13 +17,6 @@ let input = getLastSlashSeparated(repo, 2)
   .replace(/\.git|\./g, "")
   .replace(/\//g, "-")
 
-let panelContainer = content =>
-  `<div class="p-4 break-all">${content}</div>`
-
-let setPanelContainer = content => {
-  setPanel(panelContainer(content))
-}
-
 let kenvName = await arg(
   {
     placeholder: `Enter a kenv name`,
@@ -43,21 +36,21 @@ let kenvName = await arg(
   },
   async input => {
     let exists = await isDir(kenvPath("kenvs", input))
-    if (!input) {
-      setPanelContainer(`A kenv name is required`)
-    } else if (exists) {
-      setPanelContainer(
-        `A kenv named "${input}" already exists`
-      )
-    } else {
-      setPanelContainer(
-        `
-        <p>Will clone to:</p>
-        <p class="font-mono">${kenvPath(
-          "kenvs",
-          input
-        )}</p>`
-      )
+    let panel = !input
+      ? `A kenv name is required`
+      : exists
+      ? `A kenv named "${input}" already exists`
+      : `
+    <p>Will clone to:</p>
+    <p class="font-mono text-xxs break-all">${kenvPath(
+      "kenvs",
+      input
+    )}</p>`
+
+    return {
+      choices: [input],
+      panel,
+      className: `p-4`,
     }
   }
 )

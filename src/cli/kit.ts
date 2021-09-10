@@ -87,6 +87,11 @@ const cliScripts: CLIMenuItem[] = [
     placeholder: "Open .kit directory in editor",
   },
   { name: "open-log", placeholder: "Open kit.log" },
+  { name: "kenv-clone", placeholder: "Clone a kenv" },
+  { name: "kenv-view", placeholder: "View kenv scripts" },
+  { name: "kenv-push", placeholder: "Push a kenv" },
+  { name: "kenv-pull", placeholder: "Pull a kenv" },
+  { name: "kenv-rm", placeholder: "Remove a kenv" },
   { name: "quit", placeholder: "Quit Kit" },
 ]
 

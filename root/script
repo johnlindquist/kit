@@ -1,6 +1,6 @@
 #!/bin/bash
 # ../../ of this script
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
-$KIT/node/bin/node \
+NODE_NO_WARNINGS=1 $KIT/node/bin/node -- \
 $KIT/mac-terminal.js \
 "$@"

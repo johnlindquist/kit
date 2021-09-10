@@ -1,6 +1,6 @@
 // Description: Duplicate the selected script
 
-import { exists } from "../utils.js"
+import { exists, selectKenv } from "../utils.js"
 let generate = await npm("project-name-generator")
 
 let examples = Array.from({ length: 3 })
@@ -26,25 +26,7 @@ if (!(await isFile(filePath))) {
   exit()
 }
 
-let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
-
-let selectedKenvDir = kenvPath()
-
-selectedKenvDir = await arg(`Select target kenv`, [
-  {
-    name: "home",
-    description: `Your main kenv: ${kenvPath()}`,
-    value: kenvPath(),
-  },
-  ...kenvDirs.map(kenvDir => {
-    let value = kenvPath("kenvs", kenvDir)
-    return {
-      name: kenvDir,
-      description: value,
-      value,
-    }
-  }),
-])
+let { path: selectedKenvDir } = await selectKenv()
 
 let newFilePath = path.join(
   selectedKenvDir,

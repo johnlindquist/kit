@@ -2,7 +2,7 @@ import * as path from "path"
 import * as os from "os"
 
 import { ProcessType, UI } from "./enum.js"
-import { Script } from "./type.js"
+import { Choice, Script } from "./type.js"
 import { copyFileSync, lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
@@ -85,10 +85,12 @@ export const KIT_MAC_APP = kitPath("mac-app.js")
 export const KIT_MAC_APP_PROMPT = kitPath(
   "mac-app-prompt.js"
 )
-export const PATH = `${kitPath(
+export const PROCESS_PATH = `${kitPath(
   "node",
   "bin"
-)}:/usr/local/bin:/usr/bin:${process.env.PATH}`
+)}:${kitPath("bin")}:${
+  process.env.PATH
+}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,

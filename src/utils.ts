@@ -5,6 +5,10 @@ import {
   getScripts,
   getScriptFromString,
 } from "./core/db.js"
+import {
+  getKenvs,
+  getLastSlashSeparated,
+} from "./core/util.js"
 
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
@@ -136,4 +140,49 @@ export let trashBinFromScript = async (script: Script) => {
       script.command
     ),
   ])
+}
+
+type Kenv = {
+  name: string
+  path: string
+}
+export let selectKenv = async (): Promise<Kenv> => {
+  let kenvs = await getKenvs()
+  let kenvChoices = [
+    {
+      name: "home",
+      description: `Your main kenv: ${kenvPath()}`,
+      value: {
+        name: "home",
+        path: kenvPath(),
+      },
+    },
+    ...kenvs.map(p => {
+      let name = getLastSlashSeparated(p, 1)
+      return {
+        name,
+        description: p,
+        value: {
+          name,
+          path: p,
+        },
+      }
+    }),
+  ]
+
+  let selectedKenv = await arg<Kenv | string>(
+    `Select target kenv`,
+    kenvChoices
+  )
+
+  if (typeof selectedKenv === "string") {
+    return kenvChoices.find(
+      c =>
+        c.value.name === selectedKenv ||
+        path.resolve(c.value.path) ===
+          path.resolve(selectedKenv as string)
+    ).value
+  }
+
+  return selectedKenv as Kenv
 }

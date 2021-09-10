@@ -1,3 +1,5 @@
+import { PROCESS_PATH } from "../core/util.js"
+
 global.applescript = async (
   script,
   options = { silent: true }
@@ -83,17 +85,10 @@ let terminalEditor = editor => async file => {
 }
 
 let execConfig = () => {
-  let editorParentPath = "/usr/local/bin"
-  let PATH = [
-    editorParentPath,
-    ...process.env.PATH.split(":"),
-  ]
-    .filter(p => !p.startsWith(home()))
-    .join(":")
   return {
     env: {
       HOME: home(),
-      PATH,
+      PATH: PROCESS_PATH,
     },
   }
 }
@@ -113,10 +108,12 @@ global.selectKitEditor = async reset => {
     ]
       .filter(
         editor =>
-          exec(
-            `PATH="/usr/bin:/usr/local/bin" which ${editor}`,
-            { silent: true }
-          ).stdout
+          exec(`which ${editor}`, {
+            silent: true,
+            env: {
+              PATH: PROCESS_PATH,
+            },
+          }).stdout
       )
       .map(name => ({ name, value: name }))
 
@@ -160,7 +157,8 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (file, dir, line = 0, col = 0) => {
-  if (!global.flag?.edit) return
+  console.log(global.flag)
+  if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)
 

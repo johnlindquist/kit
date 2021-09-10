@@ -1,3 +1,5 @@
+import { PROCESS_PATH } from "../core/util.js"
+
 let { formatDistanceToNow, parseISO } = (await npm(
   "date-fns"
 )) as typeof import("date-fns")
@@ -16,8 +18,7 @@ let install = async packageNames => {
         stdio: "pipe",
         cwd: kenvPath(),
         env: {
-          //need to prioritize our node over any nodes on the path
-          PATH: kitPath("node", "bin") + ":" + env.PATH,
+          PATH: PROCESS_PATH,
         },
       }
     )
