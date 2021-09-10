@@ -1,4 +1,4 @@
-import { PROCESS_PATH } from "core/util"
+import { PROCESS_PATH } from "../core/util.js"
 
 let { formatDistanceToNow, parseISO } = (await npm(
   "date-fns"
