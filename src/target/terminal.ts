@@ -201,8 +201,8 @@ global.getScriptsState = async () => ({
 })
 
 global.div = async (html = "", containerClasses = "") => {
-  let { default: cliHtml } = await import("cli-html")
-  console.log(cliHtml(html))
+  // let { default: cliHtml } = await import("cli-html")
+  console.log(html)
 }
 
 global.textarea = async () => {
