@@ -1,61 +1,60 @@
 import ava from "ava"
-import path from "path"
-import os from "os"
-import { fork } from "child_process"
-
-process.env.KIT =
-  process.env.KIT || path.resolve(os.homedir(), ".kit")
-
-await import(path.resolve(`${process.env.KIT}`, "run.js"))
-
-/** @type {import("../src/core/util.js")} */
-let { KIT_MAC_APP, KIT_MAC_APP_PROMPT, PROCESS_PATH } =
-  await import(
-    path.resolve(`${process.env.KIT}`, "core", "util.js")
-  )
-/** @type {import("../src/core/enum.js")} */
-let { Channel } = await import(
-  path.resolve(`${process.env.KIT}`, "core", "enum.js")
-)
-
-process.env.PATH = PROCESS_PATH
-let options = {
-  env: {
-    PATH: PROCESS_PATH,
-  },
-}
+import { KIT_MAC_APP_PROMPT, Channel } from "./config.js"
 
 ava.serial(
   "kit set-env-var KIT_TEMPLATE default",
   async t => {
-    exec(`which kit`, options)
-
     let envPath = kenvPath(".env")
-    await $`kit set-env-var KIT_TEMPLATE default --no-edit`
+    let KIT_TEMPLATE = "KIT_TEMPLATE"
+    let kitTemplate = "default"
+    await $`kit set-env-var ${KIT_TEMPLATE} ${kitTemplate} --no-edit`
     let fileCreated = test("-f", envPath)
 
-    t.true(fileCreated, process.env.KENV_DEV)
+    t.true(fileCreated)
+
+    let contents = await readFile(envPath, "utf-8")
+    t.true(
+      contents.includes(`${KIT_TEMPLATE}=${kitTemplate}`)
+    )
   }
 )
 
-let command = `kit-terminal-testing-new-ava`
+let command = `testing-new-script-from-scripts`
 let scriptPath = kenvPath("scripts", `${command}.js`)
 let binPath = kenvPath("bin", `${command}`)
+let scriptContents = `console.log("${command} success 🎉!")`
 
 ava.serial("kit new", async t => {
-  await $`kit new ${command} --no-edit`
+  await $`kit new ${command} home --no-edit`
   let scriptCreated = test("-f", scriptPath)
-  let binCreated = test("-f", scriptPath)
+  let binCreated = test("-f", binPath)
+  await writeFile(scriptPath, scriptContents)
 
   t.true(scriptCreated)
   t.true(binCreated)
 })
 
-ava.serial("kit rm", async t => {
-  let { stdout, stderr } =
-    await $`kit rm ${command} --confirm`
+ava.serial("kenv bin on path", async t => {
+  let runCommand = `run-${command}`
+  await $`kit new ${runCommand} home --no-edit`
 
-  console.log({ stdout, stderr })
+  let contents = `
+  await $\`${command}\`
+  `
+
+  await writeFile(
+    kenvPath("scripts", `${runCommand}.js`),
+    contents
+  )
+
+  let { stdout } = await $`${kenvPath("bin", runCommand)}`
+
+  t.true(stdout.includes("success"))
+})
+
+ava.serial("kit rm", async t => {
+  await $`kit rm ${command} --confirm`
+
   let fileRmed = !test("-f", scriptPath)
   let binRmed = !test("-f", binPath)
 
@@ -112,11 +111,4 @@ ava.serial("kit mac-app-prompt.js", async t => {
       })
     }, 1000)
   })
-})
-
-ava.serial("clean .env", async t => {
-  await trash(kenvPath(".env"))
-  let fileRmed = !test("-f", kenvPath(".env"))
-
-  t.true(fileRmed)
 })

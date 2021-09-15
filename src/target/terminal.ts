@@ -201,6 +201,8 @@ global.getScriptsState = async () => ({
 })
 
 global.div = async (html = "", containerClasses = "") => {
+  if (global.flag?.log === false) return
+
   // let { default: cliHtml } = await import("cli-html")
   console.log(html)
 }

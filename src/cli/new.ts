@@ -1,6 +1,6 @@
 // Description: Create a new script
 import { getKenvs } from "../core/util.js"
-import { exists } from "../utils.js"
+import { exists, selectKenv } from "../utils.js"
 let generate = await npm("project-name-generator")
 
 let examples = Array.from({ length: 3 })
@@ -14,28 +14,10 @@ let name = await arg({
   hint: `examples: ${examples}`,
 })
 
-let kenvDirs = await getKenvs()
-
-let selectedKenvDir = kenvPath()
-if (kenvDirs.length) {
-  selectedKenvDir = await arg(`Select target kenv`, [
-    {
-      name: "home",
-      description: `Your main kenv: ${kenvPath()}`,
-      value: kenvPath(),
-    },
-    ...kenvDirs.map(kenvDir => {
-      return {
-        name: path.basename(kenvDir),
-        description: kenvDir,
-        value: kenvDir,
-      }
-    }),
-  ])
-}
+let { dirPath: selectedKenvPath } = await selectKenv()
 
 let scriptPath = path.join(
-  selectedKenvDir,
+  selectedKenvPath,
   "scripts",
   name + ".js"
 )

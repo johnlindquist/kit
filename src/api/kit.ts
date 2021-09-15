@@ -6,8 +6,11 @@ import {
   info,
   resolveScriptToCommand,
   resolveToScriptPath,
+  KIT_FIRST_PATH,
 } from "../core/util.js"
 import stripAnsi from "strip-ansi"
+
+process.env.PATH = KIT_FIRST_PATH
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {

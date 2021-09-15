@@ -28,7 +28,7 @@ setFlags({
   },
   remove: {
     name: "Remove script",
-    shortcut: "cmd+backspace",
+    shortcut: "cmd+shift+backspace",
   },
   ["open-script-log"]: {
     name: `Open script log`,
@@ -56,6 +56,10 @@ setFlags({
   move: {
     name: "Move script to kenv",
     shortcut: "cmd+m",
+  },
+  ["refresh-scripts-db"]: {
+    name: "Refresh scripts db",
+    shortcut: "cmd+shift+r",
   },
 })
 

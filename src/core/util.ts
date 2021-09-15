@@ -85,12 +85,13 @@ export const KIT_MAC_APP = kitPath("mac-app.js")
 export const KIT_MAC_APP_PROMPT = kitPath(
   "mac-app-prompt.js"
 )
-export const PROCESS_PATH = `${kitPath(
-  "node",
+export const KIT_NODE_PATH = `${kitPath("node", "bin")}`
+
+export const KIT_DEFAULT_PATH = `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
+
+export const KIT_FIRST_PATH = `${kitPath("bin")}:${kenvPath(
   "bin"
-)}:${kitPath("bin")}:${
-  process.env.PATH
-}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
+)}:${KIT_NODE_PATH}:${KIT_DEFAULT_PATH}`
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
