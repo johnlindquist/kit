@@ -488,6 +488,7 @@ declare global {
   var arg: Arg
   var textarea: TextArea
   var drop: Drop
+  var div: Div
   var editor: Editor
   var hotkey: Hotkey
   var onTab: OnTab

@@ -2,7 +2,7 @@
 
 import { selectKenv } from "../utils.js"
 
-let { path: kPath } = await selectKenv()
+let { dirPath: kPath } = await selectKenv()
 
 console.log({ kPath })
 

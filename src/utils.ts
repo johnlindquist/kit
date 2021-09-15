@@ -144,44 +144,49 @@ export let trashBinFromScript = async (script: Script) => {
 
 type Kenv = {
   name: string
-  path: string
+  dirPath: string
 }
 export let selectKenv = async (): Promise<Kenv> => {
-  let kenvs = await getKenvs()
-  let kenvChoices = [
-    {
+  let homeKenv = {
+    name: "home",
+    description: `Your main kenv: ${kenvPath()}`,
+    value: {
       name: "home",
-      description: `Your main kenv: ${kenvPath()}`,
-      value: {
-        name: "home",
-        path: kenvPath(),
-      },
+      dirPath: kenvPath(),
     },
-    ...kenvs.map(p => {
-      let name = getLastSlashSeparated(p, 1)
-      return {
-        name,
-        description: p,
-        value: {
+  }
+  let selectedKenv: Kenv | string = homeKenv.value
+
+  let kenvs = await getKenvs()
+  if (kenvs.length) {
+    let kenvChoices = [
+      homeKenv,
+      ...kenvs.map(p => {
+        let name = getLastSlashSeparated(p, 1)
+        return {
           name,
-          path: p,
-        },
-      }
-    }),
-  ]
+          description: p,
+          value: {
+            name,
+            dirPath: p,
+          },
+        }
+      }),
+    ]
 
-  let selectedKenv = await arg<Kenv | string>(
-    `Select target kenv`,
-    kenvChoices
-  )
+    selectedKenv = await arg<Kenv | string>(
+      `Select target kenv`,
+      kenvChoices
+    )
 
-  if (typeof selectedKenv === "string") {
-    return kenvChoices.find(
-      c =>
-        c.value.name === selectedKenv ||
-        path.resolve(c.value.path) ===
-          path.resolve(selectedKenv as string)
-    ).value
+    if (typeof selectedKenv === "string") {
+      return kenvChoices.find(
+        c =>
+          c.value.name === selectedKenv ||
+          path.resolve(c.value.dirPath) ===
+            path.resolve(selectedKenv as string)
+      ).value
+    }
   }
 
   return selectedKenv as Kenv

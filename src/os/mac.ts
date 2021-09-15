@@ -1,4 +1,4 @@
-import { PROCESS_PATH } from "../core/util.js"
+import { KIT_DEFAULT_PATH } from "../core/util.js"
 
 global.applescript = async (
   script,
@@ -88,7 +88,7 @@ let execConfig = () => {
   return {
     env: {
       HOME: home(),
-      PATH: PROCESS_PATH,
+      PATH: KIT_DEFAULT_PATH,
     },
   }
 }
@@ -111,7 +111,7 @@ global.selectKitEditor = async reset => {
           exec(`which ${editor}`, {
             silent: true,
             env: {
-              PATH: PROCESS_PATH,
+              PATH: KIT_DEFAULT_PATH,
             },
           }).stdout
       )
@@ -157,7 +157,6 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (file, dir, line = 0, col = 0) => {
-  console.log(global.flag)
   if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)

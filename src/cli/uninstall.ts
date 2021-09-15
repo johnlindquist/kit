@@ -1,4 +1,4 @@
-import { PROCESS_PATH } from "../core/util.js"
+import { KIT_NODE_PATH } from "../core/util.js"
 
 export {}
 
@@ -34,7 +34,7 @@ let uninstallPackage = spawn(
     stdio: "inherit",
     cwd: env.KENV,
     env: {
-      PATH: PROCESS_PATH,
+      PATH: KIT_NODE_PATH,
     },
   }
 )

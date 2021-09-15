@@ -1,4 +1,4 @@
-import { PROCESS_PATH } from "../core/util.js"
+import { KIT_NODE_PATH } from "../core/util.js"
 
 let { formatDistanceToNow, parseISO } = (await npm(
   "date-fns"
@@ -18,7 +18,7 @@ let install = async packageNames => {
         stdio: "pipe",
         cwd: kenvPath(),
         env: {
-          PATH: PROCESS_PATH,
+          PATH: KIT_NODE_PATH,
         },
       }
     )

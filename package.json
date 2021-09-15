@@ -18,8 +18,10 @@
   "scripts": {
     "build-kit": "./build/build-kit.sh",
     "dev": "tsc --watch",
+    "pretest": "node ./scripts/test-pre.js",
     "test": "NODE_NO_WARNINGS=1 ava",
-    "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\""
+    "posttest": "node ./scripts/test-post.js",
+    "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\" && node ./scripts/cjs-fix.js"
   },
   "author": "",
   "license": "ISC",
@@ -33,7 +35,6 @@
     "ansi-to-html": "^0.7.1",
     "axios": "^0.21.4",
     "chalk": "^4.1.2",
-    "cli-html": "^1.8.4",
     "clipboardy": "^2.3.0",
     "date-fns": "^2.23.0",
     "degit": "^2.8.4",
@@ -80,9 +81,11 @@
     "environmentVariables": {
       "KIT_TEST": "true"
     },
+    "concurrency": 1,
     "verbose": true,
     "files": [
-      "test/*.js"
+      "src/**/*.test.js",
+      "test/**/*.test.js"
     ]
   },
   "release": {

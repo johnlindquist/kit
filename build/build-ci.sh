@@ -20,4 +20,4 @@ npm --version
 npm i
 npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
-node ./scripts/fix-cjs.js
+node ./scripts/cjs-fix.js

@@ -4,9 +4,7 @@ process.env.KIT =
   process.env.KIT_OVERRIDE ||
   path.dirname(new URL(import.meta.url).pathname)
 
-process.env.KENV = process.env.KIT_TEST
-  ? path.resolve(process.cwd(), "test")
-  : process.cwd()
+process.env.KENV = process.env.KENV || process.cwd()
 
 import { config } from "dotenv"
 import { assignPropsTo } from "./core/util.js"
