@@ -11,7 +11,7 @@ cp *.md package*.json LICENSE $KIT
 
 npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
-node ./scripts/fix-cjs.js
+node ./scripts/cjs-fix.js
 
 cd $KIT
 echo $KIT
