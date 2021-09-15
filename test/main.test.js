@@ -63,14 +63,31 @@ ava.serial("kit rm", async t => {
 })
 
 ava.serial("kit hook", async t => {
+  let script = `script-with-export`
+  let contents = `
+  export default {value: await arg()}
+  `
+  await $`kit new ${script} home --no-edit`
+  await writeFile(
+    kenvPath("scripts", `${script}.js`),
+    contents
+  )
+
   let message = "hello"
-  let { value } = await kit(`script-with-export ${message}`)
+  let { value } = await kit(`${script} ${message}`)
   t.is(value, message)
 })
 
 ava.serial("kit mac-app-prompt.js", async t => {
-  /** @type {import("./scripts/script-with-arg.js")} */
-  let script = kenvPath("scripts", "script-with-arg.js")
+  let script = `script-with-arg`
+  let scriptPath = kenvPath("scripts", `${script}.js`)
+  let placeholder = "hello"
+  let contents = `
+  await arg("${placeholder}")
+  `
+  await $`kit new ${script} home --no-edit`
+  await writeFile(scriptPath, contents)
+
   let child = fork(KIT_MAC_APP_PROMPT, {
     env: {
       KIT: home(".kit"),
@@ -85,15 +102,16 @@ ava.serial("kit mac-app-prompt.js", async t => {
     child.on("message", data => {
       messages.push(data)
       if (data?.channel === Channel.SET_PROMPT_DATA) {
-        let { placeholder, kitScript } = data
+        let { placeholder: dataPlaceholder, kitScript } =
+          data
         t.deepEqual(
           {
-            placeholder,
+            placeholder: dataPlaceholder,
             script: kitScript,
           },
           {
-            placeholder: "hello",
-            script,
+            placeholder,
+            script: scriptPath,
           }
         )
 
