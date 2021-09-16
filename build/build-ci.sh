@@ -11,6 +11,7 @@ mkdir -p $KIT
 cp -a root/. $KIT
 cp -r build $KIT
 cp -r types $KIT
+find $KIT/types -type f -exec sed -i '' 's/\.\.\/src/\.\./g' {} \;
 cp *.md package*.json LICENSE $KIT
 
 ./build/install-node.sh --prefix $KIT/node

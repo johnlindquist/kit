@@ -12,7 +12,7 @@
   "exports": {
     ".": "./run.js",
     "./utils": "./utils.js",
-    "./cjs/*": "./cjs/*.cjs"
+    "./cjs/*": "./core/*.cjs"
   },
   "types": "./types/kit.d.ts",
   "scripts": {

@@ -5,7 +5,7 @@
     "module": "CommonJS",
     "target": "ES2020",
     "rootDir": "./src/core",
-    "outDir": "./dist/cjs"
+    "outDir": "./dist/core"
   },
   "include": ["./src/core/**/*.ts"]
 }
