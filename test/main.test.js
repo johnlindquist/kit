@@ -1,6 +1,8 @@
 import ava from "ava"
 import { KIT_MAC_APP_PROMPT, Channel } from "./config.js"
 
+process.env.NODE_NO_WARNINGS = 1
+
 ava.serial(
   "kit set-env-var KIT_TEMPLATE default",
   async t => {
