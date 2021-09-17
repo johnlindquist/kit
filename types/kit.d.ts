@@ -22,7 +22,7 @@ import { CLI } from "./cli"
 import { Main } from "./main"
 import { Lib } from "./lib"
 import { JSONFile, Low } from "lowdb"
-import { NodeNotifier } from "node-notifier/index"
+import { NodeNotifier } from "node-notifier"
 
 type Panel =
   | string

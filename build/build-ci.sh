@@ -10,7 +10,9 @@ echo $WD
 mkdir -p $KIT
 cp -a root/. $KIT
 cp -r build $KIT
-cp -r types $KIT
+mkdir -p $KIT/types
+cp types/kit.d.ts $KIT
+cp -r declarations $KIT
 find $KIT/types -type f -exec sed -i '' 's/\.\.\/src/\.\./g' {} \;
 cp *.md package*.json LICENSE $KIT
 

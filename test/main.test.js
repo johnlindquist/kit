@@ -80,6 +80,20 @@ ava.serial("kit hook", async t => {
   t.is(value, message)
 })
 
+ava.serial("k script-output-hello", async t => {
+  let script = `script-output-hello`
+  let contents = `console.log("hello")`
+  await $`kit new ${script} home --no-edit`
+  await writeFile(
+    kenvPath("scripts", `${script}.js`),
+    contents
+  )
+
+  let { stdout } = await $`k ${script}`
+
+  t.true(stdout.includes("hello"))
+})
+
 ava.serial("kit mac-app-prompt.js", async t => {
   let script = `script-with-arg`
   let scriptPath = kenvPath("scripts", `${script}.js`)
@@ -92,6 +106,7 @@ ava.serial("kit mac-app-prompt.js", async t => {
 
   let child = fork(KIT_MAC_APP_PROMPT, {
     env: {
+      NODE_NO_WARNINGS: "1",
       KIT: home(".kit"),
       KENV: kenvPath(),
       KIT_CONTEXT: "app",

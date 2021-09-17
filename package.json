@@ -2,7 +2,9 @@
   "name": "@johnlindquist/kit",
   "type": "module",
   "bin": {
-    "kit": "./kit"
+    "kit": "./bin/kit",
+    "k": "./bin/k",
+    "sk": "./bin/sk"
   },
   "engines": {
     "node": ">=14.8.0"
