@@ -9,7 +9,7 @@ let platform = os.platform()
 try {
   await import(`../platform/${platform}.js`)
 } catch (error) {
-  console.log(`No utils for ${platform}}`)
+  // console.log(`No ./platform/${platform}.js`)
 }
 import "../target/app.js"
 
