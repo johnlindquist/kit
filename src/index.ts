@@ -7,7 +7,7 @@ process.env.KIT =
 process.env.KENV = process.env.KENV || process.cwd()
 
 import { config } from "dotenv"
-import { assignPropsTo } from "./core/util.js"
+import { assignPropsTo } from "./core/utils.js"
 
 import "./api/global.js"
 import "./api/kit.js"
@@ -19,5 +19,8 @@ config({
 })
 
 assignPropsTo(process.env, global.env)
+
+export { selectScript, selectKenv } from "./core/utils.js"
+export { run } from "./api/kit.js"
 
 //codegen

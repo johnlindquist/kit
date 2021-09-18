@@ -1,4 +1,4 @@
-import { resolveToScriptPath } from "../core/util.js"
+import { resolveToScriptPath } from "../core/utils.js"
 
 let ipc = await npm("node-ipc")
 
@@ -10,8 +10,10 @@ ipc.connectTo("kit", kitPath("tmp", "ipc"), () => {
   ipc.of.kit.on("connect", async () => {
     let [, , , scriptPath, ...runArgs] = process.argv
 
+    let { scriptPath: resolvedScriptPath } =
+      await resolveToScriptPath(scriptPath)
     ipc.of.kit.emit("message", [
-      await resolveToScriptPath(scriptPath),
+      resolvedScriptPath,
       ...runArgs,
     ])
     ipc.disconnect("kit")

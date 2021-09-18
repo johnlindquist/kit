@@ -1,11 +1,19 @@
+import os from "os"
 import { config } from "dotenv"
-import { assignPropsTo } from "./core/util.js"
-import { Channel } from "./core/enum.js"
-import "./api/global.js"
-import "./api/kit.js"
-import "./api/lib.js"
-import "./os/mac.js"
-import "./target/app.js"
+import { assignPropsTo } from "../core/utils.js"
+import { Channel } from "../core/enum.js"
+import "../api/global.js"
+import "../api/kit.js"
+import "../api/lib.js"
+
+let platform = os.platform()
+try {
+  await import(`../platform/${platform}.js`)
+} catch (error) {
+  console.log(`No utils for ${platform}}`)
+}
+
+import "../target/app.js"
 
 let { script, args } = await new Promise<{
   script: string

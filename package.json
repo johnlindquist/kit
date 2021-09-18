@@ -12,14 +12,17 @@
   "version": "0.0.0-development",
   "description": "",
   "exports": {
-    ".": "./run.js",
-    "./utils": "./utils.js",
+    ".": "./index.js",
     "./cjs/*": "./core/*.cjs"
   },
   "types": "./types/kit.d.ts",
   "scripts": {
     "build-kit": "./build/build-kit.sh",
     "dev": "tsc --watch",
+    "declaration": "tsc -p ./tsconfig-declaration.json --watch",
+    "pretest:core": "node ./scripts/test-pre.js",
+    "test:core": "NODE_NO_WARNINGS=1 ava ./src/core/*.test.js",
+    "posttest:core": "node ./scripts/test-post.js",
     "pretest": "node ./scripts/test-pre.js",
     "test": "NODE_NO_WARNINGS=1 ava",
     "posttest": "node ./scripts/test-post.js",

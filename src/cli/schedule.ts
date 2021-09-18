@@ -1,4 +1,4 @@
-import { info } from "../core/util.js"
+import { info } from "../core/utils.js"
 
 let { formatDistanceToNowStrict, format, compareAsc } =
   await npm("date-fns")

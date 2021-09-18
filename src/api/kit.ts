@@ -7,7 +7,7 @@ import {
   resolveScriptToCommand,
   resolveToScriptPath,
   KIT_FIRST_PATH,
-} from "../core/util.js"
+} from "../core/utils.js"
 import stripAnsi from "strip-ansi"
 
 process.env.PATH = KIT_FIRST_PATH
@@ -61,6 +61,7 @@ export let errorPrompt = async (error: Error) => {
     console.log(error)
   }
 }
+
 global.attemptImport = async (path, ..._args) => {
   try {
     global.updateArgs(_args)
@@ -226,24 +227,29 @@ global.setPlaceholder = text => {
   })
 }
 
-global.run = async (command, ..._args) => {
+export let run = async (command, ..._args) => {
   let [scriptToRun, ...scriptArgs] = command.split(" ")
-  let resolvedScript = resolveToScriptPath(scriptToRun)
+  let { scriptPath: resolvedScript } =
+    resolveToScriptPath(scriptToRun)
   global.onTabs = []
   global.kitScript = resolvedScript
 
-  let script = await info(global.kitScript)
+  if (process.env.KIT_CONTEXT === "app") {
+    let script = await info(global.kitScript)
 
-  global.send(Channel.SET_SCRIPT, {
-    script,
-  })
+    global.send(Channel.SET_SCRIPT, {
+      script,
+    })
+  }
 
-  return global.attemptImport(
+  return await global.attemptImport(
     resolvedScript,
     ...scriptArgs,
     ..._args
   )
 }
+
+global.run = run
 
 global.main = async (scriptPath: string, ..._args) => {
   let kitScriptPath = kitPath("main", scriptPath) + ".js"

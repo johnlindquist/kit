@@ -3,7 +3,7 @@
 
 let { Octokit } = await npm("scriptkit-octokit")
 
-import { selectScript } from "../utils.js"
+import { selectScript } from "../core/utils.js"
 
 let { filePath, command } = await selectScript(
   `Share which script?`

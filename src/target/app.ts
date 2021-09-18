@@ -12,7 +12,7 @@ import stripAnsi from "strip-ansi"
 
 import { Mode, Channel, UI } from "../core/enum.js"
 import { Choice, EditorConfig } from "../core/type.js"
-import { assignPropsTo } from "../core/util.js"
+import { assignPropsTo } from "../core/utils.js"
 
 // let exception$ = new Observable(observer => {
 //   let e = (error: Error) => observer.next(error)

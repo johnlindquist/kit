@@ -1,4 +1,4 @@
-import { KIT_DEFAULT_PATH } from "../core/util.js"
+import { KIT_DEFAULT_PATH } from "../core/utils.js"
 
 global.applescript = async (
   script,

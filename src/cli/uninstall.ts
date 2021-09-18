@@ -1,4 +1,4 @@
-import { KIT_NODE_PATH } from "../core/util.js"
+import { KIT_NODE_PATH } from "../core/utils.js"
 
 export {}
 

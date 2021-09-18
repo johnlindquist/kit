@@ -1,5 +1,6 @@
 import ava from "ava"
-import { KIT_MAC_APP_PROMPT, Channel } from "./config.js"
+import fs from "fs-extra"
+import { KIT_APP_PROMPT, Channel } from "./config.js"
 
 process.env.NODE_NO_WARNINGS = 1
 
@@ -82,19 +83,35 @@ ava.serial("kit hook", async t => {
 
 ava.serial("k script-output-hello", async t => {
   let script = `script-output-hello`
-  let contents = `console.log("hello")`
+  let contents = `console.log(await arg())`
   await $`kit new ${script} home --no-edit`
   await writeFile(
     kenvPath("scripts", `${script}.js`),
     contents
   )
 
-  let { stdout } = await $`k ${script}`
+  let { stdout } = await $`k ${script} "hello"`
 
   t.true(stdout.includes("hello"))
 })
 
-ava.serial("kit mac-app-prompt.js", async t => {
+let someRandomDir = home(`.kit-some-random-dir`)
+ava.serial("k script in random dir", async t => {
+  let script = `some-random-script`
+  let contents = `console.log(await arg())`
+  let scriptPath = path.resolve(
+    someRandomDir,
+    `${script}.js`
+  )
+  await mkdir(someRandomDir)
+  await writeFile(scriptPath, contents)
+
+  let { stdout } = await $`k ${scriptPath} "hello"`
+
+  t.true(stdout.includes("hello"))
+})
+
+ava.serial("kit app-prompt.js", async t => {
   let script = `script-with-arg`
   let scriptPath = kenvPath("scripts", `${script}.js`)
   let placeholder = "hello"
@@ -104,7 +121,7 @@ ava.serial("kit mac-app-prompt.js", async t => {
   await $`kit new ${script} home --no-edit`
   await writeFile(scriptPath, contents)
 
-  let child = fork(KIT_MAC_APP_PROMPT, {
+  let child = fork(KIT_APP_PROMPT, {
     env: {
       NODE_NO_WARNINGS: "1",
       KIT: home(".kit"),
@@ -145,5 +162,12 @@ ava.serial("kit mac-app-prompt.js", async t => {
         },
       })
     }, 1000)
+  })
+})
+
+ava.after.always("cleanup", async () => {
+  await fs.rm(someRandomDir, {
+    recursive: true,
+    force: true,
   })
 })

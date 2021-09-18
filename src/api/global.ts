@@ -7,7 +7,7 @@ import {
   kitPath,
   kenvPath,
   wait,
-} from "../core/util.js"
+} from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
 

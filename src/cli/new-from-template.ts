@@ -1,6 +1,6 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-import { exists } from "../utils.js"
+import { exists } from "../core/utils.js"
 
 let name = await arg({
   placeholder: "Enter a name for your script:",

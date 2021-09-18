@@ -1,6 +1,6 @@
 // Description: Rename Script
 
-import { exists, selectScript } from "../utils.js"
+import { exists, selectScript } from "../core/utils.js"
 
 let { command, filePath } = await selectScript(
   `Which script do you want to rename?`

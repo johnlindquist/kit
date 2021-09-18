@@ -3,7 +3,7 @@
 
 import { Choice } from "../core/type.js"
 import { CLI } from "cli"
-import { selectScript } from "../utils.js"
+import { selectScript } from "../core/utils.js"
 
 let { command, filePath } = await selectScript(
   `Edit script:`

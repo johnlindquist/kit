@@ -1,6 +1,6 @@
 //Description: An error has occurred
 
-import { getLastSlashSeparated } from "../core/util.js"
+import { getLastSlashSeparated } from "../core/utils.js"
 import { ErrorAction } from "../core/enum.js"
 
 let script = await arg()

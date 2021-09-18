@@ -7,7 +7,7 @@ import {
   EditorConfig,
   TextareaConfig,
 } from "../src/core/type"
-import { Mode, UI } from "../src/core/enum"
+import { Mode } from "../src/core/enum"
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"
@@ -15,13 +15,10 @@ import * as fsPromises from "fs/promises"
 import * as fs from "fs"
 import * as handlebars from "handlebars"
 import * as clipboardy from "clipboardy"
-import * as trashType from "trash"
+import trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
-import { CLI } from "./cli"
-import { Main } from "./main"
-import { Lib } from "./lib"
-import { JSONFile, Low } from "lowdb"
+import { Low } from "lowdb"
 import { NodeNotifier } from "node-notifier"
 
 type Panel =
@@ -118,28 +115,9 @@ interface Send {
   (channel: string, data?: any): void
 }
 
-interface KitModuleLoader {
+export interface KitModuleLoader {
   (
     packageName: string,
-    ...moduleArgs: string[]
-  ): Promise<any>
-}
-interface CliModuleLoader {
-  (
-    packageName: keyof CLI,
-    ...moduleArgs: string[]
-  ): Promise<any>
-}
-interface LibModuleLoader {
-  (
-    packageName: keyof Lib,
-    ...moduleArgs: string[]
-  ): Promise<any>
-}
-
-interface MainModuleLoader {
-  (
-    packageName: keyof Main,
     ...moduleArgs: string[]
   ): Promise<any>
 }
@@ -288,11 +266,8 @@ interface KitApi {
 
   attemptImport: KitModuleLoader
   npm: KitModuleLoader
-  main: MainModuleLoader
-  lib: LibModuleLoader
-  cli: CliModuleLoader
   setup: KitModuleLoader
-  run: KitModuleLoader
+  run: Run
 
   setPlaceholder: SetAppProp
   setPanel: SetPanel
@@ -361,7 +336,7 @@ interface KitApi {
   download: typeof import("download")
   degit: typeof import("degit")
 
-  kit: Kit
+  kit: Run
 
   openLog: () => void
 
@@ -370,7 +345,7 @@ interface KitApi {
   setFlags: FlagFn
 }
 
-type GlobalKit = KitApi & typeof import("api/lib")
+type Run = (command: string, args?: string) => Promise<any>
 
 declare global {
   type FlagsOptions = {
@@ -423,7 +398,7 @@ declare global {
   }
 
   namespace NodeJS {
-    interface Global extends GlobalKit {}
+    interface Global extends KitApi {}
   }
 
   var cd: typeof shelljs.cd
@@ -469,7 +444,7 @@ declare global {
   var download: typeof import("download")
   var degit: typeof import("degit")
 
-  var trash: typeof trashType.default
+  var trash: typeof trashType
   var rm: typeof trashType
 
   var kitPath: PathFn
@@ -477,12 +452,9 @@ declare global {
 
   var attemptImport: KitModuleLoader
   var npm: KitModuleLoader
-  var main: KitModuleLoader
-  var kit: Kit
-  var lib: KitModuleLoader
-  var cli: CliModuleLoader
+  var kit: Run
   var setup: KitModuleLoader
-  var run: KitModuleLoader
+  var run: Run
 
   var env: Env
   var arg: Arg
@@ -529,40 +501,6 @@ declare global {
 
   var selectKitEditor: SelectKitEditor
 
-  var copyPathAsImage: typeof import("lib/file").copyPathAsImage
-  var fileSearch: typeof import("lib/file").fileSearch
-  var focusTab: typeof import("lib/browser").focusTab
-  var focusWindow: typeof import("lib/desktop").focusWindow
-  var getActiveAppBounds: typeof import("lib/desktop").getActiveAppBounds
-  var getActiveScreen: typeof import("lib/desktop").getActiveScreen
-  var getActiveTab: typeof import("lib/browser").getActiveTab
-  var getMousePosition: typeof import("lib/desktop").getMousePosition
-  var getScreens: typeof import("lib/desktop").getScreens
-  var getSelectedFile: typeof import("lib/file").getSelectedFile
-  var getSelectedText: typeof import("lib/text").getSelectedText
-  var getTabs: typeof import("lib/browser").getTabs
-  var getWindows: typeof import("lib/desktop").getWindows
-  var getWindowsBounds: typeof import("lib/desktop").getWindowsBounds
-  var lock: typeof import("lib/system").lock
-  var organizeWindows: typeof import("lib/desktop").organizeWindows
-  var playAudioFile: typeof import("lib/audio").playAudioFile
-  var quitAllApps: typeof import("lib/system").quitAllApps
-  var say: typeof import("lib/speech").say
-  var scatterWindows: typeof import("lib/desktop").scatterWindows
-  var setActiveAppBounds: typeof import("lib/desktop").setActiveAppBounds
-  var setSelectedText: typeof import("lib/text").setSelectedText
-  var setWindowBoundsByIndex: typeof import("lib/desktop").setWindowBoundsByIndex
-  var setWindowPosition: typeof import("lib/desktop").setWindowPosition
-  var setWindowPositionByIndex: typeof import("lib/desktop").setWindowPositionByIndex
-  var setWindowSize: typeof import("lib/desktop").setWindowSize
-  var setWindowSizeByIndex: typeof import("lib/desktop").setWindowSizeByIndex
-  var keystroke: typeof import("lib/keyboard").keystroke
-  var shutdown: typeof import("lib/system").shutdown
-  var sleep: typeof import("lib/system").sleep
-  var tileWindow: typeof import("lib/desktop").tileWindow
-  var scrapeSelector: typeof import("lib/browser").scrapeSelector
-  var scrapeAttribute: typeof import("lib/browser").scrapeAttribute
-
   var getScripts: GetScripts
 
   var $: typeof import("zx").$
@@ -573,6 +511,3 @@ declare global {
   var setFlags: FlagFn
   var uuid: UUID
 }
-
-type Run = (command: string) => Promise<any>
-type Kit = Omit<GlobalKit, "kit"> & Run

@@ -9,7 +9,7 @@ import {
   shortcutsPath,
   writeScriptsDb,
   isDir,
-} from "./util.js"
+} from "./utils.js"
 import { Choice, Script, PromptDb } from "./type.js"
 import { Low } from "lowdb"
 

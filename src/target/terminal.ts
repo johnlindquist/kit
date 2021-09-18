@@ -1,4 +1,7 @@
-import { assignPropsTo } from "../core/util.js"
+import {
+  assignPropsTo,
+  resolveToScriptPath,
+} from "../core/utils.js"
 let { default: enquirer } = (await import(
   "enquirer"
 )) as any
@@ -230,3 +233,16 @@ global.setPanelContainer = async (
   html,
   containerClasses = ""
 ) => {}
+
+global.attemptImport = async (path, ..._args) => {
+  try {
+    global.updateArgs(_args)
+
+    //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
+    //must use `import` for ESM
+    return await import(path + "?uuid=" + global.uuid())
+  } catch (error) {
+    console.warn(error.message)
+    console.warn(error.stack)
+  }
+}

@@ -1,6 +1,6 @@
 // Description: Remove a script
 
-import { selectScript } from "../utils.js"
+import { selectScript } from "../core/utils.js"
 
 let command, filePath
 let hint = command

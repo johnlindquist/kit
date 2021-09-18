@@ -1,6 +1,6 @@
 //Description: Clone a Kenv repo
 
-import { getLastSlashSeparated } from "../core/util.js"
+import { getLastSlashSeparated } from "../core/utils.js"
 
 let kenvsDir = kenvPath("kenvs")
 

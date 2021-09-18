@@ -143,3 +143,22 @@ export interface CLI {
   uninstall: Promise<typeof import("../src/cli/uninstall")>
   update: Promise<typeof import("../src/cli/update")>
 }
+
+interface CliModuleLoader {
+  (
+    packageName: keyof CLI,
+    ...moduleArgs: string[]
+  ): Promise<any>
+}
+
+interface CliApi {
+  cli: CliModuleLoader
+}
+
+declare global {
+  namespace NodeJS {
+    interface Global extends CliApi {}
+  }
+
+  var cli: CliModuleLoader
+}
