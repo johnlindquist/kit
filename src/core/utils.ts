@@ -1,11 +1,11 @@
 import * as path from "path"
 import * as os from "os"
-import { copyFileSync, lstatSync } from "fs"
+import { lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
 
 import { ProcessType, UI } from "./enum.js"
-import { Choice, Script } from "./type.js"
+import { Script } from "./type.js"
 import { Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
@@ -141,6 +141,19 @@ export let resolveToScriptPath = (
       }
   }
 
+  // Check scripts dir
+
+  let maybeInScriptDir = path.resolve(
+    cwd,
+    "scripts",
+    script
+  )
+  if (test("-f", maybeInScriptDir)) {
+    return {
+      scriptPath: maybeInScriptDir,
+      requiresPkg: true,
+    }
+  }
   // Check anywhere
   let fullScriptPath = path.resolve(cwd, script)
 

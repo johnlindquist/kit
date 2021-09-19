@@ -5,7 +5,10 @@ process.env.KIT =
   process.env.KIT || path.resolve(os.homedir(), ".kit")
 
 await import(path.resolve(`${process.env.KIT}`, "index.js"))
-export let kenvTestPath = home(".kenv-test")
+export let kitMockPath = (...parts) =>
+  path.resolve(home(".kit-mock-path"), ...parts)
+
+export let kenvTestPath = kitMockPath(".kenv-test")
 
 process.env.KENV = kenvTestPath
 
@@ -27,6 +30,7 @@ let execOptions = {
   },
 }
 global.kenvTestPath = kenvTestPath
+global.kitMockPath = kitMockPath
 global.execOptions = execOptions
 
 export { Channel, KIT_APP, KIT_APP_PROMPT }

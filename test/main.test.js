@@ -22,7 +22,7 @@ ava.serial(
   }
 )
 
-let command = `testing-new-script-from-scripts`
+let command = `mock-new-script-from-scripts`
 let scriptPath = kenvPath("scripts", `${command}.js`)
 let binPath = kenvPath("bin", `${command}`)
 let scriptContents = `console.log("${command} success 🎉!")`
@@ -38,7 +38,7 @@ ava.serial("kit new", async t => {
 })
 
 ava.serial("kenv bin on path", async t => {
-  let runCommand = `run-${command}`
+  let runCommand = `mock-run-${command}`
   await $`kit new ${runCommand} home --no-edit`
 
   let contents = `
@@ -66,7 +66,7 @@ ava.serial("kit rm", async t => {
 })
 
 ava.serial("kit hook", async t => {
-  let script = `script-with-export`
+  let script = `mock-script-with-export`
   let contents = `
   export default {value: await arg()}
   `
@@ -82,7 +82,7 @@ ava.serial("kit hook", async t => {
 })
 
 ava.serial("k script-output-hello", async t => {
-  let script = `script-output-hello`
+  let script = `mock-script-output-hello`
   let contents = `console.log(await arg())`
   await $`kit new ${script} home --no-edit`
   await writeFile(
@@ -95,9 +95,9 @@ ava.serial("k script-output-hello", async t => {
   t.true(stdout.includes("hello"))
 })
 
-let someRandomDir = home(`.kit-some-random-dir`)
+let someRandomDir = kitMockPath(`.kit-some-random-dir`)
 ava.serial("k script in random dir", async t => {
-  let script = `some-random-script`
+  let script = `mock-some-random-script`
   let contents = `console.log(await arg())`
   let scriptPath = path.resolve(
     someRandomDir,
@@ -112,7 +112,7 @@ ava.serial("k script in random dir", async t => {
 })
 
 ava.serial("kit app-prompt.js", async t => {
-  let script = `script-with-arg`
+  let script = `mock-script-with-arg`
   let scriptPath = kenvPath("scripts", `${script}.js`)
   let placeholder = "hello"
   let contents = `

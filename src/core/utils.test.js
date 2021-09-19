@@ -8,10 +8,12 @@ let { resolveToScriptPath } = await import(
 )
 
 let testingFindMe = `testing-find-me`
-let testingFullPath = home(
+let testingFullPath = kitMockPath(
   `.kit-testing-full-path`,
   `some-script.js`
 )
+
+let prevCwd = cwd()
 
 ava.before(async () => {
   await $`kit set-env-var KIT_TEMPLATE default --no-edit`
@@ -28,6 +30,32 @@ ava("resolve full path", async t => {
 
   t.assert(scriptPath, testingFullPath)
   t.true(requiresPkg)
+})
+
+ava("resolve ./scripts dir", async t => {
+  let script = "mock-some-script"
+  let mockScriptsInProject = kitMockPath(
+    `.kit-testing-scripts-in-project`
+  )
+  let mockScriptInProjectScript = path.resolve(
+    mockScriptsInProject,
+    "scripts",
+    `${script}.js`
+  )
+
+  await fs.outputFile(
+    mockScriptInProjectScript,
+    `console.log(await arg())`
+  )
+  cd(mockScriptsInProject)
+
+  let { scriptPath, requiresPkg } =
+    resolveToScriptPath(script)
+
+  t.assert(scriptPath, testingFullPath)
+  t.true(requiresPkg)
+
+  cd(prevCwd)
 })
 
 ava("resolve in kenvPath", t => {
