@@ -12,6 +12,10 @@ let testingFullPath = kitMockPath(
   `.kit-testing-full-path`,
   `some-script.js`
 )
+let mockMjsFile = kitMockPath(
+  `.kit-testing-full-path`,
+  `mock-mjs-script.mjs`
+)
 
 let prevCwd = cwd()
 
@@ -25,11 +29,19 @@ ava("resolve full path", async t => {
     testingFullPath,
     `console.log(await arg())`
   )
-  let { scriptPath, requiresPkg } =
-    resolveToScriptPath(testingFullPath)
+  let scriptPath = resolveToScriptPath(testingFullPath)
 
   t.assert(scriptPath, testingFullPath)
-  t.true(requiresPkg)
+})
+
+ava("resolve .mjs file", async t => {
+  await fs.outputFile(
+    mockMjsFile,
+    `console.log(await arg())`
+  )
+  let scriptPath = resolveToScriptPath(mockMjsFile)
+
+  t.assert(scriptPath, mockMjsFile)
 })
 
 ava("resolve ./scripts dir", async t => {
@@ -49,28 +61,24 @@ ava("resolve ./scripts dir", async t => {
   )
   cd(mockScriptsInProject)
 
-  let { scriptPath, requiresPkg } =
-    resolveToScriptPath(script)
+  let scriptPath = resolveToScriptPath(script)
 
   t.assert(scriptPath, testingFullPath)
-  t.true(requiresPkg)
 
   cd(prevCwd)
 })
 
 ava("resolve in kenvPath", t => {
-  let { scriptPath, requiresPkg } =
-    resolveToScriptPath(testingFindMe)
+  let scriptPath = resolveToScriptPath(testingFindMe)
 
   t.assert(
     scriptPath,
     kenvPath("scripts", `${testingFindMe}.js`)
   )
-  t.false(requiresPkg)
 })
 
 ava("resolve in kenvPath with .js", t => {
-  let { scriptPath, requiresPkg } = resolveToScriptPath(
+  let scriptPath = resolveToScriptPath(
     testingFindMe + ".js"
   )
 
@@ -78,7 +86,6 @@ ava("resolve in kenvPath with .js", t => {
     scriptPath,
     kenvPath("scripts", `${testingFindMe}.js`)
   )
-  t.false(requiresPkg)
 })
 
 ava("resolve doesn't exist", t => {

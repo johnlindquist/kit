@@ -27,7 +27,7 @@ let scriptPath = kenvPath("scripts", `${command}.js`)
 let binPath = kenvPath("bin", `${command}`)
 let scriptContents = `console.log("${command} success 🎉!")`
 
-ava.serial("kit new", async t => {
+ava("kit new", async t => {
   await $`kit new ${command} home --no-edit`
   let scriptCreated = test("-f", scriptPath)
   let binCreated = test("-f", binPath)
@@ -37,7 +37,7 @@ ava.serial("kit new", async t => {
   t.true(binCreated)
 })
 
-ava.serial("kenv bin on path", async t => {
+ava("kenv bin on path", async t => {
   let runCommand = `mock-run-${command}`
   await $`kit new ${runCommand} home --no-edit`
 
@@ -55,7 +55,7 @@ ava.serial("kenv bin on path", async t => {
   t.true(stdout.includes("success"))
 })
 
-ava.serial("kit rm", async t => {
+ava("kit rm", async t => {
   await $`kit rm ${command} --confirm`
 
   let fileRmed = !test("-f", scriptPath)
@@ -65,7 +65,7 @@ ava.serial("kit rm", async t => {
   t.true(binRmed)
 })
 
-ava.serial("kit hook", async t => {
+ava("kit hook", async t => {
   let script = `mock-script-with-export`
   let contents = `
   export default {value: await arg()}
@@ -81,7 +81,7 @@ ava.serial("kit hook", async t => {
   t.is(value, message)
 })
 
-ava.serial("k script-output-hello", async t => {
+ava("k script-output-hello", async t => {
   let script = `mock-script-output-hello`
   let contents = `console.log(await arg())`
   await $`kit new ${script} home --no-edit`
@@ -96,22 +96,23 @@ ava.serial("k script-output-hello", async t => {
 })
 
 let someRandomDir = kitMockPath(`.kit-some-random-dir`)
-ava.serial("k script in random dir", async t => {
+ava("kit script in random dir", async t => {
   let script = `mock-some-random-script`
   let contents = `console.log(await arg())`
   let scriptPath = path.resolve(
     someRandomDir,
     `${script}.js`
   )
-  await mkdir(someRandomDir)
-  await writeFile(scriptPath, contents)
+  await outputFile(scriptPath, contents)
 
-  let { stdout } = await $`k ${scriptPath} "hello"`
+  let { stdout, stderr } =
+    await $`kit ${scriptPath} "hello"`
+  t.log({ stdout, stderr, scriptPath })
 
   t.true(stdout.includes("hello"))
 })
 
-ava.serial("kit app-prompt.js", async t => {
+ava("kit app-prompt.js", async t => {
   let script = `mock-script-with-arg`
   let scriptPath = kenvPath("scripts", `${script}.js`)
   let placeholder = "hello"

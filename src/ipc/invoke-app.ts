@@ -10,8 +10,9 @@ ipc.connectTo("kit", kitPath("tmp", "ipc"), () => {
   ipc.of.kit.on("connect", async () => {
     let [, , , scriptPath, ...runArgs] = process.argv
 
-    let { scriptPath: resolvedScriptPath } =
-      await resolveToScriptPath(scriptPath)
+    let resolvedScriptPath = await resolveToScriptPath(
+      scriptPath
+    )
     ipc.of.kit.emit("message", [
       resolvedScriptPath,
       ...runArgs,

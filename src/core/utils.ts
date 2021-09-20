@@ -118,27 +118,19 @@ let fileExists = (path: string) => {
 export let resolveToScriptPath = (
   file: string,
   cwd: string = process.cwd()
-): { scriptPath: string; requiresPkg: boolean } => {
+): string => {
   let script = file
-  if (!script.endsWith(".js")) script += ".js"
+  if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
 
   // Check main kenv
   let kenvScript = kenvPath("scripts", script)
-  if (fileExists(kenvScript))
-    return {
-      scriptPath: kenvScript,
-      requiresPkg: false,
-    }
+  if (fileExists(kenvScript)) return kenvScript
 
   // Check other kenvs
   let [k, s] = script.split("/")
   if (s) {
     kenvScript = kenvPath("kenvs", k, "scripts", s)
-    if (fileExists(kenvScript))
-      return {
-        scriptPath: kenvScript,
-        requiresPkg: false,
-      }
+    if (fileExists(kenvScript)) return kenvScript
   }
 
   // Check scripts dir
@@ -149,19 +141,13 @@ export let resolveToScriptPath = (
     script
   )
   if (test("-f", maybeInScriptDir)) {
-    return {
-      scriptPath: maybeInScriptDir,
-      requiresPkg: true,
-    }
+    return maybeInScriptDir
   }
   // Check anywhere
   let fullScriptPath = path.resolve(cwd, script)
 
   if (fileExists(fullScriptPath)) {
-    return {
-      scriptPath: fullScriptPath,
-      requiresPkg: true,
-    }
+    return fullScriptPath
   }
 
   throw new Error(`${file} not found`)

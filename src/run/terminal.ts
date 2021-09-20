@@ -18,6 +18,7 @@ try {
 }
 
 import "../target/terminal.js"
+import { runCli } from "../cli/kit.js"
 
 config({
   path: process.env.KIT_DOTENV || kenvPath(".env"),
@@ -25,28 +26,4 @@ config({
 
 assignPropsTo(process.env, global.env)
 
-let script = await arg("Path to script:")
-
-let { scriptPath, requiresPkg } =
-  resolveToScriptPath(script)
-
-let parentDir = path.dirname(scriptPath)
-let pkgPath = path.resolve(parentDir, "package.json")
-let createPkg = requiresPkg && !test("-f", pkgPath)
-
-if (createPkg) {
-  await writeFile(
-    pkgPath,
-    JSON.stringify({
-      name: "kit__tmp__module",
-      type: "module",
-    }),
-    { flag: "wx" }
-  )
-}
-
-await run(scriptPath)
-
-if (createPkg) {
-  await fs.remove(pkgPath)
-}
+await runCli()

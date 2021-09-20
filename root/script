@@ -4,6 +4,7 @@
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
 KIT_NODE="${KIT_NODE:=$KIT/node/bin/node}"
 
-NODE_NO_WARNINGS=1 "$KIT_NODE" \
+NODE_NO_WARNINGS=1 \
+"$KIT_NODE" \
 "$KIT/run/terminal.js" \
 "$@"

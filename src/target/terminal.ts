@@ -234,15 +234,28 @@ global.setPanelContainer = async (
   containerClasses = ""
 ) => {}
 
-global.attemptImport = async (path, ..._args) => {
+global.attemptImport = async (scriptPath, ..._args) => {
   try {
     global.updateArgs(_args)
 
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM
-    return await import(path + "?uuid=" + global.uuid())
+    return await import(
+      scriptPath + "?uuid=" + global.uuid()
+    )
   } catch (error) {
-    console.warn(error.message)
-    console.warn(error.stack)
+    let e = error.toString()
+    if (
+      e.startsWith("SyntaxError") &&
+      e.match(/module|after argument list/)
+    ) {
+      let mjsVersion = path.resolve(
+        path.dirname(scriptPath),
+        path.basename(scriptPath).replace(/.js$/, ".mjs")
+      )
+      await copyFile(scriptPath, mjsVersion)
+      await run(mjsVersion)
+      await rm(mjsVersion)
+    }
   }
 }

@@ -6,5 +6,4 @@ KIT_NODE="${KIT_NODE:=$KIT/node/bin/node}"
 NODE_NO_WARNINGS=1 \
 $KIT_NODE \
 $KIT/run/terminal.js \
-$KIT/cli/kit.js \
 "$@"

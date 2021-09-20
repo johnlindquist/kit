@@ -13,6 +13,7 @@ import * as shelljs from "shelljs"
 import * as child_process from "child_process"
 import * as fsPromises from "fs/promises"
 import * as fs from "fs"
+import * as fsExtra from "fs-extra"
 import * as handlebars from "handlebars"
 import * as clipboardy from "clipboardy"
 import trashType from "trash"
@@ -200,6 +201,8 @@ interface KitApi {
   readFile: typeof fsPromises.readFile
   writeFile: typeof fsPromises.writeFile
   appendFile: typeof fsPromises.appendFile
+  copyFile: typeof fsPromises.copyFile
+
   createReadStream: typeof fs.createReadStream
   createWriteStream: typeof fs.createWriteStream
   readdir: typeof fsPromises.readdir
@@ -343,6 +346,20 @@ interface KitApi {
   hide: () => void
   flag: Flags
   setFlags: FlagFn
+
+  emptyDir: typeof import("fs-extra").emptyDir
+  ensureFile: typeof import("fs-extra").ensureFile
+  ensureDir: typeof import("fs-extra").ensureDir
+  ensureLink: typeof import("fs-extra").ensureLink
+  ensureSymlink: typeof import("fs-extra").ensureSymlink
+  mkdirp: typeof import("fs-extra").mkdirp
+  mkdirs: typeof import("fs-extra").mkdirs
+  outputFile: typeof import("fs-extra").outputFile
+  outputJson: typeof import("fs-extra").outputJson
+  pathExists: typeof import("fs-extra").pathExists
+  readJson: typeof import("fs-extra").readJson
+  remove: typeof import("fs-extra").remove
+  writeJson: typeof import("fs-extra").writeJson
 }
 
 type Run = (command: string, args?: string) => Promise<any>
@@ -426,6 +443,7 @@ declare global {
   var readFile: typeof fsPromises.readFile
   var writeFile: typeof fsPromises.writeFile
   var appendFile: typeof fsPromises.appendFile
+  var copyFile: typeof fsPromises.copyFile
   var createWriteStream: typeof fs.createWriteStream
   var createReadStream: typeof fs.createReadStream
   var readdir: typeof fsPromises.readdir
@@ -510,4 +528,18 @@ declare global {
   var flag: Flags
   var setFlags: FlagFn
   var uuid: UUID
+
+  var emptyDir: typeof import("fs-extra").emptyDir
+  var ensureFile: typeof import("fs-extra").ensureFile
+  var ensureDir: typeof import("fs-extra").ensureDir
+  var ensureLink: typeof import("fs-extra").ensureLink
+  var ensureSymlink: typeof import("fs-extra").ensureSymlink
+  var mkdirp: typeof import("fs-extra").mkdirp
+  var mkdirs: typeof import("fs-extra").mkdirs
+  var outputFile: typeof import("fs-extra").outputFile
+  var outputJson: typeof import("fs-extra").outputJson
+  var pathExists: typeof import("fs-extra").pathExists
+  var readJson: typeof import("fs-extra").readJson
+  var remove: typeof import("fs-extra").remove
+  var writeJson: typeof import("fs-extra").writeJson
 }

@@ -1,6 +1,7 @@
 //Description: Script Kit CLI
 
 import { CLI } from "cli"
+import { resolveToScriptPath } from "../core/utils.js"
 
 interface CLIMenuItem {
   name?: string
@@ -8,7 +9,7 @@ interface CLIMenuItem {
   alias?: string
 }
 
-const cliScripts: CLIMenuItem[] = [
+let cliScripts: CLIMenuItem[] = [
   { name: "run", placeholder: "Run a script" },
   { name: "edit", placeholder: "Edit a script" },
   { name: "new", placeholder: "Create a new script" },
@@ -49,10 +50,10 @@ const cliScripts: CLIMenuItem[] = [
     placeholder: "Remove a script",
   },
   { name: "clear", placeholder: "Clear the caches" },
-  {
-    name: "update",
-    placeholder: `Version: ${env.KIT_APP_VERSION}`,
-  },
+  // {
+  //   name: "update",
+  //   placeholder: `Version: ${process.env.KIT_APP_VERSION}`,
+  // },
   {
     name: "install",
     alias: "i",
@@ -95,23 +96,30 @@ const cliScripts: CLIMenuItem[] = [
   { name: "quit", placeholder: "Quit Kit" },
 ]
 
-let script = await arg("What do you want to do?", () =>
-  cliScripts.map(({ name, placeholder, alias }) => {
-    return {
-      name: chalk`{green.bold ${name}}${
-        alias ? chalk` {yellow (${alias})}` : ""
-      }: ${placeholder}`,
-      value: name,
-    }
-  })
-)
+export let runCli = async () => {
+  let script = await arg("What do you want to do?", () =>
+    cliScripts.map(({ name, placeholder, alias }) => {
+      return {
+        name: chalk`{green.bold ${name}}${
+          alias ? chalk` {yellow (${alias})}` : ""
+        }: ${placeholder}`,
+        value: name,
+      }
+    })
+  )
 
-let found = cliScripts.find(
-  config => config.name == script || config.alias == script
-)
+  let found = cliScripts.find(
+    config =>
+      config.name == script || config.alias == script
+  )
 
-if (found) {
-  await cli(found.name as keyof CLI)
+  if (found) {
+    await cli(found.name as keyof CLI)
+  } else {
+    let scriptPath = resolveToScriptPath(script)
+
+    await run(scriptPath)
+  }
 }
 
 export {}

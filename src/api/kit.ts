@@ -229,8 +229,7 @@ global.setPlaceholder = text => {
 
 export let run = async (command, ..._args) => {
   let [scriptToRun, ...scriptArgs] = command.split(" ")
-  let { scriptPath: resolvedScript } =
-    resolveToScriptPath(scriptToRun)
+  let resolvedScript = resolveToScriptPath(scriptToRun)
   global.onTabs = []
   global.kitScript = resolvedScript
 
