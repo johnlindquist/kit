@@ -235,12 +235,13 @@ global.setPanelContainer = async (
 ) => {}
 
 global.attemptImport = async (scriptPath, ..._args) => {
+  let importResult = undefined
   try {
     global.updateArgs(_args)
 
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM
-    return await import(
+    importResult = await import(
       scriptPath + "?uuid=" + global.uuid()
     )
   } catch (error) {
@@ -256,8 +257,10 @@ global.attemptImport = async (scriptPath, ..._args) => {
         path.basename(scriptPath).replace(/.js$/, ".mjs")
       )
       await copyFile(scriptPath, mjsVersion)
-      await kit(mjsVersion)
+      importResult = await kit(mjsVersion)
       await rm(mjsVersion)
     }
   }
+
+  return importResult
 }

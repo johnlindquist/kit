@@ -21,7 +21,7 @@ ava.serial(
   }
 )
 
-ava("kit new, run, and rm", async t => {
+ava.serial("kit new, run, and rm", async t => {
   let command = `mock-script-for-new-run-rm`
   let scriptContents = `
   let value = await arg()
@@ -59,7 +59,7 @@ ava("kit new, run, and rm", async t => {
   t.true(binRmed)
 })
 
-ava("kit hook", async t => {
+ava.serial("kit hook", async t => {
   let script = `mock-script-with-export`
   let contents = `
   export let value = await arg()
@@ -75,7 +75,7 @@ ava("kit hook", async t => {
   t.is(result.value, message)
 })
 
-ava("kit script-output-hello", async t => {
+ava.serial("kit script-output-hello", async t => {
   let script = `mock-script-output-hello`
   let contents = `console.log(await arg())`
   await $`kit new ${script} home --no-edit`
@@ -89,7 +89,7 @@ ava("kit script-output-hello", async t => {
   t.true(stdout.includes("hello"))
 })
 
-ava("kit script in random dir", async t => {
+ava.serial("kit script in random dir", async t => {
   let someRandomDir = kitMockPath(`.kit-some-random-dir`)
   let script = `mock-some-random-script`
   let contents = `console.log(await arg())`
@@ -106,7 +106,7 @@ ava("kit script in random dir", async t => {
   t.true(stdout.includes("hello"))
 })
 
-ava("app-prompt.js", async t => {
+ava.serial("app-prompt.js", async t => {
   let script = `mock-script-with-arg`
   let scriptPath = kenvPath("scripts", `${script}.js`)
   let placeholder = "hello"
