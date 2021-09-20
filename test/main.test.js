@@ -1,5 +1,4 @@
 import ava from "ava"
-import fs from "fs-extra"
 import { KIT_APP_PROMPT, Channel } from "./config.js"
 
 process.env.NODE_NO_WARNINGS = 1
@@ -22,40 +21,38 @@ ava.serial(
   }
 )
 
-let command = `mock-new-script-from-scripts`
-let scriptPath = kenvPath("scripts", `${command}.js`)
-let binPath = kenvPath("bin", `${command}`)
-let scriptContents = `console.log("${command} success 🎉!")`
+ava("kit new, run, and rm", async t => {
+  let command = `mock-script-for-new-run-rm`
+  let scriptContents = `
+  let value = await arg()
+  console.log(\`${command} \${value} 🎉!\`)
+`
 
-ava("kit new", async t => {
   await $`kit new ${command} home --no-edit`
+
+  let scriptPath = kenvPath("scripts", `${command}.js`)
+  let binPath = kenvPath("bin", `${command}`)
+
   let scriptCreated = test("-f", scriptPath)
   let binCreated = test("-f", binPath)
+
+  t.true(scriptCreated, `script created`)
   await writeFile(scriptPath, scriptContents)
 
-  t.true(scriptCreated)
-  t.true(binCreated)
-})
+  t.true(binCreated, `bin created`)
 
-ava("kenv bin on path", async t => {
-  let runCommand = `mock-run-${command}`
-  await $`kit new ${runCommand} home --no-edit`
+  let message = "success"
 
-  let contents = `
-  await $\`${command}\`
-  `
+  let { stdout, stderr } = await $`${kenvPath(
+    "bin",
+    command
+  )} ${message}`
 
-  await outputFile(
-    kenvPath("scripts", `${runCommand}.js`),
-    contents
+  t.true(
+    stdout.includes(message),
+    `stdout includes ${message}`
   )
 
-  let { stdout } = await $`${kenvPath("bin", runCommand)}`
-
-  t.true(stdout.includes("success"))
-})
-
-ava("kit rm", async t => {
   await $`kit rm ${command} --confirm`
 
   let fileRmed = !test("-f", scriptPath)
@@ -81,7 +78,7 @@ ava("kit hook", async t => {
   t.is(value, message)
 })
 
-ava("k script-output-hello", async t => {
+ava("kit script-output-hello", async t => {
   let script = `mock-script-output-hello`
   let contents = `console.log(await arg())`
   await $`kit new ${script} home --no-edit`
@@ -95,8 +92,8 @@ ava("k script-output-hello", async t => {
   t.true(stdout.includes("hello"))
 })
 
-let someRandomDir = kitMockPath(`.kit-some-random-dir`)
 ava("kit script in random dir", async t => {
+  let someRandomDir = kitMockPath(`.kit-some-random-dir`)
   let script = `mock-some-random-script`
   let contents = `console.log(await arg())`
   let scriptPath = path.resolve(
@@ -107,12 +104,12 @@ ava("kit script in random dir", async t => {
 
   let { stdout, stderr } =
     await $`kit ${scriptPath} "hello"`
-  t.log({ stdout, stderr, scriptPath })
+  // t.log({ stdout, stderr, scriptPath })
 
   t.true(stdout.includes("hello"))
 })
 
-ava("kit app-prompt.js", async t => {
+ava("app-prompt.js", async t => {
   let script = `mock-script-with-arg`
   let scriptPath = kenvPath("scripts", `${script}.js`)
   let placeholder = "hello"
@@ -133,7 +130,11 @@ ava("kit app-prompt.js", async t => {
 
   let messages = []
 
-  return new Promise((resolve, reject) => {
+  await new Promise(resolve => {
+    child.on("spawn", resolve)
+  })
+
+  await new Promise((resolve, reject) => {
     child.on("message", data => {
       messages.push(data)
       if (data?.channel === Channel.SET_PROMPT_DATA) {
@@ -149,7 +150,6 @@ ava("kit app-prompt.js", async t => {
             script: scriptPath,
           }
         )
-
         resolve(data?.placeholder)
       }
     })
@@ -162,13 +162,6 @@ ava("kit app-prompt.js", async t => {
           args: [],
         },
       })
-    }, 1000)
-  })
-})
-
-ava.after.always("cleanup", async () => {
-  await fs.rm(someRandomDir, {
-    recursive: true,
-    force: true,
+    }, 2000)
   })
 })

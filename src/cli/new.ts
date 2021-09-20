@@ -1,5 +1,4 @@
 // Description: Create a new script
-import { getKenvs } from "../core/utils.js"
 import { exists, selectKenv } from "../core/utils.js"
 let generate = await npm("project-name-generator")
 
