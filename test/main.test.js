@@ -90,7 +90,7 @@ ava("k script-output-hello", async t => {
     contents
   )
 
-  let { stdout } = await $`k ${script} "hello"`
+  let { stdout } = await $`kit ${script} "hello"`
 
   t.true(stdout.includes("hello"))
 })

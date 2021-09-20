@@ -10,6 +10,6 @@ if (test("-d", kenvTestPath)) {
 await degit(`johnlindquist/kenv-test`).clone(kenvTestPath)
 
 process.env.KENV = kenvTestPath
-await $`k ${kitPath("cli", "refresh-scripts-db.js")}`
+await $`kit ${kitPath("cli", "refresh-scripts-db.js")}`
 
 export {}

@@ -5,6 +5,6 @@ if (test("-d", kitMockPath())) {
 }
 
 process.env.KENV = home(".kenv")
-await $`k ${kitPath("cli", "refresh-scripts-db.js")}`
+await $`kit ${kitPath("cli", "refresh-scripts-db.js")}`
 
 export {}
