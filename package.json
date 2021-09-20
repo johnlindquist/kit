@@ -3,7 +3,6 @@
   "type": "module",
   "bin": {
     "kit": "./bin/kit",
-    "k": "./bin/k",
     "sk": "./bin/sk"
   },
   "engines": {

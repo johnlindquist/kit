@@ -247,7 +247,9 @@ global.attemptImport = async (scriptPath, ..._args) => {
     let e = error.toString()
     if (
       e.startsWith("SyntaxError") &&
-      e.match(/module|after argument list/)
+      e.match(
+        /module|after argument list|await is only valid/
+      )
     ) {
       let mjsVersion = path.resolve(
         path.dirname(scriptPath),
