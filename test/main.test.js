@@ -45,7 +45,7 @@ ava("kenv bin on path", async t => {
   await $\`${command}\`
   `
 
-  await writeFile(
+  await outputFile(
     kenvPath("scripts", `${runCommand}.js`),
     contents
   )
