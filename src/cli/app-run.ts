@@ -85,13 +85,13 @@ if (script.background) {
 } else {
   let selectedFlag: any = Object.keys(flag).find(Boolean)
   if (selectedFlag) {
-    await run(
+    await kit(
       `${kitPath("cli", selectedFlag)}.js ${
         script.filePath
       }`
     )
   } else {
-    await run(script.filePath)
+    await kit(script.filePath)
   }
 }
 

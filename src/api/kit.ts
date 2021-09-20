@@ -227,7 +227,7 @@ global.setPlaceholder = text => {
   })
 }
 
-export let run = async (command, ..._args) => {
+export let kit = async (command, ..._args) => {
   let [scriptToRun, ...scriptArgs] = command.split(" ")
   let resolvedScript = resolveToScriptPath(scriptToRun)
   global.onTabs = []
@@ -247,8 +247,6 @@ export let run = async (command, ..._args) => {
     ..._args
   )
 }
-
-global.run = run
 
 global.main = async (scriptPath: string, ..._args) => {
   let kitScriptPath = kitPath("main", scriptPath) + ".js"
@@ -402,20 +400,6 @@ let kitGet = (
   } catch (error) {
     console.warn(error)
   }
-}
-
-async function kit(command: string) {
-  let [script, ...args] = command.split(" ")
-  let file = `${script}.js`
-
-  let scriptsFilePath = kitPath("scripts", file)
-
-  let kenvScriptPath = kenvPath("scripts", file)
-  if (test("-f", kenvScriptPath)) {
-    cp(kenvScriptPath, scriptsFilePath)
-  }
-
-  return (await run(scriptsFilePath, ...args)).default
 }
 
 global.kit = new Proxy(kit, {

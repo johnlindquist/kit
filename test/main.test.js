@@ -33,13 +33,10 @@ ava("kit new, run, and rm", async t => {
   let scriptPath = kenvPath("scripts", `${command}.js`)
   let binPath = kenvPath("bin", `${command}`)
 
-  let scriptCreated = test("-f", scriptPath)
-  let binCreated = test("-f", binPath)
-
-  t.true(scriptCreated, `script created`)
+  t.true(test("-f", scriptPath), `script created`)
   await writeFile(scriptPath, scriptContents)
 
-  t.true(binCreated, `bin created`)
+  t.true(test("-f", binPath), `bin created`)
 
   let message = "success"
 
@@ -65,7 +62,7 @@ ava("kit new, run, and rm", async t => {
 ava("kit hook", async t => {
   let script = `mock-script-with-export`
   let contents = `
-  export default {value: await arg()}
+  export let value = await arg()
   `
   await $`kit new ${script} home --no-edit`
   await writeFile(
@@ -74,8 +71,8 @@ ava("kit hook", async t => {
   )
 
   let message = "hello"
-  let { value } = await kit(`${script} ${message}`)
-  t.is(value, message)
+  let result = await kit(`${script} ${message}`)
+  t.is(result.value, message)
 })
 
 ava("kit script-output-hello", async t => {

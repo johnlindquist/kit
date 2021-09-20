@@ -81,7 +81,7 @@ if (script.background) {
   if (selectedFlag) {
     await cli(selectedFlag, script.filePath)
   } else {
-    await run(script.filePath)
+    await kit(script.filePath)
   }
 }
 

@@ -118,7 +118,7 @@ export let runCli = async () => {
   } else {
     let scriptPath = resolveToScriptPath(script)
 
-    await run(scriptPath)
+    await kit(scriptPath)
   }
 }
 

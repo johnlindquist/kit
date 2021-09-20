@@ -33,4 +33,4 @@ config({
 })
 
 assignPropsTo(process.env, global.env)
-await run(script, ...args)
+await kit(script, ...args)

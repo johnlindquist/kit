@@ -6,6 +6,6 @@ let command = await arg(
   scriptValue("command")
 )
 
-await run(command)
+await kit(command)
 
 export {}

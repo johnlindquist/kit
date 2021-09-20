@@ -21,6 +21,6 @@ config({
 assignPropsTo(process.env, global.env)
 
 export { selectScript, selectKenv } from "./core/utils.js"
-export { run } from "./api/kit.js"
+export { kit } from "./api/kit.js"
 
 //codegen

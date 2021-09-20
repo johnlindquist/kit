@@ -20,4 +20,4 @@ config({
 assignPropsTo(process.env, global.env)
 
 let script = await arg("Path to script:")
-await run(script)
+await kit(script)

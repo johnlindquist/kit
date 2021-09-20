@@ -270,7 +270,6 @@ interface KitApi {
   attemptImport: KitModuleLoader
   npm: KitModuleLoader
   setup: KitModuleLoader
-  run: Run
 
   setPlaceholder: SetAppProp
   setPanel: SetPanel
@@ -472,7 +471,6 @@ declare global {
   var npm: KitModuleLoader
   var kit: Run
   var setup: KitModuleLoader
-  var run: Run
 
   var env: Env
   var arg: Arg

@@ -63,7 +63,6 @@ let terminalEditor = editor => async file => {
     iterm: global.iterm,
   }
 
-  let { fileSearch } = await global.kit("file")
   let possibleTerminals = () =>
     Object.entries(supportedTerminalMap)
       .filter(async ([name, value]) => {

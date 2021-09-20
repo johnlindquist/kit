@@ -256,7 +256,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
         path.basename(scriptPath).replace(/.js$/, ".mjs")
       )
       await copyFile(scriptPath, mjsVersion)
-      await run(mjsVersion)
+      await kit(mjsVersion)
       await rm(mjsVersion)
     }
   }
