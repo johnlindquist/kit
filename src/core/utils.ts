@@ -88,7 +88,8 @@ export const KIT_APP_PROMPT = kitPath(
   "run",
   "app-prompt.js"
 )
-export const KIT_NODE_PATH = `${kitPath("node", "bin")}`
+export const KIT_NODE_PATH =
+  process.env.KIT_NODE_PATH || `${kitPath("node", "bin")}`
 
 export const KIT_DEFAULT_PATH = `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 

@@ -77,6 +77,8 @@ export let createNpm = npmInstall => async packageName => {
     return defaultImport(packageName)
   }
 
+  //fix missing kenv dep
+
   let { dependencies: kenvDeps } = JSON.parse(
     await readFile(kenvPath("package.json"), "utf-8")
   )
