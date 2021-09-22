@@ -1,5 +1,6 @@
+import { Choice, FlagsOptions } from "../types/kit"
 import { Channel } from "../core/enum.js"
-import { Choice } from "../core/type.js"
+
 import {
   kitPath,
   kenvPath,

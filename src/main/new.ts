@@ -1,11 +1,16 @@
-import { Choice } from "../core/type.js"
-import { CLI } from "cli"
+import { Choice } from "../types/kit"
+import { CLI } from "../types/cli"
 
 let newOptions: Choice<keyof CLI>[] = [
   {
-    name: "New from name",
-    description: "Enter a script name",
+    name: "New script (JS)",
+    description: "Create a script using JavaScript",
     value: "new",
+  },
+  {
+    name: "New script (TS)",
+    description: "Create a script using TypeScript",
+    value: "new-ts",
   },
   {
     name: "New from url",

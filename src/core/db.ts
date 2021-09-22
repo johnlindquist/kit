@@ -10,7 +10,7 @@ import {
   writeScriptsDb,
   isDir,
 } from "./utils.js"
-import { Choice, Script, PromptDb } from "./type.js"
+import { Choice, Script, PromptDb } from "../types/kit"
 import { Low } from "lowdb"
 
 export let db = async (

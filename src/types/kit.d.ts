@@ -1,26 +1,182 @@
 export {}
-
-import {
-  PromptData,
-  Script,
-  Choice,
-  EditorConfig,
-  TextareaConfig,
-} from "../src/core/type"
-import { Mode } from "../src/core/enum"
 import { AxiosInstance } from "axios"
 import * as shelljs from "shelljs"
 import * as child_process from "child_process"
 import * as fsPromises from "fs/promises"
 import * as fs from "fs"
-import * as fsExtra from "fs-extra"
 import * as handlebars from "handlebars"
 import * as clipboardy from "clipboardy"
-import trashType from "trash"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
 import { Low } from "lowdb"
 import { NodeNotifier } from "node-notifier"
+import { LibApi } from "./lib"
+import { editor } from "./editor.api"
+import {
+  Bin,
+  Channel,
+  ErrorAction,
+  Mode,
+  ProcessState,
+  ProcessType,
+  UI,
+} from "../core/enum.js"
+
+export interface Choice<Value = any> {
+  name: string
+  value?: Value
+  description?: string
+  focused?: string
+  img?: string
+  icon?: string
+  html?: string
+  preview?: string
+  id?: string
+  shortcode?: string[]
+  className?: string
+  tag?: string
+  shortcut?: string
+  drag?:
+    | {
+        format?: string
+        data?: string
+      }
+    | string
+}
+
+export interface Script extends Choice {
+  filePath: string
+  command: string
+  menu?: string
+  shortcut?: string
+  friendlyShortcut?: string
+  alias?: string
+  author?: string
+  twitter?: string
+  exclude?: boolean
+  schedule?: string
+  system?: string
+  watch?: string
+  background?: string
+  isRunning?: boolean
+  type: ProcessType
+  requiresPrompt: boolean
+  timeout?: number
+  tabs?: string[]
+  kenv: string
+  tag?: string
+  log?: boolean
+  hasFlags?: boolean
+}
+
+type InputType =
+  | "button"
+  | "checkbox"
+  | "color"
+  | "date"
+  | "datetime-local"
+  | "email"
+  | "file"
+  | "hidden"
+  | "image"
+  | "month"
+  | "number"
+  | "password"
+  | "radio"
+  | "range"
+  | "reset"
+  | "search"
+  | "submit"
+  | "tel"
+  | "text"
+  | "time"
+  | "url"
+  | "week"
+
+export interface PromptData {
+  id: number
+  script: Script
+  ui: UI
+  placeholder: string
+  kitScript: string
+  choices: Choice[]
+  tabs: string[]
+  ignoreBlur: boolean
+  textarea?: boolean
+  secret?: boolean
+  strict?: boolean
+  mode?: Mode
+  className?: string
+  hint?: string
+  input?: string
+  selected?: string
+  type?: InputType
+}
+
+export interface MessageData extends PromptData {
+  channel: Channel
+  pid: number
+  log?: string
+  warn?: string
+  path?: string
+  filePath?: string
+  name?: string
+  args?: string[]
+  ignore?: boolean
+  text?: string
+  options?: any
+  image?: any
+  html?: string
+  info?: string
+  input?: string
+  scripts?: boolean
+  kenvPath?: string
+  hint?: string
+  tabIndex?: number
+}
+
+export enum Secret {
+  password = "password",
+  text = "text",
+}
+
+export interface EditorProps {
+  options: EditorConfig
+  height: number
+  width: number
+}
+
+export type EditorOptions =
+  editor.IStandaloneEditorConstructionOptions & {
+    scrollTo: "top" | "center" | "bottom"
+  }
+
+export type EditorConfig = string | EditorOptions
+
+export type TextareaConfig = {
+  placeholder?: string
+  value?: string
+}
+
+export type EditorRef = editor.IStandaloneCodeEditor
+
+export type PromptBounds = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export type PromptDb = {
+  screens: {
+    [screenId: string]: {
+      [scriptId: string]: PromptBounds
+    }
+  }
+}
+
+type Trash = typeof import("trash")
+type Download = typeof import("download")
 
 type Panel =
   | string
@@ -174,7 +330,7 @@ interface SelectKitEditor {
 
 type UUID = typeof import("crypto").randomUUID
 
-interface KitApi {
+export interface KitApi {
   cd: typeof shelljs.cd
   cp: typeof shelljs.cp
   chmod: typeof shelljs.chmod
@@ -225,8 +381,8 @@ interface KitApi {
   copy: typeof clipboardy.write
   db: DB
 
-  trash: typeof trashType
-  rm: typeof trashType
+  trash: Trash
+  rm: Trash
 
   wait: Wait
 
@@ -252,7 +408,6 @@ interface KitApi {
 
   kitPath: PathFn
   kenvPath: PathFn
-  libPath: PathFn
 
   kitMenuCachePath: () => string
 
@@ -335,7 +490,7 @@ interface KitApi {
   selectKitEditor: SelectKitEditor
 
   $: typeof import("zx").$
-  download: typeof import("download")
+  download: Download
   degit: typeof import("degit")
 
   kit: Run
@@ -363,58 +518,59 @@ interface KitApi {
 
 type Run = (command: string, args?: string) => Promise<any>
 
+export type FlagsOptions = {
+  [key: string]:
+    | {
+        shortcut?: string
+        name?: string
+        description?: string
+      }
+    | undefined
+}
+
+export type Choices<Value> =
+  | string[]
+  | Choice<Value>[]
+  | (() => Choice<Value>[])
+  | (() => Promise<Choice<Value>[]>)
+  | Promise<Choice<any>[]>
+  | GenerateChoices
+
+export interface GenerateChoices {
+  (input: string): Choice<any>[] | Promise<Choice<any>[]>
+}
+export interface PromptConfig
+  extends Partial<
+    Omit<PromptData, "choices" | "id" | "script">
+  > {
+  validate?: (
+    choice: string
+  ) => boolean | string | Promise<boolean | string>
+  choices?: Choices<any> | Panel
+  flags?: FlagsOptions
+}
+
+export interface Background {
+  filePath: string
+  process: {
+    spawnargs: string[]
+    pid: number
+    start: string
+  }
+}
+
+export interface Schedule extends Choice {
+  date: Date
+}
+
+export interface Notify {
+  (notification: string | Notification): NodeNotifier
+}
+
 declare global {
-  type FlagsOptions = {
-    [key: string]:
-      | {
-          shortcut?: string
-          name?: string
-          description?: string
-        }
-      | undefined
-  }
-
-  type Choices<Value> =
-    | string[]
-    | Choice<Value>[]
-    | (() => Choice<Value>[])
-    | (() => Promise<Choice<Value>[]>)
-    | Promise<Choice<any>[]>
-    | GenerateChoices
-
-  interface GenerateChoices {
-    (input: string): Choice<any>[] | Promise<Choice<any>[]>
-  }
-  interface PromptConfig
-    extends Partial<
-      Omit<PromptData, "choices" | "id" | "script">
-    > {
-    validate?: (
-      choice: string
-    ) => boolean | string | Promise<boolean | string>
-    choices?: Choices<any> | Panel
-    flags?: FlagsOptions
-  }
-
-  interface Background {
-    filePath: string
-    process: {
-      spawnargs: string[]
-      pid: number
-      start: string
-    }
-  }
-
-  interface Schedule extends Choice {
-    date: Date
-  }
-
-  interface Notify {
-    (notification: string | Notification): NodeNotifier
-  }
-
+  type GlobalApi = KitApi & LibApi
   namespace NodeJS {
-    interface Global extends KitApi {}
+    interface Global extends GlobalApi {}
   }
 
   var cd: typeof shelljs.cd
@@ -458,11 +614,11 @@ declare global {
 
   var chalk: ChalkFunction
 
-  var download: typeof import("download")
+  var download: Download
   var degit: typeof import("degit")
 
-  var trash: typeof trashType
-  var rm: typeof trashType
+  var trash: Trash
+  var rm: Trash
 
   var kitPath: PathFn
   var kenvPath: PathFn

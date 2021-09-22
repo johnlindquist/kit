@@ -1,10 +1,9 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "CommonJS",
     "target": "ES2020",
     "rootDir": "./src/core",
     "outDir": "./dist/core"
   },
-  "include": ["./src/core/**/*.ts", "./types/kit.d.ts"]
+  "include": ["./src/core/**/*.ts"]
 }

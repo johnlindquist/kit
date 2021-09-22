@@ -1,3 +1,4 @@
+import { PromptConfig } from "../types/kit"
 import {
   assignPropsTo,
   resolveToScriptPath,
@@ -239,6 +240,31 @@ global.attemptImport = async (scriptPath, ..._args) => {
   try {
     global.updateArgs(_args)
 
+    if (scriptPath.endsWith(".ts")) {
+      try {
+        let { transformSync } = await import("esbuild")
+        let typescriptCode = await readFile(
+          scriptPath,
+          "utf-8"
+        )
+
+        let transformResult = transformSync(
+          typescriptCode,
+          {
+            loader: "ts",
+          }
+        )
+        scriptPath = path.resolve(
+          path.dirname(scriptPath),
+          path.basename(scriptPath).replace(/.ts$/, ".js")
+        )
+
+        await writeFile(scriptPath, transformResult.code)
+      } catch (error) {
+        console.log({ error })
+      }
+    }
+
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM
     importResult = await import(
@@ -264,3 +290,5 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
   return importResult
 }
+
+global.setIgnoreBlur = async ignore => {}

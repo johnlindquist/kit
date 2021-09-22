@@ -1,3 +1,4 @@
+import { Schedule } from "../types/kit"
 import { info } from "../core/utils.js"
 
 let { formatDistanceToNowStrict, format, compareAsc } =

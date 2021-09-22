@@ -12,15 +12,14 @@ mkdir -p $KIT
 cp -a root/. $KIT
 cp -r build $KIT
 ./build/install-node.sh --prefix $KIT/node
-mkdir -p $KIT/types
-cp types/kit.d.ts $KIT
 cp -r declarations $KIT
-find $KIT/types -type f -exec sed -i '' 's/\.\.\/src/\.\./g' {} \;
 cp *.md package*.json LICENSE $KIT
 
 npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-declaration.json --outDir $KIT
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
+
+
 node ./scripts/cjs-fix.js
 
 cd $KIT

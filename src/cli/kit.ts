@@ -1,6 +1,6 @@
 //Description: Script Kit CLI
 
-import { CLI } from "cli"
+import { CLI } from "../types/cli"
 import { resolveToScriptPath } from "../core/utils.js"
 
 interface CLIMenuItem {

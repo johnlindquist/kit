@@ -7,10 +7,6 @@
     "moduleResolution": "Node",
     "lib": ["esnext", "DOM"],
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "paths": {
-      "*": ["./src/*", "./declarations/*", "./types/*"],
-      "src/*": ["./src/*"]
-    }
+    "allowSyntheticDefaultImports": true
   }
 }

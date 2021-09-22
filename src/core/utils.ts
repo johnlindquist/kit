@@ -1,12 +1,16 @@
+import { Script, PromptConfig } from "../types/kit"
 import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
 
-import { ProcessType, UI } from "./enum.js"
-import { Script } from "./type.js"
-import { Bin, Channel } from "./enum.js"
+import {
+  ProcessType,
+  UI,
+  Bin,
+  Channel,
+} from "../core/enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
 export let home = (...pathParts: string[]) => {

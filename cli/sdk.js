@@ -1,2 +1,0 @@
-edit(kitPath());
-export {};

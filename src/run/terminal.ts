@@ -1,10 +1,6 @@
 import os from "os"
-import fs from "fs-extra"
 import { config } from "dotenv"
-import {
-  assignPropsTo,
-  resolveToScriptPath,
-} from "../core/utils.js"
+import { assignPropsTo } from "../core/utils.js"
 
 import "../api/global.js"
 import "../api/kit.js"

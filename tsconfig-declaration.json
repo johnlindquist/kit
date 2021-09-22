@@ -9,15 +9,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
-    "paths": {
-      "*": ["./src/*", "./declarations/*", "./types/*"],
-      "src/*": ["./src/*"]
-    }
+    "emitDeclarationOnly": true
   },
-  "include": [
-    "./src/index.ts",
-    "./src/core/*",
-    "./types/kit.d.ts"
-  ]
+  "include": ["./src/index.ts", "./src/core/*"]
 }

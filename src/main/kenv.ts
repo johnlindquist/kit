@@ -1,5 +1,5 @@
-import { Choice } from "../core/type.js"
-import { CLI } from "cli"
+import { Choice } from "../types/kit"
+import { CLI } from "../types/cli"
 
 let otherOptions: Choice<keyof CLI>[] = [
   {
