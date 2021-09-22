@@ -28,11 +28,14 @@ ava.serial("kit new, run, and rm", async t => {
   console.log(\`${command} \${value} 🎉!\`)
 `
 
-  await $`kit new ${command} home --no-edit`
+  let { stdout, stderr } =
+    await $`kit new ${command} home --no-edit`
+  t.log({ stdout, stderr })
 
   let scriptPath = kenvPath("scripts", `${command}.js`)
   let binPath = kenvPath("bin", `${command}`)
 
+  t.true(stderr === "", `kit new errored out`)
   t.true(test("-f", scriptPath), `script created`)
   await writeFile(scriptPath, scriptContents)
 
@@ -40,10 +43,10 @@ ava.serial("kit new, run, and rm", async t => {
 
   let message = "success"
 
-  let { stdout, stderr } = await $`${kenvPath(
+  ;({ stdout, stderr } = await $`${kenvPath(
     "bin",
     command
-  )} ${message}`
+  )} ${message}`)
 
   t.true(
     stdout.includes(message),
@@ -151,7 +154,7 @@ ava.serial("app-prompt.js", async t => {
       }
     })
 
-    setTimeout(() => {
+    setInterval(() => {
       child.send({
         channel: Channel.VALUE_SUBMITTED,
         value: {
@@ -159,6 +162,6 @@ ava.serial("app-prompt.js", async t => {
           args: [],
         },
       })
-    }, 2000)
+    }, 100)
   })
 })
