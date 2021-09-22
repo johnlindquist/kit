@@ -6,7 +6,6 @@
     "rootDir": "./src",
     "moduleResolution": "Node",
     "lib": ["esnext", "DOM"],
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "emitDeclarationOnly": true

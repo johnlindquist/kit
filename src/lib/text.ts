@@ -1,6 +1,6 @@
 import { Channel } from "../core/enum.js"
 
-export let getSelectedText = async () => {
+global.getSelectedText = async () => {
   send(Channel.HIDE_APP)
 
   await applescript(
@@ -18,7 +18,7 @@ await setSelectedText(`Script Kit is awesome!`)
 ```
 */
 
-export let setSelectedText = async text => {
+global.setSelectedText = async text => {
   send(Channel.HIDE_APP)
 
   await applescript(
@@ -34,3 +34,5 @@ export let setSelectedText = async text => {
 
   await applescript(String.raw`set the clipboard to ""`)
 }
+
+export {}

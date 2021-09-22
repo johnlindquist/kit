@@ -5,12 +5,7 @@ import { lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
 
-import {
-  ProcessType,
-  UI,
-  Bin,
-  Channel,
-} from "../core/enum.js"
+import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
 export let home = (...pathParts: string[]) => {

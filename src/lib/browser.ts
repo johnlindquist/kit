@@ -1,6 +1,4 @@
-export let getActiveTab = async (
-  browser = "Google Chrome"
-) => {
+global.getActiveTab = async (browser = "Google Chrome") => {
   let result = await applescript(
     String.raw`tell application "${browser}" to return URL of active tab of front window`
   )
@@ -8,7 +6,7 @@ export let getActiveTab = async (
   return result
 }
 
-export let getTabs = async (browser = "Google Chrome") => {
+global.getTabs = async (browser = "Google Chrome") => {
   let result = await applescript(String.raw`
     on findAndReplaceInText(theText, theSearchString, theReplacementString)
 	set AppleScript's text item delimiters to theSearchString
@@ -69,7 +67,7 @@ get V's JSON
   return JSON.parse(result)
 }
 
-export let focusTab = async (
+global.focusTab = async (
   url: string,
   browser = "Google Chrome"
 ) => {
@@ -96,7 +94,7 @@ end tell
 `)
 }
 
-export let scrapeSelector = async (
+global.scrapeSelector = async (
   url: string,
   selector: string,
   xf: (element: any) => any,
@@ -127,7 +125,7 @@ export let scrapeSelector = async (
   return results
 }
 
-export let scrapeAttribute = async (
+global.scrapeAttribute = async (
   url: string,
   selector: string,
   attribute: string,
@@ -148,3 +146,5 @@ export let scrapeAttribute = async (
   await browser.close()
   return results
 }
+
+export {}

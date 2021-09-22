@@ -17,10 +17,18 @@ let files = await readdir(cjsDir)
 
 for await (let file of files) {
   let filePath = `${cjsDir}/${file}`
+  console.log({ filePath })
   let content = await readFile(filePath, "utf-8")
+  console.log(content.match(/(?<=require\(".*)\.js(?!=")/g))
   content = content.replace(
     /(?<=require\(".*)\.js(?!=")/g,
     ".cjs"
+  )
+
+  console.log(
+    content.match(
+      /Promise\.resolve\(\)\.then\(\(\) => __importStar\(require\("(.*)"\)\)\)/g
+    )
   )
 
   content = content.replace(

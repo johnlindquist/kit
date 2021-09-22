@@ -8,7 +8,7 @@ await keystroke("command option e")
 
 import { Channel } from "../core/enum.js"
 
-export let keystroke = async (keyString: string) => {
+global.keystroke = async (keyString: string) => {
   send(Channel.HIDE_APP)
   let keyCodes = {
     left: "123",
@@ -40,11 +40,11 @@ export let keystroke = async (keyString: string) => {
   )
 }
 
-export async function pressKeyboardShortcut(
+global.pressKeyboardShortcut = async (
   application = "",
   key = "",
   commands = []
-) {
+) => {
   // We want them as an array for formatCommands so we split on ","
   const formattedCommands = formatCommands(commands)
   // Note: we have to activate an application first in order to use this script with it
@@ -68,3 +68,5 @@ function formatCommands(commands = []) {
     .join(" ")
     .slice(0, -1)
 }
+
+export {}

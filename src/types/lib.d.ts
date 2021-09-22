@@ -5,7 +5,7 @@ export interface PlayAudioFile {
 import { Display, Point, Size, Rectangle } from "./electron"
 
 interface CopyPathAsImage {
-  (path: string): Promise<void>
+  (path: string): Promise<string>
 }
 
 interface FileSearchOptions {
@@ -16,7 +16,7 @@ interface FileSearch {
   (
     name: string,
     fileSearchOptions: FileSearchOptions
-  ): Promise<string>
+  ): Promise<string[]>
 }
 
 type Browser =
@@ -32,7 +32,7 @@ interface GetTabs {
 }
 
 interface FocusTab {
-  (url: string, browser?: Browser): Promise<void>
+  (url: string, browser?: Browser): Promise<string>
 }
 
 interface ScrapeOptions {
@@ -56,14 +56,17 @@ interface ScrapeAttribute {
   )
 }
 
+interface Window {
+  process: string
+  title: string
+  index: number
+}
 interface GetWindows {
-  (): Promise<
-    { process: string; title: string; index: string }[]
-  >
+  (): Promise<Window[]>
 }
 
 interface FocusWindow {
-  (process: string, title: string): Promise<void>
+  (process: string, title: string): Promise<string>
 }
 
 interface WindowBounds {
@@ -76,6 +79,14 @@ interface WindowBounds {
 interface GetWindowsBounds {
   (): Promise<WindowBounds[]>
 }
+interface GetWindowPosition {
+  (
+    process: string,
+    title: string,
+    x: number,
+    y: number
+  ): Promise<string>
+}
 
 interface SetWindowPosition {
   (
@@ -83,7 +94,7 @@ interface SetWindowPosition {
     title: string,
     x: number,
     y: number
-  ): Promise<void>
+  ): Promise<string>
 }
 interface SetWindowSizeByIndex {
   (
@@ -91,7 +102,7 @@ interface SetWindowSizeByIndex {
     index: number,
     x: number,
     y: number
-  ): Promise<void>
+  ): Promise<string>
 }
 interface SetWindowBoundsByIndex {
   (
@@ -101,11 +112,11 @@ interface SetWindowBoundsByIndex {
     y: number,
     width: number,
     height: number
-  ): Promise<void>
+  ): Promise<string>
 }
 
 interface ScatterWindows {
-  (): Promise<void>
+  (): Promise<string>
 }
 
 interface OrganizeWindows {
@@ -118,7 +129,7 @@ interface SetWindowPositionByIndex {
     index: number,
     x: number,
     y: number
-  ): Promise<void>
+  ): Promise<string>
 }
 
 interface SetWindowSize {
@@ -127,7 +138,7 @@ interface SetWindowSize {
     title: string,
     x: number,
     y: number
-  ): Promise<void>
+  ): Promise<string>
 }
 
 interface Screen {
@@ -145,7 +156,7 @@ interface TileWindow {
   (
     app: string,
     leftOrRight: "left" | "right"
-  ): Promise<void>
+  ): Promise<string>
 }
 
 interface GetActiveScreen {
@@ -178,17 +189,17 @@ interface GetSelectedText {
 }
 
 interface Lock {
-  (): Promise<void>
+  (): Promise<string>
 }
 interface Sleep {
-  (): Promise<void>
+  (): Promise<string>
 }
 interface Shutdown {
-  (): Promise<void>
+  (): Promise<string>
 }
 
 interface QuitAllApps {
-  (appsToExclude?: string): Promise<void>
+  (appsToExclude?: string): Promise<string>
 }
 
 interface SayOptions {
@@ -196,7 +207,7 @@ interface SayOptions {
   voice?: string
 }
 interface Say {
-  (text: string, options?: SayOptions): Promise<void>
+  (text: string, options?: SayOptions): Promise<string>
 }
 
 interface SetSelectedText {
@@ -204,7 +215,7 @@ interface SetSelectedText {
 }
 
 interface KeyStroke {
-  (keyString: string): Promise<void>
+  (keyString: string): Promise<string>
 }
 
 export interface LibApi {
@@ -222,6 +233,7 @@ export interface LibApi {
   getTabs: GetTabs
   getWindows: GetWindows
   getWindowsBounds: GetWindowsBounds
+  getWindowsPosition: GetWindowPosition
   keystroke: KeyStroke
   lock: Lock
   organizeWindows: OrganizeWindows
@@ -262,6 +274,7 @@ declare global {
   var getTabs: GetTabs
   var getWindows: GetWindows
   var getWindowsBounds: GetWindowsBounds
+  var getWindowsPosition: GetWindowPosition
   var keystroke: KeyStroke
   var lock: Lock
   var organizeWindows: OrganizeWindows
