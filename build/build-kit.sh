@@ -11,6 +11,7 @@ rm -r $KIT 2> /dev/null
 mkdir -p $KIT
 cp -a root/. $KIT
 cp -r build $KIT
+cp -r src/types $KIT
 ./build/install-node.sh --prefix $KIT/node
 cp *.md package*.json LICENSE $KIT
 

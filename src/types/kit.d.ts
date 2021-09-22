@@ -13,11 +13,8 @@ import { NodeNotifier } from "node-notifier"
 import { LibApi } from "./lib"
 import { editor } from "./editor.api"
 import {
-  Bin,
   Channel,
-  ErrorAction,
   Mode,
-  ProcessState,
   ProcessType,
   UI,
 } from "../core/enum.js"

@@ -10,6 +10,7 @@ echo $WD
 mkdir -p $KIT
 cp -a root/. $KIT
 cp -r build $KIT
+cp -r src/types $KIT
 cp *.md package*.json LICENSE $KIT
 
 ./build/install-node.sh --prefix $KIT/node
