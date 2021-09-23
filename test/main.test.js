@@ -13,7 +13,7 @@ ava("kit setup", async t => {
   t.true(contents.includes(`KIT_TEMPLATE=default`))
 })
 
-ava(`New supports TypeScript`, async t => {
+ava.serial(`New supports TypeScript`, async t => {
   let tsScript = `mock-typescript-script`
   await $`kit set-env-var KIT_MODE ts`
   await $`kit new ${tsScript} home --no-edit`
@@ -25,7 +25,7 @@ ava(`New supports TypeScript`, async t => {
     `Should create ${tsScript}.ts`
   )
 
-  t.assert(
+  t.is(
     await readFile(tsScriptPath, "utf-8"),
     await readFile(
       kenvPath("templates", "default.ts"),
@@ -44,8 +44,9 @@ console.log(await arg())`
   let { stdout, stderr } =
     await $`kit ${tsScript} ${message}`
 
-  t.true(
-    stdout.includes(message),
+  t.regex(
+    stdout,
+    new RegExp(`${message}`),
     `TypeScript script worked`
   )
 
