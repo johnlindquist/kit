@@ -4,9 +4,7 @@
 import { CLI } from "../types/cli"
 import { selectScript } from "../core/utils.js"
 
-let { filePath, command } = await selectScript(
-  `Share which script?`
-)
+let { filePath } = await selectScript(`Share which script?`)
 
 let how: keyof CLI = await arg(
   "How would you like to share?",

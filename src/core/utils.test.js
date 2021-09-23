@@ -3,7 +3,7 @@ import fs from "fs-extra"
 import "../../test/config.js"
 
 /** @type {import("./utils")} */
-let { resolveToScriptPath } = await import(
+let { resolveToScriptPath, getExtension } = await import(
   kitPath("core", "utils.js")
 )
 
@@ -20,8 +20,7 @@ let mockMjsFile = kitMockPath(
 let prevCwd = cwd()
 
 ava.before(async () => {
-  await $`kit set-env-var KIT_TEMPLATE default --no-edit`
-  await $`kit new ${testingFindMe} home --no-edit`
+  await $`KIT_MODE=js kit new ${testingFindMe} home --no-edit`
 })
 
 ava("resolve full path", async t => {
@@ -96,10 +95,17 @@ ava("resolve doesn't exist", t => {
   t.true(error.message.includes("not found"))
 })
 
-ava.after.always("clean up", async () => {
-  await $`kit rm ${testingFindMe}  --confirm`
-  await fs.rm(path.dirname(testingFullPath), {
-    recursive: true,
-    force: true,
-  })
+ava("getExtension", t => {
+  t.is(getExtension("foo.js"), ".js")
+  t.is(getExtension("foo.ts"), ".ts")
+  t.is(getExtension("foo.ts.js"), ".js")
+  t.is(getExtension("foo.js.ts"), ".ts")
+  t.is(getExtension("foo"), "")
 })
+
+// ava.after.always("clean up", async () => {
+//   await fs.rm(path.dirname(testingFullPath), {
+//     recursive: true,
+//     force: true,
+//   })
+// })

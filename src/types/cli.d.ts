@@ -100,7 +100,6 @@ export interface CLI {
   join: Promise<typeof import("../cli/join")>
   kit: Promise<typeof import("../cli/kit")>
   new: Promise<typeof import("../cli/new")>
-  "new-ts": Promise<typeof import("../cli/new-ts")>
   open: Promise<typeof import("../cli/open")>
   prefs: Promise<typeof import("../cli/prefs")>
   quit: Promise<typeof import("../cli/quit")>

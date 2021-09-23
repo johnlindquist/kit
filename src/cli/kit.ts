@@ -12,7 +12,14 @@ interface CLIMenuItem {
 let cliScripts: CLIMenuItem[] = [
   { name: "run", placeholder: "Run a script" },
   { name: "edit", placeholder: "Edit a script" },
-  { name: "new", placeholder: "Create a new script" },
+  {
+    name: "new",
+    placeholder: `Create a script using ${
+      process.env.KIT_MODE === "ts"
+        ? "TypeScript"
+        : "JavaScript"
+    }`,
+  },
   {
     name: "open",
     placeholder: "Open .kenv directory in editor",

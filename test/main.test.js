@@ -3,25 +3,77 @@ import { KIT_APP_PROMPT, Channel } from "./config.js"
 
 process.env.NODE_NO_WARNINGS = 1
 
-ava.serial(
-  "kit set-env-var KIT_TEMPLATE default",
-  async t => {
-    let envPath = kenvPath(".env")
-    let KIT_TEMPLATE = "KIT_TEMPLATE"
-    let kitTemplate = "default"
-    await $`kit set-env-var ${KIT_TEMPLATE} ${kitTemplate} --no-edit`
-    let fileCreated = test("-f", envPath)
+ava("kit setup", async t => {
+  let envPath = kenvPath(".env")
+  let fileCreated = test("-f", envPath)
 
-    t.true(fileCreated)
+  t.true(fileCreated)
 
-    let contents = await readFile(envPath, "utf-8")
-    t.true(
-      contents.includes(`${KIT_TEMPLATE}=${kitTemplate}`)
-    )
-  }
-)
+  let contents = await readFile(envPath, "utf-8")
+  t.true(contents.includes(`KIT_TEMPLATE=default`))
+})
 
-ava.serial("kit new, run, and rm", async t => {
+ava(`New supports TypeScript`, async t => {
+  let tsScript = `mock-typescript-script`
+  await $`kit set-env-var KIT_MODE ts`
+  await $`kit new ${tsScript} home --no-edit`
+
+  let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
+
+  t.true(
+    await pathExists(tsScriptPath),
+    `Should create ${tsScript}.ts`
+  )
+
+  t.assert(
+    await readFile(tsScriptPath, "utf-8"),
+    await readFile(
+      kenvPath("templates", "default.ts"),
+      "utf-8"
+    ),
+    `Generated TypeScript file matches TypeScript template`
+  )
+
+  await appendFile(
+    tsScriptPath,
+    `
+console.log(await arg())`
+  )
+
+  let message = "success"
+  let { stdout, stderr } =
+    await $`kit ${tsScript} ${message}`
+
+  t.true(
+    stdout.includes(message),
+    `TypeScript script worked`
+  )
+
+  let JSofTSExists = await pathExists(
+    tsScriptPath.replace(/\.ts$/, ".js")
+  )
+
+  t.false(JSofTSExists, `Should remove generated JS file`)
+
+  let script = `mock-javascript-script`
+  await $`kit set-env-var KIT_MODE js`
+  await $`kit new ${script} home --no-edit`
+
+  let scriptPath = kenvPath("scripts", `${script}.js`)
+
+  t.true(await pathExists(scriptPath))
+
+  t.assert(
+    await readFile(scriptPath, "utf-8"),
+    await readFile(
+      kenvPath("templates", "default.js"),
+      "utf-8"
+    ),
+    `Generated JavaScript file matches JavaScript template`
+  )
+})
+
+ava("kit new, run, and rm", async t => {
   let command = `mock-script-for-new-run-rm`
   let scriptContents = `
   let value = await arg()
@@ -30,7 +82,6 @@ ava.serial("kit new, run, and rm", async t => {
 
   let { stdout, stderr } =
     await $`kit new ${command} home --no-edit`
-  t.log({ stdout, stderr })
 
   let scriptPath = kenvPath("scripts", `${command}.js`)
   let binPath = kenvPath("bin", `${command}`)
@@ -62,7 +113,7 @@ ava.serial("kit new, run, and rm", async t => {
   t.true(binRmed)
 })
 
-ava.serial("kit hook", async t => {
+ava("kit hook", async t => {
   let script = `mock-script-with-export`
   let contents = `
   export let value = await arg()
@@ -78,7 +129,7 @@ ava.serial("kit hook", async t => {
   t.is(result.value, message)
 })
 
-ava.serial("kit script-output-hello", async t => {
+ava("kit script-output-hello", async t => {
   let script = `mock-script-output-hello`
   let contents = `console.log(await arg())`
   await $`kit new ${script} home --no-edit`
@@ -92,7 +143,7 @@ ava.serial("kit script-output-hello", async t => {
   t.true(stdout.includes("hello"))
 })
 
-ava.serial("kit script in random dir", async t => {
+ava("kit script in random dir", async t => {
   let someRandomDir = kitMockPath(`.kit-some-random-dir`)
   let script = `mock-some-random-script`
   let contents = `console.log(await arg())`
@@ -109,7 +160,7 @@ ava.serial("kit script in random dir", async t => {
   t.true(stdout.includes("hello"))
 })
 
-ava.serial("app-prompt.js", async t => {
+ava("app-prompt.js", async t => {
   let script = `mock-script-with-arg`
   let scriptPath = kenvPath("scripts", `${script}.js`)
   let placeholder = "hello"
@@ -128,15 +179,8 @@ ava.serial("app-prompt.js", async t => {
     },
   })
 
-  let messages = []
-
-  await new Promise(resolve => {
-    child.on("spawn", resolve)
-  })
-
   await new Promise((resolve, reject) => {
     child.on("message", data => {
-      messages.push(data)
       if (data?.channel === Channel.SET_PROMPT_DATA) {
         let { placeholder: dataPlaceholder, kitScript } =
           data
@@ -155,13 +199,16 @@ ava.serial("app-prompt.js", async t => {
     })
 
     setInterval(() => {
-      child.send({
-        channel: Channel.VALUE_SUBMITTED,
-        value: {
-          script,
-          args: [],
+      child.send(
+        {
+          channel: Channel.VALUE_SUBMITTED,
+          value: {
+            script,
+            args: [],
+          },
         },
-      })
+        error => {}
+      )
     }, 100)
   })
 })

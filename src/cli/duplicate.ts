@@ -1,6 +1,10 @@
 // Description: Duplicate the selected script
 
-import { exists, selectKenv } from "../core/utils.js"
+import {
+  exists,
+  getExtension,
+  selectKenv,
+} from "../core/utils.js"
 let generate = await npm("project-name-generator")
 
 let examples = Array.from({ length: 3 })
@@ -31,7 +35,7 @@ let { dirPath: selectedKenvDir } = await selectKenv()
 let newFilePath = path.join(
   selectedKenvDir,
   "scripts",
-  newCommand + (newCommand.endsWith(".js") ? "" : ".js")
+  newCommand + getExtension(filePath)
 )
 let oldContent = await readFile(filePath, "utf-8")
 

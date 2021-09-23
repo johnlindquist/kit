@@ -15,18 +15,18 @@ let octokit = new Octokit({
   },
 })
 
-let scriptJS = `${command}.js`
+let fileBasename = path.basename(filePath)
 
 let response = await octokit.rest.gists.create({
   files: {
-    [command + ".js"]: {
+    [fileBasename]: {
       content: await readFile(filePath, "utf8"),
     },
   },
   public: true,
 })
 
-let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[scriptJS].raw_url}`
+let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[fileBasename].raw_url}`
 copy(link)
 console.log(`Copied share link to clipboard`)
 await wait(2000)

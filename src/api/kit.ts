@@ -11,8 +11,6 @@ import {
 } from "../core/utils.js"
 import stripAnsi from "strip-ansi"
 
-process.env.PATH = KIT_FIRST_PATH
-
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
     console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
@@ -63,18 +61,68 @@ export let errorPrompt = async (error: Error) => {
   }
 }
 
-global.attemptImport = async (path, ..._args) => {
+global.attemptImport = async (scriptPath, ..._args) => {
+  let importResult = undefined
+  let jsGenPath = ""
   try {
     global.updateArgs(_args)
 
+    if (scriptPath.endsWith(".ts")) {
+      try {
+        let { transformSync } = await import("esbuild")
+        let typescriptCode = await readFile(
+          scriptPath,
+          "utf-8"
+        )
+
+        let transformResult = transformSync(
+          typescriptCode,
+          {
+            loader: "ts",
+          }
+        )
+        scriptPath = jsGenPath = path.resolve(
+          path.dirname(scriptPath),
+          path.basename(scriptPath).replace(/.ts$/, ".js")
+        )
+
+        await writeFile(jsGenPath, transformResult.code)
+      } catch (error) {
+        console.log({ error })
+      }
+    }
+
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM
-    return await import(path + "?uuid=" + global.uuid())
+    importResult = await import(
+      scriptPath + "?uuid=" + global.uuid()
+    )
+    if (jsGenPath) await rm(jsGenPath)
   } catch (error) {
-    console.warn(error.message)
-    console.warn(error.stack)
-    await errorPrompt(error)
+    let e = error.toString()
+    if (
+      e.startsWith("SyntaxError") &&
+      e.match(
+        /module|after argument list|await is only valid/
+      )
+    ) {
+      let mjsVersion = path.resolve(
+        path.dirname(scriptPath),
+        path.basename(scriptPath).replace(/.js$/, ".mjs")
+      )
+      await copyFile(scriptPath, mjsVersion)
+      importResult = await kit(mjsVersion)
+      await rm(mjsVersion)
+    } else {
+      if (process.env.KIT_CONTEXT === "app") {
+        await errorPrompt(error)
+      } else {
+        console.warn(error)
+      }
+    }
   }
+
+  return importResult
 }
 
 global.runSub = async (scriptPath, ...runArgs) => {

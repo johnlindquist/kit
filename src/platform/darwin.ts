@@ -1,4 +1,4 @@
-import { KIT_DEFAULT_PATH } from "../core/utils.js"
+import { kitMode, KIT_DEFAULT_PATH } from "../core/utils.js"
 
 global.applescript = async (
   script,
@@ -182,7 +182,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
 global.openLog = () => {
   let logPath = global.kitScript
     .replace("scripts", "logs")
-    .replace(".js", ".log")
+    .replace(new RegExp(`\${kitMode()}$`), "log")
 
   console.log(`📂 Open log ${logPath}`)
 

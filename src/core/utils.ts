@@ -8,6 +8,8 @@ import { execSync } from "child_process"
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
+export let extensionRegex = /\.(mj|t|s)$/g
+
 export let home = (...pathParts: string[]) => {
   return path.resolve(os.homedir(), ...pathParts)
 }
@@ -90,9 +92,11 @@ export const KIT_APP_PROMPT = kitPath(
 export const KIT_NODE_PATH =
   process.env.KIT_NODE_PATH || `${kitPath("node", "bin")}`
 
-export const KIT_DEFAULT_PATH = `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
+export const KIT_DEFAULT_PATH = `/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 
-export const KIT_FIRST_PATH = `${kitPath("bin")}:${kenvPath(
+export const KIT_FIRST_PATH = `${
+  process.env.PRE_PATH
+}:${kitPath("bin")}:${kenvPath(
   "bin"
 )}:${KIT_NODE_PATH}:${KIT_DEFAULT_PATH}`
 
@@ -116,41 +120,58 @@ let fileExists = (path: string) => {
 }
 
 export let resolveToScriptPath = (
-  file: string,
+  script: string,
   cwd: string = process.cwd()
 ): string => {
-  let script = file
-  if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
+  let extensions = ["", ".js", ".ts"]
+  let resolvedScriptPath = ""
+
+  // if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
 
   // Check main kenv
-  let kenvScript = kenvPath("scripts", script)
-  if (fileExists(kenvScript)) return kenvScript
+
+  for (let ext of extensions) {
+    resolvedScriptPath = kenvPath("scripts", script + ext)
+    if (fileExists(resolvedScriptPath))
+      return resolvedScriptPath
+  }
 
   // Check other kenvs
   let [k, s] = script.split("/")
   if (s) {
-    kenvScript = kenvPath("kenvs", k, "scripts", s)
-    if (fileExists(kenvScript)) return kenvScript
+    for (let ext of extensions) {
+      resolvedScriptPath = kenvPath(
+        "kenvs",
+        k,
+        "scripts",
+        s + ext
+      )
+      if (fileExists(resolvedScriptPath))
+        return resolvedScriptPath
+    }
   }
 
   // Check scripts dir
 
-  let maybeInScriptDir = path.resolve(
-    cwd,
-    "scripts",
-    script
-  )
-  if (test("-f", maybeInScriptDir)) {
-    return maybeInScriptDir
+  for (let ext of extensions) {
+    resolvedScriptPath = path.resolve(
+      cwd,
+      "scripts",
+      script + ext
+    )
+    if (fileExists(resolvedScriptPath))
+      return resolvedScriptPath
   }
+
   // Check anywhere
-  let fullScriptPath = path.resolve(cwd, script)
 
-  if (fileExists(fullScriptPath)) {
-    return fullScriptPath
+  for (let ext of extensions) {
+    resolvedScriptPath = path.resolve(cwd, script + ext)
+    if (fileExists(resolvedScriptPath))
+      return resolvedScriptPath
   }
 
-  throw new Error(`${file} not found`)
+  throw new Error(`${script} not found`)
 }
 
 export let resolveScriptToCommand = (script: string) => {
@@ -196,8 +217,7 @@ export let info = async (
       .trim() || ""
 
   let command =
-    filePath.split(path.sep)?.pop()?.replace(".js", "") ||
-    ""
+    path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
   let shortcut = shortcutNormalizer(
     getByMarker("Shortcut:")
@@ -310,7 +330,7 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
   return result
     .filter(file => file.isFile())
     .map(file => file.name)
-    .filter(name => name.endsWith(".js"))
+    .filter(name => name.match(/\.(mj|t|j)s$/))
     .map(file => path.join(scriptsPath, file))
 }
 
@@ -476,6 +496,7 @@ export let createBinFromScript = async (
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type,
+    extension: kitMode(),
     ...env,
     TARGET_PATH: targetPath(),
   })
@@ -570,3 +591,9 @@ export let selectKenv = async (): Promise<Kenv> => {
 
   return selectedKenv as Kenv
 }
+
+export let getExtension = (filePath: string) =>
+  filePath.match(/\.[0-9a-z]+$/i)?.[0] || ""
+
+export let kitMode = () =>
+  (process.env.KIT_MODE || "js").toLowerCase()

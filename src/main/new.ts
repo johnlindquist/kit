@@ -1,16 +1,14 @@
 import { Choice } from "../types/kit"
 import { CLI } from "../types/cli"
+import { kitMode } from "../core/utils"
 
 let newOptions: Choice<keyof CLI>[] = [
   {
-    name: "New script (JS)",
-    description: "Create a script using JavaScript",
+    name: "New script",
+    description: `Create a script using ${
+      kitMode() === "ts" ? "TypeScript" : "JavaScript"
+    }`,
     value: "new",
-  },
-  {
-    name: "New script (TS)",
-    description: "Create a script using TypeScript",
-    value: "new-ts",
   },
   {
     name: "New from url",

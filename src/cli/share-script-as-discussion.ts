@@ -16,19 +16,19 @@ let octokit = new Octokit({
   },
 })
 
-let scriptJS = `${command}.js`
+let fileBasename = path.basename(filePath)
 
 let content = await readFile(filePath, "utf8")
 let response = await octokit.rest.gists.create({
   files: {
-    [command + ".js"]: {
+    [fileBasename]: {
       content: await readFile(filePath, "utf8"),
     },
   },
   public: true,
 })
 
-let gistUrl = response.data.files[scriptJS].raw_url
+let gistUrl = response.data.files[fileBasename].raw_url
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`
 

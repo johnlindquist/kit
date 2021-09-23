@@ -8,5 +8,6 @@
     "lib": ["esnext", "DOM"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "exclude": ["./root/**"]
 }
