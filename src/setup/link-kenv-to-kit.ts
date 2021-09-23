@@ -1,3 +1,3 @@
-await cli("install", home(".kit"))
+await cli("install", process.env.KIT || home(".kit"))
 
 export {}
