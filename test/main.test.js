@@ -74,7 +74,7 @@ console.log(await arg())`
   )
 })
 
-ava("kit new, run, and rm", async t => {
+ava.serial("kit new, run, and rm", async t => {
   let command = `mock-script-for-new-run-rm`
   let scriptContents = `
   let value = await arg()
@@ -82,7 +82,7 @@ ava("kit new, run, and rm", async t => {
 `
 
   let { stdout, stderr } =
-    await $`kit new ${command} home --no-edit`
+    await $`KIT_MODE=js kit new ${command} home --no-edit`
 
   let scriptPath = kenvPath("scripts", `${command}.js`)
   let binPath = kenvPath("bin", `${command}`)
