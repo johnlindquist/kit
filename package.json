@@ -12,6 +12,7 @@
   "description": "",
   "exports": {
     ".": "./index.js",
+    "./*": "./*",
     "./cjs/*": "./core/*.cjs"
   },
   "types": "./types/kit.d.ts",

@@ -642,11 +642,10 @@ export let kit = async (
   ..._args: string[]
 ) => {
   process.env.KIT =
-    process.env.KIT ||
-    path.join(new URL(import.meta.url).pathname, "..", "..")
+    process.env.KIT || path.resolve(os.homedir(), ".kit")
 
-  let importKit = async (...parts: string[]) =>
-    await import(path.resolve(process.env.KIT, ...parts))
+  let importKit = async (file: string) =>
+    await import(`@johnlindquist/kit/${file}`)
 
   await importKit("api/global.js")
   await importKit("api/kit.js")
