@@ -86,7 +86,6 @@ global.attemptImport = async (scriptPath, ..._args) => {
           .replace(/\.ts$/, ".js")
 
         let dirName = path.dirname(scriptPath)
-        console.log({ dirName })
         let inScriptsDir = dirName.endsWith(
           path.sep + "scripts"
         )
@@ -99,8 +98,6 @@ global.attemptImport = async (scriptPath, ..._args) => {
           ...inScriptsDir,
           tmpScriptName
         )
-
-        console.log({ scriptPath })
 
         await outputFile(scriptPath, transformResult.code)
       } catch (error) {
