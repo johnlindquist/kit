@@ -3,6 +3,9 @@ import { KIT_APP_PROMPT, Channel } from "./config.js"
 
 process.env.NODE_NO_WARNINGS = 1
 
+process.env.KIT =
+  process.env.KIT || path.resolve(os.homedir(), ".kit")
+
 ava("kit setup", async t => {
   let envPath = kenvPath(".env")
   let fileCreated = test("-f", envPath)
@@ -216,4 +219,39 @@ ava("app-prompt.js", async t => {
       )
     }, 100)
   })
+})
+
+ava(`Run kit from package.json`, async t => {
+  let command = `mock-pkg-json-script`
+  let scriptPath = kenvPath("scripts", `${command}.js`)
+  await $`KIT_MODE=js kit new ${command} home --no-edit`
+
+  await appendFile(
+    scriptPath,
+    `
+let value = await arg()  
+console.log(value)
+`
+  )
+
+  let pkgPath = kenvPath("package.json")
+  let pkgJson = await readJson(pkgPath)
+  let npmScript = "run-kit"
+
+  let message = `success`
+
+  pkgJson.scripts = {
+    [npmScript]: `kit ${command} ${message}`,
+  }
+
+  await writeJson(pkgPath, pkgJson)
+
+  pkgJson = await readJson(pkgPath)
+  t.log(pkgJson)
+
+  cd(kenvPath())
+  let { stdout, stderr } = await $`npm run ${npmScript}`
+
+  t.is(stderr, "")
+  t.regex(stdout, new RegExp(`${message}`))
 })

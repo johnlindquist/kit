@@ -5,6 +5,9 @@ import {
   readdir,
   copyFile,
 } from "fs/promises"
+
+let { default: fsExtra } = await import("fs-extra")
+
 let {
   emptyDir,
   ensureFile,
@@ -19,7 +22,8 @@ let {
   readJson,
   remove,
   writeJson,
-} = await import("fs-extra")
+} = fsExtra
+
 global.readFile = readFile
 global.writeFile = writeFile
 global.appendFile = appendFile
