@@ -1,5 +1,5 @@
 import { config } from "dotenv"
-import { assignPropsTo } from "../core/utils.js"
+import { assignPropsTo, run } from "../core/utils.js"
 import os from "os"
 
 import "../api/global.js"
@@ -20,4 +20,4 @@ config({
 assignPropsTo(process.env, global.env)
 
 let script = await arg("Path to script:")
-await kit(script)
+await run(script)

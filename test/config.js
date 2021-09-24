@@ -4,7 +4,13 @@ import os from "os"
 process.env.KIT =
   process.env.KIT || path.resolve(os.homedir(), ".kit")
 
-await import(path.resolve(`${process.env.KIT}`, "index.js"))
+let importKit = async (...parts) =>
+  await import(path.resolve(process.env.KIT, ...parts))
+
+await importKit("api/global.js")
+await importKit("api/kit.js")
+await importKit("api/lib.js")
+
 export let kitMockPath = (...parts) =>
   path.resolve(home(".kit-mock-path"), ...parts)
 

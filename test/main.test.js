@@ -44,6 +44,8 @@ console.log(await arg())`
   let { stdout, stderr } =
     await $`kit ${tsScript} ${message}`
 
+  t.is(stderr, "")
+
   t.regex(
     stdout,
     new RegExp(`${message}`),
@@ -53,6 +55,8 @@ console.log(await arg())`
   let JSofTSExists = await pathExists(
     tsScriptPath.replace(/\.ts$/, ".js")
   )
+
+  t.log(await readdir(kenvPath(".scripts")))
 
   t.false(JSofTSExists, `Should remove generated JS file`)
 

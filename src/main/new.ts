@@ -1,6 +1,6 @@
 import { Choice } from "../types/kit"
 import { CLI } from "../types/cli"
-import { kitMode } from "../core/utils"
+import { kitMode, run } from "../core/utils.js"
 
 let newOptions: Choice<keyof CLI>[] = [
   {
@@ -31,7 +31,7 @@ let cliScript = await arg<keyof CLI>(
 )
 
 if (newOptions.find(script => script.value === cliScript)) {
-  await kit(kitPath(`cli`, cliScript + ".js"))
+  await run(kitPath(`cli`, cliScript + ".js"))
 } else {
   await cli("new", cliScript)
 }

@@ -4,7 +4,7 @@
 import { Choice } from "../types/kit"
 import { CLI } from "../types/cli"
 
-import { getKenvs } from "../core/utils.js"
+import { getKenvs, kitMode, run } from "../core/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
@@ -98,6 +98,17 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
       "Launch a script from a Stream Deck button",
     value: "stream-deck",
   },
+  kitMode() === "ts"
+    ? {
+        name: "Switch to JavaScript Mode",
+        description: "Sets .env KIT_MODE=js",
+        value: "switch-to-js",
+      }
+    : {
+        name: "Switch to TypeScript mode",
+        description: "Sets .env KIT_MODE=ts",
+        value: "switch-to-ts",
+      },
   {
     name: "Created by John Lindquist",
     description: `Follow @johnlindquist on twitter`,
@@ -139,6 +150,6 @@ let cliScript = await arg(
   kitManagementChoices
 )
 
-await kit(kitPath("cli", cliScript) + ".js")
+await run(kitPath("cli", cliScript) + ".js")
 
 export {}

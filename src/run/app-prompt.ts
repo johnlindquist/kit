@@ -1,6 +1,6 @@
 import os from "os"
 import { config } from "dotenv"
-import { assignPropsTo } from "../core/utils.js"
+import { assignPropsTo, run } from "../core/utils.js"
 import { Channel } from "../core/enum.js"
 import "../api/global.js"
 import "../api/kit.js"
@@ -33,4 +33,4 @@ config({
 })
 
 assignPropsTo(process.env, global.env)
-await kit(script, ...args)
+await run(script, ...args)

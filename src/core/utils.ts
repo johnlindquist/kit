@@ -71,6 +71,24 @@ export let kitDotEnv = () => {
   return process.env.KIT_DOTENV || kenvPath(".env")
 }
 
+export const outputTmpFile = async (
+  fileName: string,
+  contents: string
+) => {
+  let outputPath = path.resolve(tempdir(), "kit", fileName)
+  await outputFile(outputPath, contents)
+  return outputPath
+}
+
+export const copyTmpFile = async (
+  fromFile: string,
+  fileName: string
+) =>
+  await outputTmpFile(
+    fileName,
+    await readFile(fromFile, "utf-8")
+  )
+
 export const prefsPath = kitPath("db", "prefs.json")
 export const shortcutsPath = kitPath("db", "shortcuts.json")
 export const promptDbPath = kitPath("db", "prompt.json")
@@ -592,8 +610,48 @@ export let selectKenv = async (): Promise<Kenv> => {
   return selectedKenv as Kenv
 }
 
-export let getExtension = (filePath: string) =>
-  filePath.match(/\.[0-9a-z]+$/i)?.[0] || ""
-
 export let kitMode = () =>
   (process.env.KIT_MODE || "js").toLowerCase()
+
+export let run = async (
+  command: string,
+  ...commandArgs: string[]
+) => {
+  let [script, ...scriptArgs] = command.split(" ")
+  let resolvedScript = resolveToScriptPath(script)
+  global.onTabs = []
+  global.kitScript = resolvedScript
+
+  if (process.env.KIT_CONTEXT === "app") {
+    let script = await info(global.kitScript)
+
+    global.send(Channel.SET_SCRIPT, {
+      script,
+    })
+  }
+
+  return await global.attemptImport(
+    resolvedScript,
+    ...scriptArgs,
+    ...commandArgs
+  )
+}
+
+export let kit = async (
+  command: string,
+  ..._args: string[]
+) => {
+  process.env.KIT =
+    process.env.KIT ||
+    path.join(new URL(import.meta.url).pathname, "..", "..")
+
+  let importKit = async (...parts: string[]) =>
+    await import(path.resolve(process.env.KIT, ...parts))
+
+  await importKit("api/global.js")
+  await importKit("api/kit.js")
+  await importKit("api/lib.js")
+  await importKit("target/terminal.js")
+
+  return await run(command, ..._args)
+}

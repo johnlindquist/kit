@@ -3,7 +3,7 @@ import fs from "fs-extra"
 import "../../test/config.js"
 
 /** @type {import("./utils")} */
-let { resolveToScriptPath, getExtension } = await import(
+let { resolveToScriptPath } = await import(
   kitPath("core", "utils.js")
 )
 
@@ -93,14 +93,6 @@ ava("resolve doesn't exist", t => {
   })
 
   t.true(error.message.includes("not found"))
-})
-
-ava("getExtension", t => {
-  t.is(getExtension("foo.js"), ".js")
-  t.is(getExtension("foo.ts"), ".ts")
-  t.is(getExtension("foo.ts.js"), ".js")
-  t.is(getExtension("foo.js.ts"), ".ts")
-  t.is(getExtension("foo"), "")
 })
 
 // ava.after.always("clean up", async () => {

@@ -2,6 +2,7 @@
 import {
   toggleBackground,
   selectScript,
+  run,
 } from "../core/utils.js"
 
 setFlags({
@@ -85,13 +86,13 @@ if (script.background) {
 } else {
   let selectedFlag: any = Object.keys(flag).find(Boolean)
   if (selectedFlag) {
-    await kit(
+    await run(
       `${kitPath("cli", selectedFlag)}.js ${
         script.filePath
       }`
     )
   } else {
-    await kit(script.filePath)
+    await run(script.filePath)
   }
 }
 

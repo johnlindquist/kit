@@ -79,6 +79,12 @@ export interface CLI {
   "kenv-rm": Promise<typeof import("../cli/kenv-rm")>
   "kenv-pull": Promise<typeof import("../cli/kenv-pull")>
   "kenv-push": Promise<typeof import("../cli/kenv-push")>
+  "switch-to-js": Promise<
+    typeof import("../cli/switch-to-js")
+  >
+  "switch-to-ts": Promise<
+    typeof import("../cli/switch-to-ts")
+  >
   "system-events": Promise<
     typeof import("../cli/system-events")
   >

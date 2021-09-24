@@ -1,6 +1,7 @@
 import { Choice } from "../types/kit"
 
 import { CLI } from "../types/cli"
+import { run } from "../core/utils"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
@@ -30,6 +31,6 @@ let cliScript = await arg(
   kitManagementChoices
 )
 
-await kit(kitPath(`cli`, cliScript + ".js"))
+await run(kitPath(`cli`, cliScript + ".js"))
 
 export {}

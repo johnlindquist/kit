@@ -4,10 +4,10 @@ import { Channel } from "../core/enum.js"
 import {
   kitPath,
   kenvPath,
-  info,
   resolveScriptToCommand,
-  resolveToScriptPath,
-  KIT_FIRST_PATH,
+  kit,
+  copyTmpFile,
+  run,
 } from "../core/utils.js"
 import stripAnsi from "strip-ansi"
 
@@ -63,7 +63,6 @@ export let errorPrompt = async (error: Error) => {
 
 global.attemptImport = async (scriptPath, ..._args) => {
   let importResult = undefined
-  let jsGenPath = ""
   try {
     global.updateArgs(_args)
 
@@ -81,12 +80,29 @@ global.attemptImport = async (scriptPath, ..._args) => {
             loader: "ts",
           }
         )
-        scriptPath = jsGenPath = path.resolve(
-          path.dirname(scriptPath),
-          path.basename(scriptPath).replace(/.ts$/, ".js")
+
+        let tmpScriptName = path
+          .basename(scriptPath)
+          .replace(/\.ts$/, ".js")
+
+        let dirName = path.dirname(scriptPath)
+        console.log({ dirName })
+        let inScriptsDir = dirName.endsWith(
+          path.sep + "scripts"
+        )
+          ? ["..", ".scripts"]
+          : []
+
+        scriptPath = path.join(
+          scriptPath,
+          "..",
+          ...inScriptsDir,
+          tmpScriptName
         )
 
-        await writeFile(jsGenPath, transformResult.code)
+        console.log({ scriptPath })
+
+        await outputFile(scriptPath, transformResult.code)
       } catch (error) {
         console.log({ error })
       }
@@ -97,7 +113,6 @@ global.attemptImport = async (scriptPath, ..._args) => {
     importResult = await import(
       scriptPath + "?uuid=" + global.uuid()
     )
-    if (jsGenPath) await rm(jsGenPath)
   } catch (error) {
     let e = error.toString()
     if (
@@ -106,13 +121,12 @@ global.attemptImport = async (scriptPath, ..._args) => {
         /module|after argument list|await is only valid/
       )
     ) {
-      let mjsVersion = path.resolve(
-        path.dirname(scriptPath),
-        path.basename(scriptPath).replace(/.js$/, ".mjs")
+      let tmpScript = await copyTmpFile(
+        scriptPath,
+        path.basename(scriptPath).replace(/\.js$/, ".mjs")
       )
-      await copyFile(scriptPath, mjsVersion)
-      importResult = await kit(mjsVersion)
-      await rm(mjsVersion)
+      importResult = await run(tmpScript)
+      // await rm(mjsVersion)
     } else {
       if (process.env.KIT_CONTEXT === "app") {
         await errorPrompt(error)
@@ -274,27 +288,6 @@ global.setPlaceholder = text => {
   global.send(Channel.SET_PLACEHOLDER, {
     text: stripAnsi(text),
   })
-}
-
-export let kit = async (command, ..._args) => {
-  let [scriptToRun, ...scriptArgs] = command.split(" ")
-  let resolvedScript = resolveToScriptPath(scriptToRun)
-  global.onTabs = []
-  global.kitScript = resolvedScript
-
-  if (process.env.KIT_CONTEXT === "app") {
-    let script = await info(global.kitScript)
-
-    global.send(Channel.SET_SCRIPT, {
-      script,
-    })
-  }
-
-  return await global.attemptImport(
-    resolvedScript,
-    ...scriptArgs,
-    ..._args
-  )
 }
 
 global.main = async (scriptPath: string, ..._args) => {

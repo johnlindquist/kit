@@ -1,7 +1,11 @@
 //Description: Script Kit CLI
 
 import { CLI } from "../types/cli"
-import { resolveToScriptPath } from "../core/utils.js"
+import {
+  kitMode,
+  resolveToScriptPath,
+  run,
+} from "../core/utils.js"
 
 interface CLIMenuItem {
   name?: string
@@ -100,6 +104,15 @@ let cliScripts: CLIMenuItem[] = [
   { name: "kenv-push", placeholder: "Push a kenv" },
   { name: "kenv-pull", placeholder: "Pull a kenv" },
   { name: "kenv-rm", placeholder: "Remove a kenv" },
+  kitMode() === "ts"
+    ? {
+        name: "switch-to-js",
+        placeholder: "Switch to JavaScript Mode",
+      }
+    : {
+        name: "switch-to-ts",
+        placeholder: "Switch to TypeScript Mode",
+      },
   { name: "quit", placeholder: "Quit Kit" },
 ]
 
@@ -125,7 +138,7 @@ export let runCli = async () => {
   } else {
     let scriptPath = resolveToScriptPath(script)
 
-    await kit(scriptPath)
+    await run(scriptPath)
   }
 }
 

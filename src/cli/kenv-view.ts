@@ -5,6 +5,7 @@ import {
   toggleBackground,
   selectScript,
   selectKenv,
+  run,
 } from "../core/utils.js"
 
 let { name: kenv } = await selectKenv()
@@ -81,7 +82,7 @@ if (script.background) {
   if (selectedFlag) {
     await cli(selectedFlag, script.filePath)
   } else {
-    await kit(script.filePath)
+    await run(script.filePath)
   }
 }
 

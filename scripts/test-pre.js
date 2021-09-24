@@ -18,6 +18,9 @@ await degit(`johnlindquist/kenv#${branch}`).clone(
 
 process.env.KENV = kenvTestPath
 await $`kit ${kitPath("setup", "setup.js")} --no-edit`
+console.log(
+  await readFile(kenvPath("package.json"), "utf-8")
+)
 await $`kit ${kitPath("cli", "refresh-scripts-db.js")}`
 
 export {}
