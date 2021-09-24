@@ -68,18 +68,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
     if (scriptPath.endsWith(".ts")) {
       try {
-        let { transformSync } = await import("esbuild")
-        let typescriptCode = await readFile(
-          scriptPath,
-          "utf-8"
-        )
-
-        let transformResult = transformSync(
-          typescriptCode,
-          {
-            loader: "ts",
-          }
-        )
+        let { build } = await import("esbuild")
 
         let tmpScriptName = path
           .basename(scriptPath)
@@ -92,14 +81,22 @@ global.attemptImport = async (scriptPath, ..._args) => {
           ? ["..", ".scripts"]
           : []
 
-        scriptPath = path.join(
+        let outfile = path.join(
           scriptPath,
           "..",
           ...inScriptsDir,
           tmpScriptName
         )
 
-        await outputFile(scriptPath, transformResult.code)
+        let transformResult = await build({
+          entryPoints: [scriptPath],
+          outfile,
+          bundle: true,
+          platform: "node",
+          format: "esm",
+        })
+
+        scriptPath = outfile
       } catch (error) {
         console.log({ error })
       }
@@ -134,89 +131,6 @@ global.attemptImport = async (scriptPath, ..._args) => {
   }
 
   return importResult
-}
-
-global.runSub = async (scriptPath, ...runArgs) => {
-  return new Promise(async (res, rej) => {
-    let values = []
-    if (!scriptPath.includes("/")) {
-      scriptPath = kenvPath("scripts", scriptPath)
-    }
-    if (!scriptPath.startsWith(global.path.sep)) {
-      scriptPath = kenvPath(scriptPath)
-    }
-
-    if (!scriptPath.endsWith(".js"))
-      scriptPath = scriptPath + ".js"
-
-    // console.log({ scriptPath, args, argOpts, runArgs })
-    let scriptArgs = [
-      ...global.args,
-      ...runArgs,
-      ...global.argOpts,
-    ].filter(arg => {
-      if (typeof arg === "string") return arg.length > 0
-
-      return arg
-    })
-    let child = fork(scriptPath, scriptArgs, {
-      stdio: "inherit",
-      execArgv: [
-        "--require",
-        "dotenv/config",
-        "--require",
-        kitPath("preload/api.js"),
-        "--require",
-        kitPath("preload/kit.js"),
-        "--require",
-        kitPath("preload/mac.js"),
-      ],
-      //Manually set node. Shouldn't have to worry about PATH
-      execPath: kitPath("node", "bin", "node"),
-      env: {
-        ...global.env,
-        KIT_PARENT_NAME:
-          global.env.KIT_PARENT_NAME ||
-          global.env.KIT_SCRIPT_NAME,
-        KIT_ARGS:
-          global.env.KIT_ARGS || scriptArgs.join("."),
-      },
-    })
-
-    let name = process.argv[2].replace(
-      kenvPath() + global.path.sep,
-      ""
-    )
-    let childName = scriptPath.replace(
-      kenvPath() + global.path.sep,
-      ""
-    )
-
-    console.log(childName, child.pid)
-
-    let forwardToChild = message => {
-      console.log(name, "->", childName)
-      child.send(message)
-    }
-    process.on("message", forwardToChild)
-
-    child.on("message", (message: any) => {
-      console.log(name, "<-", childName)
-      global.send(message)
-      values.push(message)
-    })
-
-    child.on("error", error => {
-      console.warn(error)
-      values.push(error)
-      rej(values)
-    })
-
-    child.on("close", code => {
-      process.off("message", forwardToChild)
-      res(values)
-    })
-  })
 }
 
 process.on("uncaughtException", async err => {

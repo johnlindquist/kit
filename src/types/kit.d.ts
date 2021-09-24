@@ -449,11 +449,6 @@ export interface KitApi {
   }[]
   onTabIndex: number
 
-  runSub: (
-    scriptPath: string,
-    ...runArgs: string[]
-  ) => Promise<any>
-
   setMode: (mode: Mode) => void
 
   currentOnTab: any

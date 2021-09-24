@@ -16,7 +16,7 @@ ava("kit setup", async t => {
   t.true(contents.includes(`KIT_TEMPLATE=default`))
 })
 
-ava.serial(`New supports TypeScript`, async t => {
+ava.serial(`TypeScript support`, async t => {
   let tsScript = `mock-typescript-script`
   await $`kit set-env-var KIT_MODE ts`
   await $`kit new ${tsScript} home --no-edit`
@@ -59,10 +59,66 @@ console.log(await arg())`
     tsScriptPath.replace(/\.ts$/, ".js")
   )
 
-  t.log(await readdir(kenvPath(".scripts")))
+  t.false(JSofTSExists, `Should remove generated JS file`)
+})
+
+ava.serial(`TypeScript import from lib`, async t => {
+  let tsScript = `mock-typescript-script-load-lib`
+  await $`kit set-env-var KIT_MODE ts`
+  await $`kit new ${tsScript} home --no-edit`
+
+  let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
+
+  t.true(
+    await pathExists(tsScriptPath),
+    `Should create ${tsScript}.ts`
+  )
+
+  t.is(
+    await readFile(tsScriptPath, "utf-8"),
+    await readFile(
+      kenvPath("templates", "default.ts"),
+      "utf-8"
+    ),
+    `Generated TypeScript file matches TypeScript template`
+  )
+  await outputFile(
+    kenvPath("lib", "yo.ts"),
+    `
+import "@johnlindquist/kit"    
+export let go = async ()=> await arg()
+  `
+  )
+
+  t.log(await readdir(kenvPath("lib")))
+
+  await appendFile(
+    tsScriptPath,
+    `
+import { go } from "../lib/yo"    
+console.log(await go())`
+  )
+
+  let message = "success"
+  let { stdout, stderr } =
+    await $`kit ${tsScript} ${message}`
+
+  t.is(stderr, "")
+
+  t.regex(
+    stdout,
+    new RegExp(`${message}`),
+    `TypeScript script worked`
+  )
+
+  let JSofTSExists = await pathExists(
+    tsScriptPath.replace(/\.ts$/, ".js")
+  )
 
   t.false(JSofTSExists, `Should remove generated JS file`)
+})
 
+ava.serial(`JavaScript support`, async t => {
   let script = `mock-javascript-script`
   await $`kit set-env-var KIT_MODE js`
   await $`kit new ${script} home --no-edit`
@@ -71,7 +127,7 @@ console.log(await arg())`
 
   t.true(await pathExists(scriptPath))
 
-  t.assert(
+  t.is(
     await readFile(scriptPath, "utf-8"),
     await readFile(
       kenvPath("templates", "default.js"),
