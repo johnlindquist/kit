@@ -500,26 +500,28 @@ export let toggleBackground = async (script: Script) => {
 
 export let createBinFromScript = async (
   type: Bin,
-  { kenv, command }: Script
+  { command, filePath }: Script
 ) => {
   let binTemplate = await readFile(
     kitPath("templates", "bin", "template"),
     "utf8"
   )
 
-  let targetPath = (...parts) =>
-    kenvPath(kenv && `kenvs/${kenv}`, ...parts)
-
   let binTemplateCompiler = compile(binTemplate)
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type,
-    extension: kitMode(),
     ...env,
-    TARGET_PATH: targetPath(),
+    TARGET_PATH: filePath,
   })
 
-  let binFilePath = targetPath("bin", command)
+  let binFilePath = path.join(
+    filePath,
+    "..",
+    "..",
+    "bin",
+    command
+  )
 
   mkdir("-p", path.dirname(binFilePath))
   await writeFile(binFilePath, compiledBinTemplate)

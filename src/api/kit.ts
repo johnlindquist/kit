@@ -93,7 +93,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
           bundle: true,
           platform: "node",
           format: "esm",
-          external: ["electron"],
+          external: ["@johnlindquist/kit"],
         })
 
         importResult = await import(

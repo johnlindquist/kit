@@ -278,6 +278,24 @@ ava.serial("app-prompt.js", async t => {
   })
 })
 
+ava.serial(`Run both JS and TS scripts`, async t => {
+  let jsCommand = `mock-js-script`
+  let tsCommand = `mock-ts-script`
+
+  await $`KIT_MODE=js kit new ${jsCommand} home --no-edit`
+  await $`KIT_MODE=ts kit new ${tsCommand} home --no-edit`
+
+  process.env.PATH = `${kenvPath("bin")}:${
+    process.env.PATH
+  }`
+
+  let { stderr: jsErr } = await $`${jsCommand}`
+  let { stderr: tsErr } = await $`${tsCommand}`
+
+  t.is(jsErr, "")
+  t.is(tsErr, "")
+})
+
 ava(`Run kit from package.json`, async t => {
   let command = `mock-pkg-json-script`
   let scriptPath = kenvPath("scripts", `${command}.js`)
