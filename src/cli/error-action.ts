@@ -38,17 +38,36 @@ let errorActions: {
       `open "https://github.com/johnlindquist/kit/discussions/categories/errors"`
     )
   },
+  [ErrorAction.CopySyncPath]: async () => {
+    await cli("sync-path-instructions")
+  },
 }
 
 console.log(stack)
+
+let hint = stack.split("\n")[0]
+let showCopyCommand = false
+if (hint?.includes("command not found")) {
+  showCopyCommand = true
+  hint = `${hint}.<br/><br/>
+Running "~/.kit/bin/kit sync-path" in the terminal may help find expected commands.`
+}
 
 let errorAction: ErrorAction = await arg(
   {
     placeholder: `🤕 Error in ${script}`,
     ignoreBlur: true,
-    hint: stack.split("\n")[0],
+    hint,
   },
   [
+    ...(showCopyCommand
+      ? [
+          {
+            name: "Copy 'sync-path' command to clipboard",
+            value: ErrorAction.CopySyncPath,
+          },
+        ]
+      : []),
     {
       name: `Open ${script} in editor`,
       value: ErrorAction.Open,
