@@ -12,8 +12,8 @@
   "description": "",
   "exports": {
     ".": "./index.js",
-    "./cjs/*": "./core/*.cjs",
-    "./*": "./*"
+    "./*": "./*",
+    "./cjs/*": "./core/*.cjs"
   },
   "types": "./types/kit.d.ts",
   "scripts": {

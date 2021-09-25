@@ -32,8 +32,8 @@ for await (let file of files) {
   // )
 
   content = content.replace(
-    /Promise\.resolve\(\)\.then\(\(\) => __importStar\(require\("(.*)"\)\)\)/g,
-    `import("$1")`
+    /Promise\.resolve\(\)\.then\(\(\) => __importStar\(require\(.(.*).\)\)\)/g,
+    `import(\`$1\`)`
   )
 
   await writeFile(filePath, content)
