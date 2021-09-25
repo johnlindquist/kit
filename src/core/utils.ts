@@ -636,21 +636,3 @@ export let run = async (
     ...commandArgs
   )
 }
-
-export let kit = async (
-  command: string,
-  ..._args: string[]
-) => {
-  process.env.KIT =
-    process.env.KIT || path.resolve(os.homedir(), ".kit")
-
-  let importKit = async (file: string) =>
-    await import(`@johnlindquist/kit/${file}`)
-
-  await importKit("api/global.js")
-  await importKit("api/kit.js")
-  await importKit("api/lib.js")
-  await importKit("target/terminal.js")
-
-  return await run(command, ..._args)
-}

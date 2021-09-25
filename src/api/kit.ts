@@ -5,7 +5,6 @@ import {
   kitPath,
   kenvPath,
   resolveScriptToCommand,
-  kit,
   copyTmpFile,
   run,
 } from "../core/utils.js"
@@ -94,19 +93,22 @@ global.attemptImport = async (scriptPath, ..._args) => {
           bundle: true,
           platform: "node",
           format: "esm",
+          external: ["electron"],
         })
 
-        scriptPath = outfile
+        importResult = await import(
+          outfile + "?uuid=" + global.uuid()
+        )
       } catch (error) {
         console.log({ error })
       }
+    } else {
+      //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
+      //must use `import` for ESM
+      importResult = await import(
+        scriptPath + "?uuid=" + global.uuid()
+      )
     }
-
-    //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
-    //must use `import` for ESM
-    importResult = await import(
-      scriptPath + "?uuid=" + global.uuid()
-    )
   } catch (error) {
     let e = error.toString()
     if (
@@ -328,36 +330,6 @@ global.setChoices = async (choices, className = "") => {
   })
   global.kitPrevChoices = choices
 }
-
-let dirs = ["cli", "main"]
-
-let kitGet = (
-  _target: any,
-  key: string,
-  _receiver: any
-) => {
-  if ((global as any)[key] && !dirs.includes(key)) {
-    return (global as any)[key]
-  }
-
-  try {
-    return new Proxy(
-      {},
-      {
-        get: async (_target, module: string, _receiver) => {
-          let modulePath = `../${key}/${module}.js?${global.uuid()}`
-          return await import(modulePath)
-        },
-      }
-    )
-  } catch (error) {
-    console.warn(error)
-  }
-}
-
-global.kit = new Proxy(kit, {
-  get: kitGet,
-})
 
 global.flag = {}
 global.setFlags = (flags: FlagsOptions) => {
