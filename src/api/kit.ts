@@ -100,7 +100,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
           outfile + "?uuid=" + global.uuid()
         )
       } catch (error) {
-        console.log({ error })
+        await errorPrompt(error)
       }
     } else {
       //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
@@ -135,9 +135,17 @@ global.attemptImport = async (scriptPath, ..._args) => {
   return importResult
 }
 
-process.on("uncaughtException", async err => {
-  await errorPrompt(err)
-})
+// process.on("uncaughtException", async err => {
+//   await errorPrompt(err)
+// })
+
+// process.on("rejectionHandled", async code => {
+//   console.log({ code })
+// })
+
+// process.on("warning", async warning => {
+//   console.log({ warning })
+// })
 
 global.send = async (channel, data) => {
   if (process?.send) {

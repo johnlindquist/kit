@@ -95,6 +95,7 @@ export enum ErrorAction {
   KitLog = "KitLog",
   Log = "Log",
   Open = "Open",
+  CopySyncPath = "CopySyncPath",
 }
 
 export enum ProcessState {
