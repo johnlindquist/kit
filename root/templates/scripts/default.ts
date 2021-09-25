@@ -1,3 +1,1 @@
 import "@johnlindquist/kit"
-
-export {}
