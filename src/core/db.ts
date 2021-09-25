@@ -9,8 +9,9 @@ import {
   shortcutsPath,
   writeScriptsDb,
   isDir,
-} from "./util.js"
-import { Choice, Script, PromptDb } from "./type.js"
+  extensionRegex,
+} from "./utils.js"
+import { Choice, Script, PromptDb } from "../types/kit"
 import { Low } from "lowdb"
 
 export let db = async (
@@ -112,7 +113,7 @@ export let getScriptFromString = async (
     let result = scripts.find(
       s =>
         s.name === script ||
-        s.command === script.replace(/\.js$/g, "")
+        s.command === script.replace(extensionRegex, "")
     )
 
     if (!result) {

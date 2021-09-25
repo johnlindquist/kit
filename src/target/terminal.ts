@@ -1,4 +1,8 @@
-import { assignPropsTo } from "../core/util.js"
+import { PromptConfig } from "../types/kit"
+import {
+  assignPropsTo,
+  resolveToScriptPath,
+} from "../core/utils.js"
 let { default: enquirer } = (await import(
   "enquirer"
 )) as any
@@ -230,3 +234,5 @@ global.setPanelContainer = async (
   html,
   containerClasses = ""
 ) => {}
+
+global.setIgnoreBlur = async ignore => {}

@@ -4,7 +4,7 @@ import {
   createBinFromScript,
   selectScript,
   trashBinFromScript,
-} from "../utils.js"
+} from "../core/utils.js"
 
 import { Bin } from "../core/enum.js"
 

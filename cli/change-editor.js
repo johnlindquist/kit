@@ -1,2 +1,0 @@
-await selectKitEditor(true);
-export {};

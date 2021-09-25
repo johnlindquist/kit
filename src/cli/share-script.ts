@@ -3,7 +3,7 @@
 
 let { Octokit } = await npm("scriptkit-octokit")
 
-import { selectScript } from "../utils.js"
+import { selectScript } from "../core/utils.js"
 
 let { filePath, command } = await selectScript(
   `Share which script?`
@@ -25,7 +25,10 @@ let response = await octokit.rest.gists.create({
   public: true,
 })
 
-copy(response.data.files[command + ".js"].raw_url)
+copy(
+  response.data.files[command + path.extname(filePath)]
+    .raw_url
+)
 console.log(`Copied raw gist url to clipboard`)
 await wait(2000)
 

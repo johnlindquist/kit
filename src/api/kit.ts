@@ -1,16 +1,15 @@
+import { Choice, FlagsOptions } from "../types/kit"
 import { Channel } from "../core/enum.js"
-import { Choice } from "../core/type.js"
+
 import {
   kitPath,
   kenvPath,
-  info,
   resolveScriptToCommand,
-  resolveToScriptPath,
-  KIT_FIRST_PATH,
-} from "../core/util.js"
+  kit,
+  copyTmpFile,
+  run,
+} from "../core/utils.js"
 import stripAnsi from "strip-ansi"
-
-process.env.PATH = KIT_FIRST_PATH
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -61,101 +60,77 @@ export let errorPrompt = async (error: Error) => {
     console.log(error)
   }
 }
-global.attemptImport = async (path, ..._args) => {
+
+global.attemptImport = async (scriptPath, ..._args) => {
+  let importResult = undefined
   try {
     global.updateArgs(_args)
 
+    if (scriptPath.endsWith(".ts")) {
+      try {
+        let { build } = await import("esbuild")
+
+        let tmpScriptName = path
+          .basename(scriptPath)
+          .replace(/\.ts$/, ".js")
+
+        let dirName = path.dirname(scriptPath)
+        let inScriptsDir = dirName.endsWith(
+          path.sep + "scripts"
+        )
+          ? ["..", ".scripts"]
+          : []
+
+        let outfile = path.join(
+          scriptPath,
+          "..",
+          ...inScriptsDir,
+          tmpScriptName
+        )
+
+        let transformResult = await build({
+          entryPoints: [scriptPath],
+          outfile,
+          bundle: true,
+          platform: "node",
+          format: "esm",
+        })
+
+        scriptPath = outfile
+      } catch (error) {
+        console.log({ error })
+      }
+    }
+
     //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
     //must use `import` for ESM
-    return await import(path + "?uuid=" + global.uuid())
+    importResult = await import(
+      scriptPath + "?uuid=" + global.uuid()
+    )
   } catch (error) {
-    console.warn(error.message)
-    console.warn(error.stack)
-    await errorPrompt(error)
+    let e = error.toString()
+    if (
+      e.startsWith("SyntaxError") &&
+      e.match(
+        /module|after argument list|await is only valid/
+      )
+    ) {
+      let tmpScript = await copyTmpFile(
+        scriptPath,
+        path.basename(scriptPath).replace(/\.js$/, ".mjs")
+      )
+      importResult = await run(tmpScript)
+      // await rm(mjsVersion)
+    } else {
+      if (process.env.KIT_CONTEXT === "app") {
+        await errorPrompt(error)
+      } else {
+        console.warn(error)
+      }
+    }
   }
-}
 
-global.runSub = async (scriptPath, ...runArgs) => {
-  return new Promise(async (res, rej) => {
-    let values = []
-    if (!scriptPath.includes("/")) {
-      scriptPath = kenvPath("scripts", scriptPath)
-    }
-    if (!scriptPath.startsWith(global.path.sep)) {
-      scriptPath = kenvPath(scriptPath)
-    }
-
-    if (!scriptPath.endsWith(".js"))
-      scriptPath = scriptPath + ".js"
-
-    // console.log({ scriptPath, args, argOpts, runArgs })
-    let scriptArgs = [
-      ...global.args,
-      ...runArgs,
-      ...global.argOpts,
-    ].filter(arg => {
-      if (typeof arg === "string") return arg.length > 0
-
-      return arg
-    })
-    let child = fork(scriptPath, scriptArgs, {
-      stdio: "inherit",
-      execArgv: [
-        "--require",
-        "dotenv/config",
-        "--require",
-        kitPath("preload/api.js"),
-        "--require",
-        kitPath("preload/kit.js"),
-        "--require",
-        kitPath("preload/mac.js"),
-      ],
-      //Manually set node. Shouldn't have to worry about PATH
-      execPath: kitPath("node", "bin", "node"),
-      env: {
-        ...global.env,
-        KIT_PARENT_NAME:
-          global.env.KIT_PARENT_NAME ||
-          global.env.KIT_SCRIPT_NAME,
-        KIT_ARGS:
-          global.env.KIT_ARGS || scriptArgs.join("."),
-      },
-    })
-
-    let name = process.argv[2].replace(
-      kenvPath() + global.path.sep,
-      ""
-    )
-    let childName = scriptPath.replace(
-      kenvPath() + global.path.sep,
-      ""
-    )
-
-    console.log(childName, child.pid)
-
-    let forwardToChild = message => {
-      console.log(name, "->", childName)
-      child.send(message)
-    }
-    process.on("message", forwardToChild)
-
-    child.on("message", (message: any) => {
-      console.log(name, "<-", childName)
-      global.send(message)
-      values.push(message)
-    })
-
-    child.on("error", error => {
-      console.warn(error)
-      values.push(error)
-      rej(values)
-    })
-
-    child.on("close", code => {
-      process.off("message", forwardToChild)
-      res(values)
-    })
-  })
+  return importResult
 }
 
 process.on("uncaughtException", async err => {
@@ -224,25 +199,6 @@ global.setPlaceholder = text => {
   global.send(Channel.SET_PLACEHOLDER, {
     text: stripAnsi(text),
   })
-}
-
-global.run = async (command, ..._args) => {
-  let [scriptToRun, ...scriptArgs] = command.split(" ")
-  let resolvedScript = resolveToScriptPath(scriptToRun)
-  global.onTabs = []
-  global.kitScript = resolvedScript
-
-  let script = await info(global.kitScript)
-
-  global.send(Channel.SET_SCRIPT, {
-    script,
-  })
-
-  return global.attemptImport(
-    resolvedScript,
-    ...scriptArgs,
-    ..._args
-  )
 }
 
 global.main = async (scriptPath: string, ..._args) => {
@@ -397,20 +353,6 @@ let kitGet = (
   } catch (error) {
     console.warn(error)
   }
-}
-
-async function kit(command: string) {
-  let [script, ...args] = command.split(" ")
-  let file = `${script}.js`
-
-  let scriptsFilePath = kitPath("scripts", file)
-
-  let kenvScriptPath = kenvPath("scripts", file)
-  if (test("-f", kenvScriptPath)) {
-    cp(kenvScriptPath, scriptsFilePath)
-  }
-
-  return (await run(scriptsFilePath, ...args)).default
 }
 
 global.kit = new Proxy(kit, {

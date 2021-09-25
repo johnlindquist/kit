@@ -4,15 +4,24 @@ import os from "os"
 process.env.KIT =
   process.env.KIT || path.resolve(os.homedir(), ".kit")
 
-await import(path.resolve(`${process.env.KIT}`, "run.js"))
-export let kenvTestPath = home(".kenv-test")
+let importKit = async (...parts) =>
+  await import(path.resolve(process.env.KIT, ...parts))
+
+await importKit("api/global.js")
+await importKit("api/kit.js")
+await importKit("api/lib.js")
+
+export let kitMockPath = (...parts) =>
+  path.resolve(home(".kit-mock-path"), ...parts)
+
+export let kenvTestPath = kitMockPath(".kenv-test")
 
 process.env.KENV = kenvTestPath
 
-/** @type {import("../src/core/util.js")} */
-let { KIT_MAC_APP, KIT_MAC_APP_PROMPT, KIT_FIRST_PATH } =
+/** @type {import("../src/core/utils.js")} */
+let { KIT_APP, KIT_APP_PROMPT, KIT_FIRST_PATH } =
   await import(
-    path.resolve(`${process.env.KIT}`, "core", "util.js")
+    path.resolve(`${process.env.KIT}`, "core", "utils.js")
   )
 /** @type {import("../src/core/enum.js")} */
 let { Channel } = await import(
@@ -27,6 +36,7 @@ let execOptions = {
   },
 }
 global.kenvTestPath = kenvTestPath
+global.kitMockPath = kitMockPath
 global.execOptions = execOptions
 
-export { Channel, KIT_MAC_APP, KIT_MAC_APP_PROMPT }
+export { Channel, KIT_APP, KIT_APP_PROMPT }

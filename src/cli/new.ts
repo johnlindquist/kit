@@ -1,6 +1,9 @@
 // Description: Create a new script
-import { getKenvs } from "../core/util.js"
-import { exists, selectKenv } from "../utils.js"
+import {
+  exists,
+  kitMode,
+  selectKenv,
+} from "../core/utils.js"
 let generate = await npm("project-name-generator")
 
 let examples = Array.from({ length: 3 })
@@ -19,7 +22,7 @@ let { dirPath: selectedKenvPath } = await selectKenv()
 let scriptPath = path.join(
   selectedKenvPath,
   "scripts",
-  name + ".js"
+  `${name}.${kitMode()}`
 )
 
 let contents = [arg?.npm]
@@ -31,7 +34,7 @@ let contents = [arg?.npm]
 let template = arg?.template || (await env("KIT_TEMPLATE"))
 
 let templateContent = await readFile(
-  kenvPath("templates", template + ".js"),
+  kenvPath("templates", `${template}.${kitMode()}`),
   "utf8"
 )
 

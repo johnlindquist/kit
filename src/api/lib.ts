@@ -1,7 +1,10 @@
-import * as lib from "./merge-lib.js"
+await import("../lib/audio.js")
+await import("../lib/browser.js")
+await import("../lib/desktop.js")
+await import("../lib/file.js")
+await import("../lib/keyboard.js")
+await import("../lib/speech.js")
+await import("../lib/system.js")
+await import("../lib/text.js")
 
-for (let fn of Object.keys(lib)) {
-  global[fn] = lib[fn]
-}
-
-export * from "./merge-lib.js"
+export {}

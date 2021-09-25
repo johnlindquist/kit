@@ -1,9 +1,10 @@
 // Menu: Manage Kit
 // Description: Options and Helpers
 
-import { Choice } from "../core/type.js"
-import { getKenvs } from "../core/util.js"
-import { CLI } from "cli"
+import { Choice } from "../types/kit"
+import { CLI } from "../types/cli"
+
+import { getKenvs, kitMode, run } from "../core/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
@@ -97,6 +98,17 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
       "Launch a script from a Stream Deck button",
     value: "stream-deck",
   },
+  kitMode() === "ts"
+    ? {
+        name: "Switch to JavaScript Mode",
+        description: "Sets .env KIT_MODE=js",
+        value: "switch-to-js",
+      }
+    : {
+        name: "Switch to TypeScript mode",
+        description: "Sets .env KIT_MODE=ts",
+        value: "switch-to-ts",
+      },
   {
     name: "Created by John Lindquist",
     description: `Follow @johnlindquist on twitter`,

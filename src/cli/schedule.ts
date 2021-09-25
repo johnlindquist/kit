@@ -1,4 +1,5 @@
-import { info } from "../core/util.js"
+import { Schedule } from "../types/kit"
+import { info } from "../core/utils.js"
 
 let { formatDistanceToNowStrict, format, compareAsc } =
   await npm("date-fns")

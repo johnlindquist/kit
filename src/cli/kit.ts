@@ -1,6 +1,11 @@
 //Description: Script Kit CLI
 
-import { CLI } from "cli"
+import { CLI } from "../types/cli"
+import {
+  kitMode,
+  resolveToScriptPath,
+  run,
+} from "../core/utils.js"
 
 interface CLIMenuItem {
   name?: string
@@ -8,10 +13,17 @@ interface CLIMenuItem {
   alias?: string
 }
 
-const cliScripts: CLIMenuItem[] = [
+let cliScripts: CLIMenuItem[] = [
   { name: "run", placeholder: "Run a script" },
   { name: "edit", placeholder: "Edit a script" },
-  { name: "new", placeholder: "Create a new script" },
+  {
+    name: "new",
+    placeholder: `Create a script using ${
+      process.env.KIT_MODE === "ts"
+        ? "TypeScript"
+        : "JavaScript"
+    }`,
+  },
   {
     name: "open",
     placeholder: "Open .kenv directory in editor",
@@ -49,10 +61,10 @@ const cliScripts: CLIMenuItem[] = [
     placeholder: "Remove a script",
   },
   { name: "clear", placeholder: "Clear the caches" },
-  {
-    name: "update",
-    placeholder: `Version: ${env.KIT_APP_VERSION}`,
-  },
+  // {
+  //   name: "update",
+  //   placeholder: `Version: ${process.env.KIT_APP_VERSION}`,
+  // },
   {
     name: "install",
     alias: "i",
@@ -92,26 +104,42 @@ const cliScripts: CLIMenuItem[] = [
   { name: "kenv-push", placeholder: "Push a kenv" },
   { name: "kenv-pull", placeholder: "Pull a kenv" },
   { name: "kenv-rm", placeholder: "Remove a kenv" },
+  kitMode() === "ts"
+    ? {
+        name: "switch-to-js",
+        placeholder: "Switch to JavaScript Mode",
+      }
+    : {
+        name: "switch-to-ts",
+        placeholder: "Switch to TypeScript Mode",
+      },
   { name: "quit", placeholder: "Quit Kit" },
 ]
 
-let script = await arg("What do you want to do?", () =>
-  cliScripts.map(({ name, placeholder, alias }) => {
-    return {
-      name: chalk`{green.bold ${name}}${
-        alias ? chalk` {yellow (${alias})}` : ""
-      }: ${placeholder}`,
-      value: name,
-    }
-  })
-)
+export let runCli = async () => {
+  let script = await arg("What do you want to do?", () =>
+    cliScripts.map(({ name, placeholder, alias }) => {
+      return {
+        name: chalk`{green.bold ${name}}${
+          alias ? chalk` {yellow (${alias})}` : ""
+        }: ${placeholder}`,
+        value: name,
+      }
+    })
+  )
 
-let found = cliScripts.find(
-  config => config.name == script || config.alias == script
-)
+  let found = cliScripts.find(
+    config =>
+      config.name == script || config.alias == script
+  )
 
-if (found) {
-  await cli(found.name as keyof CLI)
+  if (found) {
+    await cli(found.name as keyof CLI)
+  } else {
+    let scriptPath = resolveToScriptPath(script)
+
+    await run(scriptPath)
+  }
 }
 
 export {}

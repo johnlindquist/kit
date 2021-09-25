@@ -3,7 +3,7 @@
 import {
   getLastSlashSeparated,
   getKenvs,
-} from "../core/util.js"
+} from "../core/utils.js"
 
 let dir = await arg(
   "Push which kenv",

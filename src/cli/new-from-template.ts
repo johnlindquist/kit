@@ -1,6 +1,6 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-import { exists } from "../utils.js"
+import { exists, kitMode } from "../core/utils.js"
 
 let name = await arg({
   placeholder: "Enter a name for your script:",
@@ -22,12 +22,14 @@ let templates = await readdir(kenvPath("templates"))
 let template = await arg(
   "Select a template",
   templates
-    .filter(t => t.endsWith(".js"))
-    .map(t => t.replace(".js", ""))
+    .filter(t => t.endsWith(kitMode()))
+    .map(t =>
+      t.replace(new RegExp(`/\.${kitMode()}$/`), "")
+    )
 )
 
 let templateContent = await readFile(
-  kenvPath("templates", template + ".js"),
+  kenvPath("templates", `${template}.${kitMode()}`),
   "utf8"
 )
 

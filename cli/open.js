@@ -1,2 +1,0 @@
-edit(kenvPath());
-export {};

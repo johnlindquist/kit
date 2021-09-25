@@ -3,7 +3,7 @@
 //Author: John Lindquist
 //Twitter: @johnlindquist
 
-let { selectScript } = await import("../utils.js")
+let { selectScript } = await import("../core/utils.js")
 
 let createCommand = (
   launchApp: boolean,

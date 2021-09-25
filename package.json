@@ -2,7 +2,8 @@
   "name": "@johnlindquist/kit",
   "type": "module",
   "bin": {
-    "kit": "./kit"
+    "kit": "./bin/kit",
+    "sk": "./bin/sk"
   },
   "engines": {
     "node": ">=14.8.0"
@@ -10,14 +11,18 @@
   "version": "0.0.0-development",
   "description": "",
   "exports": {
-    ".": "./run.js",
-    "./utils": "./utils.js",
-    "./cjs/*": "./cjs/*.cjs"
+    ".": "./index.js",
+    "./*": "./*",
+    "./cjs/*": "./core/*.cjs"
   },
   "types": "./types/kit.d.ts",
   "scripts": {
     "build-kit": "./build/build-kit.sh",
     "dev": "tsc --watch",
+    "declaration": "tsc -p ./tsconfig-declaration.json --watch",
+    "pretest:core": "node ./scripts/test-pre.js",
+    "test:core": "NODE_NO_WARNINGS=1 ava ./src/core/*.test.js",
+    "posttest:core": "node ./scripts/test-post.js",
     "pretest": "node ./scripts/test-pre.js",
     "test": "NODE_NO_WARNINGS=1 ava",
     "posttest": "node ./scripts/test-post.js",
@@ -41,6 +46,7 @@
     "dotenv": "^10.0.0",
     "download": "^8.0.0",
     "enquirer": "^2.3.6",
+    "esbuild": "^0.12.28",
     "fs-extra": "^10.0.0",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
@@ -64,7 +70,6 @@
     "@types/debug": "^4.1.7",
     "@types/lowdb": "^1.0.11",
     "@types/node": "^16.7.10",
-    "@types/node-fetch": "^3.0.2",
     "@types/node-ipc": "^9.1.5",
     "@types/node-notifier": "^8.0.1",
     "@types/rimraf": "^3.0.2",
@@ -81,7 +86,6 @@
     "environmentVariables": {
       "KIT_TEST": "true"
     },
-    "concurrency": 1,
     "verbose": true,
     "files": [
       "src/**/*.test.js",

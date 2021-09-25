@@ -1,4 +1,5 @@
-import { Script } from "../core/type.js"
+import { Script } from "../types/kit"
+
 import { getScripts } from "../core/db.js"
 
 let scriptsCache: Script[] = await getScripts()

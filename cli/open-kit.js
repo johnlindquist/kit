@@ -1,2 +1,0 @@
-await edit(kitPath());
-export {};

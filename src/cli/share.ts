@@ -1,12 +1,10 @@
 //Menu: Share Script
 //Description: Share the selected script
 
-import { CLI } from "cli.js"
-import { selectScript } from "../utils.js"
+import { CLI } from "../types/cli"
+import { selectScript } from "../core/utils.js"
 
-let { filePath, command } = await selectScript(
-  `Share which script?`
-)
+let { filePath } = await selectScript(`Share which script?`)
 
 let how: keyof CLI = await arg(
   "How would you like to share?",

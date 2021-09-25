@@ -5,7 +5,8 @@ import {
   toggleBackground,
   selectScript,
   selectKenv,
-} from "../utils.js"
+  run,
+} from "../core/utils.js"
 
 let { name: kenv } = await selectKenv()
 

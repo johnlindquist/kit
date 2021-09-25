@@ -1,7 +1,8 @@
 // Description: Change Script Shortcut
-import { friendlyShortcut } from "../core/util.js"
-import { Script } from "../core/type.js"
-import { selectScript } from "../utils.js"
+import { friendlyShortcut } from "../core/utils.js"
+import { Script } from "../types/kit"
+
+import { selectScript } from "../core/utils.js"
 
 while (true) {
   let { filePath, command, menu } = await selectScript(

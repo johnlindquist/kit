@@ -1,5 +1,9 @@
 // Description: Run the selected script
-import { toggleBackground, selectScript } from "../utils.js"
+import {
+  toggleBackground,
+  selectScript,
+  run,
+} from "../core/utils.js"
 
 setFlags({
   [""]: {
