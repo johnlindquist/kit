@@ -54,6 +54,6 @@ console.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
-edit(scriptPath, kenvPath())
+edit(scriptPath, kenvPath(), 3)
 
 export {}

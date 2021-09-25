@@ -12,7 +12,14 @@ let writeNewEnv = async (envKey, envValue) => {
   await appendFile(envFile, `\n${envKey}=${envValue}`)
   env[envKey] = envValue
 }
-let exists = env[envKey]
+let contents = await readFile(
+  process.env.KIT_DOTENV || kenvPath(".env"),
+  "utf-8"
+)
+let exists = contents.match(
+  new RegExp("^" + envKey + "=.*$", "gm")
+)
+
 let fn = exists ? updateEnv : writeNewEnv
 
 console.log(

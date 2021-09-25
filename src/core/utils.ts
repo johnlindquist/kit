@@ -4,6 +4,7 @@ import * as os from "os"
 import { lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
+import { config } from "dotenv"
 
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
@@ -112,11 +113,11 @@ export const KIT_NODE_PATH =
 
 export const KIT_DEFAULT_PATH = `/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 
-export const KIT_FIRST_PATH = `${
-  process.env.PRE_PATH
-}:${kitPath("bin")}:${kenvPath(
-  "bin"
-)}:${KIT_NODE_PATH}:${KIT_DEFAULT_PATH}`
+export const KIT_FIRST_PATH = `${kitPath("bin")}${
+  path.delimiter
+}${kenvPath("bin")}${path.delimiter}${KIT_NODE_PATH}${
+  path.delimiter
+}${KIT_DEFAULT_PATH}`
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -500,26 +501,28 @@ export let toggleBackground = async (script: Script) => {
 
 export let createBinFromScript = async (
   type: Bin,
-  { kenv, command }: Script
+  { command, filePath }: Script
 ) => {
   let binTemplate = await readFile(
     kitPath("templates", "bin", "template"),
     "utf8"
   )
 
-  let targetPath = (...parts) =>
-    kenvPath(kenv && `kenvs/${kenv}`, ...parts)
-
   let binTemplateCompiler = compile(binTemplate)
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type,
-    extension: kitMode(),
     ...env,
-    TARGET_PATH: targetPath(),
+    TARGET_PATH: filePath,
   })
 
-  let binFilePath = targetPath("bin", command)
+  let binFilePath = path.join(
+    filePath,
+    "..",
+    "..",
+    "bin",
+    command
+  )
 
   mkdir("-p", path.dirname(binFilePath))
   await writeFile(binFilePath, compiledBinTemplate)
@@ -637,20 +640,17 @@ export let run = async (
   )
 }
 
-export let kit = async (
-  command: string,
-  ..._args: string[]
-) => {
-  process.env.KIT =
-    process.env.KIT || path.resolve(os.homedir(), ".kit")
+export let configEnv = () => {
+  let { parsed, error } = config({
+    path: process.env.KIT_DOTENV || kenvPath(".env"),
+  })
 
-  let importKit = async (file: string) =>
-    await import(`@johnlindquist/kit/${file}`)
+  process.env.PATH =
+    (parsed?.PATH || process.env.PATH) +
+    path.delimiter +
+    KIT_FIRST_PATH
 
-  await importKit("api/global.js")
-  await importKit("api/kit.js")
-  await importKit("api/lib.js")
-  await importKit("target/terminal.js")
+  assignPropsTo(process.env, global.env)
 
-  return await run(command, ..._args)
+  return parsed
 }

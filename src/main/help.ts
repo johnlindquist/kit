@@ -1,7 +1,7 @@
 import { Choice } from "../types/kit"
 
 import { CLI } from "../types/cli"
-import { run } from "../core/utils"
+import { run } from "../core/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {

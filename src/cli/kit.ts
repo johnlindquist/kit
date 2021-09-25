@@ -113,6 +113,7 @@ let cliScripts: CLIMenuItem[] = [
         name: "switch-to-ts",
         placeholder: "Switch to TypeScript Mode",
       },
+  { name: "sync-path", placeholder: "Update PATH" },
   { name: "quit", placeholder: "Quit Kit" },
 ]
 

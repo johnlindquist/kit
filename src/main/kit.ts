@@ -110,6 +110,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
         value: "switch-to-ts",
       },
   {
+    name: "Sync $PATH from Terminal to Kit.app",
+    description: "Set .env PATH to the terminal $PATH",
+    value: "sync-path-instructions",
+  },
+  {
     name: "Created by John Lindquist",
     description: `Follow @johnlindquist on twitter`,
     value: "credits",
