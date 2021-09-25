@@ -122,6 +122,9 @@ export interface CLI {
   tutorial: Promise<typeof import("../cli/tutorial")>
   uninstall: Promise<typeof import("../cli/uninstall")>
   update: Promise<typeof import("../cli/update")>
+  ["update-path"]: Promise<
+    typeof import("../cli/update-path")
+  >
 }
 
 interface CliModuleLoader {

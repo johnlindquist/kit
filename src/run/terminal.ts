@@ -1,6 +1,5 @@
 import os from "os"
-import { config } from "dotenv"
-import { assignPropsTo } from "../core/utils.js"
+import { configEnv } from "../core/utils.js"
 
 await import("../api/global.js")
 await import("../api/kit.js")
@@ -13,13 +12,9 @@ try {
   // console.log(`No ./platform/${platform}.js`)
 }
 
-config({
-  path: process.env.KIT_DOTENV || kenvPath(".env"),
-})
+configEnv()
 
 await import("../target/terminal.js")
 let { runCli } = await import("../cli/kit.js")
-
-assignPropsTo(process.env, global.env)
 
 await runCli()

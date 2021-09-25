@@ -1,10 +1,10 @@
 import os from "os"
-import { config } from "dotenv"
-import { assignPropsTo, run } from "../core/utils.js"
+import { configEnv, run } from "../core/utils.js"
 import { Channel } from "../core/enum.js"
-import "../api/global.js"
-import "../api/kit.js"
-import "../api/lib.js"
+
+await import("../api/global.js")
+await import("../api/kit.js")
+await import("../api/lib.js")
 
 let platform = os.platform()
 try {
@@ -13,7 +13,7 @@ try {
   // console.log(`No ./platform/${platform}.js`)
 }
 
-import "../target/app.js"
+await import("../target/app.js")
 
 let { script, args } = await new Promise<{
   script: string
@@ -28,9 +28,6 @@ let { script, args } = await new Promise<{
   process.on("message", messageHandler)
 })
 
-config({
-  path: process.env.KIT_DOTENV,
-})
+configEnv()
 
-assignPropsTo(process.env, global.env)
 await run(script, ...args)

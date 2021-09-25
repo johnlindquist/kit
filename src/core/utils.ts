@@ -4,6 +4,7 @@ import * as os from "os"
 import { lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
+import { config } from "dotenv"
 
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
@@ -112,11 +113,11 @@ export const KIT_NODE_PATH =
 
 export const KIT_DEFAULT_PATH = `/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 
-export const KIT_FIRST_PATH = `${
-  process.env.PRE_PATH
-}:${kitPath("bin")}:${kenvPath(
-  "bin"
-)}:${KIT_NODE_PATH}:${KIT_DEFAULT_PATH}`
+export const KIT_FIRST_PATH = `${kitPath("bin")}${
+  path.delimiter
+}${kenvPath("bin")}${path.delimiter}${KIT_NODE_PATH}${
+  path.delimiter
+}${KIT_DEFAULT_PATH}`
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -637,4 +638,19 @@ export let run = async (
     ...scriptArgs,
     ...commandArgs
   )
+}
+
+export let configEnv = () => {
+  let { parsed, error } = config({
+    path: process.env.KIT_DOTENV || kenvPath(".env"),
+  })
+
+  process.env.PATH =
+    (parsed?.PATH || process.env.PATH) +
+    path.delimiter +
+    KIT_FIRST_PATH
+
+  assignPropsTo(process.env, global.env)
+
+  return parsed
 }

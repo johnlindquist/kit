@@ -1,10 +1,10 @@
-import { config } from "dotenv"
-import { assignPropsTo, run } from "../core/utils.js"
+import { configEnv, run } from "../core/utils.js"
 import os from "os"
 
-import "../api/global.js"
-import "../api/kit.js"
-import "../api/lib.js"
+await import("../api/global.js")
+await import("../api/kit.js")
+await import("../api/lib.js")
+
 let platform = os.platform()
 try {
   await import(`../platform/${platform}.js`)
@@ -13,11 +13,7 @@ try {
 }
 import "../target/app.js"
 
-config({
-  path: process.env.KIT_DOTENV || kenvPath(".env"),
-})
-
-assignPropsTo(process.env, global.env)
+configEnv()
 
 let script = await arg("Path to script:")
 await run(script)
