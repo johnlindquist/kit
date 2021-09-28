@@ -16,6 +16,14 @@
     "./cjs/*": "./core/*.cjs"
   },
   "types": "./types/kit.d.ts",
+  "typesVersions": {
+    ">=0.0.0": {
+      "*": [
+        "./types/kit.d.ts",
+        "./types/lib.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "build-kit": "./build/build-kit.sh",
     "dev": "tsc --watch",
