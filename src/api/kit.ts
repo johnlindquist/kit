@@ -71,7 +71,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
         let tmpScriptName = path
           .basename(scriptPath)
-          .replace(/\.ts$/, ".js")
+          .replace(/\.ts$/, ".mjs")
 
         let dirName = path.dirname(scriptPath)
         let inScriptsDir = dirName.endsWith(
