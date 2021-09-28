@@ -1,4 +1,6 @@
 try {
+  await cli("install", kitPath())
+
   await copyFile(
     kitPath("templates", "config", "tsconfig.json"),
     kenvPath("tsconfig.json")
@@ -19,14 +21,6 @@ try {
 
   if (kenvPkg.dependencies?.kit) {
     await cli("uninstall", "kit")
-  }
-
-  if (
-    !global._.isUndefined(
-      kenvPkg.dependences?.["@johnlindquist/kit"]
-    )
-  ) {
-    await cli("install", kitPath())
   }
 
   let kenvIgnore = kenvPath(".gitignore")

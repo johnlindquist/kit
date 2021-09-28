@@ -222,7 +222,7 @@ global.lib = async (lib: string, ..._args) => {
 }
 
 global.cli = async (cliPath, ..._args) => {
-  let cliScriptPath = kitPath("cli/" + cliPath) + ".js"
+  let cliScriptPath = kitPath("cli", cliPath) + ".js"
 
   return await global.attemptImport(cliScriptPath, ..._args)
 }
