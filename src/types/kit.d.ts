@@ -405,10 +405,10 @@ export interface KitApi {
 
   kitPath: PathFn
   kenvPath: PathFn
+  tmpPath: PathFn
 
   kitMenuCachePath: () => string
 
-  tmp: PathFn
   inspect: Inspect
 
   compileTemplate: CompileTemplate
@@ -486,6 +486,7 @@ export interface KitApi {
   degit: typeof import("degit")
 
   kit: Run
+  run: Run
 
   openLog: () => void
 
@@ -614,10 +615,12 @@ declare global {
 
   var kitPath: PathFn
   var kenvPath: PathFn
+  var tmpPath: PathFn
 
   var attemptImport: KitModuleLoader
   var npm: KitModuleLoader
   var kit: Run
+  var run: Run
   var setup: KitModuleLoader
 
   var env: Env
