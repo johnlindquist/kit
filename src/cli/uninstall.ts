@@ -20,7 +20,7 @@ let packages = (await arg(
 if (typeof packages == "string") {
   packages = [packages, ...args]
 }
-
+let PATH = KIT_NODE_PATH + path.delimiter + process.env.PATH
 let uninstallPackage = spawn(
   kitPath("node", "bin", "npm"),
   [
@@ -34,7 +34,7 @@ let uninstallPackage = spawn(
     stdio: "inherit",
     cwd: env.KENV,
     env: {
-      PATH: KIT_NODE_PATH,
+      PATH,
     },
   }
 )

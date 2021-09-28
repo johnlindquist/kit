@@ -11,6 +11,8 @@ let install = async packageNames => {
   ).split(" ")
   return await new Promise((res, rej) => {
     console.log(tool, command, ...packageNames)
+    let PATH =
+      KIT_NODE_PATH + path.delimiter + process.env.PATH
     let npm = spawn(
       tool,
       [command, "--loglevel", "verbose", ...packageNames],
@@ -18,18 +20,10 @@ let install = async packageNames => {
         stdio: "pipe",
         cwd: kenvPath(),
         env: {
-          PATH: KIT_NODE_PATH,
+          PATH,
         },
       }
     )
-
-    if (npm?.stdout) {
-      npm.stdout.on("data", data => {
-        let line = data?.toString()
-        console.log(line)
-        if (global.setHint) global.setHint(line)
-      })
-    }
 
     npm.on("error", error => {
       console.log({ error })
