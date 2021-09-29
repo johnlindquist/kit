@@ -71,7 +71,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
         let tmpScriptName = path
           .basename(scriptPath)
-          .replace(/\.ts$/, ".js")
+          .replace(/\.ts$/, ".mjs")
 
         let dirName = path.dirname(scriptPath)
         let inScriptsDir = dirName.endsWith(
@@ -222,7 +222,7 @@ global.lib = async (lib: string, ..._args) => {
 }
 
 global.cli = async (cliPath, ..._args) => {
-  let cliScriptPath = kitPath("cli/" + cliPath) + ".js"
+  let cliScriptPath = kitPath("cli", cliPath) + ".js"
 
   return await global.attemptImport(cliScriptPath, ..._args)
 }
@@ -237,13 +237,25 @@ global.setup = async (setupPath, ..._args) => {
   )
 }
 
-global.tmp = (...parts) => {
+/**
+ * Generate a path `~/.kenv/tmp/{command}/...parts`
+ *
+ * @example
+ * ```
+ * tmpPath("taco.txt") // ~/.kenv/tmp/command/taco.txt
+ * ```
+ */
+global.tmpPath = (...parts) => {
   let command = resolveScriptToCommand(global.kitScript)
   let scriptTmpDir = kenvPath("tmp", command, ...parts)
 
   mkdir("-p", path.dirname(scriptTmpDir))
   return scriptTmpDir
 }
+/**
+ * @deprecated use `tmpPath` instead
+ */
+global.tmp = tmpPath
 global.inspect = async (data, extension) => {
   let dashedDate = () =>
     new Date()
@@ -260,11 +272,13 @@ global.inspect = async (data, extension) => {
   }
 
   if (extension) {
-    tmpFullPath = global.tmp(`${dashedDate()}.${extension}`)
+    tmpFullPath = global.tmpPath(
+      `${dashedDate()}.${extension}`
+    )
   } else if (typeof data === "object") {
-    tmpFullPath = global.tmp(`${dashedDate()}.json`)
+    tmpFullPath = global.tmpPath(`${dashedDate()}.json`)
   } else {
-    tmpFullPath = global.tmp(`${dashedDate()}.txt`)
+    tmpFullPath = global.tmpPath(`${dashedDate()}.txt`)
   }
 
   await writeFile(tmpFullPath, formattedData)
@@ -355,5 +369,7 @@ global.setFlags = (flags: FlagsOptions) => {
 global.hide = () => {
   send(Channel.HIDE_APP)
 }
+
+global.run = run
 
 export {}

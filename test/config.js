@@ -39,4 +39,17 @@ global.kenvTestPath = kenvTestPath
 global.kitMockPath = kitMockPath
 global.execOptions = execOptions
 
-export { Channel, KIT_APP, KIT_APP_PROMPT }
+let testScript = async (name, content, type = "js") => {
+  await $`KIT_MODE=${type} kit new ${name} home --no-edit`
+
+  await appendFile(
+    kenvPath("scripts", `${name}.js`),
+    content
+  )
+
+  return await $`${kenvPath("bin", name)}`
+}
+
+global.testScript = testScript
+
+export { Channel, KIT_APP, KIT_APP_PROMPT, testScript }
