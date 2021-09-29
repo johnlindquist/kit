@@ -1,15 +1,17 @@
-await import("../setup/create-cli-bins.js")
+import { Bin } from "../core/enum.js"
+import { getScripts } from "../core/db.js"
 
-let { scripts }: typeof import("./fns") = await cli("fns")
+import { createBinFromScript } from "../core/utils.js"
 
-let scriptNames = await scripts()
+await trash([
+  `!${kenvPath("bin", ".gitignore")}`,
+  kenvPath("bin", "*"),
+])
 
-for await (let script of scriptNames) {
-  await cli(
-    "create-bin",
-    "scripts",
-    script.replace(".js", "")
-  )
+let scripts = await getScripts(false)
+
+for await (let script of scripts) {
+  await createBinFromScript(Bin.scripts, script)
 }
 
 export {}

@@ -1,35 +1,32 @@
+// Description: Subscribe to the Script Kit Newsletter
+
 let email_address = await arg(
   {
     placeholder: "Enter e-mail to join newsletter:",
-    hint: `Enter "no" to remove "join" tab from main menu`,
   },
-  md(`
-    ## Emails include:
-    * Tips for writing scripts
-    * Community script highlights
-    * Automation ideas
-    * Upcoming features
-        `)
+  md(`<div class="p-6">
+
+## Script Kit Newletters include:
+* Tips for writing scripts
+* Community script highlights
+* Automation ideas
+* Upcoming features
+
+</div>`)
 )
 
-if (email_address === "no") {
-  await cli("settings", "join", "false")
-} else {
-  await post(
-    `https://app.convertkit.com/forms/2216586/subscriptions`,
-    {
-      email_address,
-    }
-  )
+await post(
+  `https://app.convertkit.com/forms/2216586/subscriptions`,
+  {
+    email_address,
+  }
+)
 
-  setPlaceholder(
-    `Thanks! Make sure to confirm in your mail app 😇`
-  )
-  await wait(2000)
+setPanel(
+  `Thanks! Make sure to confirm in your mail app 😇`,
+  `p-6 text-xl`
+)
 
-  await cli("settings", "join", "false")
-
-  await main("index")
-}
+await wait(2000)
 
 export {}

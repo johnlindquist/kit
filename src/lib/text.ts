@@ -1,27 +1,38 @@
-export let getSelectedText = async () => {
-  send("HIDE_APP")
+import { Channel } from "../core/enum.js"
+
+global.getSelectedText = async () => {
+  send(Channel.HIDE_APP)
 
   await applescript(
     String.raw`tell application "System Events" to keystroke "c" using command down`
   )
 
-  let selectedText = await applescript(
-    String.raw`get the clipboard`
-  )
-
-  return selectedText.trim()
+  return await paste()
 }
 
-export let setSelectedText = async text => {
+/**
+@param text - a string to paste at the cursor
+@example
+```
+await setSelectedText(`Script Kit is awesome!`)
+```
+*/
+
+global.setSelectedText = async text => {
+  send(Channel.HIDE_APP)
+
   await applescript(
     String.raw`set the clipboard to "${text.replaceAll(
       '"',
       '\\"'
     )}"`
   )
-  send("HIDE_APP")
 
   await applescript(
     String.raw`tell application "System Events" to keystroke "v" using command down`
   )
+
+  await applescript(String.raw`set the clipboard to ""`)
 }
+
+export {}

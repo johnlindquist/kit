@@ -1,16 +1,11 @@
 // Description: Opens the selected script in your editor
 
-let { menu, findScript } = await cli("fns")
+import { selectScript } from "../core/utils.js"
 
-let file = await arg(
-  {
-    placeholder: `Which script do you want to edit?`,
-    validate: findScript,
-  },
-  menu
+let script = await selectScript(
+  `Select script to open in ${env.KIT_EDITOR}?`
 )
 
-file = file.endsWith(".js") ? file : `${file}.js`
-edit(kenvPath(`scripts/${file}`), kenvPath())
+edit(await script.filePath, kenvPath())
 
 export {}

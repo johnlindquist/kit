@@ -1,17 +1,16 @@
 //Menu: Copy Script to Clipboard
 //Description: Copies Script to Clipboard
 
-let { menu } = await cli("fns")
+import { selectScript } from "../core/utils.js"
 
-let script = await arg(
-  `Which script do you want to share?`,
-  menu
+let { filePath } = await selectScript(`Share which script?`)
+
+copy(await readFile(filePath, "utf8"))
+console.log(
+  `Copied content of "${path.basename(
+    filePath
+  )}" to clipboard`
 )
-
-let scriptPath = kenvPath("scripts", script) + ".js"
-
-copy(await readFile(scriptPath, "utf8"))
-setPlaceholder(`Copied content of script to clipboard`)
-await wait(1000)
+await wait(2000)
 
 export {}

@@ -1,19 +1,26 @@
-/** @type typeof import("date-fns") */
-let { formatDistanceToNow, parseISO } = await npm(
+import { KIT_NODE_PATH } from "../core/utils.js"
+
+let { formatDistanceToNow, parseISO } = (await npm(
   "date-fns"
-)
+)) as typeof import("date-fns")
 
 let install = async packageNames => {
+  let isYarn = await isFile(kenvPath("yarn.lock"))
+  let [tool, command] = (
+    isYarn ? `yarn add` : `npm i`
+  ).split(" ")
   return await new Promise((res, rej) => {
+    console.log(tool, command, ...packageNames)
+    let PATH =
+      KIT_NODE_PATH + path.delimiter + process.env.PATH
     let npm = spawn(
-      kitPath("node", "bin", "npm"),
-      ["i", "--prefix", kenvPath(), ...packageNames],
+      tool,
+      [command, "--loglevel", "verbose", ...packageNames],
       {
-        stdio: "inherit",
+        stdio: "pipe",
         cwd: kenvPath(),
         env: {
-          //need to prioritize our node over any nodes on the path
-          PATH: kitPath("node", "bin") + ":" + env.PATH,
+          PATH,
         },
       }
     )
@@ -51,7 +58,7 @@ let packageNames = await arg(
   }
 )
 
-let installNames = [...packageNames.split(" "), ...args]
+let installNames = [...packageNames.split(" ")]
 
 await install([...installNames, ...argOpts])
 

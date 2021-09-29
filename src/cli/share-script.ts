@@ -1,64 +1,35 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
 
-let { menu, exists, findScript, scripts } = await cli("fns")
-let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
-if (!env[GITHUB_GIST_TOKEN]) {
-  show(`
-<div class="p-2">
-<h1>GitHub token not found</h1>
-<div>Create one here (Select the "gist" scope):</div>
-<a href="https://github.com/settings/tokens/new">https://github.com/settings/tokens/new</a>
-</div>
-  `)
-}
+let { Octokit } = await npm("scriptkit-octokit")
 
-let token = await env(GITHUB_GIST_TOKEN, {
-  secret: true,
-  placeholder: chalk`Enter GitHub gist token:`,
+import { selectScript } from "../core/utils.js"
+
+let { filePath, command } = await selectScript(
+  `Share which script?`
+)
+
+let octokit = new Octokit({
+  auth: {
+    scopes: ["gist"],
+    env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
+  },
 })
 
-let script = await arg(
-  {
-    placeholder: `Which script do you want to share?`,
-    validate: findScript,
-  },
-  menu
-)
-
-let scriptPath = kenvPath("scripts", script) + ".js"
-
-let isPublic = await arg("Make gist public?", [
-  { name: `No, keep ${script} private`, value: false },
-  { name: `Yes, make ${script} public`, value: true },
-])
-
-let body: any = {
+let response = await octokit.rest.gists.create({
   files: {
-    [script + ".js"]: {
-      content: await readFile(scriptPath, "utf8"),
+    [command + ".js"]: {
+      content: await readFile(filePath, "utf8"),
     },
   },
-}
+  public: true,
+})
 
-if (isPublic) body.public = true
-
-let config = {
-  headers: {
-    Accept: "application/vnd.github.v3+json",
-    Authorization: `Bearer ${token}`,
-  },
-}
-
-const response = await post(
-  `https://api.github.com/gists`,
-  body,
-  config
+copy(
+  response.data.files[command + path.extname(filePath)]
+    .raw_url
 )
-
-exec(`open ` + response.data.html_url)
-copy(response.data.files[script + ".js"].raw_url)
-setPlaceholder(`Copied raw gist url to clipboard`)
-await wait(1000)
+console.log(`Copied raw gist url to clipboard`)
+await wait(2000)
 
 export {}

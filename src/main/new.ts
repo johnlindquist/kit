@@ -1,7 +1,13 @@
-let newOptions: Choice<string>[] = [
+import { Choice } from "../types/kit"
+import { CLI } from "../types/cli"
+import { kitMode, run } from "../core/utils.js"
+
+let newOptions: Choice<keyof CLI>[] = [
   {
-    name: "New from name",
-    description: "Enter a script name",
+    name: "New script",
+    description: `Create a script using ${
+      kitMode() === "ts" ? "TypeScript" : "JavaScript"
+    }`,
     value: "new",
   },
   {
@@ -12,15 +18,22 @@ let newOptions: Choice<string>[] = [
   {
     name: "Browse Community Examples",
     description:
-      "Visit scriptkit.app/scripts/johnlindquist for a variety of examples",
+      "Visit scriptkit.com/scripts/ for a variety of examples",
     value: "browse-examples",
   },
 ]
-let cliScript = await arg(
-  "How would you like to create a script?",
+let cliScript = await arg<keyof CLI>(
+  {
+    placeholder: "Create a new script",
+    strict: false,
+  },
   newOptions
 )
 
-await cli(cliScript)
+if (newOptions.find(script => script.value === cliScript)) {
+  await run(kitPath(`cli`, cliScript + ".js"))
+} else {
+  await cli("new", cliScript)
+}
 
 export {}

@@ -1,31 +1,44 @@
-let { exists, scripts, validate } = await cli("fns")
+// Description: Duplicate the selected script
 
-let script = await arg(
-  {
-    placeholder: `Which script do you want to duplicate?`,
-    validate,
-  },
-  scripts
+import { exists, selectKenv } from "../core/utils.js"
+let generate = await npm("project-name-generator")
+
+let examples = Array.from({ length: 3 })
+  .map((_, i) => generate({ words: 2 }).dashed)
+  .join(", ")
+
+import { stripMetadata } from "../core/utils.js"
+import { selectScript } from "../core/utils.js"
+
+let { filePath } = await selectScript(
+  `Which script do you want to duplicate?`
 )
 
-let newScript = await arg({
-  placeholder: `Enter the new script name:`,
+let newCommand = await arg({
+  placeholder: `Enter name for new script`,
+  selected: filePath,
+  hint: `examples: ${examples}`,
   validate: exists,
 })
 
-let oldFilePath = path.join(kenvPath("scripts"), script)
-
-if (!(await isFile(oldFilePath))) {
-  console.warn(`${oldFilePath} doesn't exist...`)
+if (!(await isFile(filePath))) {
+  console.warn(`${filePath} doesn't exist...`)
   exit()
 }
 
+let { dirPath: selectedKenvDir } = await selectKenv()
+
 let newFilePath = path.join(
-  kenvPath("scripts"),
-  newScript + ".js"
+  selectedKenvDir,
+  "scripts",
+  newCommand + path.extname(filePath)
 )
-cp(oldFilePath, newFilePath)
-await cli("create-bin", "scripts", newScript)
+let oldContent = await readFile(filePath, "utf-8")
+
+let newContent = stripMetadata(oldContent)
+await writeFile(newFilePath, newContent)
+
+await cli("create-bin", "scripts", newFilePath)
 
 edit(newFilePath, kenvPath())
 

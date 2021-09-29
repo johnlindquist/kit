@@ -3,19 +3,21 @@
 //Author: John Lindquist
 //Twitter: @johnlindquist
 
-let { menu } = await cli("fns")
+let { selectScript } = await import("../core/utils.js")
 
-let createCommand = (launchApp: boolean, script: string) =>
+let createCommand = (
+  launchApp: boolean,
+  scriptPath: string
+) =>
   launchApp
-    ? `~/.kit/kar ${script}`
-    : `~/.kit/script ~/.kenv/scripts/${script}.js`
+    ? `~/.kit/kar ${scriptPath}`
+    : `~/.kit/script ${scriptPath}`
 
-let script = await arg(
-  "Prepare which script for Stream Deck?",
-  menu
+let { command, filePath } = await selectScript(
+  "Prepare which script for Stream Deck?"
 )
 
-let launchApp = await arg("Run the script:", [
+let launchApp = await arg<boolean>("Run the script:", [
   {
     name: "with the prompt",
     value: true,
@@ -28,33 +30,30 @@ let launchApp = await arg("Run the script:", [
   },
 ])
 
-let name = script.replace(".js", "")
-
-let binPath = kenvPath("deck", name + ".sh")
+let binPath = kenvPath("deck", command + ".sh")
 mkdir("-p", path.dirname(binPath))
-await writeFile(binPath, createCommand(launchApp, script))
+await writeFile(binPath, createCommand(launchApp, filePath))
 chmod(755, binPath)
 let resolvedPath = path.resolve(binPath)
 copy(resolvedPath)
 
-await arg(
-  {
-    placeholder: `.sh file is ready`,
-    ignoreBlur: true,
-    hint: `${resolvedPath} copied to clipboard`,
-  },
-  md(`
-* Hit "Enter" to launch Stream Deck UI
-* Hit "Escape" to close prompt
+let info = `
+<div class="text-xs p-4">
+"${resolvedPath}" copied to clipboard
+</div>
 
-### Create a System->Open action and paste here:
+* Hit "Enter" to launch Stream Deck
+* Hit "Escape" to exit
+
+**Create a System->Open action and paste here:**
 
 ![Stream Deck Setup](${kitPath(
-    "images",
-    "stream-deck.png"
-  )})
-`)
-)
+  "images",
+  "stream-deck.png"
+)})
+`
+
+await div(md(info), `p-4`)
 
 exec(`open -a "Stream Deck.app"`)
 

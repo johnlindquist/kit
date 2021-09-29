@@ -1,0 +1,1 @@
+/** @type {import("@johnlindquist/kit")} */

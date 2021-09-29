@@ -1,75 +1,36 @@
-let { host, port } = await new Promise((res, rej) => {
-  let messageHandler = (data: any) => {
-    if (data.channel === "SERVER") {
-      res(data)
-      process.off("message", messageHandler)
-    }
-  }
-  process.on("message", messageHandler)
+import { Choice } from "../types/kit"
 
-  send("GET_SERVER_STATE")
-})
+import { CLI } from "../types/cli"
+import { run } from "../core/utils.js"
 
-let otherOptions: Choice<string>[] = [
+let kitManagementChoices: Choice<keyof CLI>[] = [
   {
     name: "Get Help",
     description: `Post a question to Script Kit GitHub discussions`,
     value: "get-help",
   },
   {
-    name: "Check for Update",
-    description: `Version: ${env.KIT_APP_VERSION}`,
-    value: "update",
+    name: "Online Docs",
+    description: `Work in progress...`,
+    value: "goto-docs",
   },
   {
-    name: "Manage npm packages",
-    description: `add or remove npm package`,
-    value: "manage-npm",
+    name: "Search Docs",
+    description: `Work in progress...`,
+    value: "search-docs",
   },
   {
-    name: host && port ? "Stop Server" : "Start Server",
-    description:
-      host && port
-        ? `Server running on http://${host}:${port}`
-        : "",
-    value: "toggle-server",
-  },
-  {
-    name: "Open Script Kit at Login",
-    description: "Sets Script Kit to launch at login",
-    value: "open-at-login",
-  },
-  {
-    name: "Add ~/.kenv/bin to $PATH",
-    description: `Looks for your profile and appends to $PATH`,
-    value: "add-kenv-to-profile",
-  },
-  {
-    name: "Generate bin files",
-    description: "Recreate all the terminal executables",
-    value: "create-all-bins",
-  },
-  {
-    name: "Change main keyboard shortcut",
-    description:
-      "Pick a new keyboard shortcut for the main menu",
-    value: "change-main-shortcut",
-  },
-  {
-    name: "Prepare Script for Stream Deck",
-    description:
-      "Launch a script from a Stream Deck button",
-    value: "stream-deck",
-  },
-  {
-    name: "Quit",
-    description: `Quit Script Kit`,
-    value: "quit",
+    name: "Subscribe to Newsletter",
+    description: `Receive a newsletter with examples and tips`,
+    value: "join",
   },
 ]
 
-let cliScript = await arg(`Other options:`, otherOptions)
+let cliScript = await arg(
+  `Got questions?`,
+  kitManagementChoices
+)
 
-await cli(cliScript)
+await run(kitPath(`cli`, cliScript + ".js"))
 
 export {}

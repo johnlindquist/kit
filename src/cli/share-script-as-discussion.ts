@@ -1,69 +1,39 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 
-let { menu } = await cli("fns")
-let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
-if (!env[GITHUB_GIST_TOKEN]) {
-  show(`
-<div class="p-2">
-<h1>GitHub token not found</h1>
-<div>Create one here (Select the "gist" scope):</div>
-<a href="https://github.com/settings/tokens/new">https://github.com/settings/tokens/new</a>
-</div>
-  `)
-}
+let { Octokit } = await npm("scriptkit-octokit")
 
-let token = await env(GITHUB_GIST_TOKEN, {
-  secret: true,
-  placeholder: chalk`Enter GitHub gist token:`,
+import { selectScript } from "../core/utils.js"
+
+let { filePath, command } = await selectScript(
+  `Share which script?`
+)
+
+let octokit = new Octokit({
+  auth: {
+    scopes: ["gist"],
+    env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
+  },
 })
 
-let script: string = await arg(
-  {
-    placeholder: `Which script do you want to share?`,
-  },
-  menu
-)
-let scriptJS = `${script}.js`
+let fileBasename = path.basename(filePath)
 
-let scriptPath = kenvPath("scripts", scriptJS)
-
-let isPublic = await arg("Make gist public?", [
-  { name: `No, keep ${script} private`, value: false },
-  { name: `Yes, make ${script} public`, value: true },
-])
-
-let content = await readFile(scriptPath, "utf8")
-
-let body: any = {
+let content = await readFile(filePath, "utf8")
+let response = await octokit.rest.gists.create({
   files: {
-    [scriptJS]: {
-      content,
+    [fileBasename]: {
+      content: await readFile(filePath, "utf8"),
     },
   },
-}
+  public: true,
+})
 
-if (isPublic) body.public = true
+let gistUrl = response.data.files[fileBasename].raw_url
 
-let config = {
-  headers: {
-    Accept: "application/vnd.github.v3+json",
-    Authorization: `Bearer ${token}`,
-  },
-}
-
-let response = await post(
-  `https://api.github.com/gists`,
-  body,
-  config
-)
-
-let gistUrl = response.data.files[scriptJS].raw_url
-
-let link = `https://scriptkit.app/api/new?name=${script}&url=${gistUrl}`
+let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`
 
 let discussionPost = `
-[Install ${script}](${link})
+[Install ${command}](${link})
 
 \`\`\`js
 ${content}
@@ -72,24 +42,14 @@ ${content}
 
 copy(discussionPost)
 
-await arg(
-  {
-    placeholder: "Post ready",
-    hint: `JS fenced content copied to clipboard`,
-    ignoreBlur: true,
-  },
-  md(`
-* "Escape" to close prompt
-
-## Open Kit Discussions
-[Click to open new Kit discussion](https://github.com/johnlindquist/kit/discussions/new)
-
-## View gist
-[${gistUrl}](${gistUrl})
-
-## Install Link
-[${link}](${link})
-`)
+exec(
+  `open 'https://github.com/johnlindquist/kit/discussions/new?category=share'`
 )
+
+await arg({
+  placeholder: "Copied script to clipboard",
+  hint: `Paste into Discussion. Hit "escape" to close prompt`,
+  ignoreBlur: true,
+})
 
 export {}

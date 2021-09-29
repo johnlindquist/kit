@@ -1,10 +1,16 @@
-let envTemplate = await readFile(
-  kitPath("templates", "env", "template.env"),
-  "utf8"
+let envTemplatePath = kitPath(
+  "templates",
+  "env",
+  "template.env"
 )
 
+console.log({ envTemplatePath })
+let envTemplate = await readFile(envTemplatePath, "utf8")
+
 let envTemplateCompiler = compile(envTemplate)
-let compiledEnvTemplate = envTemplateCompiler({ ...env })
+let compiledEnvTemplate = envTemplateCompiler({
+  ...process.env,
+})
 
 await writeFile(kenvPath(".env"), compiledEnvTemplate)
 

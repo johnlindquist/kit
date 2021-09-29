@@ -1,66 +1,34 @@
-//Menu: Share Script as ScriptKit.app link
+//Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
+let { Octokit } = await npm("scriptkit-octokit")
 
-let { menu, exists, findScript, scripts } = await cli("fns")
-let GITHUB_GIST_TOKEN = "GITHUB_GIST_TOKEN"
-if (!env[GITHUB_GIST_TOKEN]) {
-  show(`
-<div class="p-2">
-<h1>GitHub token not found</h1>
-<div>Create one here (Select the "gist" scope):</div>
-<a href="https://github.com/settings/tokens/new">https://github.com/settings/tokens/new</a>
-</div>
-  `)
-}
+import { selectScript } from "../core/utils.js"
 
-let token = await env(GITHUB_GIST_TOKEN, {
-  secret: true,
-  placeholder: chalk`Enter GitHub gist token:`,
+let { filePath, command } = await selectScript(
+  `Share which script?`
+)
+
+let octokit = new Octokit({
+  auth: {
+    scopes: ["gist"],
+    env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
+  },
 })
 
-let script = await arg(
-  {
-    placeholder: `Which script do you want to share?`,
-  },
-  menu
-)
+let fileBasename = path.basename(filePath)
 
-let scriptJS = `${script}.js`
-
-let scriptPath = kenvPath("scripts", scriptJS)
-
-let isPublic = await arg("Make gist public?", [
-  { name: `No, keep ${script} private`, value: false },
-  { name: `Yes, make ${script} public`, value: true },
-])
-
-let body: any = {
+let response = await octokit.rest.gists.create({
   files: {
-    [scriptJS]: {
-      content: await readFile(scriptPath, "utf8"),
+    [fileBasename]: {
+      content: await readFile(filePath, "utf8"),
     },
   },
-}
+  public: true,
+})
 
-if (isPublic) body.public = true
-
-let config = {
-  headers: {
-    Accept: "application/vnd.github.v3+json",
-    Authorization: `Bearer ${token}`,
-  },
-}
-
-const response = await post(
-  `https://api.github.com/gists`,
-  body,
-  config
-)
-
-let link = `https://scriptkit.app/api/new?name=${script}&url=${response.data.files[scriptJS].raw_url}`
-exec(`open ` + response.data.html_url)
+let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[fileBasename].raw_url}`
 copy(link)
-setPlaceholder(`Copied share link to clipboard`)
-await wait(1000)
+console.log(`Copied share link to clipboard`)
+await wait(2000)
 
 export {}

@@ -1,5 +1,5 @@
 // TODO: Optimize, etc
-export let fileSearch = async (
+global.fileSearch = async (
   name,
   { onlyin = "~", kind = "" } = {}
 ) => {
@@ -14,7 +14,7 @@ export let fileSearch = async (
     .split("\n")
 }
 
-export let getSelectedFile = async () => {
+global.getSelectedFile = async () => {
   return await applescript(
     String.raw`-------------------------------------------------
       # Full path of selected items in Finder.
@@ -36,11 +36,11 @@ export let getSelectedFile = async () => {
   )
 }
 
-export let copyPathAsPicture = async path =>
+global.copyPathAsImage = async path =>
   await applescript(
     String.raw`set the clipboard to (read (POSIX file "${path}") as JPEG picture)`
   )
 
-export let preview = async file => {
-  exec(`qlmanage -p "${file}"`, { silent: true })
-}
+global.copyPathAsPicture = copyPathAsImage
+
+export {}

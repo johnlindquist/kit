@@ -1,3 +1,3 @@
-await edit(kenvPath())
+edit(kenvPath())
 
 export {}

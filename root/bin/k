@@ -1,0 +1,4 @@
+#!/bin/bash
+
+KIT=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
+$KIT/script "$@"

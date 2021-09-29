@@ -1,37 +1,34 @@
-let { exists, findScript, scripts } = await cli("fns")
+// Description: Rename Script
 
-let script = await arg(
-  {
-    placeholder: `Which script do you want to rename?`,
-    validate: findScript,
-  },
-  scripts
+import { exists, selectScript } from "../core/utils.js"
+
+let { command, filePath } = await selectScript(
+  `Which script do you want to rename?`
 )
 
-let newScript = await arg({
+let newCommand = await arg({
   placeholder: `Enter the new script name:`,
+  selected: filePath,
   validate: exists,
 })
 
-let oldFilePath = path.join(kenvPath("scripts"), script)
+let lenientCommand = newCommand.replace(/(?<!\.js)$/, ".js")
 
-if (!(await isFile(oldFilePath))) {
-  console.warn(`${oldFilePath} doesn't exist...`)
-  exit()
-}
-
-let newFilePath = path.join(
-  kenvPath("scripts"),
-  newScript + ".js"
+let newFilePath = path.resolve(
+  path.dirname(filePath),
+  lenientCommand
 )
 
-console.log({ oldFilePath, newFilePath })
+mv(filePath, newFilePath)
 
-mv(oldFilePath, newFilePath)
-
-let oldBin = kenvPath("bin", script.replace(".js", ""))
-await trash(oldBin)
-await cli("create-bin", "scripts", newScript)
+let oldBin = path.resolve(
+  path.dirname(filePath),
+  "..",
+  "bin",
+  command
+)
+await trash([oldBin])
+await cli("create-bin", "scripts", newFilePath)
 edit(newFilePath, kenvPath())
 
 export {}

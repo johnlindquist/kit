@@ -1,1 +1,0 @@
-send("UPDATE_APP");

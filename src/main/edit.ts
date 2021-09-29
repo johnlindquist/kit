@@ -1,41 +1,60 @@
 //Menu: Edit Menu
-//Description: The right-click action of the app
-//Shortcut: cmd shift ;
-let { menu, validate } = await cli("fns")
+//Description: Select a script then edit action.
 
-let script = await arg(
-  {
-    placeholder: `Which script do you want to edit?`,
-    validate,
-  },
-  menu
+import { Choice } from "../types/kit"
+import { CLI } from "../types/cli"
+import { selectScript } from "../core/utils.js"
+
+let { command, filePath } = await selectScript(
+  `Edit script:`
 )
 
-script = script.endsWith(".js") ? script : `${script}.js`
-
-let editActions: Choice<string>[] = [
+let editActions: Choice<keyof CLI>[] = [
   {
     name: "Open",
-    description: `Open ${script} in ${env.KIT_EDITOR}`,
+    description: `Open ${command}${
+      env.KIT_EDITOR ? ` in ${env.KIT_EDITOR}` : ``
+    }`,
     value: "edit",
   },
   {
     name: "Duplicate",
-    description: `Make a copy of ${script} and open in ${env.KIT_EDITOR}`,
+    description: `Make a copy of ${command} and open${
+      env.KIT_EDITOR ? ` in ${env.KIT_EDITOR}` : ``
+    }`,
     value: "duplicate",
   },
   {
     name: "Rename",
-    description: `Prompt to rename ${script}`,
+    description: `Prompt to rename ${command}`,
     value: "rename",
   },
   {
     name: "Remove",
-    description: `Delete ${script} to trash`,
+    description: `Delete ${command} to trash`,
     value: "remove",
   },
+
+  {
+    name: `Open ${command}.log`,
+    description: `Opens ${command}.log in your editor`,
+    value: "open-command-log",
+  },
 ]
-let editAction = await arg("Which action?", editActions)
-await cli(editAction, script)
+
+let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
+if (kenvDirs.length) {
+  editActions.splice(4, 0, {
+    name: "Move",
+    description: `Move ${command} to a selected kenv`,
+    value: "move",
+  })
+}
+
+let editAction = await arg<keyof CLI>(
+  "Which action?",
+  editActions
+)
+await cli(editAction, filePath)
 
 export {}

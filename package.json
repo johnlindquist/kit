@@ -1,52 +1,136 @@
 {
-  "name": "kit",
-  "version": "1.0.0",
+  "name": "@johnlindquist/kit",
+  "type": "module",
+  "bin": {
+    "kit": "./bin/kit",
+    "sk": "./bin/sk"
+  },
+  "engines": {
+    "node": ">=14.8.0"
+  },
+  "version": "0.0.0-development",
   "description": "",
-  "types": "./src/kit.d.ts",
+  "exports": {
+    ".": "./index.js",
+    "./*": "./*",
+    "./cjs/*": "./core/*.cjs"
+  },
+  "types": "./types/kit.d.ts",
+  "typesVersions": {
+    ">=0.0.0": {
+      "*": [
+        "./types/kit.d.ts",
+        "./types/lib.d.ts"
+      ]
+    }
+  },
   "scripts": {
-    "clean": "./node/bin/node ./build/clean.cjs",
-    "preload": "concurrently \"tsc --watch --noEmit --project ./src/preload/\" \"./node/bin/node ./build/build.cjs\"",
-    "scripts": "tsc --watch",
-    "dev": "npm run clean && concurrently --kill-others \"npm run preload\" \"npm run scripts\""
+    "build-kit": "./build/build-kit.sh",
+    "dev": "tsc --watch",
+    "declaration": "tsc -p ./tsconfig-declaration.json --watch",
+    "pretest:core": "node ./scripts/test-pre.js",
+    "test:core": "NODE_NO_WARNINGS=1 ava ./src/core/*.test.js",
+    "posttest:core": "node ./scripts/test-post.js",
+    "pretest": "node ./scripts/test-pre.js",
+    "test": "NODE_NO_WARNINGS=1 ava",
+    "posttest": "node ./scripts/test-post.js",
+    "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\" && node ./scripts/cjs-fix.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
-    "chalk": "^4.1.0",
+    "@types/degit": "^2.8.3",
+    "@types/download": "^8.0.1",
+    "@types/lodash": "^4.14.172",
+    "@types/marked": "^3.0.0",
+    "@types/minimist": "^1.2.2",
+    "@types/shelljs": "^0.8.9",
+    "ansi-to-html": "^0.7.1",
+    "axios": "^0.21.4",
+    "chalk": "^4.1.2",
     "clipboardy": "^2.3.0",
-    "date-fns": "^2.19.0",
-    "debug": "^4.3.1",
-    "dotenv": "^8.2.0",
+    "date-fns": "^2.23.0",
+    "degit": "^2.8.4",
+    "dotenv": "^10.0.0",
+    "download": "^8.0.0",
     "enquirer": "^2.3.6",
-    "handlebars": "^4.7.6",
-    "lodash": "^4.17.20",
-    "lodash-id": "^0.14.0",
-    "lowdb": "^1.0.0",
-    "marked": "^2.0.1",
+    "esbuild": "^0.12.28",
+    "fs-extra": "^10.0.0",
+    "handlebars": "^4.7.7",
+    "lodash": "^4.17.21",
+    "lodash-id": "^0.14.1",
+    "lowdb": "^2.1.0",
+    "marked": "^3.0.2",
     "minimist": "^1.2.5",
-    "node-ipc": "^9.1.4",
-    "rxjs": "^6.6.7",
+    "node-fetch": "^3.0.0",
+    "node-ipc": "^10.0.2",
+    "node-notifier": "^10.0.0",
+    "project-name-generator": "^2.1.9",
+    "rxjs": "^7.3.0",
+    "scriptkit-octokit": "^1.0.4",
     "shelljs": "^0.8.4",
-    "strip-ansi": "^6.0.0",
-    "trash": "^7.0.0",
-    "uuid": "^8.3.2"
+    "strip-ansi": "^7.0.0",
+    "trash": "^7.2.0",
+    "zx": "^4.1.1"
   },
-  "type": "module",
   "devDependencies": {
-    "@types/shelljs": "^0.8.8",
-    "concurrently": "^6.0.1",
-    "esbuild": "^0.11.6",
-    "esbuild-register": "^2.4.0",
+    "@types/concurrently": "^6.2.1",
+    "@types/debug": "^4.1.7",
+    "@types/lowdb": "^1.0.11",
+    "@types/node": "^16.7.10",
+    "@types/node-ipc": "^9.1.5",
+    "@types/node-notifier": "^8.0.1",
+    "@types/rimraf": "^3.0.2",
+    "ava": "^3.15.0",
+    "concurrently": "^6.2.1",
+    "debug": "^4.3.2",
     "rimraf": "^3.0.2",
-    "typescript": "^4.2.3"
+    "semantic-release": "^17.4.7",
+    "semantic-release-plugin-update-version-in-files": "^1.1.0",
+    "tsc-watch": "^4.5.0",
+    "typescript": "^4.4.2"
   },
-  "exports": {
-    "./ci/*": "./ci/*.js",
-    "./cli/*": "./cli/*.js",
-    "./ipc/*": "./ipc/*.js",
-    "./lib/*": "./lib/*.js",
-    "./main/*": "./main/*.js",
-    "./setup/*": "./setup/*.js"
+  "ava": {
+    "environmentVariables": {
+      "KIT_TEST": "true"
+    },
+    "verbose": true,
+    "files": [
+      "src/**/*.test.js",
+      "test/**/*.test.js"
+    ]
+  },
+  "release": {
+    "branches": [
+      "+([0-9]).x",
+      "main",
+      "next",
+      {
+        "name": "beta",
+        "prerelease": true
+      },
+      {
+        "name": "alpha",
+        "prerelease": true
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "./.kit"
+        }
+      ],
+      [
+        "semantic-release-plugin-update-version-in-files",
+        {
+          "files": [
+            "./.kit/package.json"
+          ]
+        }
+      ]
+    ]
   }
 }

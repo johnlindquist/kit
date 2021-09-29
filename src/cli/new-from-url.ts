@@ -1,6 +1,6 @@
 // Description: Creates a script from an entered url
 
-let { exists } = await cli("fns")
+import { exists } from "../core/utils.js"
 
 let url = await arg("Enter script url:")
 

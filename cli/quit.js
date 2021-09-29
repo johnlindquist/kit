@@ -1,1 +1,0 @@
-send("QUIT_APP");

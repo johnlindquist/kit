@@ -1,3 +1,6 @@
+import { Channel } from "../core/enum.js"
+import { Bounds } from "../types/lib"
+
 let utils = String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
 set AppleScript's text item delimiters to theSearchString
 set theTextItems to every text item of theText
@@ -29,7 +32,7 @@ to finalizeObject()
 end finalizeObject
 end script`
 
-export let getWindows = async () => {
+global.getWindows = async () => {
   let result = await applescript(String.raw`
 ${utils}
 
@@ -57,7 +60,7 @@ get V's JSON
   return JSON.parse(result)
 }
 
-export let focusWindow = async (process, title) => {
+global.focusWindow = async (process, title) => {
   return await applescript(String.raw`
 tell application "${process}"
 	activate	
@@ -76,8 +79,9 @@ end tell
 `)
 }
 
-export let getWindowsBounds = async () => {
-  let result = await applescript(String.raw`set listOfWindows to ""
+global.getWindowsBounds = async () => {
+  let result =
+    await applescript(String.raw`set listOfWindows to ""
 	tell application "System Events"
 		
 		set listOfProcesses to name of every process whose visible is true
@@ -108,12 +112,7 @@ export let getWindowsBounds = async () => {
   return JSON.parse(result)
 }
 
-export let setWindowPosition = async (
-  process,
-  title,
-  x,
-  y
-) => {
+global.setWindowPosition = async (process, title, x, y) => {
   return await applescript(String.raw`
 	tell application "System Events"
 	set theProcessWindow to window of process "${process}"
@@ -127,7 +126,7 @@ export let setWindowPosition = async (
 end tell`)
 }
 
-export let setWindowSizeByIndex = async (
+global.setWindowSizeByIndex = async (
   process,
   index,
   x,
@@ -146,7 +145,7 @@ export let setWindowSizeByIndex = async (
 	end tell`)
 }
 
-export let setWindowBoundsByIndex = async (
+global.setWindowBoundsByIndex = async (
   process,
   index,
   x,
@@ -168,7 +167,7 @@ export let setWindowBoundsByIndex = async (
 	  end tell`)
 }
 
-export let scatterWindows = async () => {
+global.scatterWindows = async () => {
   let { workArea } = await getActiveScreen()
   let { x, y, width, height } = workArea
 
@@ -197,10 +196,9 @@ end tell
   `)
 }
 
-export let organizeWindows = async () => {
+global.organizeWindows = async () => {
   let { workArea } = await getActiveScreen()
   let { x, y, width, height } = workArea
-  console.log({ x, y, width, height })
 
   let windows = await getWindows()
   let rows = Math.floor(Math.sqrt(windows.length))
@@ -245,7 +243,7 @@ export let organizeWindows = async () => {
   })
 }
 
-export let setWindowPositionByIndex = async (
+global.setWindowPositionByIndex = async (
   process,
   index,
   x,
@@ -264,7 +262,7 @@ export let setWindowPositionByIndex = async (
 	end tell`)
 }
 
-export let setWindowSize = async (process, title, x, y) => {
+global.setWindowSize = async (process, title, x, y) => {
   return await applescript(String.raw`
 	  tell application "System Events"
 	  set theProcessWindow to window of process "${process}"
@@ -278,7 +276,7 @@ export let setWindowSize = async (process, title, x, y) => {
   end tell`)
 }
 
-export let getScreens = async () => {
+global.getScreens = async () => {
   let result = await applescript(String.raw`
 ${utils}
 
@@ -304,7 +302,7 @@ get V's JSON
   return JSON.parse(result)
 }
 
-export let tileWindow = async (app, leftOrRight) => {
+global.tileWindow = async (app, leftOrRight) => {
   return await applescript(String.raw`
 	tell application "System Events"
 	tell process "${app}"
@@ -315,7 +313,7 @@ end tell
 	`)
 }
 
-export let getActiveScreen = async (): Promise<any> =>
+global.getActiveScreen = async (): Promise<any> =>
   new Promise((res, rej) => {
     let messageHandler = data => {
       if (data.channel === "SCREEN_INFO") {
@@ -325,10 +323,10 @@ export let getActiveScreen = async (): Promise<any> =>
     }
     process.on("message", messageHandler)
 
-    send("GET_SCREEN_INFO")
+    send(Channel.GET_SCREEN_INFO)
   })
 
-export let getMousePosition = async () =>
+global.getMousePosition = async () =>
   new Promise((res, rej) => {
     let messageHandler = data => {
       if (data.channel === "MOUSE") {
@@ -338,10 +336,10 @@ export let getMousePosition = async () =>
     }
     process.on("message", messageHandler)
 
-    send("GET_MOUSE")
+    send(Channel.GET_MOUSE)
   })
 
-export let setActiveAppBounds = async ({
+global.setActiveAppBounds = async ({
   left,
   top,
   right,
@@ -358,7 +356,7 @@ export let setActiveAppBounds = async ({
   )
 }
 
-export let getActiveAppBounds = async () => {
+global.getActiveAppBounds = async () => {
   let stringBounds = await applescript(String.raw`
   ${utils}
 
@@ -389,11 +387,5 @@ get V's JSON
       return acc
     },
     {}
-  )
-}
-
-export let notify = async (title, subtitle) => {
-  applescript(
-    String.raw`display notification with title "${title}" subtitle "${subtitle}"`
-  )
+  ) as Bounds
 }

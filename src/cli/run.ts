@@ -1,14 +1,12 @@
 // Description: Run the selected script
-let { findScript, menu } = await cli("fns")
+import { scriptValue } from "../core/db.js"
+import { run } from "../core/utils.js"
 
-let script = await arg(
-  {
-    placeholder: `Which script do you want to run?`,
-    validate: findScript,
-  },
-  menu
+let command = await arg(
+  `Which script do you want to run?`,
+  scriptValue("command")
 )
 
-await run(script)
+await run(command)
 
 export {}

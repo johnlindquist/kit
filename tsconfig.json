@@ -2,10 +2,12 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "outDir": "./",
+    "outDir": "./dist",
     "rootDir": "./src",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "lib": ["esnext", "DOM"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["./src/**/*.ts", "src/kit.d.ts"],
-  "exclude": ["./src/preload/**/*"]
+  "exclude": ["./root/**"]
 }

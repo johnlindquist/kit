@@ -11,7 +11,12 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+
     steps:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v3.x
@@ -25,18 +30,58 @@ jobs:
 
       - name: Checkout kit
         uses: actions/checkout@master
-        with:
-          path: kit
 
-      - name: Install latest node
-        run: >
-          bash kit/install-node.sh --prefix kit/node --platform darwin
+      - name: build-ci
+        run: |
+          ./build/build-ci.sh
+
+      - name: Set env vars
+        run: |
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
+
+      - name: Add node and kit to PATH
+        run: |
+          echo "${{ env.kit_path }}/node/bin" >> $GITHUB_PATH
+          echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
+          echo "---"
+          echo "$GITHUB_PATH"
+          echo "$PATH"
+
+      - name: Check node $PATH version
+        run: |
+          node --version
+          npm --version
+
+      - name: Log ./.kit
+        run: |
+          ls ./.kit/*/*
+
+      - name: npm i
+        run: |
+          cd "${{ env.wd_path }}"
+          npm i
+
+      - name: npm run test
+        run: |
+          npm run test
+        env:
+          KIT: ${{ env.kit_path }}
+
+      - name: Semantic Release
+        run: |
+          cd "${{ env.wd_path }}"
+          npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
           filename: "kit.zip"
-          exclusions: "*.git* /*node_modules/* .editorconfig /*src/*"
+          path: ".kit"
 
       - name: Create Draft Release
         id: create_release
@@ -45,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.time.outputs.time }}
-          release_name: kit-${{ env.GITHUB_REF_SLUG_URL }}.zip
+          release_name: ${{ env.release_channel }}
           draft: true
           prerelease: false
 
