@@ -11,7 +11,7 @@ import {
   isDir,
   extensionRegex,
 } from "./utils.js"
-import { Choice, Script, PromptDb } from "../types/kit"
+import { Choice, Script, PromptDb } from "../types/core"
 import { Low } from "lowdb"
 
 export let db = async (

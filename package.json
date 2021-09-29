@@ -19,8 +19,11 @@
   "typesVersions": {
     ">=0.0.0": {
       "*": [
+        "./types/app.d.ts",
+        "./types/core.d.ts",
         "./types/kit.d.ts",
-        "./types/lib.d.ts"
+        "./types/packages.d.ts",
+        "./types/platform.d.ts"
       ]
     }
   },

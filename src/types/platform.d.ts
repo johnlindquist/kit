@@ -24,6 +24,7 @@ type Browser =
   | "Brave"
   | "Firefox"
   | "Edge"
+
 interface GetActiveTab {
   (browser?: Browser): Promise<string>
 }
@@ -218,7 +219,7 @@ interface KeyStroke {
   (keyString: string): Promise<string>
 }
 
-export interface LibApi {
+export interface PlatformApi {
   copyPathAsImage: CopyPathAsImage
   fileSearch: FileSearch
   focusTab: FocusTab
@@ -257,7 +258,7 @@ export interface LibApi {
 
 declare global {
   namespace NodeJS {
-    interface Global extends LibApi {}
+    interface Global extends PlatformApi {}
   }
 
   var copyPathAsImage: CopyPathAsImage

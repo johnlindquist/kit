@@ -1,7 +1,7 @@
 //Menu: Edit Menu
 //Description: Select a script then edit action.
 
-import { Choice } from "../types/kit"
+import { Choice } from "../types/core"
 import { CLI } from "../types/cli"
 import { selectScript } from "../core/utils.js"
 

@@ -1,5 +1,5 @@
 import { Channel } from "../core/enum.js"
-import { Bounds } from "../types/lib"
+import { Bounds } from "../types/platform"
 
 let utils = String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
 set AppleScript's text item delimiters to theSearchString

@@ -1,4 +1,4 @@
-import { Script, PromptConfig } from "../types/kit"
+import { Script, PromptConfig } from "../types/core"
 import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
@@ -76,8 +76,12 @@ export const outputTmpFile = async (
   fileName: string,
   contents: string
 ) => {
-  let outputPath = path.resolve(tempdir(), "kit", fileName)
-  await outputFile(outputPath, contents)
+  let outputPath = path.resolve(
+    global.tempdir(),
+    "kit",
+    fileName
+  )
+  await global.outputFile(outputPath, contents)
   return outputPath
 }
 
@@ -433,7 +437,7 @@ export let selectScript = async (
   fromCache = true,
   xf = x => x
 ): Promise<Script> => {
-  let script = await arg<Script | string>(
+  let script: Script | string = await global.arg(
     message,
     xf(await getScripts(fromCache))
   )
@@ -448,15 +452,15 @@ export let selectScript = async (
 //validator
 export let exists = async (input: string) => {
   return (await isBin(kenvPath("bin", input)))
-    ? chalk`{red.bold ${input}} already exists. Try again:`
+    ? global.chalk`{red.bold ${input}} already exists. Try again:`
     : (await isDir(kenvPath("bin", input)))
-    ? chalk`{red.bold ${input}} exists as group. Enter different name:`
-    : exec(`command -v ${input}`, {
+    ? global.chalk`{red.bold ${input}} exists as group. Enter different name:`
+    : global.exec(`command -v ${input}`, {
         silent: true,
       }).stdout
-    ? chalk`{red.bold ${input}} is a system command. Enter different name:`
+    ? global.chalk`{red.bold ${input}} is a system command. Enter different name:`
     : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
-    ? chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
+    ? global.chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
     : true
 }
 
@@ -467,32 +471,38 @@ export let toggleBackground = async (script: Script) => {
     task => task.filePath === script.filePath
   )
 
-  let toggleOrLog = await arg<"toggle" | "log" | "edit">(
-    `${script.command} is ${task ? `running` : `stopped`}`,
-    [
-      {
-        name: `${task ? `Stop` : `Start`} ${
-          script.command
-        }`,
-        value: `toggle`,
-      },
-      { name: `Edit ${script.command}`, value: `edit` },
-      { name: `View ${script.command}.log`, value: `log` },
-    ]
-  )
+  let toggleOrLog: "toggle" | "log" | "edit" =
+    await global.arg(
+      `${script.command} is ${
+        task ? `running` : `stopped`
+      }`,
+      [
+        {
+          name: `${task ? `Stop` : `Start`} ${
+            script.command
+          }`,
+          value: `toggle`,
+        },
+        { name: `Edit ${script.command}`, value: `edit` },
+        {
+          name: `View ${script.command}.log`,
+          value: `log`,
+        },
+      ]
+    )
 
   if (toggleOrLog === "toggle") {
-    send(Channel.TOGGLE_BACKGROUND, {
+    global.send(Channel.TOGGLE_BACKGROUND, {
       filePath: script.filePath,
     })
   }
 
   if (toggleOrLog === "edit") {
-    await edit(script.filePath, kenvPath())
+    await global.edit(script.filePath, kenvPath())
   }
 
   if (toggleOrLog === "log") {
-    await edit(
+    await global.edit(
       kenvPath("logs", `${script.command}.log`),
       kenvPath()
     )
@@ -508,11 +518,11 @@ export let createBinFromScript = async (
     "utf8"
   )
 
-  let binTemplateCompiler = compile(binTemplate)
+  let binTemplateCompiler = global.compile(binTemplate)
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type,
-    ...env,
+    ...global.env,
     TARGET_PATH: filePath,
   })
 
@@ -524,9 +534,9 @@ export let createBinFromScript = async (
     command
   )
 
-  mkdir("-p", path.dirname(binFilePath))
-  await writeFile(binFilePath, compiledBinTemplate)
-  chmod(755, binFilePath)
+  global.mkdir("-p", path.dirname(binFilePath))
+  await global.writeFile(binFilePath, compiledBinTemplate)
+  global.chmod(755, binFilePath)
 }
 
 export let createBinFromName = async (
@@ -538,23 +548,23 @@ export let createBinFromName = async (
     "utf8"
   )
 
-  let binTemplateCompiler = compile(binTemplate)
+  let binTemplateCompiler = global.compile(binTemplate)
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type: Bin.scripts,
-    ...env,
+    ...global.env,
     TARGET_PATH: kenv,
   })
 
   let binFilePath = path.resolve(kenv, "bin", command)
 
-  mkdir("-p", path.dirname(binFilePath))
-  await writeFile(binFilePath, compiledBinTemplate)
-  chmod(755, binFilePath)
+  global.mkdir("-p", path.dirname(binFilePath))
+  await global.writeFile(binFilePath, compiledBinTemplate)
+  global.chmod(755, binFilePath)
 }
 
 export let trashBinFromScript = async (script: Script) => {
-  trash([
+  global.trash([
     kenvPath(
       script.kenv && `kenvs/${script.kenv}`,
       "bin",
@@ -595,7 +605,7 @@ export let selectKenv = async (): Promise<Kenv> => {
       }),
     ]
 
-    selectedKenv = await arg<Kenv | string>(
+    selectedKenv = await global.arg(
       `Select target kenv`,
       kenvChoices
     )

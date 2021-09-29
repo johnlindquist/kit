@@ -1,4 +1,4 @@
-import { Choice, FlagsOptions } from "../types/kit"
+import { Choice, FlagsOptions } from "../types/core"
 import { Channel } from "../core/enum.js"
 
 import {
@@ -237,14 +237,6 @@ global.setup = async (setupPath, ..._args) => {
   )
 }
 
-/**
- * Generate a path `~/.kenv/tmp/{command}/...parts`
- *
- * @example
- * ```
- * tmpPath("taco.txt") // ~/.kenv/tmp/command/taco.txt
- * ```
- */
 global.tmpPath = (...parts) => {
   let command = resolveScriptToCommand(global.kitScript)
   let scriptTmpDir = kenvPath("tmp", command, ...parts)

@@ -1,4 +1,4 @@
-import { PromptConfig } from "../types/kit"
+import { PromptConfig } from "../types/core"
 import {
   assignPropsTo,
   resolveToScriptPath,
