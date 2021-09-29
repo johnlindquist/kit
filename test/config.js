@@ -47,7 +47,7 @@ let testScript = async (name, content, type = "js") => {
     content
   )
 
-  return await $`${kenvPath("bin", name)}`
+  return $`${kenvPath("bin", name)}`
 }
 
 global.testScript = testScript

@@ -1,13 +1,13 @@
 import { Channel } from "../core/enum.js"
 
 global.getSelectedText = async () => {
-  send(Channel.HIDE_APP)
+  global.send(Channel.HIDE_APP)
 
   await applescript(
     String.raw`tell application "System Events" to keystroke "c" using command down`
   )
 
-  return await paste()
+  return await global.paste()
 }
 
 /**
@@ -19,7 +19,7 @@ await setSelectedText(`Script Kit is awesome!`)
 */
 
 global.setSelectedText = async text => {
-  send(Channel.HIDE_APP)
+  global.send(Channel.HIDE_APP)
 
   await applescript(
     String.raw`set the clipboard to "${text.replaceAll(

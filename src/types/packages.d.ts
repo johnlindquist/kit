@@ -8,12 +8,16 @@ import * as handlebars from "handlebars"
 import * as clipboardy from "clipboardy"
 import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
+import { Notification } from "node-notifier"
 
 type Trash = typeof import("trash")
 type Download = typeof import("download")
 
-export type Notify =
-  typeof import("../api/packages/node-notifier").notify
+export type KitNotification = string | Notification
+
+interface Notify {
+  (notification: KitNotification)
+}
 
 interface CompileTemplate {
   (template: string, vars: any): Promise<string>
@@ -80,7 +84,6 @@ export interface PackagesApi {
   copy: typeof clipboardy.write
   trash: Trash
   rm: Trash
-  checkProcess: (processId: number) => string
   compileTemplate: CompileTemplate
   md: Markdown
   notify: Notify
@@ -103,10 +106,6 @@ export interface PackagesApi {
 }
 
 declare global {
-  namespace NodeJS {
-    interface Global extends PackagesApi {}
-  }
-
   var cd: typeof shelljs.cd
   var cp: typeof shelljs.cp
   var chmod: typeof shelljs.chmod

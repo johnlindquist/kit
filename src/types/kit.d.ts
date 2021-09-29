@@ -1,5 +1,4 @@
 export {}
-import { Low } from "lowdb"
 
 import { AppApi } from "./app"
 import {
@@ -31,7 +30,10 @@ interface EnvConfig extends PromptConfig {
 interface Env {
   (
     envKey: string,
-    promptConfig?: EnvConfig | (() => Promise<string>)
+    promptConfig?:
+      | string
+      | EnvConfig
+      | (() => Promise<string>)
   ): Promise<string>
   [key: string]: any
 }
@@ -50,20 +52,8 @@ interface Inspect {
   (data: any, extension?: string): Promise<void>
 }
 
-interface CompileTemplate {
-  (template: string, vars: any): Promise<string>
-}
-
 interface OnTab {
   (name: string, fn: () => void): void
-}
-
-interface Markdown {
-  (markdown: string): string
-}
-
-interface AppleScript {
-  (script: string, options?: any): Promise<string>
 }
 
 export interface KitModuleLoader {
@@ -89,13 +79,7 @@ interface IsCheck {
   (file: string): Promise<boolean>
 }
 
-interface DB {
-  (
-    key: string,
-    defaults?: any,
-    forceReload?: boolean
-  ): Promise<Low<any> | any>
-}
+type DB = typeof import("../core/db").db
 
 interface GetScripts {
   (fromCache: boolean): Promise<Script[]>
@@ -133,12 +117,7 @@ export interface KitApi {
 
   inspect: Inspect
 
-  compileTemplate: CompileTemplate
-
   onTab: OnTab
-  md: Markdown
-
-  applescript: AppleScript
 
   attemptImport: KitModuleLoader
   npm: KitModuleLoader
@@ -185,7 +164,7 @@ declare global {
     PackagesApi &
     PlatformApi
   namespace NodeJS {
-    interface Global extends KitApi {}
+    interface Global extends GlobalApi {}
   }
 
   var edit: Edit
@@ -211,7 +190,6 @@ declare global {
   var env: Env
   var arg: Arg
   var onTab: OnTab
-  var applescript: AppleScript
   var args: Args
 
   var updateArgs: UpdateArgs

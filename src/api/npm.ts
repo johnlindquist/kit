@@ -17,7 +17,11 @@ let findMain = async (
 ) => {
   try {
     let kPath = (...pathParts: string[]) =>
-      kenvPath("node_modules", packageName, ...pathParts)
+      global.kenvPath(
+        "node_modules",
+        packageName,
+        ...pathParts
+      )
 
     let { module, main, type } = packageJson
 
@@ -25,12 +29,12 @@ let findMain = async (
     if (main && main.endsWith(".js")) return kPath(main)
     if (main && !main.endsWith(".js")) {
       // Author forgot to add .js
-      if (await isFile(kPath(`${main}.js`))) {
+      if (await global.isFile(kPath(`${main}.js`))) {
         return kPath(`${main}.js`)
       }
 
       // "main" is just a path that contains index.js
-      if (await isFile(kPath(main, "index.js"))) {
+      if (await global.isFile(kPath(main, "index.js"))) {
         return kPath(main, "index.js")
       }
     }
@@ -42,18 +46,18 @@ let findMain = async (
 
 let kenvImport = async packageName => {
   try {
-    let packageJson = kenvPath(
+    let packageJson = global.kenvPath(
       "node_modules",
       packageName,
       "package.json"
     )
 
-    if (!(await isFile(packageJson))) {
+    if (!(await global.isFile(packageJson))) {
       throw new Error(`${packageJson} doesn't exist`)
     }
 
     let pkgPackageJson = JSON.parse(
-      await readFile(packageJson, "utf-8")
+      await global.readFile(packageJson, "utf-8")
     )
 
     let mainModule = await findMain(
@@ -68,7 +72,10 @@ let kenvImport = async packageName => {
 
 export let createNpm = npmInstall => async packageName => {
   let { dependencies: kitDeps } = JSON.parse(
-    await readFile(kitPath("package.json"), "utf-8")
+    await global.readFile(
+      global.kitPath("package.json"),
+      "utf-8"
+    )
   )
 
   let isKitDep = kitDeps[packageName]
@@ -80,7 +87,10 @@ export let createNpm = npmInstall => async packageName => {
   //fix missing kenv dep
 
   let { dependencies: kenvDeps } = JSON.parse(
-    await readFile(kenvPath("package.json"), "utf-8")
+    await global.readFile(
+      global.kenvPath("package.json"),
+      "utf-8"
+    )
   )
 
   let isKenvDep = kenvDeps[packageName]

@@ -1,8 +1,5 @@
 import { PromptConfig } from "../types/core"
-import {
-  assignPropsTo,
-  resolveToScriptPath,
-} from "../core/utils.js"
+import { assignPropsTo } from "../core/utils.js"
 let { default: enquirer } = (await import(
   "enquirer"
 )) as any
@@ -86,9 +83,9 @@ global.arg = async (messageOrConfig = "Input", choices) => {
     let valid = true
     if (
       typeof messageOrConfig !== "string" &&
-      messageOrConfig?.validate
+      (messageOrConfig as PromptConfig)?.validate
     ) {
-      let { validate } = messageOrConfig
+      let { validate } = messageOrConfig as PromptConfig
       let validOrMessage = await validate(firstArg)
       if (typeof validOrMessage === "string") {
         console.log(validOrMessage)
@@ -152,7 +149,7 @@ let terminalInstall = async packageName => {
     let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`
     let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${
       (
-        await get(
+        await global.get(
           `https://api.npmjs.org/downloads/point/last-week/` +
             packageName
         )
@@ -162,9 +159,9 @@ let terminalInstall = async packageName => {
     let readMore = global.chalk`
   Read more about {yellow ${packageName}} here: {yellow ${packageLink}}
   `
-    echo(installMessage)
-    echo(downloadsMessage)
-    echo(readMore)
+    global.echo(installMessage)
+    global.echo(downloadsMessage)
+    global.echo(readMore)
     let message = global.chalk`Do you trust {yellow ${packageName}}?`
     let config: PromptConfig = {
       placeholder: message,
@@ -175,11 +172,11 @@ let terminalInstall = async packageName => {
     }
     let trust = await global.kitPrompt(config)
     if (!trust) {
-      echo(`Ok. Exiting...`)
-      exit()
+      global.echo(`Ok. Exiting...`)
+      global.exit()
     }
   }
-  echo(
+  global.echo(
     global.chalk`Installing {yellow ${packageName}} and continuing...`
   )
   await global.cli("install", packageName)
@@ -214,19 +211,19 @@ global.div = async (html = "", containerClasses = "") => {
 global.textarea = async () => {
   console.warn(`"textarea" is not support in the terminal`)
 
-  exit()
+  global.exit()
 }
 
 global.editor = async () => {
   console.warn(`"editor" is not support in the terminal`)
 
-  exit()
+  global.exit()
 }
 
 global.drop = async () => {
   console.warn(`"drop" is not support in the terminal`)
 
-  exit()
+  global.exit()
 }
 
 global.setPanel = async (html, containerClasses = "") => {}

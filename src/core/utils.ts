@@ -411,14 +411,6 @@ export const getLogFromScriptPath = (filePath: string) => {
     .replace(/\.js$/, ".log")
 }
 
-declare global {
-  namespace NodeJS {
-    interface Global {
-      kitScript: string
-    }
-  }
-}
-
 export const resolveKenv = (...parts: string[]) => {
   if (global.kitScript) {
     return path.resolve(

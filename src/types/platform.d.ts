@@ -219,7 +219,12 @@ interface KeyStroke {
   (keyString: string): Promise<string>
 }
 
+interface AppleScript {
+  (script: string, options?: any): Promise<string>
+}
+
 export interface PlatformApi {
+  applescript: AppleScript
   copyPathAsImage: CopyPathAsImage
   fileSearch: FileSearch
   focusTab: FocusTab
@@ -257,10 +262,7 @@ export interface PlatformApi {
 }
 
 declare global {
-  namespace NodeJS {
-    interface Global extends PlatformApi {}
-  }
-
+  var applescript: AppleScript
   var copyPathAsImage: CopyPathAsImage
   var fileSearch: FileSearch
   var focusTab: FocusTab

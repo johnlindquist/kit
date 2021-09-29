@@ -184,9 +184,6 @@ export interface Schedule extends Choice {
 }
 
 declare global {
-  namespace NodeJS {
-    interface Global extends AppApi {}
-  }
   var cwd: typeof process.cwd
 
   var path: typeof import("path")
