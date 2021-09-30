@@ -1,8 +1,4 @@
-import {
-  selectScript,
-  selectKenv,
-  run,
-} from "./core/utils.js"
+import path from "path"
 
 export let kit = async (
   command: string,
@@ -17,7 +13,7 @@ export let kit = async (
   await import("./api/lib.js")
   await import("./target/terminal.js")
 
-  return await run(command, ..._args)
+  return await global.run(command, ..._args)
 }
 
 let dirs = ["cli", "main"]
@@ -50,5 +46,5 @@ global.kit = new Proxy(kit, {
   get: kitGet,
 })
 
-export { selectKenv, selectScript }
+export { selectKenv, selectScript } from "./core/utils.js"
 //codegen

@@ -10,5 +10,5 @@
     "declaration": true,
     "emitDeclarationOnly": true
   },
-  "include": ["./src/core/*"]
+  "include": ["./src/index.ts", "./src/core/*"]
 }
