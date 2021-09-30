@@ -10,8 +10,9 @@ import {
   writeScriptsDb,
   isDir,
   extensionRegex,
+  resolveScriptToCommand,
 } from "./utils.js"
-import { Choice, Script, PromptDb } from "../types/kit"
+import { Choice, Script, PromptDb } from "../types/core"
 import { Low } from "lowdb"
 
 export let db = async (
@@ -19,6 +20,14 @@ export let db = async (
   defaults: any = {},
   fromCache = true
 ): Promise<Low & any> => {
+  if (
+    typeof defaults === "undefined" &&
+    typeof key !== "string"
+  ) {
+    defaults = key
+    key = "_" + resolveScriptToCommand(global.kitScript)
+  }
+
   let dbPath =
     key.startsWith(path.sep) && key.endsWith(".json")
       ? key
@@ -84,6 +93,8 @@ export let db = async (
     },
   })
 }
+
+global.db = db
 
 export let getScriptsDb = async (
   fromCache = true

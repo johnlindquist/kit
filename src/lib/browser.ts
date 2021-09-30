@@ -101,7 +101,7 @@ global.scrapeSelector = async (
   { headless, timeout } = { headless: true, timeout: 5000 }
 ) => {
   /** @type typeof import("playwright") */
-  let { chromium } = await npm("playwright")
+  let { chromium } = await global.npm("playwright")
 
   if (!xf) xf = el => el.innerText
   let browser = await chromium.launch({ headless })
@@ -131,7 +131,7 @@ global.scrapeAttribute = async (
   attribute: string,
   { headless, timeout } = { headless: true, timeout: 5000 }
 ) => {
-  let { chromium } = await npm("playwright")
+  let { chromium } = await global.npm("playwright")
 
   let browser = await chromium.launch({ headless, timeout })
   let context = await browser.newContext()

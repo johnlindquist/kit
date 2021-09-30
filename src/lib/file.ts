@@ -7,9 +7,10 @@ global.fileSearch = async (
     onlyin ? ` -onlyin ${onlyin}` : ``
   }${kind ? ` "kind:${kind}"` : ``}`
 
-  return exec(command, {
-    silent: true,
-  })
+  return global
+    .exec(command, {
+      silent: true,
+    })
     .toString()
     .split("\n")
 }

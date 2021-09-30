@@ -1,4 +1,4 @@
-import { Choice } from "../types/kit"
+import { Choice } from "../types/core"
 import { CLI } from "../types/cli"
 import { kitMode, run } from "../core/utils.js"
 

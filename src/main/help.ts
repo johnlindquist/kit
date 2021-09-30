@@ -1,5 +1,4 @@
-import { Choice } from "../types/kit"
-
+import { Choice } from "../types/core"
 import { CLI } from "../types/cli"
 import { run } from "../core/utils.js"
 

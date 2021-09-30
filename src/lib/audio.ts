@@ -2,7 +2,7 @@ global.playAudioFile = async (
   path,
   playInBackground = true
 ) => {
-  return exec(
+  return global.exec(
     `afplay ${path} ${
       playInBackground ? "&>/dev/null &" : ""
     }`

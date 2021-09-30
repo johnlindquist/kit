@@ -1,6 +1,6 @@
 // Description: Change Script Shortcut
 import { friendlyShortcut } from "../core/utils.js"
-import { Script } from "../types/kit"
+import { Script } from "../types/core"
 
 import { selectScript } from "../core/utils.js"
 

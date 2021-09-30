@@ -119,3 +119,8 @@ export enum Bin {
   cli = "cli",
   scripts = "scripts",
 }
+
+export enum Secret {
+  password = "password",
+  text = "text",
+}

@@ -1,7 +1,7 @@
 // Menu: Manage Kit
 // Description: Options and Helpers
 
-import { Choice } from "../types/kit"
+import { Choice } from "../types/core"
 import { CLI } from "../types/cli"
 
 import { getKenvs, kitMode, run } from "../core/utils.js"
