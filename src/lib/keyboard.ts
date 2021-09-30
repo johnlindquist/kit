@@ -9,7 +9,7 @@ await keystroke("command option e")
 import { Channel } from "../core/enum.js"
 
 global.keystroke = async (keyString: string) => {
-  send(Channel.HIDE_APP)
+  global.send(Channel.HIDE_APP)
   let keyCodes = {
     left: "123",
     right: "124",

@@ -1,8 +1,7 @@
-import {
-  Choice,
-  EditorConfig,
-  PromptConfig,
-} from "../types/kit"
+import { Choice, PromptConfig } from "../types/core"
+
+import { EditorConfig } from "../types/app"
+
 import { Observable, merge, NEVER, of } from "rxjs"
 import {
   filter,
@@ -16,33 +15,6 @@ import {
 import stripAnsi from "strip-ansi"
 import { Mode, Channel, UI } from "../core/enum.js"
 import { assignPropsTo } from "../core/utils.js"
-
-// let exception$ = new Observable(observer => {
-//   let e = (error: Error) => observer.next(error)
-//   process.on("uncaughtException", e)
-
-//   return () => {
-//     process.off("uncaughtException", e)
-//   }
-// }).pipe(share())
-
-// let rejection$ = new Observable(observer => {
-//   let e = (error: Error) => observer.next(error)
-
-//   process.on("unhandledRejection", e)
-
-//   return () => {
-//     process.off("unhandledRejection", e)
-//   }
-// }).pipe(share())
-
-interface MessageHandler {
-  (data: AppMessage): void
-}
-
-interface ErrorHandler {
-  (error: Error): void
-}
 
 interface AppMessage {
   channel: Channel
@@ -65,11 +37,6 @@ let displayChoices = (
       global.setChoices(checkResultInfo(choices), className)
       break
   }
-}
-
-interface ChoicesTarget {
-  promptId: number
-  tabIndex: number
 }
 
 let checkResultInfo = result => {
@@ -404,26 +371,6 @@ global.arg = async (
       return firstArg
     }
   }
-  // if (firstArg) {
-  //   let valid = true
-  //   if (
-  //     typeof placeholderOrConfig !== "string" &&
-  //     placeholderOrConfig?.validate
-  //   ) {
-  //     let { validate } = placeholderOrConfig
-  //     let validOrMessage = await validate(firstArg)
-  //     valid =
-  //       typeof validOrMessage === "boolean" &&
-  //       validOrMessage
-
-  //     if (typeof validOrMessage === "string")
-  //       placeholderOrValidateMessage = validOrMessage
-  //   }
-
-  //   if (valid) {
-  //     return firstArg
-  //   }
-  // }
 
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({

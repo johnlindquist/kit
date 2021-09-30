@@ -31,7 +31,6 @@ await import("./packages/fs.js")
 await import("./packages/fsPromises.js")
 await import("./packages/handlebars.js")
 await import("./packages/lodash.js")
-await import("./packages/lowdb.js")
 await import("./packages/marked.js")
 await import("./packages/node-fetch.js")
 await import("./packages/node-notifier.js")
@@ -47,6 +46,10 @@ global.env = async (envKey, promptConfig) => {
   let input =
     typeof promptConfig === "function"
       ? await promptConfig()
+      : typeof promptConfig === "string"
+      ? await global.kitPrompt({
+          placeholder: promptConfig,
+        })
       : await global.kitPrompt({
           placeholder: `Set ${envKey} to:`,
           ...promptConfig,

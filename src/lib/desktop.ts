@@ -1,5 +1,5 @@
 import { Channel } from "../core/enum.js"
-import { Bounds } from "../types/lib"
+import { Bounds } from "../types/platform"
 
 let utils = String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
 set AppleScript's text item delimiters to theSearchString
@@ -323,7 +323,7 @@ global.getActiveScreen = async (): Promise<any> =>
     }
     process.on("message", messageHandler)
 
-    send(Channel.GET_SCREEN_INFO)
+    global.send(Channel.GET_SCREEN_INFO)
   })
 
 global.getMousePosition = async () =>
@@ -336,7 +336,7 @@ global.getMousePosition = async () =>
     }
     process.on("message", messageHandler)
 
-    send(Channel.GET_MOUSE)
+    global.send(Channel.GET_MOUSE)
   })
 
 global.setActiveAppBounds = async ({

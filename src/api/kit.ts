@@ -1,4 +1,4 @@
-import { Choice, FlagsOptions } from "../types/kit"
+import { Choice, FlagsOptions } from "../types/core"
 import { Channel } from "../core/enum.js"
 
 import {
@@ -43,11 +43,11 @@ export let errorPrompt = async (error: Error) => {
     let errorJsonPath = global.tmp(
       `error-${dashedDate()}.txt`
     )
-    await writeFile(errorJsonPath, errorToCopy)
+    await global.writeFile(errorJsonPath, errorToCopy)
     // .replaceAll('"', '\\"')
     // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
 
-    let child = spawnSync(kitPath("bin", "sk"), [
+    let child = global.spawnSync(kitPath("bin", "sk"), [
       kitPath("cli", "error-action.js"),
       script,
       errorJsonPath, //.replaceAll('"', '\\"'),
@@ -69,18 +69,18 @@ global.attemptImport = async (scriptPath, ..._args) => {
       try {
         let { build } = await import("esbuild")
 
-        let tmpScriptName = path
+        let tmpScriptName = global.path
           .basename(scriptPath)
           .replace(/\.ts$/, ".mjs")
 
-        let dirName = path.dirname(scriptPath)
+        let dirName = global.path.dirname(scriptPath)
         let inScriptsDir = dirName.endsWith(
-          path.sep + "scripts"
+          global.path.sep + "scripts"
         )
           ? ["..", ".scripts"]
           : []
 
-        let outfile = path.join(
+        let outfile = global.path.join(
           scriptPath,
           "..",
           ...inScriptsDir,
@@ -119,7 +119,9 @@ global.attemptImport = async (scriptPath, ..._args) => {
     ) {
       let tmpScript = await copyTmpFile(
         scriptPath,
-        path.basename(scriptPath).replace(/\.js$/, ".mjs")
+        global.path
+          .basename(scriptPath)
+          .replace(/\.js$/, ".mjs")
       )
       importResult = await run(tmpScript)
       // await rm(mjsVersion)
@@ -237,25 +239,17 @@ global.setup = async (setupPath, ..._args) => {
   )
 }
 
-/**
- * Generate a path `~/.kenv/tmp/{command}/...parts`
- *
- * @example
- * ```
- * tmpPath("taco.txt") // ~/.kenv/tmp/command/taco.txt
- * ```
- */
 global.tmpPath = (...parts) => {
   let command = resolveScriptToCommand(global.kitScript)
-  let scriptTmpDir = kenvPath("tmp", command, ...parts)
+  let scriptTmpDir = global.kenvPath("tmp", command, ...parts)
 
-  mkdir("-p", path.dirname(scriptTmpDir))
+  global.mkdir("-p", global.path.dirname(scriptTmpDir))
   return scriptTmpDir
 }
 /**
  * @deprecated use `tmpPath` instead
  */
-global.tmp = tmpPath
+global.tmp = global.tmpPath
 global.inspect = async (data, extension) => {
   let dashedDate = () =>
     new Date()
@@ -281,17 +275,17 @@ global.inspect = async (data, extension) => {
     tmpFullPath = global.tmpPath(`${dashedDate()}.txt`)
   }
 
-  await writeFile(tmpFullPath, formattedData)
+  await global.writeFile(tmpFullPath, formattedData)
 
   await global.edit(tmpFullPath)
 }
 
 global.compileTemplate = async (template, vars) => {
-  let templateContent = await readFile(
+  let templateContent = await global.readFile(
     kenvPath("templates", template),
     "utf8"
   )
-  let templateCompiler = compile(templateContent)
+  let templateCompiler = global.compile(templateContent)
   return templateCompiler(vars)
 }
 
@@ -364,10 +358,10 @@ global.setFlags = (flags: FlagsOptions) => {
       value: key,
     }
   }
-  send(Channel.SET_FLAGS, { flags: validFlags })
+  global.send(Channel.SET_FLAGS, { flags: validFlags })
 }
 global.hide = () => {
-  send(Channel.HIDE_APP)
+  global.send(Channel.HIDE_APP)
 }
 
 global.run = run

@@ -1,4 +1,4 @@
-import { Script } from "../types/kit"
+import { Script } from "../types/core"
 
 import { getScripts } from "../core/db.js"
 

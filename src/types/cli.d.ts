@@ -140,9 +140,5 @@ interface CliApi {
 }
 
 declare global {
-  namespace NodeJS {
-    interface Global extends CliApi {}
-  }
-
   var cli: CliModuleLoader
 }
