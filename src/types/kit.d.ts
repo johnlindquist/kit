@@ -11,11 +11,6 @@ import {
 import { PackagesApi } from "./packages"
 import { PlatformApi } from "./platform"
 
-export enum Secret {
-  password = "password",
-  text = "text",
-}
-
 interface Arg {
   [key: string]: any
   <T = string>(
@@ -56,7 +51,7 @@ interface OnTab {
   (name: string, fn: () => void): void
 }
 
-export interface KitModuleLoader {
+interface KitModuleLoader {
   (
     packageName: string,
     ...moduleArgs: string[]
@@ -85,8 +80,8 @@ interface GetScripts {
   (fromCache: boolean): Promise<Script[]>
 }
 
-export type FlagFn = (flags: FlagsOptions) => void
-export type Flags = {
+type FlagFn = (flags: FlagsOptions) => void
+type Flags = {
   [key: string]: boolean | string
 }
 
@@ -94,7 +89,7 @@ interface SelectKitEditor {
   (reset: boolean): Promise<string>
 }
 
-export interface KitApi {
+interface KitApi {
   db: DB
 
   wait: Wait
