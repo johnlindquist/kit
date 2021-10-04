@@ -308,29 +308,34 @@ export let parseMetadata = async (
   }
 }
 
-export let parseFilePath = async (
-  filePath: string
-): Promise<ScriptPathInfo> => {
-  let contents = await readFile(filePath, "utf8")
-  let command =
-    path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
+export let commandFromFilePath = (filePath: string) =>
+  path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
-  let kenv =
-    filePath.match(
-      new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
-    )?.[0] || ""
+export let kenvFromFilePath = (filePath: string) =>
+  filePath.match(
+    new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
+  )?.[0] || ""
 
+export let iconFromKenv = async (kenv: string) => {
   let iconPath = kenv
     ? kenvPath("kenvs", kenv, "icon.png")
     : ""
 
-  let icon =
-    kenv && (await isFile(iconPath)) ? iconPath : ""
+  return kenv && (await isFile(iconPath)) ? iconPath : ""
+}
+
+export let parseFilePath = async (
+  filePath: string
+): Promise<ScriptPathInfo> => {
+  let contents = await readFile(filePath, "utf8")
+  let command = commandFromFilePath(filePath)
+  let kenv = kenvFromFilePath(filePath)
+  let icon = await iconFromKenv(kenv)
 
   return {
+    contents,
     id: filePath,
     command,
-    contents,
     filePath,
     kenv,
     icon,
