@@ -1,4 +1,9 @@
-import { Script, PromptConfig } from "../types/core"
+import {
+  Script,
+  PromptConfig,
+  ScriptPathInfo,
+  ScriptMetadata,
+} from "../types/core"
 import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
@@ -227,20 +232,15 @@ export const friendlyShortcut = (shortcut: string) => {
   return f
 }
 
-export let info = async (
-  filePath: string
-): Promise<Script> => {
-  let fileContents = await readFile(filePath, "utf8")
-
+export let parseMetadata = async (
+  fileContents: string
+): Promise<ScriptMetadata> => {
   let getByMarker = (marker: string) =>
     fileContents
       .match(
         new RegExp(`(?<=^//\\s*${marker}\\s*).*`, "gim")
       )?.[0]
       .trim() || ""
-
-  let command =
-    path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
   let shortcut = shortcutNormalizer(
     getByMarker("Shortcut:")
@@ -282,25 +282,11 @@ export let info = async (
     ? ProcessType.Background
     : ProcessType.Prompt
 
-  let kenv =
-    filePath.match(
-      new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
-    )?.[0] || ""
-
-  let iconPath = kenv
-    ? kenvPath("kenvs", kenv, "icon.png")
-    : ""
-
-  let icon =
-    kenv && (await isFile(iconPath)) ? iconPath : ""
-
   return {
-    command,
     type,
     shortcut,
     friendlyShortcut: friendlyShortcut(shortcut),
     menu,
-    name: menu || command,
     description: getByMarker("Description:"),
     alias: getByMarker("Alias:"),
     author: getByMarker("Author:"),
@@ -315,14 +301,54 @@ export let info = async (
     watch,
     system,
     background,
-    id: filePath,
-    filePath,
+    img,
     requiresPrompt,
     timeout,
     tabs,
+  }
+}
+
+export let parseFilePath = async (
+  filePath: string
+): Promise<ScriptPathInfo> => {
+  let contents = await readFile(filePath, "utf8")
+  let command =
+    path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
+
+  let kenv =
+    filePath.match(
+      new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
+    )?.[0] || ""
+
+  let iconPath = kenv
+    ? kenvPath("kenvs", kenv, "icon.png")
+    : ""
+
+  let icon =
+    kenv && (await isFile(iconPath)) ? iconPath : ""
+
+  return {
+    id: filePath,
+    command,
+    contents,
+    filePath,
     kenv,
-    img,
     icon,
+  }
+}
+
+export let parseScript = async (
+  filePath: string
+): Promise<Script> => {
+  let parsedFilePath = await parseFilePath(filePath)
+  let metadata = await parseMetadata(
+    parsedFilePath.contents
+  )
+
+  return {
+    name: metadata.menu || parsedFilePath.command,
+    ...parsedFilePath,
+    ...metadata,
   }
 }
 
@@ -378,7 +404,9 @@ export let writeScriptsDb = async () => {
     scriptFiles = [...scriptFiles, ...scripts]
   }
 
-  let scriptInfo = await Promise.all(scriptFiles.map(info))
+  let scriptInfo = await Promise.all(
+    scriptFiles.map(parseScript)
+  )
   return scriptInfo.sort((a: Script, b: Script) => {
     let aName = a.name.toLowerCase()
     let bName = b.name.toLowerCase()
@@ -628,7 +656,7 @@ export let run = async (
   global.kitScript = resolvedScript
 
   if (process.env.KIT_CONTEXT === "app") {
-    let script = await info(global.kitScript)
+    let script = await parseFilePath(global.kitScript)
 
     global.send(Channel.SET_SCRIPT, {
       script,
