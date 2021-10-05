@@ -3,6 +3,7 @@ import {
   PromptConfig,
   ScriptPathInfo,
   ScriptMetadata,
+  Metadata,
 } from "../types/core"
 import * as path from "path"
 import * as os from "os"
@@ -240,7 +241,7 @@ export let getMetadataByMarker =
       )?.[0]
       .trim() || ""
 
-export let getMetadata = (string: string) => {
+export let getMetadata = (string: string): Metadata => {
   let matches = string.matchAll(
     /(?<=^\/\/)([^:]*)(?::)(.*)/gm
   )
@@ -255,10 +256,6 @@ export let getMetadata = (string: string) => {
   }
 
   return metadata
-}
-
-interface Metadata {
-  [key: string]: string
 }
 
 export let formatScriptMetadata = (

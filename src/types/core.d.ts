@@ -157,3 +157,7 @@ export interface PromptConfig
   choices?: Choices<any> | Panel
   flags?: FlagsOptions
 }
+
+export interface Metadata {
+  [key: string]: string
+}
