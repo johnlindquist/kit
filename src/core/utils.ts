@@ -232,31 +232,88 @@ export const friendlyShortcut = (shortcut: string) => {
   return f
 }
 
-export let parseMetadata = async (
-  fileContents: string
-): Promise<ScriptMetadata> => {
-  let getByMarker = (marker: string) =>
+export let getMetadataByMarker =
+  (fileContents: string) => (marker: string) =>
     fileContents
       .match(
         new RegExp(`(?<=^//\\s*${marker}\\s*).*`, "gim")
       )?.[0]
       .trim() || ""
 
-  let shortcut = shortcutNormalizer(
-    getByMarker("Shortcut:")
+export let getMetadata = (string: string) => {
+  let matches = string.matchAll(
+    /(?<=^\/\/)([^:]*)(?::)(.*)/gm
   )
-  let menu = getByMarker("Menu:")
-  let schedule = getByMarker("Schedule:")
-  let watch = getByMarker("Watch:")
-  let system = getByMarker("System:")
-  let img = getByMarker("Image:")
-  let background = getByMarker("Background:")
-  let timeout = parseInt(getByMarker("Timeout:"), 10)
+  let metadata = {}
+  for (let [, key, value] of matches) {
+    let v = value.trim()
+    if (v.length) {
+      let k = key.trim()
+      k = k[0].toLowerCase() + k.slice(1)
+      metadata[k] = v
+    }
+  }
+
+  return metadata
+}
+
+interface Metadata {
+  [key: string]: string
+}
+
+export let formatScriptMetadata = (
+  metadata: Metadata,
+  fileContents: string
+): ScriptMetadata => {
+  if (metadata?.shortcut) {
+    metadata.shortcut = shortcutNormalizer(
+      metadata?.shortcut
+    )
+
+    metadata.friendlyShortcut = friendlyShortcut(
+      metadata.shortcut
+    )
+  }
+
+  if (metadata?.shortcode) {
+    ;(metadata as unknown as ScriptMetadata).shortcode =
+      metadata?.shortcode
+        ?.split(" ")
+        .map(sc => sc.trim().toLowerCase())
+  }
+
+  if (metadata?.image) {
+    metadata.img = metadata?.image
+  }
+
+  if (metadata?.timeout) {
+    ;(metadata as unknown as ScriptMetadata).timeout =
+      parseInt(metadata?.timeout, 10)
+  }
+
+  if (metadata?.exclude) {
+    ;(metadata as unknown as ScriptMetadata).exclude =
+      Boolean(metadata?.exclude === "true")
+  }
+
+  metadata.type = metadata?.schedule
+    ? ProcessType.Schedule
+    : metadata?.watch
+    ? ProcessType.Watch
+    : metadata?.system
+    ? ProcessType.System
+    : metadata?.background
+    ? ProcessType.Background
+    : ProcessType.Prompt
 
   let tabs =
     fileContents.match(
       new RegExp(`(?<=^onTab[(]['"]).*(?=\s*['"])`, "gim")
     ) || []
+
+  if (tabs?.length) {
+    ;(metadata as unknown as ScriptMetadata).tabs = tabs
+  }
 
   let hasFlags = Boolean(
     fileContents.match(
@@ -264,48 +321,34 @@ export let parseMetadata = async (
     )
   )
 
-  let ui = (getByMarker("UI:") ||
+  if (hasFlags) {
+    ;(metadata as unknown as ScriptMetadata).hasFlags = true
+  }
+
+  let ui = (metadata?.ui ||
     fileContents
       .match(/(?<=await )arg|textarea|hotkey|drop/g)?.[0]
       .trim() ||
     UI.none) as UI
 
-  let requiresPrompt = ui !== UI.none
-
-  let type = schedule
-    ? ProcessType.Schedule
-    : watch
-    ? ProcessType.Watch
-    : system
-    ? ProcessType.System
-    : background
-    ? ProcessType.Background
-    : ProcessType.Prompt
-
-  return {
-    type,
-    shortcut,
-    friendlyShortcut: friendlyShortcut(shortcut),
-    menu,
-    description: getByMarker("Description:"),
-    alias: getByMarker("Alias:"),
-    author: getByMarker("Author:"),
-    twitter: getByMarker("Twitter:"),
-    shortcode: getByMarker("Shortcode:")
-      ?.split(" ")
-      .map(sc => sc.trim().toLowerCase()),
-    exclude: Boolean(getByMarker("Exclude:") === "true"),
-    log: Boolean(getByMarker("Log:") !== "false"),
-    hasFlags,
-    schedule,
-    watch,
-    system,
-    background,
-    img,
-    requiresPrompt,
-    timeout,
-    tabs,
+  if (ui) {
+    ;(
+      metadata as unknown as ScriptMetadata
+    ).requiresPrompt = true
   }
+
+  if (metadata?.log === "false") {
+    ;(metadata as unknown as ScriptMetadata).log = "false"
+  }
+
+  return metadata as unknown as ScriptMetadata
+}
+
+export let parseMetadata = (
+  fileContents: string
+): ScriptMetadata => {
+  let metadata: Metadata = getMetadata(fileContents)
+  return formatScriptMetadata(metadata, fileContents)
 }
 
 export let commandFromFilePath = (filePath: string) =>
@@ -327,13 +370,11 @@ export let iconFromKenv = async (kenv: string) => {
 export let parseFilePath = async (
   filePath: string
 ): Promise<ScriptPathInfo> => {
-  let contents = await readFile(filePath, "utf8")
   let command = commandFromFilePath(filePath)
   let kenv = kenvFromFilePath(filePath)
   let icon = await iconFromKenv(kenv)
 
   return {
-    contents,
     id: filePath,
     command,
     filePath,
@@ -346,9 +387,9 @@ export let parseScript = async (
   filePath: string
 ): Promise<Script> => {
   let parsedFilePath = await parseFilePath(filePath)
-  let metadata = await parseMetadata(
-    parsedFilePath.contents
-  )
+
+  let contents = await readFile(filePath, "utf8")
+  let metadata = parseMetadata(contents)
 
   return {
     name: metadata.menu || parsedFilePath.command,
@@ -420,20 +461,16 @@ export let writeScriptsDb = async () => {
   })
 }
 
-export let stripMetadata = (fileContents: string) => {
-  let markers = [
-    "Menu",
-    "Schedule",
-    "Watch",
-    "System",
-    "Background",
-    "Shortcode",
-    "Exclude",
-    "Alias",
-    "Shortcut",
-  ]
+export let stripMetadata = (
+  fileContents: string,
+  exclude: string[] = []
+) => {
+  let negBehind = exclude.length
+    ? `(?<!(${exclude.join("|")}))`
+    : ``
+
   return fileContents.replace(
-    new RegExp(`(^//\\s*(${markers.join("|")}):).*`, "gim"),
+    new RegExp(`(^//([^:]*)${negBehind}:).*`, "gim"),
     "$1"
   )
 }

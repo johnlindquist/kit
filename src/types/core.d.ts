@@ -27,7 +27,6 @@ export interface Choice<Value = any> {
 export interface ScriptPathInfo {
   command: string
   filePath: string
-  contents: string
   kenv: string
   id: string
   icon?: string
@@ -52,7 +51,7 @@ export interface ScriptMetadata {
   timeout?: number
   tabs?: string[]
   tag?: string
-  log?: boolean
+  log?: "true" | "false"
   hasFlags?: boolean
   img?: string
 }
