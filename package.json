@@ -13,6 +13,7 @@
   "exports": {
     ".": "./index.js",
     "./*": "./*",
+    "./api/*": "./api/*.js",
     "./cjs/*": "./core/*.cjs"
   },
   "types": "./types/kit.d.ts",
