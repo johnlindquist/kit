@@ -87,13 +87,25 @@ global.attemptImport = async (scriptPath, ..._args) => {
           tmpScriptName
         )
 
-        let transformResult = await build({
+        await build({
           entryPoints: [scriptPath],
           outfile,
           bundle: true,
           platform: "node",
           format: "esm",
-          external: ["@johnlindquist/kit"],
+          external: [
+            ...(await global.readdir(
+              kenvPath("node_modules")
+            )),
+            ...(await global.readdir(
+              kitPath("node_modules")
+            )),
+          ],
+          tsconfig: kitPath(
+            "templates",
+            "config",
+            "tsconfig.json"
+          ),
         })
 
         importResult = await import(
@@ -241,7 +253,11 @@ global.setup = async (setupPath, ..._args) => {
 
 global.tmpPath = (...parts) => {
   let command = resolveScriptToCommand(global.kitScript)
-  let scriptTmpDir = global.kenvPath("tmp", command, ...parts)
+  let scriptTmpDir = global.kenvPath(
+    "tmp",
+    command,
+    ...parts
+  )
 
   global.mkdir("-p", global.path.dirname(scriptTmpDir))
   return scriptTmpDir

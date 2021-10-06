@@ -120,19 +120,21 @@ console.log(await go())`
 
 ava.serial(`JavaScript support`, async t => {
   let script = `mock-javascript-script`
-  await $`kit set-env-var KIT_MODE js`
-  await $`kit new ${script} home --no-edit`
+  await $`KIT_MODE=js kit new ${script} home --no-edit`
 
   let scriptPath = kenvPath("scripts", `${script}.js`)
 
   t.true(await pathExists(scriptPath))
 
+  let scriptContents = await readFile(scriptPath, "utf-8")
+  let defaultTemplateContents = await readFile(
+    kenvPath("templates", "default.js"),
+    "utf-8"
+  )
+
   t.is(
-    await readFile(scriptPath, "utf-8"),
-    await readFile(
-      kenvPath("templates", "default.js"),
-      "utf-8"
-    ),
+    scriptContents,
+    defaultTemplateContents,
     `Generated JavaScript file matches JavaScript template`
   )
 })
