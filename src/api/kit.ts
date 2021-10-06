@@ -97,9 +97,6 @@ global.attemptImport = async (scriptPath, ..._args) => {
             ...(await global.readdir(
               kenvPath("node_modules")
             )),
-            ...(await global.readdir(
-              kitPath("node_modules")
-            )),
           ],
           tsconfig: kitPath(
             "templates",
