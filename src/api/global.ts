@@ -40,7 +40,8 @@ await import("./packages/zx.js")
 
 global.env = async (envKey, promptConfig) => {
   if ((promptConfig as any)?.reset !== true) {
-    if (global.env[envKey]) return global.env[envKey]
+    let envVal = global.env[envKey] || process.env[envKey]
+    if (envVal) return envVal
   }
 
   let input =
@@ -59,7 +60,7 @@ global.env = async (envKey, promptConfig) => {
     input = input.replace("~", home())
 
   await global.cli("set-env-var", envKey, input)
-  global.env[envKey] = input
+  global.env[envKey] = process.env[envKey] = input
   return input
 }
 

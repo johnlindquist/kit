@@ -32,3 +32,29 @@ ava.serial(
     t.regex(stdout, /env/)
   }
 )
+
+ava.only(`All globals exist`, async t => {
+  // TODO: Make platform independent...
+  /** @type {import("../platform/darwin")} */
+  await import(kitPath("platform", "darwin.js"))
+  await import(kitPath("target", "app.js"))
+  await import(kitPath("index.js"))
+
+  let files = ["packages", "kit", "platform"]
+  let content = ``
+  for await (let f of files) {
+    content += await readFile(
+      kitPath("types", `${f}.d.ts`),
+      "utf-8"
+    )
+  }
+
+  let matches = content.match(/(?<=var ).*(?=:)/gim)
+
+  for (let m of matches) {
+    t.true(
+      typeof global[m] !== "undefined",
+      `${m} is missing`
+    )
+  }
+})

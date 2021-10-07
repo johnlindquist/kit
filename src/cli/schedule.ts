@@ -1,3 +1,6 @@
+// Menu: View Schedule
+// Description: Select a scheduled script to edit
+
 import { Schedule } from "../types/app"
 import {
   parseFilePath,

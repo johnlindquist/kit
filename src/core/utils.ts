@@ -10,7 +10,7 @@ import * as os from "os"
 import { lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
-import { config } from "dotenv"
+import { config } from "dotenv-flow"
 
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
@@ -711,7 +711,8 @@ export let run = async (
 
 export let configEnv = () => {
   let { parsed, error } = config({
-    path: process.env.KIT_DOTENV || kenvPath(".env"),
+    path: process.env.KIT_DOTENV || kenvPath(),
+    silent: true,
   })
 
   process.env.PATH =

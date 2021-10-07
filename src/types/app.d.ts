@@ -205,6 +205,5 @@ declare global {
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
-  var openLog: () => void
   var hide: () => void
 }
