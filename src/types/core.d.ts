@@ -24,11 +24,19 @@ export interface Choice<Value = any> {
     | string
 }
 
-export interface Script extends Choice {
-  filePath: string
+export interface ScriptPathInfo {
   command: string
+  filePath: string
+  kenv: string
+  id: string
+  icon?: string
+}
+
+export interface ScriptMetadata {
   menu?: string
+  description?: string
   shortcut?: string
+  shortcode?: string[]
   friendlyShortcut?: string
   alias?: string
   author?: string
@@ -38,16 +46,19 @@ export interface Script extends Choice {
   system?: string
   watch?: string
   background?: string
-  isRunning?: boolean
   type: ProcessType
   requiresPrompt: boolean
   timeout?: number
   tabs?: string[]
-  kenv: string
   tag?: string
-  log?: boolean
+  log?: "true" | "false"
   hasFlags?: boolean
+  img?: string
 }
+
+export type Script = ScriptMetadata &
+  ScriptPathInfo &
+  Choice
 
 export type PromptBounds = {
   x: number
@@ -145,4 +156,8 @@ export interface PromptConfig
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   flags?: FlagsOptions
+}
+
+export interface Metadata {
+  [key: string]: string
 }

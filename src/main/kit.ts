@@ -4,23 +4,13 @@
 import { Choice } from "../types/core"
 import { CLI } from "../types/cli"
 
-import { getKenvs, kitMode, run } from "../core/utils.js"
+import { kitMode, run } from "../core/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
-    name: "Clone repo of scripts",
-    description: `Clone a repo of scripts (AKA kenv)`,
-    value: "kenv-clone",
-  },
-  {
-    name: "Create a repo of scripts",
-    description: `Create a kenv dir to share`,
-    value: "kenv-create",
-  },
-  {
-    name: "Add existing local kenv",
-    description: "Add a kenv from your hard drive",
-    value: "kenv-add",
+    name: "Manage kenvs",
+    description: "Add/Remove/Update repos of scripts",
+    value: "kenv-manage",
   },
   {
     name: "Open kit.log",
@@ -126,29 +116,6 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "quit",
   },
 ]
-
-if ((await getKenvs()).length) {
-  kitManagementChoices.splice(-3, 0, {
-    name: "View kenv",
-    description: `View scripts from specified kenv`,
-    value: "kenv-view",
-  })
-  kitManagementChoices.splice(-3, 0, {
-    name: `Remove kenv`,
-    description: `Remove a kenv`,
-    value: "kenv-rm",
-  })
-  kitManagementChoices.splice(-3, 0, {
-    name: `Push kenv`,
-    description: `Runs git push on kenv repo`,
-    value: "kenv-push",
-  })
-  kitManagementChoices.splice(-3, 0, {
-    name: `Pull kenv`,
-    description: `Runs git pull on kenv repo`,
-    value: "kenv-pull",
-  })
-}
 
 let cliScript = await arg(
   `Kit Options`,

@@ -1,5 +1,4 @@
 import ava from "ava"
-import fs from "fs-extra"
 import "../../test/config.js"
 
 /** @type {import("./utils")} */
@@ -24,7 +23,7 @@ ava.before(async () => {
 })
 
 ava("resolve full path", async t => {
-  await fs.outputFile(
+  await outputFile(
     testingFullPath,
     `console.log(await arg())`
   )
@@ -34,10 +33,7 @@ ava("resolve full path", async t => {
 })
 
 ava("resolve .mjs file", async t => {
-  await fs.outputFile(
-    mockMjsFile,
-    `console.log(await arg())`
-  )
+  await outputFile(mockMjsFile, `console.log(await arg())`)
   let scriptPath = resolveToScriptPath(mockMjsFile)
 
   t.assert(scriptPath, mockMjsFile)
@@ -54,7 +50,7 @@ ava("resolve ./scripts dir", async t => {
     `${script}.js`
   )
 
-  await fs.outputFile(
+  await outputFile(
     mockScriptInProjectScript,
     `console.log(await arg())`
   )

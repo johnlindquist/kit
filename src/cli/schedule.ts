@@ -1,5 +1,11 @@
+// Menu: View Schedule
+// Description: Select a scheduled script to edit
+
 import { Schedule } from "../types/app"
-import { info } from "../core/utils.js"
+import {
+  parseFilePath,
+  parseScript,
+} from "../core/utils.js"
 
 let { formatDistanceToNowStrict, format, compareAsc } =
   await npm("date-fns")
@@ -9,7 +15,7 @@ let { schedule } = await global.getSchedule()
 let choices = (
   await Promise.all(
     schedule.map(async ({ filePath, date }) => {
-      let script = await info(filePath)
+      let script = await parseScript(filePath)
       let d = new Date(date)
       return {
         date,

@@ -13,7 +13,8 @@ import stripAnsi from "strip-ansi"
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
     console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
-    let stackWithoutId = error.stack.replace(/\?[^:]*/, "")
+    let stackWithoutId = error.stack.replace(/\?[^:]*/g, "")
+    console.warn(stackWithoutId)
     // console.warn(stackWithoutId)
 
     let errorFile = global.kitScript
@@ -87,13 +88,22 @@ global.attemptImport = async (scriptPath, ..._args) => {
           tmpScriptName
         )
 
-        let transformResult = await build({
+        await build({
           entryPoints: [scriptPath],
           outfile,
           bundle: true,
           platform: "node",
           format: "esm",
-          external: ["@johnlindquist/kit"],
+          external: [
+            ...(await global.readdir(
+              kenvPath("node_modules")
+            )),
+          ],
+          tsconfig: kitPath(
+            "templates",
+            "config",
+            "tsconfig.json"
+          ),
         })
 
         importResult = await import(
@@ -241,7 +251,11 @@ global.setup = async (setupPath, ..._args) => {
 
 global.tmpPath = (...parts) => {
   let command = resolveScriptToCommand(global.kitScript)
-  let scriptTmpDir = global.kenvPath("tmp", command, ...parts)
+  let scriptTmpDir = global.kenvPath(
+    "tmp",
+    command,
+    ...parts
+  )
 
   global.mkdir("-p", global.path.dirname(scriptTmpDir))
   return scriptTmpDir
