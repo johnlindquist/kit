@@ -74,8 +74,8 @@ export let kenvPath = (...parts: string[]) => {
   )
 }
 
-export let kitDotEnv = () => {
-  return process.env.KIT_DOTENV || kenvPath(".env")
+export let kitDotEnvPath = () => {
+  return process.env.KIT_DOTENV_PATH || kenvPath()
 }
 
 export const outputTmpFile = async (
@@ -695,7 +695,7 @@ export let run = async (
   global.kitScript = resolvedScript
 
   if (process.env.KIT_CONTEXT === "app") {
-    let script = await parseFilePath(global.kitScript)
+    let script = await parseScript(global.kitScript)
 
     global.send(Channel.SET_SCRIPT, {
       script,
@@ -711,7 +711,7 @@ export let run = async (
 
 export let configEnv = () => {
   let { parsed, error } = config({
-    path: process.env.KIT_DOTENV || kenvPath(),
+    path: process.env.KIT_DOTENV_PATH || kenvPath(),
     silent: true,
   })
 

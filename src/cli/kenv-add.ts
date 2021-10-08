@@ -44,6 +44,8 @@ let existingKenvPath = await arg(
     } else {
       setHint(`✅ found "scripts" dir`)
     }
+
+    return attemptPath
   }
 )
 

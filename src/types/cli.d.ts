@@ -97,6 +97,9 @@ export interface CLI {
     typeof import("../cli/kenv-create")
   >
   ["kenv-add"]: Promise<typeof import("../cli/kenv-add")>
+  ["kenv-manage"]: Promise<
+    typeof import("../cli/kenv-manage")
+  >
   duplicate: Promise<typeof import("../cli/duplicate")>
   edit: Promise<typeof import("../cli/edit")>
   env: Promise<typeof import("../cli/env")>
