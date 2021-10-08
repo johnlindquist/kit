@@ -12,7 +12,7 @@ ava.serial("kit duplicate", async t => {
   let binCreated = test("-f", binPath)
 
   t.true(scriptCreated, `Duplicated ${command} script`)
-  t.true(binCreated`Duplicated ${command} bin`)
+  t.true(binCreated, `Duplicated ${command} bin`)
 })
 
 ava.serial("kit duplicate a typescript file", async t => {
@@ -27,5 +27,5 @@ ava.serial("kit duplicate a typescript file", async t => {
   let binCreated = test("-f", binPath)
 
   t.true(scriptCreated, `Duplicated ${command} script`)
-  t.true(binCreated`Duplicated ${command} bin`)
+  t.true(binCreated, `Duplicated ${command} bin`)
 })
