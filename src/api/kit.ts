@@ -13,7 +13,8 @@ import stripAnsi from "strip-ansi"
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
     console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
-    let stackWithoutId = error.stack.replace(/\?[^:]*/, "")
+    let stackWithoutId = error.stack.replace(/\?[^:]*/g, "")
+    console.warn(stackWithoutId)
     // console.warn(stackWithoutId)
 
     let errorFile = global.kitScript

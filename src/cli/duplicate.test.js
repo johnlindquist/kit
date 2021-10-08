@@ -1,7 +1,7 @@
 import ava from "ava"
 import "../../test/config.js"
 
-ava("kit duplicate", async t => {
+ava.serial("kit duplicate", async t => {
   let command = `browse-scriptkit`
   let duplicate = `${command}-duplicated`
   let scriptPath = kenvPath("scripts", `${duplicate}.js`)
@@ -11,11 +11,11 @@ ava("kit duplicate", async t => {
   let scriptCreated = test("-f", scriptPath)
   let binCreated = test("-f", binPath)
 
-  t.true(scriptCreated)
-  t.true(binCreated)
+  t.true(scriptCreated, `Duplicated ${command} script`)
+  t.true(binCreated`Duplicated ${command} bin`)
 })
 
-ava("kit duplicate a typescript file", async t => {
+ava.serial("kit duplicate a typescript file", async t => {
   let command = `browse-scriptkit-typescript`
   await $`KIT_MODE=ts kit new ${command} home --no-edit`
   let duplicate = `${command}-duplicated`
@@ -26,6 +26,6 @@ ava("kit duplicate a typescript file", async t => {
   let scriptCreated = test("-f", scriptPath)
   let binCreated = test("-f", binPath)
 
-  t.true(scriptCreated)
-  t.true(binCreated)
+  t.true(scriptCreated, `Duplicated ${command} script`)
+  t.true(binCreated`Duplicated ${command} bin`)
 })

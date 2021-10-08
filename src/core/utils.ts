@@ -15,7 +15,7 @@ import { config } from "dotenv-flow"
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
-export let extensionRegex = /\.(mj|t|s)$/g
+export let extensionRegex = /\.(mjs|ts|js)$/g
 
 export let home = (...pathParts: string[]) => {
   return path.resolve(os.homedir(), ...pathParts)
