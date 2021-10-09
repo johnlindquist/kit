@@ -239,9 +239,9 @@ export interface PlatformApi {
   getTabs: GetTabs
   getWindows: GetWindows
   getWindowsBounds: GetWindowsBounds
-  getWindowsPosition: GetWindowPosition
   keystroke: KeyStroke
   lock: Lock
+  openLog: () => void
   organizeWindows: OrganizeWindows
   playAudioFile: PlayAudioFile
   quitAllApps: QuitAllApps
@@ -277,9 +277,9 @@ declare global {
   var getTabs: GetTabs
   var getWindows: GetWindows
   var getWindowsBounds: GetWindowsBounds
-  var getWindowsPosition: GetWindowPosition
   var keystroke: KeyStroke
   var lock: Lock
+  var openLog: () => void
   var organizeWindows: OrganizeWindows
   var playAudioFile: PlayAudioFile
   var quitAllApps: QuitAllApps

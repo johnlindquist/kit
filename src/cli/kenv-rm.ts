@@ -14,6 +14,10 @@ let dir = await arg(
     value,
   }))
 )
+if (!dir.includes(path.sep)) {
+  dir = kenvPath("kenvs", dir)
+}
+
 await trash(dir)
 
 await getScripts(false)

@@ -1,9 +1,6 @@
 //Description: An error has occurred
 
-import {
-  extensionRegex,
-  getLastSlashSeparated,
-} from "../core/utils.js"
+import { extensionRegex } from "../core/utils.js"
 import { ErrorAction } from "../core/enum.js"
 
 let script = await arg()
@@ -14,10 +11,12 @@ let col = await arg()
 
 let stack = await readFile(stackFile, "utf-8")
 
-let errorLog = `${getLastSlashSeparated(
-  errorFile,
-  1
-).replace(extensionRegex, "")}.log`
+stack = stack.replace(/\?uuid.*/g, "")
+
+let errorLog = `${path
+  .basename(errorFile)
+  .replace(extensionRegex, "")}.log`
+
 let errorLogPath = kenvPath("logs", errorLog)
 
 let errorActions: {

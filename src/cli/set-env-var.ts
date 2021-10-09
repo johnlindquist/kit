@@ -12,10 +12,11 @@ let writeNewEnv = async (envKey, envValue) => {
   await appendFile(envFile, `\n${envKey}=${envValue}`)
   env[envKey] = envValue
 }
-let contents = await readFile(
-  process.env.KIT_DOTENV || kenvPath(".env"),
-  "utf-8"
-)
+let dotEnvPath = process.env.KIT_DOTENV_PATH
+  ? path.resolve(process.env.KIT_DOTENV_PATH, ".env")
+  : kenvPath(".env")
+
+let contents = await readFile(dotEnvPath, "utf-8")
 let exists = contents.match(
   new RegExp("^" + envKey + "=.*$", "gm")
 )

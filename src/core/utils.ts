@@ -1,15 +1,21 @@
-import { Script, PromptConfig } from "../types/core"
+import {
+  Script,
+  PromptConfig,
+  ScriptPathInfo,
+  ScriptMetadata,
+  Metadata,
+} from "../types/core"
 import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
 import { readFile, readdir, lstat } from "fs/promises"
 import { execSync } from "child_process"
-import { config } from "dotenv"
+import { config } from "dotenv-flow"
 
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
-export let extensionRegex = /\.(mj|t|s)$/g
+export let extensionRegex = /\.(mjs|ts|js)$/g
 
 export let home = (...pathParts: string[]) => {
   return path.resolve(os.homedir(), ...pathParts)
@@ -68,8 +74,8 @@ export let kenvPath = (...parts: string[]) => {
   )
 }
 
-export let kitDotEnv = () => {
-  return process.env.KIT_DOTENV || kenvPath(".env")
+export let kitDotEnvPath = () => {
+  return process.env.KIT_DOTENV_PATH || kenvPath()
 }
 
 export const outputTmpFile = async (
@@ -227,36 +233,84 @@ export const friendlyShortcut = (shortcut: string) => {
   return f
 }
 
-export let info = async (
-  filePath: string
-): Promise<Script> => {
-  let fileContents = await readFile(filePath, "utf8")
-
-  let getByMarker = (marker: string) =>
+export let getMetadataByMarker =
+  (fileContents: string) => (marker: string) =>
     fileContents
       .match(
         new RegExp(`(?<=^//\\s*${marker}\\s*).*`, "gim")
       )?.[0]
       .trim() || ""
 
-  let command =
-    path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
-
-  let shortcut = shortcutNormalizer(
-    getByMarker("Shortcut:")
+export let getMetadata = (string: string): Metadata => {
+  let matches = string.matchAll(
+    /(?<=^\/\/)([^:]*)(?::)(.*)/gm
   )
-  let menu = getByMarker("Menu:")
-  let schedule = getByMarker("Schedule:")
-  let watch = getByMarker("Watch:")
-  let system = getByMarker("System:")
-  let img = getByMarker("Image:")
-  let background = getByMarker("Background:")
-  let timeout = parseInt(getByMarker("Timeout:"), 10)
+  let metadata = {}
+  for (let [, key, value] of matches) {
+    let v = value.trim()
+    if (v.length) {
+      let k = key.trim()
+      k = k[0].toLowerCase() + k.slice(1)
+      metadata[k] = v
+    }
+  }
+
+  return metadata
+}
+
+export let formatScriptMetadata = (
+  metadata: Metadata,
+  fileContents: string
+): ScriptMetadata => {
+  if (metadata?.shortcut) {
+    metadata.shortcut = shortcutNormalizer(
+      metadata?.shortcut
+    )
+
+    metadata.friendlyShortcut = friendlyShortcut(
+      metadata.shortcut
+    )
+  }
+
+  if (metadata?.shortcode) {
+    ;(metadata as unknown as ScriptMetadata).shortcode =
+      metadata?.shortcode
+        ?.split(" ")
+        .map(sc => sc.trim().toLowerCase())
+  }
+
+  if (metadata?.image) {
+    metadata.img = metadata?.image
+  }
+
+  if (metadata?.timeout) {
+    ;(metadata as unknown as ScriptMetadata).timeout =
+      parseInt(metadata?.timeout, 10)
+  }
+
+  if (metadata?.exclude) {
+    ;(metadata as unknown as ScriptMetadata).exclude =
+      Boolean(metadata?.exclude === "true")
+  }
+
+  metadata.type = metadata?.schedule
+    ? ProcessType.Schedule
+    : metadata?.watch
+    ? ProcessType.Watch
+    : metadata?.system
+    ? ProcessType.System
+    : metadata?.background
+    ? ProcessType.Background
+    : ProcessType.Prompt
 
   let tabs =
     fileContents.match(
       new RegExp(`(?<=^onTab[(]['"]).*(?=\s*['"])`, "gim")
     ) || []
+
+  if (tabs?.length) {
+    ;(metadata as unknown as ScriptMetadata).tabs = tabs
+  }
 
   let hasFlags = Boolean(
     fileContents.match(
@@ -264,65 +318,80 @@ export let info = async (
     )
   )
 
-  let ui = (getByMarker("UI:") ||
+  if (hasFlags) {
+    ;(metadata as unknown as ScriptMetadata).hasFlags = true
+  }
+
+  let ui = (metadata?.ui ||
     fileContents
       .match(/(?<=await )arg|textarea|hotkey|drop/g)?.[0]
       .trim() ||
     UI.none) as UI
 
-  let requiresPrompt = ui !== UI.none
+  if (ui) {
+    ;(
+      metadata as unknown as ScriptMetadata
+    ).requiresPrompt = true
+  }
 
-  let type = schedule
-    ? ProcessType.Schedule
-    : watch
-    ? ProcessType.Watch
-    : system
-    ? ProcessType.System
-    : background
-    ? ProcessType.Background
-    : ProcessType.Prompt
+  if (metadata?.log === "false") {
+    ;(metadata as unknown as ScriptMetadata).log = "false"
+  }
 
-  let kenv =
-    filePath.match(
-      new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
-    )?.[0] || ""
+  return metadata as unknown as ScriptMetadata
+}
 
+export let parseMetadata = (
+  fileContents: string
+): ScriptMetadata => {
+  let metadata: Metadata = getMetadata(fileContents)
+  return formatScriptMetadata(metadata, fileContents)
+}
+
+export let commandFromFilePath = (filePath: string) =>
+  path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
+
+export let kenvFromFilePath = (filePath: string) =>
+  filePath.match(
+    new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
+  )?.[0] || ""
+
+export let iconFromKenv = async (kenv: string) => {
   let iconPath = kenv
     ? kenvPath("kenvs", kenv, "icon.png")
     : ""
 
-  let icon =
-    kenv && (await isFile(iconPath)) ? iconPath : ""
+  return kenv && (await isFile(iconPath)) ? iconPath : ""
+}
+
+export let parseFilePath = async (
+  filePath: string
+): Promise<ScriptPathInfo> => {
+  let command = commandFromFilePath(filePath)
+  let kenv = kenvFromFilePath(filePath)
+  let icon = await iconFromKenv(kenv)
 
   return {
-    command,
-    type,
-    shortcut,
-    friendlyShortcut: friendlyShortcut(shortcut),
-    menu,
-    name: menu || command,
-    description: getByMarker("Description:"),
-    alias: getByMarker("Alias:"),
-    author: getByMarker("Author:"),
-    twitter: getByMarker("Twitter:"),
-    shortcode: getByMarker("Shortcode:")
-      ?.split(" ")
-      .map(sc => sc.trim().toLowerCase()),
-    exclude: Boolean(getByMarker("Exclude:") === "true"),
-    log: Boolean(getByMarker("Log:") !== "false"),
-    hasFlags,
-    schedule,
-    watch,
-    system,
-    background,
     id: filePath,
+    command,
     filePath,
-    requiresPrompt,
-    timeout,
-    tabs,
     kenv,
-    img,
     icon,
+  }
+}
+
+export let parseScript = async (
+  filePath: string
+): Promise<Script> => {
+  let parsedFilePath = await parseFilePath(filePath)
+
+  let contents = await readFile(filePath, "utf8")
+  let metadata = parseMetadata(contents)
+
+  return {
+    name: metadata.menu || parsedFilePath.command,
+    ...parsedFilePath,
+    ...metadata,
   }
 }
 
@@ -378,7 +447,9 @@ export let writeScriptsDb = async () => {
     scriptFiles = [...scriptFiles, ...scripts]
   }
 
-  let scriptInfo = await Promise.all(scriptFiles.map(info))
+  let scriptInfo = await Promise.all(
+    scriptFiles.map(parseScript)
+  )
   return scriptInfo.sort((a: Script, b: Script) => {
     let aName = a.name.toLowerCase()
     let bName = b.name.toLowerCase()
@@ -387,20 +458,16 @@ export let writeScriptsDb = async () => {
   })
 }
 
-export let stripMetadata = (fileContents: string) => {
-  let markers = [
-    "Menu",
-    "Schedule",
-    "Watch",
-    "System",
-    "Background",
-    "Shortcode",
-    "Exclude",
-    "Alias",
-    "Shortcut",
-  ]
+export let stripMetadata = (
+  fileContents: string,
+  exclude: string[] = []
+) => {
+  let negBehind = exclude.length
+    ? `(?<!(${exclude.join("|")}))`
+    : ``
+
   return fileContents.replace(
-    new RegExp(`(^//\\s*(${markers.join("|")}):).*`, "gim"),
+    new RegExp(`(^//([^:]*)${negBehind}:).*`, "gim"),
     "$1"
   )
 }
@@ -628,7 +695,7 @@ export let run = async (
   global.kitScript = resolvedScript
 
   if (process.env.KIT_CONTEXT === "app") {
-    let script = await info(global.kitScript)
+    let script = await parseScript(global.kitScript)
 
     global.send(Channel.SET_SCRIPT, {
       script,
@@ -644,7 +711,8 @@ export let run = async (
 
 export let configEnv = () => {
   let { parsed, error } = config({
-    path: process.env.KIT_DOTENV || kenvPath(".env"),
+    path: process.env.KIT_DOTENV_PATH || kenvPath(),
+    silent: true,
   })
 
   process.env.PATH =

@@ -15,19 +15,29 @@ let newKenvName = await arg(
   },
   async input => {
     let newKenvPath = kenvPath("kenvs", input)
-    if (!input) {
-      setHint(`Name is required`)
-    } else if (await isDir(newKenvPath)) {
-      setHint(`${newKenvPath} already exists`)
-    } else {
-      setHint(`Kenv will be created at ${newKenvPath}`)
+    let exists = await isDir(newKenvPath)
+    let panel = !input
+      ? `A kenv name is required`
+      : exists
+      ? `A kenv named "${input}" already exists`
+      : `
+    <p>Will create to:</p>
+    <p class="font-mono text-xxs break-all">${newKenvPath}</p>`
+
+    return {
+      choices: [input],
+      panel,
+      className: `p-4`,
     }
   }
 )
 
-if (!newKenvName) exit()
-
 let newKenvPath = kenvPath("kenvs", newKenvName)
+
+if (!newKenvPath) exit()
+await ensureDir(kenvPath("kenvs"))
+
+console.log({ newKenvPath })
 
 await degit(`johnlindquist/kenv-template`).clone(
   newKenvPath

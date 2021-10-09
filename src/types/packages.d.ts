@@ -160,8 +160,6 @@ declare global {
 
   var $: typeof import("zx").$
 
-  var openLog: () => void
-  var hide: () => void
   var uuid: UUID
 
   var emptyDir: typeof import("fs-extra").emptyDir

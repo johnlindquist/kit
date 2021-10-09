@@ -89,7 +89,8 @@ resolve_node_version() {
   if [ "${tag}" = "latest" ]; then
     tag=
   fi
-  fetch "https://resolve-node.vercel.app/$tag"
+  # fetch "https://resolve-node.vercel.app/$tag"
+  echo "v16.10.0"
 }
 
 # Currently known to support:

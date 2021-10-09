@@ -145,8 +145,6 @@ interface KitApi {
   kit: Run
   run: Run
 
-  openLog: () => void
-
   flag: Flags
   setFlags: FlagFn
 }
@@ -208,7 +206,6 @@ declare global {
   var selectKitEditor: SelectKitEditor
 
   var getScripts: GetScripts
-  var openLog: () => void
   var hide: () => void
   var flag: Flags
   var setFlags: FlagFn

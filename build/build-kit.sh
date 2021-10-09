@@ -12,7 +12,7 @@ mkdir -p $KIT
 cp -a root/. $KIT
 cp -r build $KIT
 cp -r src/types $KIT
-./build/install-node.sh --prefix $KIT/node
+./build/install-node.sh v16.10.0 --prefix $KIT/node
 cp *.md package*.json LICENSE $KIT
 
 npx tsc --outDir $KIT

@@ -134,7 +134,6 @@ export interface AppApi {
 
   setPlaceholder: SetAppProp
   setPanel: SetPanel
-  setLog: SetPanel
   setHint: SetAppProp
   setInput: SetAppProp
   setIgnoreBlur: SetAppProp
@@ -197,14 +196,12 @@ declare global {
 
   var setPlaceholder: SetAppProp
   var setPanel: SetPanel
-  var setLog: SetPanel
   var setHint: SetAppProp
   var setInput: SetAppProp
-  var setIgnoreBluer: SetAppProp
+  var setIgnoreBlur: SetAppProp
 
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
-  var openLog: () => void
   var hide: () => void
 }
