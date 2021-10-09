@@ -1,7 +1,7 @@
 // Menu: View Schedule
 // Description: Select a scheduled script to edit
 
-import { Schedule } from "../types/app"
+import { Schedule } from "../types/kitapp"
 import {
   parseFilePath,
   parseScript,

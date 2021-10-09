@@ -1,4 +1,4 @@
 let { default: _ } = (await import("lodash")) as any
-global._ = _
+;(global as any)._ = _
 
 export {}

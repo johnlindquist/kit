@@ -1,5 +1,5 @@
 import { Choice } from "../types/core"
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 import { run } from "../core/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
@@ -9,15 +9,15 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "get-help",
   },
   {
-    name: "Online Docs",
+    name: "Open Guide",
     description: `Work in progress...`,
-    value: "goto-docs",
+    value: "goto-guide",
   },
-  {
-    name: "Search Docs",
-    description: `Work in progress...`,
-    value: "search-docs",
-  },
+  // {
+  //   name: "Search Docs",
+  //   description: `Work in progress...`,
+  //   value: "search-docs",
+  // },
   {
     name: "Subscribe to Newsletter",
     description: `Receive a newsletter with examples and tips`,

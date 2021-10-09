@@ -1,6 +1,6 @@
 //Description: Script Kit CLI
 
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 import {
   kitMode,
   resolveToScriptPath,

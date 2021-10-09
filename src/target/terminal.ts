@@ -1,5 +1,6 @@
 import { PromptConfig } from "../types/core"
 import { assignPropsTo } from "../core/utils.js"
+
 let { default: enquirer } = (await import(
   "enquirer"
 )) as any
@@ -34,15 +35,13 @@ global.kitPrompt = async (config: any) => {
         choices,
       }
     } else {
-      let suggest = global._.debounce(async function (
-        input
-      ) {
+      let { default: _ } = (await import("lodash")) as any
+
+
+      let suggest = _.debounce(async function (input) {
         let results = await f(input)
 
-        if (
-          global._.isUndefined(results) ||
-          global._.isString(results)
-        )
+        if (_.isUndefined(results) || _.isString(results))
           results = [input]
 
         this.choices = await this.toChoices(
@@ -51,8 +50,7 @@ global.kitPrompt = async (config: any) => {
         await this.render()
 
         return this.choices
-      },
-      250)
+      }, 250)
       config = {
         ...config,
         choices: config?.input ? [config?.input] : [],
@@ -135,7 +133,7 @@ global.updateArgs = arrayOfArgs => {
         if (value) return [`--${key}`]
         if (!value) return [`--no-${key}`]
       }
-      return [`--${key}`, value]
+      return [`--${key}`, value as string]
     })
 
   assignPropsTo(argv, global.arg)

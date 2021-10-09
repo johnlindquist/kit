@@ -1,5 +1,5 @@
 export {}
-import { editor } from "./editor.api"
+import { editor } from "../declarations/editor.api"
 
 import { Channel, Mode } from "../core/enum.js"
 
@@ -67,25 +67,25 @@ export type PromptDb = {
   }
 }
 
-interface TextArea {
+export interface TextArea {
   (
     placeholderOrOptions?: string | TextareaConfig
   ): Promise<string>
 }
-interface Drop {
+export interface Drop {
   (hint?: string): Promise<any>
 }
-interface Editor {
+export interface Editor {
   (config?: EditorConfig): Promise<any>
 }
-interface Form {
+export interface Form {
   (html?: string, formData?: any): Promise<any>
 }
-interface Div {
+export interface Div {
   (html?: string, containerClass?: string): Promise<void>
 }
 
-interface KeyData {
+export interface KeyData {
   key: string
   command: boolean
   shift: boolean
@@ -98,26 +98,26 @@ interface KeyData {
   win: boolean
   shortcut: string
 }
-interface Hotkey {
+export interface Hotkey {
   (placeholder?: string): Promise<KeyData>
 }
 
-interface AppleScript {
+export interface AppleScript {
   (script: string, options?: any): Promise<string>
 }
 
-interface Send {
+export interface Send {
   (channel: string, data?: any): void
 }
 
-interface SetAppProp {
+export interface SetAppProp {
   (value: any): void
 }
-interface SetPanel {
+export interface SetPanel {
   (html: string, containerClasses?: string): void
 }
 
-interface ShowAppWindow {
+export interface ShowAppWindow {
   (content: string, options?: any): void
 }
 

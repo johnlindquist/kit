@@ -1,7 +1,7 @@
 //Menu: Share Script
 //Description: Share the selected script
 
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 import { selectScript } from "../core/utils.js"
 
 let { filePath } = await selectScript(`Share which script?`)

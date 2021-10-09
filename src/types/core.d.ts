@@ -75,7 +75,7 @@ export type PromptDb = {
   }
 }
 
-type InputType =
+export type InputType =
   | "button"
   | "checkbox"
   | "color"

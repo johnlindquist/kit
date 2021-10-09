@@ -1,8 +1,8 @@
-export interface PlayAudioFile {
+interface PlayAudioFile {
   (path: string, playInBackground?: boolean): void
 }
 
-import { Display, Point, Size, Rectangle } from "./electron"
+import { Display, Point, Size, Rectangle } from "../declarations/electron"
 
 interface CopyPathAsImage {
   (path: string): Promise<string>

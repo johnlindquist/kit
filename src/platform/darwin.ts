@@ -92,7 +92,7 @@ let execConfig = () => {
   }
 }
 
-global.selectKitEditor = async reset => {
+global.selectKitEditor = async (reset = false) => {
   let possibleEditors = () =>
     [
       "atom",
@@ -118,8 +118,8 @@ global.selectKitEditor = async reset => {
 
   return await global.env("KIT_EDITOR", {
     reset,
-    placeholder:
-      "Which code editor do you use? (You can always change this later in .env)",
+    placeholder: "Which code editor do you use?",
+    hint: `You can always change this later in .env`,
     choices: () => [
       ...possibleEditors(),
       {

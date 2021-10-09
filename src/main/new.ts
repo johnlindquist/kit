@@ -1,5 +1,5 @@
 import { Choice } from "../types/core"
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 import { kitMode, run } from "../core/utils.js"
 
 let newOptions: Choice<keyof CLI>[] = [

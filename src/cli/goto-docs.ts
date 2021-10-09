@@ -1,5 +1,5 @@
 exec(
-  `open https://github.com/johnlindquist/kit/discussions/categories/docs`
+  `open https://scriptkit.com/docs`
 )
 
 export {}

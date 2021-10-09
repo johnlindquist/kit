@@ -15,8 +15,13 @@ cp -r src/types $KIT
 ./build/install-node.sh v16.10.0 --prefix $KIT/node
 cp *.md package*.json LICENSE $KIT
 
+echo "Building ESM kit to $KIT"
 npx tsc --outDir $KIT
+
+echo "Build declarations to $KIT"
 npx tsc --project ./tsconfig-declaration.json --outDir $KIT
+
+echo "Build CJS to $KIT/cjs"
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
 
 

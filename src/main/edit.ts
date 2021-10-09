@@ -2,7 +2,7 @@
 //Description: Select a script then edit action.
 
 import { Choice } from "../types/core"
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 import { selectScript } from "../core/utils.js"
 
 let { command, filePath } = await selectScript(

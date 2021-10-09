@@ -1,6 +1,6 @@
 import { Choice, PromptConfig } from "../types/core"
 
-import { EditorConfig } from "../types/app"
+import { EditorConfig } from "../types/kitapp"
 
 import { Observable, merge, NEVER, of } from "rxjs"
 import {
@@ -419,7 +419,7 @@ global.updateArgs = arrayOfArgs => {
         if (value) return [`--${key}`]
         if (!value) return [`--no-${key}`]
       }
-      return [`--${key}`, value]
+      return [`--${key}`, value as string]
     })
 
   assignPropsTo(argv, global.arg)

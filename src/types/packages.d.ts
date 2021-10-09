@@ -10,28 +10,31 @@ import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
 import { Notification } from "node-notifier"
 
-type Trash = typeof import("trash")
-type Download = typeof import("download")
 
+export type Trash = typeof import("trash")
+export type Download = typeof import("download")
 export type KitNotification = string | Notification
 
-interface Notify {
+export interface Notify {
   (notification: KitNotification)
 }
 
-interface CompileTemplate {
+export interface CompileTemplate {
   (template: string, vars: any): Promise<string>
 }
 
-interface OnTab {
+export interface OnTab {
   (name: string, fn: () => void): void
 }
 
-interface Markdown {
+export interface Markdown {
   (markdown: string): string
 }
 
-type UUID = typeof import("crypto").randomUUID
+export type UUID = typeof import("crypto").randomUUID
+
+
+export type WriteJson = typeof import("fs-extra").writeJson
 
 export interface PackagesApi {
   cd: typeof shelljs.cd
@@ -88,6 +91,7 @@ export interface PackagesApi {
   md: Markdown
   notify: Notify
   $: typeof import("zx").$
+
   download: Download
   degit: typeof import("degit")
   emptyDir: typeof import("fs-extra").emptyDir
@@ -102,7 +106,9 @@ export interface PackagesApi {
   pathExists: typeof import("fs-extra").pathExists
   readJson: typeof import("fs-extra").readJson
   remove: typeof import("fs-extra").remove
-  writeJson: typeof import("fs-extra").writeJson
+
+
+  writeJson: WriteJson
 }
 
 declare global {
@@ -147,11 +153,13 @@ declare global {
 
   var download: Download
   var degit: typeof import("degit")
-
   var trash: Trash
   var rm: Trash
 
   var md: Markdown
+
+
+
   var notify: Notify
 
   var memoryMap: Map<string, any>
@@ -159,6 +167,7 @@ declare global {
   var onTabIndex: number
 
   var $: typeof import("zx").$
+  var _: LoDashStatic
 
   var uuid: UUID
 
@@ -174,5 +183,5 @@ declare global {
   var pathExists: typeof import("fs-extra").pathExists
   var readJson: typeof import("fs-extra").readJson
   var remove: typeof import("fs-extra").remove
-  var writeJson: typeof import("fs-extra").writeJson
+  var writeJson: WriteJson
 }

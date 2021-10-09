@@ -1,7 +1,7 @@
 // Description: Add/Remove/Update/Etc kenvs
 
 import { Choice } from "../types/core"
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 
 import { getKenvs, run } from "../core/utils.js"
 
