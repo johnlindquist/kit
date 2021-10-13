@@ -8,7 +8,6 @@ import {
   Script,
 } from "./core"
 
-
 export interface Arg {
   [key: string]: any
   <T = string>(
@@ -94,15 +93,31 @@ export interface KitApi {
 
   checkProcess: (processId: number) => string
 
+  /**
+   * @example
+   * ```
+   * let pathToProject =  await home("projects", "my-code-project")
+   * // /Users/johnlindquist/projects/my-code-project
+   * ```
+   */
   home: PathFn
   isFile: IsCheck
   isDir: IsCheck
   isBin: IsCheck
-
   /**
-   * 
+   * @example
+   * ```
+   * let value =  await arg()
+   * ```
    */
   arg: Arg
+  /**
+   * @example
+   * ```
+   * // Reads from .env or prompts if not set
+   * let SOME_ENV_VAR = await env("SOME_ENV_VAR")
+   * ```
+   */
   env: Env
   argOpts: string[]
 
@@ -157,7 +172,7 @@ export interface KitApi {
   setFlags: FlagFn
 }
 
-interface KeyValue{
+interface KeyValue {
   [key: string]: any
 }
 

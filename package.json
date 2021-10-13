@@ -14,6 +14,9 @@
     ".": "./index.js",
     "./*": "./*",
     "./api/*": "./api/*.js",
+    "./target/*": "./target/*.js",
+    "./platform/*": "./platform/*.js",
+    "./run/*": "./run/*.js",
     "./core/*": "./core/*.js",
     "./cjs/*": "./core/*.cjs"
   },
