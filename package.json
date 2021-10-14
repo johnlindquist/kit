@@ -3,7 +3,8 @@
   "type": "module",
   "bin": {
     "kit": "./bin/kit",
-    "sk": "./bin/sk"
+    "sk": "./bin/sk",
+    "kitblitz": "./bin/kitblitz"
   },
   "engines": {
     "node": ">=14.8.0"
@@ -43,6 +44,7 @@
     "@types/minimist": "^1.2.2",
     "@types/node-notifier": "^8.0.1",
     "@types/shelljs": "^0.8.9",
+    "@types/uuid": "^8.3.1",
     "ansi-to-html": "^0.7.1",
     "axios": "^0.21.4",
     "chalk": "^4.1.2",

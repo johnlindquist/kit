@@ -10,7 +10,6 @@ import { LoDashStatic } from "lodash"
 import { ChalkFunction } from "chalk"
 import { Notification } from "node-notifier"
 
-
 export type Trash = typeof import("trash")
 export type Download = typeof import("download")
 export type KitNotification = string | Notification
@@ -31,8 +30,7 @@ export interface Markdown {
   (markdown: string): string
 }
 
-export type UUID = typeof import("crypto").randomUUID
-
+export type UUID = typeof import("uuid").v4
 
 export type WriteJson = typeof import("fs-extra").writeJson
 
@@ -107,7 +105,6 @@ export interface PackagesApi {
   readJson: typeof import("fs-extra").readJson
   remove: typeof import("fs-extra").remove
 
-
   writeJson: WriteJson
 }
 
@@ -157,8 +154,6 @@ declare global {
   var rm: Trash
 
   var md: Markdown
-
-
 
   var notify: Notify
 

@@ -19,7 +19,6 @@ global.stdin = process.stdin
 global.stdout = process.stdout
 global.uptime = process.uptime
 global.path = await import("path")
-global.uuid = (await import("crypto")).randomUUID
 
 await import("./packages/axios.js")
 await import("./packages/chalk.js")
@@ -36,6 +35,7 @@ await import("./packages/node-fetch.js")
 await import("./packages/node-notifier.js")
 await import("./packages/shelljs.js")
 await import("./packages/trash.js")
+await import("./packages/uuid.js")
 await import("./packages/zx.js")
 
 global.env = async (envKey, promptConfig) => {
