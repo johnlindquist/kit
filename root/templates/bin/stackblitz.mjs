@@ -1,3 +1,6 @@
+// These ./bin files are customized for stackblitz
+// A local Script Kit install works a little differently
+
 import path from "path"
 
 process.env.KIT = path.resolve(

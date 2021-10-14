@@ -34,7 +34,14 @@ let contents = [arg?.npm]
 let stripExtension = fileName =>
   fileName.replace(path.extname(fileName), "")
 
-await ensureFile(kenvPath("templates", "default.js"))
+await outputFile(
+  kenvPath("templates", "default.js"),
+  await readFile(
+    kitPath("templates", "scripts", "default.js"),
+    "utf-8"
+  ),
+  { flag: "wx" }
+)
 let templates = (await readdir(kenvPath("templates"))).map(
   stripExtension
 )

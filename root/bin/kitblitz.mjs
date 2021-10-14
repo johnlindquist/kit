@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { writeJson } from "fs-extra"
+import { readJson } from "fs-extra"
 import path from "path"
 
 process.env.KIT = path.resolve(
@@ -21,5 +23,33 @@ configEnv()
 
 await import("../target/terminal.js")
 let { runCli } = await import("../cli/kit.js")
+
+let pkgJsonPath = path.resolve("package.json")
+
+let pkgJson = await readJson(pkgJsonPath)
+if (pkgJson) {
+  if (pkgJson?.type !== "module") {
+    let confirm = await arg(
+      `package.json "type" needs to be set to "module". Proceed?`,
+      [
+        { name: "No", value: false },
+        { name: "Yes", value: true },
+      ]
+    )
+
+    if (confirm) {
+      await writeJson(
+        pkgJsonPath,
+        {
+          type: "module",
+          ...pkgJson,
+        },
+        { spaces: "\t" }
+      )
+    } else {
+      exit()
+    }
+  }
+}
 
 await runCli()

@@ -16,6 +16,7 @@ import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
+export let jsh = process.env?.HISTFILE?.includes("jsh")
 
 export let home = (...pathParts: string[]) => {
   return path.resolve(os.homedir(), ...pathParts)
@@ -514,7 +515,8 @@ export let exists = async (input: string) => {
     ? global.chalk`{red.bold ${input}} already exists. Try again:`
     : (await isDir(kenvPath("bin", input)))
     ? global.chalk`{red.bold ${input}} exists as group. Enter different name:`
-    : global.exec(`command -v ${input}`, {
+    : !jsh &&
+      global.exec(`command -v ${input}`, {
         silent: true,
       }).stdout
     ? global.chalk`{red.bold ${input}} is a system command. Enter different name:`
@@ -572,7 +574,6 @@ export let createBinFromScript = async (
   type: Bin,
   { command, filePath }: Script
 ) => {
-  let jsh = process.env?.HISTFILE?.includes("jsh")
   let template = jsh ? "stackblitz" : "terminal"
 
   let binTemplate = await readFile(
@@ -606,7 +607,7 @@ export let createBinFromScript = async (
       "..",
       "..",
       "bin",
-      `${command}.js`
+      `${command}.mjs`
     )
     let wrapperTemplate = await readFile(
       kitPath("templates", "bin", "stackblitz.mjs"),
