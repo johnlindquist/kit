@@ -1,8 +1,5 @@
-#!/bin/env node
-import path from "path"
-
-async function run() {
-  let { outputJson } = await import("fs-extra")
+;(async function () {
+  await import("../api/global.js")
   let $PROJECT = path.resolve(process.cwd())
   let contents = {
     installDependencies: true,
@@ -12,9 +9,6 @@ async function run() {
       PATH: `${$PROJECT}/bin:${$PROJECT}/node_modules/@johnlindquist/kit/stackblitz/bin:/bin:/usr/bin:/usr/local/bin`,
     },
   }
-
   let sbrcPath = path.resolve($PROJECT, ".stackblitzrc")
-  await outputJson(sbrcPath, contents)
-}
-
-run()
+  await outputJson(sbrcPath, contents, { spaces: "\t" })
+})()
