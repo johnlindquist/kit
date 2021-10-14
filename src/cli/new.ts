@@ -31,7 +31,18 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
-let template = arg?.template || (await env("KIT_TEMPLATE"))
+let stripExtension = fileName =>
+  fileName.replace(path.extname(fileName), "")
+
+await ensureFile(kenvPath("templates", "default.js"))
+let templates = (await readdir(kenvPath("templates"))).map(
+  stripExtension
+)
+let template =
+  arg?.template ||
+  (await env("KIT_TEMPLATE", {
+    choices: templates,
+  }))
 
 let templateContent = await readFile(
   kenvPath("templates", `${template}.${kitMode()}`),
