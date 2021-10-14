@@ -2,4 +2,4 @@
 
 NODE_NO_WARNINGS=1 \
     node \
-    ./node_modules/@johnlindquist/kit/run/terminal.js
+    ./node_modules/@johnlindquist/kit/run/stackblitz.js
