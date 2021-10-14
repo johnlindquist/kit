@@ -10,7 +10,7 @@ await trash([
 
 let scripts = await getScripts(false)
 
-for await (let script of scripts) {
+for (let script of scripts) {
   await createBinFromScript(Bin.scripts, script)
 }
 

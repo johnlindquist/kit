@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { pathExists } from "fs-extra"
 import path from "path"
 
 let filePath = path.dirname(
@@ -109,6 +110,10 @@ if (!stackblitzRcExists) {
       await outputJson(stackblitzRcPath, config, {
         spaces: "\t",
       })
+
+      if (await pathExists(kenvPath("bin"))) {
+        await cli("create-all-bins")
+      }
     }
   }
 }

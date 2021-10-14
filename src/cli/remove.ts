@@ -26,7 +26,14 @@ let confirm =
   ))
 
 if (confirm) {
-  await trash([filePath, kenvPath("bin", command)])
+  let binJSPath = kenvPath("bin", command + ".js")
+  let binJS = await pathExists(binJSPath)
+
+  await trash([
+    filePath,
+    kenvPath("bin", command),
+    ...(binJS ? [binJSPath] : []),
+  ])
   await cli("refresh-scripts-db")
 }
 
