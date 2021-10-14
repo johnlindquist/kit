@@ -1,5 +1,5 @@
 #!/bin/env node
-
+import path from "path"
 import { outputFile } from "fs-extra"
 
 async function run() {
