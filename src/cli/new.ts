@@ -34,21 +34,30 @@ let contents = [arg?.npm]
 let stripExtension = fileName =>
   fileName.replace(path.extname(fileName), "")
 
-await outputFile(
-  kenvPath("templates", "default.js"),
-  await readFile(
+let defaultTemplatePath = kenvPath(
+  "templates",
+  "default.js"
+)
+
+if (!(await pathExists(defaultTemplatePath))) {
+  let defaultTemplateContents = await readFile(
     kitPath("templates", "scripts", "default.js"),
     "utf-8"
-  ),
-  { flag: "wx" }
-)
-let templates = (await readdir(kenvPath("templates"))).map(
-  stripExtension
-)
+  )
+  await outputFile(
+    defaultTemplatePath,
+    defaultTemplateContents
+  )
+}
+
 let template =
   arg?.template ||
   (await env("KIT_TEMPLATE", {
-    choices: templates,
+    choices: async () => {
+      return (await readdir(kenvPath("templates"))).map(
+        stripExtension
+      )
+    },
   }))
 
 let templateContent = await readFile(
