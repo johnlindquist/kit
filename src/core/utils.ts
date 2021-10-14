@@ -572,8 +572,11 @@ export let createBinFromScript = async (
   type: Bin,
   { command, filePath }: Script
 ) => {
+  let jsh = process.env?.SHELL.includes("jsh")
+  let template = jsh ? "stackblitz" : "terminal"
+
   let binTemplate = await readFile(
-    kitPath("templates", "bin", "template"),
+    kitPath("templates", "bin", template),
     "utf8"
   )
 
@@ -596,6 +599,35 @@ export let createBinFromScript = async (
   global.mkdir("-p", path.dirname(binFilePath))
   await global.writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
+
+  if (jsh) {
+    let wrapperFilePath = path.join(
+      filePath,
+      "..",
+      "..",
+      "bin",
+      `${command}.js`
+    )
+    let wrapperTemplate = await readFile(
+      kitPath("templates", "bin", "stackblitz.mjs"),
+      "utf8"
+    )
+    let wrapperTemplateCompiler =
+      global.compile(wrapperTemplate)
+    let compiledWrapperTemplate = wrapperTemplateCompiler({
+      command,
+      type,
+      ...global.env,
+      TARGET_PATH: filePath,
+    })
+
+    global.mkdir("-p", path.dirname(wrapperFilePath))
+    await global.writeFile(
+      wrapperFilePath,
+      compiledWrapperTemplate
+    )
+    global.chmod(755, wrapperFilePath)
+  }
 }
 
 export let createBinFromName = async (
