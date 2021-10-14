@@ -98,16 +98,13 @@ if (!stackblitzRcExists) {
       )
     }
     if (confirm) {
-      let config = _.merge(
-        {
-          installDependencies: true,
-          startCommand: "kitblitz",
-          env: {
-            PATH: `${existingPath}:${projectRoot}/bin`,
-          },
+      let config = _.merge(rc, {
+        installDependencies: true,
+        startCommand: "kitblitz",
+        env: {
+          PATH: `${existingPath}:${projectRoot}/bin`,
         },
-        rc
-      )
+      })
 
       await outputJson(stackblitzRcPath, config, {
         spaces: "\t",
