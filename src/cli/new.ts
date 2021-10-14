@@ -53,11 +53,11 @@ if (!(await pathExists(defaultTemplatePath))) {
 let template =
   arg?.template ||
   (await env("KIT_TEMPLATE", {
-    choices: async () => {
-      return (await readdir(kenvPath("templates"))).map(
-        stripExtension
-      )
-    },
+    choices: _.uniq(
+      (
+        await readdir(kenvPath("templates"))
+      ).map(stripExtension)
+    ),
   }))
 
 let templateContent = await readFile(

@@ -55,6 +55,7 @@ export let isDir = async (
 export let isBin = async (
   bin: string
 ): Promise<boolean> => {
+  if (jsh) return false
   try {
     return Boolean(execSync(`command -v ${bin}`))
   } catch {
@@ -509,23 +510,13 @@ export let selectScript = async (
   return script
 }
 
-let checkSystemCommand = (input: string): boolean => {
-  if (jsh) return false
-
-  return Boolean(
-    global.exec(`command -v ${input}`, {
-      silent: true,
-    }).stdout
-  )
-}
-
 //validator
 export let exists = async (input: string) => {
   return (await isBin(kenvPath("bin", input)))
     ? global.chalk`{red.bold ${input}} already exists. Try again:`
     : (await isDir(kenvPath("bin", input)))
     ? global.chalk`{red.bold ${input}} exists as group. Enter different name:`
-    : checkSystemCommand(input)
+    : (await isBin(input))
     ? global.chalk`{red.bold ${input}} is a system command. Enter different name:`
     : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
     ? global.chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
