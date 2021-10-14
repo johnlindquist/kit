@@ -572,7 +572,7 @@ export let createBinFromScript = async (
   type: Bin,
   { command, filePath }: Script
 ) => {
-  let jsh = process.env?.SHELL.includes("jsh")
+  let jsh = process.env?.HISTFILE?.includes("jsh")
   let template = jsh ? "stackblitz" : "terminal"
 
   let binTemplate = await readFile(
