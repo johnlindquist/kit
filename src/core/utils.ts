@@ -412,10 +412,7 @@ export let getLastSlashSeparated = (
 
 export let getScriptFiles = async (kenv = kenvPath()) => {
   let scriptsPath = path.join(kenv, "scripts")
-  if (!(await isDir(scriptsPath))) {
-    console.warn(`${scriptsPath} isn't a valid kenv dir`)
-    return []
-  }
+  await ensureDir(scriptsPath)
 
   let result = await readdir(scriptsPath, {
     withFileTypes: true,
