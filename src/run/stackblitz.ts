@@ -13,8 +13,6 @@ await import("../api/global.js")
 await import("../api/kit.js")
 await import("../api/lib.js")
 
-global.uuid = () => Math.random().toString()
-
 await import(`../platform/stackblitz.js`)
 
 configEnv()
