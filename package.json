@@ -4,7 +4,7 @@
   "bin": {
     "kit": "./bin/kit",
     "sk": "./bin/sk",
-    "kitblitz": "./bin/kitblitz"
+    "kitblitz": "./bin/kitblitz.mjs"
   },
   "engines": {
     "node": ">=14.8.0"
