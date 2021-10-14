@@ -37,7 +37,6 @@ global.kitPrompt = async (config: any) => {
     } else {
       let { default: _ } = (await import("lodash")) as any
 
-
       let suggest = _.debounce(async function (input) {
         let results = await f(input)
 
@@ -107,6 +106,11 @@ global.arg = async (messageOrConfig = "Input", choices) => {
     config.placeholder = messageOrConfig
   } else {
     config = messageOrConfig
+  }
+
+  if (Array.isArray(choices) && choices?.length === 0) {
+    console.log(`No choices available... 😅`)
+    exit()
   }
 
   config.choices = choices
