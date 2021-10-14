@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import { outputJson } from "fs-extra"
-import { pathExists } from "fs-extra"
 import path from "path"
 
 let filePath = path.dirname(
