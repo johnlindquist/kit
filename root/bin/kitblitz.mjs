@@ -73,7 +73,7 @@ if (!stackblitzRcExists) {
   if (confirm) {
     let config = {
       installDependencies: true,
-      startCommand: "kitblitz",
+      startCommand: "./node_modules/.bin/kitblitz",
       env: {
         PATH: `/bin:/usr/bin:/usr/local/bin:${projectRoot}/bin`,
       },
@@ -100,7 +100,7 @@ if (!stackblitzRcExists) {
     if (confirm) {
       let config = _.merge(rc, {
         installDependencies: true,
-        startCommand: "kitblitz",
+        startCommand: "./node_modules/.bin/kitblitz",
         env: {
           PATH: `${existingPath}:${projectRoot}/bin`,
         },
