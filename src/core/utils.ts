@@ -587,7 +587,7 @@ export let createBinFromScript = async (
     TARGET_PATH: filePath,
   })
 
-  let binFilePath = path.join(
+  let binFilePath = path.resolve(
     filePath,
     "..",
     "..",
@@ -600,15 +600,15 @@ export let createBinFromScript = async (
   global.chmod(755, binFilePath)
 
   if (jsh) {
-    let wrapperFilePath = path.join(
+    let wrapperFilePath = path.resolve(
       filePath,
       "..",
       "..",
       "bin",
-      `${command}.mjs`
+      `${command}.js`
     )
     let wrapperTemplate = await readFile(
-      kitPath("templates", "bin", "stackblitz.mjs"),
+      kitPath("templates", "bin", "stackblitz.js"),
       "utf8"
     )
     let wrapperTemplateCompiler =
