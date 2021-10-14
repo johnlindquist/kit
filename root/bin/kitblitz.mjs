@@ -67,12 +67,13 @@ let stackblitzRcExists = await pathExists(stackblitzRcPath)
 
 if (!stackblitzRcExists) {
   let confirm = await confirmArg(
-    "Need to add ./bin to .stackblitzrc PATH. Proceed?"
+    "Need to create .stackblitzrc and add ./bin to PATH. Proceed?"
   )
 
   if (confirm) {
     let config = {
       installDependencies: true,
+      startCommand: "kitblitz",
       env: {
         PATH: `/bin:/usr/bin:/usr/local/bin:${projectRoot}/bin`,
       },
@@ -89,12 +90,18 @@ if (!stackblitzRcExists) {
       "Need to add ./bin to .stackblitzrc. Proceed?"
     )
 
-    let existingPath =
-      rc?.env?.PATH || `/bin:/usr/bin:/usr/local/bin`
-
+    let existingPath = rc?.env?.PATH || ""
+    if (existingPath.match(":/home/projects")) {
+      existingPath = existingPath.replace(
+        /:\/home\/projects\/.*?\/bin/,
+        ""
+      )
+    }
     if (confirm) {
       let config = _.merge(
         {
+          installDependencies: true,
+          startCommand: "kitblitz",
           env: {
             PATH: `${existingPath}:${projectRoot}/bin`,
           },
