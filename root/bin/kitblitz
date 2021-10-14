@@ -1,20 +1,25 @@
-#!/bin/env node
+#!/usr/bin/env node
 
-import { outputFile } from "fs-extra"
+import path from "path"
 
-async function run() {
-  let $PROJECT = path.resolve(process.cwd())
-  let contents = `{
-        "installDependencies": true,
-        "startCommand": "kitblitz",
-        "env": {
-          "PATH": "${$PROJECT}:/bin:/usr/bin:/usr/local/bin"
-        }
-      }`
+process.env.KIT = path.resolve(
+  "node_modules",
+  "@johnlindquist",
+  "kit"
+)
+process.env.KENV = path.resolve()
 
-  await outputFile(path.resolve($PROJECT))
-  let sbrcPath = path.resolve($PROJECT, ".stackblitzrc")
-  await outputFile(sbrcPath, contents)
-}
+import { configEnv } from "../core/utils.js"
 
-run()
+await import("../api/global.js")
+await import("../api/kit.js")
+await import("../api/lib.js")
+
+await import(`../platform/stackblitz.js`)
+
+configEnv()
+
+await import("../target/terminal.js")
+let { runCli } = await import("../cli/kit.js")
+
+await runCli()
