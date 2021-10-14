@@ -1,13 +1,27 @@
 #!/usr/bin/env node
 
+import { outputJson } from "fs-extra"
+import { pathExists } from "fs-extra"
 import path from "path"
 
+let filePath = path.dirname(
+  new URL(import.meta.url).pathname
+)
+let projectRoot = path.resolve(
+  filePath, // bin
+  "..", // kit
+  "..", // @johnlindquist
+  "..", // node_modules
+  ".." // project
+)
+
 process.env.KIT = path.resolve(
+  projectRoot,
   "node_modules",
   "@johnlindquist",
   "kit"
 )
-process.env.KENV = path.resolve()
+process.env.KENV = projectRoot
 
 import { configEnv } from "../core/utils.js"
 
@@ -22,30 +36,77 @@ configEnv()
 await import("../target/terminal.js")
 let { runCli } = await import("../cli/kit.js")
 
-let pkgJsonPath = path.resolve("package.json")
+let pkgJsonPath = path.resolve(projectRoot, "package.json")
+
+let confirmArg = async message =>
+  await arg(message, [
+    { name: "No", value: false },
+    { name: "Yes", value: true },
+  ])
 
 let pkgJson = await readJson(pkgJsonPath)
-if (pkgJson) {
-  if (pkgJson?.type !== "module") {
-    let confirm = await arg(
-      `package.json "type" needs to be set to "module". Proceed?`,
-      [
-        { name: "No", value: false },
-        { name: "Yes", value: true },
-      ]
+if (pkgJson?.type !== "module") {
+  let confirm = await confirmArg(
+    `package.json "type" needs to be set to "module". Proceed?`
+  )
+
+  if (confirm) {
+    await writeJson(
+      pkgJsonPath,
+      {
+        type: "module",
+        ...pkgJson,
+      },
+      { spaces: "\t" }
+    )
+  } else {
+    exit()
+  }
+}
+
+let stackblitzRcPath = path.resolve(".stackblitzrc")
+let stackblitzRcExists = await pathExists(stackblitzRcPath)
+
+if (!stackblitzRcExists) {
+  let confirm = await confirmArg(
+    "Need to add ./bin to .stackblitzrc PATH. Proceed?"
+  )
+
+  if (confirm) {
+    let config = {
+      installDependencies: true,
+      env: {
+        PATH: `/bin:/usr/bin:/usr/local/bin:${projectRoot}/bin`,
+      },
+    }
+
+    await outputJson(stackblitzRcPath, config, {
+      spaces: "\t",
+    })
+  }
+} else {
+  let rc = await readJson(stackblitzRcPath)
+  if (!rc?.env?.PATH.includes(`${projectRoot}/bin`)) {
+    let confirm = await confirmArg(
+      "Need to add ./bin to .stackblitzrc. Proceed?"
     )
 
+    let existingPath =
+      rc?.env?.PATH || `/bin:/usr/bin:/usr/local/bin`
+
     if (confirm) {
-      await writeJson(
-        pkgJsonPath,
+      let config = _.merge(
         {
-          type: "module",
-          ...pkgJson,
+          env: {
+            PATH: `${existingPath}:${projectRoot}/bin`,
+          },
         },
-        { spaces: "\t" }
+        rc
       )
-    } else {
-      exit()
+
+      await outputJson(stackblitzRcPath, config, {
+        spaces: "\t",
+      })
     }
   }
 }

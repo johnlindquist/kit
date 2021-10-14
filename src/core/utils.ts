@@ -599,34 +599,34 @@ export let createBinFromScript = async (
   await global.writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
 
-  if (jsh) {
-    let wrapperFilePath = path.resolve(
-      filePath,
-      "..",
-      "..",
-      "bin",
-      `${command}.js`
-    )
-    let wrapperTemplate = await readFile(
-      kitPath("templates", "bin", "stackblitz.js"),
-      "utf8"
-    )
-    let wrapperTemplateCompiler =
-      global.compile(wrapperTemplate)
-    let compiledWrapperTemplate = wrapperTemplateCompiler({
-      command,
-      type,
-      ...global.env,
-      TARGET_PATH: filePath,
-    })
+  // if (jsh) {
+  //   let wrapperFilePath = path.resolve(
+  //     filePath,
+  //     "..",
+  //     "..",
+  //     "bin",
+  //     `${command}.js`
+  //   )
+  //   let wrapperTemplate = await readFile(
+  //     kitPath("templates", "bin", "stackblitz.js"),
+  //     "utf8"
+  //   )
+  //   let wrapperTemplateCompiler =
+  //     global.compile(wrapperTemplate)
+  //   let compiledWrapperTemplate = wrapperTemplateCompiler({
+  //     command,
+  //     type,
+  //     ...global.env,
+  //     TARGET_PATH: filePath,
+  //   })
 
-    global.mkdir("-p", path.dirname(wrapperFilePath))
-    await global.writeFile(
-      wrapperFilePath,
-      compiledWrapperTemplate
-    )
-    global.chmod(755, wrapperFilePath)
-  }
+  //   global.mkdir("-p", path.dirname(wrapperFilePath))
+  //   await global.writeFile(
+  //     wrapperFilePath,
+  //     compiledWrapperTemplate
+  //   )
+  //   global.chmod(755, wrapperFilePath)
+  // }
 }
 
 export let createBinFromName = async (
