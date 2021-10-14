@@ -110,7 +110,7 @@ global.arg = async (messageOrConfig = "Input", choices) => {
 
   if (Array.isArray(choices) && choices?.length === 0) {
     console.log(`No choices available... 😅`)
-    exit()
+    global.exit()
   }
 
   config.choices = choices
