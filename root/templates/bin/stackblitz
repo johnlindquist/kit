@@ -1,4 +1,4 @@
-#!/bin/jsh
+#!/usr/bin/env node
 
 // These ./bin files are customized for stackblitz
 // A local Script Kit install works a little differently
