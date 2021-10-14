@@ -1,3 +1,5 @@
+#!/bin/jsh
+
 // These ./bin files are customized for stackblitz
 // A local Script Kit install works a little differently
 
