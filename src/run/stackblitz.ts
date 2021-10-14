@@ -1,3 +1,12 @@
+import path from "path"
+
+process.env.KIT = path.resolve(
+  "node_modules",
+  "@johnlindquist",
+  "kit"
+)
+process.env.KENV = path.resolve()
+
 import { configEnv } from "../core/utils.js"
 
 await import("../api/global.js")
