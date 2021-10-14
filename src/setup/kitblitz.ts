@@ -1,8 +1,8 @@
 #!/bin/env node
 import path from "path"
-import { outputJson } from "fs-extra"
 
 async function run() {
+  let { outputJson } = await import("fs-extra")
   let $PROJECT = path.resolve(process.cwd())
   let contents = {
     installDependencies: true,
