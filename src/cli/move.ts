@@ -3,7 +3,6 @@
 import {
   createBinFromScript,
   selectScript,
-  trashBinFromScript,
   trashBins,
 } from "../core/utils.js"
 
