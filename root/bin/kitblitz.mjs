@@ -20,6 +20,8 @@ process.env.KIT = path.resolve(filePath, "..")
 process.env.KENV = projectRoot
 
 import { configEnv } from "../core/utils.js"
+import { readJson } from "fs-extra"
+import { writeJson } from "fs-extra"
 
 await import("../api/global.js")
 await import("../api/kit.js")
@@ -41,11 +43,22 @@ if (flag?.start) {
     "node_modules",
     ".bin"
   )
-  await $`rm ${path.resolve(nmBinDir, "kit")}`
-  await $`cp ${path.resolve(
-    nmBinDir,
-    "kitblitz"
-  )} ${path.resolve(nmBinDir, "kit")}`
+  // await $`rm ${path.resolve(nmBinDir, "kit")}`
+  // await $`cp ${path.resolve(
+  //   nmBinDir,
+  //   "kitblitz"
+  // )} ${path.resolve(nmBinDir, "kit")}`
+  let kitPkgJsonPath = path.resolve(
+    projectRoot,
+    "node_modules",
+    "@johnlindquist",
+    "kit",
+    "package.json"
+  )
+
+  let kitPkgJson = await readJson(kitPkgJsonPath)
+  kitPkgJson.bin.kit = kitPkgJson.bin.kitblitz
+  await writeJson(kitPkgJsonPath, kitPkgJson)
 }
 
 let config = {
