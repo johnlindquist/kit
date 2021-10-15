@@ -47,10 +47,10 @@ if (flag?.start) {
     ".bin"
   )
   // await $`rm ${path.resolve(nmBinDir, "kit")}`
-  // await $`cp ${path.resolve(
-  //   nmBinDir,
-  //   "kitblitz"
-  // )} ${path.resolve(nmBinDir, "kit")}`
+  await $`mv ${path.resolve(
+    nmBinDir,
+    "kitblitz"
+  )} ${path.resolve(nmBinDir, "kit")}`
   let kitPkgJsonPath = path.resolve(
     projectRoot,
     "node_modules",
@@ -61,15 +61,14 @@ if (flag?.start) {
 
   let kitPkgJson = await readJson(kitPkgJsonPath)
   kitPkgJson.bin.kit = kitPkgJson.bin.kitblitz
-  await writeJson(kitPkgJsonPath, kitPkgJson)
+  await writeJson(kitPkgJsonPath, kitPkgJson, {
+    spaces: "\t",
+  })
 }
 
 let config = {
   installDependencies: true,
   startCommand: "./node_modules/.bin/kitblitz --start",
-  env: {
-    PATH: `/bin:/usr/bin:/usr/local/bin:${projectRoot}/bin`,
-  },
 }
 
 if (!stackblitzRcExists) {
@@ -100,3 +99,9 @@ if (!stackblitzRcExists) {
 }
 
 await runCli()
+
+if (flag?.start) {
+  console.log(
+    chalk`Run "{green.bold kit}" to open this menu again.`
+  )
+}
