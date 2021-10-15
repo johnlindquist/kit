@@ -7,15 +7,25 @@ import {
   run,
 } from "../core/utils.js"
 
+import { getScripts } from "../core/db.js"
+
+let scripts = await getScripts()
+
+let hasScripts = scripts?.length > 0
+
 interface CLIMenuItem {
   name?: string
   placeholder?: string
   alias?: string
 }
 
-let cliScripts: CLIMenuItem[] = [
+let requiresScripts = [
   { name: "run", placeholder: "Run a script" },
   { name: "edit", placeholder: "Edit a script" },
+]
+
+let cliScripts: CLIMenuItem[] = [
+  ...(hasScripts ? requiresScripts : []),
   {
     name: "new",
     placeholder: `Create a script using ${
