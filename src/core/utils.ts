@@ -16,7 +16,7 @@ import { ProcessType, UI, Bin, Channel } from "./enum.js"
 import { getScripts, getScriptFromString } from "./db.js"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
-export let jsh = process.env?.HISTFILE?.includes("jsh")
+export let jsh = process.env?.SHELL?.includes("jsh")
 
 export let home = (...pathParts: string[]) => {
   return path.resolve(os.homedir(), ...pathParts)
@@ -584,13 +584,8 @@ export let createBinFromScript = async (
     TARGET_PATH: filePath,
   })
 
-  let binFilePath = path.resolve(
-    filePath,
-    "..",
-    "..",
-    "bin",
-    command
-  )
+  let binDirPath = path.resolve(filePath, "..", "..", "bin")
+  let binFilePath = path.resolve(binDirPath, command)
 
   global.mkdir("-p", path.dirname(binFilePath))
   await global.writeFile(binFilePath, compiledBinTemplate)
@@ -598,14 +593,11 @@ export let createBinFromScript = async (
 
   if (jsh) {
     let wrapperFilePath = path.resolve(
-      filePath,
-      "..",
-      "..",
-      "bin",
-      `${command}.js`
+      binDirPath,
+      `${command}.mjs`
     )
     let wrapperTemplate = await readFile(
-      kitPath("templates", "bin", "stackblitz.js"),
+      kitPath("templates", "bin", "stackblitz.mjs"),
       "utf8"
     )
     let wrapperTemplateCompiler =
@@ -623,6 +615,18 @@ export let createBinFromScript = async (
       compiledWrapperTemplate
     )
     global.chmod(755, wrapperFilePath)
+
+    let binPkgJsonPath = path.resolve(
+      binDirPath,
+      "package.json"
+    )
+
+    if (!(await pathExists(binPkgJsonPath))) {
+      await global.writeJson(
+        path.resolve(binDirPath, "package.json"),
+        { type: "commonjs" }
+      )
+    }
   }
 }
 
