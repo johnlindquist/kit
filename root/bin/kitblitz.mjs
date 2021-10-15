@@ -20,8 +20,6 @@ process.env.KIT = path.resolve(filePath, "..")
 process.env.KENV = projectRoot
 
 import { configEnv } from "../core/utils.js"
-import { readJson } from "fs-extra"
-import { writeJson } from "fs-extra"
 
 await import("../api/global.js")
 await import("../api/kit.js")
@@ -38,6 +36,11 @@ let stackblitzRcPath = path.resolve(".stackblitzrc")
 let stackblitzRcExists = await pathExists(stackblitzRcPath)
 
 if (flag?.start) {
+  await writeFile(
+    path.resolve(projectRoot, ".env"),
+    `KIT_TEMPLATE=default
+`
+  )
   let nmBinDir = path.resolve(
     projectRoot,
     "node_modules",
