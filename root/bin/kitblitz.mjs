@@ -102,6 +102,8 @@ await runCli()
 
 if (flag?.start) {
   console.log(
-    chalk`Run "{green.bold kit}" to open this menu again.`
+    chalk`
+Run "{green.bold kit}" to open this menu again.
+`
   )
 }

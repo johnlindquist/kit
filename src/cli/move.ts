@@ -4,6 +4,7 @@ import {
   createBinFromScript,
   selectScript,
   trashBinFromScript,
+  trashBins,
 } from "../core/utils.js"
 
 import { Bin } from "../core/enum.js"
@@ -57,7 +58,7 @@ while (true) {
   exists = await isFile(target(script.filePath))
 
   if (!exists) {
-    trashBinFromScript(script)
+    await trashBins(script)
     mv(script.filePath, target(script.filePath))
     await getScripts(false)
     createBinFromScript(Bin.scripts, script)

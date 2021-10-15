@@ -1,10 +1,16 @@
 // Description: Rename Script
 
-import { exists, selectScript } from "../core/utils.js"
+import {
+  exists,
+  selectScript,
+  trashBins,
+} from "../core/utils.js"
 
-let { command, filePath } = await selectScript(
+let script = await selectScript(
   `Which script do you want to rename?`
 )
+
+let { filePath } = script
 
 let newCommand = await arg({
   placeholder: `Enter the new script name:`,
@@ -20,14 +26,8 @@ let newFilePath = path.resolve(
 )
 
 mv(filePath, newFilePath)
+await trashBins(script)
 
-let oldBin = path.resolve(
-  path.dirname(filePath),
-  "..",
-  "bin",
-  command
-)
-await trash([oldBin])
 await cli("create-bin", "scripts", newFilePath)
 edit(newFilePath, kenvPath())
 

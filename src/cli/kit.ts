@@ -5,6 +5,7 @@ import {
   kitMode,
   resolveToScriptPath,
   run,
+  jsh,
 } from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
@@ -22,6 +23,41 @@ interface CLIMenuItem {
 let requiresScripts = [
   { name: "run", placeholder: "Run a script" },
   { name: "edit", placeholder: "Edit a script" },
+]
+
+let notJsh = [
+  {
+    name: "add-kenv-to-profile",
+    placeholder: "Add .kenv/bin to your path",
+  },
+  {
+    name: "add-kit-to-profile",
+    placeholder: "Add .kit/bin to your path",
+  },
+  { name: "env", placeholder: "Edit .env" },
+  {
+    name: "set-env-var",
+    placeholder: "Add env var to .env",
+  },
+  { name: "issue", placeholder: "File an issue on github" },
+  { name: "open-at-login", placeholder: "Open at login" },
+  {
+    name: "create-all-bins",
+    placeholder: "Regen bin files",
+  },
+  {
+    name: "open-kit",
+    placeholder: "Open .kit directory in editor",
+  },
+  { name: "open-log", placeholder: "Open kit.log" },
+  { name: "kenv-create", placeholder: "Create a kenv" },
+  { name: "kenv-clone", placeholder: "Clone a kenv" },
+  { name: "kenv-view", placeholder: "View kenv scripts" },
+  { name: "kenv-push", placeholder: "Push a kenv" },
+  { name: "kenv-pull", placeholder: "Pull a kenv" },
+  { name: "kenv-rm", placeholder: "Remove a kenv" },
+  { name: "sync-path", placeholder: "Update PATH" },
+  { name: "clear", placeholder: "Clear the caches" },
 ]
 
 let cliScripts: CLIMenuItem[] = [
@@ -70,7 +106,7 @@ let cliScripts: CLIMenuItem[] = [
     alias: "rm",
     placeholder: "Remove a script",
   },
-  { name: "clear", placeholder: "Clear the caches" },
+
   // {
   //   name: "update",
   //   placeholder: `Version: ${process.env.KIT_APP_VERSION}`,
@@ -85,36 +121,9 @@ let cliScripts: CLIMenuItem[] = [
     alias: "un",
     placeholder: "Uninstall an npm package",
   },
-  {
-    name: "add-kenv-to-profile",
-    placeholder: "Add .kenv/bin to your path",
-  },
-  {
-    name: "add-kit-to-profile",
-    placeholder: "Add .kit/bin to your path",
-  },
-  { name: "env", placeholder: "Edit .env" },
-  {
-    name: "set-env-var",
-    placeholder: "Add env var to .env",
-  },
-  { name: "issue", placeholder: "File an issue on github" },
-  { name: "open-at-login", placeholder: "Open at login" },
-  {
-    name: "create-all-bins",
-    placeholder: "Regen bin files",
-  },
-  {
-    name: "open-kit",
-    placeholder: "Open .kit directory in editor",
-  },
-  { name: "open-log", placeholder: "Open kit.log" },
-  { name: "kenv-create", placeholder: "Create a kenv" },
-  { name: "kenv-clone", placeholder: "Clone a kenv" },
-  { name: "kenv-view", placeholder: "View kenv scripts" },
-  { name: "kenv-push", placeholder: "Push a kenv" },
-  { name: "kenv-pull", placeholder: "Pull a kenv" },
-  { name: "kenv-rm", placeholder: "Remove a kenv" },
+
+  ...(jsh ? [] : notJsh),
+
   kitMode() === "ts"
     ? {
         name: "switch-to-js",
@@ -124,7 +133,6 @@ let cliScripts: CLIMenuItem[] = [
         name: "switch-to-ts",
         placeholder: "Switch to TypeScript Mode",
       },
-  { name: "sync-path", placeholder: "Update PATH" },
   { name: "quit", placeholder: "Quit Kit" },
 ]
 

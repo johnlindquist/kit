@@ -623,18 +623,6 @@ export let createBinFromScript = async (
       compiledWrapperTemplate
     )
     global.chmod(755, wrapperFilePath)
-
-    let binPkgJsonPath = path.resolve(
-      binDirPath,
-      "package.json"
-    )
-
-    if (!(await global.pathExists(binPkgJsonPath))) {
-      await global.writeJson(
-        path.resolve(binDirPath, "package.json"),
-        { type: "commonjs" }
-      )
-    }
   }
 }
 
@@ -660,16 +648,6 @@ export let createBinFromName = async (
   global.mkdir("-p", path.dirname(binFilePath))
   await global.writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
-}
-
-export let trashBinFromScript = async (script: Script) => {
-  global.trash([
-    kenvPath(
-      script.kenv && `kenvs/${script.kenv}`,
-      "bin",
-      script.command
-    ),
-  ])
 }
 
 type Kenv = {
@@ -763,4 +741,30 @@ export let configEnv = () => {
   assignPropsTo(process.env, global.env)
 
   return parsed
+}
+
+export let trashBins = async ({
+  filePath,
+  command,
+  kenv,
+}: Script) => {
+  let binJSPath = jsh
+    ? kenvPath("node_modules", ".bin", command + ".js")
+    : kenvPath(
+        kenv && `kenvs/${kenv}`,
+        "bin",
+        command + ".js"
+      )
+
+  let binJS = await pathExists(binJSPath)
+
+  let binPath = jsh
+    ? kenvPath("node_modules", ".bin", command)
+    : kenvPath(kenv && `kenvs/${kenv}`, "bin", command)
+
+  await trash([
+    filePath,
+    binPath,
+    ...(binJS ? [binJSPath] : []),
+  ])
 }
