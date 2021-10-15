@@ -16,16 +16,10 @@ let projectRoot = path.resolve(
   ".." // project
 )
 
-process.env.KIT = path.resolve(
-  projectRoot,
-  "node_modules",
-  "@johnlindquist",
-  "kit"
-)
+process.env.KIT = path.resolve(filePath, "..")
 process.env.KENV = projectRoot
 
 import { configEnv } from "../core/utils.js"
-import { copyFile } from "fs/promises"
 
 await import("../api/global.js")
 await import("../api/kit.js")
@@ -38,69 +32,37 @@ configEnv()
 await import("../target/terminal.js")
 let { runCli } = await import("../cli/kit.js")
 
-let pkgJsonPath = path.resolve(projectRoot, "package.json")
-
-let confirmArg = async message =>
-  await arg(message, [
-    { name: "No", value: false },
-    { name: "Yes", value: true },
-  ])
-
-let pkgJson = await readJson(pkgJsonPath)
-if (pkgJson?.type !== "module") {
-  let confirm = await confirmArg(
-    `package.json "type" needs to be set to "module". Proceed?`
-  )
-
-  if (confirm) {
-    await writeJson(
-      pkgJsonPath,
-      {
-        type: "module",
-        ...pkgJson,
-      },
-      { spaces: "\t" }
-    )
-  } else {
-    exit()
-  }
-}
-
 let stackblitzRcPath = path.resolve(".stackblitzrc")
 let stackblitzRcExists = await pathExists(stackblitzRcPath)
 
 if (flag?.start) {
-  await copyFile(
-    path.resolve("node_modules", ".bin", "kitblitz"),
-    path.resolve("node_modules", ".bin", "kit")
+  let nmBinDir = path.resolve(
+    projectRoot,
+    "node_modules",
+    ".bin"
   )
+  await $`rm ${path.resolve(nmBinDir, "kit")}`
+  await $`cp ${path.resolve(
+    nmBinDir,
+    "kitblitz"
+  )} ${path.resolve(nmBinDir, "kit")}`
+}
+
+let config = {
+  installDependencies: true,
+  startCommand: "./node_modules/.bin/kitblitz --start",
+  env: {
+    PATH: `/bin:/usr/bin:/usr/local/bin:${projectRoot}/bin`,
+  },
 }
 
 if (!stackblitzRcExists) {
-  let confirm = await confirmArg(
-    "Need to create .stackblitzrc and add ./bin to PATH. Proceed?"
-  )
-
-  if (confirm) {
-    let config = {
-      installDependencies: true,
-      startCommand: "./node_modules/.bin/kitblitz --start",
-      env: {
-        PATH: `/bin:/usr/bin:/usr/local/bin:${projectRoot}/bin`,
-      },
-    }
-
-    await outputJson(stackblitzRcPath, config, {
-      spaces: "\t",
-    })
-  }
+  await outputJson(stackblitzRcPath, config, {
+    spaces: "\t",
+  })
 } else {
   let rc = await readJson(stackblitzRcPath)
   if (!rc?.env?.PATH.includes(`${projectRoot}/bin`)) {
-    let confirm = await confirmArg(
-      "Need to add ./bin to .stackblitzrc. Proceed?"
-    )
-
     let existingPath = rc?.env?.PATH || ""
     if (existingPath.match(":/home/projects")) {
       existingPath = existingPath.replace(
@@ -108,25 +70,15 @@ if (!stackblitzRcExists) {
         ""
       )
     }
-    if (confirm) {
-      let config = _.merge(rc, {
-        installDependencies: true,
-        startCommand:
-          "./node_modules/.bin/kitblitz --start",
-        env: {
-          PATH: `${existingPath}:${projectRoot}/bin`,
-        },
-      })
 
-      await outputJson(stackblitzRcPath, config, {
-        spaces: "\t",
-      })
+    await outputJson(stackblitzRcPath, config, {
+      spaces: "\t",
+    })
 
-      let scripts = await getScripts(false)
+    let scripts = await getScripts(false)
 
-      for (let script of scripts) {
-        await createBinFromScript(Bin.scripts, script)
-      }
+    for (let script of scripts) {
+      await createBinFromScript(Bin.scripts, script)
     }
   }
 }
