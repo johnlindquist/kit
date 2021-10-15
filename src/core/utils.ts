@@ -756,13 +756,13 @@ export let trashBins = async ({
         command + ".js"
       )
 
-  let binJS = await pathExists(binJSPath)
+  let binJS = await global.pathExists(binJSPath)
 
   let binPath = jsh
     ? kenvPath("node_modules", ".bin", command)
     : kenvPath(kenv && `kenvs/${kenv}`, "bin", command)
 
-  await trash([
+  await global.trash([
     filePath,
     binPath,
     ...(binJS ? [binJSPath] : []),
