@@ -621,7 +621,7 @@ export let createBinFromScript = async (
       "package.json"
     )
 
-    if (!(await pathExists(binPkgJsonPath))) {
+    if (!(await global.pathExists(binPkgJsonPath))) {
       await global.writeJson(
         path.resolve(binDirPath, "package.json"),
         { type: "commonjs" }
