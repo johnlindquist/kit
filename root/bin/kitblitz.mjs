@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-import { pathExists } from "fs-extra"
+import { Bin } from "../core/enum.js"
+import { getScripts } from "../core/db.js"
+import { createBinFromScript } from "../core/utils.js"
 import path from "path"
 
 let filePath = path.dirname(
@@ -111,8 +113,10 @@ if (!stackblitzRcExists) {
         spaces: "\t",
       })
 
-      if (await pathExists(kenvPath("bin"))) {
-        await cli("create-all-bins")
+      let scripts = await getScripts(false)
+
+      for (let script of scripts) {
+        await createBinFromScript(Bin.scripts, script)
       }
     }
   }

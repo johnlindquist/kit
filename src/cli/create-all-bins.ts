@@ -1,6 +1,5 @@
 import { Bin } from "../core/enum.js"
 import { getScripts } from "../core/db.js"
-
 import { createBinFromScript } from "../core/utils.js"
 
 await trash([
