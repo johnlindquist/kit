@@ -23,9 +23,10 @@ let template = await arg(
   "Select a template",
   templates
     .filter(t => t.endsWith(kitMode()))
-    .map(t =>
-      t.replace(new RegExp(`/\.${kitMode()}$/`), "")
-    )
+    .map(t => {
+      let ext = path.extname(t)
+      return t.replace(new RegExp(`${ext}$`), "")
+    })
 )
 
 let templateContent = await readFile(

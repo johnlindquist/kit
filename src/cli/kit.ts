@@ -35,10 +35,6 @@ let notJsh = [
     placeholder: "Add .kit/bin to your path",
   },
   { name: "env", placeholder: "Edit .env" },
-  {
-    name: "set-env-var",
-    placeholder: "Add env var to .env",
-  },
   { name: "issue", placeholder: "File an issue on github" },
   { name: "open-at-login", placeholder: "Open at login" },
   {
@@ -49,7 +45,6 @@ let notJsh = [
     name: "open-kit",
     placeholder: "Open .kit directory in editor",
   },
-  { name: "open-log", placeholder: "Open kit.log" },
   { name: "kenv-create", placeholder: "Create a kenv" },
   { name: "kenv-clone", placeholder: "Clone a kenv" },
   { name: "kenv-view", placeholder: "View kenv scripts" },
@@ -121,6 +116,11 @@ let cliScripts: CLIMenuItem[] = [
     alias: "un",
     placeholder: "Uninstall an npm package",
   },
+  {
+    name: "set-env-var",
+    placeholder: "Add env var to .env",
+  },
+  { name: "open-log", placeholder: "Open kit.log" },
 
   ...(jsh ? [] : notJsh),
 
@@ -137,7 +137,14 @@ let cliScripts: CLIMenuItem[] = [
 ]
 
 export let runCli = async () => {
-  let script = await arg("What do you want to do?", () =>
+  if (global?.flag?.start) {
+    console.log(
+      chalk`>_ Welcome to {green.bold Script Kit}!
+`
+    )
+  }
+
+  let script = await arg(`What do you want to do?`, () =>
     cliScripts.map(({ name, placeholder, alias }) => {
       return {
         name: chalk`{green.bold ${name}}${
