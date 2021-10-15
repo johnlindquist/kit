@@ -28,4 +28,4 @@ await import(`@johnlindquist/kit/platform/stackblitz`)
 configEnv()
 
 await import("@johnlindquist/kit/target/terminal")
-await import("../scripts/{{command}}.js")
+await import("../../scripts/{{command}}.js")

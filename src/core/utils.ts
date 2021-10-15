@@ -584,7 +584,15 @@ export let createBinFromScript = async (
     TARGET_PATH: filePath,
   })
 
-  let binDirPath = path.resolve(filePath, "..", "..", "bin")
+  let binDirPath = jsh
+    ? path.resolve(
+        filePath,
+        "..",
+        "..",
+        "node_modules",
+        ".bin"
+      )
+    : path.resolve(filePath, "..", "..", "bin")
   let binFilePath = path.resolve(binDirPath, command)
 
   global.mkdir("-p", path.dirname(binFilePath))

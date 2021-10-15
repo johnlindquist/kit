@@ -25,6 +25,7 @@ process.env.KIT = path.resolve(
 process.env.KENV = projectRoot
 
 import { configEnv } from "../core/utils.js"
+import { copyFile } from "fs/promises"
 
 await import("../api/global.js")
 await import("../api/kit.js")
@@ -68,6 +69,13 @@ if (pkgJson?.type !== "module") {
 let stackblitzRcPath = path.resolve(".stackblitzrc")
 let stackblitzRcExists = await pathExists(stackblitzRcPath)
 
+if (flag?.start) {
+  await copyFile(
+    path.resolve("node_modules", ".bin", "kitblitz"),
+    path.resolve("node_modules", ".bin", "kit")
+  )
+}
+
 if (!stackblitzRcExists) {
   let confirm = await confirmArg(
     "Need to create .stackblitzrc and add ./bin to PATH. Proceed?"
@@ -76,7 +84,7 @@ if (!stackblitzRcExists) {
   if (confirm) {
     let config = {
       installDependencies: true,
-      startCommand: "./node_modules/.bin/kitblitz",
+      startCommand: "./node_modules/.bin/kitblitz --start",
       env: {
         PATH: `/bin:/usr/bin:/usr/local/bin:${projectRoot}/bin`,
       },
@@ -103,7 +111,8 @@ if (!stackblitzRcExists) {
     if (confirm) {
       let config = _.merge(rc, {
         installDependencies: true,
-        startCommand: "./node_modules/.bin/kitblitz",
+        startCommand:
+          "./node_modules/.bin/kitblitz --start",
         env: {
           PATH: `${existingPath}:${projectRoot}/bin`,
         },
