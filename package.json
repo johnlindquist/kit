@@ -10,7 +10,8 @@
     "node": ">=14.8.0"
   },
   "version": "0.0.0-development",
-  "description": "",
+  "description": "The Script Kit sdk",
+  "repository": "github:johnlindquist/kit",
   "exports": {
     ".": "./index.js",
     "./*": "./*",
@@ -35,7 +36,7 @@
     "posttest": "node ./scripts/test-post.js",
     "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\" && node ./scripts/cjs-fix.js"
   },
-  "author": "",
+  "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
   "dependencies": {
     "@types/degit": "^2.8.3",

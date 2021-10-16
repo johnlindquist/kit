@@ -55,6 +55,17 @@ let notJsh = [
   { name: "clear", placeholder: "Clear the caches" },
 ]
 
+let shareScripts = [
+  {
+    name: "share-script",
+    placeholder: "Share a script as a Gist",
+  },
+  {
+    name: "share-script-as-link",
+    placeholder: "Share a script as a scriptkit.com link",
+  },
+]
+
 let cliScripts: CLIMenuItem[] = [
   ...(hasScripts ? requiresScripts : []),
   {
@@ -78,14 +89,7 @@ let cliScripts: CLIMenuItem[] = [
     name: "new-from-url",
     placeholder: "Create a script from a url",
   },
-  {
-    name: "share-script",
-    placeholder: "Share a script as a Gist",
-  },
-  {
-    name: "share-script-as-link",
-    placeholder: "Share a script as a scriptkit.com link",
-  },
+  ...(jsh ? [] : shareScripts),
   {
     name: "duplicate",
     alias: "cp",
