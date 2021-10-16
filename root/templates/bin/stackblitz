@@ -7,7 +7,12 @@ let path = require("path")
 
 let [, scriptPath, ..._args] = process.argv
 let scriptName = path.basename(scriptPath)
-childProcess.spawnSync("kit", [scriptName, ..._args], {
-  cwd: __dirname,
-  stdio: "inherit",
-})
+
+childProcess.spawnSync(
+  path.resolve(__dirname, "kit"),
+  [scriptName, ..._args],
+  {
+    cwd: __dirname,
+    stdio: "inherit",
+  }
+)
