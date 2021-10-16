@@ -588,7 +588,7 @@ export let createBinFromScript = async (
     filePath,
     "..",
     "..",
-    ...(jsh ? ["node_modules", ".bin"] : "bin")
+    ...(jsh ? ["node_modules", ".bin"] : ["bin"])
   )
   let binFilePath = path.resolve(binDirPath, command)
 
