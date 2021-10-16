@@ -7,6 +7,6 @@
 </div>
 
 ```js
-let value = await arg()
+let value = await db()
 console.log(value)
 ```
