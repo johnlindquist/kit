@@ -1,5 +1,6 @@
 // Description: Create a new script
 import {
+  ensureTemplates,
   exists,
   kitMode,
   selectKenv,
@@ -34,32 +35,7 @@ let contents = [arg?.npm]
 let stripExtension = fileName =>
   fileName.replace(path.extname(fileName), "")
 
-let templatesPath = kenvPath("templates")
-
-if (!(await pathExists(templatesPath))) {
-  let defaultTemplatePath = kenvPath(
-    "templates",
-    "default.js"
-  )
-
-  let defaultTemplateContents = await readFile(
-    kitPath("templates", "scripts", "default.js"),
-    "utf-8"
-  )
-  await outputFile(
-    defaultTemplatePath,
-    defaultTemplateContents
-  )
-
-  let tsDefaultTemplatePath = kenvPath(
-    "templates",
-    "default.ts"
-  )
-  await copyFile(
-    kitPath("templates", "scripts", "default.ts"),
-    tsDefaultTemplatePath
-  )
-}
+await ensureTemplates()
 
 let ext = `.${kitMode()}`
 

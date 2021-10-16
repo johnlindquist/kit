@@ -739,3 +739,25 @@ export let trashBins = async ({
     ...(binJS ? [binJSPath] : []),
   ])
 }
+
+export let ensureTemplates = async () => {
+  let templatesPath = (...parts: string[]): string =>
+    kenvPath("templates", ...parts)
+  let kitTemplatesPath = (...parts: string[]): string =>
+    kitPath("templates", "scripts", ...parts)
+
+  await global.ensureDir(templatesPath())
+
+  let ensureTemplate = async (templateName: string) => {
+    let templatePath = templatesPath(templateName)
+    if (!(await global.pathExists(templatePath))) {
+      await global.copyFile(
+        kitTemplatesPath(templateName),
+        templatePath
+      )
+    }
+  }
+
+  await ensureTemplate("default.js")
+  await ensureTemplate("default.ts")
+}

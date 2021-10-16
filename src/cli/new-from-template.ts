@@ -1,6 +1,10 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-import { exists, kitMode } from "../core/utils.js"
+import {
+  ensureTemplates,
+  exists,
+  kitMode,
+} from "../core/utils.js"
 
 let name = await arg({
   placeholder: "Enter a name for your script:",
@@ -18,7 +22,10 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
-let templates = await readdir(kenvPath("templates"))
+await ensureTemplates()
+
+let kenvTemplatesPath = kenvPath("templates")
+let templates = await readdir(kenvTemplatesPath)
 let template = await arg(
   "Select a template",
   templates
