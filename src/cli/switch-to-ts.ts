@@ -21,6 +21,7 @@ if (!tsConfigExists) {
 }
 
 if (!tsDefaultTemplateExists) {
+  await ensureDir(kenvPath("templates"))
   await copyFile(
     kitPath("templates", "scripts", "default.ts"),
     tsDefaultTemplatePath
