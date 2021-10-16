@@ -34,12 +34,14 @@ let contents = [arg?.npm]
 let stripExtension = fileName =>
   fileName.replace(path.extname(fileName), "")
 
-let defaultTemplatePath = kenvPath(
-  "templates",
-  "default.js"
-)
+let templatesPath = kenvPath("templates")
 
-if (!(await pathExists(defaultTemplatePath))) {
+if (!(await pathExists(templatesPath))) {
+  let defaultTemplatePath = kenvPath(
+    "templates",
+    "default.js"
+  )
+
   let defaultTemplateContents = await readFile(
     kitPath("templates", "scripts", "default.js"),
     "utf-8"
@@ -48,7 +50,18 @@ if (!(await pathExists(defaultTemplatePath))) {
     defaultTemplatePath,
     defaultTemplateContents
   )
+
+  let tsDefaultTemplatePath = kenvPath(
+    "templates",
+    "default.ts"
+  )
+  await copyFile(
+    kitPath("templates", "scripts", "default.ts"),
+    tsDefaultTemplatePath
+  )
 }
+
+let ext = `.${kitMode()}`
 
 let template =
   arg?.template ||
@@ -60,10 +73,24 @@ let template =
     ),
   }))
 
-let templateContent = await readFile(
-  kenvPath("templates", `${template}.${kitMode()}`),
-  "utf8"
+let templatePath = kenvPath(
+  "templates",
+  `${template}${ext}`
 )
+
+let templateExists = await pathExists(templatePath)
+if (!templateExists) {
+  console.log(
+    `${template} template doesn't exist. Creating blank ./templates/${template}${ext}`
+  )
+
+  await copyFile(
+    kitPath("templates", "scripts", `default${ext}`),
+    kenvPath("templates", `${template}${ext}`)
+  )
+}
+
+let templateContent = await readFile(templatePath, "utf8")
 
 let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })

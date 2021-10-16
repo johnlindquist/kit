@@ -3,13 +3,11 @@
 // These ./bin files are customized for stackblitz
 // A local Script Kit install works a little differently
 let childProcess = require("child_process")
+let path = require("path")
 
-let [, , ..._args] = process.argv
-childProcess.spawnSync(
-  "node",
-  ["./{{command}}.mjs", ..._args],
-  {
-    cwd: __dirname,
-    stdio: "inherit",
-  }
-)
+let [, scriptPath, ..._args] = process.argv
+let scriptName = path.basename(scriptPath)
+childProcess.spawnSync("kit", [scriptName, ..._args], {
+  cwd: __dirname,
+  stdio: "inherit",
+})

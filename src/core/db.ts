@@ -101,7 +101,7 @@ export let getScriptsDb = async (
 ): Promise<{
   scripts: Script[]
 }> => {
-  if (!fromCache) console.log(`🔄 Refresh scripts db`)
+  // if (!fromCache) console.log(`🔄 Refresh scripts db`)
   return await db(
     kitPath("db", "scripts.json"),
     async () => ({

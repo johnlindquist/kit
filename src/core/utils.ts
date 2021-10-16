@@ -584,46 +584,17 @@ export let createBinFromScript = async (
     TARGET_PATH: filePath,
   })
 
-  let binDirPath = jsh
-    ? path.resolve(
-        filePath,
-        "..",
-        "..",
-        "node_modules",
-        ".bin"
-      )
-    : path.resolve(filePath, "..", "..", "bin")
+  let binDirPath = path.resolve(
+    filePath,
+    "..",
+    "..",
+    ...(jsh ? ["node_modules", ".bin"] : "bin")
+  )
   let binFilePath = path.resolve(binDirPath, command)
 
   global.mkdir("-p", path.dirname(binFilePath))
   await global.writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
-
-  if (jsh) {
-    let wrapperFilePath = path.resolve(
-      binDirPath,
-      `${command}.mjs`
-    )
-    let wrapperTemplate = await readFile(
-      kitPath("templates", "bin", "stackblitz.mjs"),
-      "utf8"
-    )
-    let wrapperTemplateCompiler =
-      global.compile(wrapperTemplate)
-    let compiledWrapperTemplate = wrapperTemplateCompiler({
-      command,
-      type,
-      ...global.env,
-      TARGET_PATH: filePath,
-    })
-
-    global.mkdir("-p", path.dirname(wrapperFilePath))
-    await global.writeFile(
-      wrapperFilePath,
-      compiledWrapperTemplate
-    )
-    global.chmod(755, wrapperFilePath)
-  }
 }
 
 export let createBinFromName = async (
