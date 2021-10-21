@@ -2,15 +2,20 @@
 
 import {
   exists,
+  extensionRegex,
   selectScript,
-  trashBins,
+  trashScript,
 } from "../core/utils.js"
 
-let script = await selectScript(
+import { Script } from "../types/core.js"
+
+let script: Script = await selectScript(
   `Which script do you want to rename?`
 )
 
 let { filePath } = script
+
+let scriptExtension = path.extname(filePath)
 
 let newCommand = await arg({
   placeholder: `Enter the new script name:`,
@@ -18,15 +23,15 @@ let newCommand = await arg({
   validate: exists,
 })
 
-let lenientCommand = newCommand.replace(/(?<!\.js)$/, ".js")
+let lenientCommand = newCommand.replace(extensionRegex, "")
 
 let newFilePath = path.resolve(
   path.dirname(filePath),
-  lenientCommand
+  lenientCommand + scriptExtension
 )
 
 mv(filePath, newFilePath)
-await trashBins(script)
+await trashScript(script)
 
 await cli("create-bin", "scripts", newFilePath)
 edit(newFilePath, kenvPath())

@@ -720,10 +720,10 @@ export let configEnv = () => {
   return parsed
 }
 
-export let trashBins = async ({
-  filePath,
+export let trashScript = async ({
   command,
   kenv,
+  filePath,
 }: Script) => {
   let binJSPath = jsh
     ? kenvPath("node_modules", ".bin", command + ".js")
@@ -740,10 +740,12 @@ export let trashBins = async ({
     : kenvPath(kenv && `kenvs/${kenv}`, "bin", command)
 
   await global.trash([
-    filePath,
+    ...((await pathExists(filePath)) ? [filePath] : []),
     binPath,
     ...(binJS ? [binJSPath] : []),
   ])
+
+  await writeScriptsDb()
 }
 
 export let ensureTemplates = async () => {

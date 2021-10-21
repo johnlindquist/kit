@@ -1,10 +1,6 @@
 // Description: Remove a script
 
-import {
-  selectScript,
-  jsh,
-  trashBins,
-} from "../core/utils.js"
+import { selectScript, trashScript } from "../core/utils.js"
 
 let script = await selectScript({
   placeholder: `Remove a script:`,
@@ -26,8 +22,7 @@ let confirm =
   ))
 
 if (confirm) {
-  await trashBins(script)
-  await cli("refresh-scripts-db")
+  await trashScript(script)
 }
 
 export {}

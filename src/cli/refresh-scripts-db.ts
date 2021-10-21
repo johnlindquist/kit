@@ -1,5 +1,5 @@
-import { getScripts } from "../core/db.js"
+import { writeScriptsDb } from "../core/utils.js"
 
-await getScripts(false)
+await writeScriptsDb()
 
 export {}
