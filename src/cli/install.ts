@@ -1,8 +1,9 @@
 import { KIT_NODE_PATH } from "../core/utils.js"
 
-let { formatDistanceToNow, parseISO } = (await npm(
-  "date-fns"
-)) as typeof import("date-fns")
+import {
+  formatDistanceToNow,
+  parseISO,
+} from "@johnlindquist/kit-internal"
 
 let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))

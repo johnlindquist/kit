@@ -12,7 +12,6 @@ childProcess.spawnSync(
   path.resolve(__dirname, "kit"),
   [scriptName, ..._args],
   {
-    cwd: __dirname,
     stdio: "inherit",
   }
 )

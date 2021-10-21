@@ -8,7 +8,13 @@ import {
 import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
-import { readFile, readdir, lstat } from "fs/promises"
+import {
+  readFile,
+  readdir,
+  lstat,
+  copyFile,
+} from "fs/promises"
+import { ensureDir, outputFile, pathExists } from "fs-extra"
 import { execSync } from "child_process"
 import { config } from "dotenv-flow"
 
@@ -89,7 +95,7 @@ export const outputTmpFile = async (
     "kit",
     fileName
   )
-  await global.outputFile(outputPath, contents)
+  await outputFile(outputPath, contents)
   return outputPath
 }
 
@@ -412,7 +418,7 @@ export let getLastSlashSeparated = (
 
 export let getScriptFiles = async (kenv = kenvPath()) => {
   let scriptsPath = path.join(kenv, "scripts")
-  await global.ensureDir(scriptsPath)
+  await ensureDir(scriptsPath)
 
   let result = await readdir(scriptsPath, {
     withFileTypes: true,
@@ -746,12 +752,12 @@ export let ensureTemplates = async () => {
   let kitTemplatesPath = (...parts: string[]): string =>
     kitPath("templates", "scripts", ...parts)
 
-  await global.ensureDir(templatesPath())
+  await ensureDir(templatesPath())
 
   let ensureTemplate = async (templateName: string) => {
     let templatePath = templatesPath(templateName)
-    if (!(await global.pathExists(templatePath))) {
-      await global.copyFile(
+    if (!(await pathExists(templatePath))) {
+      await copyFile(
         kitTemplatesPath(templateName),
         templatePath
       )

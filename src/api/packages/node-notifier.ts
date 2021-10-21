@@ -1,6 +1,10 @@
-let { default: notifier }: any = await import(
-  "node-notifier"
-)
+import notifier from "node-notifier"
+import { Notification } from "node-notifier"
+
+type KitNotification = string | Notification
+interface Notify {
+  (notification: KitNotification)
+}
 
 global.notify = notification => {
   global.hide()
@@ -8,5 +12,12 @@ global.notify = notification => {
     ? notifier.notify({ message: notification })
     : notifier.notify(notification)
 }
+declare global {
+  var notify: Notify
 
-export {}
+  namespace NodeJS {
+    interface Global {
+      notify: Notify
+    }
+  }
+}

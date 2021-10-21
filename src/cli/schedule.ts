@@ -7,8 +7,11 @@ import {
   parseScript,
 } from "../core/utils.js"
 
-let { formatDistanceToNowStrict, format, compareAsc } =
-  await npm("date-fns")
+import {
+  formatDistanceToNowStrict,
+  format,
+  compareAsc,
+} from "@johnlindquist/kit-internal"
 
 let { schedule } = await global.getSchedule()
 

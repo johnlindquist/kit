@@ -2,8 +2,11 @@ import { Choice, PromptConfig } from "../types/core"
 
 import { EditorConfig } from "../types/kitapp"
 
-import { Observable, merge, NEVER, of } from "rxjs"
 import {
+  Observable,
+  merge,
+  NEVER,
+  of,
   filter,
   map,
   share,
@@ -11,7 +14,8 @@ import {
   take,
   takeUntil,
   tap,
-} from "rxjs/operators"
+} from "@johnlindquist/kit-internal"
+
 import stripAnsi from "strip-ansi"
 import { Mode, Channel, UI } from "../core/enum.js"
 import { assignPropsTo } from "../core/utils.js"
