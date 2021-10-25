@@ -3,7 +3,6 @@
 // Placeholder: Run script
 // UI: arg
 
-
 export interface Main {
   edit: Promise<typeof import("./edit")>
   help: Promise<typeof import("./help")>
@@ -20,10 +19,6 @@ interface MainModuleLoader {
     packageName: keyof Main,
     ...moduleArgs: string[]
   ): Promise<any>
-}
-
-interface MainApi {
-  main: MainModuleLoader
 }
 
 declare global {

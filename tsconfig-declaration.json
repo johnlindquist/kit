@@ -5,7 +5,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "moduleResolution": "Node",
-    "lib": ["esnext", "DOM"],
+    "lib": ["esnext"],
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "emitDeclarationOnly": true

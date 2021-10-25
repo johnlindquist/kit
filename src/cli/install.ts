@@ -41,7 +41,16 @@ let packageNames = await arg(
   "Which npm package/s would you like to install?",
   async input => {
     if (input.length < 3) return []
-    let response = await get(
+    type pkgs = {
+      objects: {
+        package: {
+          name: string
+          description: string
+          date: string
+        }
+      }[]
+    }
+    let response = await get<pkgs>(
       `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
     )
     let packages = response.data.objects

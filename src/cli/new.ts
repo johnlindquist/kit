@@ -72,7 +72,7 @@ let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
 
 if (arg?.url) {
-  contents = (await get(arg?.url)).data
+  contents = (await get<any>(arg?.url)).data
 }
 
 mkdir("-p", path.dirname(scriptPath))

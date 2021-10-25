@@ -441,7 +441,7 @@ let appInstall = async packageName => {
 
     let hint = `[${packageName}](${packageLink}) has had ${
       (
-        await get(
+        await get<{ downloads: number }>(
           `https://api.npmjs.org/downloads/point/last-week/` +
             packageName
         )

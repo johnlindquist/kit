@@ -149,14 +149,11 @@ global.updateArgs(process.argv.slice(2))
 let terminalInstall = async packageName => {
   if (!global.flag?.trust) {
     let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`
-    let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${
-      (
-        await global.get(
-          `https://api.npmjs.org/downloads/point/last-week/` +
-            packageName
-        )
-      ).data.downloads
-    }} downloads from npm in the past week`
+    let response = await global.get<any>(
+      `https://api.npmjs.org/downloads/point/last-week/` +
+        packageName
+    )
+    let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${response.data?.downloads}} downloads from npm in the past week`
     let packageLink = `https://npmjs.com/package/${packageName}`
     let readMore = global.chalk`
   Read more about {yellow ${packageName}} here: {yellow ${packageLink}}

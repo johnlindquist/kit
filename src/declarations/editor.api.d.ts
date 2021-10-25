@@ -17,7 +17,7 @@ export type Thenable<T> = PromiseLike<T>
 export interface Environment {
   globalAPI?: boolean
   baseUrl?: string
-  getWorker?(workerId: string, label: string): Worker
+  getWorker?(workerId: string, label: string): any
   getWorkerUrl?(workerId: string, label: string): string
 }
 
@@ -429,8 +429,8 @@ export interface IMarkdownString {
 
 export interface IKeyboardEvent {
   readonly _standardKeyboardEventBrand: true
-  readonly browserEvent: KeyboardEvent
-  readonly target: HTMLElement
+  readonly browserEvent: any
+  readonly target: any
   readonly ctrlKey: boolean
   readonly shiftKey: boolean
   readonly altKey: boolean
@@ -442,12 +442,12 @@ export interface IKeyboardEvent {
   stopPropagation(): void
 }
 export interface IMouseEvent {
-  readonly browserEvent: MouseEvent
+  readonly browserEvent: any
   readonly leftButton: boolean
   readonly middleButton: boolean
   readonly rightButton: boolean
   readonly buttons: number
-  readonly target: HTMLElement
+  readonly target: any
   readonly detail: number
   readonly posx: number
   readonly posy: number
@@ -938,7 +938,7 @@ export namespace editor {
    * The editor will read the size of `domElement`.
    */
   export function create(
-    domElement: HTMLElement,
+    domElement: any,
     options?: IStandaloneEditorConstructionOptions,
     override?: IEditorOverrideServices
   ): IStandaloneCodeEditor
@@ -958,7 +958,7 @@ export namespace editor {
    * The editor will read the size of `domElement`.
    */
   export function createDiffEditor(
-    domElement: HTMLElement,
+    domElement: any,
     options?: IDiffEditorConstructionOptions,
     override?: IEditorOverrideServices
   ): IStandaloneDiffEditor
@@ -1058,7 +1058,7 @@ export namespace editor {
   ): IDisposable
 
   /**
-   * Create a new web worker that has model syncing capabilities built in.
+   * Create a new web any that has model syncing capabilities built in.
    * Specify an AMD module to load that will `create` an object that will be proxied.
    */
   export function createWebWorker<T>(
@@ -1069,7 +1069,7 @@ export namespace editor {
    * Colorize the contents of `domNode` using attribute `data-lang`.
    */
   export function colorizeElement(
-    domNode: HTMLElement,
+    domNode: any,
     options: IColorizerElementOptions
   ): Promise<void>
 
@@ -1147,11 +1147,11 @@ export namespace editor {
   }
 
   /**
-   * A web worker that can provide a proxy to an arbitrary file.
+   * A web any that can provide a proxy to an arbitrary file.
    */
   export interface MonacoWebWorker<T> {
     /**
-     * Terminate the web worker, thus invalidating the returned proxy.
+     * Terminate the web any, thus invalidating the returned proxy.
      */
     dispose(): void
     /**
@@ -1159,7 +1159,7 @@ export namespace editor {
      */
     getProxy(): Promise<T>
     /**
-     * Synchronize (send) the models at `resources` to the web worker,
+     * Synchronize (send) the models at `resources` to the web any,
      * making them available in the monaco.worker.getMirrorModels().
      */
     withSyncedResources(resources: Uri[]): Promise<T>
@@ -1176,11 +1176,11 @@ export namespace editor {
      */
     createData?: any
     /**
-     * A label to be used to identify the web worker for debugging purposes.
+     * A label to be used to identify the web any for debugging purposes.
      */
     label?: string
     /**
-     * An object that can be used by the web worker to make calls back to the main thread.
+     * An object that can be used by the web any to make calls back to the main thread.
      */
     host?: any
     /**
@@ -2184,12 +2184,12 @@ export namespace editor {
       defaultTabSize: number
     ): void
     /**
-     * Close the current undo-redo element.
+     * Close the current undo-redo any.
      * This offers a way to create an undo/redo stop point.
      */
     pushStackElement(): void
     /**
-     * Open the current undo-redo element.
+     * Open the current undo-redo any.
      * This offers a way to remove the current undo/redo stop point.
      */
     popStackElement(): void
@@ -3630,7 +3630,7 @@ export namespace editor {
      */
     peekWidgetDefaultFocus?: "tree" | "editor"
     /**
-     * Controls whether the definition link opens element in the peek widget.
+     * Controls whether the definition link opens any in the peek widget.
      * Defaults to false.
      */
     definitionLinkOpensInPeek?: boolean
@@ -5157,11 +5157,11 @@ export namespace editor {
     /**
      * The dom node of the view zone
      */
-    domNode: HTMLElement
+    domNode: any
     /**
      * An optional dom node for the view zone that will be placed in the margin area.
      */
-    marginDomNode?: HTMLElement | null
+    marginDomNode?: any | null
     /**
      * Callback which gives the relative top of the view zone as it appears (taking scrolling into account).
      */
@@ -5248,7 +5248,7 @@ export namespace editor {
     /**
      * Get the dom node of the content widget.
      */
-    getDomNode(): HTMLElement
+    getDomNode(): any
     /**
      * Get the placement of the content widget.
      * If null is returned, the content widget will be placed off screen.
@@ -5309,7 +5309,7 @@ export namespace editor {
     /**
      * Get the dom node of the overlay widget.
      */
-    getDomNode(): HTMLElement
+    getDomNode(): any
     /**
      * Get the placement of the overlay widget.
      * If null is returned, the overlay widget is responsible to place itself.
@@ -5318,11 +5318,11 @@ export namespace editor {
   }
 
   /**
-   * Type of hit element with the mouse in the editor.
+   * Type of hit any with the mouse in the editor.
    */
   export enum MouseTargetType {
     /**
-     * Mouse is on top of an unknown element.
+     * Mouse is on top of an unknown any.
      */
     UNKNOWN = 0,
     /**
@@ -5384,9 +5384,9 @@ export namespace editor {
    */
   export interface IMouseTarget {
     /**
-     * The target element
+     * The target any
      */
-    readonly element: Element | null
+    readonly any: any | null
     /**
      * The target type
      */
@@ -5440,7 +5440,7 @@ export namespace editor {
      * Place overflow widgets inside an external DOM node.
      * Defaults to an internal DOM node.
      */
-    overflowWidgetsDomNode?: HTMLElement
+    overflowWidgetsDomNode?: any
   }
 
   export interface IDiffEditorConstructionOptions
@@ -5453,7 +5453,7 @@ export namespace editor {
      * Place overflow widgets inside an external DOM node.
      * Defaults to an internal DOM node.
      */
-    overflowWidgetsDomNode?: HTMLElement
+    overflowWidgetsDomNode?: any
   }
 
   /**
@@ -5828,11 +5828,11 @@ export namespace editor {
     /**
      * Returns the editor's container dom node
      */
-    getContainerDomNode(): HTMLElement
+    getContainerDomNode(): any
     /**
      * Returns the editor's dom node
      */
-    getDomNode(): HTMLElement | null
+    getDomNode(): any | null
     /**
      * Add a content widget. Widgets must have unique ids, otherwise they will be overwritten.
      */
@@ -5903,7 +5903,7 @@ export namespace editor {
     /**
      * Apply the same font settings as the editor to `target`.
      */
-    applyFontInfo(target: HTMLElement): void
+    applyFontInfo(target: any): void
   }
 
   /**
@@ -5920,7 +5920,7 @@ export namespace editor {
     /**
      * @see {@link ICodeEditor.getDomNode}
      */
-    getDomNode(): HTMLElement
+    getDomNode(): any
     /**
      * An event emitted when the diff information computed by this diff editor has been updated.
      * @event
@@ -7916,7 +7916,7 @@ export namespace languages {
   }
 }
 
-export namespace worker {
+export namespace any {
   export interface IMirrorTextModel {
     readonly version: number
   }
@@ -7933,7 +7933,7 @@ export namespace worker {
      */
     host: H
     /**
-     * Get all available mirror models in this worker.
+     * Get all available mirror models in this any.
      */
     getMirrorModels(): IMirrorModel[]
   }
@@ -8091,7 +8091,7 @@ export namespace languages.typescript {
     onlyVisible?: boolean
     diagnosticCodesToIgnore?: number[]
   }
-  export interface WorkerOptions {
+  export interface anyOptions {
     /** A full HTTP path to a JavaScript file which adds a function `customTSWorkerFactory` to the self inside a web-worker */
     customWorkerPath?: string
   }
@@ -8153,7 +8153,7 @@ export namespace languages.typescript {
      * Event fired when extra libraries registered with the language service change.
      */
     readonly onDidExtraLibsChange: IEvent<void>
-    readonly workerOptions: WorkerOptions
+    readonly anyOptions: anyOptions
     /**
      * Get the current extra libs registered with the language service.
      */
@@ -8204,19 +8204,19 @@ export namespace languages.typescript {
     /**
      * Configure webworker options
      */
-    setWorkerOptions(options: WorkerOptions): void
+    setWorkerOptions(options: anyOptions): void
     /**
      * No-op.
      */
     setMaximumWorkerIdleTime(value: number): void
     /**
      * Configure if all existing models should be eagerly sync'd
-     * to the worker on start or restart.
+     * to the any on start or restart.
      */
     setEagerModelSync(value: boolean): void
     /**
      * Get the current setting for whether all existing models should be eagerly sync'd
-     * to the worker on start or restart.
+     * to the any on start or restart.
      */
     getEagerModelSync(): boolean
   }

@@ -1,3 +1,4 @@
+import "@johnlindquist/globals"
 import {
   Script,
   PromptConfig,
@@ -8,13 +9,8 @@ import {
 import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
-import {
-  readFile,
-  readdir,
-  lstat,
-  copyFile,
-} from "fs/promises"
-import { ensureDir, outputFile, pathExists } from "fs-extra"
+import { lstat } from "fs/promises"
+
 import { execSync } from "child_process"
 import { config } from "dotenv-flow"
 

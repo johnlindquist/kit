@@ -20,23 +20,11 @@ global.stdout = process.stdout
 global.uptime = process.uptime
 global.path = await import("path")
 
-await import("./packages/axios.js")
-await import("./packages/chalk.js")
+await import("@johnlindquist/globals")
 await import("./packages/clipboardy.js")
-await import("./packages/child_process.js")
-await import("./packages/degit.js")
-await import("./packages/download.js")
-await import("./packages/fs.js")
-await import("./packages/fsPromises.js")
-await import("./packages/handlebars.js")
-await import("./packages/lodash.js")
-await import("./packages/marked.js")
-await import("./packages/node-fetch.js")
 await import("./packages/node-notifier.js")
 await import("./packages/shelljs.js")
 await import("./packages/trash.js")
-await import("./packages/uuid.js")
-await import("./packages/zx.js")
 
 global.env = async (envKey, promptConfig) => {
   if ((promptConfig as any)?.reset !== true) {
