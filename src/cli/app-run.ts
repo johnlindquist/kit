@@ -5,10 +5,28 @@ import {
   run,
 } from "../core/utils.js"
 
+let modifiers = {
+  command: "command",
+  shift: "shift",
+  option: "option",
+}
+
 setFlags({
   [""]: {
     name: "Run script",
     shortcut: "enter",
+  },
+  [modifiers.command]: {
+    name: "Run script w/ command flag",
+    shortcut: "cmd+enter",
+  },
+  [modifiers.shift]: {
+    name: "Run script w/ shift flag",
+    shortcut: "shift+enter",
+  },
+  [modifiers.option]: {
+    name: "Run script w/ option flag",
+    shortcut: "option+enter",
   },
   open: {
     name: "Open script in editor",
@@ -84,7 +102,9 @@ if (script.background) {
 } else if (shouldEdit) {
   await edit(script.filePath, kenvPath())
 } else {
-  let selectedFlag: any = Object.keys(flag).find(Boolean)
+  let selectedFlag: any = Object.keys(flag).find(f => {
+    return f && !modifiers[f]
+  })
   if (selectedFlag) {
     await run(
       `${kitPath("cli", selectedFlag)}.js ${
@@ -92,7 +112,12 @@ if (script.background) {
       }`
     )
   } else {
-    await run(script.filePath)
+    await run(
+      script.filePath,
+      Object.keys(flag)
+        .map(f => `--${f}`)
+        .join(" ")
+    )
   }
 }
 

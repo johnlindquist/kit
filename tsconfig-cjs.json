@@ -5,7 +5,8 @@
     "rootDir": "./src/core",
     "outDir": "./dist/core",
     "esModuleInterop": true,
-    "lib": ["esnext"]
+    "lib": ["esnext"],
+    "skipLibCheck": true
   },
   "include": ["./src/core/**/*.ts"]
 }

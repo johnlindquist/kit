@@ -1,4 +1,12 @@
-import "@johnlindquist/globals"
+import {
+  path,
+  pathExists,
+  copyFile,
+  readdir,
+  outputFile,
+  ensureDir,
+  writeFile,
+} from "@johnlindquist/globals"
 import {
   Script,
   PromptConfig,
@@ -6,7 +14,6 @@ import {
   ScriptMetadata,
   Metadata,
 } from "../types/core"
-import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
 import { lstat } from "fs/promises"
@@ -578,7 +585,7 @@ export let createBinFromScript = async (
     "utf8"
   )
 
-  let binTemplateCompiler = global.compile(binTemplate)
+  let binTemplateCompiler = compile(binTemplate)
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type,
@@ -608,7 +615,7 @@ export let createBinFromName = async (
     "utf8"
   )
 
-  let binTemplateCompiler = global.compile(binTemplate)
+  let binTemplateCompiler = compile(binTemplate)
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type: Bin.scripts,
@@ -619,7 +626,7 @@ export let createBinFromName = async (
   let binFilePath = path.resolve(kenv, "bin", command)
 
   global.mkdir("-p", path.dirname(binFilePath))
-  await global.writeFile(binFilePath, compiledBinTemplate)
+  await writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
 }
 
@@ -729,7 +736,7 @@ export let trashScript = async ({
         command + ".js"
       )
 
-  let binJS = await global.pathExists(binJSPath)
+  let binJS = await pathExists(binJSPath)
 
   let binPath = jsh
     ? kenvPath("node_modules", ".bin", command)

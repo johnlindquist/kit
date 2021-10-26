@@ -30,16 +30,6 @@ export interface PackagesApi {
   tempdir: typeof shelljs.tempdir
   test: typeof shelljs.test
   which: typeof shelljs.which
-
-  cwd: typeof process.cwd
-  pid: typeof process.pid
-  stderr: typeof process.stderr
-  stdin: typeof process.stdin
-  stdout: typeof process.stdout
-  uptime: typeof process.uptime
-
-  path: typeof import("path")
-
   paste: typeof clipboardy.read
   copy: typeof clipboardy.write
   trash: Trash
@@ -63,10 +53,6 @@ declare global {
   var tempdir: typeof shelljs.tempdir
   var test: typeof shelljs.test
   var which: typeof shelljs.which
-
-  var cwd: typeof process.cwd
-
-  var path: typeof import("path")
 
   var paste: typeof clipboardy.read
   var copy: typeof clipboardy.write

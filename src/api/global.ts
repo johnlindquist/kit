@@ -12,13 +12,6 @@ import {
 import { getScripts } from "../core/db.js"
 
 global.getScripts = getScripts
-global.cwd = process.cwd
-global.pid = process.pid
-global.stderr = process.stderr
-global.stdin = process.stdin
-global.stdout = process.stdout
-global.uptime = process.uptime
-global.path = await import("path")
 
 await import("@johnlindquist/globals")
 await import("./packages/clipboardy.js")
