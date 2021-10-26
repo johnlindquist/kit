@@ -1,3 +1,4 @@
+import { GlobalsApi } from "@johnlindquist/globals"
 import { AppApi } from "./kitapp"
 import { KitApi } from "./kit"
 import { PackagesApi } from "./packages"
@@ -7,7 +8,8 @@ declare global {
   type GlobalApi = AppApi &
     KitApi &
     PackagesApi &
-    PlatformApi
+    PlatformApi &
+    GlobalsApi
   namespace NodeJS {
     interface Global extends GlobalApi {}
   }
