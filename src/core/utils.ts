@@ -1,12 +1,5 @@
-import {
-  path,
-  pathExists,
-  copyFile,
-  readdir,
-  outputFile,
-  ensureDir,
-  writeFile,
-} from "@johnlindquist/globals"
+import "@johnlindquist/globals"
+import * as path from "path"
 import {
   Script,
   PromptConfig,
