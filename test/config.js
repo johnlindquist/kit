@@ -15,6 +15,7 @@ export let kitMockPath = (...parts) =>
   path.resolve(home(".kit-mock-path"), ...parts)
 
 export let kenvTestPath = kitMockPath(".kenv-test")
+export let kenvSetupPath = kitMockPath(".kenv-setup")
 
 process.env.KENV = kenvTestPath
 
@@ -36,6 +37,7 @@ let execOptions = {
   },
 }
 global.kenvTestPath = kenvTestPath
+global.kenvSetupPath = kenvSetupPath
 global.kitMockPath = kitMockPath
 global.execOptions = execOptions
 
