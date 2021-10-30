@@ -12,9 +12,7 @@ export interface CLI {
   "refresh-scripts-db": Promise<
     typeof import("./refresh-scripts-db")
   >
-  "change-editor": Promise<
-    typeof import("./change-editor")
-  >
+  "change-editor": Promise<typeof import("./change-editor")>
   "change-main-shortcut": Promise<
     typeof import("./change-main-shortcut")
   >
@@ -26,9 +24,7 @@ export interface CLI {
   >
   "create-bin": Promise<typeof import("./create-bin")>
   "edit-file": Promise<typeof import("./edit-file")>
-  "kenv-create": Promise<
-    typeof import("./kenv-create")
-  >
+  "kenv-create": Promise<typeof import("./kenv-create")>
   "get-help": Promise<typeof import("./get-help")>
   "goto-docs": Promise<typeof import("./goto-docs")>
   "goto-guide": Promise<typeof import("./goto-guide")>
@@ -37,12 +33,8 @@ export interface CLI {
   "new-from-template": Promise<
     typeof import("./new-from-template")
   >
-  "new-from-url": Promise<
-    typeof import("./new-from-url")
-  >
-  "open-at-login": Promise<
-    typeof import("./open-at-login")
-  >
+  "new-from-url": Promise<typeof import("./new-from-url")>
+  "open-at-login": Promise<typeof import("./open-at-login")>
   "open-command-log": Promise<
     typeof import("./open-command-log")
   >
@@ -52,12 +44,8 @@ export interface CLI {
   >
   "open-kenv": Promise<typeof import("./open-kenv")>
   "open-log": Promise<typeof import("./open-log")>
-  "set-env-var": Promise<
-    typeof import("./set-env-var")
-  >
-  "search-docs": Promise<
-    typeof import("./search-docs")
-  >
+  "set-env-var": Promise<typeof import("./set-env-var")>
+  "search-docs": Promise<typeof import("./search-docs")>
   "share-copy": Promise<typeof import("./share-copy")>
   "share-script-as-discussion": Promise<
     typeof import("./share-script-as-discussion")
@@ -65,42 +53,26 @@ export interface CLI {
   "share-script-as-link": Promise<
     typeof import("./share-script-as-link")
   >
-  "share-script": Promise<
-    typeof import("./share-script")
-  >
-  "stream-deck": Promise<
-    typeof import("./stream-deck")
-  >
-  "kenv-switch": Promise<
-    typeof import("./kenv-switch")
-  >
+  "share-script": Promise<typeof import("./share-script")>
+  "stream-deck": Promise<typeof import("./stream-deck")>
+  "kenv-switch": Promise<typeof import("./kenv-switch")>
   "kenv-clone": Promise<typeof import("./kenv-clone")>
   "kenv-view": Promise<typeof import("./kenv-view")>
   "kit-log": Promise<typeof import("./kit-log")>
   "kenv-rm": Promise<typeof import("./kenv-rm")>
   "kenv-pull": Promise<typeof import("./kenv-pull")>
   "kenv-push": Promise<typeof import("./kenv-push")>
-  "switch-to-js": Promise<
-    typeof import("./switch-to-js")
-  >
-  "switch-to-ts": Promise<
-    typeof import("./switch-to-ts")
-  >
-  "system-events": Promise<
-    typeof import("./system-events")
-  >
+  "switch-to-js": Promise<typeof import("./switch-to-js")>
+  "switch-to-ts": Promise<typeof import("./switch-to-ts")>
+  "system-events": Promise<typeof import("./system-events")>
 
   background: Promise<typeof import("./background")>
   browse: Promise<typeof import("./browse")>
   clear: Promise<typeof import("./clear")>
   credits: Promise<typeof import("./credits")>
-  ["kenv-create"]: Promise<
-    typeof import("./kenv-create")
-  >
+  ["kenv-create"]: Promise<typeof import("./kenv-create")>
   ["kenv-add"]: Promise<typeof import("./kenv-add")>
-  ["kenv-manage"]: Promise<
-    typeof import("./kenv-manage")
-  >
+  ["kenv-manage"]: Promise<typeof import("./kenv-manage")>
   duplicate: Promise<typeof import("./duplicate")>
   edit: Promise<typeof import("./edit")>
   env: Promise<typeof import("./env")>
@@ -120,9 +92,7 @@ export interface CLI {
   schedule: Promise<typeof import("./schedule")>
   sdk: Promise<typeof import("./sdk")>
   share: Promise<typeof import("./share")>
-  ["kenv-switch"]: Promise<
-    typeof import("./kenv-switch")
-  >
+  ["kenv-switch"]: Promise<typeof import("./kenv-switch")>
   tutorial: Promise<typeof import("./tutorial")>
   uninstall: Promise<typeof import("./uninstall")>
   update: Promise<typeof import("./update")>
@@ -130,6 +100,7 @@ export interface CLI {
   ["sync-path-instructions"]: Promise<
     typeof import("./sync-path-instructions")
   >
+  ["toggle-tray"]: Promise<typeof import("./toggle-tray")>
 }
 
 interface CliModuleLoader {

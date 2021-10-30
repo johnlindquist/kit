@@ -8,7 +8,7 @@ import {
   copyTmpFile,
   run,
 } from "../core/utils.js"
-import stripAnsi from "strip-ansi"
+import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {

@@ -3,7 +3,7 @@ import { KIT_NODE_PATH } from "../core/utils.js"
 import {
   formatDistanceToNow,
   parseISO,
-} from "@johnlindquist/kit-internal"
+} from "@johnlindquist/kit-internal/date-fns"
 
 let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))
@@ -16,7 +16,7 @@ let install = async packageNames => {
       KIT_NODE_PATH + path.delimiter + process.env.PATH
     let npm = spawn(
       tool,
-      [command, "--loglevel", "verbose", ...packageNames],
+      [command, "--quiet", ...packageNames],
       {
         stdio: "pipe",
         cwd: kenvPath(),

@@ -11,7 +11,7 @@ import {
   formatDistanceToNowStrict,
   format,
   compareAsc,
-} from "@johnlindquist/kit-internal"
+} from "@johnlindquist/kit-internal/date-fns"
 
 let { schedule } = await global.getSchedule()
 

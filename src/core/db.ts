@@ -13,7 +13,10 @@ import {
   resolveScriptToCommand,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
-import { Low } from "lowdb"
+import {
+  Low,
+  JSONFile,
+} from "@johnlindquist/kit-internal/lowdb"
 
 export let db = async (
   key: any,
@@ -45,8 +48,6 @@ export let db = async (
       write: () => {},
     }
   }
-
-  let { Low, JSONFile } = await import("lowdb")
 
   let _db = new Low(new JSONFile(dbPath))
 
@@ -175,6 +176,7 @@ type AppDb = {
   needsRestart: boolean
   version: string
   openAtLogin: boolean
+  previewScripts: boolean
 }
 
 export let getAppDb = async (): Promise<

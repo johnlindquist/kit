@@ -2,7 +2,7 @@ interface PlayAudioFile {
   (path: string, playInBackground?: boolean): void
 }
 
-import { Display, Point, Size, Rectangle } from "../declarations/electron"
+import { Display, Point } from "./electron"
 
 interface CopyPathAsImage {
   (path: string): Promise<string>

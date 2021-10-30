@@ -80,6 +80,11 @@ export interface GetScripts {
 export type FlagFn = (flags: FlagsOptions) => void
 export type Flags = {
   [key: string]: boolean | string
+  cmd?: string
+  ctrl?: string
+  shift?: string
+  option?: string
+  alt?: string
 }
 
 export interface SelectKitEditor {

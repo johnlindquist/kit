@@ -3,20 +3,23 @@ import { Choice, PromptConfig } from "../types/core"
 import { EditorConfig } from "../types/kitapp"
 
 import {
-  Observable,
-  merge,
-  NEVER,
-  of,
+  debounceTime,
   filter,
   map,
+  merge,
+  NEVER,
+  Observable,
+  of,
   share,
   switchMap,
   take,
   takeUntil,
   tap,
-} from "@johnlindquist/kit-internal"
+} from "@johnlindquist/kit-internal/rxjs"
+import { minimist } from "@johnlindquist/kit-internal/minimist"
+import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+import { Convert } from "@johnlindquist/kit-internal/ansi-to-html"
 
-import stripAnsi from "strip-ansi"
 import { Mode, Channel, UI } from "../core/enum.js"
 import { assignPropsTo } from "../core/utils.js"
 
@@ -26,6 +29,7 @@ interface AppMessage {
   input?: string
   tab?: string
   flag?: string
+  index?: number
 }
 
 let displayChoices = (
@@ -44,6 +48,9 @@ let displayChoices = (
 }
 
 let checkResultInfo = result => {
+  if (result?.preview) {
+    global.setPanel(result.preview, result?.className || "")
+  }
   if (result?.panel) {
     global.setPanel(result.panel, result?.className || "")
   }
@@ -108,8 +115,12 @@ let waitForPromptValue = ({
     }
 
     let process$ = new Observable<AppMessage>(observer => {
-      let m = (data: AppMessage) => observer.next(data)
-      let e = (error: Error) => observer.error(error)
+      let m = (data: AppMessage) => {
+        observer.next(data)
+      }
+      let e = (error: Error) => {
+        observer.error(error)
+      }
       process.on("message", m)
       process.on("error", e)
       return () => {
@@ -117,8 +128,8 @@ let waitForPromptValue = ({
         process.off("error", e)
       }
     }).pipe(
-      switchMap(data => of(data)),
-      share()
+      share(),
+      switchMap(data => of(data))
     )
 
     let tab$ = process$.pipe(
@@ -139,7 +150,7 @@ let waitForPromptValue = ({
       share()
     )
 
-    let message$ = process$.pipe(share(), takeUntil(tab$))
+    let message$ = process$.pipe(takeUntil(tab$))
 
     let generate$ = message$.pipe(
       filter(
@@ -176,7 +187,6 @@ let waitForPromptValue = ({
           let validateMessage = await validate(value)
 
           if (typeof validateMessage === "string") {
-            let Convert = await npm("ansi-to-html")
             let convert = new Convert()
             global.setHint(convert.toHtml(validateMessage))
             global.setChoices(global.kitPrevChoices)
@@ -213,6 +223,34 @@ let waitForPromptValue = ({
       // filter(() => ui === UI.arg),
       switchMap(getInitialChoices)
     )
+
+    let choice$ = message$.pipe(
+      filter(
+        data => data.channel === Channel.CHOICE_FOCUSED
+      ),
+      switchMap(data => of(data))
+    )
+
+    choice$
+      .pipe(takeUntil(value$))
+      .subscribe(async data => {
+        // console.log(`...${data?.index}`)
+        let choice = choices[data?.index]
+
+        if (
+          choice?.preview &&
+          typeof choice?.preview === "function" &&
+          choice?.preview[Symbol.toStringTag] ===
+            "AsyncFunction"
+        ) {
+          let result = await choice?.preview(
+            choice,
+            data?.index
+          )
+
+          global.setPreview(result)
+        }
+      })
 
     initialChoices$.pipe(takeUntil(value$)).subscribe()
 
@@ -360,7 +398,6 @@ global.arg = async (
 
       if (valid === true) return firstArg
 
-      let Convert = await npm("ansi-to-html")
       let convert = new Convert()
 
       let hint =
@@ -407,10 +444,6 @@ global.textarea = async (
     ignoreBlur: true,
   })
 }
-
-let { default: minimist } = (await import(
-  "minimist"
-)) as any
 
 global.args = []
 global.updateArgs = arrayOfArgs => {
@@ -479,6 +512,13 @@ global.npm = createNpm(appInstall)
 global.setPanel = async (html, containerClasses = "") => {
   let wrapHtml = `<div class="${containerClasses}">${html}</div>`
   global.send(Channel.SET_PANEL, {
+    html: wrapHtml,
+  })
+}
+
+global.setPreview = async (html, containerClasses = "") => {
+  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
+  global.send(Channel.SET_PREVIEW, {
     html: wrapHtml,
   })
 }

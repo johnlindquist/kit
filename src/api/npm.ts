@@ -1,4 +1,4 @@
-let defaultImport = async modulePath => {
+let defaultImport = async (modulePath: string) => {
   let pkg = await import(modulePath)
   if (pkg.default) return pkg.default
   return pkg

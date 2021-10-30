@@ -1,7 +1,7 @@
 // Description: Duplicate the selected script
 
 import { exists, selectKenv } from "../core/utils.js"
-let generate = await npm("project-name-generator")
+import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)

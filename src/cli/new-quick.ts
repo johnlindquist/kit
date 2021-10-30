@@ -1,6 +1,6 @@
 // Menu: New Script
 // Description: Creates a new script
-let generate = await npm("project-name-generator")
+import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let name = "quick-" + generate({ words: 2 }).dashed
 

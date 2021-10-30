@@ -1,5 +1,5 @@
 export {}
-import { editor } from "../declarations/editor.api"
+import { editor } from "./editor.api"
 
 import { Channel, Mode } from "../core/enum.js"
 
@@ -40,7 +40,7 @@ export interface EditorProps {
 
 export type EditorOptions =
   editor.IStandaloneEditorConstructionOptions & {
-    scrollTo: "top" | "center" | "bottom"
+    scrollTo?: "top" | "center" | "bottom"
   }
 
 export type EditorConfig = string | EditorOptions

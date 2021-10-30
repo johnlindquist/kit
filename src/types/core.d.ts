@@ -10,7 +10,10 @@ export interface Choice<Value = any> {
   img?: string
   icon?: string
   html?: string
-  preview?: string
+  preview?:
+    | string
+    | ((choice: Choice, index?: number) => Promise<string>)
+  previewLang?: string
   id?: string
   shortcode?: string[]
   className?: string
@@ -54,6 +57,10 @@ export interface ScriptMetadata {
   log?: "true" | "false"
   hasFlags?: boolean
   img?: string
+  cmd?: string
+  option?: string
+  ctrl?: string
+  shift?: string
 }
 
 export type Script = ScriptMetadata &

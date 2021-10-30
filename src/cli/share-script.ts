@@ -1,7 +1,7 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
 
-let { Octokit } = await npm("scriptkit-octokit")
+import { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
 
 import { selectScript } from "../core/utils.js"
 

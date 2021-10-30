@@ -38,6 +38,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: "Open toggle login at launch at login",
     value: "open-at-login",
   },
+  {
+    name: "Toggle Tray Icon",
+    description: "Show/hide the tray icon",
+    value: "toggle-tray",
+  },
 
   {
     name: "Add ~/.kit/bin to $PATH",

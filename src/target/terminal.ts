@@ -1,11 +1,10 @@
+import { enquirer } from "@johnlindquist/kit-internal/enquirer"
+import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { PromptConfig } from "../types/core"
 import { assignPropsTo } from "../core/utils.js"
 
-let { default: enquirer } = (await import(
-  "enquirer"
-)) as any
-
-type Enquirer = typeof import("enquirer")
+type Enquirer =
+  typeof import("@johnlindquist/kit-internal/enquirer").enquirer
 type Prompt = Enquirer["prompt"]
 type EnquirerPromptConfig = Parameters<Prompt>[0]
 
@@ -121,10 +120,6 @@ global.arg = async (messageOrConfig = "Input", choices) => {
 
 global.textarea = global.arg
 
-let { default: minimist } = (await import(
-  "minimist"
-)) as any
-
 global.args = []
 global.updateArgs = arrayOfArgs => {
   let argv = minimist(arrayOfArgs)
@@ -226,6 +221,10 @@ global.drop = async () => {
 }
 
 global.setPanel = async (html, containerClasses = "") => {}
+global.setPreview = async (
+  html,
+  containerClasses = ""
+) => {}
 global.setPanelContainer = async (
   html,
   containerClasses = ""

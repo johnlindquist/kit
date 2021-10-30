@@ -1,4 +1,5 @@
 import "@johnlindquist/globals"
+import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import * as path from "path"
 import {
   Script,
@@ -12,10 +13,13 @@ import { lstatSync } from "fs"
 import { lstat } from "fs/promises"
 
 import { execSync } from "child_process"
-import { config } from "dotenv-flow"
 
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
-import { getScripts, getScriptFromString } from "./db.js"
+import {
+  getScripts,
+  getScriptFromString,
+  getAppDb,
+} from "./db.js"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 export let jsh = process.env?.SHELL?.includes("jsh")
@@ -237,17 +241,9 @@ export const friendlyShortcut = (shortcut: string) => {
   return f
 }
 
-export let getMetadataByMarker =
-  (fileContents: string) => (marker: string) =>
-    fileContents
-      .match(
-        new RegExp(`(?<=^//\\s*${marker}\\s*).*`, "gim")
-      )?.[0]
-      .trim() || ""
-
 export let getMetadata = (string: string): Metadata => {
   let matches = string.matchAll(
-    /(?<=^\/\/)([^:]*)(?::)(.*)/gm
+    /(?<=^\/\/\s*)(\w+)(?::)(.*)/gm
   )
   let metadata = {}
   for (let [, key, value] of matches) {
@@ -393,9 +389,9 @@ export let parseScript = async (
   let metadata = parseMetadata(contents)
 
   return {
-    name: metadata.menu || parsedFilePath.command,
-    ...parsedFilePath,
     ...metadata,
+    ...parsedFilePath,
+    name: metadata.menu || parsedFilePath.command,
   }
 }
 
@@ -500,9 +496,26 @@ export let selectScript = async (
   fromCache = true,
   xf = x => x
 ): Promise<Script> => {
+  let scripts: Script[] = xf(await getScripts(fromCache))
+  let { previewScripts } = await getAppDb()
+  if (previewScripts) {
+    scripts = scripts.map(s => {
+      s.preview = async () => {
+        let contents = await readFile(s.filePath, "utf-8")
+        let { default: highlight } = await import(
+          "highlight.js"
+        )
+        return highlight.highlight(contents, {
+          language: "javascript",
+        }).value
+      }
+      return s
+    })
+  }
+
   let script: Script | string = await global.arg(
     message,
-    xf(await getScripts(fromCache))
+    scripts
   )
 
   if (typeof script === "string") {

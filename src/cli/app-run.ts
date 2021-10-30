@@ -6,27 +6,16 @@ import {
 } from "../core/utils.js"
 
 let modifiers = {
-  command: "command",
+  cmd: "cmd",
   shift: "shift",
-  option: "option",
+  opt: "opt",
+  ctrl: "ctrl",
 }
 
 setFlags({
   [""]: {
     name: "Run script",
     shortcut: "enter",
-  },
-  [modifiers.command]: {
-    name: "Run script w/ command flag",
-    shortcut: "cmd+enter",
-  },
-  [modifiers.shift]: {
-    name: "Run script w/ shift flag",
-    shortcut: "shift+enter",
-  },
-  [modifiers.option]: {
-    name: "Run script w/ option flag",
-    shortcut: "option+enter",
   },
   open: {
     name: "Open script in editor",
@@ -69,7 +58,11 @@ setFlags({
     shortcut: "cmd+u",
   },
   ["share-script-as-discussion"]: {
-    name: "Prep for discussion",
+    name: "Share as discussion",
+    shortcut: "cmd+s",
+  },
+  ["toggle-preview-scripts"]: {
+    name: "Toggle script previews",
     shortcut: "cmd+p",
   },
   ["change-shortcut"]: {
@@ -82,6 +75,22 @@ setFlags({
   ["refresh-scripts-db"]: {
     name: "Refresh scripts db",
     shortcut: "cmd+shift+r",
+  },
+  [modifiers.cmd]: {
+    name: "Run script w/ cmd flag",
+    shortcut: "cmd+enter",
+  },
+  [modifiers.shift]: {
+    name: "Run script w/ shift flag",
+    shortcut: "shift+enter",
+  },
+  [modifiers.opt]: {
+    name: "Run script w/ opt flag",
+    shortcut: "option+enter",
+  },
+  [modifiers.ctrl]: {
+    name: "Run script w/ ctrl flag",
+    shortcut: "ctrl+enter",
   },
 })
 
