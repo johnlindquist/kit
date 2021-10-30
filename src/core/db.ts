@@ -1,22 +1,35 @@
 import * as path from "path"
 import {
   appDbPath,
-  resolveKenv,
   kitPath,
+  kenvPath,
   mainScriptPath,
   prefsPath,
   promptDbPath,
   shortcutsPath,
-  writeScriptsDb,
   isDir,
   extensionRegex,
   resolveScriptToCommand,
+  parseScripts,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
 import {
   Low,
   JSONFile,
 } from "@johnlindquist/kit-internal/lowdb"
+
+export const resolveKenv = (...parts: string[]) => {
+  if (global.kitScript) {
+    return path.resolve(
+      global.kitScript,
+      "..",
+      "..",
+      ...parts
+    )
+  }
+
+  return kenvPath(...parts)
+}
 
 export let db = async (
   key: any,
@@ -106,10 +119,14 @@ export let getScriptsDb = async (
   return await db(
     kitPath("db", "scripts.json"),
     async () => ({
-      scripts: await writeScriptsDb(),
+      scripts: await parseScripts(),
     }),
     fromCache
   )
+}
+
+export let refreshScriptsDb = async () => {
+  await getScriptsDb(false)
 }
 
 export let getPrefs = async () => {

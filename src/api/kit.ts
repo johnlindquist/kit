@@ -5,7 +5,6 @@ import {
   kitPath,
   kenvPath,
   resolveScriptToCommand,
-  copyTmpFile,
   run,
 } from "../core/utils.js"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
@@ -60,6 +59,28 @@ export let errorPrompt = async (error: Error) => {
     console.log(error)
   }
 }
+
+export const outputTmpFile = async (
+  fileName: string,
+  contents: string
+) => {
+  let outputPath = path.resolve(
+    global.tempdir(),
+    "kit",
+    fileName
+  )
+  await outputFile(outputPath, contents)
+  return outputPath
+}
+
+export const copyTmpFile = async (
+  fromFile: string,
+  fileName: string
+) =>
+  await outputTmpFile(
+    fileName,
+    await global.readFile(fromFile, "utf-8")
+  )
 
 global.attemptImport = async (scriptPath, ..._args) => {
   let importResult = undefined

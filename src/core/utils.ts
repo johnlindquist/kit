@@ -1,4 +1,3 @@
-import "@johnlindquist/globals"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import * as path from "path"
 import {
@@ -10,7 +9,7 @@ import {
 } from "../types/core"
 import * as os from "os"
 import { lstatSync } from "fs"
-import { lstat } from "fs/promises"
+import { lstat, readFile } from "fs/promises"
 
 import { execSync } from "child_process"
 
@@ -46,6 +45,7 @@ export let isFile = async (
   }
 }
 
+//app
 export let isDir = async (
   dir: string
 ): Promise<boolean> => {
@@ -69,12 +69,14 @@ export let isBin = async (
   }
 }
 
+//app
 export let kitPath = (...parts: string[]) =>
   path.join(
     process.env.KIT || home(".kit"),
     ...parts.filter(Boolean)
   )
 
+//app
 export let kenvPath = (...parts: string[]) => {
   return path.join(
     process.env.KENV || home(".kenv"),
@@ -85,28 +87,6 @@ export let kenvPath = (...parts: string[]) => {
 export let kitDotEnvPath = () => {
   return process.env.KIT_DOTENV_PATH || kenvPath()
 }
-
-export const outputTmpFile = async (
-  fileName: string,
-  contents: string
-) => {
-  let outputPath = path.resolve(
-    global.tempdir(),
-    "kit",
-    fileName
-  )
-  await outputFile(outputPath, contents)
-  return outputPath
-}
-
-export const copyTmpFile = async (
-  fromFile: string,
-  fileName: string
-) =>
-  await outputTmpFile(
-    fileName,
-    await readFile(fromFile, "utf-8")
-  )
 
 export const prefsPath = kitPath("db", "prefs.json")
 export const shortcutsPath = kitPath("db", "shortcuts.json")
@@ -146,6 +126,7 @@ export let assignPropsTo = (
   })
 }
 
+//app
 let fileExists = (path: string) => {
   try {
     return lstatSync(path, {
@@ -156,6 +137,7 @@ let fileExists = (path: string) => {
   }
 }
 
+//app
 export let resolveToScriptPath = (
   script: string,
   cwd: string = process.cwd()
@@ -215,6 +197,7 @@ export let resolveScriptToCommand = (script: string) => {
   return script.replace(/.*\//, "").replace(".js", "")
 }
 
+//app
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
@@ -241,6 +224,7 @@ export const friendlyShortcut = (shortcut: string) => {
   return f
 }
 
+//app
 export let getMetadata = (string: string): Metadata => {
   let matches = string.matchAll(
     /(?<=^\/\/\s*)(\w+)(?::)(.*)/gm
@@ -258,6 +242,7 @@ export let getMetadata = (string: string): Metadata => {
   return metadata
 }
 
+//app
 export let formatScriptMetadata = (
   metadata: Metadata,
   fileContents: string
@@ -341,6 +326,7 @@ export let formatScriptMetadata = (
   return metadata as unknown as ScriptMetadata
 }
 
+//app
 export let parseMetadata = (
   fileContents: string
 ): ScriptMetadata => {
@@ -348,14 +334,17 @@ export let parseMetadata = (
   return formatScriptMetadata(metadata, fileContents)
 }
 
+//app
 export let commandFromFilePath = (filePath: string) =>
   path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
+//app
 export let kenvFromFilePath = (filePath: string) =>
   filePath.match(
     new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
   )?.[0] || ""
 
+//app
 export let iconFromKenv = async (kenv: string) => {
   let iconPath = kenv
     ? kenvPath("kenvs", kenv, "icon.png")
@@ -364,6 +353,7 @@ export let iconFromKenv = async (kenv: string) => {
   return kenv && (await isFile(iconPath)) ? iconPath : ""
 }
 
+//app
 export let parseFilePath = async (
   filePath: string
 ): Promise<ScriptPathInfo> => {
@@ -380,11 +370,15 @@ export let parseFilePath = async (
   }
 }
 
+// app
 export let parseScript = async (
   filePath: string
 ): Promise<Script> => {
   let parsedFilePath = await parseFilePath(filePath)
 
+  let { readFile } = await import(
+    "@johnlindquist/kit-internal/fs-extra"
+  )
   let contents = await readFile(filePath, "utf8")
   let metadata = parseMetadata(contents)
 
@@ -408,54 +402,11 @@ export let getLastSlashSeparated = (
   )
 }
 
-export let getScriptFiles = async (kenv = kenvPath()) => {
-  let scriptsPath = path.join(kenv, "scripts")
-  if (!(await isDir(scriptsPath))) {
-    console.warn(`${scriptsPath} isn't a valid kenv dir`)
-    return []
-  }
-
-  let result = await readdir(scriptsPath, {
-    withFileTypes: true,
-  })
-
-  return result
-    .filter(file => file.isFile())
-    .map(file => file.name)
-    .filter(name => name.match(/\.(mj|t|j)s$/))
-    .map(file => path.join(scriptsPath, file))
-}
-
-export let getKenvs = async (): Promise<string[]> => {
-  let kenvs: string[] = []
-  if (!(await isDir(kenvPath("kenvs")))) return kenvs
-
-  let dirs = await readdir(kenvPath("kenvs"), {
-    withFileTypes: true,
-  })
-
-  return dirs
-    .filter(d => d.isDirectory())
-    .map(d => kenvPath("kenvs", d.name))
-}
-
-export let writeScriptsDb = async () => {
-  let scriptFiles = await getScriptFiles()
-  let kenvDirs = await getKenvs()
-  for await (let kenvDir of kenvDirs) {
-    let scripts = await getScriptFiles(kenvDir)
-    scriptFiles = [...scriptFiles, ...scripts]
-  }
-
-  let scriptInfo = await Promise.all(
-    scriptFiles.map(parseScript)
-  )
-  return scriptInfo.sort((a: Script, b: Script) => {
-    let aName = a.name.toLowerCase()
-    let bName = b.name.toLowerCase()
-
-    return aName > bName ? 1 : aName < bName ? -1 : 0
-  })
+//app
+export const getLogFromScriptPath = (filePath: string) => {
+  return filePath
+    .replace("scripts", "logs")
+    .replace(/\.js$/, ".log")
 }
 
 export let stripMetadata = (
@@ -472,29 +423,10 @@ export let stripMetadata = (
   )
 }
 
-export const getLogFromScriptPath = (filePath: string) => {
-  return filePath
-    .replace("scripts", "logs")
-    .replace(/\.js$/, ".log")
-}
-
-export const resolveKenv = (...parts: string[]) => {
-  if (global.kitScript) {
-    return path.resolve(
-      global.kitScript,
-      "..",
-      "..",
-      ...parts
-    )
-  }
-
-  return kenvPath(...parts)
-}
-
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
   fromCache = true,
-  xf = x => x
+  xf = (x: Script[]) => x
 ): Promise<Script> => {
   let scripts: Script[] = xf(await getScripts(fromCache))
   let { previewScripts } = await getAppDb()
@@ -583,66 +515,28 @@ export let toggleBackground = async (script: Script) => {
   }
 }
 
-export let createBinFromScript = async (
-  type: Bin,
-  { command, filePath }: Script
-) => {
-  let template = jsh ? "stackblitz" : "terminal"
-
-  let binTemplate = await readFile(
-    kitPath("templates", "bin", template),
-    "utf8"
-  )
-
-  let binTemplateCompiler = compile(binTemplate)
-  let compiledBinTemplate = binTemplateCompiler({
-    command,
-    type,
-    ...global.env,
-    TARGET_PATH: filePath,
-  })
-
-  let binDirPath = path.resolve(
-    filePath,
-    "..",
-    "..",
-    ...(jsh ? ["node_modules", ".bin"] : ["bin"])
-  )
-  let binFilePath = path.resolve(binDirPath, command)
-
-  global.mkdir("-p", path.dirname(binFilePath))
-  await global.writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
-}
-
-export let createBinFromName = async (
-  command: string,
-  kenv: string
-) => {
-  let binTemplate = await readFile(
-    kitPath("templates", "bin", "template"),
-    "utf8"
-  )
-
-  let binTemplateCompiler = compile(binTemplate)
-  let compiledBinTemplate = binTemplateCompiler({
-    command,
-    type: Bin.scripts,
-    ...global.env,
-    TARGET_PATH: kenv,
-  })
-
-  let binFilePath = path.resolve(kenv, "bin", command)
-
-  global.mkdir("-p", path.dirname(binFilePath))
-  await writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
-}
-
 type Kenv = {
   name: string
   dirPath: string
 }
+
+export let getKenvs = async (): Promise<string[]> => {
+  let kenvs: string[] = []
+  if (!(await isDir(kenvPath("kenvs")))) return kenvs
+
+  let { readdir } = await import(
+    "@johnlindquist/kit-internal/fs-extra"
+  )
+
+  let dirs = await readdir(kenvPath("kenvs"), {
+    withFileTypes: true,
+  })
+
+  return dirs
+    .filter(d => d.isDirectory())
+    .map(d => kenvPath("kenvs", d.name))
+}
+
 export let selectKenv = async (): Promise<Kenv> => {
   let homeKenv = {
     name: "home",
@@ -737,6 +631,10 @@ export let trashScript = async ({
   kenv,
   filePath,
 }: Script) => {
+  let { pathExists } = await import(
+    "@johnlindquist/kit-internal/fs-extra"
+  )
+
   let binJSPath = jsh
     ? kenvPath("node_modules", ".bin", command + ".js")
     : kenvPath(
@@ -756,28 +654,45 @@ export let trashScript = async ({
     binPath,
     ...(binJS ? [binJSPath] : []),
   ])
-
-  await writeScriptsDb()
 }
 
-export let ensureTemplates = async () => {
-  let templatesPath = (...parts: string[]): string =>
-    kenvPath("templates", ...parts)
-  let kitTemplatesPath = (...parts: string[]): string =>
-    kitPath("templates", "scripts", ...parts)
-
-  await ensureDir(templatesPath())
-
-  let ensureTemplate = async (templateName: string) => {
-    let templatePath = templatesPath(templateName)
-    if (!(await pathExists(templatePath))) {
-      await copyFile(
-        kitTemplatesPath(templateName),
-        templatePath
-      )
-    }
+export let getScriptFiles = async (kenv = kenvPath()) => {
+  let scriptsPath = path.join(kenv, "scripts")
+  if (!(await isDir(scriptsPath))) {
+    console.warn(`${scriptsPath} isn't a valid kenv dir`)
+    return []
   }
 
-  await ensureTemplate("default.js")
-  await ensureTemplate("default.ts")
+  let { readdir } = await import(
+    "@johnlindquist/kit-internal/fs-extra"
+  )
+
+  let result = await readdir(scriptsPath, {
+    withFileTypes: true,
+  })
+
+  return result
+    .filter(file => file.isFile())
+    .map(file => file.name)
+    .filter(name => name.match(/\.(mj|t|j)s$/))
+    .map(file => path.join(scriptsPath, file))
+}
+
+export let parseScripts = async () => {
+  let scriptFiles = await getScriptFiles()
+  let kenvDirs = await getKenvs()
+  for await (let kenvDir of kenvDirs) {
+    let scripts = await getScriptFiles(kenvDir)
+    scriptFiles = [...scriptFiles, ...scripts]
+  }
+
+  let scriptInfo = await Promise.all(
+    scriptFiles.map(parseScript)
+  )
+  return scriptInfo.sort((a: Script, b: Script) => {
+    let aName = a.name.toLowerCase()
+    let bName = b.name.toLowerCase()
+
+    return aName > bName ? 1 : aName < bName ? -1 : 0
+  })
 }

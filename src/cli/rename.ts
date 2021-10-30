@@ -1,5 +1,6 @@
 // Description: Rename Script
 
+import { refreshScriptsDb } from "../core/db.js"
 import {
   exists,
   extensionRegex,
@@ -32,6 +33,7 @@ let newFilePath = path.resolve(
 
 mv(filePath, newFilePath)
 await trashScript(script)
+await refreshScriptsDb()
 
 await cli("create-bin", "scripts", newFilePath)
 edit(newFilePath, kenvPath())

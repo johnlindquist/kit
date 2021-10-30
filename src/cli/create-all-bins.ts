@@ -1,6 +1,6 @@
 import { Bin } from "../core/enum.js"
 import { getScripts } from "../core/db.js"
-import { createBinFromScript } from "../core/utils.js"
+import { createBinFromScript } from "./lib/utils.js"
 
 await trash([
   `!${kenvPath("bin", ".gitignore")}`,

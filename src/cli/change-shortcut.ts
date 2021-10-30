@@ -22,6 +22,7 @@ while (true) {
         })
         .map((script: Script) => {
           return {
+            ...script,
             name:
               (script?.menu || script.command) +
               ` ` +

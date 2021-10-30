@@ -1,10 +1,10 @@
 // Description: Create a new script
 import {
-  ensureTemplates,
   exists,
   kitMode,
   selectKenv,
 } from "../core/utils.js"
+import { ensureTemplates } from "./lib/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })

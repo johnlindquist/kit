@@ -1,10 +1,7 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-import {
-  ensureTemplates,
-  exists,
-  kitMode,
-} from "../core/utils.js"
+import { exists, kitMode } from "../core/utils.js"
+import { ensureTemplates } from "./lib/utils.js"
 
 let name = await arg({
   placeholder: "Enter a name for your script:",

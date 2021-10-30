@@ -1,5 +1,6 @@
 // Description: Remove a script
 
+import { refreshScriptsDb } from "../core/db.js"
 import { selectScript, trashScript } from "../core/utils.js"
 
 let script = await selectScript({
@@ -23,6 +24,7 @@ let confirm =
 
 if (confirm) {
   await trashScript(script)
+  await refreshScriptsDb()
 }
 
 export {}
