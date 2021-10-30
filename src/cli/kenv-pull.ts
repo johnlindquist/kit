@@ -1,7 +1,5 @@
 // Description: Git Pull Kenv Repo
 
-import { selectKenv } from "../core/utils.js"
-
 let { dirPath: kPath } = await selectKenv()
 
 console.log({ kPath })

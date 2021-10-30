@@ -1,6 +1,6 @@
 // Description: Move script to different kenv
 
-import { selectScript, trashScript } from "../core/utils.js"
+import { trashScript } from "../core/utils.js"
 
 import { createBinFromScript } from "./lib/utils.js"
 

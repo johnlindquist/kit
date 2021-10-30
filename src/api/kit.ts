@@ -1,4 +1,9 @@
-import { Choice, FlagsOptions } from "../types/core"
+import {
+  Choice,
+  FlagsOptions,
+  PromptConfig,
+  Script,
+} from "../types/core"
 import { Channel } from "../core/enum.js"
 
 import {
@@ -6,8 +11,16 @@ import {
   kenvPath,
   resolveScriptToCommand,
   run,
+  getKenvs,
+  getLastSlashSeparated,
 } from "../core/utils.js"
+import {
+  getScripts,
+  getScriptFromString,
+  getAppDb,
+} from "../core/db.js"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+import { Kenv } from "../types/kit"
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -403,4 +416,86 @@ global.hide = () => {
 
 global.run = run
 
-export {}
+export let selectScript = async (
+  message: string | PromptConfig = "Select a script",
+  fromCache = true,
+  xf = (x: Script[]) => x
+): Promise<Script> => {
+  let scripts: Script[] = xf(await getScripts(fromCache))
+  let { previewScripts } = await getAppDb()
+  if (previewScripts) {
+    scripts = scripts.map(s => {
+      s.preview = async () => {
+        let contents = await readFile(s.filePath, "utf-8")
+        let { default: highlight } = await import(
+          "highlight.js"
+        )
+        return highlight.highlight(contents, {
+          language: "javascript",
+        }).value
+      }
+      return s
+    })
+  }
+
+  let script: Script | string = await global.arg(
+    message,
+    scripts
+  )
+
+  if (typeof script === "string") {
+    return await getScriptFromString(script)
+  }
+
+  return script
+}
+
+global.selectScript = selectScript
+
+export let selectKenv = async () => {
+  let homeKenv = {
+    name: "home",
+    description: `Your main kenv: ${kenvPath()}`,
+    value: {
+      name: "home",
+      dirPath: kenvPath(),
+    },
+  }
+  let selectedKenv: Kenv | string = homeKenv.value
+
+  let kenvs = await getKenvs()
+  if (kenvs.length) {
+    let kenvChoices = [
+      homeKenv,
+      ...kenvs.map(p => {
+        let name = getLastSlashSeparated(p, 1)
+        return {
+          name,
+          description: p,
+          value: {
+            name,
+            dirPath: p,
+          },
+        }
+      }),
+    ]
+
+    selectedKenv = await global.arg(
+      `Select target kenv`,
+      kenvChoices
+    )
+
+    if (typeof selectedKenv === "string") {
+      return kenvChoices.find(
+        c =>
+          c.value.name === selectedKenv ||
+          path.resolve(c.value.dirPath) ===
+            path.resolve(selectedKenv as string)
+      ).value
+    }
+  }
+
+  return selectedKenv as Kenv
+}
+
+global.selectKenv = selectKenv

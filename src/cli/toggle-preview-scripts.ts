@@ -1,6 +1,5 @@
 import { getAppDb } from "../core/db.js"
 import { mainScriptPath } from "../core/utils.js"
-import { selectScript } from "../index.js"
 
 await selectScript()
 

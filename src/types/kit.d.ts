@@ -91,6 +91,22 @@ export interface SelectKitEditor {
   (reset: boolean): Promise<string>
 }
 
+export interface SelectScript {
+  (
+    message?: string | PromptConfig,
+    fromCache?: boolean,
+    xf?: (x: Script[]) => Script[]
+  ): Promise<Script>
+}
+
+export interface Kenv {
+  name: string
+  dirPath: string
+}
+export interface SelectKenv {
+  (): Promise<Kenv>
+}
+
 export interface KitApi {
   db: DB
 
@@ -175,6 +191,8 @@ export interface KitApi {
 
   flag: Flags
   setFlags: FlagFn
+  selectScript: SelectScript
+  selectKenv: SelectKenv
 }
 
 interface KeyValue {
@@ -225,4 +243,7 @@ declare global {
   var hide: () => void
   var flag: Flags
   var setFlags: FlagFn
+
+  var selectScript: SelectScript
+  var selectKenv: SelectKenv
 }

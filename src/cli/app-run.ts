@@ -1,9 +1,5 @@
 // Description: Run the selected script
-import {
-  toggleBackground,
-  selectScript,
-  run,
-} from "../core/utils.js"
+import { toggleBackground, run } from "../core/utils.js"
 
 let modifiers = {
   cmd: "cmd",

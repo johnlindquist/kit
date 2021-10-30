@@ -1,9 +1,5 @@
 // Description: Create a new script
-import {
-  exists,
-  kitMode,
-  selectKenv,
-} from "../core/utils.js"
+import { exists, kitMode } from "../core/utils.js"
 import { ensureTemplates } from "./lib/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 

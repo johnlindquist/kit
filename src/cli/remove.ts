@@ -1,7 +1,7 @@
 // Description: Remove a script
 
 import { refreshScriptsDb } from "../core/db.js"
-import { selectScript, trashScript } from "../core/utils.js"
+import { trashScript } from "../core/utils.js"
 
 let script = await selectScript({
   placeholder: `Remove a script:`,

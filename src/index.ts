@@ -47,5 +47,4 @@ global.kit = new Proxy(kit, {
   get: kitGet,
 })
 
-export { selectKenv, selectScript } from "./core/utils.js"
 //codegen

@@ -2,7 +2,6 @@
 //Description: Create a gist and copy discussion content to clipboard
 
 import { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
-import { selectScript } from "../core/utils.js"
 
 let { filePath, command } = await selectScript(
   `Share which script?`

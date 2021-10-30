@@ -1,5 +1,4 @@
 import { Bin } from "../core/enum.js"
-import { selectScript } from "../core/utils.js"
 import { createBinFromScript } from "./lib/utils.js"
 
 let type = await arg<Bin>(

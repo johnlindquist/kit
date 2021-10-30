@@ -14,11 +14,6 @@ import { lstat, readdir, readFile } from "fs/promises"
 import { execSync } from "child_process"
 
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
-import {
-  getScripts,
-  getScriptFromString,
-  getAppDb,
-} from "./db.js"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 export let jsh = process.env?.SHELL?.includes("jsh")
@@ -420,40 +415,6 @@ export let stripMetadata = (
   )
 }
 
-export let selectScript = async (
-  message: string | PromptConfig = "Select a script",
-  fromCache = true,
-  xf = (x: Script[]) => x
-): Promise<Script> => {
-  let scripts: Script[] = xf(await getScripts(fromCache))
-  let { previewScripts } = await getAppDb()
-  if (previewScripts) {
-    scripts = scripts.map(s => {
-      s.preview = async () => {
-        let contents = await readFile(s.filePath, "utf-8")
-        let { default: highlight } = await import(
-          "highlight.js"
-        )
-        return highlight.highlight(contents, {
-          language: "javascript",
-        }).value
-      }
-      return s
-    })
-  }
-
-  let script: Script | string = await global.arg(
-    message,
-    scripts
-  )
-
-  if (typeof script === "string") {
-    return await getScriptFromString(script)
-  }
-
-  return script
-}
-
 //validator
 export let exists = async (input: string) => {
   return (await isBin(kenvPath("bin", input)))
@@ -512,11 +473,6 @@ export let toggleBackground = async (script: Script) => {
   }
 }
 
-type Kenv = {
-  name: string
-  dirPath: string
-}
-
 export let getKenvs = async (): Promise<string[]> => {
   let kenvs: string[] = []
   if (!(await isDir(kenvPath("kenvs")))) return kenvs
@@ -528,52 +484,6 @@ export let getKenvs = async (): Promise<string[]> => {
   return dirs
     .filter(d => d.isDirectory())
     .map(d => kenvPath("kenvs", d.name))
-}
-
-export let selectKenv = async (): Promise<Kenv> => {
-  let homeKenv = {
-    name: "home",
-    description: `Your main kenv: ${kenvPath()}`,
-    value: {
-      name: "home",
-      dirPath: kenvPath(),
-    },
-  }
-  let selectedKenv: Kenv | string = homeKenv.value
-
-  let kenvs = await getKenvs()
-  if (kenvs.length) {
-    let kenvChoices = [
-      homeKenv,
-      ...kenvs.map(p => {
-        let name = getLastSlashSeparated(p, 1)
-        return {
-          name,
-          description: p,
-          value: {
-            name,
-            dirPath: p,
-          },
-        }
-      }),
-    ]
-
-    selectedKenv = await global.arg(
-      `Select target kenv`,
-      kenvChoices
-    )
-
-    if (typeof selectedKenv === "string") {
-      return kenvChoices.find(
-        c =>
-          c.value.name === selectedKenv ||
-          path.resolve(c.value.dirPath) ===
-            path.resolve(selectedKenv as string)
-      ).value
-    }
-  }
-
-  return selectedKenv as Kenv
 }
 
 export let kitMode = () =>

@@ -4,7 +4,6 @@ import { refreshScriptsDb } from "../core/db.js"
 import {
   exists,
   extensionRegex,
-  selectScript,
   trashScript,
 } from "../core/utils.js"
 

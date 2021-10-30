@@ -1,5 +1,5 @@
 // Description: Run the selected script
-import { run, selectScript } from "../core/utils.js"
+import { run } from "../core/utils.js"
 
 let { command } = await selectScript(
   `Which script do you want to run?`,
