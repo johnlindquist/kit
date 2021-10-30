@@ -3,7 +3,6 @@ import { Choice, PromptConfig } from "../types/core"
 import { EditorConfig } from "../types/kitapp"
 
 import {
-  debounceTime,
   filter,
   map,
   merge,
@@ -22,6 +21,7 @@ import { Convert } from "@johnlindquist/kit-internal/ansi-to-html"
 
 import { Mode, Channel, UI } from "../core/enum.js"
 import { assignPropsTo } from "../core/utils.js"
+import { Rectangle } from "../types/electron"
 
 interface AppMessage {
   channel: Channel
@@ -518,6 +518,7 @@ global.setPanel = async (html, containerClasses = "") => {
 
 global.setPreview = async (html, containerClasses = "") => {
   let wrapHtml = `<div class="${containerClasses}">${html}</div>`
+  global.setBounds({ width: 720, height: 480 })
   global.send(Channel.SET_PREVIEW, {
     html: wrapHtml,
   })
@@ -567,6 +568,21 @@ global.getBackgroundTasks = () =>
   global.getDataFromApp("BACKGROUND")
 
 global.getSchedule = () => global.getDataFromApp("SCHEDULE")
+global.getBounds = async () => {
+  let data = await global.getDataFromApp("BOUNDS")
+  return data?.bounds
+}
+
+global.getCurrentScreen = async () => {
+  let data = await global.getDataFromApp("CURRENT_SCREEN")
+  return data?.screen
+}
 
 global.getScriptsState = () =>
   global.getDataFromApp("SCRIPTS_STATE")
+
+global.setBounds = (bounds: Partial<Rectangle>) => {
+  global.send(Channel.SET_BOUNDS, {
+    bounds,
+  })
+}

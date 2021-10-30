@@ -9,7 +9,7 @@ import {
 } from "../types/core"
 import * as os from "os"
 import { lstatSync } from "fs"
-import { lstat, readFile } from "fs/promises"
+import { lstat, readdir, readFile } from "fs/promises"
 
 import { execSync } from "child_process"
 
@@ -376,9 +376,6 @@ export let parseScript = async (
 ): Promise<Script> => {
   let parsedFilePath = await parseFilePath(filePath)
 
-  let { readFile } = await import(
-    "@johnlindquist/kit-internal/fs-extra"
-  )
   let contents = await readFile(filePath, "utf8")
   let metadata = parseMetadata(contents)
 
@@ -524,10 +521,6 @@ export let getKenvs = async (): Promise<string[]> => {
   let kenvs: string[] = []
   if (!(await isDir(kenvPath("kenvs")))) return kenvs
 
-  let { readdir } = await import(
-    "@johnlindquist/kit-internal/fs-extra"
-  )
-
   let dirs = await readdir(kenvPath("kenvs"), {
     withFileTypes: true,
   })
@@ -662,10 +655,6 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
     console.warn(`${scriptsPath} isn't a valid kenv dir`)
     return []
   }
-
-  let { readdir } = await import(
-    "@johnlindquist/kit-internal/fs-extra"
-  )
 
   let result = await readdir(scriptsPath, {
     withFileTypes: true,

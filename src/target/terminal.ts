@@ -2,6 +2,7 @@ import { enquirer } from "@johnlindquist/kit-internal/enquirer"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { PromptConfig } from "../types/core"
 import { assignPropsTo } from "../core/utils.js"
+import { Rectangle } from "../types/electron"
 
 type Enquirer =
   typeof import("@johnlindquist/kit-internal/enquirer").enquirer
@@ -231,3 +232,5 @@ global.setPanelContainer = async (
 ) => {}
 
 global.setIgnoreBlur = async ignore => {}
+
+global.setBounds = (bounds: Partial<Rectangle>) => {}

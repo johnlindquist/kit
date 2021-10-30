@@ -2,10 +2,7 @@
 // Description: Select a scheduled script to edit
 
 import { Schedule } from "../types/kitapp"
-import {
-  parseFilePath,
-  parseScript,
-} from "../core/utils.js"
+import { parseScript } from "../core/utils.js"
 
 import {
   formatDistanceToNowStrict,
