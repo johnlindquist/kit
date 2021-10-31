@@ -236,9 +236,12 @@ let waitForPromptValue = ({
       .pipe(takeUntil(value$))
       .subscribe(async data => {
         // console.log(`...${data?.index}`)
-        let choice = choices.find(c => c.id === data?.id)
+        let choice = (global.kitPrevChoices || []).find(
+          (c: Choice) => c.id === data?.id
+        )
 
         if (
+          choice &&
           choice?.preview &&
           typeof choice?.preview === "function" &&
           choice?.preview[Symbol.toStringTag] ===

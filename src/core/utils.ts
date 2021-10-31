@@ -91,6 +91,7 @@ export const tmpClipboardDir = kitPath("tmp", "clipboard")
 export const tmpDownloadsDir = kitPath("tmp", "downloads")
 export const mainScriptPath = kitPath("main", "index.js")
 export const execPath = kitPath("node", "bin", "node")
+export const kitDocsPath = home(".kit-docs")
 
 export const KENV_SCRIPTS = kenvPath("scripts")
 export const KENV_APP = kenvPath("app")
