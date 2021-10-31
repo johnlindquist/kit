@@ -57,10 +57,6 @@ setFlags({
     name: "Share as discussion",
     shortcut: "cmd+s",
   },
-  ["toggle-preview-scripts"]: {
-    name: "Toggle script previews",
-    shortcut: "cmd+p",
-  },
   ["change-shortcut"]: {
     name: "Change shortcut",
   },

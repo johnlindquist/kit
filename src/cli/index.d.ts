@@ -46,6 +46,7 @@ export interface CLI {
   "open-log": Promise<typeof import("./open-log")>
   "set-env-var": Promise<typeof import("./set-env-var")>
   "search-docs": Promise<typeof import("./search-docs")>
+  "view-docs": Promise<typeof import("./view-docs")>
   "share-copy": Promise<typeof import("./share-copy")>
   "share-script-as-discussion": Promise<
     typeof import("./share-script-as-discussion")

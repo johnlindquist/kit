@@ -30,6 +30,7 @@ interface AppMessage {
   tab?: string
   flag?: string
   index?: number
+  id?: string
 }
 
 let displayChoices = (
@@ -235,7 +236,7 @@ let waitForPromptValue = ({
       .pipe(takeUntil(value$))
       .subscribe(async data => {
         // console.log(`...${data?.index}`)
-        let choice = choices[data?.index]
+        let choice = choices.find(c => c.id === data?.id)
 
         if (
           choice?.preview &&
@@ -518,7 +519,7 @@ global.setPanel = async (html, containerClasses = "") => {
 
 global.setPreview = async (html, containerClasses = "") => {
   let wrapHtml = `<div class="${containerClasses}">${html}</div>`
-  global.setBounds({ width: 720, height: 480 })
+  // global.setBounds({ width: 720, height: 480 })
   global.send(Channel.SET_PREVIEW, {
     html: wrapHtml,
   })
@@ -586,3 +587,6 @@ global.setBounds = (bounds: Partial<Rectangle>) => {
     bounds,
   })
 }
+
+delete process.env?.["ELECTRON_RUN_AS_NODE"]
+delete env?.["ELECTRON_RUN_AS_NODE"]

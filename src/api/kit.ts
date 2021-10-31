@@ -422,11 +422,13 @@ export let selectScript = async (
   xf = (x: Script[]) => x
 ): Promise<Script> => {
   let scripts: Script[] = xf(await getScripts(fromCache))
-  let { previewScripts } = await getAppDb()
+  // let { previewScripts } = await getAppDb()
+  let previewScripts = true
   if (previewScripts) {
     scripts = scripts.map(s => {
       s.preview = async () => {
         let contents = await readFile(s.filePath, "utf-8")
+
         let { default: highlight } = await import(
           "highlight.js"
         )

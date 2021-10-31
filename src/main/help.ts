@@ -2,7 +2,7 @@ import { Choice } from "../types/core"
 import { CLI } from "../cli"
 import { run } from "../core/utils.js"
 
-let kitManagementChoices: Choice<keyof CLI>[] = [
+let kitHelpChoices: Choice<keyof CLI>[] = [
   {
     name: "Get Help",
     description: `Post a question to Script Kit GitHub discussions`,
@@ -13,11 +13,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: `Work in progress...`,
     value: "goto-guide",
   },
-  // {
-  //   name: "Search Docs",
-  //   description: `Work in progress...`,
-  //   value: "search-docs",
-  // },
+  {
+    name: "View Docs",
+    description: `Work in progress...`,
+    value: "view-docs",
+  },
   {
     name: "Subscribe to Newsletter",
     description: `Receive a newsletter with examples and tips`,
@@ -25,10 +25,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
   },
 ]
 
-let cliScript = await arg(
-  `Got questions?`,
-  kitManagementChoices
-)
+let cliScript = await arg(`Got questions?`, kitHelpChoices)
 
 await run(kitPath(`cli`, cliScript + ".js"))
 
