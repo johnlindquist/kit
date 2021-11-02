@@ -19,27 +19,7 @@ if (await pathExists(docsDir)) {
           "utf-8"
         )
 
-        let { default: hljs } = await import("highlight.js")
-
-        global.marked.setOptions({
-          renderer: new global.marked.Renderer(),
-          highlight: function (code, lang) {
-            const language = hljs.getLanguage(lang)
-              ? lang
-              : "plaintext"
-            return hljs.highlight(code, { language }).value
-          },
-          langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
-          pedantic: false,
-          gfm: true,
-          breaks: false,
-          sanitize: false,
-          smartLists: true,
-          smartypants: false,
-          xhtml: false,
-        })
-
-        return global.marked(contents)
+        return global.highlightMd(contents)
       },
     }))
   )

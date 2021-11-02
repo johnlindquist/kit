@@ -10,6 +10,7 @@ export interface Choice<Value = any> {
   img?: string
   icon?: string
   html?: string
+  hasPreview?: boolean
   preview?:
     | string
     | ((choice: Choice, index?: number) => Promise<string>)

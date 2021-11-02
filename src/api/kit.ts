@@ -374,6 +374,7 @@ global.setChoices = async (choices, className = "") => {
       }
 
       if (typeof choice === "object") {
+        choice.hasPreview = Boolean(choice?.preview)
         if (!choice?.id) {
           choice.id = global.uuid()
         }
@@ -416,29 +417,49 @@ global.hide = () => {
 
 global.run = run
 
+let wrapCode = (html: string, containerClass: string) => {
+  return `<pre class="${containerClass}">
+  <style type="text/css">
+      code{
+        font-size: 0.75rem !important;
+        width: 100%;
+      }
+      pre{
+        display: flex;
+      }
+  </style>
+  <code>
+${html.trim()}
+  </code>
+</pre>`
+}
+
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
   fromCache = true,
   xf = (x: Script[]) => x
 ): Promise<Script> => {
   let scripts: Script[] = xf(await getScripts(fromCache))
-  // let { previewScripts } = await getAppDb()
-  let previewScripts = true
-  if (previewScripts) {
-    scripts = scripts.map(s => {
-      s.preview = async () => {
-        let contents = await readFile(s.filePath, "utf-8")
 
-        let { default: highlight } = await import(
-          "highlight.js"
-        )
-        return highlight.highlight(contents, {
+  scripts = scripts.map(s => {
+    s.preview = async () => {
+      let contents = await readFile(s.filePath, "utf-8")
+
+      let { default: highlight } = await import(
+        "highlight.js"
+      )
+      let highlightedContents = highlight.highlight(
+        contents,
+        {
           language: "javascript",
-        }).value
-      }
-      return s
-    })
-  }
+        }
+      ).value
+
+      let wrapped = wrapCode(highlightedContents, "px-5")
+      return wrapped
+    }
+    return s
+  })
 
   let script: Script | string = await global.arg(
     message,
@@ -501,3 +522,34 @@ export let selectKenv = async () => {
 }
 
 global.selectKenv = selectKenv
+
+global.highlightMd = async (
+  string: string,
+  containerClass: string = "px-5"
+) => {
+  let { default: hljs } = await import("highlight.js")
+
+  global.marked.setOptions({
+    renderer: new global.marked.Renderer(),
+    highlight: function (code, lang) {
+      const language = hljs.getLanguage(lang)
+        ? lang
+        : "plaintext"
+      return hljs.highlight(code, { language }).value
+    },
+    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
+    pedantic: false,
+    gfm: true,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false,
+    xhtml: false,
+  })
+
+  let highlightedMarkdown = global.marked(string)
+
+  let result = wrapCode(highlightedMarkdown, containerClass)
+
+  return result
+}

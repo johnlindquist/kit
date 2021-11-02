@@ -107,6 +107,12 @@ export interface SelectKenv {
   (): Promise<Kenv>
 }
 
+export interface HighlightMd {
+  (
+    markdownString: string,
+    containerClass?: string
+  ): Promise<string>
+}
 export interface KitApi {
   db: DB
 
@@ -193,6 +199,7 @@ export interface KitApi {
   setFlags: FlagFn
   selectScript: SelectScript
   selectKenv: SelectKenv
+  highlightMd: HighlightMd
 }
 
 interface KeyValue {
@@ -246,4 +253,5 @@ declare global {
 
   var selectScript: SelectScript
   var selectKenv: SelectKenv
+  var highlightMd: HighlightMd
 }
