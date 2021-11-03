@@ -319,6 +319,14 @@ export let formatScriptMetadata = (
     ;(metadata as unknown as ScriptMetadata).log = "false"
   }
 
+  let hasPreview = Boolean(
+    fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0]
+  )
+  if (hasPreview) {
+    ;(metadata as unknown as ScriptMetadata).hasPreview =
+      hasPreview
+  }
+
   return metadata as unknown as ScriptMetadata
 }
 

@@ -13,7 +13,9 @@ export interface Choice<Value = any> {
   hasPreview?: boolean
   preview?:
     | string
-    | ((choice: Choice, index?: number) => Promise<string>)
+    | ((
+        choice: Choice & { input: string; index: number }
+      ) => Promise<string>)
   previewLang?: string
   id?: string
   shortcode?: string[]
@@ -62,6 +64,7 @@ export interface ScriptMetadata {
   option?: string
   ctrl?: string
   shift?: string
+  hasPreview?: boolean
 }
 
 export type Script = ScriptMetadata &

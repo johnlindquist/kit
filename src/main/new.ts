@@ -1,6 +1,7 @@
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 import { kitMode, run } from "../core/utils.js"
+import { addPreview } from "../cli/lib/utils.js"
 
 let newOptions: Choice<keyof CLI>[] = [
   {
@@ -9,6 +10,11 @@ let newOptions: Choice<keyof CLI>[] = [
       kitMode() === "ts" ? "TypeScript" : "JavaScript"
     }`,
     value: "new",
+    preview: async () => {
+      return md(`
+# Create a new script you awesome little person!      
+      `)
+    },
   },
   {
     name: "New from url",
@@ -27,7 +33,7 @@ let cliScript = await arg<keyof CLI>(
     placeholder: "Create a new script",
     strict: false,
   },
-  newOptions
+  addPreview(newOptions, "new")
 )
 
 if (newOptions.find(script => script.value === cliScript)) {

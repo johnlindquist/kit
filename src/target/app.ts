@@ -247,10 +247,9 @@ let waitForPromptValue = ({
           choice?.preview[Symbol.toStringTag] ===
             "AsyncFunction"
         ) {
-          let result = await choice?.preview(
-            choice,
-            data?.index
-          )
+          ;(choice as any).index = data?.index
+          ;(choice as any).input = data?.input
+          let result = await choice?.preview(choice)
 
           global.setPreview(result)
         }
@@ -592,4 +591,4 @@ global.setBounds = (bounds: Partial<Rectangle>) => {
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]
-delete env?.["ELECTRON_RUN_AS_NODE"]
+delete global?.env?.["ELECTRON_RUN_AS_NODE"]

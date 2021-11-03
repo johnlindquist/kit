@@ -2,6 +2,7 @@
 // Description: Script Kit
 // Placeholder: Run script
 // UI: arg
+// preview: true
 
 export interface Main {
   edit: Promise<typeof import("./edit")>

@@ -26,6 +26,7 @@ export interface CLI {
   "edit-file": Promise<typeof import("./edit-file")>
   "kenv-create": Promise<typeof import("./kenv-create")>
   "get-help": Promise<typeof import("./get-help")>
+  faq: Promise<typeof import("./faq")>
   "goto-docs": Promise<typeof import("./goto-docs")>
   "goto-guide": Promise<typeof import("./goto-guide")>
   "manage-npm": Promise<typeof import("./manage-npm")>

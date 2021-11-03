@@ -1,5 +1,6 @@
 import { Bin } from "../../core/enum"
-import { Script } from "../../types/core"
+import { kitDocsPath } from "../../core/utils.js"
+import { Choice, Script } from "../../types/core"
 
 export let jsh = process.env?.SHELL?.includes("jsh")
 
@@ -55,4 +56,34 @@ export let createBinFromScript = async (
   global.mkdir("-p", path.dirname(binFilePath))
   await global.writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
+}
+
+export let addPreview = (
+  choices: Choice[],
+  docsDir: string,
+  containerClasses = "p-5 leading-loose"
+) => {
+  return choices.map(c => {
+    c.preview = async () => {
+      let docsFilePath = path.resolve(
+        kitDocsPath,
+        "docs",
+        docsDir,
+        c.value + ".md"
+      )
+      let exists = await pathExists(docsFilePath)
+      if (exists) {
+        let helpFileContents = await readFile(
+          docsFilePath,
+          "utf-8"
+        )
+        return await highlight(
+          helpFileContents,
+          containerClasses
+        )
+      }
+      return ""
+    }
+    return c
+  })
 }

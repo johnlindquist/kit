@@ -417,21 +417,44 @@ global.hide = () => {
 
 global.run = run
 
-let wrapCode = (html: string, containerClass: string) => {
+let wrapCode = (
+  html: string,
+  containerClass: string,
+  codeStyles = ""
+) => {
   return `<pre class="${containerClass}">
   <style type="text/css">
       code{
         font-size: 0.75rem !important;
         width: 100%;
+        white-space: pre-wrap;
+        ${codeStyles}
       }
       pre{
         display: flex;
+      }
+      p{
+        margin-bottom: 1rem;
       }
   </style>
   <code>
 ${html.trim()}
   </code>
 </pre>`
+}
+
+export let highlightJavaScript = async (
+  filePath: string
+): Promise<string> => {
+  let contents = await readFile(filePath, "utf-8")
+
+  let { default: highlight } = await import("highlight.js")
+  let highlightedContents = highlight.highlight(contents, {
+    language: "javascript",
+  }).value
+
+  let wrapped = wrapCode(highlightedContents, "px-5")
+  return wrapped
 }
 
 export let selectScript = async (
@@ -443,20 +466,7 @@ export let selectScript = async (
 
   scripts = scripts.map(s => {
     s.preview = async () => {
-      let contents = await readFile(s.filePath, "utf-8")
-
-      let { default: highlight } = await import(
-        "highlight.js"
-      )
-      let highlightedContents = highlight.highlight(
-        contents,
-        {
-          language: "javascript",
-        }
-      ).value
-
-      let wrapped = wrapCode(highlightedContents, "px-5")
-      return wrapped
+      return highlightJavaScript(s.filePath)
     }
     return s
   })
@@ -523,9 +533,9 @@ export let selectKenv = async () => {
 
 global.selectKenv = selectKenv
 
-global.highlightMd = async (
-  string: string,
-  containerClass: string = "px-5"
+global.highlight = async (
+  markdown: string,
+  containerClass: string = "p-5 leading-loose"
 ) => {
   let { default: hljs } = await import("highlight.js")
 
@@ -547,9 +557,19 @@ global.highlightMd = async (
     xhtml: false,
   })
 
-  let highlightedMarkdown = global.marked(string)
+  let highlightedMarkdown = global.marked(markdown)
 
-  let result = wrapCode(highlightedMarkdown, containerClass)
+  let result = `<div class="${containerClass}">
+  <style>
+  p{
+    margin-bottom: 1rem;
+  }
+  li{
+    margin-bottom: .25rem;
+  }
+  </style>
+  ${highlightedMarkdown}
+</div>`
 
   return result
 }
