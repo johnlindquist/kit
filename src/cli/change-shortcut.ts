@@ -24,7 +24,7 @@ while (true) {
             name:
               (script?.menu || script.command) +
               ` ` +
-              friendlyShortcut(script?.shortcut),
+              friendlyShortcut(script?.shortcut || ""),
             description: script?.description,
             value: script,
           }

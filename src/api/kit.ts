@@ -375,6 +375,7 @@ global.setChoices = async (choices, className = "") => {
 
       if (typeof choice === "object") {
         choice.hasPreview = Boolean(choice?.preview)
+
         if (!choice?.id) {
           choice.id = global.uuid()
         }

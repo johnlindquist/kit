@@ -25,8 +25,8 @@ export interface CLI {
   "create-bin": Promise<typeof import("./create-bin")>
   "edit-file": Promise<typeof import("./edit-file")>
   "kenv-create": Promise<typeof import("./kenv-create")>
-  "get-help": Promise<typeof import("./get-help")>
-  faq: Promise<typeof import("./faq")>
+  "get-help": Promise<typeof import("../help/get-help")>
+  faq: Promise<typeof import("../help/faq")>
   "goto-docs": Promise<typeof import("./goto-docs")>
   "goto-guide": Promise<typeof import("./goto-guide")>
   "manage-npm": Promise<typeof import("./manage-npm")>
@@ -81,7 +81,7 @@ export interface CLI {
   exists: Promise<typeof import("./exists")>
   install: Promise<typeof import("./install")>
   issue: Promise<typeof import("./issue")>
-  join: Promise<typeof import("./join")>
+  join: Promise<typeof import("../help/join")>
   kit: Promise<typeof import("./kit")>
   new: Promise<typeof import("./new")>
   open: Promise<typeof import("./open")>

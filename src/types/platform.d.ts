@@ -184,6 +184,12 @@ interface GetActiveAppBounds {
 interface GetSelectedFile {
   (): Promise<string>
 }
+interface SelectFile {
+  (): Promise<string>
+}
+interface SelectFolder {
+  (): Promise<string>
+}
 
 interface GetSelectedText {
   (): Promise<string>
@@ -235,6 +241,8 @@ export interface PlatformApi {
   getMousePosition: GetMousePosition
   getScreens: GetScreens
   getSelectedFile: GetSelectedFile
+  selectFile: SelectFile
+  selectFolder: SelectFolder
   getSelectedText: GetSelectedText
   getTabs: GetTabs
   getWindows: GetWindows
@@ -273,6 +281,8 @@ declare global {
   var getMousePosition: GetMousePosition
   var getScreens: GetScreens
   var getSelectedFile: GetSelectedFile
+  var selectFile: SelectFile
+  var selectFolder: SelectFolder
   var getSelectedText: GetSelectedText
   var getTabs: GetTabs
   var getWindows: GetWindows

@@ -128,6 +128,10 @@ export interface GetBounds {
   (): Promise<Rectangle>
 }
 export interface GetBounds {
+  (): Promise<Rectangle>
+}
+
+export interface GetActiveScreen {
   (): Promise<Display>
 }
 
@@ -151,7 +155,7 @@ export interface AppApi {
   setPreview: SetPreview
   setBounds: SetBounds
   getBounds: GetBounds
-  getCurrentScreen: GetCurrentScreen
+  getActiveScreen: GetActiveScreen
   setHint: SetAppProp
   setInput: SetAppProp
   setIgnoreBlur: SetAppProp
@@ -217,7 +221,7 @@ declare global {
   var setPreview: SetPreview
   var setBounds: SetBounds
   var getBounds: GetBounds
-  var getCurrentScreen: GetCurrentScreen
+  var getActiveScreen: GetActiveScreen
   var setHint: SetAppProp
   var setInput: SetAppProp
   var setIgnoreBlur: SetAppProp
