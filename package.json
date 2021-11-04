@@ -26,7 +26,7 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "build-kit": "./build/build-kit.sh",
-    "dev": "tsc --watch",
+    "dev": "tsc --watch --outDir ~/.kit",
     "declaration": "tsc -p ./tsconfig-declaration.json --watch",
     "pretest:core": "node ./scripts/test-pre.js",
     "test:core": "NODE_NO_WARNINGS=1 ava ./src/core/*.test.js",

@@ -10,6 +10,7 @@ import {
 } from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
+import { PromptConfig } from "../types/core"
 
 global.getScripts = getScripts
 
@@ -20,6 +21,10 @@ await import("./packages/shelljs.js")
 await import("./packages/trash.js")
 
 global.env = async (envKey, promptConfig) => {
+  let ignoreBlur =
+    (promptConfig as PromptConfig)?.ignoreBlur === false
+      ? false
+      : true
   if ((promptConfig as any)?.reset !== true) {
     let envVal = global.env[envKey] || process.env[envKey]
     if (envVal) return envVal
@@ -31,9 +36,11 @@ global.env = async (envKey, promptConfig) => {
       : typeof promptConfig === "string"
       ? await global.kitPrompt({
           placeholder: promptConfig,
+          ignoreBlur,
         })
       : await global.kitPrompt({
           placeholder: `Set ${envKey} to:`,
+          ignoreBlur,
           ...promptConfig,
         })
 
