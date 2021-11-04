@@ -2,25 +2,16 @@
 // Description: Options and Helpers
 
 import { Choice } from "../types/core"
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 
 import { kitMode, run } from "../core/utils.js"
+import { addPreview } from "../cli/lib/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
     name: "Manage kenvs",
     description: "Add/Remove/Update repos of scripts",
     value: "kenv-manage",
-  },
-  {
-    name: "Open kit.log",
-    description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
-    value: "kit-log",
-  },
-  {
-    name: "Update Kit.app",
-    description: `Version: ${env.KIT_APP_VERSION}`,
-    value: "update",
   },
 
   {
@@ -38,6 +29,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: "Open toggle login at launch at login",
     value: "open-at-login",
   },
+  {
+    name: "Toggle Tray Icon",
+    description: "Show/hide the tray icon",
+    value: "toggle-tray",
+  },
 
   {
     name: "Add ~/.kit/bin to $PATH",
@@ -50,30 +46,30 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "add-kenv-to-profile",
   },
   {
-    name: "Change main keyboard shortcut",
+    name: "Change App Shortcut",
     description:
       "Pick a new keyboard shortcut for the main menu",
     value: "change-main-shortcut",
   },
   {
-    name: "Change script shortcut",
+    name: "Change Script Shortcut",
     description:
       "Pick a new keyboard shortcut for a script",
     value: "change-shortcut",
   },
   {
-    name: "Generate bin files",
+    name: "Generate bin Files",
     description: "Recreate all the terminal executables",
     value: "create-all-bins",
   },
 
   {
-    name: "Change editor",
+    name: "Change Editor",
     description: "Pick a new editor",
     value: "change-editor",
   },
   {
-    name: "Clear Kit prompt cache",
+    name: "Clear Kit Prompt Cache",
     description: "Reset prompt position and sizes",
     value: "kit-clear-prompt",
   },
@@ -105,8 +101,18 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "sync-path-instructions",
   },
   {
-    name: "Created by John Lindquist",
-    description: `Follow @johnlindquist on twitter`,
+    name: "Update Kit.app",
+    description: `Version: ${env.KIT_APP_VERSION}`,
+    value: "update",
+  },
+  {
+    name: "Open kit.log",
+    description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
+    value: "kit-log",
+  },
+  {
+    name: "Credits",
+    description: `The wonderful people who made Script Kit`,
     value: "credits",
     img: kitPath("images", "john.png"),
   },
@@ -119,7 +125,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
 
 let cliScript = await arg(
   `Kit Options`,
-  kitManagementChoices
+  addPreview(kitManagementChoices, "kit", "p-5")
 )
 
 await run(kitPath("cli", cliScript) + ".js")

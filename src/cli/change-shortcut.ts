@@ -2,8 +2,6 @@
 import { friendlyShortcut } from "../core/utils.js"
 import { Script } from "../types/core"
 
-import { selectScript } from "../core/utils.js"
-
 while (true) {
   let { filePath, command, menu } = await selectScript(
     `Change shortcut of which script?`,
@@ -22,10 +20,11 @@ while (true) {
         })
         .map((script: Script) => {
           return {
+            ...script,
             name:
               (script?.menu || script.command) +
               ` ` +
-              friendlyShortcut(script?.shortcut),
+              friendlyShortcut(script?.shortcut || ""),
             description: script?.description,
             value: script,
           }

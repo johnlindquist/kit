@@ -1,3 +1,5 @@
+import { config } from "@johnlindquist/kit-internal/dotenv-flow"
+import * as path from "path"
 import {
   Script,
   PromptConfig,
@@ -5,17 +7,16 @@ import {
   ScriptMetadata,
   Metadata,
 } from "../types/core"
-import * as path from "path"
 import * as os from "os"
 import { lstatSync } from "fs"
-import { readFile, readdir, lstat } from "fs/promises"
+import { lstat, readdir, readFile } from "fs/promises"
+
 import { execSync } from "child_process"
-import { config } from "dotenv-flow"
 
 import { ProcessType, UI, Bin, Channel } from "./enum.js"
-import { getScripts, getScriptFromString } from "./db.js"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
+export let jsh = process.env?.SHELL?.includes("jsh")
 
 export let home = (...pathParts: string[]) => {
   return path.resolve(os.homedir(), ...pathParts)
@@ -39,6 +40,7 @@ export let isFile = async (
   }
 }
 
+//app
 export let isDir = async (
   dir: string
 ): Promise<boolean> => {
@@ -54,6 +56,7 @@ export let isDir = async (
 export let isBin = async (
   bin: string
 ): Promise<boolean> => {
+  if (jsh) return false
   try {
     return Boolean(execSync(`command -v ${bin}`))
   } catch {
@@ -61,12 +64,14 @@ export let isBin = async (
   }
 }
 
+//app
 export let kitPath = (...parts: string[]) =>
   path.join(
     process.env.KIT || home(".kit"),
     ...parts.filter(Boolean)
   )
 
+//app
 export let kenvPath = (...parts: string[]) => {
   return path.join(
     process.env.KENV || home(".kenv"),
@@ -78,28 +83,6 @@ export let kitDotEnvPath = () => {
   return process.env.KIT_DOTENV_PATH || kenvPath()
 }
 
-export const outputTmpFile = async (
-  fileName: string,
-  contents: string
-) => {
-  let outputPath = path.resolve(
-    global.tempdir(),
-    "kit",
-    fileName
-  )
-  await global.outputFile(outputPath, contents)
-  return outputPath
-}
-
-export const copyTmpFile = async (
-  fromFile: string,
-  fileName: string
-) =>
-  await outputTmpFile(
-    fileName,
-    await readFile(fromFile, "utf-8")
-  )
-
 export const prefsPath = kitPath("db", "prefs.json")
 export const shortcutsPath = kitPath("db", "shortcuts.json")
 export const promptDbPath = kitPath("db", "prompt.json")
@@ -108,6 +91,7 @@ export const tmpClipboardDir = kitPath("tmp", "clipboard")
 export const tmpDownloadsDir = kitPath("tmp", "downloads")
 export const mainScriptPath = kitPath("main", "index.js")
 export const execPath = kitPath("node", "bin", "node")
+export const kitDocsPath = home(".kit-docs")
 
 export const KENV_SCRIPTS = kenvPath("scripts")
 export const KENV_APP = kenvPath("app")
@@ -138,6 +122,7 @@ export let assignPropsTo = (
   })
 }
 
+//app
 let fileExists = (path: string) => {
   try {
     return lstatSync(path, {
@@ -148,6 +133,7 @@ let fileExists = (path: string) => {
   }
 }
 
+//app
 export let resolveToScriptPath = (
   script: string,
   cwd: string = process.cwd()
@@ -204,9 +190,12 @@ export let resolveToScriptPath = (
 }
 
 export let resolveScriptToCommand = (script: string) => {
-  return script.replace(/.*\//, "").replace(".js", "")
+  return script
+    .replace(/.*\//, "")
+    .replace(extensionRegex, "")
 }
 
+//app
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
@@ -233,17 +222,10 @@ export const friendlyShortcut = (shortcut: string) => {
   return f
 }
 
-export let getMetadataByMarker =
-  (fileContents: string) => (marker: string) =>
-    fileContents
-      .match(
-        new RegExp(`(?<=^//\\s*${marker}\\s*).*`, "gim")
-      )?.[0]
-      .trim() || ""
-
+//app
 export let getMetadata = (string: string): Metadata => {
   let matches = string.matchAll(
-    /(?<=^\/\/)([^:]*)(?::)(.*)/gm
+    /(?<=^\/\/\s*)(\w+)(?::)(.*)/gm
   )
   let metadata = {}
   for (let [, key, value] of matches) {
@@ -258,6 +240,7 @@ export let getMetadata = (string: string): Metadata => {
   return metadata
 }
 
+//app
 export let formatScriptMetadata = (
   metadata: Metadata,
   fileContents: string
@@ -338,9 +321,18 @@ export let formatScriptMetadata = (
     ;(metadata as unknown as ScriptMetadata).log = "false"
   }
 
+  let hasPreview = Boolean(
+    fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0]
+  )
+  if (hasPreview) {
+    ;(metadata as unknown as ScriptMetadata).hasPreview =
+      hasPreview
+  }
+
   return metadata as unknown as ScriptMetadata
 }
 
+//app
 export let parseMetadata = (
   fileContents: string
 ): ScriptMetadata => {
@@ -348,14 +340,17 @@ export let parseMetadata = (
   return formatScriptMetadata(metadata, fileContents)
 }
 
+//app
 export let commandFromFilePath = (filePath: string) =>
   path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
+//app
 export let kenvFromFilePath = (filePath: string) =>
   filePath.match(
     new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
   )?.[0] || ""
 
+//app
 export let iconFromKenv = async (kenv: string) => {
   let iconPath = kenv
     ? kenvPath("kenvs", kenv, "icon.png")
@@ -364,6 +359,7 @@ export let iconFromKenv = async (kenv: string) => {
   return kenv && (await isFile(iconPath)) ? iconPath : ""
 }
 
+//app
 export let parseFilePath = async (
   filePath: string
 ): Promise<ScriptPathInfo> => {
@@ -380,6 +376,7 @@ export let parseFilePath = async (
   }
 }
 
+// app
 export let parseScript = async (
   filePath: string
 ): Promise<Script> => {
@@ -389,9 +386,9 @@ export let parseScript = async (
   let metadata = parseMetadata(contents)
 
   return {
-    name: metadata.menu || parsedFilePath.command,
-    ...parsedFilePath,
     ...metadata,
+    ...parsedFilePath,
+    name: metadata.menu || parsedFilePath.command,
   }
 }
 
@@ -408,54 +405,11 @@ export let getLastSlashSeparated = (
   )
 }
 
-export let getScriptFiles = async (kenv = kenvPath()) => {
-  let scriptsPath = path.join(kenv, "scripts")
-  if (!(await isDir(scriptsPath))) {
-    console.warn(`${scriptsPath} isn't a valid kenv dir`)
-    return []
-  }
-
-  let result = await readdir(scriptsPath, {
-    withFileTypes: true,
-  })
-
-  return result
-    .filter(file => file.isFile())
-    .map(file => file.name)
-    .filter(name => name.match(/\.(mj|t|j)s$/))
-    .map(file => path.join(scriptsPath, file))
-}
-
-export let getKenvs = async (): Promise<string[]> => {
-  let kenvs: string[] = []
-  if (!(await isDir(kenvPath("kenvs")))) return kenvs
-
-  let dirs = await readdir(kenvPath("kenvs"), {
-    withFileTypes: true,
-  })
-
-  return dirs
-    .filter(d => d.isDirectory())
-    .map(d => kenvPath("kenvs", d.name))
-}
-
-export let writeScriptsDb = async () => {
-  let scriptFiles = await getScriptFiles()
-  let kenvDirs = await getKenvs()
-  for await (let kenvDir of kenvDirs) {
-    let scripts = await getScriptFiles(kenvDir)
-    scriptFiles = [...scriptFiles, ...scripts]
-  }
-
-  let scriptInfo = await Promise.all(
-    scriptFiles.map(parseScript)
-  )
-  return scriptInfo.sort((a: Script, b: Script) => {
-    let aName = a.name.toLowerCase()
-    let bName = b.name.toLowerCase()
-
-    return aName > bName ? 1 : aName < bName ? -1 : 0
-  })
+//app
+export const getLogFromScriptPath = (filePath: string) => {
+  return filePath
+    .replace("scripts", "logs")
+    .replace(/\.js$/, ".log")
 }
 
 export let stripMetadata = (
@@ -472,51 +426,13 @@ export let stripMetadata = (
   )
 }
 
-export const getLogFromScriptPath = (filePath: string) => {
-  return filePath
-    .replace("scripts", "logs")
-    .replace(/\.js$/, ".log")
-}
-
-export const resolveKenv = (...parts: string[]) => {
-  if (global.kitScript) {
-    return path.resolve(
-      global.kitScript,
-      "..",
-      "..",
-      ...parts
-    )
-  }
-
-  return kenvPath(...parts)
-}
-
-export let selectScript = async (
-  message: string | PromptConfig = "Select a script",
-  fromCache = true,
-  xf = x => x
-): Promise<Script> => {
-  let script: Script | string = await global.arg(
-    message,
-    xf(await getScripts(fromCache))
-  )
-
-  if (typeof script === "string") {
-    return await getScriptFromString(script)
-  }
-
-  return script
-}
-
 //validator
 export let exists = async (input: string) => {
   return (await isBin(kenvPath("bin", input)))
     ? global.chalk`{red.bold ${input}} already exists. Try again:`
     : (await isDir(kenvPath("bin", input)))
     ? global.chalk`{red.bold ${input}} exists as group. Enter different name:`
-    : global.exec(`command -v ${input}`, {
-        silent: true,
-      }).stdout
+    : (await isBin(input))
     ? global.chalk`{red.bold ${input}} is a system command. Enter different name:`
     : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
     ? global.chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
@@ -568,118 +484,17 @@ export let toggleBackground = async (script: Script) => {
   }
 }
 
-export let createBinFromScript = async (
-  type: Bin,
-  { command, filePath }: Script
-) => {
-  let binTemplate = await readFile(
-    kitPath("templates", "bin", "template"),
-    "utf8"
-  )
+export let getKenvs = async (): Promise<string[]> => {
+  let kenvs: string[] = []
+  if (!(await isDir(kenvPath("kenvs")))) return kenvs
 
-  let binTemplateCompiler = global.compile(binTemplate)
-  let compiledBinTemplate = binTemplateCompiler({
-    command,
-    type,
-    ...global.env,
-    TARGET_PATH: filePath,
+  let dirs = await readdir(kenvPath("kenvs"), {
+    withFileTypes: true,
   })
 
-  let binFilePath = path.join(
-    filePath,
-    "..",
-    "..",
-    "bin",
-    command
-  )
-
-  global.mkdir("-p", path.dirname(binFilePath))
-  await global.writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
-}
-
-export let createBinFromName = async (
-  command: string,
-  kenv: string
-) => {
-  let binTemplate = await readFile(
-    kitPath("templates", "bin", "template"),
-    "utf8"
-  )
-
-  let binTemplateCompiler = global.compile(binTemplate)
-  let compiledBinTemplate = binTemplateCompiler({
-    command,
-    type: Bin.scripts,
-    ...global.env,
-    TARGET_PATH: kenv,
-  })
-
-  let binFilePath = path.resolve(kenv, "bin", command)
-
-  global.mkdir("-p", path.dirname(binFilePath))
-  await global.writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
-}
-
-export let trashBinFromScript = async (script: Script) => {
-  global.trash([
-    kenvPath(
-      script.kenv && `kenvs/${script.kenv}`,
-      "bin",
-      script.command
-    ),
-  ])
-}
-
-type Kenv = {
-  name: string
-  dirPath: string
-}
-export let selectKenv = async (): Promise<Kenv> => {
-  let homeKenv = {
-    name: "home",
-    description: `Your main kenv: ${kenvPath()}`,
-    value: {
-      name: "home",
-      dirPath: kenvPath(),
-    },
-  }
-  let selectedKenv: Kenv | string = homeKenv.value
-
-  let kenvs = await getKenvs()
-  if (kenvs.length) {
-    let kenvChoices = [
-      homeKenv,
-      ...kenvs.map(p => {
-        let name = getLastSlashSeparated(p, 1)
-        return {
-          name,
-          description: p,
-          value: {
-            name,
-            dirPath: p,
-          },
-        }
-      }),
-    ]
-
-    selectedKenv = await global.arg(
-      `Select target kenv`,
-      kenvChoices
-    )
-
-    if (typeof selectedKenv === "string") {
-      return kenvChoices.find(
-        c =>
-          c.value.name === selectedKenv ||
-          path.resolve(c.value.dirPath) ===
-            path.resolve(selectedKenv as string)
-      ).value
-    }
-  }
-
-  return selectedKenv as Kenv
+  return dirs
+    .filter(d => d.isDirectory())
+    .map(d => kenvPath("kenvs", d.name))
 }
 
 export let kitMode = () =>
@@ -723,4 +538,71 @@ export let configEnv = () => {
   assignPropsTo(process.env, global.env)
 
   return parsed
+}
+
+export let trashScript = async ({
+  command,
+  kenv,
+  filePath,
+}: Script) => {
+  let { pathExists } = await import(
+    "@johnlindquist/kit-internal/fs-extra"
+  )
+
+  let binJSPath = jsh
+    ? kenvPath("node_modules", ".bin", command + ".js")
+    : kenvPath(
+        kenv && `kenvs/${kenv}`,
+        "bin",
+        command + ".js"
+      )
+
+  let binJS = await pathExists(binJSPath)
+
+  let binPath = jsh
+    ? kenvPath("node_modules", ".bin", command)
+    : kenvPath(kenv && `kenvs/${kenv}`, "bin", command)
+
+  await global.trash([
+    ...((await pathExists(filePath)) ? [filePath] : []),
+    binPath,
+    ...(binJS ? [binJSPath] : []),
+  ])
+}
+
+export let getScriptFiles = async (kenv = kenvPath()) => {
+  let scriptsPath = path.join(kenv, "scripts")
+  if (!(await isDir(scriptsPath))) {
+    console.warn(`${scriptsPath} isn't a valid kenv dir`)
+    return []
+  }
+
+  let result = await readdir(scriptsPath, {
+    withFileTypes: true,
+  })
+
+  return result
+    .filter(file => file.isFile())
+    .map(file => file.name)
+    .filter(name => name.match(/\.(mj|t|j)s$/))
+    .map(file => path.join(scriptsPath, file))
+}
+
+export let parseScripts = async () => {
+  let scriptFiles = await getScriptFiles()
+  let kenvDirs = await getKenvs()
+  for await (let kenvDir of kenvDirs) {
+    let scripts = await getScriptFiles(kenvDir)
+    scriptFiles = [...scriptFiles, ...scripts]
+  }
+
+  let scriptInfo = await Promise.all(
+    scriptFiles.map(parseScript)
+  )
+  return scriptInfo.sort((a: Script, b: Script) => {
+    let aName = a.name.toLowerCase()
+    let bName = b.name.toLowerCase()
+
+    return aName > bName ? 1 : aName < bName ? -1 : 0
+  })
 }

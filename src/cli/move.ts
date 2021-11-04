@@ -1,12 +1,11 @@
 // Description: Move script to different kenv
 
-import {
-  createBinFromScript,
-  selectScript,
-  trashBinFromScript,
-} from "../core/utils.js"
+import { trashScript } from "../core/utils.js"
+
+import { createBinFromScript } from "./lib/utils.js"
 
 import { Bin } from "../core/enum.js"
+import { refreshScriptsDb } from "../core/db.js"
 
 let script = await selectScript()
 
@@ -57,9 +56,9 @@ while (true) {
   exists = await isFile(target(script.filePath))
 
   if (!exists) {
-    trashBinFromScript(script)
+    await trashScript(script)
     mv(script.filePath, target(script.filePath))
-    await getScripts(false)
+    await refreshScriptsDb()
     createBinFromScript(Bin.scripts, script)
   }
 

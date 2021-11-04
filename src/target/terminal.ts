@@ -1,10 +1,11 @@
+import { enquirer } from "@johnlindquist/kit-internal/enquirer"
+import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { PromptConfig } from "../types/core"
 import { assignPropsTo } from "../core/utils.js"
-let { default: enquirer } = (await import(
-  "enquirer"
-)) as any
+import { Rectangle } from "../types/electron"
 
-type Enquirer = typeof import("enquirer")
+type Enquirer =
+  typeof import("@johnlindquist/kit-internal/enquirer").enquirer
 type Prompt = Enquirer["prompt"]
 type EnquirerPromptConfig = Parameters<Prompt>[0]
 
@@ -34,15 +35,12 @@ global.kitPrompt = async (config: any) => {
         choices,
       }
     } else {
-      let suggest = global._.debounce(async function (
-        input
-      ) {
+      let { default: _ } = (await import("lodash")) as any
+
+      let suggest = _.debounce(async function (input) {
         let results = await f(input)
 
-        if (
-          global._.isUndefined(results) ||
-          global._.isString(results)
-        )
+        if (_.isUndefined(results) || _.isString(results))
           results = [input]
 
         this.choices = await this.toChoices(
@@ -51,8 +49,7 @@ global.kitPrompt = async (config: any) => {
         await this.render()
 
         return this.choices
-      },
-      250)
+      }, 250)
       config = {
         ...config,
         choices: config?.input ? [config?.input] : [],
@@ -111,6 +108,11 @@ global.arg = async (messageOrConfig = "Input", choices) => {
     config = messageOrConfig
   }
 
+  if (Array.isArray(choices) && choices?.length === 0) {
+    console.log(`No choices available... 😅`)
+    global.exit()
+  }
+
   config.choices = choices
   let input = await global.kitPrompt(config)
 
@@ -118,10 +120,6 @@ global.arg = async (messageOrConfig = "Input", choices) => {
 }
 
 global.textarea = global.arg
-
-let { default: minimist } = (await import(
-  "minimist"
-)) as any
 
 global.args = []
 global.updateArgs = arrayOfArgs => {
@@ -135,7 +133,7 @@ global.updateArgs = arrayOfArgs => {
         if (value) return [`--${key}`]
         if (!value) return [`--no-${key}`]
       }
-      return [`--${key}`, value]
+      return [`--${key}`, value as string]
     })
 
   assignPropsTo(argv, global.arg)
@@ -147,14 +145,11 @@ global.updateArgs(process.argv.slice(2))
 let terminalInstall = async packageName => {
   if (!global.flag?.trust) {
     let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`
-    let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${
-      (
-        await global.get(
-          `https://api.npmjs.org/downloads/point/last-week/` +
-            packageName
-        )
-      ).data.downloads
-    }} downloads from npm in the past week`
+    let response = await global.get<any>(
+      `https://api.npmjs.org/downloads/point/last-week/` +
+        packageName
+    )
+    let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${response.data?.downloads}} downloads from npm in the past week`
     let packageLink = `https://npmjs.com/package/${packageName}`
     let readMore = global.chalk`
   Read more about {yellow ${packageName}} here: {yellow ${packageLink}}
@@ -227,9 +222,15 @@ global.drop = async () => {
 }
 
 global.setPanel = async (html, containerClasses = "") => {}
+global.setPreview = async (
+  html,
+  containerClasses = ""
+) => {}
 global.setPanelContainer = async (
   html,
   containerClasses = ""
 ) => {}
 
 global.setIgnoreBlur = async ignore => {}
+
+global.setBounds = (bounds: Partial<Rectangle>) => {}

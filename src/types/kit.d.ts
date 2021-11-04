@@ -1,6 +1,5 @@
 export {}
 
-import { AppApi } from "./app"
 import {
   Choices,
   FlagsOptions,
@@ -8,10 +7,8 @@ import {
   PromptConfig,
   Script,
 } from "./core"
-import { PackagesApi } from "./packages"
-import { PlatformApi } from "./platform"
 
-interface Arg {
+export interface Arg {
   [key: string]: any
   <T = string>(
     placeholderOrConfig?: string | PromptConfig,
@@ -19,10 +16,10 @@ interface Arg {
   ): Promise<T>
 }
 
-interface EnvConfig extends PromptConfig {
+export interface EnvConfig extends PromptConfig {
   reset?: boolean
 }
-interface Env {
+export interface Env {
   (
     envKey: string,
     promptConfig?:
@@ -33,31 +30,31 @@ interface Env {
   [key: string]: any
 }
 
-interface Args extends Array<string> {}
+export interface Args extends Array<string> {}
 
-interface UpdateArgs {
+export interface UpdateArgs {
   (args: string[]): void
 }
 
-interface PathFn {
+export interface PathFn {
   (...pathParts: string[]): string
 }
 
-interface Inspect {
+export interface Inspect {
   (data: any, extension?: string): Promise<void>
 }
 
-interface OnTab {
+export interface OnTab {
   (name: string, fn: () => void): void
 }
 
-interface KitModuleLoader {
+export interface KitModuleLoader {
   (
     packageName: string,
     ...moduleArgs: string[]
   ): Promise<any>
 }
-interface Edit {
+export interface Edit {
   (
     file: string,
     dir?: string,
@@ -66,48 +63,102 @@ interface Edit {
   ): Promise<void>
 }
 
-interface Wait {
+export interface Wait {
   (time: number): Promise<void>
 }
 
-interface IsCheck {
+export interface IsCheck {
   (file: string): Promise<boolean>
 }
 
 type DB = typeof import("../core/db").db
 
-interface GetScripts {
+export interface GetScripts {
   (fromCache: boolean): Promise<Script[]>
 }
 
-type FlagFn = (flags: FlagsOptions) => void
-type Flags = {
+export type FlagFn = (flags: FlagsOptions) => void
+export type Flags = {
   [key: string]: boolean | string
+  cmd?: string
+  ctrl?: string
+  shift?: string
+  option?: string
+  alt?: string
 }
 
-interface SelectKitEditor {
+export interface SelectKitEditor {
   (reset: boolean): Promise<string>
 }
 
-interface KitApi {
+export interface SelectScript {
+  (
+    message?: string | PromptConfig,
+    fromCache?: boolean,
+    xf?: (x: Script[]) => Script[]
+  ): Promise<Script>
+}
+
+export interface Kenv {
+  name: string
+  dirPath: string
+}
+export interface SelectKenv {
+  (): Promise<Kenv>
+}
+
+export interface Highlight {
+  (
+    markdown: string,
+    containerClass?: string,
+    injectStyles?: string
+  ): Promise<string>
+}
+export interface KitApi {
   db: DB
 
   wait: Wait
 
   checkProcess: (processId: number) => string
 
+  /**
+   * @example
+   * ```
+   * let pathToProject =  await home("projects", "my-code-project")
+   * // /Users/johnlindquist/projects/my-code-project
+   * ```
+   */
   home: PathFn
   isFile: IsCheck
   isDir: IsCheck
   isBin: IsCheck
-
-  //preload/kit.cjs
+  /**
+   * @example
+   * ```
+   * let value =  await arg()
+   * ```
+   */
   arg: Arg
+  /**
+   * @example
+   * ```
+   * // Reads from .env or prompts if not set
+   * let SOME_ENV_VAR = await env("SOME_ENV_VAR")
+   * ```
+   */
   env: Env
-  argOpts: any
+  argOpts: string[]
 
   kitPath: PathFn
   kenvPath: PathFn
+  /**
+   * Generate a path `~/.kenv/tmp/{command}/...parts`
+   *
+   * @example
+   * ```
+   * tmpPath("taco.txt") // ~/.kenv/tmp/command/taco.txt
+   * ```
+   */
   tmpPath: PathFn
 
   inspect: Inspect
@@ -147,31 +198,22 @@ interface KitApi {
 
   flag: Flags
   setFlags: FlagFn
+  selectScript: SelectScript
+  selectKenv: SelectKenv
+  highlight: Highlight
+}
+
+interface KeyValue {
+  [key: string]: any
 }
 
 type Run = (command: string, args?: string) => Promise<any>
 
 declare global {
-  type GlobalApi = AppApi &
-    KitApi &
-    PackagesApi &
-    PlatformApi
-  namespace NodeJS {
-    interface Global extends GlobalApi {}
-  }
-
   var edit: Edit
 
   var kitPath: PathFn
   var kenvPath: PathFn
-  /**
-   * Generate a path `~/.kenv/tmp/{command}/...parts`
-   *
-   * @example
-   * ```
-   * tmpPath("taco.txt") // ~/.kenv/tmp/command/taco.txt
-   * ```
-   */
   var tmpPath: PathFn
 
   var attemptImport: KitModuleLoader
@@ -186,7 +228,7 @@ declare global {
   var args: Args
 
   var updateArgs: UpdateArgs
-  var argOpts: any
+  var argOpts: string[]
 
   var wait: Wait
 
@@ -209,4 +251,8 @@ declare global {
   var hide: () => void
   var flag: Flags
   var setFlags: FlagFn
+
+  var selectScript: SelectScript
+  var selectKenv: SelectKenv
+  var highlight: Highlight
 }

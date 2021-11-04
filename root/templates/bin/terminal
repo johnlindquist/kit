@@ -1,0 +1,8 @@
+#!/bin/sh
+
+NODE_NO_WARNINGS=1 \
+KENV=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd) \
+{{KIT}}/node/bin/node \
+{{KIT}}/run/terminal.js \
+{{TARGET_PATH}} \
+"$@"

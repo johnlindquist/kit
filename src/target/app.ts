@@ -1,20 +1,27 @@
 import { Choice, PromptConfig } from "../types/core"
 
-import { EditorConfig } from "../types/app"
+import { EditorConfig } from "../types/kitapp"
 
-import { Observable, merge, NEVER, of } from "rxjs"
 import {
   filter,
   map,
+  merge,
+  NEVER,
+  Observable,
+  of,
   share,
   switchMap,
   take,
   takeUntil,
   tap,
-} from "rxjs/operators"
-import stripAnsi from "strip-ansi"
+} from "@johnlindquist/kit-internal/rxjs"
+import { minimist } from "@johnlindquist/kit-internal/minimist"
+import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+import { Convert } from "@johnlindquist/kit-internal/ansi-to-html"
+
 import { Mode, Channel, UI } from "../core/enum.js"
 import { assignPropsTo } from "../core/utils.js"
+import { Rectangle } from "../types/electron"
 
 interface AppMessage {
   channel: Channel
@@ -22,6 +29,8 @@ interface AppMessage {
   input?: string
   tab?: string
   flag?: string
+  index?: number
+  id?: string
 }
 
 let displayChoices = (
@@ -40,6 +49,9 @@ let displayChoices = (
 }
 
 let checkResultInfo = result => {
+  if (result?.preview) {
+    global.setPanel(result.preview, result?.className || "")
+  }
   if (result?.panel) {
     global.setPanel(result.panel, result?.className || "")
   }
@@ -104,8 +116,12 @@ let waitForPromptValue = ({
     }
 
     let process$ = new Observable<AppMessage>(observer => {
-      let m = (data: AppMessage) => observer.next(data)
-      let e = (error: Error) => observer.error(error)
+      let m = (data: AppMessage) => {
+        observer.next(data)
+      }
+      let e = (error: Error) => {
+        observer.error(error)
+      }
       process.on("message", m)
       process.on("error", e)
       return () => {
@@ -113,8 +129,8 @@ let waitForPromptValue = ({
         process.off("error", e)
       }
     }).pipe(
-      switchMap(data => of(data)),
-      share()
+      share(),
+      switchMap(data => of(data))
     )
 
     let tab$ = process$.pipe(
@@ -135,7 +151,7 @@ let waitForPromptValue = ({
       share()
     )
 
-    let message$ = process$.pipe(share(), takeUntil(tab$))
+    let message$ = process$.pipe(takeUntil(tab$))
 
     let generate$ = message$.pipe(
       filter(
@@ -172,7 +188,6 @@ let waitForPromptValue = ({
           let validateMessage = await validate(value)
 
           if (typeof validateMessage === "string") {
-            let Convert = await npm("ansi-to-html")
             let convert = new Convert()
             global.setHint(convert.toHtml(validateMessage))
             global.setChoices(global.kitPrevChoices)
@@ -209,6 +224,36 @@ let waitForPromptValue = ({
       // filter(() => ui === UI.arg),
       switchMap(getInitialChoices)
     )
+
+    let choice$ = message$.pipe(
+      filter(
+        data => data.channel === Channel.CHOICE_FOCUSED
+      ),
+      switchMap(data => of(data))
+    )
+
+    choice$
+      .pipe(takeUntil(value$))
+      .subscribe(async data => {
+        // console.log(`...${data?.index}`)
+        let choice = (global.kitPrevChoices || []).find(
+          (c: Choice) => c.id === data?.id
+        )
+
+        if (
+          choice &&
+          choice?.preview &&
+          typeof choice?.preview === "function" &&
+          choice?.preview[Symbol.toStringTag] ===
+            "AsyncFunction"
+        ) {
+          ;(choice as any).index = data?.index
+          ;(choice as any).input = data?.input
+          let result = await choice?.preview(choice)
+
+          global.setPreview(result)
+        }
+      })
 
     initialChoices$.pipe(takeUntil(value$)).subscribe()
 
@@ -356,7 +401,6 @@ global.arg = async (
 
       if (valid === true) return firstArg
 
-      let Convert = await npm("ansi-to-html")
       let convert = new Convert()
 
       let hint =
@@ -404,10 +448,6 @@ global.textarea = async (
   })
 }
 
-let { default: minimist } = (await import(
-  "minimist"
-)) as any
-
 global.args = []
 global.updateArgs = arrayOfArgs => {
   let argv = minimist(arrayOfArgs)
@@ -419,7 +459,7 @@ global.updateArgs = arrayOfArgs => {
         if (value) return [`--${key}`]
         if (!value) return [`--no-${key}`]
       }
-      return [`--${key}`, value]
+      return [`--${key}`, value as string]
     })
 
   assignPropsTo(argv, global.arg)
@@ -437,7 +477,7 @@ let appInstall = async packageName => {
 
     let hint = `[${packageName}](${packageLink}) has had ${
       (
-        await get(
+        await get<{ downloads: number }>(
           `https://api.npmjs.org/downloads/point/last-week/` +
             packageName
         )
@@ -475,6 +515,14 @@ global.npm = createNpm(appInstall)
 global.setPanel = async (html, containerClasses = "") => {
   let wrapHtml = `<div class="${containerClasses}">${html}</div>`
   global.send(Channel.SET_PANEL, {
+    html: wrapHtml,
+  })
+}
+
+global.setPreview = async (html, containerClasses = "") => {
+  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
+  // global.setBounds({ width: 720, height: 480 })
+  global.send(Channel.SET_PREVIEW, {
     html: wrapHtml,
   })
 }
@@ -523,6 +571,24 @@ global.getBackgroundTasks = () =>
   global.getDataFromApp("BACKGROUND")
 
 global.getSchedule = () => global.getDataFromApp("SCHEDULE")
+global.getBounds = async () => {
+  let data = await global.getDataFromApp("BOUNDS")
+  return data?.bounds
+}
+
+global.getCurrentScreen = async () => {
+  let data = await global.getDataFromApp("CURRENT_SCREEN")
+  return data?.screen
+}
 
 global.getScriptsState = () =>
   global.getDataFromApp("SCRIPTS_STATE")
+
+global.setBounds = (bounds: Partial<Rectangle>) => {
+  global.send(Channel.SET_BOUNDS, {
+    bounds,
+  })
+}
+
+delete process.env?.["ELECTRON_RUN_AS_NODE"]
+delete global?.env?.["ELECTRON_RUN_AS_NODE"]

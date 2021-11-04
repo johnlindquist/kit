@@ -313,7 +313,7 @@ end tell
 	`)
 }
 
-global.getActiveScreen = async (): Promise<any> =>
+global.getActiveScreen = async () =>
   new Promise((res, rej) => {
     let messageHandler = data => {
       if (data.channel === "SCREEN_INFO") {

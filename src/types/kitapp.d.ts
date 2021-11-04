@@ -9,6 +9,7 @@ import {
   PromptConfig,
   PromptData,
 } from "./core"
+import { Display, Rectangle } from "./electron"
 
 export interface MessageData extends PromptData {
   channel: Channel
@@ -30,6 +31,7 @@ export interface MessageData extends PromptData {
   kenvPath?: string
   hint?: string
   tabIndex?: number
+  bounds?: Partial<Rectangle>
 }
 
 export interface EditorProps {
@@ -40,7 +42,7 @@ export interface EditorProps {
 
 export type EditorOptions =
   editor.IStandaloneEditorConstructionOptions & {
-    scrollTo: "top" | "center" | "bottom"
+    scrollTo?: "top" | "center" | "bottom"
   }
 
 export type EditorConfig = string | EditorOptions
@@ -67,25 +69,25 @@ export type PromptDb = {
   }
 }
 
-interface TextArea {
+export interface TextArea {
   (
     placeholderOrOptions?: string | TextareaConfig
   ): Promise<string>
 }
-interface Drop {
+export interface Drop {
   (hint?: string): Promise<any>
 }
-interface Editor {
+export interface Editor {
   (config?: EditorConfig): Promise<any>
 }
-interface Form {
+export interface Form {
   (html?: string, formData?: any): Promise<any>
 }
-interface Div {
+export interface Div {
   (html?: string, containerClass?: string): Promise<void>
 }
 
-interface KeyData {
+export interface KeyData {
   key: string
   command: boolean
   shift: boolean
@@ -98,26 +100,42 @@ interface KeyData {
   win: boolean
   shortcut: string
 }
-interface Hotkey {
+export interface Hotkey {
   (placeholder?: string): Promise<KeyData>
 }
 
-interface AppleScript {
+export interface AppleScript {
   (script: string, options?: any): Promise<string>
 }
 
-interface Send {
+export interface Send {
   (channel: string, data?: any): void
 }
 
-interface SetAppProp {
+export interface SetAppProp {
   (value: any): void
 }
-interface SetPanel {
+export interface SetPanel {
   (html: string, containerClasses?: string): void
 }
+export interface SetPreview {
+  (html: string, containerClasses?: string): void
+}
+export interface SetBounds {
+  (bounds: Partial<Rectangle>): void
+}
+export interface GetBounds {
+  (): Promise<Rectangle>
+}
+export interface GetBounds {
+  (): Promise<Rectangle>
+}
 
-interface ShowAppWindow {
+export interface GetActiveScreen {
+  (): Promise<Display>
+}
+
+export interface ShowAppWindow {
   (content: string, options?: any): void
 }
 
@@ -134,6 +152,10 @@ export interface AppApi {
 
   setPlaceholder: SetAppProp
   setPanel: SetPanel
+  setPreview: SetPreview
+  setBounds: SetBounds
+  getBounds: GetBounds
+  getActiveScreen: GetActiveScreen
   setHint: SetAppProp
   setInput: SetAppProp
   setIgnoreBlur: SetAppProp
@@ -196,6 +218,10 @@ declare global {
 
   var setPlaceholder: SetAppProp
   var setPanel: SetPanel
+  var setPreview: SetPreview
+  var setBounds: SetBounds
+  var getBounds: GetBounds
+  var getActiveScreen: GetActiveScreen
   var setHint: SetAppProp
   var setInput: SetAppProp
   var setIgnoreBlur: SetAppProp

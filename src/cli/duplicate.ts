@@ -1,14 +1,13 @@
 // Description: Duplicate the selected script
 
-import { exists, selectKenv } from "../core/utils.js"
-let generate = await npm("project-name-generator")
+import { exists } from "../core/utils.js"
+import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
 
 import { stripMetadata } from "../core/utils.js"
-import { selectScript } from "../core/utils.js"
 
 let { filePath } = await selectScript(
   `Which script do you want to duplicate?`

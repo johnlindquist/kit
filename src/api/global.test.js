@@ -46,7 +46,7 @@ ava(`All globals exist`, async t => {
     content += await readFile(kitPath("types", f), "utf-8")
   }
 
-  let matches = content.match(/(?<=var ).*(?=:)/gim)
+  let matches = content.match(/(?<=var ).*?(?=:)/gim)
 
   for (let m of matches) {
     t.true(

@@ -1,8 +1,6 @@
 //Menu: Copy Script to Clipboard
 //Description: Copies Script to Clipboard
 
-import { selectScript } from "../core/utils.js"
-
 let { filePath } = await selectScript(`Share which script?`)
 
 copy(await readFile(filePath, "utf8"))

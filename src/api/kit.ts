@@ -1,14 +1,26 @@
-import { Choice, FlagsOptions } from "../types/core"
+import {
+  Choice,
+  FlagsOptions,
+  PromptConfig,
+  Script,
+} from "../types/core"
 import { Channel } from "../core/enum.js"
 
 import {
   kitPath,
   kenvPath,
   resolveScriptToCommand,
-  copyTmpFile,
   run,
+  getKenvs,
+  getLastSlashSeparated,
 } from "../core/utils.js"
-import stripAnsi from "strip-ansi"
+import {
+  getScripts,
+  getScriptFromString,
+  getAppDb,
+} from "../core/db.js"
+import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+import { Kenv } from "../types/kit"
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -60,6 +72,28 @@ export let errorPrompt = async (error: Error) => {
     console.log(error)
   }
 }
+
+export const outputTmpFile = async (
+  fileName: string,
+  contents: string
+) => {
+  let outputPath = path.resolve(
+    global.tempdir(),
+    "kit",
+    fileName
+  )
+  await outputFile(outputPath, contents)
+  return outputPath
+}
+
+export const copyTmpFile = async (
+  fromFile: string,
+  fileName: string
+) =>
+  await outputTmpFile(
+    fileName,
+    await global.readFile(fromFile, "utf-8")
+  )
 
 global.attemptImport = async (scriptPath, ..._args) => {
   let importResult = undefined
@@ -250,7 +284,9 @@ global.setup = async (setupPath, ..._args) => {
 }
 
 global.tmpPath = (...parts) => {
-  let command = resolveScriptToCommand(global.kitScript)
+  let command = global?.kitScript
+    ? resolveScriptToCommand(global.kitScript)
+    : ""
   let scriptTmpDir = global.kenvPath(
     "tmp",
     command,
@@ -338,6 +374,8 @@ global.setChoices = async (choices, className = "") => {
       }
 
       if (typeof choice === "object") {
+        choice.hasPreview = Boolean(choice?.preview)
+
         if (!choice?.id) {
           choice.id = global.uuid()
         }
@@ -380,4 +418,161 @@ global.hide = () => {
 
 global.run = run
 
-export {}
+let wrapCode = (
+  html: string,
+  containerClass: string,
+  codeStyles = ""
+) => {
+  return `<pre class="${containerClass}">
+  <style type="text/css">
+      code{
+        font-size: 0.75rem !important;
+        width: 100%;
+        white-space: pre-wrap;
+        ${codeStyles}
+      }
+      pre{
+        display: flex;
+      }
+      p{
+        margin-bottom: 1rem;
+      }
+  </style>
+  <code>
+${html.trim()}
+  </code>
+</pre>`
+}
+
+export let highlightJavaScript = async (
+  filePath: string
+): Promise<string> => {
+  let contents = await readFile(filePath, "utf-8")
+
+  let { default: highlight } = await import("highlight.js")
+  let highlightedContents = highlight.highlight(contents, {
+    language: "javascript",
+  }).value
+
+  let wrapped = wrapCode(highlightedContents, "px-5")
+  return wrapped
+}
+
+export let selectScript = async (
+  message: string | PromptConfig = "Select a script",
+  fromCache = true,
+  xf = (x: Script[]) => x
+): Promise<Script> => {
+  let scripts: Script[] = xf(await getScripts(fromCache))
+
+  scripts = scripts.map(s => {
+    s.preview = async () => {
+      return highlightJavaScript(s.filePath)
+    }
+    return s
+  })
+
+  let script: Script | string = await global.arg(
+    message,
+    scripts
+  )
+
+  if (typeof script === "string") {
+    return await getScriptFromString(script)
+  }
+
+  return script
+}
+
+global.selectScript = selectScript
+
+export let selectKenv = async () => {
+  let homeKenv = {
+    name: "home",
+    description: `Your main kenv: ${kenvPath()}`,
+    value: {
+      name: "home",
+      dirPath: kenvPath(),
+    },
+  }
+  let selectedKenv: Kenv | string = homeKenv.value
+
+  let kenvs = await getKenvs()
+  if (kenvs.length) {
+    let kenvChoices = [
+      homeKenv,
+      ...kenvs.map(p => {
+        let name = getLastSlashSeparated(p, 1)
+        return {
+          name,
+          description: p,
+          value: {
+            name,
+            dirPath: p,
+          },
+        }
+      }),
+    ]
+
+    selectedKenv = await global.arg(
+      `Select target kenv`,
+      kenvChoices
+    )
+
+    if (typeof selectedKenv === "string") {
+      return kenvChoices.find(
+        c =>
+          c.value.name === selectedKenv ||
+          path.resolve(c.value.dirPath) ===
+            path.resolve(selectedKenv as string)
+      ).value
+    }
+  }
+
+  return selectedKenv as Kenv
+}
+
+global.selectKenv = selectKenv
+
+global.highlight = async (
+  markdown: string,
+  containerClass: string = "p-5 leading-loose",
+  injectStyles: string = ``
+) => {
+  let { default: hljs } = await import("highlight.js")
+
+  global.marked.setOptions({
+    renderer: new global.marked.Renderer(),
+    highlight: function (code, lang) {
+      const language = hljs.getLanguage(lang)
+        ? lang
+        : "plaintext"
+      return hljs.highlight(code, { language }).value
+    },
+    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
+    pedantic: false,
+    gfm: true,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false,
+    xhtml: false,
+  })
+
+  let highlightedMarkdown = global.marked(markdown)
+
+  let result = `<div class="${containerClass}">
+  <style>
+  p{
+    margin-bottom: 1rem;
+  }
+  li{
+    margin-bottom: .25rem;
+  }
+  ${injectStyles}
+  </style>
+  ${highlightedMarkdown}
+</div>`
+
+  return result
+}

@@ -1,12 +1,7 @@
 // Menu: Kit Environment
 // Description: Script Kit
 
-import {
-  toggleBackground,
-  selectScript,
-  selectKenv,
-  run,
-} from "../core/utils.js"
+import { toggleBackground, run } from "../core/utils.js"
 
 let { name: kenv } = await selectKenv()
 

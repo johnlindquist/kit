@@ -1,12 +1,11 @@
 // Description: Run the selected script
-import { scriptValue } from "../core/db.js"
 import { run } from "../core/utils.js"
 
-let command = await arg(
+let { command } = await selectScript(
   `Which script do you want to run?`,
-  scriptValue("command")
+  true,
+  scripts => scripts.filter(script => !script?.exclude)
 )
-
 await run(command)
 
 export {}

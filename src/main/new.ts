@@ -1,6 +1,7 @@
 import { Choice } from "../types/core"
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 import { kitMode, run } from "../core/utils.js"
+import { addPreview } from "../cli/lib/utils.js"
 
 let newOptions: Choice<keyof CLI>[] = [
   {
@@ -27,7 +28,7 @@ let cliScript = await arg<keyof CLI>(
     placeholder: "Create a new script",
     strict: false,
   },
-  newOptions
+  addPreview(newOptions, "new")
 )
 
 if (newOptions.find(script => script.value === cliScript)) {

@@ -10,7 +10,13 @@ export interface Choice<Value = any> {
   img?: string
   icon?: string
   html?: string
-  preview?: string
+  hasPreview?: boolean
+  preview?:
+    | string
+    | ((
+        choice: Choice & { input: string; index: number }
+      ) => Promise<string>)
+  previewLang?: string
   id?: string
   shortcode?: string[]
   className?: string
@@ -54,6 +60,11 @@ export interface ScriptMetadata {
   log?: "true" | "false"
   hasFlags?: boolean
   img?: string
+  cmd?: string
+  option?: string
+  ctrl?: string
+  shift?: string
+  hasPreview?: boolean
 }
 
 export type Script = ScriptMetadata &
@@ -75,7 +86,7 @@ export type PromptDb = {
   }
 }
 
-type InputType =
+export type InputType =
   | "button"
   | "checkbox"
   | "color"

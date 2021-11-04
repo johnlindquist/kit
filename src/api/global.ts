@@ -10,35 +10,21 @@ import {
 } from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
+import { PromptConfig } from "../types/core"
 
 global.getScripts = getScripts
-global.cwd = process.cwd
-global.pid = process.pid
-global.stderr = process.stderr
-global.stdin = process.stdin
-global.stdout = process.stdout
-global.uptime = process.uptime
-global.path = await import("path")
-global.uuid = (await import("crypto")).randomUUID
 
-await import("./packages/axios.js")
-await import("./packages/chalk.js")
+await import("@johnlindquist/globals")
 await import("./packages/clipboardy.js")
-await import("./packages/child_process.js")
-await import("./packages/degit.js")
-await import("./packages/download.js")
-await import("./packages/fs.js")
-await import("./packages/fsPromises.js")
-await import("./packages/handlebars.js")
-await import("./packages/lodash.js")
-await import("./packages/marked.js")
-await import("./packages/node-fetch.js")
 await import("./packages/node-notifier.js")
 await import("./packages/shelljs.js")
 await import("./packages/trash.js")
-await import("./packages/zx.js")
 
 global.env = async (envKey, promptConfig) => {
+  let ignoreBlur =
+    (promptConfig as PromptConfig)?.ignoreBlur === false
+      ? false
+      : true
   if ((promptConfig as any)?.reset !== true) {
     let envVal = global.env[envKey] || process.env[envKey]
     if (envVal) return envVal
@@ -50,9 +36,11 @@ global.env = async (envKey, promptConfig) => {
       : typeof promptConfig === "string"
       ? await global.kitPrompt({
           placeholder: promptConfig,
+          ignoreBlur,
         })
       : await global.kitPrompt({
           placeholder: `Set ${envKey} to:`,
+          ignoreBlur,
           ...promptConfig,
         })
 

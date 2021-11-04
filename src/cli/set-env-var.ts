@@ -16,6 +16,7 @@ let dotEnvPath = process.env.KIT_DOTENV_PATH
   ? path.resolve(process.env.KIT_DOTENV_PATH, ".env")
   : kenvPath(".env")
 
+await ensureFile(dotEnvPath)
 let contents = await readFile(dotEnvPath, "utf-8")
 let exists = contents.match(
   new RegExp("^" + envKey + "=.*$", "gm")

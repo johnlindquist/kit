@@ -1,8 +1,9 @@
 import { KIT_NODE_PATH } from "../core/utils.js"
 
-let { formatDistanceToNow, parseISO } = (await npm(
-  "date-fns"
-)) as typeof import("date-fns")
+import {
+  formatDistanceToNow,
+  parseISO,
+} from "@johnlindquist/kit-internal/date-fns"
 
 let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))
@@ -15,7 +16,7 @@ let install = async packageNames => {
       KIT_NODE_PATH + path.delimiter + process.env.PATH
     let npm = spawn(
       tool,
-      [command, "--loglevel", "verbose", ...packageNames],
+      [command, "--quiet", ...packageNames],
       {
         stdio: "pipe",
         cwd: kenvPath(),
@@ -40,7 +41,16 @@ let packageNames = await arg(
   "Which npm package/s would you like to install?",
   async input => {
     if (input.length < 3) return []
-    let response = await get(
+    type pkgs = {
+      objects: {
+        package: {
+          name: string
+          description: string
+          date: string
+        }
+      }[]
+    }
+    let response = await get<pkgs>(
       `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
     )
     let packages = response.data.objects

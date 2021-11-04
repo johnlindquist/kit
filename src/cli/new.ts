@@ -1,10 +1,7 @@
 // Description: Create a new script
-import {
-  exists,
-  kitMode,
-  selectKenv,
-} from "../core/utils.js"
-let generate = await npm("project-name-generator")
+import { exists, kitMode } from "../core/utils.js"
+import { ensureTemplates } from "./lib/utils.js"
+import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
@@ -31,18 +28,47 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
-let template = arg?.template || (await env("KIT_TEMPLATE"))
+let stripExtension = fileName =>
+  fileName.replace(path.extname(fileName), "")
 
-let templateContent = await readFile(
-  kenvPath("templates", `${template}.${kitMode()}`),
-  "utf8"
+await ensureTemplates()
+
+let ext = `.${kitMode()}`
+
+let template =
+  arg?.template ||
+  (await env("KIT_TEMPLATE", {
+    choices: _.uniq(
+      (
+        await readdir(kenvPath("templates"))
+      ).map(stripExtension)
+    ),
+  }))
+
+let templatePath = kenvPath(
+  "templates",
+  `${template}${ext}`
 )
+
+let templateExists = await pathExists(templatePath)
+if (!templateExists) {
+  console.log(
+    `${template} template doesn't exist. Creating blank ./templates/${template}${ext}`
+  )
+
+  await copyFile(
+    kitPath("templates", "scripts", `default${ext}`),
+    kenvPath("templates", `${template}${ext}`)
+  )
+}
+
+let templateContent = await readFile(templatePath, "utf8")
 
 let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
 
 if (arg?.url) {
-  contents = (await get(arg?.url)).data
+  contents = (await get<any>(arg?.url)).data
 }
 
 mkdir("-p", path.dirname(scriptPath))

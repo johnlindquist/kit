@@ -5,9 +5,10 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "moduleResolution": "Node",
-    "lib": ["esnext", "DOM"],
+    "lib": ["esnext"],
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "exclude": ["./root/**"]
 }

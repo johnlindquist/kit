@@ -1,9 +1,7 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 
-let { Octokit } = await npm("scriptkit-octokit")
-
-import { selectScript } from "../core/utils.js"
+import { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
 
 let { filePath, command } = await selectScript(
   `Share which script?`

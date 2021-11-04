@@ -4,7 +4,7 @@ import { exists } from "../core/utils.js"
 
 let url = await arg("Enter script url:")
 
-let contents = (await get(url)).data
+let contents = (await get<any>(url)).data
 
 if (url.endsWith(".js")) {
   let nameFromUrl = url.split("/").pop().replace(".js", "")

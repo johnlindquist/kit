@@ -4,15 +4,13 @@ let email_address = await arg(
   {
     placeholder: "Enter e-mail to join newsletter:",
   },
-  md(`<div class="p-6">
-
+  await highlight(`
 ## Script Kit Newletters include:
 * Tips for writing scripts
 * Community script highlights
 * Automation ideas
 * Upcoming features
-
-</div>`)
+`)
 )
 
 await post(

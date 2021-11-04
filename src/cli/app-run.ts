@@ -1,9 +1,12 @@
 // Description: Run the selected script
-import {
-  toggleBackground,
-  selectScript,
-  run,
-} from "../core/utils.js"
+import { toggleBackground, run } from "../core/utils.js"
+
+let modifiers = {
+  cmd: "cmd",
+  shift: "shift",
+  opt: "opt",
+  ctrl: "ctrl",
+}
 
 setFlags({
   [""]: {
@@ -42,6 +45,9 @@ setFlags({
     name: `Open script database`,
     shortcut: "cmd+b",
   },
+  ["clear-script-database"]: {
+    name: `Clear script database`,
+  },
   ["share-script"]: {
     name: "Share as Gist",
     shortcut: "cmd+g",
@@ -51,8 +57,8 @@ setFlags({
     shortcut: "cmd+u",
   },
   ["share-script-as-discussion"]: {
-    name: "Prep for discussion",
-    shortcut: "cmd+p",
+    name: "Share as discussion",
+    shortcut: "cmd+s",
   },
   ["change-shortcut"]: {
     name: "Change shortcut",
@@ -64,6 +70,22 @@ setFlags({
   ["refresh-scripts-db"]: {
     name: "Refresh scripts db",
     shortcut: "cmd+shift+r",
+  },
+  [modifiers.cmd]: {
+    name: "Run script w/ cmd flag",
+    shortcut: "cmd+enter",
+  },
+  [modifiers.shift]: {
+    name: "Run script w/ shift flag",
+    shortcut: "shift+enter",
+  },
+  [modifiers.opt]: {
+    name: "Run script w/ opt flag",
+    shortcut: "option+enter",
+  },
+  [modifiers.ctrl]: {
+    name: "Run script w/ ctrl flag",
+    shortcut: "ctrl+enter",
   },
 })
 
@@ -84,7 +106,9 @@ if (script.background) {
 } else if (shouldEdit) {
   await edit(script.filePath, kenvPath())
 } else {
-  let selectedFlag: any = Object.keys(flag).find(Boolean)
+  let selectedFlag: any = Object.keys(flag).find(f => {
+    return f && !modifiers[f]
+  })
   if (selectedFlag) {
     await run(
       `${kitPath("cli", selectedFlag)}.js ${
@@ -92,7 +116,12 @@ if (script.background) {
       }`
     )
   } else {
-    await run(script.filePath)
+    await run(
+      script.filePath,
+      Object.keys(flag)
+        .map(f => `--${f}`)
+        .join(" ")
+    )
   }
 }
 

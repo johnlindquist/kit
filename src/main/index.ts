@@ -2,6 +2,29 @@
 // Description: Script Kit
 // Placeholder: Run script
 // UI: arg
+// preview: true
+
+export interface Main {
+  edit: Promise<typeof import("./edit")>
+  help: Promise<typeof import("./help")>
+  hot: Promise<typeof import("./hot")>
+  index: Promise<typeof import("./index")>
+  kenv: Promise<typeof import("./kenv")>
+  kit: Promise<typeof import("./kit")>
+  new: Promise<typeof import("./new")>
+  showandtell: Promise<typeof import("./showandtell")>
+}
+
+interface MainModuleLoader {
+  (
+    packageName: keyof Main,
+    ...moduleArgs: string[]
+  ): Promise<any>
+}
+
+declare global {
+  var main: MainModuleLoader
+}
 
 global.onTabs = []
 
