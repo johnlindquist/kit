@@ -72,7 +72,7 @@ let kitHelpChoices: Choice[] = [
 
 let selectedHelp = await arg(
   `Got questions?`,
-  addPreview(kitHelpChoices, "help", "p-5")
+  addPreview(kitHelpChoices, "help", "p-5 prose dark:prose-dark")
 )
 
 let maybeCli = kitPath(`help`, selectedHelp + ".js")

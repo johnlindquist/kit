@@ -61,7 +61,7 @@ export let createBinFromScript = async (
 export let addPreview = (
   choices: Choice[],
   docsDir: string,
-  containerClasses = "p-5 leading-loose"
+  containerClasses = "p-5 leading-loose prose dark:prose-dark"
 ) => {
   return choices.map(c => {
     if (c?.preview) return c
