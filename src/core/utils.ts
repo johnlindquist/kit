@@ -190,7 +190,9 @@ export let resolveToScriptPath = (
 }
 
 export let resolveScriptToCommand = (script: string) => {
-  return script.replace(/.*\//, "").replace(".js", "")
+  return script
+    .replace(/.*\//, "")
+    .replace(extensionRegex, "")
 }
 
 //app

@@ -10,11 +10,6 @@ let newOptions: Choice<keyof CLI>[] = [
       kitMode() === "ts" ? "TypeScript" : "JavaScript"
     }`,
     value: "new",
-    preview: async () => {
-      return md(`
-# Create a new script you awesome little person!      
-      `)
-    },
   },
   {
     name: "New from url",

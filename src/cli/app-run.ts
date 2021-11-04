@@ -45,6 +45,9 @@ setFlags({
     name: `Open script database`,
     shortcut: "cmd+b",
   },
+  ["clear-script-database"]: {
+    name: `Clear script database`,
+  },
   ["share-script"]: {
     name: "Share as Gist",
     shortcut: "cmd+g",

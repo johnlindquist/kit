@@ -33,7 +33,7 @@ export const resolveKenv = (...parts: string[]) => {
 
 export let db = async (
   key: any,
-  defaults: any = {},
+  defaults?: any,
   fromCache = true
 ): Promise<Low & any> => {
   if (
@@ -43,6 +43,7 @@ export let db = async (
     defaults = key
     key = "_" + resolveScriptToCommand(global.kitScript)
   }
+  if (typeof defaults === "undefined") defaults = {}
 
   let dbPath =
     key.startsWith(path.sep) && key.endsWith(".json")

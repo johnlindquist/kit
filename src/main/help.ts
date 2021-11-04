@@ -51,11 +51,16 @@ let kitHelpChoices: Choice[] = [
   {
     name: "Schedule Scripts to Run",
     description: `Display data back to the user`,
-    value: "schedule-scripts",
+    value: "schedule",
+  },
+  {
+    name: "Display Your Info",
+    description: `Take credit for your work`,
+    value: "credit",
   },
   {
     name: "Docs are a working progress...",
-    description: ``,
+    description: `Coming soon...`,
     value: "coming-soon",
   },
   {

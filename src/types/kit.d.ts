@@ -110,7 +110,8 @@ export interface SelectKenv {
 export interface Highlight {
   (
     markdown: string,
-    containerClass?: string
+    containerClass?: string,
+    injectStyles?: string
   ): Promise<string>
 }
 export interface KitApi {

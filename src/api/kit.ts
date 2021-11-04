@@ -536,7 +536,8 @@ global.selectKenv = selectKenv
 
 global.highlight = async (
   markdown: string,
-  containerClass: string = "p-5 leading-loose"
+  containerClass: string = "p-5 leading-loose",
+  injectStyles: string = ``
 ) => {
   let { default: hljs } = await import("highlight.js")
 
@@ -568,6 +569,7 @@ global.highlight = async (
   li{
     margin-bottom: .25rem;
   }
+  ${injectStyles}
   </style>
   ${highlightedMarkdown}
 </div>`

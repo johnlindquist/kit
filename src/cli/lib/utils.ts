@@ -64,6 +64,7 @@ export let addPreview = (
   containerClasses = "p-5 leading-loose"
 ) => {
   return choices.map(c => {
+    if (c?.preview) return c
     c.preview = async () => {
       let docsFilePath = path.resolve(
         kitDocsPath,
