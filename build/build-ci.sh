@@ -23,3 +23,6 @@ npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-declaration.json --outDir $KIT
 npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
 node ./scripts/cjs-fix.js
+
+./script ./help/download-docs.js
+./script ./hot/download-hot.js

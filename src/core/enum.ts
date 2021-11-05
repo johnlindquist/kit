@@ -87,7 +87,6 @@ export enum Channel {
 export enum ProcessType {
   App = "App",
   Background = "Background",
-  KIT_PROCESS = "KIT_PROCESS",
   Prompt = "Prompt",
   Schedule = "Schedule",
   System = "System",

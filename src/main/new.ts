@@ -28,7 +28,7 @@ let cliScript = await arg<keyof CLI>(
     placeholder: "Create a new script",
     strict: false,
   },
-  addPreview(newOptions, "new")
+  await addPreview(newOptions, "new")
 )
 
 if (newOptions.find(script => script.value === cliScript)) {

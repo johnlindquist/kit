@@ -1,14 +1,10 @@
-import { Choice } from "../types/core"
-
 let url = await arg(
   "Open discussion in browser",
   async () => {
     try {
-      let response = await get(
-        "https://scriptkit.com/data/showandtell.json"
-      )
+      let hot = await readJson(kitPath("data", "hot.json"))
 
-      return (response?.data as any[])?.map(choice => {
+      return hot.map(choice => {
         choice.preview = async () => {
           if (choice?.body) {
             return await highlight(choice?.body, "p-5")
