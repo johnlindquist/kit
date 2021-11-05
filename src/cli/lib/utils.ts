@@ -58,33 +58,29 @@ export let createBinFromScript = async (
   global.chmod(755, binFilePath)
 }
 
-export let addPreview = (
+export let addPreview = async (
   choices: Choice[],
-  docsDir: string,
+  dir: string,
   containerClasses = "p-5 leading-loose prose dark:prose-dark"
 ) => {
+  let docs = await readJson(kitPath("data", "docs.json"))
+
   return choices.map(c => {
     if (c?.preview) return c
-    c.preview = async () => {
-      let docsFilePath = path.resolve(
-        kitDocsPath,
-        "docs",
-        docsDir,
-        c.value + ".md"
-      )
-      let exists = await pathExists(docsFilePath)
-      if (exists) {
-        let helpFileContents = await readFile(
-          docsFilePath,
-          "utf-8"
-        )
+    let doc = docs?.find(d => {
+      let token = `<meta path=\"${dir}/${c.value}\">`
+
+      return d?.content?.includes(token)
+    })
+    if (doc?.content) {
+      c.preview = async () => {
         return await highlight(
-          helpFileContents,
+          doc.content,
           containerClasses
         )
       }
-      return ""
     }
+
     return c
   })
 }

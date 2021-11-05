@@ -14,6 +14,7 @@ import {
   take,
   takeUntil,
   tap,
+  debounceTime,
 } from "@johnlindquist/kit-internal/rxjs"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
@@ -128,10 +129,7 @@ let waitForPromptValue = ({
         process.off("message", m)
         process.off("error", e)
       }
-    }).pipe(
-      share(),
-      switchMap(data => of(data))
-    )
+    }).pipe(share())
 
     let tab$ = process$.pipe(
       filter(data => data.channel === Channel.TAB_CHANGED),
@@ -228,31 +226,40 @@ let waitForPromptValue = ({
     let choice$ = message$.pipe(
       filter(
         data => data.channel === Channel.CHOICE_FOCUSED
-      ),
-      switchMap(data => of(data))
+      )
     )
 
     choice$
-      .pipe(takeUntil(value$))
-      .subscribe(async data => {
-        // console.log(`...${data?.index}`)
-        let choice = (global.kitPrevChoices || []).find(
-          (c: Choice) => c.id === data?.id
-        )
+      .pipe(
+        takeUntil(value$),
+        switchMap(data => {
+          let choice = (global.kitPrevChoices || []).find(
+            (c: Choice) => c.id === data?.id
+          )
 
-        if (
-          choice &&
-          choice?.preview &&
-          typeof choice?.preview === "function" &&
-          choice?.preview[Symbol.toStringTag] ===
-            "AsyncFunction"
-        ) {
-          ;(choice as any).index = data?.index
-          ;(choice as any).input = data?.input
-          let result = await choice?.preview(choice)
+          if (
+            choice &&
+            choice?.preview &&
+            typeof choice?.preview === "function" &&
+            choice?.preview[Symbol.toStringTag] ===
+              "AsyncFunction"
+          ) {
+            ;(choice as any).index = data?.index
+            ;(choice as any).input = data?.input
 
-          global.setPreview(result)
-        }
+            try {
+              return choice?.preview(choice)
+            } catch {
+              return `Failed to render preview`
+            }
+          }
+
+          return ``
+        })
+      )
+
+      .subscribe(async (data: string) => {
+        global.setPreview(data)
       })
 
     initialChoices$.pipe(takeUntil(value$)).subscribe()

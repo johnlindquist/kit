@@ -31,4 +31,7 @@ cd $KIT
 echo $KIT
 npm i --production
 
+./script ./help/download-docs.js
+./script ./hot/download-hot.js
+
 echo "*" >>"$KIT/.kitignore"

@@ -64,15 +64,19 @@ let kitHelpChoices: Choice[] = [
     value: "coming-soon",
   },
   {
-    name: "Pull latest docs",
+    name: "Download Latest Docs",
     description: `Pull latest docs from github.com/johnlindquist/kit-docs`,
-    value: "pull-docs",
+    value: "download-docs",
   },
 ]
 
 let selectedHelp = await arg(
   `Got questions?`,
-  addPreview(kitHelpChoices, "help", "p-5 prose dark:prose-dark")
+  await addPreview(
+    kitHelpChoices,
+    "help",
+    "p-5 prose dark:prose-dark"
+  )
 )
 
 let maybeCli = kitPath(`help`, selectedHelp + ".js")
