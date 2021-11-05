@@ -33,10 +33,7 @@ let stripExtension = fileName =>
 
 await ensureTemplates()
 
-let ext = `.${process.env.KIT_MODE}`
-
-let envFile = await readFile(kenvPath(".env"), "utf-8")
-console.log({ envFile })
+let ext = `.${kitMode()}`
 
 let template =
   arg?.template ||
