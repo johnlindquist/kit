@@ -1,6 +1,13 @@
 import { Choice } from "../types/core"
 import { kitDocsPath, run } from "../core/utils.js"
-import { addPreview } from "../cli/lib/utils.js"
+import { addPreview, findDoc } from "../cli/lib/utils.js"
+
+setFlags({
+  discuss: {
+    name: "Discuss topic on Kit Dicussions",
+    description: "Open discussion in browser",
+  },
+})
 
 let kitHelpChoices: Choice[] = [
   {
@@ -80,7 +87,12 @@ let selectedHelp = await arg(
 )
 
 let maybeCli = kitPath(`help`, selectedHelp + ".js")
-if (await pathExists(maybeCli)) {
+if (flag?.discuss) {
+  let doc = await findDoc("help", selectedHelp)
+  if (doc?.discussion) {
+    await $`open ${doc?.discussion}`
+  }
+} else if (await pathExists(maybeCli)) {
   await run(maybeCli)
 } else {
   await edit(
