@@ -5,7 +5,14 @@ import { Choice } from "../types/core"
 import { CLI } from "../cli"
 
 import { kitMode, run } from "../core/utils.js"
-import { addPreview } from "../cli/lib/utils.js"
+import { addPreview, findDoc } from "../cli/lib/utils.js"
+
+setFlags({
+  discuss: {
+    name: "Discuss topic on Kit Dicussions",
+    description: "Open discussion in browser",
+  },
+})
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
@@ -128,6 +135,13 @@ let cliScript = await arg(
   await addPreview(kitManagementChoices, "kit", "p-5")
 )
 
-await run(kitPath("cli", cliScript) + ".js")
+if (flag?.discuss) {
+  let doc = await findDoc("kit", cliScript)
+  if (doc?.discussion) {
+    await $`open ${doc.discussion}`
+  }
+} else {
+  await run(kitPath("cli", cliScript) + ".js")
+}
 
 export {}
