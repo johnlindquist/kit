@@ -77,14 +77,21 @@ export let addPreview = async (
   containerClasses = "p-5 leading-loose prose dark:prose-dark"
 ) => {
   let docs = await readJson(kitPath("data", "docs.json"))
+  let dirDocs = docs.filter(d => {
+    let token = `<meta path=\"${dir}`
+    return d?.content?.includes(token)
+  })
 
-  return choices.map(c => {
+  let enhancedChoices = choices.map(c => {
     if (c?.preview) return c
-    let doc = docs?.find(d => {
+    let docIndex = dirDocs?.findIndex(d => {
       let token = `<meta path=\"${dir}/${c.value}\">`
 
       return d?.content?.includes(token)
     })
+    let doc = dirDocs[docIndex]
+    dirDocs.splice(docIndex, 1)
+
     if (doc?.content) {
       c.preview = async () => {
         return await highlight(
@@ -96,4 +103,17 @@ export let addPreview = async (
 
     return c
   })
+
+  let remaningDocs = dirDocs.map(d => {
+    return {
+      name: d?.title,
+      description: "Discuss topic",
+      value: d?.discussion,
+      preview: async () => {
+        return await highlight(d?.content, containerClasses)
+      },
+    }
+  })
+
+  return [...enhancedChoices, ...remaningDocs]
 }

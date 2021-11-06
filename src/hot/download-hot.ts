@@ -1,5 +1,4 @@
 // Description: Download latest hot
-// Schedule: * * * * *
 
 try {
   await download(
