@@ -1,10 +1,13 @@
 // Description: Download latest docs
 
-await download(
-  `https://www.scriptkit.com/data/docs.json`,
-  kitPath("data")
-)
+try {
+  await download(
+    `https://www.scriptkit.com/data/docs.json`,
+    kitPath("data")
+  )
 
-console.log(`📝 Docs updated`)
-
+  console.log(`📝 Docs updated`)
+} catch {
+  console.warn(`Docs failed to download`)
+}
 export {}
