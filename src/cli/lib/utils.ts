@@ -58,10 +58,12 @@ export let createBinFromScript = async (
   global.chmod(755, binFilePath)
 }
 
-export let findDoc = async (dir, path) => {
+export let findDoc = async (dir, path: any) => {
   let docs = await readJson(kitPath("data", "docs.json"))
   let doc = docs?.find(d => {
-    let token = `<meta path=\"${dir}/${path}\">`
+    let token = `<meta path=\"${dir}/${
+      path?.value || path
+    }\">`
 
     return d?.content?.includes(token)
   })
