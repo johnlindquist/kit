@@ -87,22 +87,18 @@ let selectedHelp = await arg(
 )
 
 let maybeCli = kitPath(`help`, selectedHelp + ".js")
+console.log({ flag, maybeCli })
 if (flag?.discuss) {
   let doc = await findDoc("help", selectedHelp)
+  console.log({ doc, selectedHelp })
   if (doc?.discussion) {
     await $`open ${doc?.discussion}`
   }
 } else if (await pathExists(maybeCli)) {
   await run(maybeCli)
 } else {
-  await edit(
-    path.resolve(
-      kitDocsPath,
-      "docs",
-      "help",
-      `${selectedHelp}.md`
-    )
-  )
+  let doc = await findDoc("help", selectedHelp)
+  await $`open ${doc?.discussion}`
 }
 
 export {}

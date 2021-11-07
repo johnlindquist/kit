@@ -58,14 +58,10 @@ export let createBinFromScript = async (
   global.chmod(755, binFilePath)
 }
 
-export let findDoc = async (dir, path: any) => {
+export let findDoc = async (dir, file: any) => {
   let docs = await readJson(kitPath("data", "docs.json"))
   let doc = docs?.find(d => {
-    let token = `<meta path=\"${dir}/${
-      path?.value || path
-    }\">`
-
-    return d?.content?.includes(token)
+    return d.dir === dir && (file?.value || file) === d.file
   })
 
   return doc
@@ -78,16 +74,13 @@ export let addPreview = async (
 ) => {
   let docs = await readJson(kitPath("data", "docs.json"))
   let dirDocs = docs.filter(d => {
-    let token = `<meta path=\"${dir}`
-    return d?.content?.includes(token)
+    return d?.dir === dir
   })
 
   let enhancedChoices = choices.map(c => {
     if (c?.preview) return c
     let docIndex = dirDocs?.findIndex(d => {
-      let token = `<meta path=\"${dir}/${c.value}\">`
-
-      return d?.content?.includes(token)
+      return d?.file === c?.value
     })
     let doc = dirDocs[docIndex]
     dirDocs.splice(docIndex, 1)
@@ -106,9 +99,10 @@ export let addPreview = async (
 
   let remaningDocs = dirDocs.map(d => {
     return {
+      ...d,
       name: d?.title,
       description: "Discuss topic",
-      value: d?.discussion,
+      value: d?.file,
       preview: async () => {
         return await highlight(d?.content, containerClasses)
       },
