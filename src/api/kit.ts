@@ -243,6 +243,10 @@ global.show = (html, options) => {
   global.send(Channel.SHOW, { options, html })
 }
 
+global.devTools = data => {
+  global.send(Channel.DEV_TOOLS, { data })
+}
+
 global.showImage = (image, options) => {
   global.send(Channel.SHOW_IMAGE, {
     options,
