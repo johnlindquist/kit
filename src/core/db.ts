@@ -197,18 +197,19 @@ type AppDb = {
   openAtLogin: boolean
   previewScripts: boolean
   autoUpdate: boolean
+  tray: boolean
+}
+
+export const appDefaults = {
+  needsRestart: false,
+  version: "0.0.0",
+  autoUpdate: true,
+  tray: true,
 }
 
 export let getAppDb = async (): Promise<
   Low<any> & AppDb
 > => {
-  const appDefaults = {
-    needsRestart: false,
-    version: "0.0.0",
-    autoUpdate: true,
-    tray: true,
-  }
-
   return await db(appDbPath, appDefaults)
 }
 
