@@ -209,11 +209,7 @@ export let getAppDb = async (): Promise<
     tray: true,
   }
 
-  if (await isDir(kitPath())) {
-    return await db(appDbPath, appDefaults)
-  }
-
-  throw new Error(`${kitPath()} not found 🤕`)
+  return await db(appDbPath, appDefaults)
 }
 
 type ShortcutsDb = {
