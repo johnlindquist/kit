@@ -67,8 +67,11 @@ let templateContent = await readFile(templatePath, "utf8")
 let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
 
-if (arg?.snippet) {
-  contents = arg.snippet
+if (arg?.content) {
+  contents = Buffer.from(
+    arg.content,
+    "base64url"
+  ).toString()
 }
 
 mkdir("-p", path.dirname(scriptPath))
