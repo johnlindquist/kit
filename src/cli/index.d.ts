@@ -103,6 +103,9 @@ export interface CLI {
     typeof import("./sync-path-instructions")
   >
   ["toggle-tray"]: Promise<typeof import("./toggle-tray")>
+  ["toggle-auto-update"]: Promise<
+    typeof import("./toggle-auto-update")
+  >
 }
 
 interface CliModuleLoader {

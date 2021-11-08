@@ -11,6 +11,7 @@ import {
   extensionRegex,
   resolveScriptToCommand,
   parseScripts,
+  isFile,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
 import {
@@ -195,15 +196,20 @@ type AppDb = {
   version: string
   openAtLogin: boolean
   previewScripts: boolean
+  autoUpdate: boolean
 }
 
 export let getAppDb = async (): Promise<
   Low<any> & AppDb
 > => {
-  return await db(appDbPath, {
+  const appDefaults = {
     needsRestart: false,
     version: "0.0.0",
-  })
+    autoUpdate: true,
+    tray: true,
+  }
+
+  return await db(appDbPath, appDefaults)
 }
 
 type ShortcutsDb = {

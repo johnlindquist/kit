@@ -4,6 +4,7 @@
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 
+import { getAppDb } from "../core/db.js"
 import { kitMode, run } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
@@ -13,6 +14,8 @@ setFlags({
     description: "Open discussion in browser",
   },
 })
+
+const appDb = await getAppDb()
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
@@ -111,6 +114,13 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     name: "Update Kit.app",
     description: `Version: ${env.KIT_APP_VERSION}`,
     value: "update",
+  },
+  {
+    name: `${
+      appDb?.autoUpdate ? `Disable` : `Enable`
+    } Auto Update`,
+    description: `Version: ${env.KIT_APP_VERSION}`,
+    value: "toggle-auto-update",
   },
   {
     name: "Open kit.log",
