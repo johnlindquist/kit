@@ -72,7 +72,7 @@ let kitHelpChoices: Choice[] = [
   },
   {
     name: "Download Latest Docs",
-    description: `Pull latest docs from github.com/johnlindquist/kit-docs`,
+    description: `Pull latest docs.json from scriptkit.com`,
     value: "download-docs",
   },
 ]
