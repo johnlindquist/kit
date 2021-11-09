@@ -138,6 +138,12 @@ export interface GetActiveScreen {
 export interface ShowAppWindow {
   (content: string, options?: any): void
 }
+interface ClipboardItem {
+  value: string
+  type: string
+  timestamp: string
+  secret: boolean
+}
 
 export interface AppApi {
   textarea: TextArea
@@ -189,6 +195,9 @@ export interface AppApi {
   memoryMap: Map<string, any>
 
   hide: () => void
+
+  devTools: (object: any) => void
+  getClipboardHistory: () => Promise<ClipboardItem[]>
 }
 
 export interface Background {
@@ -230,4 +239,7 @@ declare global {
   var showImage: ShowAppWindow
 
   var hide: () => void
+
+  var devTools: (object: any) => void
+  var getClipboardHistory: () => Promise<ClipboardItem[]>
 }
