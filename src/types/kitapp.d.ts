@@ -139,10 +139,12 @@ export interface ShowAppWindow {
   (content: string, options?: any): void
 }
 interface ClipboardItem {
+  name: string
+  description: string
   value: string
   type: string
   timestamp: string
-  secret: boolean
+  maybeSecret: boolean
 }
 
 export interface AppApi {
