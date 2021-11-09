@@ -597,5 +597,9 @@ global.setBounds = (bounds: Partial<Rectangle>) => {
   })
 }
 
+global.getClipboardHistory = async () =>
+  (await global.getDataFromApp("CLIPBOARD_HISTORY"))
+    ?.history
+
 delete process.env?.["ELECTRON_RUN_AS_NODE"]
 delete global?.env?.["ELECTRON_RUN_AS_NODE"]
