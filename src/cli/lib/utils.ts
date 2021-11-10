@@ -111,3 +111,17 @@ export let addPreview = async (
 
   return [...enhancedChoices, ...remaningDocs]
 }
+
+export const prependImport = contents => {
+  let foundImport = contents.match(
+    /import.*('|")@johnlindquist\/kit('|")/
+  )
+
+  if (!foundImport) {
+    return `import "@johnlindquist/kit"
+    
+${contents}`
+  }
+
+  return contents
+}

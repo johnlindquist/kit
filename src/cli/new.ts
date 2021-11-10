@@ -4,7 +4,10 @@ import {
   kitMode,
   stripMetadata,
 } from "../core/utils.js"
-import { ensureTemplates } from "./lib/utils.js"
+import {
+  ensureTemplates,
+  prependImport,
+} from "./lib/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })
@@ -19,7 +22,7 @@ let name = await arg({
 })
 
 let { dirPath: selectedKenvPath } = await selectKenv(
-  /^kit-.*$/
+  /^examples$/
 )
 
 let scriptPath = path.join(
@@ -77,6 +80,8 @@ if (arg?.url) {
   contents = (await get<any>(arg?.url)).data
   if (!arg?.keepMetadata) contents = stripMetadata(contents)
 }
+
+contents = prependImport(contents)
 
 mkdir("-p", path.dirname(scriptPath))
 await writeFile(scriptPath, contents)
