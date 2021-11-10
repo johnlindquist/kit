@@ -581,3 +581,11 @@ global.highlight = async (
 
   return result
 }
+
+global.setTab = (tabName: string) => {
+  let i = global.onTabs.findIndex(
+    ({ name }) => name === tabName
+  )
+  global.send(Channel.SET_TAB_INDEX, { tabIndex: i })
+  global.onTabs[i].fn()
+}
