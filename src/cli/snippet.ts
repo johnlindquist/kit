@@ -2,6 +2,7 @@
 import { exists, kitMode } from "../core/utils.js"
 import { ensureTemplates } from "./lib/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
+import { stripMetadata } from "../core/utils.js"
 
 let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
@@ -14,7 +15,9 @@ let name = await arg({
   hint: `examples: ${examples}`,
 })
 
-let { dirPath: selectedKenvPath } = await selectKenv()
+let { dirPath: selectedKenvPath } = await selectKenv(
+  /^kit-.*$/
+)
 
 let scriptPath = path.join(
   selectedKenvPath,
@@ -72,6 +75,7 @@ if (arg?.content) {
     arg.content,
     "base64url"
   ).toString()
+  if (!arg?.keepMetadata) contents = stripMetadata(contents)
 }
 
 mkdir("-p", path.dirname(scriptPath))

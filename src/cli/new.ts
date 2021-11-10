@@ -1,5 +1,9 @@
 // Description: Create a new script
-import { exists, kitMode } from "../core/utils.js"
+import {
+  exists,
+  kitMode,
+  stripMetadata,
+} from "../core/utils.js"
 import { ensureTemplates } from "./lib/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
@@ -14,7 +18,9 @@ let name = await arg({
   hint: `examples: ${examples}`,
 })
 
-let { dirPath: selectedKenvPath } = await selectKenv()
+let { dirPath: selectedKenvPath } = await selectKenv(
+  /^kit-.*$/
+)
 
 let scriptPath = path.join(
   selectedKenvPath,
@@ -69,6 +75,7 @@ contents += templateCompiler({ name, ...env })
 
 if (arg?.url) {
   contents = (await get<any>(arg?.url)).data
+  if (!arg?.keepMetadata) contents = stripMetadata(contents)
 }
 
 mkdir("-p", path.dirname(scriptPath))
