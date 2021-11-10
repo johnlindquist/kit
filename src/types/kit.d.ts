@@ -104,7 +104,7 @@ export interface Kenv {
   dirPath: string
 }
 export interface SelectKenv {
-  (): Promise<Kenv>
+  (ignorePattern?: RegExp): Promise<Kenv>
 }
 
 export interface Highlight {

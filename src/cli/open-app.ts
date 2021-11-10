@@ -1,4 +1,4 @@
-await wait(5000)
+await wait(10000)
 
 await $`open /Applications/Kit.app`
 

@@ -484,7 +484,9 @@ export let toggleBackground = async (script: Script) => {
   }
 }
 
-export let getKenvs = async (): Promise<string[]> => {
+export let getKenvs = async (
+  ignorePattern = /^ignore$/
+): Promise<string[]> => {
   let kenvs: string[] = []
   if (!(await isDir(kenvPath("kenvs")))) return kenvs
 
@@ -493,6 +495,7 @@ export let getKenvs = async (): Promise<string[]> => {
   })
 
   return dirs
+    .filter(d => !Boolean(d?.name?.match(ignorePattern)))
     .filter(d => d.isDirectory())
     .map(d => kenvPath("kenvs", d.name))
 }

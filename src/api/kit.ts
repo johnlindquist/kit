@@ -490,7 +490,9 @@ export let selectScript = async (
 
 global.selectScript = selectScript
 
-export let selectKenv = async () => {
+export let selectKenv = async (
+  ignorePattern = /^ignore$/
+) => {
   let homeKenv = {
     name: "home",
     description: `Your main kenv: ${kenvPath()}`,
@@ -501,7 +503,7 @@ export let selectKenv = async () => {
   }
   let selectedKenv: Kenv | string = homeKenv.value
 
-  let kenvs = await getKenvs()
+  let kenvs = await getKenvs(ignorePattern)
   if (kenvs.length) {
     let kenvChoices = [
       homeKenv,
