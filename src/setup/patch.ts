@@ -45,7 +45,7 @@ try {
 
   let appDb = await getAppDb()
   for (let [k, v] of Object.entries(appDefaults)) {
-    appDb[k] = v
+    if (appDb?.[k] === undefined) appDb[k] = v
   }
   await appDb.write()
 } catch (error) {
