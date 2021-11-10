@@ -114,7 +114,7 @@ export let addPreview = async (
 
 export const prependImport = contents => {
   let foundImport = contents.match(
-    /import\s+('|")@johnlindquist\/kit('|")/
+    /import.*('|")@johnlindquist\/kit('|")/
   )
 
   if (!foundImport) {
