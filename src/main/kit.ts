@@ -40,8 +40,8 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "open-at-login",
   },
   {
-    name: "Toggle Tray Icon",
-    description: "Show/hide the tray icon",
+    name: "Toggle Menu Bar Icon",
+    description: "Show/hide the menu bar icon",
     value: "toggle-tray",
   },
 
