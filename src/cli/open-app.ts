@@ -1,5 +1,8 @@
-await wait(10000)
+await wait(5000)
 
-await $`open /Applications/Kit.app`
+let { stdout } = await $`ps aux | [K]it.app`
+if (stdout.trim() === "") {
+  await $`open /Applications/Kit.app`
+}
 
 export {}
