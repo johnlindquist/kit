@@ -1,6 +1,7 @@
 // Description: Creates a script from an entered url
 
 import { exists, stripMetadata } from "../core/utils.js"
+import { prependImport } from "./lib/utils.js"
 
 let url = await arg("Enter script url:")
 
@@ -22,6 +23,7 @@ let scriptPath = path.join(
   name + ".js"
 )
 
+contents = prependImport(contents)
 await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)

@@ -9,7 +9,11 @@ import {
   PromptConfig,
   PromptData,
 } from "./core"
-import { Display, Rectangle } from "./electron"
+import {
+  BrowserWindowConstructorOptions,
+  Display,
+  Rectangle,
+} from "./electron"
 
 export interface MessageData extends PromptData {
   channel: Channel
@@ -136,7 +140,10 @@ export interface GetActiveScreen {
 }
 
 export interface ShowAppWindow {
-  (content: string, options?: any): void
+  (
+    content: string,
+    options?: BrowserWindowConstructorOptions
+  ): void
 }
 interface ClipboardItem {
   name: string
