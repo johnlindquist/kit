@@ -19,7 +19,7 @@ let name = await arg({
 })
 
 let { dirPath: selectedKenvPath } = await selectKenv(
-  /^kit-.*$/
+  /^examples$/
 )
 
 let scriptPath = path.join(
