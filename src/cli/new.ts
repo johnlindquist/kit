@@ -78,7 +78,12 @@ contents += templateCompiler({ name, ...env })
 
 if (arg?.url) {
   contents = (await get<any>(arg?.url)).data
-  if (!arg?.keepMetadata) contents = stripMetadata(contents)
+  if (!arg?.keepMetadata)
+    contents = stripMetadata(contents, [
+      "Menu",
+      "Author",
+      "Twitter",
+    ])
 }
 
 contents = prependImport(contents)

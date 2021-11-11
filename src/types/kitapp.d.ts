@@ -139,11 +139,12 @@ export interface GetActiveScreen {
   (): Promise<Display>
 }
 
+type ShowOptions = BrowserWindowConstructorOptions & {
+  ttl?: number
+}
+
 export interface ShowAppWindow {
-  (
-    content: string,
-    options?: BrowserWindowConstructorOptions
-  ): void
+  (content: string, options?: ShowOptions): void
 }
 interface ClipboardItem {
   name: string
