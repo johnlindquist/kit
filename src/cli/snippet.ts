@@ -77,10 +77,11 @@ if (arg?.content) {
   contents = Buffer.from(
     arg.content,
     "base64url"
-  ).toString()
+  ).toString()  
   if (!arg?.keepMetadata) contents = stripMetadata(contents)
 }
 
+contents = contents.trim()
 contents = prependImport(contents)
 
 mkdir("-p", path.dirname(scriptPath))
