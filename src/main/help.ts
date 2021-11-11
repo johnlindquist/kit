@@ -87,7 +87,6 @@ let selectedHelp = await arg(
 )
 
 let maybeCli = kitPath(`help`, selectedHelp + ".js")
-console.log({ flag, maybeCli })
 if (flag?.discuss) {
   let doc = await findDoc("help", selectedHelp)
   console.log({ doc, selectedHelp })

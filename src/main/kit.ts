@@ -142,7 +142,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
 
 let cliScript = await arg(
   `Kit Options`,
-  await addPreview(kitManagementChoices, "kit", "p-5")
+  await addPreview(
+    kitManagementChoices,
+    "kit",
+    "p-5 prose dark:prose-dark"
+  )
 )
 
 if (flag?.discuss) {
