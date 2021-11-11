@@ -70,7 +70,7 @@ export let findDoc = async (dir, file: any) => {
 export let addPreview = async (
   choices: Choice[],
   dir: string,
-  containerClasses = "p-5 leading-loose prose dark:prose-dark"
+  containerClasses = "p-5 prose dark:prose-dark"
 ) => {
   let docs = await readJson(kitPath("data", "docs.json"))
   let dirDocs = docs.filter(d => {
