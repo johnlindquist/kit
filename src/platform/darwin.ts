@@ -120,6 +120,35 @@ global.selectKitEditor = async (reset = false) => {
     reset,
     placeholder: "Which code editor do you use?",
     hint: `You can always change this later in .env`,
+    preview: md(`
+    
+## Don't see your editor?
+
+Set up your editor's command-line tools:
+
+- [Visual Studio Code](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line)
+- [WebStorm](https://www.jetbrains.com/help/webstorm/working-with-the-ide-features-from-command-line.html)
+- [Sublime](https://www.sublimetext.com/docs/command_line.html)
+- [Atom](https://flight-manual.atom.io/getting-started/sections/installing-atom/#installing-atom-on-mac)
+
+## Customized your editor command?
+
+If you edited your ~/.zshrc (or similar) for a custom command then sync your PATH to Script Kit's .env:
+
+Run the following in your terminal:
+~~~bash
+~/.kit/bin/kit sync-path
+~~~
+
+## Still not working?
+
+Kit.app reads the \`KIT_EDITOR\` value from your \`~/.kenv/.env\`. It can either be a command on the PATH
+or an absolute path to your editor. This prompt is attempting to set that value for you, but you can also do it manually.
+
+If you need additional help, we're happy to answer questions:
+
+- [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a)
+    `),
     choices: () => [
       ...possibleEditors(),
       {
