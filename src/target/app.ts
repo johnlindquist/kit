@@ -501,7 +501,7 @@ let appInstall = async packageName => {
     } downloads from npm in the past week`
 
     let trust = await global.arg(
-      { placeholder, hint: md(hint) },
+      { placeholder, hint: md(hint), ignoreBlur: true },
       [
         {
           name: `Abort`,
@@ -521,6 +521,7 @@ let appInstall = async packageName => {
   }
 
   setHint(`Installing ${packageName}...`)
+  setIgnoreBlur(true)
 
   await global.cli("install", packageName)
 }

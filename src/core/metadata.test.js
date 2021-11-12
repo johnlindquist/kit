@@ -77,6 +77,31 @@ ${code}
   )
 })
 
+ava(`Strip metadata variations`, t => {
+  let code = `console.log("hello")`
+  let file = `
+//Menu: This is a Menu
+//  Shortcode:a,b,c
+// Alias: al
+//   Other:  hi
+
+${code}
+`
+  let strippedFile = stripMetadata(file)
+
+  t.is(
+    strippedFile,
+    `
+//Menu:
+//  Shortcode:
+// Alias:
+//   Other:
+
+${code}
+`
+  )
+})
+
 ava(`Strip metadata exclude`, t => {
   let code = `console.log("hello")`
   let file = `
@@ -100,4 +125,15 @@ ${code}
 ${code}
 `
   )
+})
+
+ava(`Don't strip after comments`, t => {
+  let file = `
+// How many entries should the chart show
+const child = exec(command, { async: true });  
+  `
+
+  let strippedFile = stripMetadata(file, ["Menu", "Alias"])
+
+  t.is(strippedFile, file)
 })
