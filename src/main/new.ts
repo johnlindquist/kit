@@ -30,12 +30,16 @@ let newOptions: Choice<keyof CLI>[] = [
     value: "browse-examples",
   },
 ]
+let previewChoices: Choice[] = await addPreview(
+  newOptions,
+  "new"
+)
 let cliScript = await arg<keyof CLI>(
   {
     placeholder: "Create a new script",
     strict: false,
   },
-  await addPreview(newOptions, "new")
+  previewChoices
 )
 
 if (flag?.discuss) {

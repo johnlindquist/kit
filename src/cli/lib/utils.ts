@@ -67,60 +67,94 @@ export let findDoc = async (dir, file: any) => {
   return doc
 }
 
+interface Doc {
+  avatar?: string
+  twitter?: string
+  author?: string
+  discussion: string
+  url: string
+  title: string
+  command: string
+  content: string
+  extension: string
+  dir: string
+  file: string
+}
+
 export let addPreview = async (
   choices: Choice[],
   dir: string,
   containerClasses = "p-5 prose dark:prose-dark"
 ) => {
-  let docs = await readJson(kitPath("data", "docs.json"))
+  let docs: Doc[] = await readJson(
+    kitPath("data", "docs.json")
+  )
   let dirDocs = docs.filter(d => {
     return d?.dir === dir
   })
 
-  let matchChoiceToDoc = choices.map((choice, i) => {
-    if (choice?.preview) {
-      return {
-        choiceIndex: i,
-        docIndex: -1,
+  // let matchChoiceToDoc = choices.map((choice, i) => {
+  //   if (choice?.preview) {
+  //     return {
+  //       choiceIndex: i,
+  //       docIndex: -1,
+  //       value: choice.value,
+  //     }
+  //   }
+
+  //   let docIndex = dirDocs?.findIndex(d => {
+  //     return d?.file == choice?.value
+  //   })
+
+  //   return {
+  //     choiceIndex: i,
+  //     docIndex,
+  //     value: choice.value,
+  //   }
+  // })
+
+  let enhancedChoices = choices.map(c => {
+    if (c?.preview) return c
+
+    let docIndex = dirDocs?.findIndex(d => {
+      return d?.file == c?.value
+    })
+
+    let doc = dirDocs[docIndex]
+
+    if (doc?.content) {
+      c.preview = async () => {
+        return await highlight(
+          doc.content,
+          containerClasses
+        )
       }
     }
 
-    let docIndex = dirDocs?.findIndex(d => {
-      return d?.file == choice?.value
-    })
+    return c
+  })
 
+  let filteredDocs = dirDocs.filter(dirDoc => {
+    return !choices.find(m => {
+      // console.log({ file: dirDoc.file, value: m.value })
+      return dirDoc.file === m.value
+    })
+  })
+  // console.log(filteredDocs.map(f => f.title))
+  let docOnlyChoices = filteredDocs.map(doc => {
     return {
-      choiceIndex: i,
-      docIndex,
+      name: doc.title,
+      value: doc.file,
+      preview: async () => {
+        return await highlight(
+          doc.content,
+          containerClasses
+        )
+      },
     }
   })
 
-  let enhancedChoices = matchChoiceToDoc
-    .filter(x => x.docIndex !== -1)
-    .map(({ choiceIndex }) => {
-      let c = choices[choiceIndex]
-
-      if (c?.preview) return c
-
-      let docIndex = dirDocs?.findIndex(d => {
-        return d?.file == c?.value
-      })
-
-      let doc = dirDocs[docIndex]
-
-      if (doc?.content) {
-        c.preview = async () => {
-          return await highlight(
-            doc.content,
-            containerClasses
-          )
-        }
-      }
-
-      return c
-    })
-
-  return enhancedChoices
+  return [...enhancedChoices, ...docOnlyChoices]
 }
 
 export const prependImport = contents => {
