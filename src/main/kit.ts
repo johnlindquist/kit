@@ -88,12 +88,6 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: `add or remove npm package`,
     value: "manage-npm",
   },
-  {
-    name: "Prepare Script for Stream Deck",
-    description:
-      "Launch a script from a Stream Deck button",
-    value: "stream-deck",
-  },
   kitMode() === "ts"
     ? {
         name: "Switch to JavaScript Mode",

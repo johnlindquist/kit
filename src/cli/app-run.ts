@@ -71,6 +71,9 @@ setFlags({
     name: "Refresh scripts db",
     shortcut: "cmd+shift+r",
   },
+  ["stream-deck"]: {
+    name: "Prepare script for Stream Deck",
+  },
   [modifiers.cmd]: {
     name: "Run script w/ cmd flag",
     shortcut: "cmd+enter",

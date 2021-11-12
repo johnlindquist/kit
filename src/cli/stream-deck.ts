@@ -36,7 +36,8 @@ let resolvedPath = path.resolve(binPath)
 copy(resolvedPath)
 
 let info = `
-<div class="text-xs p-4">
+
+<div class="text-xs pb-5">
 "${resolvedPath}" copied to clipboard
 </div>
 
@@ -51,7 +52,7 @@ let info = `
 )})
 `
 
-await div(md(info), `p-4`)
+await div(await highlight(info))
 
 exec(`open -a "Stream Deck.app"`)
 
