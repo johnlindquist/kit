@@ -412,6 +412,8 @@ export const getLogFromScriptPath = (filePath: string) => {
     .replace(/\.js$/, ".log")
 }
 
+//new RegExp(`(^//([^(:|\W)]+
+
 export let stripMetadata = (
   fileContents: string,
   exclude: string[] = []
@@ -421,7 +423,7 @@ export let stripMetadata = (
     : ``
 
   return fileContents.replace(
-    new RegExp(`(^//([^:]*)${negBehind}:).*`, "gim"),
+    new RegExp(`(^//[^(:|\W)]+${negBehind}:).+`, "gim"),
     "$1"
   )
 }
