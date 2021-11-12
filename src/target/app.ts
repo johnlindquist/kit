@@ -294,6 +294,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     flags = undefined,
     selected = "",
     type = "text",
+    preview = "",
   } = config
   if (flags) {
     setFlags(flags)
@@ -324,11 +325,19 @@ global.kitPrompt = async (config: PromptConfig) => {
     selected,
     type,
     ignoreBlur,
+    hasPreview: Boolean(preview),
   })
 
   global.setHint(hint)
   if (input) global.setInput(input)
   if (ignoreBlur) global.setIgnoreBlur(true)
+
+  if (preview) {
+    if (typeof preview === "function") {
+      preview = await preview()
+    }
+    global.setPreview(preview)
+  }
 
   return await waitForPromptValue({
     choices,

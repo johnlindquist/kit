@@ -15,7 +15,7 @@ export interface Choice<Value = any> {
     | string
     | ((
         choice: Choice & { input: string; index: number }
-      ) => Promise<string>)
+      ) => string | Promise<string>)
   previewLang?: string
   id?: string
   shortcode?: string[]
@@ -128,6 +128,7 @@ export interface PromptData {
   input?: string
   selected?: string
   type?: InputType
+  hasPreview?: boolean
 }
 
 export interface GenerateChoices {
@@ -167,6 +168,7 @@ export interface PromptConfig
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   flags?: FlagsOptions
+  preview?: string | (() => string | Promise<string>)
 }
 
 export interface Metadata {
