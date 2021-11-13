@@ -20,6 +20,7 @@ import {
   getAppDb,
 } from "../core/db.js"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+
 import { Kenv } from "../types/kit"
 
 export let errorPrompt = async (error: Error) => {
@@ -382,6 +383,9 @@ global.setChoices = async (choices, className = "") => {
 
         if (!choice?.id) {
           choice.id = global.uuid()
+        }
+        if (typeof choice?.name === "undefined") {
+          choice.name = ""
         }
         if (typeof choice.value === "undefined") {
           return {
