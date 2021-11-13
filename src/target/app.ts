@@ -284,7 +284,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     placeholder = "",
     validate = null,
     strict = Boolean(config?.choices),
-    choices: choices = [],
+    choices = [],
     secret = false,
     hint = "",
     input = "",
@@ -364,10 +364,15 @@ global.form = async (html = "", formData = {}) => {
   })
 }
 
+let maybeWrapHtml = (html, containerClasses) => {
+  return html?.length === 0
+    ? ``
+    : `<div class="${containerClasses}">${html}</div>`
+}
+
 global.div = async (html = "", containerClasses = "") => {
-  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
   return await global.kitPrompt({
-    choices: wrapHtml,
+    choices: maybeWrapHtml(html, containerClasses),
     ui: UI.div,
   })
 }
@@ -529,18 +534,17 @@ let appInstall = async packageName => {
 let { createNpm } = await import("../api/npm.js")
 global.npm = createNpm(appInstall)
 
-global.setPanel = async (html, containerClasses = "") => {
-  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
+global.setPanel = async (h, containerClasses = "") => {
+  let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PANEL, {
-    html: wrapHtml,
+    html,
   })
 }
 
-global.setPreview = async (html, containerClasses = "") => {
-  let wrapHtml = `<div class="${containerClasses}">${html}</div>`
-  // global.setBounds({ width: 720, height: 480 })
+global.setPreview = async (h, containerClasses = "") => {
+  let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PREVIEW, {
-    html: wrapHtml,
+    html,
   })
 }
 
