@@ -84,8 +84,9 @@ interface Doc {
 export let addPreview = async (
   choices: Choice[],
   dir: string,
-  containerClasses = "p-5 prose dark:prose-dark"
+  onlyMatches = false
 ) => {
+  let containerClasses = "p-5 prose dark:prose-dark"
   let docs: Doc[] = await readJson(
     kitPath("data", "docs.json")
   )
@@ -141,18 +142,20 @@ export let addPreview = async (
     })
   })
   // console.log(filteredDocs.map(f => f.title))
-  let docOnlyChoices = filteredDocs.map(doc => {
-    return {
-      name: doc.title,
-      value: doc.file,
-      preview: async () => {
-        return await highlight(
-          doc.content,
-          containerClasses
-        )
-      },
-    }
-  })
+  let docOnlyChoices = onlyMatches
+    ? []
+    : filteredDocs.map(doc => {
+        return {
+          name: doc.title,
+          value: doc.file,
+          preview: async () => {
+            return await highlight(
+              doc.content,
+              containerClasses
+            )
+          },
+        }
+      })
 
   return [...enhancedChoices, ...docOnlyChoices]
 }
