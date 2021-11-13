@@ -136,7 +136,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
 
 let cliScript = await arg(
   `Kit Options`,
-  await addPreview(kitManagementChoices, "kit")
+  await addPreview(kitManagementChoices, "kit", true)
 )
 
 if (flag?.discuss) {
