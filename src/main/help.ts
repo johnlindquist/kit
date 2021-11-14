@@ -66,14 +66,16 @@ let kitHelpChoices: Choice[] = [
     value: "credit",
   },
   {
-    name: "Docs are a working progress...",
-    description: `Coming soon...`,
-    value: "coming-soon",
-  },
-  {
     name: "Download Latest Docs",
     description: `Pull latest docs.json from scriptkit.com`,
     value: "download-docs",
+    preview: async () => {
+      return md(`
+# Download Latest Docs
+
+Hit <kbd>Enter</kbd> to grab the latest docs.json from scriptkit.com. Docs will automatically refresh when you re-open the \`Docs\` tab.
+      `)
+    },
   },
 ]
 

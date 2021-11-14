@@ -410,6 +410,9 @@ global.setChoices = async (choices, className = "") => {
 global.flag = {}
 global.setFlags = (flags: FlagsOptions) => {
   let validFlags = {}
+  for (let key of Object.keys(global?.flag)) {
+    delete global?.flag?.[key]
+  }
   for (let [key, value] of Object.entries(flags)) {
     validFlags[key] = {
       name: value?.name || key,

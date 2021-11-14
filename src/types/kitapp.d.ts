@@ -208,6 +208,7 @@ export interface AppApi {
 
   devTools: (object: any) => void
   getClipboardHistory: () => Promise<ClipboardItem[]>
+  removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
 }
 
@@ -253,5 +254,6 @@ declare global {
 
   var devTools: (object: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
+  var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void
 }

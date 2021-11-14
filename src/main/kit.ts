@@ -120,6 +120,25 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     name: "Open kit.log",
     description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
     value: "kit-log",
+    preview: async () => {
+      let logFile = await readFile(
+        kitPath("logs", "kit.log"),
+        "utf-8"
+      )
+
+      return `
+      <div class="prose dark:prose-dark">      
+${md(`# Latest 100 Log Lines`)}
+<div class="text-xxs font-mono">      
+      ${logFile
+        .split("\n")
+        .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+        .slice(-100)
+        .join("<br>")}
+</div>
+</div>
+      `
+    },
   },
   {
     name: "Credits",
