@@ -40,7 +40,7 @@ onTab("Kit", async () => {
   await main("kit")
 })
 
-onTab("Help", async () => {
+onTab("Docs", async () => {
   await main("help")
 })
 

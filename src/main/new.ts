@@ -29,6 +29,19 @@ let newOptions: Choice<keyof CLI>[] = [
       "Visit scriptkit.com/scripts/ for a variety of examples",
     value: "browse-examples",
   },
+  {
+    name: "Create Scripts from Docs",
+    description:
+      "The Docs tab has many helpful snippets to choose from",
+    value: "docs",
+    preview: async () => {
+      return highlight(`
+# Snippets in Docs      
+
+Head on over to the \`Docs\` tab for many useful snippets to help you get started.
+      `)
+    },
+  },
 ]
 let previewChoices: Choice[] = await addPreview(
   newOptions,
@@ -42,7 +55,9 @@ let cliScript = await arg<keyof CLI>(
   previewChoices
 )
 
-if (flag?.discuss) {
+if (cliScript === "docs") {
+  await setTab("Docs")
+} else if (flag?.discuss) {
   let doc = await findDoc("new", cliScript)
   if (doc?.discussion) {
     await $`open ${doc.discussion}`

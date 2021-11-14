@@ -615,5 +615,8 @@ global.getClipboardHistory = async () =>
   (await global.getDataFromApp("CLIPBOARD_HISTORY"))
     ?.history
 
+global.removeClipboardItem = (id: string) => {
+  global.send(Channel.REMOVE_CLIPBOARD_HISTORY_ITEM, { id })
+}
 delete process.env?.["ELECTRON_RUN_AS_NODE"]
 delete global?.env?.["ELECTRON_RUN_AS_NODE"]
