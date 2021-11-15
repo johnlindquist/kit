@@ -79,6 +79,7 @@ interface Doc {
   extension: string
   dir: string
   file: string
+  description: string
 }
 
 export let addPreview = async (
@@ -144,18 +145,21 @@ export let addPreview = async (
   // console.log(filteredDocs.map(f => f.title))
   let docOnlyChoices = onlyMatches
     ? []
-    : filteredDocs.map(doc => {
-        return {
-          name: doc.title,
-          value: doc.file,
-          preview: async () => {
-            return await highlight(
-              doc.content,
-              containerClasses
-            )
-          },
-        }
-      })
+    : filteredDocs
+        .map(doc => {
+          return {
+            name: doc.title,
+            description: doc?.description || "",
+            value: doc.file,
+            preview: async () => {
+              return await highlight(
+                doc.content,
+                containerClasses
+              )
+            },
+          }
+        })
+        .sort((a, b) => (a.name > b.name ? 1 : -1))
 
   return [...enhancedChoices, ...docOnlyChoices]
 }

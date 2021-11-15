@@ -1,8 +1,9 @@
+import { ProcessOutput } from "@johnlindquist/globals"
+import { Display, Point } from "./electron"
+
 interface PlayAudioFile {
   (path: string, playInBackground?: boolean): void
 }
-
-import { Display, Point } from "./electron"
 
 interface CopyPathAsImage {
   (path: string): Promise<string>

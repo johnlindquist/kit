@@ -88,7 +88,7 @@ export interface Form {
   (html?: string, formData?: any): Promise<any>
 }
 export interface Div {
-  (html?: string, containerClass?: string): Promise<void>
+  (html?: string, containerClass?: string): Promise<any>
 }
 
 export interface KeyData {
@@ -210,6 +210,7 @@ export interface AppApi {
   getClipboardHistory: () => Promise<ClipboardItem[]>
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
+  submit: (value: any) => void
 }
 
 export interface Background {
@@ -256,4 +257,5 @@ declare global {
   var getClipboardHistory: () => Promise<ClipboardItem[]>
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void
+  var submit: (value: any) => void
 }

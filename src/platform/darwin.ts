@@ -12,15 +12,32 @@ global.applescript = async (
     )
   }
 
-  let command = `osascript -e '${formattedScript}'`
-  let { stdout, stderr } = exec(command, options)
+  let p = new Promise<string>((res, rej) => {
+    let stdout = ``
+    let stderr = ``
+    let child = spawn(
+      `osascript`,
+      [`-e`, `${formattedScript}`],
+      options
+    )
 
-  if (stderr) {
-    console.log(stderr)
-    throw new Error(stderr)
-  }
+    child.stdout.on("data", data => {
+      stdout += data.toString()
+    })
+    child.stderr.on("data", data => {
+      stderr += data.toString()
+    })
 
-  return stdout.trim()
+    child.on("exit", () => {
+      res(stdout)
+    })
+
+    child.on("error", () => {
+      rej(stderr)
+    })
+  })
+
+  return p
 }
 
 global.terminal = async script => {
