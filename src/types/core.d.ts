@@ -149,6 +149,7 @@ export type Panel =
   | string
   | (() => string)
   | (() => Promise<string>)
+  | ((input: string) => string)
   | ((input: string) => Promise<any>)
 
 export type FlagsOptions = {
