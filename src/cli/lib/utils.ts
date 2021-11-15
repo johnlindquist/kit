@@ -80,7 +80,7 @@ interface Doc {
   dir: string
   file: string
   description?: string
-  tag?: string
+  tag: string
 }
 
 export let addPreview = async (

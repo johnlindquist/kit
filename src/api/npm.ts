@@ -93,7 +93,7 @@ export let createNpm = npmInstall => async packageName => {
     )
   )
 
-  let isKenvDep = kenvDeps[packageName]
+  let isKenvDep = kenvDeps?.[packageName]
   if (isKenvDep) {
     return kenvImport(packageName)
   }

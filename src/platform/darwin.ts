@@ -110,6 +110,13 @@ let execConfig = () => {
 }
 
 global.selectKitEditor = async (reset = false) => {
+  let globalBins = []
+  let binPaths = KIT_DEFAULT_PATH.split(":")
+  for await (let binPath of binPaths) {
+    let bin = await readdir(binPath)
+    globalBins.push(...bin)
+  }
+
   let possibleEditors = () =>
     [
       "atom",
@@ -122,15 +129,7 @@ global.selectKitEditor = async (reset = false) => {
       "webstorm",
       "vim",
     ]
-      .filter(
-        editor =>
-          exec(`which ${editor}`, {
-            silent: true,
-            env: {
-              PATH: KIT_DEFAULT_PATH,
-            },
-          }).stdout
-      )
+      .filter(editor => globalBins.includes(editor))
       .map(name => ({ name, value: name }))
 
   return await global.env("KIT_EDITOR", {
