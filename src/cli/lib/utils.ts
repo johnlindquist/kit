@@ -79,7 +79,8 @@ interface Doc {
   extension: string
   dir: string
   file: string
-  description: string
+  description?: string
+  tag?: string
 }
 
 export let addPreview = async (
@@ -150,6 +151,7 @@ export let addPreview = async (
           return {
             name: doc.title,
             description: doc?.description || "",
+            tag: doc?.tag || "",
             value: doc.file,
             preview: async () => {
               return await highlight(
