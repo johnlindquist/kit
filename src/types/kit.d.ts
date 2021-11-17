@@ -74,7 +74,7 @@ export interface IsCheck {
 type DB = typeof import("../core/db").db
 
 export interface GetScripts {
-  (fromCache: boolean): Promise<Script[]>
+  (fromCache?: boolean): Promise<Script[]>
 }
 
 export type FlagFn = (flags: FlagsOptions) => void

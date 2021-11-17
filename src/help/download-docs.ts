@@ -2,7 +2,7 @@
 
 try {
   await download(
-    `https://www.scriptkit.com/data/docs.json`,
+    `https://github.com/johnlindquist/kit-docs/releases/latest/download/docs.json`,
     kitPath("data")
   )
 
