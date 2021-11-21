@@ -45,8 +45,8 @@ interface ScrapeSelector {
   (
     url: string,
     selector: string,
-    transform: (element: any) => any,
-    options: ScrapeOptions
+    transform?: (element: any) => any,
+    options?: ScrapeOptions
   )
 }
 interface ScrapeAttribute {
@@ -54,7 +54,7 @@ interface ScrapeAttribute {
     url: string,
     selector: string,
     attribute: string,
-    options: ScrapeOptions
+    options?: ScrapeOptions
   )
 }
 
@@ -186,10 +186,10 @@ interface GetSelectedFile {
   (): Promise<string>
 }
 interface SelectFile {
-  (): Promise<string>
+  (message?:string): Promise<string>
 }
 interface SelectFolder {
-  (): Promise<string>
+  (message?:string): Promise<string>
 }
 
 interface GetSelectedText {

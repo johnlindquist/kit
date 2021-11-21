@@ -1,4 +1,4 @@
-export {}
+export { }
 import { editor } from "./editor.api"
 
 import { Channel, Mode } from "../core/enum.js"
@@ -36,6 +36,9 @@ export interface MessageData extends PromptData {
   hint?: string
   tabIndex?: number
   bounds?: Partial<Rectangle>
+  value?: any
+  tray?: boolean
+  bounds?: any
 }
 
 export interface EditorProps {

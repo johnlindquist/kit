@@ -134,6 +134,10 @@ export let addPreview = async (
       }
     }
 
+    if (doc?.description) {
+      c.description = doc.description
+    }
+
     return c
   })
 
@@ -147,21 +151,21 @@ export let addPreview = async (
   let docOnlyChoices = onlyMatches
     ? []
     : filteredDocs
-        .map(doc => {
-          return {
-            name: doc.title,
-            description: doc?.description || "",
-            tag: doc?.tag || "",
-            value: doc.file,
-            preview: async () => {
-              return await highlight(
-                doc.content,
-                containerClasses
-              )
-            },
-          }
-        })
-        .sort((a, b) => (a.name > b.name ? 1 : -1))
+      .map(doc => {
+        return {
+          name: doc.title,
+          description: doc?.description || "",
+          tag: doc?.tag || "",
+          value: doc.file,
+          preview: async () => {
+            return await highlight(
+              doc.content,
+              containerClasses
+            )
+          },
+        }
+      })
+      .sort((a, b) => (a.name > b.name ? 1 : -1))
 
   return [...enhancedChoices, ...docOnlyChoices]
 }

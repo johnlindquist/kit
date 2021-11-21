@@ -3,9 +3,7 @@
 import { refreshScriptsDb } from "../core/db.js"
 import { trashScript } from "../core/utils.js"
 
-let script = await selectScript({
-  placeholder: `Remove a script:`,
-})
+let script = await selectScript(`Remove a script:`)
 
 let { command, filePath } = script
 
@@ -27,4 +25,8 @@ if (confirm) {
   await refreshScriptsDb()
 }
 
-export {}
+if (process.env.KIT_CONTEXT === "app") {
+  await run(kitPath("cli", "app-run.js"))
+}
+
+export { }

@@ -41,9 +41,9 @@ export let errorPrompt = async (error: Error) => {
         .replace("at file://", "")
         .replace(/:.*/, "")
         .trim()
-      ;[, line, col] = secondLine
-        .replace("at file://", "")
-        .split(":")
+        ;[, line, col] = secondLine
+          .replace("at file://", "")
+          .split(":")
     }
 
     let script = global.kitScript.replace(/.*\//, "")
@@ -483,16 +483,17 @@ export let selectScript = async (
     return s
   })
 
+
   let script: Script | string = await global.arg(
     message,
     scripts
   )
 
-  if (typeof script === "string") {
+  if (typeof script === "string" && (typeof message === "string" || message?.strict === true)) {
     return await getScriptFromString(script)
+  } else {
+    return script as any //hmm...
   }
-
-  return script
 }
 
 global.selectScript = selectScript
@@ -537,7 +538,7 @@ export let selectKenv = async (
         c =>
           c.value.name === selectedKenv ||
           path.resolve(c.value.dirPath) ===
-            path.resolve(selectedKenv as string)
+          path.resolve(selectedKenv as string)
       ).value
     }
   }

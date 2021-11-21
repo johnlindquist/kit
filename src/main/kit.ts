@@ -25,6 +25,11 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
   },
 
   {
+    name: "Settings",
+    description: "Open settings/preferences",
+    value: "settings",
+  },
+  {
     name: "View schedule",
     description: "View and edit upcoming jobs",
     value: "schedule",
@@ -33,16 +38,6 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     name: "System Scripts",
     description: "View and edit system event scripts",
     value: "system-events",
-  },
-  {
-    name: "Open Script Kit at Login",
-    description: "Open toggle login at launch at login",
-    value: "open-at-login",
-  },
-  {
-    name: "Toggle Menu Bar Icon",
-    description: "Show/hide the menu bar icon",
-    value: "toggle-tray",
   },
 
   {
@@ -90,15 +85,15 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
   },
   kitMode() === "ts"
     ? {
-        name: "Switch to JavaScript Mode",
-        description: "Sets .env KIT_MODE=js",
-        value: "switch-to-js",
-      }
+      name: "Switch to JavaScript Mode",
+      description: "Sets .env KIT_MODE=js",
+      value: "switch-to-js",
+    }
     : {
-        name: "Switch to TypeScript mode",
-        description: "Sets .env KIT_MODE=ts",
-        value: "switch-to-ts",
-      },
+      name: "Switch to TypeScript mode",
+      description: "Sets .env KIT_MODE=ts",
+      value: "switch-to-ts",
+    },
   {
     name: "Sync $PATH from Terminal to Kit.app",
     description: "Set .env PATH to the terminal $PATH",
@@ -110,9 +105,8 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "update",
   },
   {
-    name: `${
-      appDb?.autoUpdate ? `Disable` : `Enable`
-    } Auto Update`,
+    name: `${appDb?.autoUpdate ? `Disable` : `Enable`
+      } Auto Update`,
     description: `Version: ${env.KIT_APP_VERSION}`,
     value: "toggle-auto-update",
   },
@@ -131,10 +125,10 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
 ${md(`# Latest 100 Log Lines`)}
 <div class="text-xxs font-mono">      
       ${logFile
-        .split("\n")
-        .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
-        .slice(-100)
-        .join("<br>")}
+          .split("\n")
+          .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+          .slice(-100)
+          .join("<br>")}
 </div>
 </div>
       `
@@ -142,9 +136,9 @@ ${md(`# Latest 100 Log Lines`)}
   },
   {
     name: "Credits",
-    description: `The wonderful people who made Script Kit`,
+    description: `The wonderful people who make Script Kit`,
     value: "credits",
-    img: kitPath("images", "john.png"),
+    img: kitPath("images", "icon.png"),
   },
   {
     name: "Quit",
@@ -153,12 +147,34 @@ ${md(`# Latest 100 Log Lines`)}
   },
 ]
 
+let noChoices = false
+let onNoChoices = async (input) => {
+  noChoices = true
+  setPreview(md(`
+
+# No Options Found for "${input}"
+
+Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).
+`))
+}
+let onChoices = async (input) => {
+  noChoices = false
+}
+
 let cliScript = await arg(
-  `Kit Options`,
+  {
+    placeholder: `Kit Options`,
+    strict: false,
+    onChoices,
+    onNoChoices
+  },
   await addPreview(kitManagementChoices, "kit", true)
 )
 
-if (flag?.discuss) {
+if (noChoices) {
+  exec(`open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`)
+
+} else if (flag?.discuss) {
   let doc = await findDoc("kit", cliScript)
   if (doc?.discussion) {
     await $`open ${doc.discussion}`
@@ -167,4 +183,4 @@ if (flag?.discuss) {
   await run(kitPath("cli", cliScript) + ".js")
 }
 
-export {}
+export { }

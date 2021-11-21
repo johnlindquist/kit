@@ -1,6 +1,6 @@
-import { Choice, PromptConfig } from "../types/core"
+import { Choice, Choices, Panel, PromptConfig } from "../types/core"
 
-import { EditorConfig } from "../types/kitapp"
+import { EditorConfig, MessageData } from "../types/kitapp"
 
 import {
   filter,
@@ -15,6 +15,7 @@ import {
   takeUntil,
   tap,
   debounceTime,
+  withLatestFrom
 } from "@johnlindquist/kit-internal/rxjs"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
@@ -34,9 +35,19 @@ interface AppMessage {
   id?: string
 }
 
-let displayChoices = (
-  choices: Choice<any>[],
-  className = ""
+interface DisplayChoicesProps {
+  choices: PromptConfig["choices"],
+  className: string,
+  onNoChoices: PromptConfig["onNoChoices"],
+  onChoices: PromptConfig["onChoices"],
+  input: string
+}
+let displayChoices = async (
+  { choices,
+    className,
+    onNoChoices,
+    onChoices,
+    input }: DisplayChoicesProps
 ) => {
   switch (typeof choices) {
     case "string":
@@ -44,7 +55,17 @@ let displayChoices = (
       break
 
     case "object":
-      global.setChoices(checkResultInfo(choices), className)
+      let resultChoices = checkResultInfo(choices)
+      global.setChoices(resultChoices, className)
+
+
+      if (resultChoices?.length > 0 && typeof onChoices === "function") {
+        await onChoices(input)
+      }
+
+      if (resultChoices?.length === 0 && input?.length > 0 && typeof onNoChoices === "function") {
+        await onNoChoices(input)
+      }
       break
   }
 }
@@ -67,48 +88,54 @@ let checkResultInfo = result => {
 }
 
 let promptId = 0
-let invokeChoices =
-  ({ ct, choices, className }) =>
-  async (input: string) => {
-    let resultOrPromise = choices(input)
 
-    if (resultOrPromise && resultOrPromise.then) {
-      let result = await resultOrPromise
+interface PromptContext {
+  promptId: number
+  tabIndex: number
+}
+interface InvokeChoicesProps extends DisplayChoicesProps {
+  ct: PromptContext
+}
+let invokeChoices = async (props: InvokeChoicesProps) => {
 
-      if (
-        ct.promptId === promptId &&
-        ct.tabIndex === global.onTabIndex
-      ) {
-        displayChoices(result, className)
-        return result
-      }
-    } else {
-      displayChoices(resultOrPromise, className)
-      return resultOrPromise
+  let resultOrPromise = (props.choices as Function)(props.input)
+
+  if (resultOrPromise && resultOrPromise.then) {
+    let result = await resultOrPromise
+
+    if (
+      props.ct.promptId === promptId &&
+      props.ct.tabIndex === global.onTabIndex
+    ) {
+      displayChoices({ ...props, choices: result, })
+      return result
     }
-  }
-
-let getInitialChoices = async ({
-  ct,
-  choices,
-  className,
-}) => {
-  if (typeof choices === "function") {
-    return await invokeChoices({ ct, choices, className })(
-      ""
-    )
   } else {
-    displayChoices(choices as any, className)
-    return choices
+    displayChoices({ ...props, choices: resultOrPromise })
+    return resultOrPromise
   }
+}
+
+let getInitialChoices = async (props: InvokeChoicesProps) => {
+  if (typeof props.choices === "function") {
+    return await invokeChoices({ ...props, input: "" })
+  } else {
+    displayChoices(props)
+    return props.choices
+  }
+}
+
+interface WaitForPromptValueProps extends Omit<DisplayChoicesProps, "input"> {
+  validate?: PromptConfig["validate"]
 }
 
 let waitForPromptValue = ({
   choices,
   validate,
-  ui,
   className,
-}) =>
+  onNoChoices,
+  onChoices
+}: WaitForPromptValueProps) =>
   new Promise((resolve, reject) => {
     promptId++
     let ct = {
@@ -151,23 +178,6 @@ let waitForPromptValue = ({
 
     let message$ = process$.pipe(takeUntil(tab$))
 
-    let generate$ = message$.pipe(
-      filter(
-        data => data.channel === Channel.GENERATE_CHOICES
-      ),
-      map(data => data.input),
-      switchMap(input => {
-        let ct = {
-          promptId,
-          tabIndex: +Number(global.onTabIndex),
-        }
-        return invokeChoices({ ct, choices, className })(
-          input
-        )
-      }),
-      switchMap(choice => NEVER)
-    )
-
     let valueSubmitted$ = message$.pipe(
       filter(
         data => data.channel === Channel.VALUE_SUBMITTED
@@ -200,24 +210,62 @@ let waitForPromptValue = ({
       take(1)
     )
 
+    let generate$ = message$.pipe(
+      filter(
+        data => data.channel === Channel.GENERATE_CHOICES
+      ),
+      takeUntil(value$),
+      switchMap(data => of(data.input).pipe(
+        switchMap(input => {
+          let ct = {
+            promptId,
+            tabIndex: +Number(global.onTabIndex),
+          }
+
+          return invokeChoices({ ct, choices, className, onNoChoices, onChoices, input })
+        }),
+      )),
+
+    )
+
     let blur$ = message$.pipe(
       filter(
         data => data.channel === Channel.PROMPT_BLURRED
-      )
+      ),
+      takeUntil(value$)
     )
 
-    blur$.pipe(takeUntil(value$)).subscribe({
-      next: () => {
-        exit()
-      },
+    blur$.subscribe(() => {
+      exit()
     })
 
-    generate$.pipe(takeUntil(value$)).subscribe()
+    let onChoices$ = message$.pipe(
+      filter(data => [Channel.CHOICES, Channel.NO_CHOICES].includes(data.channel)),
+      switchMap(x => of(x)),
+      takeUntil(value$),
+      share()
+    )
 
-    let initialChoices$ = of({
+    onChoices$.subscribe(async data => {
+      switch (data.channel) {
+        case Channel.CHOICES:
+          await onChoices(data.input)
+          break
+        case Channel.NO_CHOICES:
+          await onNoChoices(data.input)
+          break
+      }
+    })
+
+    generate$.subscribe()
+
+    let initialChoices$ = of<InvokeChoicesProps>({
       ct,
       choices,
       className,
+      input: "",
+      onNoChoices,
+      onChoices
     }).pipe(
       // filter(() => ui === UI.arg),
       switchMap(getInitialChoices)
@@ -242,10 +290,10 @@ let waitForPromptValue = ({
             choice?.preview &&
             typeof choice?.preview === "function" &&
             choice?.preview[Symbol.toStringTag] ===
-              "AsyncFunction"
+            "AsyncFunction"
           ) {
-            ;(choice as any).index = data?.index
-            ;(choice as any).input = data?.input
+            ; (choice as any).index = data?.index
+              ; (choice as any).input = data?.input
 
             try {
               return choice?.preview(choice)
@@ -255,11 +303,15 @@ let waitForPromptValue = ({
           }
 
           return ``
-        })
+        }),
+        debounceTime(0),
+        withLatestFrom(onChoices$),
       )
 
-      .subscribe(async (data: string) => {
-        global.setPreview(data)
+      .subscribe(async ([preview, onChoiceData]: [string, AppMessage]) => {
+        if (onChoiceData.channel === Channel.CHOICES) {
+          global.setPreview(preview)
+        }
       })
 
     initialChoices$.pipe(takeUntil(value$)).subscribe()
@@ -277,8 +329,14 @@ let waitForPromptValue = ({
     })
   })
 
+let onNoChoicesDefault = async (input: string) => {
+  setPreview(`<div/>`)
+}
+
+let onChoicesDefault = async (input: string) => { }
+
 global.kitPrompt = async (config: PromptConfig) => {
-  await wait(0) //need to let tabs finish...
+  await Promise.resolve(true) //need to let tabs finish...
   let {
     ui = UI.arg,
     placeholder = "",
@@ -295,6 +353,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     selected = "",
     type = "text",
     preview = "",
+    onNoChoices = onNoChoicesDefault,
+    onChoices = onChoicesDefault,
   } = config
   if (flags) {
     setFlags(flags)
@@ -332,18 +392,16 @@ global.kitPrompt = async (config: PromptConfig) => {
   if (input) global.setInput(input)
   if (ignoreBlur) global.setIgnoreBlur(true)
 
-  if (preview) {
-    if (typeof preview === "function") {
-      preview = await preview()
-    }
-    global.setPreview(preview)
+  if (preview && typeof preview === "function") {
+    global.setPreview(await preview())
   }
 
   return await waitForPromptValue({
     choices,
     validate,
-    ui,
     className,
+    onNoChoices,
+    onChoices,
   })
 }
 
@@ -496,14 +554,13 @@ let appInstall = async packageName => {
 
     let packageLink = `https://npmjs.com/package/${packageName}`
 
-    let hint = `[${packageName}](${packageLink}) has had ${
-      (
-        await get<{ downloads: number }>(
-          `https://api.npmjs.org/downloads/point/last-week/` +
-            packageName
-        )
-      ).data.downloads
-    } downloads from npm in the past week`
+    let hint = `[${packageName}](${packageLink}) has had ${(
+      await get<{ downloads: number }>(
+        `https://api.npmjs.org/downloads/point/last-week/` +
+        packageName
+      )
+    ).data.downloads
+      } downloads from npm in the past week`
 
     let trust = await global.arg(
       { placeholder, hint: md(hint), ignoreBlur: true },
@@ -621,6 +678,14 @@ global.removeClipboardItem = (id: string) => {
 
 global.submit = (value: any) => {
   global.send(Channel.SET_SUBMIT_VALUE, { value })
+}
+
+global.wait = async (time: number) => {
+  global.submit(null)
+
+  return new Promise(res => setTimeout(() => {
+    res()
+  }, time))
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]

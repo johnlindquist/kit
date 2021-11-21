@@ -1,3 +1,3 @@
 edit(kenvPath())
 
-export {}
+export { }

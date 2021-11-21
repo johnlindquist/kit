@@ -4,7 +4,6 @@ let envTemplatePath = kitPath(
   "template.env"
 )
 
-console.log({ envTemplatePath })
 let envTemplate = await readFile(envTemplatePath, "utf8")
 
 let envTemplateCompiler = compile(envTemplate)
@@ -14,4 +13,4 @@ let compiledEnvTemplate = envTemplateCompiler({
 
 await writeFile(kenvPath(".env"), compiledEnvTemplate)
 
-export {}
+export { }

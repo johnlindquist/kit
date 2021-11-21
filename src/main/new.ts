@@ -13,9 +13,8 @@ setFlags({
 let newOptions: Choice<keyof CLI>[] = [
   {
     name: "New script",
-    description: `Create a script using ${
-      kitMode() === "ts" ? "TypeScript" : "JavaScript"
-    }`,
+    description: `Create a script using ${kitMode() === "ts" ? "TypeScript" : "JavaScript"
+      }`,
     value: "new",
   },
   {
@@ -33,24 +32,26 @@ let newOptions: Choice<keyof CLI>[] = [
     name: "Create Scripts from Docs",
     description:
       "The Docs tab has many helpful snippets to choose from",
-    value: "docs",
-    preview: async () => {
-      return highlight(`
-# Snippets in Docs      
-
-Head on over to the \`Docs\` tab for many useful snippets to help you get started.
-      `)
-    },
-  },
+    value: "docs"
+  }
 ]
 let previewChoices: Choice[] = await addPreview(
   newOptions,
   "new"
 )
+
+let onNoChoices = async (input) => {
+  setPreview(md(`# Create <code>${input}</code>
+
+Create a new script named <code>"${input}"</code>
+    `))
+}
+
 let cliScript = await arg<keyof CLI>(
   {
     placeholder: "Create a new script",
     strict: false,
+    onNoChoices
   },
   previewChoices
 )
@@ -70,4 +71,4 @@ if (cliScript === "docs") {
   await cli("new", cliScript)
 }
 
-export {}
+export { }

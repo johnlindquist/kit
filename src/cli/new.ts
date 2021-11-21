@@ -76,7 +76,7 @@ let templateContent = await readFile(templatePath, "utf8")
 let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
 
-if (arg?.url) {
+if (arg?.url || arg?.content) {
   contents = (await get<any>(arg?.url)).data
   if (!arg?.keepMetadata) {
     contents = stripMetadata(contents, [
@@ -84,6 +84,8 @@ if (arg?.url) {
       "Author",
       "Twitter",
       "Alias",
+      "Description",
+      "Name"
     ])
   }
 }
@@ -101,4 +103,4 @@ console.log(
 
 edit(scriptPath, kenvPath(), 3)
 
-export {}
+export { }

@@ -1,4 +1,4 @@
-export {}
+export { }
 
 import {
   Choices,
@@ -30,7 +30,7 @@ export interface Env {
   [key: string]: any
 }
 
-export interface Args extends Array<string> {}
+export interface Args extends Array<string> { }
 
 export interface UpdateArgs {
   (args: string[]): void
@@ -74,7 +74,7 @@ export interface IsCheck {
 type DB = typeof import("../core/db").db
 
 export interface GetScripts {
-  (fromCache: boolean): Promise<Script[]>
+  (fromCache?: boolean): Promise<Script[]>
 }
 
 export type FlagFn = (flags: FlagsOptions) => void
@@ -93,10 +93,15 @@ export interface SelectKitEditor {
 
 export interface SelectScript {
   (
-    message?: string | PromptConfig,
+    message?: string,
     fromCache?: boolean,
     xf?: (x: Script[]) => Script[]
   ): Promise<Script>
+  (
+    message: PromptConfig,
+    fromCache?: boolean,
+    xf?: (x: Script[]) => Script[]
+  ): Promise<Script | string>
 }
 
 export interface Kenv {
