@@ -4,13 +4,14 @@ import { Choice } from "../types/core"
 import { CLI } from "../cli"
 
 import { getKenvs, run } from "../core/utils.js"
+import { addPreview } from "./lib/utils.js"
 
 let kenvsExist = Boolean((await getKenvs()).length)
 
 let insertIfKenvsExist = (elements: Choice<keyof CLI>[]) =>
   kenvsExist ? elements : []
 
-let kitManagementChoices: Choice<keyof CLI>[] = [
+let kenvManagementChoices: Choice<keyof CLI>[] = [
   {
     name: "Clone repo of scripts",
     description: `Clone a repo of scripts (AKA kenv)`,
@@ -51,8 +52,8 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
 ]
 
 let cliScript = await arg(
-  `Kit Options`,
-  kitManagementChoices
+  `Kit Environments`,
+  await addPreview(kenvManagementChoices, "kenv")
 )
 
 await run(kitPath("cli", cliScript) + ".js")
