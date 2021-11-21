@@ -45,8 +45,8 @@ interface ScrapeSelector {
   (
     url: string,
     selector: string,
-    transform: (element: any) => any,
-    options: ScrapeOptions
+    transform?: (element: any) => any,
+    options?: ScrapeOptions
   )
 }
 interface ScrapeAttribute {
@@ -54,7 +54,7 @@ interface ScrapeAttribute {
     url: string,
     selector: string,
     attribute: string,
-    options: ScrapeOptions
+    options?: ScrapeOptions
   )
 }
 

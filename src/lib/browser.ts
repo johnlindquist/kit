@@ -102,8 +102,8 @@ end tell
 global.scrapeSelector = async (
   url: string,
   selector: string,
-  xf: (element: any) => any,
-  { headless, timeout } = { headless: true, timeout: 5000 }
+  xf?: (element: any) => any,
+  { headless = true, timeout = 5000 } = { headless: true, timeout: 5000 }
 ) => {
   /** @type typeof import("playwright") */
   let { chromium } = await global.npm("playwright")
@@ -134,7 +134,7 @@ global.scrapeAttribute = async (
   url: string,
   selector: string,
   attribute: string,
-  { headless, timeout } = { headless: true, timeout: 5000 }
+  { headless = true, timeout = 5000} = { headless: true, timeout: 5000 }
 ) => {
   let { chromium } = await global.npm("playwright")
 
