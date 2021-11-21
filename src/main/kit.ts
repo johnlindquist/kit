@@ -4,7 +4,6 @@
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 
-import { getAppDb } from "../core/db.js"
 import { kitMode, run } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
@@ -14,8 +13,6 @@ setFlags({
     description: "Open discussion in browser",
   },
 })
-
-const appDb = await getAppDb()
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
@@ -52,14 +49,12 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
   },
   {
     name: "Change App Shortcut",
-    description:
-      "Pick a new keyboard shortcut for the main menu",
+    description: "Pick a new keyboard shortcut for the main menu",
     value: "change-main-shortcut",
   },
   {
     name: "Change Script Shortcut",
-    description:
-      "Pick a new keyboard shortcut for a script",
+    description: "Pick a new keyboard shortcut for a script",
     value: "change-shortcut",
   },
   {
@@ -85,15 +80,15 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
   },
   kitMode() === "ts"
     ? {
-      name: "Switch to JavaScript Mode",
-      description: "Sets .env KIT_MODE=js",
-      value: "switch-to-js",
-    }
+        name: "Switch to JavaScript Mode",
+        description: "Sets .env KIT_MODE=js",
+        value: "switch-to-js",
+      }
     : {
-      name: "Switch to TypeScript mode",
-      description: "Sets .env KIT_MODE=ts",
-      value: "switch-to-ts",
-    },
+        name: "Switch to TypeScript mode",
+        description: "Sets .env KIT_MODE=ts",
+        value: "switch-to-ts",
+      },
   {
     name: "Sync $PATH from Terminal to Kit.app",
     description: "Set .env PATH to the terminal $PATH",
@@ -105,30 +100,21 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "update",
   },
   {
-    name: `${appDb?.autoUpdate ? `Disable` : `Enable`
-      } Auto Update`,
-    description: `Version: ${env.KIT_APP_VERSION}`,
-    value: "toggle-auto-update",
-  },
-  {
     name: "Open kit.log",
     description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
     value: "kit-log",
     preview: async () => {
-      let logFile = await readFile(
-        kitPath("logs", "kit.log"),
-        "utf-8"
-      )
+      let logFile = await readFile(kitPath("logs", "kit.log"), "utf-8")
 
       return `
       <div class="prose dark:prose-dark">      
 ${md(`# Latest 100 Log Lines`)}
 <div class="text-xxs font-mono">      
       ${logFile
-          .split("\n")
-          .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
-          .slice(-100)
-          .join("<br>")}
+        .split("\n")
+        .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+        .slice(-100)
+        .join("<br>")}
 </div>
 </div>
       `
@@ -148,16 +134,18 @@ ${md(`# Latest 100 Log Lines`)}
 ]
 
 let noChoices = false
-let onNoChoices = async (input) => {
+let onNoChoices = async input => {
   noChoices = true
-  setPreview(md(`
+  setPreview(
+    md(`
 
 # No Options Found for "${input}"
 
 Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).
-`))
+`)
+  )
 }
-let onChoices = async (input) => {
+let onChoices = async input => {
   noChoices = false
 }
 
@@ -166,14 +154,13 @@ let cliScript = await arg(
     placeholder: `Kit Options`,
     strict: false,
     onChoices,
-    onNoChoices
+    onNoChoices,
   },
   await addPreview(kitManagementChoices, "kit", true)
 )
 
 if (noChoices) {
   exec(`open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`)
-
 } else if (flag?.discuss) {
   let doc = await findDoc("kit", cliScript)
   if (doc?.discussion) {
@@ -183,4 +170,4 @@ if (noChoices) {
   await run(kitPath("cli", cliScript) + ".js")
 }
 
-export { }
+export {}
