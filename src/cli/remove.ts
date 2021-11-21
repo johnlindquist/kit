@@ -25,6 +25,8 @@ if (confirm) {
   await refreshScriptsDb()
 }
 
-await run(kitPath("cli", "app-run.js"))
+if (process.env.KIT_CONTEXT === "app") {
+  await run(kitPath("cli", "app-run.js"))
+}
 
 export { }
