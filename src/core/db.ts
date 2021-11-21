@@ -60,7 +60,7 @@ export let db = async (
     )
     return {
       ...defaults,
-      write: () => {},
+      write: () => { },
     }
   }
 
@@ -101,7 +101,7 @@ export let db = async (
     },
     set: (target: any, key: string, value: any) => {
       try {
-        ;(_db as any).data[key] = value
+        ; (_db as any).data[key] = value
         return true
       } catch (error) {
         return false
@@ -205,6 +205,7 @@ export const appDefaults = {
   version: "0.0.0",
   autoUpdate: true,
   tray: true,
+  openAtLogin: true
 }
 
 export let getAppDb = async (): Promise<

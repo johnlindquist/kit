@@ -1,4 +1,4 @@
-import { kitMode, KIT_DEFAULT_PATH } from "../core/utils.js"
+import { KIT_FIRST_PATH, KIT_DEFAULT_PATH } from "../core/utils.js"
 
 global.applescript = async (
   script,
@@ -104,7 +104,7 @@ let execConfig = () => {
   return {
     env: {
       HOME: home(),
-      PATH: KIT_DEFAULT_PATH,
+      PATH: KIT_FIRST_PATH,
     },
   }
 }
@@ -186,6 +186,7 @@ let code = async (file, dir, line = 0, col = 0) => {
   let command = `code ${codeArgs.join(" ")}`
 
   let config = execConfig()
+
   exec(command, config)
 }
 
@@ -208,7 +209,8 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   let execEditor = (file: string) => {
     let editCommand = `${KIT_EDITOR} ${file}`
 
-    exec(editCommand, execConfig())
+    let config = execConfig()
+    exec(editCommand, config)
   }
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor

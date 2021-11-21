@@ -4,11 +4,11 @@
 let { filePath } = await selectScript(`Share which script?`)
 
 copy(await readFile(filePath, "utf8"))
-console.log(
+div(md(
   `Copied content of "${path.basename(
     filePath
   )}" to clipboard`
-)
-await wait(2000)
+))
+await wait(1500)
 
-export {}
+export { }

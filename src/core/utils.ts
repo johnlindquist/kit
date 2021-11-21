@@ -107,11 +107,10 @@ export const KIT_NODE_PATH =
 
 export const KIT_DEFAULT_PATH = `/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
 
-export const KIT_FIRST_PATH = `${kitPath("bin")}${
-  path.delimiter
-}${kenvPath("bin")}${path.delimiter}${KIT_NODE_PATH}${
-  path.delimiter
-}${KIT_DEFAULT_PATH}`
+export const KIT_FIRST_PATH = `${kitPath("bin")}${path.delimiter
+  }${kitPath("bin", "code")}${path.delimiter
+  }${kenvPath("bin")}${path.delimiter}${KIT_NODE_PATH}${path.delimiter
+  }${KIT_DEFAULT_PATH}`
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -199,15 +198,15 @@ export let resolveScriptToCommand = (script: string) => {
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
-        .replace(/(option|opt)/i, "Alt")
-        .replace(/(command|cmd)/i, "CommandOrControl")
-        .replace(/(ctl|cntrl|ctrl)/, "Control")
-        .split(/\s/)
-        .filter(Boolean)
-        .map(part =>
-          (part[0].toUpperCase() + part.slice(1)).trim()
-        )
-        .join("+")
+      .replace(/(option|opt)/i, "Alt")
+      .replace(/(command|cmd)/i, "CommandOrControl")
+      .replace(/(ctl|cntrl|ctrl)/, "Control")
+      .split(/\s/)
+      .filter(Boolean)
+      .map(part =>
+        (part[0].toUpperCase() + part.slice(1)).trim()
+      )
+      .join("+")
     : ""
 
 export const friendlyShortcut = (shortcut: string) => {
@@ -256,7 +255,7 @@ export let formatScriptMetadata = (
   }
 
   if (metadata?.shortcode) {
-    ;(metadata as unknown as ScriptMetadata).shortcode =
+    ; (metadata as unknown as ScriptMetadata).shortcode =
       metadata?.shortcode
         ?.split(" ")
         .map(sc => sc.trim().toLowerCase())
@@ -267,24 +266,24 @@ export let formatScriptMetadata = (
   }
 
   if (metadata?.timeout) {
-    ;(metadata as unknown as ScriptMetadata).timeout =
+    ; (metadata as unknown as ScriptMetadata).timeout =
       parseInt(metadata?.timeout, 10)
   }
 
   if (metadata?.exclude) {
-    ;(metadata as unknown as ScriptMetadata).exclude =
+    ; (metadata as unknown as ScriptMetadata).exclude =
       Boolean(metadata?.exclude === "true")
   }
 
   metadata.type = metadata?.schedule
     ? ProcessType.Schedule
     : metadata?.watch
-    ? ProcessType.Watch
-    : metadata?.system
-    ? ProcessType.System
-    : metadata?.background
-    ? ProcessType.Background
-    : ProcessType.Prompt
+      ? ProcessType.Watch
+      : metadata?.system
+        ? ProcessType.System
+        : metadata?.background
+          ? ProcessType.Background
+          : ProcessType.Prompt
 
   let tabs =
     fileContents.match(
@@ -292,7 +291,7 @@ export let formatScriptMetadata = (
     ) || []
 
   if (tabs?.length) {
-    ;(metadata as unknown as ScriptMetadata).tabs = tabs
+    ; (metadata as unknown as ScriptMetadata).tabs = tabs
   }
 
   let hasFlags = Boolean(
@@ -302,7 +301,7 @@ export let formatScriptMetadata = (
   )
 
   if (hasFlags) {
-    ;(metadata as unknown as ScriptMetadata).hasFlags = true
+    ; (metadata as unknown as ScriptMetadata).hasFlags = true
   }
 
   let ui = (metadata?.ui ||
@@ -312,20 +311,20 @@ export let formatScriptMetadata = (
     UI.none) as UI
 
   if (ui) {
-    ;(
+    ; (
       metadata as unknown as ScriptMetadata
     ).requiresPrompt = true
   }
 
   if (metadata?.log === "false") {
-    ;(metadata as unknown as ScriptMetadata).log = "false"
+    ; (metadata as unknown as ScriptMetadata).log = "false"
   }
 
   let hasPreview = Boolean(
     fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0]
   )
   if (hasPreview) {
-    ;(metadata as unknown as ScriptMetadata).hasPreview =
+    ; (metadata as unknown as ScriptMetadata).hasPreview =
       hasPreview
   }
 
@@ -388,7 +387,7 @@ export let parseScript = async (
   return {
     ...metadata,
     ...parsedFilePath,
-    name: metadata.menu || parsedFilePath.command,
+    name: metadata.name || metadata.menu || parsedFilePath.command,
   }
 }
 
@@ -433,12 +432,12 @@ export let exists = async (input: string) => {
   return (await isBin(kenvPath("bin", input)))
     ? global.chalk`{red.bold ${input}} already exists. Try again:`
     : (await isDir(kenvPath("bin", input)))
-    ? global.chalk`{red.bold ${input}} exists as group. Enter different name:`
-    : (await isBin(input))
-    ? global.chalk`{red.bold ${input}} is a system command. Enter different name:`
-    : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
-    ? global.chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
-    : true
+      ? global.chalk`{red.bold ${input}} exists as group. Enter different name:`
+      : (await isBin(input))
+        ? global.chalk`{red.bold ${input}} is a system command. Enter different name:`
+        : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
+          ? global.chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
+          : true
 }
 
 export let toggleBackground = async (script: Script) => {
@@ -450,14 +449,12 @@ export let toggleBackground = async (script: Script) => {
 
   let toggleOrLog: "toggle" | "log" | "edit" =
     await global.arg(
-      `${script.command} is ${
-        task ? `running` : `stopped`
+      `${script.command} is ${task ? `running` : `stopped`
       }`,
       [
         {
-          name: `${task ? `Stop` : `Start`} ${
-            script.command
-          }`,
+          name: `${task ? `Stop` : `Start`} ${script.command
+            }`,
           value: `toggle`,
         },
         { name: `Edit ${script.command}`, value: `edit` },
@@ -545,11 +542,8 @@ export let configEnv = () => {
   return parsed
 }
 
-export let trashScript = async ({
-  command,
-  kenv,
-  filePath,
-}: Script) => {
+export let trashScriptBin = async (script: Script) => {
+  let { command, kenv } = script
   let { pathExists } = await import(
     "@johnlindquist/kit-internal/fs-extra"
   )
@@ -557,10 +551,10 @@ export let trashScript = async ({
   let binJSPath = jsh
     ? kenvPath("node_modules", ".bin", command + ".js")
     : kenvPath(
-        kenv && `kenvs/${kenv}`,
-        "bin",
-        command + ".js"
-      )
+      kenv && `kenvs/${kenv}`,
+      "bin",
+      command + ".js"
+    )
 
   let binJS = await pathExists(binJSPath)
 
@@ -569,9 +563,26 @@ export let trashScript = async ({
     : kenvPath(kenv && `kenvs/${kenv}`, "bin", command)
 
   await global.trash([
-    ...((await pathExists(filePath)) ? [filePath] : []),
     binPath,
     ...(binJS ? [binJSPath] : []),
+  ])
+
+}
+
+export let trashScript = async (script: Script) => {
+  let {
+    filePath,
+  } = script
+
+  await trashScriptBin(script)
+
+  let { pathExists } = await import(
+    "@johnlindquist/kit-internal/fs-extra"
+  )
+
+
+  await global.trash([
+    ...((await pathExists(filePath)) ? [filePath] : []),
   ])
 }
 

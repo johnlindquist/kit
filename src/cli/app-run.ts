@@ -1,4 +1,6 @@
-// Description: Run the selected script
+// Menu: Main
+// Description: Script Kit
+
 import { toggleBackground, run } from "../core/utils.js"
 
 let modifiers = {
@@ -52,6 +54,10 @@ setFlags({
     name: "Share as Gist",
     shortcut: "cmd+g",
   },
+  ["share-script-as-kit-link"]: {
+    name: "Share as kit:// link",
+    shortcut: "option+s",
+  },
   ["share-script-as-link"]: {
     name: "Share as URL",
     shortcut: "cmd+u",
@@ -92,40 +98,52 @@ setFlags({
   },
 })
 
+let onNoChoices = async (input) => {
+  setPreview(md(`# Create <code>${input}</code>
+
+Create a new script named <code>"${input}"</code>
+    `))
+}
+
 let script = await selectScript(
-  `Run script`,
+  { placeholder: "Run script", strict: false, onNoChoices },
   true,
   scripts => scripts.filter(script => !script?.exclude)
 )
 
-let shouldEdit =
-  script.watch ||
-  script.schedule ||
-  script.system ||
-  flag?.open
-
-if (script.background) {
-  toggleBackground(script)
-} else if (shouldEdit) {
-  await edit(script.filePath, kenvPath())
+if (typeof script === "string") {
+  await run(`${kitPath("cli", "new")}.js ${script}`)
 } else {
-  let selectedFlag: any = Object.keys(flag).find(f => {
-    return f && !modifiers[f]
-  })
-  if (selectedFlag) {
-    await run(
-      `${kitPath("cli", selectedFlag)}.js ${
-        script.filePath
-      }`
-    )
+  let shouldEdit =
+    script.watch ||
+    script.schedule ||
+    script.system ||
+    flag?.open
+
+  if (script.background) {
+    toggleBackground(script)
+  } else if (shouldEdit) {
+    await edit(script.filePath, kenvPath())
   } else {
-    await run(
-      script.filePath,
-      Object.keys(flag)
-        .map(f => `--${f}`)
-        .join(" ")
-    )
+    let selectedFlag: any = Object.keys(flag).find(f => {
+      return f && !modifiers[f]
+    })
+    if (selectedFlag) {
+      await run(
+        `${kitPath("cli", selectedFlag)}.js ${script.filePath
+        } `
+      )
+    } else {
+      await run(
+        script.filePath,
+        Object.keys(flag)
+          .map(f => `--${f} `)
+          .join(" ")
+      )
+    }
   }
+
 }
 
-export {}
+
+export { }

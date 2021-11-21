@@ -27,7 +27,7 @@ copy(
   response.data.files[command + path.extname(filePath)]
     .raw_url
 )
-console.log(`Copied raw gist url to clipboard`)
-await wait(2000)
+div(md(`Copied raw gist url to clipboard`))
+await wait(1500)
 
-export {}
+export { }

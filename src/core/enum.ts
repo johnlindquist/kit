@@ -5,6 +5,9 @@ export enum Mode {
   MANUAL = "MANUAL",
 }
 
+
+
+
 export enum Channel {
   CHOICE_FOCUSED = "CHOICE_FOCUSED",
   CLEAR_CACHE = "CLEAR_CACHE",
@@ -87,6 +90,8 @@ export enum Channel {
   UPDATE_PROMPT_WARN = "UPDATE_PROMPT_WARN",
   USER_RESIZED = "USER_RESIZED",
   VALUE_SUBMITTED = "VALUE_SUBMITTED",
+  NO_CHOICES = "NO_CHOICES",
+  CHOICES = "CHOICES"
 }
 
 export enum ProcessType {

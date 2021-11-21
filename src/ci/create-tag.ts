@@ -9,8 +9,6 @@ let repo = "kit"
 let branch = "main"
 let version = await arg("Version")
 
-console.log(`TAGGING VERSION: ${version}`)
-
 let commitRef = await octokit.git.getRef({
   owner,
   repo,
@@ -34,4 +32,4 @@ let createRefResponse = await octokit.git.createRef({
   sha: tagCreateResponse.data.sha,
 })
 
-export {}
+export { }

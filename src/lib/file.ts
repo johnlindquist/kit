@@ -44,17 +44,17 @@ global.copyPathAsImage = async path =>
 
 global.copyPathAsPicture = copyPathAsImage
 
-global.selectFolder = async () => {
+global.selectFolder = async (message:string = "Pick a folder:") => {
   return await applescript(
-    `set f to choose folder with prompt "Pick a folder:"
+    `set f to choose folder with prompt "${message}"
     set p to POSIX path of f
     `
   )
 }
 
-global.selectFile = async () => {
+global.selectFile = async (message:string = "Pick a file:") => {
   return await applescript(
-    `set f to choose file with prompt "Pick a file:"
+    `set f to choose file with prompt "${message}"
     set p to POSIX path of f
     `
   )

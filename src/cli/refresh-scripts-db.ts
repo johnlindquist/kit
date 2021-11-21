@@ -2,4 +2,6 @@ import { refreshScriptsDb } from "../core/db.js"
 
 await refreshScriptsDb()
 
-export {}
+await run(kitPath("cli", "app-run.js"))
+
+export { }

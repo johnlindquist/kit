@@ -19,8 +19,8 @@ let newKenvName = await arg(
     let panel = !input
       ? `A kenv name is required`
       : exists
-      ? `A kenv named "${input}" already exists`
-      : `
+        ? `A kenv named "${input}" already exists`
+        : `
     <p>Will create to:</p>
     <p class="font-mono text-xxs break-all">${newKenvPath}</p>`
 
@@ -37,10 +37,8 @@ let newKenvPath = kenvPath("kenvs", newKenvName)
 if (!newKenvPath) exit()
 await ensureDir(kenvPath("kenvs"))
 
-console.log({ newKenvPath })
-
 await degit(`johnlindquist/kenv-template`).clone(
   newKenvPath
 )
 
-export {}
+export { }

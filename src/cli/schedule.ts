@@ -22,9 +22,8 @@ let choices = (
         name: script?.menu || script.command,
         description: `Next ${formatDistanceToNowStrict(
           d
-        )} - ${format(d, "MMM eo, h:mm:ssa ")} - ${
-          script.schedule
-        }`,
+        )} - ${format(d, "MMM eo, h:mm:ssa ")} - ${script?.schedule
+          }`,
         value: filePath,
       } as Schedule
     })
@@ -40,4 +39,4 @@ let filePath = await arg(
 
 edit(filePath, kenvPath())
 
-export {}
+export { }

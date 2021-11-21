@@ -44,8 +44,8 @@ global.env = async (envKey, promptConfig) => {
           ...promptConfig,
         })
 
-  if (input.startsWith("~"))
-    input = input.replace("~", home())
+  if (input?.startsWith("~"))
+    input = input.replace(/^~/, home())
 
   await global.cli("set-env-var", envKey, input)
   global.env[envKey] = process.env[envKey] = input

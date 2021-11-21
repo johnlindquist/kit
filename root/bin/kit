@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})/.." &>/dev/null && pwd)
 # Check if "kit" is in node_modules/.bin

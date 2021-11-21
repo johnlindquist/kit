@@ -186,10 +186,10 @@ interface GetSelectedFile {
   (): Promise<string>
 }
 interface SelectFile {
-  (): Promise<string>
+  (message?:string): Promise<string>
 }
 interface SelectFolder {
-  (): Promise<string>
+  (message?:string): Promise<string>
 }
 
 interface GetSelectedText {

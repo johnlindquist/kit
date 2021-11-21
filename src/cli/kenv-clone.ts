@@ -11,7 +11,12 @@ if (!(await isDir(kenvsDir))) {
 let repo = await arg({
   placeholder: `Enter url to kenv repo`,
   ignoreBlur: true,
+  hint: `Full url or "user/repo" for github: e.g., <code>johnlindquist/kit-examples</code>`
 })
+
+if (repo?.split("/")?.length === 2) {
+  repo = `https://github.com/${repo}`
+}
 
 let input = getLastSlashSeparated(repo, 2)
   .replace(/\.git|\./g, "")
@@ -21,10 +26,18 @@ let kenvName = await arg(
   {
     placeholder: `Enter a kenv name`,
     input,
-    hint: `Enter a name for ${getLastSlashSeparated(
+    hint: md(`
+<div class="text-xs">
+
+<kbd>Enter</kbd> to accept suggested kenv name ${getLastSlashSeparated(
       repo,
       2
-    )}`,
+    )}
+
+Or type a different name
+
+<div>
+    `),
     validate: async input => {
       let exists = await isDir(kenvPath("kenvs", input))
       if (exists) {
@@ -39,19 +52,15 @@ let kenvName = await arg(
     let panel = !input
       ? `A kenv name is required`
       : exists
-      ? `A kenv named "${input}" already exists`
-      : `
+        ? `A kenv named "${input}" already exists`
+        : `
     <p>Will clone to:</p>
     <p class="font-mono text-xxs break-all">${kenvPath(
-      "kenvs",
-      input
-    )}</p>`
+          "kenvs",
+          input
+        )}</p>`
 
-    return {
-      choices: [input],
-      panel,
-      className: `p-4`,
-    }
+    return `<div class="p-5">${panel}<div>`
   }
 )
 
@@ -61,4 +70,4 @@ await $`git clone ${repo} ${kenvDir}`
 await getScripts(false)
 await cli("create-all-bins")
 
-export {}
+export { }

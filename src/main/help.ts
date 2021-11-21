@@ -68,34 +68,55 @@ let kitHelpChoices: Choice[] = [
   {
     name: "Download Latest Docs",
     description: `Pull latest docs.json from scriptkit.com`,
-    value: "download-docs",
-    preview: async () => {
-      return md(`
-# Download Latest Docs
-
-Hit <kbd>Enter</kbd> to grab the latest docs.json from scriptkit.com. Docs will automatically refresh when you re-open the \`Docs\` tab.
-      `)
-    },
+    value: "download-docs"
   },
 ]
 
-let selectedHelp = await arg(
-  `Got questions?`,
-  await addPreview(kitHelpChoices, "help")
-)
+let noChoices = false;
+let onNoChoices = async (input) => {
+  noChoices = true
+  setPreview(md(`
 
-let maybeCli = kitPath(`help`, selectedHelp + ".js")
-if (flag?.discuss) {
-  let doc = await findDoc("help", selectedHelp)
-  console.log({ doc, selectedHelp })
-  if (doc?.discussion) {
-    await $`open ${doc?.discussion}`
-  }
-} else if (await pathExists(maybeCli)) {
-  await run(maybeCli)
-} else {
-  let doc = await findDoc("help", selectedHelp)
-  await $`open ${doc?.discussion}`
+# No Docs Found for "${input}"
+
+Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).
+
+
+`))
 }
 
-export {}
+let onChoices = async (input) => {
+  noChoices = false
+}
+
+let selectedHelp = await arg(
+  {
+    placeholder: `Got questions?`,
+    strict: false,
+    onNoChoices,
+    onChoices
+  },
+  await addPreview(kitHelpChoices, "help")
+
+)
+
+if (noChoices) {
+  exec(`open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`)
+
+} else {
+  let maybeCli = kitPath(`help`, selectedHelp + ".js")
+  if (flag?.discuss) {
+    let doc = await findDoc("help", selectedHelp)
+
+    if (doc?.discussion) {
+      await $`open ${doc?.discussion}`
+    }
+  } else if (await pathExists(maybeCli)) {
+    await run(maybeCli)
+  } else {
+    let doc = await findDoc("help", selectedHelp)
+    await $`open ${doc?.discussion}`
+  }
+}
+
+export { }
