@@ -337,7 +337,7 @@ let onNoChoicesDefault = async (input: string) => {
 let onChoicesDefault = async (input: string) => {}
 
 global.kitPrompt = async (config: PromptConfig) => {
-  await Promise.resolve(true) //need to let tabs finish...
+  await new Promise(r => setTimeout(r, 0)) //need to let tabs finish...
   let {
     ui = UI.arg,
     placeholder = "",
