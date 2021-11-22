@@ -1,12 +1,11 @@
-import { Choice, Choices, Panel, PromptConfig } from "../types/core"
+import { Choice, PromptConfig } from "../types/core"
 
-import { EditorConfig, MessageData } from "../types/kitapp"
+import { EditorConfig } from "../types/kitapp"
 
 import {
   filter,
   map,
   merge,
-  NEVER,
   Observable,
   of,
   share,
@@ -282,7 +281,7 @@ let waitForPromptValue = ({
     choice$
       .pipe(
         takeUntil(value$),
-        switchMap(data => {
+        switchMap(async data => {
           let choice = (global.kitPrevChoices || []).find(
             (c: Choice) => c.id === data?.id
           )
@@ -290,8 +289,7 @@ let waitForPromptValue = ({
           if (
             choice &&
             choice?.preview &&
-            typeof choice?.preview === "function" &&
-            choice?.preview[Symbol.toStringTag] === "AsyncFunction"
+            typeof choice?.preview === "function"
           ) {
             ;(choice as any).index = data?.index
             ;(choice as any).input = data?.input
