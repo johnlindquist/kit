@@ -85,7 +85,7 @@ if (arg?.url || arg?.content) {
       "Twitter",
       "Alias",
       "Description",
-      "Name"
+      "Name",
     ])
   }
 }
@@ -103,4 +103,4 @@ console.log(
 
 edit(scriptPath, kenvPath(), 3)
 
-export { }
+export { scriptPath }

@@ -2,7 +2,7 @@
 
 import { Bin } from "../core/enum.js"
 import { getScripts } from "../core/db.js"
-import { createBinFromScript } from "../core/utils.js"
+import { createBinFromScript } from "../cli/lib/utils.js"
 import path from "path"
 
 let filePath = path.dirname(
