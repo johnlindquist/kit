@@ -3,7 +3,7 @@ global.getActiveTab = async (browser = "Google Chrome") => {
     String.raw`tell application "${browser}" to return URL of active tab of front window`
   )
 
-  return result
+  return result.trim()
 }
 
 global.getTabs = async (browser = "Google Chrome") => {
@@ -103,7 +103,10 @@ global.scrapeSelector = async (
   url: string,
   selector: string,
   xf?: (element: any) => any,
-  { headless = true, timeout = 5000 } = { headless: true, timeout: 5000 }
+  { headless = true, timeout = 5000 } = {
+    headless: true,
+    timeout: 5000,
+  }
 ) => {
   /** @type typeof import("playwright") */
   let { chromium } = await global.npm("playwright")
@@ -134,7 +137,10 @@ global.scrapeAttribute = async (
   url: string,
   selector: string,
   attribute: string,
-  { headless = true, timeout = 5000} = { headless: true, timeout: 5000 }
+  { headless = true, timeout = 5000 } = {
+    headless: true,
+    timeout: 5000,
+  }
 ) => {
   let { chromium } = await global.npm("playwright")
 

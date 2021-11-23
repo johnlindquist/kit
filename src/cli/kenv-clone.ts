@@ -11,11 +11,11 @@ if (!(await isDir(kenvsDir))) {
 let repo = await arg({
   placeholder: `Enter url to kenv repo`,
   ignoreBlur: true,
-  hint: `Full url or "user/repo" for github: e.g., <code>johnlindquist/kit-examples</code>`
+  hint: `Full url or "user/repo" for github: e.g., <code>johnlindquist/kit-examples</code>`,
 })
 
 if (repo?.split("/")?.length === 2) {
-  repo = `https://github.com/${repo}`
+  repo = `git@github.com:${repo}.git`
 }
 
 let input = getLastSlashSeparated(repo, 2)
@@ -52,13 +52,13 @@ Or type a different name
     let panel = !input
       ? `A kenv name is required`
       : exists
-        ? `A kenv named "${input}" already exists`
-        : `
+      ? `A kenv named "${input}" already exists`
+      : `
     <p>Will clone to:</p>
     <p class="font-mono text-xxs break-all">${kenvPath(
-          "kenvs",
-          input
-        )}</p>`
+      "kenvs",
+      input
+    )}</p>`
 
     return `<div class="p-5">${panel}<div>`
   }
@@ -70,4 +70,4 @@ await $`git clone ${repo} ${kenvDir}`
 await getScripts(false)
 await cli("create-all-bins")
 
-export { }
+export {}

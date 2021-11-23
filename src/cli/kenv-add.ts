@@ -21,9 +21,7 @@ let existingKenvPath = await arg(
     placeholder: "Path to kenv:",
     validate: async input => {
       let attemptPath = await createKenvPathFromName(input)
-      let exists = await isDir(
-        path.join(attemptPath, "scripts")
-      )
+      let exists = await isDir(path.join(attemptPath, "scripts"))
       if (!exists) {
         return `${attemptPath} doesn't look like a kenv dir...`
       }
@@ -33,9 +31,7 @@ let existingKenvPath = await arg(
   },
   async input => {
     let attemptPath = await createKenvPathFromName(input)
-    let exists = await isDir(
-      path.join(attemptPath, "scripts")
-    )
+    let exists = await isDir(path.join(attemptPath, "scripts"))
 
     if (!input) {
       setHint(`Type path to kenv`)
@@ -55,8 +51,7 @@ let input = getLastSlashSeparated(existingKenvPath, 2)
   .replace(/\.git|\./g, "")
   .replace(/\//g, "-")
 
-let panelContainer = content =>
-  `<div class="p-4">${content}</div>`
+let panelContainer = content => `<div class="p-4">${content}</div>`
 
 let setPanelContainer = content => {
   setPanel(panelContainer(content))
@@ -66,10 +61,7 @@ let kenvName = await arg(
   {
     placeholder: `Enter a kenv name`,
     input,
-    hint: `Enter a name for ${getLastSlashSeparated(
-      existingKenvPath,
-      2
-    )}`,
+    hint: `Enter a name for ${getLastSlashSeparated(existingKenvPath, 2)}`,
     validate: async input => {
       let exists = await isDir(kenvPath("kenvs", input))
       if (exists) {
@@ -84,17 +76,12 @@ let kenvName = await arg(
     if (!input) {
       setPanelContainer(`A kenv name is required`)
     } else if (exists) {
-      setPanelContainer(
-        `A kenv named "${input}" already exists`
-      )
+      setPanelContainer(`A kenv named "${input}" already exists`)
     } else {
       setPanelContainer(
         `
         <p>Will symlink to to:</p>
-        <p class="font-mono">${kenvPath(
-          "kenvs",
-          input
-        )}</p>`
+        <p class="font-mono">${kenvPath("kenvs", input)}</p>`
       )
     }
   }
