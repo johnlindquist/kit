@@ -26,12 +26,12 @@ ${contents}
   let confirm = await arg(
     {
       placeholder: `Delete script data?`,
-      hint: `Type "yes" to confirm`,
+      hint: `[y]es/[n]o`,
     },
     highlightedContents
   )
 
-  if (confirm === "yes") {
+  if (confirm === "y") {
     await trash(dbPath)
   }
 }

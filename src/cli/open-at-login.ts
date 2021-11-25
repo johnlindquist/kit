@@ -21,6 +21,6 @@ let toggle = await arg(placeholder, [
   },
 ])
 
-send(Channel.SET_LOGIN, { openAtLogin: toggle })
+send(Channel.SET_LOGIN, toggle)
 
 export {}

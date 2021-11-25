@@ -15,8 +15,8 @@ let confirm =
       hint: filePath,
     },
     [
-      { name: "No, cancel.", value: false },
-      { name: `Yes, remove ${command}`, value: true },
+      { name: "[N]o, cancel.", value: false },
+      { name: `[Y]es, remove ${command}`, value: true },
     ]
   ))
 
@@ -29,4 +29,4 @@ if (process.env.KIT_CONTEXT === "app") {
   await run(kitPath("cli", "app-run.js"))
 }
 
-export { }
+export {}

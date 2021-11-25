@@ -1,4 +1,4 @@
-export { }
+export {}
 
 import { ProcessType, UI, Mode } from "../core/enum.js"
 
@@ -12,10 +12,10 @@ export interface Choice<Value = any> {
   html?: string
   hasPreview?: boolean
   preview?:
-  | string
-  | ((
-    choice: Choice & { input: string; index: number }
-  ) => string | Promise<string>)
+    | string
+    | ((
+        choice: Choice & { input: string; index: number }
+      ) => string | Promise<string>)
   previewLang?: string
   id?: string
   shortcode?: string[]
@@ -23,11 +23,11 @@ export interface Choice<Value = any> {
   tag?: string
   shortcut?: string
   drag?:
-  | {
-    format?: string
-    data?: string
-  }
-  | string
+    | {
+        format?: string
+        data?: string
+      }
+    | string
 }
 
 export interface ScriptPathInfo {
@@ -114,12 +114,9 @@ export type InputType =
   | "week"
 
 export interface PromptData {
-  id: number
-  script: Script
   ui: UI
   placeholder: string
   kitScript: string
-  choices: Choice[]
   tabs: string[]
   ignoreBlur: boolean
   textarea?: boolean
@@ -155,24 +152,24 @@ export type Panel =
 
 export type FlagsOptions = {
   [key: string]:
-  | {
-    shortcut?: string
-    name?: string
-    description?: string
-  }
-  | undefined
+    | {
+        shortcut?: string
+        name?: string
+        description?: string
+      }
+    | undefined
 }
 
 export interface PromptConfig
   extends Partial<
-  Omit<PromptData, "choices" | "id" | "script">
+    Omit<PromptData, "choices" | "id" | "script">
   > {
   validate?: (
     choice: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   flags?: FlagsOptions
-  preview?: string | (() => string | Promise<string>),
+  preview?: string | (() => string | Promise<string>)
   onNoChoices?: (input: string) => void | Promise<void>
   onChoices?: (input: string) => void | Promise<void>
 }
