@@ -249,8 +249,9 @@ ava.serial("app-prompt.js", async t => {
   await new Promise((resolve, reject) => {
     child.on("message", data => {
       if (data?.channel === Channel.SET_PROMPT_DATA) {
-        let { placeholder: dataPlaceholder, kitScript } =
-          data
+        let { kitScript } = data
+
+        let { placeholder: dataPlaceholder } = data.value
         t.deepEqual(
           {
             placeholder: dataPlaceholder,
