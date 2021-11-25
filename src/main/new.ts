@@ -12,13 +12,14 @@ setFlags({
 
 let newOptions: Choice<keyof CLI>[] = [
   {
-    name: "New script",
-    description: `Create a script using ${kitMode() === "ts" ? "TypeScript" : "JavaScript"
-      }`,
+    name: "New Script",
+    description: `Create a script using ${
+      kitMode() === "ts" ? "TypeScript" : "JavaScript"
+    }`,
     value: "new",
   },
   {
-    name: "New from url",
+    name: "Download Script From URL",
     description: "Enter a url then name it",
     value: "new-from-url",
   },
@@ -32,26 +33,43 @@ let newOptions: Choice<keyof CLI>[] = [
     name: "Create Scripts from Docs",
     description:
       "The Docs tab has many helpful snippets to choose from",
-    value: "docs"
-  }
+    value: "docs",
+  },
+  {
+    name: "New Kit Environment",
+    description: `Create a kenv for scripts`,
+    value: "kenv-create",
+  },
+  {
+    name: "Link Existing Kit Environment",
+    description: "Link local kenv from your hard drive",
+    value: "kenv-add",
+  },
+  {
+    name: "Clone Kit Environment Repository",
+    description: `Clone a kenv repo `,
+    value: "kenv-clone",
+  },
 ]
 let previewChoices: Choice[] = await addPreview(
   newOptions,
   "new"
 )
 
-let onNoChoices = async (input) => {
-  setPreview(md(`# Create <code>${input}</code>
+let onNoChoices = async input => {
+  setPreview(
+    md(`# Create <code>${input}</code>
 
 Create a new script named <code>"${input}"</code>
-    `))
+    `)
+  )
 }
 
 let cliScript = await arg<keyof CLI>(
   {
     placeholder: "Create a new script",
     strict: false,
-    onNoChoices
+    onNoChoices,
   },
   previewChoices
 )
@@ -71,4 +89,4 @@ if (cliScript === "docs") {
   await cli("new", cliScript)
 }
 
-export { }
+export {}

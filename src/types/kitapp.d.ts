@@ -1,4 +1,4 @@
-export { }
+export {}
 import { editor } from "./editor.api"
 
 import { Channel, Mode } from "../core/enum.js"
@@ -6,40 +6,17 @@ import { Channel, Mode } from "../core/enum.js"
 import {
   Choice,
   Choices,
+  FlagsOptions,
   PromptConfig,
   PromptData,
+  Script,
 } from "./core"
 import {
   BrowserWindowConstructorOptions,
   Display,
   Rectangle,
 } from "./electron"
-
-export interface MessageData extends PromptData {
-  channel: Channel
-  pid: number
-  log?: string
-  warn?: string
-  path?: string
-  filePath?: string
-  name?: string
-  args?: string[]
-  ignore?: boolean
-  text?: string
-  options?: any
-  image?: any
-  html?: string
-  info?: string
-  input?: string
-  scripts?: boolean
-  kenvPath?: string
-  hint?: string
-  tabIndex?: number
-  bounds?: Partial<Rectangle>
-  value?: any
-  tray?: boolean
-  bounds?: any
-}
+import { Flags } from "./kit"
 
 export interface EditorProps {
   options: EditorConfig
@@ -115,9 +92,111 @@ export interface AppleScript {
   (script: string, options?: any): Promise<string>
 }
 
-export interface Send {
-  (channel: string, data?: any): void
+type SetImage = string | { src: string }
+type SetChoices = { choices: Choice[]; scripts: boolean }
+type SetTextAreaOptions = {
+  value?: string
+  placeholder?: string
 }
+
+export type GetAppData =
+  | Channel.GET_BACKGROUND
+  | Channel.GET_MOUSE
+  | Channel.GET_SCHEDULE
+  | Channel.GET_BOUNDS
+  | Channel.GET_SCREEN_INFO
+  | Channel.GET_SCRIPTS_STATE
+  | Channel.GET_CLIPBOARD_HISTORY
+
+export type SendNoOptions =
+  | Channel.CLEAR_CACHE
+  | Channel.CLEAR_CLIPBOARD_HISTORY
+  | Channel.CLEAR_PROMPT_CACHE
+  | Channel.CONSOLE_CLEAR
+  | Channel.HIDE_APP
+  | Channel.NEEDS_RESTART
+  | Channel.TOGGLE_TRAY
+  | Channel.UPDATE_APP
+  | Channel.QUIT_APP
+
+export interface ChannelMap {
+  // Figure these undefined out later
+  [Channel.GET_BACKGROUND]: undefined
+  [Channel.GET_MOUSE]: undefined
+  [Channel.GET_SCHEDULE]: undefined
+  [Channel.GET_BOUNDS]: undefined
+  [Channel.GET_SCREEN_INFO]: undefined
+  [Channel.GET_SCRIPTS_STATE]: undefined
+  [Channel.GET_CLIPBOARD_HISTORY]: undefined
+
+  //
+  [Channel.CLEAR_CACHE]: undefined
+  [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
+  [Channel.CLEAR_PROMPT_CACHE]: undefined
+  [Channel.CONSOLE_CLEAR]: undefined
+  [Channel.HIDE_APP]: undefined
+  [Channel.NEEDS_RESTART]: undefined
+  [Channel.TOGGLE_TRAY]: undefined
+  [Channel.UPDATE_APP]: undefined
+  [Channel.QUIT_APP]: undefined
+  //
+
+  [Channel.CONSOLE_LOG]: string
+  [Channel.CONSOLE_WARN]: string
+  [Channel.COPY_PATH_AS_PICTURE]: string
+  [Channel.DEV_TOOLS]: any
+  [Channel.EXIT]: boolean
+  [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
+  [Channel.SET_BOUNDS]: Partial<Rectangle>
+  [Channel.SET_CHOICES]: SetChoices
+  [Channel.SET_UNFILTERED_CHOICES]: Choice[]
+  [Channel.SET_DESCRIPTION]: string
+  [Channel.SET_DIV_HTML]: string
+  [Channel.SET_EDITOR_CONFIG]: EditorConfig
+  [Channel.SET_FLAGS]: FlagsOptions
+  [Channel.SET_FORM_HTML]: { html: string; formData: any }
+  [Channel.SET_HINT]: string
+  [Channel.SET_IGNORE_BLUR]: boolean
+  [Channel.SET_INPUT]: string
+  [Channel.SET_LOG]: string
+  [Channel.SET_LOGIN]: boolean
+  [Channel.SET_MODE]: Mode
+  [Channel.SET_NAME]: string
+  [Channel.SET_PANEL]: string
+  [Channel.SET_PID]: number
+  [Channel.SET_PLACEHOLDER]: string
+  [Channel.SET_PREVIEW]: string
+  [Channel.SET_PROMPT_DATA]: PromptData
+  [Channel.SET_PROMPT_PROP]: any
+  [Channel.SET_SCRIPT]: Script
+  [Channel.SET_SUBMIT_VALUE]: any
+  [Channel.SET_TAB_INDEX]: number
+  [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
+  [Channel.SET_THEME]: any
+  [Channel.SHOW]: { options: ShowOptions; html: string }
+  [Channel.SHOW_IMAGE]: {
+    options: ShowOptions
+    image: string | { src: string }
+  }
+  [Channel.SWITCH_KENV]: string
+  [Channel.TOGGLE_BACKGROUND]: string
+}
+export interface Send {
+  (channel: GetAppData | SendNoOptions): void
+  <C extends keyof ChannelMap, T extends ChannelMap[C]>(
+    channel: C,
+    data: T
+  ): void
+}
+
+export interface SendData<C extends keyof ChannelMap> {
+  pid: number
+  kitScript: string
+  channel: C
+  value: ChannelMap[C]
+}
+
+export type GenericSendData = SendData<keyof ChannelMap>
 
 export interface SetAppProp {
   (value: any): void
@@ -190,7 +269,7 @@ export interface AppApi {
     choices: Choices<any>,
     className?: string
   ) => void
-  getDataFromApp: (channel: string) => Promise<any>
+  getDataFromApp: (channel: Channel) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
     tasks: Background[]

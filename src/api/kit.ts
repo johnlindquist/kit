@@ -41,9 +41,9 @@ export let errorPrompt = async (error: Error) => {
         .replace("at file://", "")
         .replace(/:.*/, "")
         .trim()
-        ;[, line, col] = secondLine
-          .replace("at file://", "")
-          .split(":")
+      ;[, line, col] = secondLine
+        .replace("at file://", "")
+        .split(":")
     }
 
     let script = global.kitScript.replace(/.*\//, "")
@@ -194,13 +194,13 @@ global.attemptImport = async (scriptPath, ..._args) => {
 //   console.log({ warning })
 // })
 
-global.send = async (channel, data) => {
+global.send = async (channel: Channel, value?: any) => {
   if (process?.send) {
     process.send({
       pid: process.pid,
       kitScript: global.kitScript,
       channel,
-      ...data,
+      value,
     })
   } else {
     // console.log(from, ...args)
@@ -218,9 +218,7 @@ if (process?.send) {
       )
       .join(" ")
 
-    global.send(Channel.CONSOLE_LOG, {
-      log,
-    })
+    global.send(Channel.CONSOLE_LOG, log)
   }
 
   console.warn = (...args) => {
@@ -230,13 +228,11 @@ if (process?.send) {
       )
       .join(" ")
 
-    global.send(Channel.CONSOLE_WARN, {
-      warn,
-    })
+    global.send(Channel.CONSOLE_WARN, warn)
   }
 
   console.clear = () => {
-    global.send(Channel.CONSOLE_CLEAR, {})
+    global.send(Channel.CONSOLE_CLEAR)
   }
 }
 
@@ -245,7 +241,7 @@ global.show = (html, options) => {
 }
 
 global.devTools = data => {
-  global.send(Channel.DEV_TOOLS, { data })
+  global.send(Channel.DEV_TOOLS, data)
 }
 
 global.showImage = (image, options) => {
@@ -257,9 +253,7 @@ global.showImage = (image, options) => {
 }
 
 global.setPlaceholder = text => {
-  global.send(Channel.SET_PLACEHOLDER, {
-    text: stripAnsi(text),
-  })
+  global.send(Channel.SET_PLACEHOLDER, stripAnsi(text))
 }
 
 global.main = async (scriptPath: string, ..._args) => {
@@ -305,7 +299,7 @@ global.tmpPath = (...parts) => {
  * @deprecated use `tmpPath` instead
  */
 global.tmp = global.tmpPath
-global.inspect = async (data, extension) => {
+global.inspect = async (data, fileName) => {
   let dashedDate = () =>
     new Date()
       .toISOString()
@@ -320,10 +314,8 @@ global.inspect = async (data, extension) => {
     formattedData = JSON.stringify(data, null, "\t")
   }
 
-  if (extension) {
-    tmpFullPath = global.tmpPath(
-      `${dashedDate()}.${extension}`
-    )
+  if (fileName) {
+    tmpFullPath = global.tmpPath(fileName)
   } else if (typeof data === "object") {
     tmpFullPath = global.tmpPath(`${dashedDate()}.json`)
   } else {
@@ -353,14 +345,12 @@ global.onTab = (name, fn) => {
     if (global.flag?.tab === name) {
       let tabIndex = global.onTabs.length - 1
       global.onTabIndex = tabIndex
-      global.send(Channel.SET_TAB_INDEX, {
-        tabIndex,
-      })
+      global.send(Channel.SET_TAB_INDEX, tabIndex)
       global.currentOnTab = fn()
     }
   } else if (global.onTabs.length === 1) {
     global.onTabIndex = 0
-    global.send(Channel.SET_TAB_INDEX, { tabIndex: 0 })
+    global.send(Channel.SET_TAB_INDEX, 0)
     global.currentOnTab = fn()
   }
 }
@@ -421,7 +411,7 @@ global.setFlags = (flags: FlagsOptions) => {
       value: key,
     }
   }
-  global.send(Channel.SET_FLAGS, { flags: validFlags })
+  global.send(Channel.SET_FLAGS, validFlags)
 }
 global.hide = () => {
   global.send(Channel.HIDE_APP)
@@ -483,13 +473,16 @@ export let selectScript = async (
     return s
   })
 
-
   let script: Script | string = await global.arg(
     message,
     scripts
   )
 
-  if (typeof script === "string" && (typeof message === "string" || message?.strict === true)) {
+  if (
+    typeof script === "string" &&
+    (typeof message === "string" ||
+      message?.strict === true)
+  ) {
     return await getScriptFromString(script)
   } else {
     return script as any //hmm...
@@ -538,7 +531,7 @@ export let selectKenv = async (
         c =>
           c.value.name === selectedKenv ||
           path.resolve(c.value.dirPath) ===
-          path.resolve(selectedKenv as string)
+            path.resolve(selectedKenv as string)
       ).value
     }
   }
@@ -594,6 +587,6 @@ global.setTab = (tabName: string) => {
   let i = global.onTabs.findIndex(
     ({ name }) => name === tabName
   )
-  global.send(Channel.SET_TAB_INDEX, { tabIndex: i })
+  global.send(Channel.SET_TAB_INDEX, i)
   global.onTabs[i].fn()
 }

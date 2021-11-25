@@ -9,6 +9,10 @@ type Enquirer =
 type Prompt = Enquirer["prompt"]
 type EnquirerPromptConfig = Parameters<Prompt>[0]
 
+let notSupported = async (method: string) => {
+  console.warn(`${method} is not supported in the terminal`)
+}
+
 global.kitPrompt = async (config: any) => {
   if (config?.choices) {
     config = { ...config, type: "autocomplete" }
@@ -234,3 +238,31 @@ global.setPanelContainer = async (
 global.setIgnoreBlur = async ignore => {}
 
 global.setBounds = (bounds: Partial<Rectangle>) => {}
+
+global.setDescription = (description: string) => {
+  console.log({ description })
+}
+global.setName = (name: string) => {
+  console.log({ name })
+}
+
+global.getScriptsState = () => {
+  notSupported("getScriptsState")
+}
+
+global.setBounds = (bounds: Partial<Rectangle>) => {
+  notSupported("setBounds")
+}
+
+global.getClipboardHistory = async () => {
+  notSupported("getClipboardHistory")
+  return []
+}
+
+global.removeClipboardItem = (id: string) => {
+  notSupported("removeClipboardItem")
+}
+
+global.submit = (value: any) => {
+  notSupported("submit")
+}
