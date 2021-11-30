@@ -3,7 +3,10 @@ import { existsSync } from "fs"
 //Description: Adds the .kenv bin dir to your $PATH
 export {}
 
-let exportKenvPath = `export PATH="$PATH:${kenvPath(
+let kenv = await selectKenv()
+
+let exportKenvPath = `export PATH="$PATH:${path.resolve(
+  kenv.dirPath,
   "bin"
 )}"`
 

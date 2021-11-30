@@ -1,31 +1,29 @@
-import { KIT_FIRST_PATH, KIT_DEFAULT_PATH } from "../core/utils.js"
+import {
+  KIT_FIRST_PATH,
+  KIT_DEFAULT_PATH,
+} from "../core/utils.js"
 
 global.applescript = async (
   script,
   options = { silent: true }
 ) => {
-  let formattedScript = script.replace(/'/g, "'\"'\"'")
-  if (global.env?.DEBUG) {
-    await writeFile(
-      kenvPath("tmp", "_debug.applescript"),
-      script
-    )
-  }
+  let applescriptPath = tmpPath("latest.scpt")
+  await writeFile(applescriptPath, script)
 
   let p = new Promise<string>((res, rej) => {
     let stdout = ``
     let stderr = ``
     let child = spawn(
       `osascript`,
-      [`-e`, `${formattedScript}`],
+      [applescriptPath],
       options
     )
 
     child.stdout.on("data", data => {
-      stdout += data.toString()
+      stdout += data.toString().trim()
     })
     child.stderr.on("data", data => {
-      stderr += data.toString()
+      stderr += data.toString().trim()
     })
 
     child.on("exit", () => {

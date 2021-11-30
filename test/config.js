@@ -42,7 +42,7 @@ global.kitMockPath = kitMockPath
 global.execOptions = execOptions
 
 let testScript = async (name, content, type = "js") => {
-  await $`KIT_MODE=${type} kit new ${name} home --no-edit`
+  await $`KIT_MODE=${type} kit new ${name} main --no-edit`
 
   await appendFile(
     kenvPath("scripts", `${name}.js`),

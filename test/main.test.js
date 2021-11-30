@@ -19,7 +19,7 @@ ava("kit setup", async t => {
 ava.serial(`TypeScript support`, async t => {
   let tsScript = `mock-typescript-script`
   await $`kit set-env-var KIT_MODE ts`
-  await $`kit new ${tsScript} home --no-edit`
+  await $`kit new ${tsScript} main --no-edit`
 
   let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
 
@@ -65,7 +65,7 @@ console.log(await arg())`
 ava.serial(`TypeScript import from lib`, async t => {
   let tsScript = `mock-typescript-script-load-lib`
   await $`kit set-env-var KIT_MODE ts`
-  await $`kit new ${tsScript} home --no-edit`
+  await $`kit new ${tsScript} main --no-edit`
 
   let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
 
@@ -120,7 +120,7 @@ console.log(await go())`
 
 ava.serial(`JavaScript support`, async t => {
   let script = `mock-javascript-script`
-  await $`KIT_MODE=js kit new ${script} home --no-edit`
+  await $`KIT_MODE=js kit new ${script} main --no-edit`
 
   let scriptPath = kenvPath("scripts", `${script}.js`)
 
@@ -147,7 +147,7 @@ ava.serial("kit new, run, and rm", async t => {
 `
 
   let { stdout, stderr } =
-    await $`KIT_MODE=js kit new ${command} home --no-edit`
+    await $`KIT_MODE=js kit new ${command} main --no-edit`
 
   let scriptPath = kenvPath("scripts", `${command}.js`)
   let binPath = kenvPath("bin", `${command}`)
@@ -184,7 +184,7 @@ ava.serial("kit hook", async t => {
   let contents = `
   export let value = await arg()
   `
-  await $`kit new ${script} home --no-edit`
+  await $`kit new ${script} main --no-edit`
   await writeFile(
     kenvPath("scripts", `${script}.js`),
     contents
@@ -199,7 +199,7 @@ ava.serial("kit hook", async t => {
 ava.serial("kit script-output-hello", async t => {
   let script = `mock-script-output-hello`
   let contents = `console.log(await arg())`
-  await $`kit new ${script} home --no-edit`
+  await $`kit new ${script} main --no-edit`
   await writeFile(
     kenvPath("scripts", `${script}.js`),
     contents
@@ -234,7 +234,7 @@ ava.serial("app-prompt.js", async t => {
   let contents = `
   await arg("${placeholder}")
   `
-  await $`kit new ${script} home --no-edit`
+  await $`kit new ${script} main --no-edit`
   await writeFile(scriptPath, contents)
 
   let child = fork(KIT_APP_PROMPT, {
@@ -285,8 +285,8 @@ ava.serial(`Run both JS and TS scripts`, async t => {
   let jsCommand = `mock-js-script`
   let tsCommand = `mock-ts-script`
 
-  await $`KIT_MODE=js kit new ${jsCommand} home --no-edit`
-  await $`KIT_MODE=ts kit new ${tsCommand} home --no-edit`
+  await $`KIT_MODE=js kit new ${jsCommand} main --no-edit`
+  await $`KIT_MODE=ts kit new ${tsCommand} main --no-edit`
 
   process.env.PATH = `${kenvPath("bin")}:${
     process.env.PATH
@@ -302,7 +302,7 @@ ava.serial(`Run both JS and TS scripts`, async t => {
 ava(`Run kit from package.json`, async t => {
   let command = `mock-pkg-json-script`
   let scriptPath = kenvPath("scripts", `${command}.js`)
-  await $`KIT_MODE=js kit new ${command} home --no-edit`
+  await $`KIT_MODE=js kit new ${command} main --no-edit`
 
   await appendFile(
     scriptPath,

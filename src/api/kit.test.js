@@ -11,8 +11,8 @@ ava.serial(`testing "run" is global`, async t => {
   let otherScript = `mock-other-script`
   let mainScript = `mock-main-run-script`
 
-  await $`KIT_MODE=js kit new ${otherScript} home --no-edit`
-  await $`KIT_MODE=js kit new ${mainScript} home --no-edit`
+  await $`KIT_MODE=js kit new ${otherScript} main --no-edit`
+  await $`KIT_MODE=js kit new ${mainScript} main --no-edit`
 
   await appendFile(
     kenvPath("scripts", `${mainScript}.js`),

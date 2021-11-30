@@ -2,6 +2,7 @@ export {}
 import { editor } from "./editor.api"
 
 import { Channel, Mode } from "../core/enum.js"
+import { KeyEnum } from "../core/keyboard.js"
 
 import {
   Choice,
@@ -17,6 +18,10 @@ import {
   Rectangle,
 } from "./electron"
 import { Flags } from "./kit"
+
+export type KeyType = {
+  [key in keyof typeof KeyEnum]: string
+}
 
 export interface EditorProps {
   options: EditorConfig
@@ -72,7 +77,8 @@ export interface Div {
 }
 
 export interface KeyData {
-  key: string
+  key: KeyEnum
+  keyCode: number
   command: boolean
   shift: boolean
   option: boolean
@@ -147,6 +153,7 @@ export interface ChannelMap {
   [Channel.DEV_TOOLS]: any
   [Channel.EXIT]: boolean
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
+  [Channel.SEND_KEYSTROKE]: Partial<KeyData>
   [Channel.SET_BOUNDS]: Partial<Rectangle>
   [Channel.SET_CHOICES]: SetChoices
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
@@ -198,11 +205,35 @@ export interface SendData<C extends keyof ChannelMap> {
 
 export type GenericSendData = SendData<keyof ChannelMap>
 
-export interface SetAppProp {
-  (value: any): void
+export interface SetHint {
+  (hint: string): void
 }
+
+export interface SetName {
+  (name: string): void
+}
+
+export interface SetDescription {
+  (description: string): void
+}
+
+export interface SetInput {
+  (input: string): void
+}
+
+export interface SetIgnoreBlur {
+  (ignoreBlur: boolean): void
+}
+
+export interface SetPlaceholder {
+  (placeholder: string): void
+}
+
 export interface SetPanel {
   (html: string, containerClasses?: string): void
+}
+export interface SetPrompt {
+  (config: Partial<PromptData>): void
 }
 export interface SetPreview {
   (html: string, containerClasses?: string): void
@@ -210,6 +241,11 @@ export interface SetPreview {
 export interface SetBounds {
   (bounds: Partial<Rectangle>): void
 }
+
+export interface SendKeystroke {
+  (keyData: Partial<KeyData>): void
+}
+
 export interface GetBounds {
   (): Promise<Rectangle>
 }
@@ -248,15 +284,19 @@ export interface AppApi {
   kitPrompt: (promptConfig: PromptConfig) => Promise<any>
   send: Send
 
-  setPlaceholder: SetAppProp
+  setPlaceholder: SetPlaceholder
+  setDiv: SetPanel
   setPanel: SetPanel
   setPreview: SetPreview
+  setPrompt: SetPrompt
   setBounds: SetBounds
   getBounds: GetBounds
   getActiveScreen: GetActiveScreen
-  setHint: SetAppProp
-  setInput: SetAppProp
-  setIgnoreBlur: SetAppProp
+  setHint: SetHint
+  setName: SetName
+  setDescription: SetDescription
+  setInput: SetInput
+  setIgnoreBlur: SetIgnoreBlur
 
   show: ShowAppWindow
   showImage: ShowAppWindow
@@ -293,6 +333,9 @@ export interface AppApi {
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
   submit: (value: any) => void
+
+  sendKeystroke: SendKeystroke
+  Key: KeyType
 }
 
 export interface Background {
@@ -320,15 +363,19 @@ declare global {
   var hotkey: Hotkey
   var send: Send
 
-  var setPlaceholder: SetAppProp
+  var setPlaceholder: SetPlaceholder
   var setPanel: SetPanel
+  var setDiv: SetPanel
   var setPreview: SetPreview
+  var setPrompt: SetPrompt
   var setBounds: SetBounds
   var getBounds: GetBounds
   var getActiveScreen: GetActiveScreen
-  var setHint: SetAppProp
-  var setInput: SetAppProp
-  var setIgnoreBlur: SetAppProp
+  var setHint: SetHint
+  var setName: SetName
+  var setDescription: SetDescription
+  var setInput: SetInput
+  var setIgnoreBlur: SetIgnoreBlur
 
   var show: ShowAppWindow
   var showImage: ShowAppWindow
@@ -340,4 +387,7 @@ declare global {
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void
   var submit: (value: any) => void
+
+  var sendKeystroke: SendKeystroke
+  var Key: KeyType
 }

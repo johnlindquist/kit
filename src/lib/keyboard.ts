@@ -68,5 +68,3 @@ function formatCommands(commands = []) {
     .join(" ")
     .slice(0, -1)
 }
-
-export {}
