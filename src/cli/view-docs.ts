@@ -1,4 +1,4 @@
-// Menu: Search Docs
+// Name: Search Docs
 // Description: Type to Search Docs
 
 // Log: false

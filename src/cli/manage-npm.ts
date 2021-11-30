@@ -1,4 +1,4 @@
-// Menu: Manage npm
+// Name: Manage npm
 // Description: Add/remove npm packages
 
 import { CLI } from "../cli"

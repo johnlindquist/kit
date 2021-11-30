@@ -1,4 +1,4 @@
-// Menu: Kit Environment
+// Name: Kit Environment
 // Description: Script Kit
 
 import { toggleBackground, run } from "../core/utils.js"

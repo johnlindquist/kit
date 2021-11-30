@@ -179,6 +179,7 @@ export interface ChannelMap {
   [Channel.SET_SUBMIT_VALUE]: any
   [Channel.SET_TAB_INDEX]: number
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
+  [Channel.SET_TEXTAREA_VALUE]: string
   [Channel.SET_THEME]: any
   [Channel.SHOW]: { options: ShowOptions; html: string }
   [Channel.SHOW_IMAGE]: {
@@ -219,6 +220,10 @@ export interface SetDescription {
 
 export interface SetInput {
   (input: string): void
+}
+
+export interface SetTextareaValue {
+  (value: string): void
 }
 
 export interface SetIgnoreBlur {
@@ -296,6 +301,8 @@ export interface AppApi {
   setName: SetName
   setDescription: SetDescription
   setInput: SetInput
+  setTextareaValue: SetTextareaValue
+
   setIgnoreBlur: SetIgnoreBlur
 
   show: ShowAppWindow
@@ -334,7 +341,7 @@ export interface AppApi {
   setTab: (tabName: string) => void
   submit: (value: any) => void
 
-  sendKeystroke: SendKeystroke
+  appKeystroke: SendKeystroke
   Key: KeyType
 }
 
@@ -375,6 +382,7 @@ declare global {
   var setName: SetName
   var setDescription: SetDescription
   var setInput: SetInput
+  var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
 
   var show: ShowAppWindow
@@ -388,6 +396,6 @@ declare global {
   var setTab: (tabName: string) => void
   var submit: (value: any) => void
 
-  var sendKeystroke: SendKeystroke
+  var appKeystroke: SendKeystroke
   var Key: KeyType
 }

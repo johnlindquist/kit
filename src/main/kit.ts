@@ -1,4 +1,4 @@
-// Menu: Manage Kit
+// Name: Manage Kit
 // Description: Options and Helpers
 
 import { Choice } from "../types/core"

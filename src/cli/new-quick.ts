@@ -1,4 +1,4 @@
-// Menu: New Script
+// Name: New Script
 // Description: Creates a new script
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 

@@ -1,4 +1,4 @@
-// Menu: View Schedule
+// Name: View Schedule
 // Description: Select a scheduled script to edit
 
 import { Schedule } from "../types/kitapp"
@@ -22,8 +22,9 @@ let choices = (
         name: script?.menu || script.command,
         description: `Next ${formatDistanceToNowStrict(
           d
-        )} - ${format(d, "MMM eo, h:mm:ssa ")} - ${script?.schedule
-          }`,
+        )} - ${format(d, "MMM eo, h:mm:ssa ")} - ${
+          script?.schedule
+        }`,
         value: filePath,
       } as Schedule
     })
@@ -39,4 +40,4 @@ let filePath = await arg(
 
 edit(filePath, kenvPath())
 
-export { }
+export {}

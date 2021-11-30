@@ -234,7 +234,7 @@ export let getMetadata = (string: string): Metadata => {
     if (v.length) {
       let k = key.trim()
       k = k[0].toLowerCase() + k.slice(1)
-      metadata[k] = v
+      if (!metadata[k]) metadata[k] = v
     }
   }
 
@@ -511,7 +511,14 @@ export let run = async (
   command: string,
   ...commandArgs: string[]
 ) => {
-  let [script, ...scriptArgs] = command.split(" ")
+  let [script, ...scriptArgs] = command
+    .split(/('[^']+?')|("[^"]+?")/)
+    .filter(Boolean)
+    .flatMap(item =>
+      item.match(/'|"/)
+        ? item.replace(/'|"/g, "")
+        : item.trim().split(/\s/)
+    )
   let resolvedScript = resolveToScriptPath(script)
   global.onTabs = []
   global.kitScript = resolvedScript

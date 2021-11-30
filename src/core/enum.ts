@@ -75,6 +75,7 @@ export enum Channel {
   SET_SUBMIT_VALUE = "SET_SUBMIT_VALUE",
   SET_TAB_INDEX = "SET_TAB_INDEX",
   SET_TEXTAREA_CONFIG = "SET_TEXTAREA_CONFIG",
+  SET_TEXTAREA_VALUE = "SET_TEXTAREA_VALUE",
   SET_THEME = "SET_THEME",
   SET_TOP_HEIGHT = "SET_TOP_HEIGHT",
   SET_UNFILTERED_CHOICES = "SET_UNFILTERED_CHOICES",
@@ -137,4 +138,8 @@ export enum Bin {
 export enum Secret {
   password = "password",
   text = "text",
+}
+
+export enum Value {
+  NoValue = "__NoValue__",
 }

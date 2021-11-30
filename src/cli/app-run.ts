@@ -1,6 +1,7 @@
-// Menu: Main
+// Name: Main
 // Description: Script Kit
 
+import { Value } from "../core/enum.js"
 import { toggleBackground, run } from "../core/utils.js"
 
 let modifiers = {
@@ -98,11 +99,15 @@ setFlags({
   },
 })
 
-let onNoChoices = async (input) => {
-  setPreview(md(`# Create <code>${input}</code>
+let onNoChoices = async input => {
+  let scriptName = input.replace(/\s/g, "-").toLowerCase()
 
-Create a new script named <code>"${input}"</code>
-    `))
+  setPreview(
+    md(`# Create <code>${scriptName}</code>
+
+Create a new script named <code>"${scriptName}"</code>
+    `)
+  )
 }
 
 let script = await selectScript(
@@ -111,8 +116,13 @@ let script = await selectScript(
   scripts => scripts.filter(script => !script?.exclude)
 )
 
-if (typeof script === "string") {
-  await run(`${kitPath("cli", "new")}.js ${script}`)
+if (script === Value.NoValue) {
+} else if (typeof script === "string") {
+  await run(
+    `${kitPath("cli", "new")}.js ${script
+      .replace(/\s/g, "-")
+      .toLowerCase()} --scriptName '${script}'`
+  )
 } else {
   let shouldEdit =
     script.watch ||
@@ -130,7 +140,8 @@ if (typeof script === "string") {
     })
     if (selectedFlag) {
       await run(
-        `${kitPath("cli", selectedFlag)}.js ${script.filePath
+        `${kitPath("cli", selectedFlag)}.js ${
+          script.filePath
         } `
       )
     } else {
@@ -142,8 +153,6 @@ if (typeof script === "string") {
       )
     }
   }
-
 }
 
-
-export { }
+export {}
