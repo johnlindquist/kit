@@ -398,7 +398,7 @@ global.setChoices = async (choices, className = "") => {
 }
 
 global.flag = {}
-global.setFlags = (flags: FlagsOptions) => {
+global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
   let validFlags = {}
   for (let key of Object.keys(global?.flag)) {
     delete global?.flag?.[key]
@@ -411,8 +411,14 @@ global.setFlags = (flags: FlagsOptions) => {
       value: key,
     }
   }
-  global.send(Channel.SET_FLAGS, validFlags)
+
+  return validFlags
 }
+
+global.setFlags = (flags: FlagsOptions) => {
+  global.send(Channel.SET_FLAGS, global.prepFlags(flags))
+}
+
 global.hide = () => {
   global.send(Channel.HIDE_APP)
 }
@@ -495,10 +501,10 @@ export let selectKenv = async (
   ignorePattern = /^ignore$/
 ) => {
   let homeKenv = {
-    name: "home",
+    name: "main",
     description: `Your main kenv: ${kenvPath()}`,
     value: {
-      name: "home",
+      name: "main",
       dirPath: kenvPath(),
     },
   }

@@ -33,7 +33,7 @@ ava("isDir", async t => {
 })
 
 ava.serial("parseScript", async t => {
-  await $`KIT_MODE=js kit new ${testingParseScript} home --no-edit`
+  await $`KIT_MODE=js kit new ${testingParseScript} main --no-edit`
   let scripts = await getScripts()
   let findScript = scripts.find(
     s => s.name === testingParseScript

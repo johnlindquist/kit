@@ -4,7 +4,11 @@ import {
   PromptData,
 } from "../types/core"
 
-import { GetAppData, EditorConfig } from "../types/kitapp"
+import {
+  GetAppData,
+  EditorConfig,
+  KeyData,
+} from "../types/kitapp"
 
 import {
   filter,
@@ -27,6 +31,10 @@ import { Convert } from "@johnlindquist/kit-internal/ansi-to-html"
 
 import { Mode, Channel, UI } from "../core/enum.js"
 import { assignPropsTo } from "../core/utils.js"
+import {
+  KeyEnum,
+  keyCodeFromKey,
+} from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
 
 interface AppMessage {
@@ -108,6 +116,10 @@ interface InvokeChoicesProps extends DisplayChoicesProps {
   ct: PromptContext
 }
 let invokeChoices = async (props: InvokeChoicesProps) => {
+  if (Array.isArray(props.choices)) {
+    displayChoices(props)
+    return props.choices
+  }
   let resultOrPromise = (props.choices as Function)(
     props.input
   )
@@ -131,7 +143,7 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
 let getInitialChoices = async (
   props: InvokeChoicesProps
 ) => {
-  if (typeof props.choices === "function") {
+  if (typeof props?.choices === "function") {
     return await invokeChoices({ ...props, input: "" })
   } else {
     displayChoices(props)
@@ -388,66 +400,68 @@ let onNoChoicesDefault = async (input: string) => {
 
 let onChoicesDefault = async (input: string) => {}
 
-global.kitPrompt = async (config: PromptConfig) => {
-  await new Promise(r => setTimeout(r, 0)) //need to let tabs finish...
-  let {
-    ui = UI.arg,
-    placeholder = "",
-    validate = null,
-    strict = Boolean(config?.choices),
-    choices = [],
-    secret = false,
-    hint = "",
-    input = "",
-    ignoreBlur = false,
-    mode = Mode.FILTER,
-    className = "",
-    flags = undefined,
-    selected = "",
-    type = "text",
-    preview = "",
-    onNoChoices = onNoChoicesDefault,
-    onChoices = onChoicesDefault,
-  } = config
-  if (flags) {
-    setFlags(flags)
-  }
-
-  global.setMode(
-    typeof choices === "function" && choices?.length > 0
-      ? Mode.GENERATE
-      : mode
-  )
-
-  let tabs = global.onTabs?.length
-    ? global.onTabs.map(({ name }) => name)
-    : []
+global.setPrompt = (data: Partial<PromptData>) => {
+  let { tabs } = data
+  if (tabs) global.onTabs = tabs
 
   global.send(Channel.SET_PROMPT_DATA, {
-    tabs,
+    flags: prepFlags(data?.flags || {}),
+    hint: "",
+    ignoreBlur: false,
+    input: "",
+    kitScript: global.kitScript,
+    kitArgs: global.args,
+    mode: Mode.FILTER,
+    placeholder: "",
+    preview: "",
+    secret: false,
+    selected: "",
+    strict: false,
+    tabs: global.onTabs?.length
+      ? global.onTabs.map(({ name }) => name)
+      : [],
+    tabIndex: 0,
+    type: "text",
+    ui: UI.arg,
+    ...(data as PromptData),
+  })
+}
+
+let prepPrompt = async (config: PromptConfig) => {
+  let { choices, placeholder, preview, ...restConfig } =
+    config
+
+  global.setPrompt({
+    strict: Boolean(choices),
+    hasPreview: Boolean(preview),
+    ...restConfig,
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
-    placeholder: stripAnsi(placeholder) || "",
-    kitScript: global.kitScript,
-    parentScript: global.env.KIT_PARENT_NAME,
-    kitArgs: global.args.join(" "),
-    secret,
-    ui,
-    strict,
-    selected,
-    type,
-    ignoreBlur,
-    hasPreview: Boolean(preview),
-  } as PromptData)
+    mode:
+      typeof choices === "function" && choices?.length > 0
+        ? Mode.GENERATE
+        : Mode.FILTER,
+    placeholder: stripAnsi(placeholder || ""),
 
-  global.setHint(hint)
-  if (input) global.setInput(input)
-  if (ignoreBlur) global.setIgnoreBlur(true)
+    preview:
+      preview && typeof preview === "function"
+        ? await preview()
+        : (preview as string),
+  })
+}
 
-  if (preview && typeof preview === "function") {
-    global.setPreview(await preview())
-  }
+global.kitPrompt = async (config: PromptConfig) => {
+  await new Promise(r => setTimeout(r, 0)) //need to let tabs finish...
+  let {
+    choices = [],
+    className = "",
+    validate = null,
+    onNoChoices = onNoChoicesDefault,
+    onChoices = onChoicesDefault,
+  } = config
+
+  await prepPrompt(config)
 
   return await waitForPromptValue({
     choices,
@@ -646,6 +660,11 @@ global.setPanel = async (h, containerClasses = "") => {
   global.send(Channel.SET_PANEL, html)
 }
 
+global.setDiv = async (h, containerClasses = "") => {
+  let html = maybeWrapHtml(h, containerClasses)
+  global.send(Channel.SET_PANEL, html)
+}
+
 global.setPreview = async (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PREVIEW, html)
@@ -724,12 +743,14 @@ global.submit = (value: any) => {
   global.send(Channel.SET_SUBMIT_VALUE, value)
 }
 
-global.wait = async (time: number) => {
-  global.submit(null)
+global.wait = async (time: number, value) => {
+  if (typeof value !== "undefined") {
+    global.submit(value)
+  }
 
   return new Promise(res =>
     setTimeout(() => {
-      res()
+      res(value)
     }, time)
   )
 }
@@ -737,9 +758,19 @@ global.wait = async (time: number) => {
 global.setDescription = (description: string) => {
   global.send(Channel.SET_DESCRIPTION, description)
 }
+
 global.setName = (name: string) => {
   global.send(Channel.SET_NAME, name)
 }
+
+global.sendKeystroke = (data: KeyData) => {
+  global.send(Channel.SEND_KEYSTROKE, {
+    keyCode: keyCodeFromKey(data?.key),
+    ...data,
+  })
+}
+
+global.Key = KeyEnum
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]
 delete global?.env?.["ELECTRON_RUN_AS_NODE"]

@@ -114,21 +114,25 @@ export type InputType =
   | "week"
 
 export interface PromptData {
-  ui: UI
-  placeholder: string
-  kitScript: string
-  tabs: string[]
+  description: string
+  flags: FlagsOptions
+  hasPreview: boolean
+  hint: string
   ignoreBlur: boolean
-  textarea?: boolean
-  secret?: boolean
-  strict?: boolean
-  mode?: Mode
-  className?: string
-  hint?: string
-  input?: string
-  selected?: string
-  type?: InputType
-  hasPreview?: boolean
+  input: string
+  kitArgs: string[]
+  kitScript: string
+  mode: Mode
+  name: string
+  placeholder: string
+  preview: string
+  secret: boolean
+  selected: string
+  strict: boolean
+  tabs: string[]
+  tabIndex: number
+  type: InputType
+  ui: UI
 }
 
 export interface GenerateChoices {
@@ -151,13 +155,11 @@ export type Panel =
   | ((input: string) => Promise<any>)
 
 export type FlagsOptions = {
-  [key: string]:
-    | {
-        shortcut?: string
-        name?: string
-        description?: string
-      }
-    | undefined
+  [key: string]: {
+    shortcut?: string
+    name?: string
+    description?: string
+  }
 }
 
 export interface PromptConfig
@@ -168,6 +170,7 @@ export interface PromptConfig
     choice: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
+  className?: string
   flags?: FlagsOptions
   preview?: string | (() => string | Promise<string>)
   onNoChoices?: (input: string) => void | Promise<void>

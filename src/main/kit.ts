@@ -43,18 +43,20 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "add-kit-to-profile",
   },
   {
-    name: "Add ~/.kenv/bin to $PATH",
-    description: `Looks for your profile and appends ${kenvPath()} to $PATH`,
+    name: "Add kenv bin to $PATH",
+    description: `Select a kenv bin dir to append profile $PATH`,
     value: "add-kenv-to-profile",
   },
   {
     name: "Change App Shortcut",
-    description: "Pick a new keyboard shortcut for the main menu",
+    description:
+      "Pick a new keyboard shortcut for the main menu",
     value: "change-main-shortcut",
   },
   {
     name: "Change Script Shortcut",
-    description: "Pick a new keyboard shortcut for a script",
+    description:
+      "Pick a new keyboard shortcut for a script",
     value: "change-shortcut",
   },
   {
@@ -104,7 +106,10 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
     value: "kit-log",
     preview: async () => {
-      let logFile = await readFile(kitPath("logs", "kit.log"), "utf-8")
+      let logFile = await readFile(
+        kitPath("logs", "kit.log"),
+        "utf-8"
+      )
 
       return `
       <div class="prose dark:prose-dark">      
@@ -160,7 +165,9 @@ let cliScript = await arg(
 )
 
 if (noChoices) {
-  exec(`open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`)
+  exec(
+    `open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`
+  )
 } else if (flag?.discuss) {
   let doc = await findDoc("kit", cliScript)
   if (doc?.discussion) {

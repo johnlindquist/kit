@@ -7,7 +7,7 @@ ava.serial("kit duplicate", async t => {
   let scriptPath = kenvPath("scripts", `${duplicate}.js`)
   let binPath = kenvPath("bin", `${duplicate}`)
 
-  await $`KIT_MODE=js kit duplicate ${command} ${duplicate} home --no-edit`
+  await $`KIT_MODE=js kit duplicate ${command} ${duplicate} main --no-edit`
   let scriptCreated = test("-f", scriptPath)
   let binCreated = test("-f", binPath)
 
@@ -17,12 +17,12 @@ ava.serial("kit duplicate", async t => {
 
 ava.serial("kit duplicate a typescript file", async t => {
   let command = `browse-scriptkit-typescript`
-  await $`KIT_MODE=ts kit new ${command} home --no-edit`
+  await $`KIT_MODE=ts kit new ${command} main --no-edit`
   let duplicate = `${command}-duplicated`
   let scriptPath = kenvPath("scripts", `${duplicate}.ts`)
   let binPath = kenvPath("bin", `${duplicate}`)
 
-  await $`KIT_MODE=ts kit duplicate ${command} ${duplicate} home --no-edit`
+  await $`KIT_MODE=ts kit duplicate ${command} ${duplicate} main --no-edit`
   let scriptCreated = test("-f", scriptPath)
   let binCreated = test("-f", binPath)
 

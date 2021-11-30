@@ -1,7 +1,10 @@
 // Description: Remove a script
 
 import { refreshScriptsDb } from "../core/db.js"
-import { trashScript } from "../core/utils.js"
+import {
+  mainScriptPath,
+  trashScript,
+} from "../core/utils.js"
 
 let script = await selectScript(`Remove a script:`)
 
@@ -26,7 +29,7 @@ if (confirm) {
 }
 
 if (process.env.KIT_CONTEXT === "app") {
-  await run(kitPath("cli", "app-run.js"))
+  await run(mainScriptPath)
 }
 
 export {}

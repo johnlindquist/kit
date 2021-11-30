@@ -1,4 +1,4 @@
-export { }
+export {}
 
 import {
   Choices,
@@ -30,7 +30,7 @@ export interface Env {
   [key: string]: any
 }
 
-export interface Args extends Array<string> { }
+export interface Args extends Array<string> {}
 
 export interface UpdateArgs {
   (args: string[]): void
@@ -64,7 +64,7 @@ export interface Edit {
 }
 
 export interface Wait {
-  (time: number): Promise<void>
+  (time: number, submitValue?: any): Promise<void>
 }
 
 export interface IsCheck {
@@ -78,6 +78,9 @@ export interface GetScripts {
 }
 
 export type FlagFn = (flags: FlagsOptions) => void
+export type PrepFlags = (
+  flags: FlagsOptions
+) => FlagsOptions
 export type Flags = {
   [key: string]: boolean | string
   cmd?: string
@@ -203,6 +206,7 @@ export interface KitApi {
 
   flag: Flags
   setFlags: FlagFn
+  prepFlags: PrepFlags
   selectScript: SelectScript
   selectKenv: SelectKenv
   highlight: Highlight
@@ -256,6 +260,7 @@ declare global {
   var hide: () => void
   var flag: Flags
   var setFlags: FlagFn
+  var prepFlags: PrepFlags
 
   var selectScript: SelectScript
   var selectKenv: SelectKenv
