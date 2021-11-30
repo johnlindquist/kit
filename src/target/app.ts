@@ -156,14 +156,16 @@ interface WaitForPromptValueProps
   validate?: PromptConfig["validate"]
 }
 
+let invalid = Symbol("invalid")
+
 let waitForPromptValue = ({
   choices,
   validate,
   className,
   onNoChoices,
   onChoices,
-}: WaitForPromptValueProps) =>
-  new Promise((resolve, reject) => {
+}: WaitForPromptValueProps) => {
+  return new Promise((resolve, reject) => {
     promptId++
     let ct = {
       promptId,
@@ -197,7 +199,7 @@ let waitForPromptValue = ({
 
         // console.log(`\nUPDATING TAB: ${tabIndex}`)
         global.onTabIndex = tabIndex
-        global.currentOnTab = global.onTabs[tabIndex].fn(
+        global.currentOnTab = global.onTabs?.[tabIndex]?.fn(
           data?.input
         )
       }),
@@ -240,7 +242,7 @@ let waitForPromptValue = ({
             let convert = new Convert()
             global.setHint(convert.toHtml(validateMessage))
             // global.setChoices(global.kitPrevChoices)
-            return undefined
+            return invalid
           } else {
             return value
           }
@@ -248,7 +250,7 @@ let waitForPromptValue = ({
           return value
         }
       }),
-      filter(value => typeof value !== "undefined"),
+      filter(value => value !== invalid),
       take(1),
       share()
     )
@@ -393,6 +395,7 @@ let waitForPromptValue = ({
       },
     })
   })
+}
 
 let onNoChoicesDefault = async (input: string) => {
   setPreview(`<div/>`)
@@ -744,12 +747,11 @@ global.submit = (value: any) => {
 }
 
 global.wait = async (time: number, value) => {
-  if (typeof value !== "undefined") {
-    global.submit(value)
-  }
-
   return new Promise(res =>
     setTimeout(() => {
+      if (typeof value !== "undefined") {
+        global.submit(value)
+      }
       res(value)
     }, time)
   )
@@ -763,7 +765,11 @@ global.setName = (name: string) => {
   global.send(Channel.SET_NAME, name)
 }
 
-global.sendKeystroke = (data: KeyData) => {
+global.setTextareaValue = (value: string) => {
+  global.send(Channel.SET_TEXTAREA_VALUE, value)
+}
+
+global.appKeystroke = (data: KeyData) => {
   global.send(Channel.SEND_KEYSTROKE, {
     keyCode: keyCodeFromKey(data?.key),
     ...data,

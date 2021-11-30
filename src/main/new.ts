@@ -57,10 +57,12 @@ let previewChoices: Choice[] = await addPreview(
 )
 
 let onNoChoices = async input => {
-  setPreview(
-    md(`# Create <code>${input}</code>
+  let scriptName = input.replace(/\s/g, "-").toLowerCase()
 
-Create a new script named <code>"${input}"</code>
+  setPreview(
+    md(`# Create <code>${scriptName}</code>
+
+Create a new script named <code>"${scriptName}"</code>
     `)
   )
 }
@@ -86,7 +88,11 @@ if (cliScript === "docs") {
 ) {
   await run(kitPath(`cli`, cliScript + ".js"))
 } else {
-  await cli("new", cliScript)
+  await run(
+    `${kitPath("cli", "new")}.js ${cliScript
+      .replace(/\s/g, "-")
+      .toLowerCase()} --scriptName '${cliScript}'`
+  )
 }
 
 export {}

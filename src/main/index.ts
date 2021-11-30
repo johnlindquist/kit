@@ -1,4 +1,4 @@
-// Menu: Main
+// Name: Main
 // Description: Script Kit
 // Placeholder: Run script
 // UI: arg

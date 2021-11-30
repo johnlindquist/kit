@@ -1,4 +1,6 @@
+// Name: New
 // Description: Create a new script
+
 import {
   exists,
   kitMode,
@@ -75,12 +77,18 @@ let templateContent = await readFile(templatePath, "utf8")
 
 let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
+if (arg.scriptName) {
+  contents = `// Name: ${arg?.scriptName || ""}
+
+${contents}
+`
+}
 
 if (arg?.url || arg?.content) {
   contents = (await get<any>(arg?.url)).data
   if (!arg?.keepMetadata) {
     contents = stripMetadata(contents, [
-      "Menu",
+      "Name",
       "Author",
       "Twitter",
       "Alias",
