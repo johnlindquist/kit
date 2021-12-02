@@ -3,12 +3,10 @@
 
 let { filePath } = await selectScript(`Share which script?`)
 
-copy(await readFile(filePath, "utf8"))
+copy(filePath)
 div(
   md(
-    `Copied content of "${path.basename(
-      filePath
-    )}" to clipboard`
+    `<code class="text-xxs">${filePath}</code> copied to clipboard`
   )
 )
 await wait(2000, null)

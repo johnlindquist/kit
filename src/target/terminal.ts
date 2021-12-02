@@ -266,3 +266,5 @@ global.removeClipboardItem = (id: string) => {
 global.submit = (value: any) => {
   notSupported("submit")
 }
+
+global.setLoading = (loading: boolean) => {}

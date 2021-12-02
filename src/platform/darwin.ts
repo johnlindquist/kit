@@ -27,6 +27,7 @@ global.applescript = async (
     })
 
     child.on("exit", () => {
+      global.setLoading(false)
       res(stdout)
     })
 

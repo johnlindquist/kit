@@ -72,6 +72,7 @@ let cliScript = await arg<keyof CLI>(
     placeholder: "Create a new script",
     strict: false,
     onNoChoices,
+    input: arg?.input,
   },
   previewChoices
 )
@@ -81,7 +82,7 @@ if (cliScript === "docs") {
 } else if (flag?.discuss) {
   let doc = await findDoc("new", cliScript)
   if (doc?.discussion) {
-    await $`open ${doc.discussion}`
+    exec(`open ${doc.discussion}`)
   }
 } else if (
   newOptions.find(script => script.value === cliScript)

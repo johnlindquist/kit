@@ -28,6 +28,6 @@ copy(
     .raw_url
 )
 div(md(`Copied raw gist url to clipboard`))
-await wait(1500)
+await wait(2000, null)
 
-export { }
+export {}

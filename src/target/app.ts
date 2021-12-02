@@ -36,6 +36,7 @@ import {
   keyCodeFromKey,
 } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
+import { result } from "@johnlindquist/globals/types/lodash"
 
 interface AppMessage {
   channel: Channel
@@ -69,6 +70,7 @@ let displayChoices = async ({
 
     case "object":
       let resultChoices = checkResultInfo(choices)
+
       global.setChoices(resultChoices, className)
 
       if (
@@ -189,7 +191,15 @@ let waitForPromptValue = ({
 
     let tab$ = process$.pipe(
       filter(data => data.channel === Channel.TAB_CHANGED),
-      distinctUntilChanged(),
+      filter(data => {
+        let tabIndex = global.onTabs.findIndex(
+          ({ name }) => {
+            return name == data?.tab
+          }
+        )
+
+        return tabIndex !== global.onTabIndex
+      }),
       tap(data => {
         let tabIndex = global.onTabs.findIndex(
           ({ name }) => {
@@ -774,6 +784,30 @@ global.appKeystroke = (data: KeyData) => {
     keyCode: keyCodeFromKey(data?.key),
     ...data,
   })
+}
+
+global.setLoading = (loading: boolean) => {
+  global.send(Channel.SET_LOADING, loading)
+}
+
+let loadingList = [
+  "$",
+  "degit",
+  "download",
+  "exec",
+  "fetch",
+  "get",
+  "patch",
+  "post",
+  "put",
+  "spawn",
+]
+for (let method of loadingList) {
+  let captureMethod = global[method]
+  global[method] = (...args) => {
+    global.setLoading(true)
+    return captureMethod(...args)
+  }
 }
 
 global.Key = KeyEnum

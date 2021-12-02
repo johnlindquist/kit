@@ -28,24 +28,24 @@ declare global {
 
 global.onTabs = []
 
-onTab("Run", async () => {
-  await cli("app-run")
+onTab("Run", async (input = "") => {
+  await cli("app-run", "--input", input)
 })
 
-onTab("New", async () => {
-  await main("new")
+onTab("New", async (input = "") => {
+  await main("new", "--input", input)
 })
 
-onTab("Kit", async () => {
-  await main("kit")
+onTab("Kit", async (input = "") => {
+  await main("kit", "--input", input)
 })
 
-onTab("Docs", async () => {
-  await main("help")
+onTab("Docs", async (input = "") => {
+  await main("help", "--input", input)
 })
 
-onTab("Hot 🔥", async () => {
-  await main("hot")
+onTab("Hot 🔥", async (input = "") => {
+  await main("hot", "--input", input)
 })
 
 export {}

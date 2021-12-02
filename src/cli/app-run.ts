@@ -24,6 +24,9 @@ setFlags({
     name: "Copy script content to clipboard",
     shortcut: "cmd+c",
   },
+  ["copy-path"]: {
+    name: "Copy path of script to clipboard",
+  },
   ["new-quick"]: {
     name: "Quick new script",
     shortcut: "cmd+n",
@@ -111,12 +114,21 @@ Create a new script named <code>"${scriptName}"</code>
 }
 
 let script = await selectScript(
-  { placeholder: "Run script", strict: false, onNoChoices },
+  {
+    placeholder: "Run Script",
+    strict: false,
+    onNoChoices,
+    input: arg?.input || "",
+  },
   true,
   scripts => scripts.filter(script => !script?.exclude)
 )
 
-if (script === Value.NoValue) {
+if (
+  script === Value.NoValue ||
+  typeof script === "undefined"
+) {
+  console.warn(`🤔 No script selected`, script)
 } else if (typeof script === "string") {
   await run(
     `${kitPath("cli", "new")}.js ${script

@@ -289,7 +289,7 @@ export let formatScriptMetadata = (
 
   let tabs =
     fileContents.match(
-      new RegExp(`(?<=^onTab[(]['"]).*(?=\s*['"])`, "gim")
+      new RegExp(`(?<=^onTab[(]['"]).+?(?=\s*['"])`, "gim")
     ) || []
 
   if (tabs?.length) {

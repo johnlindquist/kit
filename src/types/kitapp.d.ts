@@ -165,6 +165,7 @@ export interface ChannelMap {
   [Channel.SET_HINT]: string
   [Channel.SET_IGNORE_BLUR]: boolean
   [Channel.SET_INPUT]: string
+  [Channel.SET_LOADING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGIN]: boolean
   [Channel.SET_MODE]: Mode
@@ -228,6 +229,10 @@ export interface SetTextareaValue {
 
 export interface SetIgnoreBlur {
   (ignoreBlur: boolean): void
+}
+
+export interface SetLoading {
+  (loading: boolean): void
 }
 
 export interface SetPlaceholder {
@@ -304,6 +309,7 @@ export interface AppApi {
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur
+  setLoading: SetLoading
 
   show: ShowAppWindow
   showImage: ShowAppWindow
@@ -335,7 +341,7 @@ export interface AppApi {
 
   hide: () => void
 
-  devTools: (object: any) => void
+  dev: (object: any) => void
   getClipboardHistory: () => Promise<ClipboardItem[]>
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
@@ -384,13 +390,14 @@ declare global {
   var setInput: SetInput
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
+  var setLoading: SetLoading
 
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
   var hide: () => void
 
-  var devTools: (object: any) => void
+  var dev: (object: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void

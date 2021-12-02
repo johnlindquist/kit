@@ -240,7 +240,7 @@ global.show = (html, options) => {
   global.send(Channel.SHOW, { options, html })
 }
 
-global.devTools = data => {
+global.dev = data => {
   global.send(Channel.DEV_TOOLS, data)
 }
 
@@ -262,7 +262,8 @@ global.main = async (scriptPath: string, ..._args) => {
 }
 
 global.lib = async (lib: string, ..._args) => {
-  let libScriptPath = kenvPath("lib", lib) + ".js"
+  let libScriptPath =
+    path.resolve(global.kitScript, "..", "lib", lib) + ".js"
   return await global.attemptImport(libScriptPath, ..._args)
 }
 
