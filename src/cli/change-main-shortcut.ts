@@ -1,5 +1,9 @@
+// Name: Change Kit.app Shortcut
+
 let shortcut = ""
 let confirm = false
+
+import { mainScriptPath } from "../core/utils.js"
 
 while (!confirm) {
   ;({ shortcut } = await hotkey("Type a key combo"))
@@ -23,6 +27,10 @@ setPanel(`<div class="px-6 py-4">
 ${shortcut} assigned to main
  </div>`)
 
-await wait(1500)
+await wait(2000, null)
+
+if (process.env.KIT_CONTEXT === "app") {
+  await run(mainScriptPath)
+}
 
 export {}

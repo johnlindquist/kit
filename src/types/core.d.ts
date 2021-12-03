@@ -84,7 +84,9 @@ export type PromptState = "collapsed" | "expanded"
 export type PromptDb = {
   screens: {
     [screenId: string]: {
-      [key in PromptState]: PromptBounds
+      [script: string]: {
+        [key in PromptState]: PromptBounds
+      }
     }
   }
 }

@@ -91,7 +91,7 @@ export interface KeyData {
   shortcut: string
 }
 export interface Hotkey {
-  (placeholder?: string): Promise<KeyData>
+  (placeholder?: string | PromptConfig): Promise<KeyData>
 }
 
 export interface AppleScript {
@@ -119,6 +119,7 @@ export type SendNoOptions =
   | Channel.CLEAR_CLIPBOARD_HISTORY
   | Channel.CLEAR_PROMPT_CACHE
   | Channel.CONSOLE_CLEAR
+  | Channel.KIT_CLEAR
   | Channel.HIDE_APP
   | Channel.NEEDS_RESTART
   | Channel.TOGGLE_TRAY
@@ -140,6 +141,7 @@ export interface ChannelMap {
   [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
   [Channel.CLEAR_PROMPT_CACHE]: undefined
   [Channel.CONSOLE_CLEAR]: undefined
+  [Channel.KIT_CLEAR]: undefined
   [Channel.HIDE_APP]: undefined
   [Channel.NEEDS_RESTART]: undefined
   [Channel.TOGGLE_TRAY]: undefined
@@ -149,6 +151,8 @@ export interface ChannelMap {
 
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
+  [Channel.KIT_LOG]: string
+  [Channel.KIT_WARN]: string
   [Channel.COPY_PATH_AS_PICTURE]: string
   [Channel.DEV_TOOLS]: any
   [Channel.EXIT]: boolean
@@ -165,6 +169,7 @@ export interface ChannelMap {
   [Channel.SET_HINT]: string
   [Channel.SET_IGNORE_BLUR]: boolean
   [Channel.SET_INPUT]: string
+  [Channel.SET_LOADING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGIN]: boolean
   [Channel.SET_MODE]: Mode
@@ -228,6 +233,10 @@ export interface SetTextareaValue {
 
 export interface SetIgnoreBlur {
   (ignoreBlur: boolean): void
+}
+
+export interface SetLoading {
+  (loading: boolean): void
 }
 
 export interface SetPlaceholder {
@@ -304,6 +313,7 @@ export interface AppApi {
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur
+  setLoading: SetLoading
 
   show: ShowAppWindow
   showImage: ShowAppWindow
@@ -335,7 +345,7 @@ export interface AppApi {
 
   hide: () => void
 
-  devTools: (object: any) => void
+  dev: (object: any) => void
   getClipboardHistory: () => Promise<ClipboardItem[]>
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
@@ -384,13 +394,14 @@ declare global {
   var setInput: SetInput
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
+  var setLoading: SetLoading
 
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
   var hide: () => void
 
-  var devTools: (object: any) => void
+  var dev: (object: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void

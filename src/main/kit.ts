@@ -160,6 +160,7 @@ let cliScript = await arg(
     strict: false,
     onChoices,
     onNoChoices,
+    input: arg?.input || "",
   },
   await addPreview(kitManagementChoices, "kit", true)
 )
@@ -171,7 +172,7 @@ if (noChoices) {
 } else if (flag?.discuss) {
   let doc = await findDoc("kit", cliScript)
   if (doc?.discussion) {
-    await $`open ${doc.discussion}`
+    exec(`open "${doc.discussion}"`)
   }
 } else {
   await run(kitPath("cli", cliScript) + ".js")

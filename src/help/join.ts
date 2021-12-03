@@ -1,5 +1,7 @@
 // Description: Subscribe to the Script Kit Newsletter
 
+import { mainScriptPath } from "../core/utils.js"
+
 let email_address = await arg(
   {
     placeholder: "Enter e-mail to join newsletter:",
@@ -25,6 +27,10 @@ setPanel(
   `p-6 text-xl`
 )
 
-await wait(2000)
+await wait(2000, null)
+
+if (process.env.KIT_CONTEXT === "app") {
+  await run(mainScriptPath)
+}
 
 export {}

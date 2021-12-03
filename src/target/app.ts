@@ -24,6 +24,7 @@ import {
   debounceTime,
   withLatestFrom,
   distinctUntilChanged,
+  Subject,
 } from "@johnlindquist/kit-internal/rxjs"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
@@ -36,6 +37,7 @@ import {
   keyCodeFromKey,
 } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
+import { result } from "@johnlindquist/globals/types/lodash"
 
 interface AppMessage {
   channel: Channel
@@ -69,6 +71,7 @@ let displayChoices = async ({
 
     case "object":
       let resultChoices = checkResultInfo(choices)
+
       global.setChoices(resultChoices, className)
 
       if (
@@ -185,11 +188,19 @@ let waitForPromptValue = ({
         process.off("message", m)
         process.off("error", e)
       }
-    }).pipe(share())
+    }).pipe(takeUntil(kitPrompt$), share())
 
     let tab$ = process$.pipe(
       filter(data => data.channel === Channel.TAB_CHANGED),
-      distinctUntilChanged(),
+      filter(data => {
+        let tabIndex = global.onTabs.findIndex(
+          ({ name }) => {
+            return name == data?.tab
+          }
+        )
+
+        return tabIndex !== global.onTabIndex
+      }),
       tap(data => {
         let tabIndex = global.onTabs.findIndex(
           ({ name }) => {
@@ -388,7 +399,7 @@ let waitForPromptValue = ({
         resolve(value)
       },
       complete: () => {
-        // console.log(`Complete: ${promptId}`)
+        global.log(`✅ Prompt #${promptId} Done`)
       },
       error: error => {
         reject(error)
@@ -454,7 +465,10 @@ let prepPrompt = async (config: PromptConfig) => {
   })
 }
 
+let kitPrompt$ = new Subject()
+
 global.kitPrompt = async (config: PromptConfig) => {
+  kitPrompt$.next(true)
   await new Promise(r => setTimeout(r, 0)) //need to let tabs finish...
   let {
     choices = [],
@@ -528,9 +542,13 @@ global.editor = async (
 global.hotkey = async (
   placeholder = "Press a key combo:"
 ) => {
+  let config =
+    typeof placeholder === "string"
+      ? { placeholder }
+      : placeholder
   return await global.kitPrompt({
+    ...config,
     ui: UI.hotkey,
-    placeholder,
   })
 }
 
@@ -746,13 +764,10 @@ global.submit = (value: any) => {
   global.send(Channel.SET_SUBMIT_VALUE, value)
 }
 
-global.wait = async (time: number, value) => {
+global.wait = async (time: number) => {
   return new Promise(res =>
     setTimeout(() => {
-      if (typeof value !== "undefined") {
-        global.submit(value)
-      }
-      res(value)
+      res()
     }, time)
   )
 }
@@ -774,6 +789,30 @@ global.appKeystroke = (data: KeyData) => {
     keyCode: keyCodeFromKey(data?.key),
     ...data,
   })
+}
+
+global.setLoading = (loading: boolean) => {
+  global.send(Channel.SET_LOADING, loading)
+}
+
+let loadingList = [
+  "$",
+  "degit",
+  "download",
+  "exec",
+  "fetch",
+  "get",
+  "patch",
+  "post",
+  "put",
+  "spawn",
+]
+for (let method of loadingList) {
+  let captureMethod = global[method]
+  global[method] = (...args) => {
+    global.setLoading(true)
+    return captureMethod(...args)
+  }
 }
 
 global.Key = KeyEnum

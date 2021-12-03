@@ -68,24 +68,26 @@ let kitHelpChoices: Choice[] = [
   {
     name: "Download Latest Docs",
     description: `Pull latest docs.json from scriptkit.com`,
-    value: "download-docs"
+    value: "download-docs",
   },
 ]
 
-let noChoices = false;
-let onNoChoices = async (input) => {
+let noChoices = false
+let onNoChoices = async input => {
   noChoices = true
-  setPreview(md(`
+  setPreview(
+    md(`
 
 # No Docs Found for "${input}"
 
 Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).
 
 
-`))
+`)
+  )
 }
 
-let onChoices = async (input) => {
+let onChoices = async input => {
   noChoices = false
 }
 
@@ -94,29 +96,30 @@ let selectedHelp = await arg(
     placeholder: `Got questions?`,
     strict: false,
     onNoChoices,
-    onChoices
+    onChoices,
+    input: arg?.input,
   },
   await addPreview(kitHelpChoices, "help")
-
 )
 
 if (noChoices) {
-  exec(`open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`)
-
+  exec(
+    `open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`
+  )
 } else {
   let maybeCli = kitPath(`help`, selectedHelp + ".js")
   if (flag?.discuss) {
     let doc = await findDoc("help", selectedHelp)
 
     if (doc?.discussion) {
-      await $`open ${doc?.discussion}`
+      exec(`open "${doc?.discussion}"`)
     }
   } else if (await pathExists(maybeCli)) {
     await run(maybeCli)
   } else {
     let doc = await findDoc("help", selectedHelp)
-    await $`open ${doc?.discussion}`
+    exec(`open "${doc?.discussion}"`)
   }
 }
 
-export { }
+export {}

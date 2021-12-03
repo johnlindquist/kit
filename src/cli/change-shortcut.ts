@@ -1,8 +1,12 @@
 // Description: Change Script Shortcut
 
 import { Script } from "../types/core"
+import {
+  mainScriptPath,
+  trashScript,
+} from "../core/utils.js"
 
-let { filePath, command, menu } = await selectScript(
+let { filePath, command, menu, name } = await selectScript(
   `Change shortcut of which script?`,
   true,
   scripts =>
@@ -14,21 +18,22 @@ let { filePath, command, menu } = await selectScript(
         return a?.shortcut > b?.shortcut
           ? 1
           : a?.shortcut < b?.shortcut
-            ? -1
-            : 0
+          ? -1
+          : 0
       })
       .map((script: Script) => {
         return {
           ...script,
-          name:
-            (script?.menu || script.command),
+          name: script?.menu || script.command,
           description: script?.description,
           value: script,
         }
       })
 )
 
-let { shortcut } = await hotkey()
+let { shortcut } = await hotkey({
+  hint: `Change shortcut for "${name}"`,
+})
 
 let fileContents = await readFile(filePath, "utf-8")
 let reg = /(?<=^\/\/\s*Shortcut:\s).*(?=$)/gim
@@ -44,9 +49,17 @@ if (
     `// Shortcut: ${shortcut}\n${fileContents}`
   )
 }
-div(md(`${menu || command} assigned <code>${shortcut}</code>`), `flex justify-center items-center`)
+div(
+  md(
+    `${menu || command} assigned <code>${shortcut}</code>`
+  ),
+  `flex justify-center items-center`
+)
 
-await wait(2000)
+await wait(2000, null)
 
+if (process.env.KIT_CONTEXT === "app") {
+  await run(mainScriptPath)
+}
 
-export { }
+export {}

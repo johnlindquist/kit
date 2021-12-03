@@ -1,5 +1,8 @@
 let url = await arg(
-  "Open discussion in browser",
+  {
+    placeholder: `Community Scripts and Announcements`,
+    input: arg?.input,
+  },
   async () => {
     try {
       let hot = await readJson(kitPath("data", "hot.json"))
