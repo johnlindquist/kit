@@ -207,10 +207,46 @@ global.send = async (channel: Channel, value?: any) => {
   }
 }
 
+let _consoleLog = console.log.bind(console)
+let _consoleWarn = console.warn.bind(console)
+let _consoleClear = console.clear.bind(console)
+global.log = (...args) => {
+  if (process?.send) {
+    global.send(
+      Channel.KIT_LOG,
+      args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" ")
+    )
+  } else {
+    _consoleLog(...args)
+  }
+}
+global.warn = (...args) => {
+  if (process?.send) {
+    global.send(
+      Channel.KIT_WARN,
+      args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" ")
+    )
+  } else {
+    _consoleWarn(...args)
+  }
+}
+global.clear = () => {
+  if (process?.send) {
+    global.send(Channel.KIT_CLEAR)
+  } else {
+    _consoleClear()
+  }
+}
+
 if (process?.send) {
-  let _consoleLog = console.log.bind(console)
-  let _consoleWarn = console.warn.bind(console)
-  let _consoleClear = console.clear.bind(console)
   console.log = (...args) => {
     let log = args
       .map(a =>
@@ -243,6 +279,7 @@ global.show = (html, options) => {
 global.dev = data => {
   global.send(Channel.DEV_TOOLS, data)
 }
+global.devTools = global.dev
 
 global.showImage = (image, options) => {
   global.send(Channel.SHOW_IMAGE, {

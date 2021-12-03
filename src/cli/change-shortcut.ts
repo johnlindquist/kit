@@ -6,7 +6,7 @@ import {
   trashScript,
 } from "../core/utils.js"
 
-let { filePath, command, menu } = await selectScript(
+let { filePath, command, menu, name } = await selectScript(
   `Change shortcut of which script?`,
   true,
   scripts =>
@@ -31,7 +31,9 @@ let { filePath, command, menu } = await selectScript(
       })
 )
 
-let { shortcut } = await hotkey()
+let { shortcut } = await hotkey({
+  hint: `Change shortcut for "${name}"`,
+})
 
 let fileContents = await readFile(filePath, "utf-8")
 let reg = /(?<=^\/\/\s*Shortcut:\s).*(?=$)/gim

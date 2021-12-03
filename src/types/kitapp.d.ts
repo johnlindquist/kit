@@ -91,7 +91,7 @@ export interface KeyData {
   shortcut: string
 }
 export interface Hotkey {
-  (placeholder?: string): Promise<KeyData>
+  (placeholder?: string | PromptConfig): Promise<KeyData>
 }
 
 export interface AppleScript {
@@ -119,6 +119,7 @@ export type SendNoOptions =
   | Channel.CLEAR_CLIPBOARD_HISTORY
   | Channel.CLEAR_PROMPT_CACHE
   | Channel.CONSOLE_CLEAR
+  | Channel.KIT_CLEAR
   | Channel.HIDE_APP
   | Channel.NEEDS_RESTART
   | Channel.TOGGLE_TRAY
@@ -140,6 +141,7 @@ export interface ChannelMap {
   [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
   [Channel.CLEAR_PROMPT_CACHE]: undefined
   [Channel.CONSOLE_CLEAR]: undefined
+  [Channel.KIT_CLEAR]: undefined
   [Channel.HIDE_APP]: undefined
   [Channel.NEEDS_RESTART]: undefined
   [Channel.TOGGLE_TRAY]: undefined
@@ -149,6 +151,8 @@ export interface ChannelMap {
 
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
+  [Channel.KIT_LOG]: string
+  [Channel.KIT_WARN]: string
   [Channel.COPY_PATH_AS_PICTURE]: string
   [Channel.DEV_TOOLS]: any
   [Channel.EXIT]: boolean
