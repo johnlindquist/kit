@@ -88,14 +88,21 @@ if (arg?.url || arg?.content) {
   contents = (await get<any>(arg?.url)).data
   if (!arg?.keepMetadata) {
     contents = stripMetadata(contents, [
+      "Menu",
       "Name",
       "Author",
       "Twitter",
       "Alias",
       "Description",
-      "Name",
     ])
   }
+}
+
+if (arg?.url) {
+  scriptPath = scriptPath.replace(
+    /\.(js|ts)$/g,
+    path.extname(arg?.url?.replace(/("|')$/g, ""))
+  )
 }
 
 contents = prependImport(contents)
