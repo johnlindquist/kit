@@ -28,8 +28,6 @@ if (confirm) {
   await refreshScriptsDb()
 }
 
-if (process.env.KIT_CONTEXT === "app") {
-  await run(mainScriptPath)
-}
+await mainScript()
 
 export {}

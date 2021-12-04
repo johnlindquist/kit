@@ -14,7 +14,7 @@ let repo = await arg({
   hint: `Full url or "user/repo" for github: e.g., <code>johnlindquist/kit-examples</code>`,
 })
 
-if (repo?.split("/")?.length === 2) {
+if (repo?.match(/^[^\/|:]*\/[^\/]*$/)) {
   repo = `git@github.com:${repo}.git`
 }
 

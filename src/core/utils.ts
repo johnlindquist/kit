@@ -214,7 +214,7 @@ export const shortcutNormalizer = (shortcut: string) =>
 export const friendlyShortcut = (shortcut: string) => {
   let f = ""
   if (shortcut.includes("CommandOrControl+")) f += "cmd+"
-  if (shortcut.includes("Control+")) f += "ctrl+"
+  if (shortcut.match(/[^Or]Control\+/)) f += "ctrl+"
   if (shortcut.includes("Alt+")) f += "opt+"
   if (shortcut.includes("Shift+")) f += "shift+"
   if (shortcut.includes("+"))
@@ -289,7 +289,7 @@ export let formatScriptMetadata = (
 
   let tabs =
     fileContents.match(
-      new RegExp(`(?<=^onTab[(]['"]).+?(?=\s*['"])`, "gim")
+      new RegExp(`(?<=^onTab[(]['"]).+?(?=['"])`, "gim")
     ) || []
 
   if (tabs?.length) {
