@@ -427,7 +427,7 @@ export let stripMetadata = (
     : ``
 
   return fileContents.replace(
-    new RegExp(`(^//[^(:|\W)]+${negBehind}:).+`, "gim"),
+    new RegExp(`(^//[^(:|\W|\n)]+${negBehind}:).+`, "gim"),
     "$1"
   )
 }
