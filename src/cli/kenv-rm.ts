@@ -22,4 +22,4 @@ await trash(dir)
 
 await getScripts(false)
 
-export {}
+await mainScript()

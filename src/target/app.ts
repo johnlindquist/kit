@@ -31,7 +31,10 @@ import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 import { Convert } from "@johnlindquist/kit-internal/ansi-to-html"
 
 import { Mode, Channel, UI } from "../core/enum.js"
-import { assignPropsTo } from "../core/utils.js"
+import {
+  assignPropsTo,
+  mainScriptPath,
+} from "../core/utils.js"
 import {
   KeyEnum,
   keyCodeFromKey,
@@ -816,6 +819,11 @@ for (let method of loadingList) {
 }
 
 global.Key = KeyEnum
+
+global.mainScript = async () => {
+  if (process.env.KIT_CONTEXT === "app")
+    await run(mainScriptPath)
+}
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]
 delete global?.env?.["ELECTRON_RUN_AS_NODE"]

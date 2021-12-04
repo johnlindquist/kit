@@ -350,6 +350,7 @@ export interface AppApi {
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
   submit: (value: any) => void
+  mainScript: () => Promise<void>
 
   appKeystroke: SendKeystroke
   Key: KeyType
@@ -406,6 +407,7 @@ declare global {
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void
   var submit: (value: any) => void
+  var mainScript: () => Promise<void>
 
   var appKeystroke: SendKeystroke
   var Key: KeyType
