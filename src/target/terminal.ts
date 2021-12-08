@@ -225,6 +225,8 @@ global.drop = async () => {
   global.exit()
 }
 
+global.setChoices = async () => {}
+
 global.setPanel = async (html, containerClasses = "") => {}
 global.setPreview = async (
   html,

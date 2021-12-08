@@ -408,7 +408,8 @@ global.setChoices = async (choices, className = "") => {
       }
 
       if (typeof choice === "object") {
-        choice.hasPreview = Boolean(choice?.preview)
+        if (Boolean(choice?.preview))
+          choice.hasPreview = true
 
         if (!choice?.id) {
           choice.id = global.uuid()
@@ -434,6 +435,8 @@ global.setChoices = async (choices, className = "") => {
     scripts: true,
   })
   global.kitPrevChoices = choices
+
+  global.setLoading(false)
 }
 
 global.flag = {}
@@ -458,8 +461,9 @@ global.setFlags = (flags: FlagsOptions) => {
   global.send(Channel.SET_FLAGS, global.prepFlags(flags))
 }
 
-global.hide = () => {
+global.hide = async () => {
   global.send(Channel.HIDE_APP)
+  await wait(500)
 }
 
 global.run = run

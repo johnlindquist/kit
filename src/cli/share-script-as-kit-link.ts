@@ -16,6 +16,7 @@ div(
 `),
   `flex justify-center items-center`
 )
-await wait(2000, null)
+await wait(2000)
+submit(``)
 
 export {}

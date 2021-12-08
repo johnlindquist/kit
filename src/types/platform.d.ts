@@ -30,7 +30,9 @@ interface GetActiveTab {
   (browser?: Browser): Promise<string>
 }
 interface GetTabs {
-  (browser?: Browser): Promise<string[]>
+  (browser?: Browser): Promise<
+    { url: string; title: string }[]
+  >
 }
 
 interface FocusTab {
@@ -186,10 +188,10 @@ interface GetSelectedFile {
   (): Promise<string>
 }
 interface SelectFile {
-  (message?:string): Promise<string>
+  (message?: string): Promise<string>
 }
 interface SelectFolder {
-  (message?:string): Promise<string>
+  (message?: string): Promise<string>
 }
 
 interface GetSelectedText {

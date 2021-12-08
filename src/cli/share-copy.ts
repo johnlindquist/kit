@@ -11,6 +11,7 @@ div(
     )}" to clipboard`
   )
 )
-await wait(2000, null)
+await wait(2000)
+submit(``)
 
 export {}

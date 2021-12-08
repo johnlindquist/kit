@@ -343,7 +343,7 @@ export interface AppApi {
 
   memoryMap: Map<string, any>
 
-  hide: () => void
+  hide: () => Promise<void>
 
   dev: (object: any) => void
   getClipboardHistory: () => Promise<ClipboardItem[]>
@@ -400,7 +400,7 @@ declare global {
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
-  var hide: () => void
+  var hide: () => Promise<void>
 
   var dev: (object: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>

@@ -257,7 +257,7 @@ declare global {
   var selectKitEditor: SelectKitEditor
 
   var getScripts: GetScripts
-  var hide: () => void
+  var hide: () => Promise<void>
   var flag: Flags
   var setFlags: FlagFn
   var prepFlags: PrepFlags

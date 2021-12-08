@@ -23,6 +23,8 @@ let name = await arg({
   hint: `examples: ${examples}`,
 })
 
+div(md(`Opening ${name}...`))
+
 let { dirPath: selectedKenvPath } = await selectKenv(
   /^examples$/
 )

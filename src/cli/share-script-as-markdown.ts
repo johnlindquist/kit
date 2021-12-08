@@ -16,6 +16,8 @@ let octokit = new Octokit({
 
 let fileBasename = path.basename(filePath)
 
+div(md(`Creating gist...`))
+
 let content = await readFile(filePath, "utf8")
 let response = await octokit.rest.gists.create({
   files: {
@@ -39,10 +41,6 @@ ${content}
 `
 
 copy(discussionPost)
-
-exec(
-  `open 'https://github.com/johnlindquist/kit/discussions/new?category=share'`
-)
 
 div(md(`Copied ${command} to clipboard as markdown`))
 await wait(2000)
