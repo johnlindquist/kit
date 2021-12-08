@@ -3,7 +3,7 @@
 // Placeholder: Run script
 // UI: arg
 // preview: true
-
+setDescription(`Script Kit`)
 export interface Main {
   edit: Promise<typeof import("./edit")>
   help: Promise<typeof import("./help")>

@@ -1,5 +1,6 @@
 // Name: Main
 // Description: Script Kit
+// Log: false
 
 import { Value } from "../core/enum.js"
 import { toggleBackground, run } from "../core/utils.js"

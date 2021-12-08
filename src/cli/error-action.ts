@@ -2,6 +2,7 @@
 
 import { extensionRegex } from "../core/utils.js"
 import { ErrorAction } from "../core/enum.js"
+import { highlightJavaScript } from "../api/kit.js"
 
 let script = await arg()
 let stackFile = await arg()
@@ -42,7 +43,7 @@ let errorActions: {
   },
 }
 
-console.log(stack)
+// console.log(stack)
 
 let hint = stack.split("\n")[0]
 let showCopyCommand = false
@@ -70,14 +71,60 @@ let errorAction: ErrorAction = await arg(
     {
       name: `Open ${script} in editor`,
       value: ErrorAction.Open,
+      preview: async () => {
+        return highlightJavaScript(errorFile)
+      },
     },
     {
       name: `Open ${errorLog} in editor`,
       value: ErrorAction.Log,
+      preview: async () => {
+        let logFile = await readFile(errorLogPath, "utf-8")
+
+        return `
+        <div class="prose dark:prose-dark">   
+        ${md(`# ${errorLog}`)}   
+  <div class="text-xxs font-mono whitespace-nowrap">      
+        ${logFile
+          .split("\n")
+          .map(line =>
+            line.replace(/[^\s]+?(?=\s\d)\s/, "[")
+          )
+          .reverse()
+          .join("<br>")}
+  </div>
+  </div>
+        `
+      },
     },
     {
       name: `Open log kit.log in editor`,
       value: ErrorAction.KitLog,
+      preview: async () => {
+        let logFile = await readFile(
+          kitPath("logs", "kit.log"),
+          "utf-8"
+        )
+
+        return `
+        <div class="prose dark:prose-dark">      
+  ${md(`# Latest 100 Log Lines`)}
+  <div class="text-xxs font-mono whitespace-nowrap">      
+        ${logFile
+          .split("\n")
+          .map(line =>
+            line
+              .replace(/[^\s]+?(?=\s\d)\s/, "[")
+              .replace("    ", "&emsp;")
+              .replace("  ", "&ensp;")
+          )
+          .slice(-100)
+          .reverse()
+          .join("<br>")}
+  </div>
+  </div>
+        `
+      },
     },
     {
       name: `Ask for help on forum`,
