@@ -114,10 +114,15 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
       return `
       <div class="prose dark:prose-dark">      
 ${md(`# Latest 100 Log Lines`)}
-<div class="text-xxs font-mono">      
+<div class="text-xxs font-mono whitespace-nowrap">      
       ${logFile
         .split("\n")
-        .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+        .map(line =>
+          line
+            .replace(/[^\s]+?(?=\s\d)\s/, "[")
+            .replace("    ", "&emsp;")
+            .replace("  ", "&ensp;")
+        )
         .slice(-100)
         .reverse()
         .join("<br>")}

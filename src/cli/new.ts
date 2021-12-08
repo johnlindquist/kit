@@ -1,5 +1,6 @@
 // Name: New
 // Description: Create a new script
+// Log: false
 
 import {
   exists,

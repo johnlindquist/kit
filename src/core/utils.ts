@@ -123,6 +123,7 @@ export const KIT_DEFAULT_PATH = combinePath([
 
 export const KIT_FIRST_PATH =
   combinePath([
+    kitPath("node", "bin"),
     kitPath("bin"),
     kitPath("bin", "code"),
     kenvPath("bin"),
