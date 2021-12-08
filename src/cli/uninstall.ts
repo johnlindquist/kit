@@ -42,3 +42,9 @@ let uninstallPackage = spawn(
 uninstallPackage.on("error", error => {
   console.log({ error })
 })
+
+uninstallPackage.on("exit", () => {
+  console.log(`Uninstalled ${packages}`)
+})
+
+export { packages }

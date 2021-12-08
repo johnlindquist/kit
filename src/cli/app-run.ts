@@ -70,6 +70,10 @@ setFlags({
     name: "Share as discussion",
     shortcut: "cmd+s",
   },
+  ["share-script-as-markdown"]: {
+    name: "Share as Markdown",
+    shortcut: "cmd+m",
+  },
   ["change-shortcut"]: {
     name: "Change shortcut",
   },
@@ -142,28 +146,27 @@ if (
     script.system ||
     flag?.open
 
-  if (script.background) {
-    toggleBackground(script)
+  let selectedFlag: any = Object.keys(flag).find(f => {
+    return f && !modifiers[f]
+  })
+
+  if (selectedFlag && !flag?.open) {
+    await run(
+      `${kitPath("cli", selectedFlag)}.js ${
+        script.filePath
+      } `
+    )
+  } else if (script.background) {
+    await toggleBackground(script)
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
   } else {
-    let selectedFlag: any = Object.keys(flag).find(f => {
-      return f && !modifiers[f]
-    })
-    if (selectedFlag) {
-      await run(
-        `${kitPath("cli", selectedFlag)}.js ${
-          script.filePath
-        } `
-      )
-    } else {
-      await run(
-        script.filePath,
-        Object.keys(flag)
-          .map(f => `--${f} `)
-          .join(" ")
-      )
-    }
+    await run(
+      script.filePath,
+      Object.keys(flag)
+        .map(f => `--${f} `)
+        .join(" ")
+    )
   }
 }
 

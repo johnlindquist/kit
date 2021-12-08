@@ -201,6 +201,7 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (file, dir, line = 0, col = 0) => {
+  setDescription(`Opening...`)
   if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)

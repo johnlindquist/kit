@@ -119,6 +119,7 @@ ${md(`# Latest 100 Log Lines`)}
         .split("\n")
         .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
         .slice(-100)
+        .reverse()
         .join("<br>")}
 </div>
 </div>

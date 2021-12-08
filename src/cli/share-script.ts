@@ -14,6 +14,8 @@ let octokit = new Octokit({
   },
 })
 
+div(md(`Creating gist...`))
+
 let response = await octokit.rest.gists.create({
   files: {
     [command + ".js"]: {
@@ -28,6 +30,6 @@ copy(
     .raw_url
 )
 div(md(`Copied raw gist url to clipboard`))
-await wait(2000, null)
-
+await wait(2000)
+submit(``)
 export {}

@@ -516,6 +516,8 @@ let maybeWrapHtml = (html, containerClasses) => {
 }
 
 global.div = async (html = "", containerClasses = "") => {
+  if (html.trim() === "")
+    html = md("⚠️ html string was empty")
   return await global.kitPrompt({
     choices: maybeWrapHtml(html, containerClasses),
     ui: UI.div,
@@ -692,6 +694,7 @@ global.setDiv = async (h, containerClasses = "") => {
 global.setPreview = async (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PREVIEW, html)
+  setLoading(false)
 }
 
 global.setMode = async mode => {

@@ -21,10 +21,20 @@ await import("./packages/shelljs.js")
 await import("./packages/trash.js")
 
 global.env = async (envKey, promptConfig) => {
+  if (!envKey) throw new Error(`Environment Key Required`)
   let ignoreBlur =
     (promptConfig as PromptConfig)?.ignoreBlur === false
       ? false
       : true
+  let secret =
+    typeof (promptConfig as PromptConfig)?.secret ===
+    "boolean"
+      ? (promptConfig as PromptConfig).secret
+      : envKey.includes("KEY") ||
+        envKey.includes("SECRET") ||
+        envKey.includes("TOKEN")
+      ? true
+      : false
   if ((promptConfig as any)?.reset !== true) {
     let envVal = global.env[envKey] || process.env[envKey]
     if (envVal) return envVal
@@ -37,11 +47,13 @@ global.env = async (envKey, promptConfig) => {
       ? await global.kitPrompt({
           placeholder: promptConfig,
           ignoreBlur,
+          secret,
         })
       : await global.kitPrompt({
-          placeholder: `Set ${envKey} to:`,
+          placeholder: `Set ${envKey}:`,
           ignoreBlur,
           ...promptConfig,
+          secret,
         })
 
   if (input?.startsWith("~"))

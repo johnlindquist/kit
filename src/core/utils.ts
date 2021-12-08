@@ -104,15 +104,31 @@ export const KIT_APP_PROMPT = kitPath(
 export const KIT_NODE_PATH =
   process.env.KIT_NODE_PATH || `${kitPath("node", "bin")}`
 
-export const KIT_DEFAULT_PATH = `/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`
+let combinePath = (arrayOfPaths: string[]): string => {
+  let [combinedPath, ...rest] = arrayOfPaths
+  combinedPath = path.resolve(combinedPath)
+  for (let p of rest) {
+    combinedPath += path.delimiter + path.resolve(p)
+  }
 
-export const KIT_FIRST_PATH = `${kitPath("bin")}${
-  path.delimiter
-}${kitPath("bin", "code")}${path.delimiter}${kenvPath(
-  "bin"
-)}${path.delimiter}${KIT_NODE_PATH}${
-  path.delimiter
-}${KIT_DEFAULT_PATH}`
+  return combinedPath
+}
+export const KIT_DEFAULT_PATH = combinePath([
+  "/usr/local/bin",
+  "/usr/bin",
+  "/bin",
+  "/usr/sbin",
+  "/sbin",
+])
+
+export const KIT_FIRST_PATH =
+  combinePath([
+    kitPath("bin"),
+    kitPath("bin", "code"),
+    kenvPath("bin"),
+  ]) +
+  path.delimiter +
+  KIT_DEFAULT_PATH
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -446,6 +462,7 @@ export let exists = async (input: string) => {
 }
 
 export let toggleBackground = async (script: Script) => {
+  console.log({ script })
   let { tasks } = await global.getBackgroundTasks()
 
   let task = tasks.find(
@@ -463,11 +480,17 @@ export let toggleBackground = async (script: Script) => {
             script.command
           }`,
           value: `toggle`,
+          id: global.uuid(),
         },
-        { name: `Edit ${script.command}`, value: `edit` },
+        {
+          name: `Edit ${script.command}`,
+          value: `edit`,
+          id: global.uuid(),
+        },
         {
           name: `View ${script.command}.log`,
           value: `log`,
+          id: global.uuid(),
         },
       ]
     )

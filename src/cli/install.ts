@@ -32,12 +32,13 @@ let install = async packageNames => {
     })
 
     npm.on("exit", exit => {
+      console.log(`Installed ${packageNames}`)
       res(exit)
     })
   })
 }
 
-let packageNames = await arg(
+let packages = await arg(
   "Which npm package/s would you like to install?",
   async input => {
     if (input.length < 3) return []
@@ -68,8 +69,8 @@ let packageNames = await arg(
   }
 )
 
-let installNames = [...packageNames.split(" ")]
-
+let installNames = [...packages.split(" ")]
+global.setChoices([])
 await install([...installNames, ...argOpts])
 
-export {}
+export { packages }

@@ -68,7 +68,7 @@ let shouldEdit =
   flag?.open
 
 if (script.background) {
-  toggleBackground(script)
+  await toggleBackground(script)
 } else if (shouldEdit) {
   await edit(script.filePath, kenvPath())
 } else {
