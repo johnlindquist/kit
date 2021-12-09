@@ -28,6 +28,8 @@ export interface Choice<Value = any> {
         data?: string
       }
     | string
+  onFocus?: (choice: Choice) => Promise<void>
+  onSubmit?: (choice: Choice) => Promise<void>
 }
 
 export interface ScriptPathInfo {

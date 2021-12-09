@@ -18,9 +18,9 @@ if (repo?.match(/^[^\/|:]*\/[^\/]*$/)) {
   repo = `git@github.com:${repo}.git`
 }
 
-let input = getLastSlashSeparated(repo, 2)
-  .replace(/\.git|\./g, "")
-  .replace(/\//g, "-")
+let input =
+  repo.replace(/\.git$/, "").match(/(?<=\/)[^\/]+$/)[0] ||
+  ""
 
 let kenvName = await arg(
   {
@@ -29,10 +29,9 @@ let kenvName = await arg(
     hint: md(`
 <div class="text-xs">
 
-<kbd>Enter</kbd> to accept suggested kenv name ${getLastSlashSeparated(
-      repo,
-      2
-    )}
+<kbd>Enter</kbd> to accept suggested kenv name 
+
+<div>${input}</div>
 
 Or type a different name
 

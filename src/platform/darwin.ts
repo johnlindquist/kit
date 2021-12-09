@@ -214,14 +214,14 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   }
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor
-  console.log(
+  global.log(
     `Opening ${file} with ${global.env.KIT_EDITOR}`
   )
 
   let result = await editorFn(file, dir, line, col)
 
   if (result?.stderr) {
-    console.warn(`STDERR ${result.stderr}`)
+    global.warn(`STDERR ${result.stderr}`)
     exit()
   }
 }

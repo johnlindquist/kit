@@ -235,8 +235,14 @@ let waitForPromptValue = ({
           global.flag[data.flag] = true
         }
       }),
-      map(data => data.value),
-      switchMap(async value => {
+      switchMap(async ({ value, id }) => {
+        let choice = (global.kitPrevChoices || []).find(
+          (c: Choice) => c.id === id
+        )
+        if (choice?.onSubmit) {
+          choice?.onSubmit(choice)
+        }
+
         if (validate) {
           let validateMessage = await validate(value)
           if (
@@ -368,6 +374,14 @@ let waitForPromptValue = ({
             ;(choice as any).index = data?.index
             ;(choice as any).input = data?.input
 
+            if (choice?.onFocus) {
+              try {
+                choice?.onFocus(choice)
+              } catch (error) {
+                throw new Error(error)
+              }
+            }
+
             try {
               return choice?.preview(choice)
             } catch {
@@ -397,7 +411,7 @@ let waitForPromptValue = ({
       .pipe(takeUntil(value$), share())
       .subscribe()
 
-    merge(value$).subscribe({
+    value$.subscribe({
       next: value => {
         resolve(value)
       },
