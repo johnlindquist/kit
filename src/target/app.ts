@@ -240,7 +240,7 @@ let waitForPromptValue = ({
           (c: Choice) => c.id === id
         )
         if (choice?.onSubmit) {
-          choice?.onSubmit(choice)
+          await choice?.onSubmit(choice)
         }
 
         if (validate) {

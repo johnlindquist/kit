@@ -231,7 +231,7 @@ export const shortcutNormalizer = (shortcut: string) =>
 export const friendlyShortcut = (shortcut: string) => {
   let f = ""
   if (shortcut.includes("CommandOrControl+")) f += "cmd+"
-  if (shortcut.match(/[^Or]Control\+/)) f += "ctrl+"
+  if (shortcut.match(/(?<!Or)Control\+/)) f += "ctrl+"
   if (shortcut.includes("Alt+")) f += "opt+"
   if (shortcut.includes("Shift+")) f += "shift+"
   if (shortcut.includes("+"))
@@ -321,18 +321,6 @@ export let formatScriptMetadata = (
 
   if (hasFlags) {
     ;(metadata as unknown as ScriptMetadata).hasFlags = true
-  }
-
-  let ui = (metadata?.ui ||
-    fileContents
-      .match(/(?<=await )arg|textarea|hotkey|drop/g)?.[0]
-      .trim() ||
-    UI.none) as UI
-
-  if (ui) {
-    ;(
-      metadata as unknown as ScriptMetadata
-    ).requiresPrompt = true
   }
 
   if (metadata?.log === "false") {

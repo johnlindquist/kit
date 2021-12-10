@@ -105,6 +105,15 @@ type SetTextAreaOptions = {
   placeholder?: string
 }
 
+export interface AppConfig {
+  os: string
+  isWin: boolean
+  assetPath: string
+  version: string
+  delimiter: string
+  sep: string
+}
+
 export type GetAppData =
   | Channel.GET_BACKGROUND
   | Channel.GET_MOUSE
@@ -149,13 +158,14 @@ export interface ChannelMap {
   [Channel.QUIT_APP]: undefined
   //
 
+  [Channel.APP_CONFIG]: AppConfig
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
   [Channel.KIT_LOG]: string
   [Channel.KIT_WARN]: string
   [Channel.COPY_PATH_AS_PICTURE]: string
   [Channel.DEV_TOOLS]: any
-  [Channel.EXIT]: boolean
+  [Channel.EXIT]: number
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
   [Channel.SET_BOUNDS]: Partial<Rectangle>
@@ -174,6 +184,7 @@ export interface ChannelMap {
   [Channel.SET_LOGIN]: boolean
   [Channel.SET_MODE]: Mode
   [Channel.SET_NAME]: string
+  [Channel.SET_OPEN]: boolean
   [Channel.SET_PANEL]: string
   [Channel.SET_PID]: number
   [Channel.SET_PLACEHOLDER]: string
@@ -181,6 +192,9 @@ export interface ChannelMap {
   [Channel.SET_PROMPT_DATA]: PromptData
   [Channel.SET_PROMPT_PROP]: any
   [Channel.SET_SCRIPT]: Script
+  [Channel.SET_SPLASH_BODY]: string
+  [Channel.SET_SPLASH_HEADER]: string
+  [Channel.SET_SPLASH_PROGRESS]: number
   [Channel.SET_SUBMIT_VALUE]: any
   [Channel.SET_TAB_INDEX]: number
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig

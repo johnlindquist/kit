@@ -6,9 +6,13 @@ import {
 } from "@johnlindquist/kit-internal/date-fns"
 
 let install = async packageNames => {
+  let os = await import("os")
+  let isWin = os.platform().startsWith("win")
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
-    isYarn ? `yarn add` : `npm i`
+    isYarn
+      ? `yarn${isWin ? `.exe` : ``} add`
+      : `npm${isWin ? `.exe` : ``} i`
   ).split(" ")
   return await new Promise((res, rej) => {
     console.log(tool, command, ...packageNames)
