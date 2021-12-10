@@ -11,8 +11,8 @@ let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
     isYarn
-      ? `yarn${isWin ? `.exe` : ``} add`
-      : `npm${isWin ? `.exe` : ``} i`
+      ? `yarn${isWin ? `.cmd` : ``} add`
+      : `npm${isWin ? `.cmd` : ``} i`
   ).split(" ")
   return await new Promise((res, rej) => {
     console.log(tool, command, ...packageNames)

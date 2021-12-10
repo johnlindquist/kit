@@ -1,3 +1,4 @@
+import { pathToFileURL } from "url"
 import {
   Choice,
   FlagsOptions,
@@ -142,16 +143,18 @@ global.attemptImport = async (scriptPath, ..._args) => {
         })
 
         importResult = await import(
-          outfile + "?uuid=" + global.uuid()
+          pathToFileURL(outfile).href +
+            "?uuid=" +
+            global.uuid()
         )
       } catch (error) {
         await errorPrompt(error)
       }
     } else {
-      //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
-      //must use `import` for ESM
       importResult = await import(
-        scriptPath + "?uuid=" + global.uuid()
+        pathToFileURL(scriptPath).href +
+          "?uuid=" +
+          global.uuid()
       )
     }
   } catch (error) {

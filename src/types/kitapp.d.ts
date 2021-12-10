@@ -63,17 +63,41 @@ export interface TextArea {
     placeholderOrOptions?: string | TextareaConfig
   ): Promise<string>
 }
+
 export interface Drop {
-  (hint?: string): Promise<any>
+  (
+    placeholder?:
+      | string
+      | {
+          placeholder?: string
+          hint?: string
+        }
+  ): Promise<any>
 }
 export interface Editor {
-  (config?: EditorConfig): Promise<any>
+  (config?: EditorConfig & { hint?: string }): Promise<any>
 }
 export interface Form {
-  (html?: string, formData?: any): Promise<any>
+  (
+    html?:
+      | string
+      | {
+          html?: string
+          hint?: string
+        },
+    formData?: any
+  ): Promise<any>
 }
 export interface Div {
-  (html?: string, containerClass?: string): Promise<any>
+  (
+    html?:
+      | string
+      | {
+          placeholder?: string
+          hint?: string
+        },
+    containerClass?: string
+  ): Promise<any>
 }
 
 export interface KeyData {
@@ -191,6 +215,7 @@ export interface ChannelMap {
   [Channel.SET_PREVIEW]: string
   [Channel.SET_PROMPT_DATA]: PromptData
   [Channel.SET_PROMPT_PROP]: any
+  [Channel.SET_READY]: boolean
   [Channel.SET_SCRIPT]: Script
   [Channel.SET_SPLASH_BODY]: string
   [Channel.SET_SPLASH_HEADER]: string

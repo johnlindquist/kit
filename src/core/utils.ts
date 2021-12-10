@@ -14,6 +14,8 @@ import { execSync } from "child_process"
 
 import { ProcessType, UI, Channel } from "./enum.js"
 
+let isWin = os.platform().startsWith("win")
+
 export let extensionRegex = /\.(mjs|ts|js)$/g
 export let jsh = process.env?.SHELL?.includes("jsh")
 
@@ -89,7 +91,11 @@ export const appDbPath = kitPath("db", "app.json")
 export const tmpClipboardDir = kitPath("tmp", "clipboard")
 export const tmpDownloadsDir = kitPath("tmp", "downloads")
 export const mainScriptPath = kitPath("main", "index.js")
-export const execPath = kitPath("node", "bin", "node")
+export const execPath = kitPath(
+  "node",
+  "bin",
+  `node${isWin ? `.exe` : ``}`
+)
 export const kitDocsPath = home(".kit-docs")
 
 export const KENV_SCRIPTS = kenvPath("scripts")
@@ -113,13 +119,15 @@ let combinePath = (arrayOfPaths: string[]): string => {
 
   return combinedPath
 }
-export const KIT_DEFAULT_PATH = combinePath([
-  "/usr/local/bin",
-  "/usr/bin",
-  "/bin",
-  "/usr/sbin",
-  "/sbin",
-])
+export const KIT_DEFAULT_PATH = isWin
+  ? ``
+  : combinePath([
+      "/usr/local/bin",
+      "/usr/bin",
+      "/bin",
+      "/usr/sbin",
+      "/sbin",
+    ])
 
 export const KIT_FIRST_PATH =
   combinePath([
