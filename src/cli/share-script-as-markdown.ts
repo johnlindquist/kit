@@ -33,7 +33,7 @@ let gistUrl = response.data.files[fileBasename].raw_url
 let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`
 
 let discussionPost = `
-[Install ${command}](${link})
+[Open ${command}](${link} in Script Kit)
 
 \`\`\`js
 ${content}
