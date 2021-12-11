@@ -4,7 +4,6 @@ const {
   cp,
   chmod,
   echo,
-  exec,
   exit,
   grep,
   ln,
@@ -21,7 +20,6 @@ global.cd = cd
 global.cp = cp
 global.chmod = chmod
 global.echo = echo
-global.exec = exec
 global.exit = exit
 global.grep = grep
 global.ln = ln
