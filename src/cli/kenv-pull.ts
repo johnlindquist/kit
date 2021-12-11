@@ -2,10 +2,12 @@
 
 let { dirPath: kPath } = await selectKenv()
 
-await $`cd ${kPath} && git stash && git pull`
+await exec(`cd ${kPath}`)
+await exec(`git stash`)
+await exec(`git pull`)
 
 await getScripts(false)
 
 // Prompt if stash exists to re-apply changes
 
-export { }
+export {}

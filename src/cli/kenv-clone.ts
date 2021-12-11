@@ -65,7 +65,7 @@ Or type a different name
 
 let kenvDir = kenvPath("kenvs", kenvName)
 
-await $`git clone ${repo} ${kenvDir}`
+await exec(`git clone ${repo} ${kenvDir}`)
 await getScripts(false)
 await cli("create-all-bins")
 
