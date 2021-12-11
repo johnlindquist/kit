@@ -101,6 +101,7 @@ let terminalEditor = editor => async file => {
 
 let execConfig = () => {
   return {
+    shell: true,
     env: {
       HOME: home(),
       PATH: KIT_FIRST_PATH,
@@ -186,7 +187,7 @@ let code = async (file, dir, line = 0, col = 0) => {
 
   let config = execConfig()
 
-  exec(command, config)
+  execaCommandSync(command, config)
 }
 
 let vim = terminalEditor("vim")

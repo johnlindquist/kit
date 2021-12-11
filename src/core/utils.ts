@@ -12,9 +12,9 @@ import { lstat, readdir, readFile } from "fs/promises"
 
 import { execSync } from "child_process"
 
-import { ProcessType, UI, Channel } from "./enum.js"
+import { ProcessType, Channel } from "./enum.js"
 
-let isWin = os.platform().startsWith("win")
+export let isWin = os.platform().startsWith("win")
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 export let jsh = process.env?.SHELL?.includes("jsh")

@@ -1,3 +1,3 @@
-exec(`open https://scriptkit.com/scripts/`)
+browse(`https://scriptkit.com/scripts/`)
 
 export {}

@@ -23,6 +23,6 @@ let url = await arg(
   }
 )
 
-exec(`open ${url}`)
+browse(url)
 
 export {}

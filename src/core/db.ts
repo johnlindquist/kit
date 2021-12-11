@@ -11,7 +11,7 @@ import {
   extensionRegex,
   resolveScriptToCommand,
   parseScripts,
-  isFile,
+  isWin,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
 import {
@@ -47,7 +47,9 @@ export let db = async (
   if (typeof defaults === "undefined") defaults = {}
 
   let dbPath =
-    key.startsWith(path.sep) && key.endsWith(".json")
+    (isWin
+      ? key.includes(":")
+      : key.startsWith(path.sep)) && key.endsWith(".json")
       ? key
       : resolveKenv("db", `${key}.json`)
 
@@ -60,7 +62,7 @@ export let db = async (
     )
     return {
       ...defaults,
-      write: () => { },
+      write: () => {},
     }
   }
 
@@ -101,7 +103,7 @@ export let db = async (
     },
     set: (target: any, key: string, value: any) => {
       try {
-        ; (_db as any).data[key] = value
+        ;(_db as any).data[key] = value
         return true
       } catch (error) {
         return false
@@ -205,7 +207,7 @@ export const appDefaults = {
   version: "0.0.0",
   autoUpdate: true,
   tray: true,
-  openAtLogin: true
+  openAtLogin: true,
 }
 
 export let getAppDb = async (): Promise<
@@ -224,7 +226,7 @@ export let getShortcutsDb = async (): Promise<
 > => {
   return await db(shortcutsPath, {
     shortcuts: {
-      [mainScriptPath]: "cmd ;",
+      [mainScriptPath]: isWin ? "control ;" : "cmd ;",
     },
   })
 }

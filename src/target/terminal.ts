@@ -242,10 +242,10 @@ global.setIgnoreBlur = async ignore => {}
 global.setBounds = (bounds: Partial<Rectangle>) => {}
 
 global.setDescription = (description: string) => {
-  console.log({ description })
+  // console.log({ description })
 }
 global.setName = (name: string) => {
-  console.log({ name })
+  // console.log({ name })
 }
 
 global.getScriptsState = () => {
