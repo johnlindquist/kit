@@ -127,6 +127,7 @@ export interface Highlight {
   ): Promise<string>
 }
 export interface KitApi {
+  isWin: boolean
   db: DB
 
   wait: Wait
@@ -224,6 +225,7 @@ interface KeyValue {
 type Run = (command: string, args?: string) => Promise<any>
 
 declare global {
+  var isWin: boolean
   var edit: Edit
   var browse: Browse
 

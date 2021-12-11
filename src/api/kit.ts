@@ -1,4 +1,6 @@
+import * as os from "os"
 import { pathToFileURL } from "url"
+
 import {
   Choice,
   FlagsOptions,
@@ -23,6 +25,8 @@ import {
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 import { Kenv } from "../types/kit"
+
+global.isWin = os.platform().startsWith("win")
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {

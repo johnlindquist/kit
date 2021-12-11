@@ -11,7 +11,6 @@ import {
   extensionRegex,
   resolveScriptToCommand,
   parseScripts,
-  isWin,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
 import {
@@ -47,7 +46,7 @@ export let db = async (
   if (typeof defaults === "undefined") defaults = {}
 
   let dbPath =
-    (isWin
+    (global.isWin
       ? key.includes(":")
       : key.startsWith(path.sep)) && key.endsWith(".json")
       ? key
@@ -226,7 +225,9 @@ export let getShortcutsDb = async (): Promise<
 > => {
   return await db(shortcutsPath, {
     shortcuts: {
-      [mainScriptPath]: isWin ? "control ;" : "cmd ;",
+      [mainScriptPath]: global.isWin
+        ? "control ;"
+        : "cmd ;",
     },
   })
 }

@@ -12,6 +12,8 @@ let modifiers = {
   ctrl: "ctrl",
 }
 
+let cmd = global.isWin ? "ctrl" : "cmd"
+
 setFlags({
   [""]: {
     name: "Run",
@@ -21,12 +23,12 @@ setFlags({
   open: {
     name: "Open",
     description: "Open the selected script in your editor",
-    shortcut: "cmd+o",
+    shortcut: `${cmd}+o`,
   },
   ["share-copy"]: {
     name: "Copy",
     description: "Copy script content to clipboard",
-    shortcut: "cmd+c",
+    shortcut: `${cmd}+c`,
   },
   ["copy-path"]: {
     name: "Copy Path",
@@ -35,33 +37,33 @@ setFlags({
   ["new-quick"]: {
     name: "Quick New",
     description: "Create a new script with a random name",
-    shortcut: "cmd+n",
+    shortcut: `${cmd}+n`,
   },
   duplicate: {
     name: "Duplicate",
     description: "Duplicate the selected script",
-    shortcut: "cmd+d",
+    shortcut: `${cmd}+d`,
   },
   rename: {
     name: "Rename",
     description: "Rename the selected script",
-    shortcut: "cmd+r",
+    shortcut: `${cmd}+r`,
   },
   remove: {
     name: "Remove",
     description: "Delete the selected script",
-    shortcut: "cmd+shift+backspace",
+    shortcut: `${cmd}+shift+backspace`,
   },
   ["open-script-log"]: {
     name: "Open Log",
     description:
       "Open the .log file for the selected script",
-    shortcut: "cmd+l",
+    shortcut: `${cmd}+l`,
   },
   ["open-script-database"]: {
     name: "Open Database",
     description: "Open the db file for the selected script",
-    shortcut: "cmd+b",
+    shortcut: `${cmd}+b`,
   },
   ["clear-script-database"]: {
     name: "Delete Database",
@@ -71,7 +73,7 @@ setFlags({
   ["share-script"]: {
     name: "Share as Gist",
     description: "Share the selected script as a gist",
-    shortcut: "cmd+g",
+    shortcut: `${cmd}+g`,
   },
   ["share-script-as-kit-link"]: {
     name: "Share as kit:// link",
@@ -83,19 +85,19 @@ setFlags({
     name: "Share as URL",
     description:
       "Create a URL which will install the script",
-    shortcut: "cmd+u",
+    shortcut: `${cmd}+u`,
   },
   ["share-script-as-discussion"]: {
     name: "Share as GitHub Discussion",
     description:
       "Copies shareable info to clipboard and opens GitHub Discussions",
-    shortcut: "cmd+s",
+    shortcut: `${cmd}+s`,
   },
   ["share-script-as-markdown"]: {
     name: "Share as Markdown",
     description:
       "Copies script contents in fenced JS Markdown",
-    shortcut: "cmd+m",
+    shortcut: `${cmd}+m`,
   },
   ["change-shortcut"]: {
     name: "Change Shortcut",
@@ -105,22 +107,26 @@ setFlags({
   move: {
     name: "Move Script to Kenv",
     description: "Move the script between Kit Environments",
-    shortcut: "cmd+m",
+    shortcut: `${cmd}+m`,
   },
   ["refresh-scripts-db"]: {
     name: "Refresh scripts db",
     description: "Manually refresh scripts database",
-    shortcut: "cmd+shift+r",
+    shortcut: `${cmd}+shift+r`,
   },
   ["stream-deck"]: {
     name: "Prepare Script for Stream Deck",
     description:
       "Create a .sh file around the script for Stream Decks",
   },
-  [modifiers.cmd]: {
-    name: "Run script w/ cmd flag",
-    shortcut: "cmd+enter",
-  },
+  ...(global.isWin
+    ? {}
+    : {
+        [modifiers.cmd]: {
+          name: "Run script w/ cmd flag",
+          shortcut: `${cmd}+enter`,
+        },
+      }),
   [modifiers.shift]: {
     name: "Run script w/ shift flag",
     shortcut: "shift+enter",

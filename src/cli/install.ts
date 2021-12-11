@@ -7,12 +7,11 @@ import {
 
 let install = async packageNames => {
   let os = await import("os")
-  let isWin = os.platform().startsWith("win")
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
     isYarn
-      ? `yarn${isWin ? `.cmd` : ``} add`
-      : `npm${isWin ? `.cmd` : ``} i`
+      ? `yarn${global.isWin ? `.cmd` : ``} add`
+      : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
   return await new Promise((res, rej) => {
     console.log(tool, command, ...packageNames)
