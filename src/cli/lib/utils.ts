@@ -88,7 +88,8 @@ export let addPreview = async (
   dir: string,
   onlyMatches = false
 ) => {
-  let containerClasses = "p-5 prose dark:prose-dark"
+  let containerClasses =
+    "p-5 prose dark:prose-dark prose-sm"
   let docs: Doc[] = await readJson(
     kitPath("data", "docs.json")
   )
@@ -151,21 +152,21 @@ export let addPreview = async (
   let docOnlyChoices = onlyMatches
     ? []
     : filteredDocs
-      .map(doc => {
-        return {
-          name: doc.title,
-          description: doc?.description || "",
-          tag: doc?.tag || "",
-          value: doc.file,
-          preview: async () => {
-            return await highlight(
-              doc.content,
-              containerClasses
-            )
-          },
-        }
-      })
-      .sort((a, b) => (a.name > b.name ? 1 : -1))
+        .map(doc => {
+          return {
+            name: doc.title,
+            description: doc?.description || "",
+            tag: doc?.tag || "",
+            value: doc.file,
+            preview: async () => {
+              return await highlight(
+                doc.content,
+                containerClasses
+              )
+            },
+          }
+        })
+        .sort((a, b) => (a.name > b.name ? 1 : -1))
 
   return [...enhancedChoices, ...docOnlyChoices]
 }
