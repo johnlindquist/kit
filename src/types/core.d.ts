@@ -67,6 +67,7 @@ export interface ScriptMetadata {
   ctrl?: string
   shift?: string
   hasPreview?: boolean
+  resize?: boolean
 }
 
 export type Script = ScriptMetadata &
