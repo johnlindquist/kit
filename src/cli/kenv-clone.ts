@@ -1,7 +1,5 @@
 //Description: Clone a Kenv repo
 
-import { getLastSlashSeparated } from "../core/utils.js"
-
 let kenvsDir = kenvPath("kenvs")
 
 if (!(await isDir(kenvsDir))) {
@@ -15,7 +13,7 @@ let repo = await arg({
 })
 
 if (repo?.match(/^[^\/|:]*\/[^\/]*$/)) {
-  repo = `git@github.com:${repo}.git`
+  repo = `https://github.com/${repo}`
 }
 
 let input =

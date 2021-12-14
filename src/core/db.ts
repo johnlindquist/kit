@@ -45,12 +45,10 @@ export let db = async (
   }
   if (typeof defaults === "undefined") defaults = {}
 
-  let dbPath =
-    (global.isWin
-      ? key.includes(":")
-      : key.startsWith(path.sep)) && key.endsWith(".json")
-      ? key
-      : resolveKenv("db", `${key}.json`)
+  let dbPath = key
+  if (!key.endsWith(".json")) {
+    dbPath = resolveKenv("db", `${key}.json`)
+  }
 
   let parentExists = await isDir(path.dirname(dbPath))
   if (!parentExists) {
