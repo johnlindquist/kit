@@ -216,9 +216,9 @@ export let resolveToScriptPath = (
 }
 
 export let resolveScriptToCommand = (script: string) => {
-  return script
-    .replace(/.*\//, "")
-    .replace(extensionRegex, "")
+  return path
+    .basename(script)
+    .replace(new RegExp(`\\${path.extname(script)}$`), "")
 }
 
 //app
@@ -359,10 +359,16 @@ export let commandFromFilePath = (filePath: string) =>
   path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
 //app
-export let kenvFromFilePath = (filePath: string) =>
-  filePath.match(
-    new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
-  )?.[0] || ""
+export let kenvFromFilePath = (filePath: string) => {
+  let base = path.basename(
+    path.dirname(path.dirname(filePath))
+  )
+  if (base === path.basename(kenvPath())) {
+    return ""
+  }
+
+  return base
+}
 
 //app
 export let iconFromKenv = async (kenv: string) => {
