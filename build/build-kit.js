@@ -1,6 +1,6 @@
 import "@johnlindquist/globals"
 import shelljs from "shelljs"
-import { homedir } from "os"
+import { homedir, platform } from "os"
 
 let { cd, rm, mkdir, cp } = shelljs
 
@@ -13,11 +13,20 @@ let kitPath = (...pathParts) =>
 rm("-rf", kitPath())
 await ensureDir(kitPath("node", "bin"))
 
-cp(
-  "-R",
-  "/Program Files(x86)/nodejs/*",
-  kitPath("node", "bin")
-)
+if (platform() === "win32") {
+  cp(
+    "-R",
+    "/Program Files(x86)/nodejs/*",
+    kitPath("node", "bin")
+  )
+}
+
+let installNode = platform() === "darwin"
+exec(
+  `./build/install-node.sh v17.2.0 --prefix '${kitPath(
+    "node"
+  )}'`
+) || Promise.resolve()
 
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())
@@ -42,7 +51,7 @@ let cjs = exec(
   )}"`
 )
 
-await Promise.all([esm, dec, cjs])
+await Promise.all([installNode, esm, dec, cjs])
 await exec(`node ./scripts/cjs-fix.js`)
 
 cd(kitPath())
