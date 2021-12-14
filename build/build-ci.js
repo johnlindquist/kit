@@ -1,14 +1,27 @@
 import "@johnlindquist/globals"
 import shelljs from "shelljs"
-import { homedir, platform } from "os"
+import { platform } from "os"
+import { dirname } from "path"
+import { fileURLToPath } from "url"
 
-let { cd, cp } = shelljs
+let { cd, rm, cp } = shelljs
 
 let kitPath = (...pathParts) =>
   path.resolve(
-    process.env.KIT || path.resolve(homedir(), ".kit"),
+    dirname(dirname(fileURLToPath(import.meta.url))),
     ...pathParts
   )
+
+console.log(kitPath())
+
+rm("-rf", kitPath())
+await ensureDir(kitPath("node", "bin"))
+
+let installNode = exec(
+  `./build/install-node.sh v17.2.0 --prefix '${kitPath(
+    "node"
+  )}'`
+)
 
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())
@@ -17,6 +30,13 @@ cp("-R", "./src/types", kitPath())
 cp("*.md", kitPath())
 cp("package*.json", kitPath())
 cp("LICENSE", kitPath())
+
+let { stdout: nodeVersion } = await exec(`node --version`)
+console.log({ nodeVersion })
+let { stdout: npmVersion } = await exec(`npm --version`)
+console.log({ npmVersion })
+
+await exec(`npm i`)
 
 console.log(`Building ESM to ${kitPath()}`)
 let esm = exec(`npx tsc --outDir ${kitPath()}`)
@@ -33,14 +53,7 @@ let cjs = exec(
   )}"`
 )
 
-await Promise.all([esm, dec, cjs])
+await Promise.all([installNode, esm, dec, cjs])
 await exec(`node ./scripts/cjs-fix.js`)
 
 cd(kitPath())
-
-await exec(`npm i --production`)
-
-await exec(`node ./run/terminal.js ./help/download-docs.js`)
-await exec(`node ./run/terminal.js ./hot/download-hot.js`)
-
-await writeFile(kitPath(".kitignore"), "*")
