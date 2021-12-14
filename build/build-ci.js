@@ -1,10 +1,9 @@
 import "@johnlindquist/globals"
 import shelljs from "shelljs"
-import { platform } from "os"
 import { dirname } from "path"
 import { fileURLToPath } from "url"
 
-let { cd, rm, cp } = shelljs
+let { cd, cp } = shelljs
 
 let kitPath = (...pathParts) =>
   path.resolve(
@@ -12,16 +11,7 @@ let kitPath = (...pathParts) =>
     ...pathParts
   )
 
-console.log(kitPath())
-
-rm("-rf", kitPath())
-await ensureDir(kitPath("node", "bin"))
-
-let installNode = exec(
-  `./build/install-node.sh v17.2.0 --prefix '${kitPath(
-    "node"
-  )}'`
-)
+console.log({ kitPath: kitPath() })
 
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())
@@ -35,8 +25,6 @@ let { stdout: nodeVersion } = await exec(`node --version`)
 console.log({ nodeVersion })
 let { stdout: npmVersion } = await exec(`npm --version`)
 console.log({ npmVersion })
-
-await exec(`npm i`)
 
 console.log(`Building ESM to ${kitPath()}`)
 let esm = exec(`npx tsc --outDir ${kitPath()}`)

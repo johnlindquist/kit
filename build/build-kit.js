@@ -2,13 +2,24 @@ import "@johnlindquist/globals"
 import shelljs from "shelljs"
 import { homedir, platform } from "os"
 
-let { cd, cp } = shelljs
+let { cd, rm, mkdir, cp } = shelljs
 
 let kitPath = (...pathParts) =>
   path.resolve(
     process.env.KIT || path.resolve(homedir(), ".kit"),
     ...pathParts
   )
+
+rm("-rf", kitPath())
+await ensureDir(kitPath("node", "bin"))
+
+if (platform() === "win32") {
+  cp(
+    "-R",
+    "/Program Files(x86)/nodejs/*",
+    kitPath("node", "bin")
+  )
+}
 
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())
@@ -33,7 +44,7 @@ let cjs = exec(
   )}"`
 )
 
-await Promise.all([esm, dec, cjs])
+await Promise.all([installNode, esm, dec, cjs])
 await exec(`node ./scripts/cjs-fix.js`)
 
 cd(kitPath())

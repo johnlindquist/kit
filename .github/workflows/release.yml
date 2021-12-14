@@ -38,6 +38,7 @@ jobs:
 
       - name: Build Kit
         run: |
+          PATH="./.kit/node/bin:$PATH" npm i
           PATH="./.kit/node/bin:$PATH" node ./build/build-ci.js
 
       - name: Set env vars
