@@ -1,15 +1,10 @@
 import "@johnlindquist/globals"
 import shelljs from "shelljs"
-import { dirname } from "path"
-import { fileURLToPath } from "url"
 
 let { cd, cp } = shelljs
 
 let kitPath = (...pathParts) =>
-  path.resolve(
-    dirname(dirname(fileURLToPath(import.meta.url))),
-    ...pathParts
-  )
+  path.resolve(process.env.KIT, ...pathParts)
 
 console.log({ kitPath: kitPath() })
 
@@ -41,7 +36,7 @@ let cjs = exec(
   )}"`
 )
 
-await Promise.all([installNode, esm, dec, cjs])
+await Promise.all([esm, dec, cjs])
 await exec(`node ./scripts/cjs-fix.js`)
 
 cd(kitPath())
