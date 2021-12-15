@@ -18,7 +18,6 @@ let installNodeWin = async () => {
   let { Extract } = await import("unzipper")
   let { rename } = await import("fs/promises")
   let { rm } = shelljs
-  console.log({ resolve: path.resolve })
 
   rm("-rf", kitPath("node", "bin"))
 
@@ -31,7 +30,6 @@ let installNodeWin = async () => {
   })
 
   let nodeDir = await readdir(kitPath("node"))
-  console.log({ nodeDir })
   let nodeDirName = nodeDir.find(n => n.startsWith("node-"))
 
   await rename(
