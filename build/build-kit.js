@@ -1,6 +1,7 @@
 import "@johnlindquist/globals"
 import shelljs from "shelljs"
 import { homedir, platform } from "os"
+import { existsSync } from "fs"
 
 let { cd, rm, mkdir, cp } = shelljs
 
@@ -10,23 +11,43 @@ let kitPath = (...pathParts) =>
     ...pathParts
   )
 
-rm("-rf", kitPath())
-await ensureDir(kitPath("node", "bin"))
+if (existsSync(kitPath())) rm("-rf", kitPath())
+await ensureDir(kitPath("node"))
 
-if (platform() === "win32") {
-  cp(
-    "-R",
-    "/Program Files(x86)/nodejs/*",
+let installNodeWin = async () => {
+  let { Extract } = await import("unzipper")
+  let { rename } = await import("fs/promises")
+  let { rm } = shelljs
+  console.log({ resolve: path.resolve })
+
+  rm("-rf", kitPath("node", "bin"))
+
+  await new Promise(r => {
+    download(
+      `https://nodejs.org/dist/v17.2.0/node-v17.2.0-win-x86.zip`
+    )
+      .pipe(Extract({ path: kitPath("node") }))
+      .on("finish", r)
+  })
+
+  let nodeDir = await readdir(kitPath("node"))
+  console.log({ nodeDir })
+  let nodeDirName = nodeDir.find(n => n.startsWith("node-"))
+
+  await rename(
+    kitPath("node", nodeDirName),
     kitPath("node", "bin")
   )
 }
 
-let installNode = platform() === "darwin"
-exec(
-  `./build/install-node.sh v17.2.0 --prefix '${kitPath(
-    "node"
-  )}'`
-) || Promise.resolve()
+let installNode =
+  platform() === "darwin"
+    ? exec(
+        `./build/install-node.sh v17.2.0 --prefix '${kitPath(
+          "node"
+        )}'`
+      )
+    : installNodeWin()
 
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())

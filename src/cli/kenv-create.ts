@@ -39,4 +39,6 @@ await degit(`johnlindquist/kenv-template`).clone(
   newKenvPath
 )
 
+await mainScript()
+
 export {}

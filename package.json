@@ -64,7 +64,8 @@
     "tsc-watch": "^4.5.0",
     "typedoc": "^0.22.5",
     "typedoc-plugin-markdown": "^3.11.3",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.2",
+    "unzipper": "^0.10.11"
   },
   "ava": {
     "environmentVariables": {

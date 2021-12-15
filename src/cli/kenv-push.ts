@@ -22,6 +22,8 @@ await exec(`git push`)
 
 await getScripts(false)
 
+await mainScript()
+
 // Prompt if stash exists to re-apply changes
 
 export {}
