@@ -31,9 +31,15 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
-      - name: build-ci
+      - name: Install Node
         run: |
-          ./build/build-ci.sh
+          mkdir -p ./.kit/node
+          ./build/install-node.sh v17.2.0 --prefix ./.kit/node
+
+      - name: Build Kit
+        run: |
+          PATH="./.kit/node/bin:$PATH" npm i
+          PATH="./.kit/node/bin:$PATH" KIT=./.kit node ./build/build-ci.js
 
       - name: Set env vars
         run: |

@@ -1,3 +1,6 @@
+import * as os from "os"
+import { pathToFileURL } from "url"
+
 import {
   Choice,
   FlagsOptions,
@@ -22,6 +25,8 @@ import {
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 import { Kenv } from "../types/kit"
+
+global.isWin = os.platform().startsWith("win")
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -142,16 +147,18 @@ global.attemptImport = async (scriptPath, ..._args) => {
         })
 
         importResult = await import(
-          outfile + "?uuid=" + global.uuid()
+          pathToFileURL(outfile).href +
+            "?uuid=" +
+            global.uuid()
         )
       } catch (error) {
         await errorPrompt(error)
       }
     } else {
-      //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
-      //must use `import` for ESM
       importResult = await import(
-        scriptPath + "?uuid=" + global.uuid()
+        pathToFileURL(scriptPath).href +
+          "?uuid=" +
+          global.uuid()
       )
     }
   } catch (error) {

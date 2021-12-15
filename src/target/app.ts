@@ -240,7 +240,7 @@ let waitForPromptValue = ({
           (c: Choice) => c.id === id
         )
         if (choice?.onSubmit) {
-          choice?.onSubmit(choice)
+          await choice?.onSubmit(choice)
         }
 
         if (validate) {
@@ -509,16 +509,28 @@ global.kitPrompt = async (config: PromptConfig) => {
 global.drop = async (
   placeholder = "Waiting for drop..."
 ) => {
+  let config: { placeholder?: string; hint?: string } =
+    typeof placeholder === "string"
+      ? { placeholder }
+      : placeholder
+
   return await global.kitPrompt({
     ui: UI.drop,
-    placeholder,
+    ...config,
     ignoreBlur: true,
   })
 }
 
 global.form = async (html = "", formData = {}) => {
-  send(Channel.SET_FORM_HTML, { html, formData })
+  let config: { html: string; hint?: string } =
+    typeof html === "string" ? { html } : html
+
+  send(Channel.SET_FORM_HTML, {
+    html: config.html,
+    formData,
+  })
   return await global.kitPrompt({
+    hint: config.hint,
     ui: UI.form,
   })
 }
@@ -530,16 +542,20 @@ let maybeWrapHtml = (html, containerClasses) => {
 }
 
 global.div = async (html = "", containerClasses = "") => {
-  if (html.trim() === "")
+  let config: { html?: string; hint?: string } =
+    typeof html === "string" ? { html } : html
+
+  if (config.html.trim() === "")
     html = md("⚠️ html string was empty")
   return await global.kitPrompt({
+    hint: config?.hint,
     choices: maybeWrapHtml(html, containerClasses),
     ui: UI.div,
   })
 }
 
 global.editor = async (
-  options: EditorConfig = {
+  options: EditorConfig & { hint?: string } = {
     value: "",
     language: "",
     scrollTo: "top",
@@ -554,6 +570,7 @@ global.editor = async (
   )
   return await global.kitPrompt({
     ui: UI.editor,
+    hint: options.hint,
     ignoreBlur: true,
   })
 }

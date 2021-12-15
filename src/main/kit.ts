@@ -112,7 +112,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
       )
 
       return `
-      <div class="prose dark:prose-dark">      
+      <div class="prose dark:prose-dark prose-sm">      
 ${md(`# Latest 100 Log Lines`)}
 <div class="text-xxs font-mono whitespace-nowrap">      
       ${logFile
@@ -172,13 +172,13 @@ let cliScript = await arg(
 )
 
 if (noChoices) {
-  exec(
-    `open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`
+  browse(
+    `https://github.com/johnlindquist/kit/discussions/categories/q-a`
   )
 } else if (flag?.discuss) {
   let doc = await findDoc("kit", cliScript)
   if (doc?.discussion) {
-    exec(`open "${doc.discussion}"`)
+    browse(doc?.discussion)
   }
 } else {
   await run(kitPath("cli", cliScript) + ".js")

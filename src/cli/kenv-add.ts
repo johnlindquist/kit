@@ -104,4 +104,6 @@ ln("-s", existingKenvPath, kenvDir)
 await getScripts(false)
 await cli("create-all-bins")
 
+await mainScript()
+
 export {}

@@ -103,8 +103,8 @@ let selectedHelp = await arg(
 )
 
 if (noChoices) {
-  exec(
-    `open 'https://github.com/johnlindquist/kit/discussions/categories/q-a'`
+  browse(
+    "https://github.com/johnlindquist/kit/discussions/categories/q-a"
   )
 } else {
   let maybeCli = kitPath(`help`, selectedHelp + ".js")
@@ -112,13 +112,13 @@ if (noChoices) {
     let doc = await findDoc("help", selectedHelp)
 
     if (doc?.discussion) {
-      exec(`open "${doc?.discussion}"`)
+      browse(doc?.discussion)
     }
   } else if (await pathExists(maybeCli)) {
     await run(maybeCli)
   } else {
     let doc = await findDoc("help", selectedHelp)
-    exec(`open "${doc?.discussion}"`)
+    browse(doc?.discussion)
   }
 }
 

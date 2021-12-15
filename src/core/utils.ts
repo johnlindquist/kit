@@ -12,7 +12,9 @@ import { lstat, readdir, readFile } from "fs/promises"
 
 import { execSync } from "child_process"
 
-import { ProcessType, UI, Channel } from "./enum.js"
+import { ProcessType, Channel } from "./enum.js"
+
+export let isWin = os.platform().startsWith("win")
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 export let jsh = process.env?.SHELL?.includes("jsh")
@@ -89,7 +91,11 @@ export const appDbPath = kitPath("db", "app.json")
 export const tmpClipboardDir = kitPath("tmp", "clipboard")
 export const tmpDownloadsDir = kitPath("tmp", "downloads")
 export const mainScriptPath = kitPath("main", "index.js")
-export const execPath = kitPath("node", "bin", "node")
+export const execPath = kitPath(
+  "node",
+  "bin",
+  `node${isWin ? `.exe` : ``}`
+)
 export const kitDocsPath = home(".kit-docs")
 
 export const KENV_SCRIPTS = kenvPath("scripts")
@@ -113,13 +119,15 @@ let combinePath = (arrayOfPaths: string[]): string => {
 
   return combinedPath
 }
-export const KIT_DEFAULT_PATH = combinePath([
-  "/usr/local/bin",
-  "/usr/bin",
-  "/bin",
-  "/usr/sbin",
-  "/sbin",
-])
+export const KIT_DEFAULT_PATH = isWin
+  ? ``
+  : combinePath([
+      "/usr/local/bin",
+      "/usr/bin",
+      "/bin",
+      "/usr/sbin",
+      "/sbin",
+    ])
 
 export const KIT_FIRST_PATH =
   combinePath([
@@ -208,9 +216,9 @@ export let resolveToScriptPath = (
 }
 
 export let resolveScriptToCommand = (script: string) => {
-  return script
-    .replace(/.*\//, "")
-    .replace(extensionRegex, "")
+  return path
+    .basename(script)
+    .replace(new RegExp(`\\${path.extname(script)}$`), "")
 }
 
 //app
@@ -231,7 +239,7 @@ export const shortcutNormalizer = (shortcut: string) =>
 export const friendlyShortcut = (shortcut: string) => {
   let f = ""
   if (shortcut.includes("CommandOrControl+")) f += "cmd+"
-  if (shortcut.match(/[^Or]Control\+/)) f += "ctrl+"
+  if (shortcut.match(/(?<!Or)Control\+/)) f += "ctrl+"
   if (shortcut.includes("Alt+")) f += "opt+"
   if (shortcut.includes("Shift+")) f += "shift+"
   if (shortcut.includes("+"))
@@ -323,18 +331,6 @@ export let formatScriptMetadata = (
     ;(metadata as unknown as ScriptMetadata).hasFlags = true
   }
 
-  let ui = (metadata?.ui ||
-    fileContents
-      .match(/(?<=await )arg|textarea|hotkey|drop/g)?.[0]
-      .trim() ||
-    UI.none) as UI
-
-  if (ui) {
-    ;(
-      metadata as unknown as ScriptMetadata
-    ).requiresPrompt = true
-  }
-
   if (metadata?.log === "false") {
     ;(metadata as unknown as ScriptMetadata).log = "false"
   }
@@ -363,10 +359,16 @@ export let commandFromFilePath = (filePath: string) =>
   path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
 //app
-export let kenvFromFilePath = (filePath: string) =>
-  filePath.match(
-    new RegExp(`(?<=${kenvPath("kenvs")}\/)[^\/]+`)
-  )?.[0] || ""
+export let kenvFromFilePath = (filePath: string) => {
+  let base = path.basename(
+    path.dirname(path.dirname(filePath))
+  )
+  if (base === path.basename(kenvPath())) {
+    return ""
+  }
+
+  return base
+}
 
 //app
 export let iconFromKenv = async (kenv: string) => {

@@ -56,7 +56,6 @@ export interface ScriptMetadata {
   watch?: string
   background?: string
   type: ProcessType
-  requiresPrompt: boolean
   timeout?: number
   tabs?: string[]
   tag?: string
@@ -68,6 +67,7 @@ export interface ScriptMetadata {
   ctrl?: string
   shift?: string
   hasPreview?: boolean
+  resize?: boolean
 }
 
 export type Script = ScriptMetadata &

@@ -16,6 +16,6 @@ let site = await arg(
   }))
 )
 
-exec(`open ${site}`)
+browse(site)
 
 export {}

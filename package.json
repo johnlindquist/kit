@@ -25,7 +25,7 @@
   },
   "types": "./types/index.d.ts",
   "scripts": {
-    "build-kit": "./build/build-kit.sh",
+    "build-kit": "node ./build/build-kit.js",
     "dev": "tsc --watch --outDir ~/.kit",
     "declaration": "tsc -p ./tsconfig-declaration.json --watch",
     "pretest:core": "node ./scripts/test-pre.js",
@@ -39,7 +39,7 @@
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
   "dependencies": {
-    "@johnlindquist/globals": "^1.7.0",
+    "@johnlindquist/globals": "^1.9.0",
     "@johnlindquist/kit-internal": "^1.11.0",
     "@types/node-notifier": "^8.0.1",
     "@types/shelljs": "^0.8.9",
@@ -64,7 +64,8 @@
     "tsc-watch": "^4.5.0",
     "typedoc": "^0.22.5",
     "typedoc-plugin-markdown": "^3.11.3",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.2",
+    "unzipper": "^0.10.11"
   },
   "ava": {
     "environmentVariables": {

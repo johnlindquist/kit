@@ -19,7 +19,6 @@ export interface PackagesApi {
   cp: typeof shelljs.cp
   chmod: typeof shelljs.chmod
   echo: typeof shelljs.echo
-  exec: typeof shelljs.exec
   exit: typeof shelljs.exit
   grep: typeof shelljs.grep
   ln: typeof shelljs.ln
@@ -42,7 +41,6 @@ declare global {
   var cp: typeof shelljs.cp
   var chmod: typeof shelljs.chmod
   var echo: typeof shelljs.echo
-  var exec: typeof shelljs.exec
   var exit: typeof shelljs.exit
   var grep: typeof shelljs.grep
   var ln: typeof shelljs.ln

@@ -63,6 +63,10 @@ export interface Edit {
   ): Promise<void>
 }
 
+export interface Browse {
+  (url: string): Promise<void>
+}
+
 export interface Wait {
   (time: number, submitValue?: any): Promise<void>
 }
@@ -123,6 +127,7 @@ export interface Highlight {
   ): Promise<string>
 }
 export interface KitApi {
+  isWin: boolean
   db: DB
 
   wait: Wait
@@ -178,6 +183,7 @@ export interface KitApi {
   setup: KitModuleLoader
 
   edit: Edit
+  browse: Browse
 
   args: Args
   updateArgs: UpdateArgs
@@ -219,7 +225,9 @@ interface KeyValue {
 type Run = (command: string, args?: string) => Promise<any>
 
 declare global {
+  var isWin: boolean
   var edit: Edit
+  var browse: Browse
 
   var kitPath: PathFn
   var kenvPath: PathFn

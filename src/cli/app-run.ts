@@ -12,87 +12,121 @@ let modifiers = {
   ctrl: "ctrl",
 }
 
+let cmd = global.isWin ? "ctrl" : "cmd"
+
 setFlags({
   [""]: {
-    name: "Run script",
+    name: "Run",
+    description: "Run the selected script",
     shortcut: "enter",
   },
   open: {
-    name: "Open script in editor",
-    shortcut: "cmd+o",
+    name: "Open",
+    description: "Open the selected script in your editor",
+    shortcut: `${cmd}+o`,
   },
   ["share-copy"]: {
-    name: "Copy script content to clipboard",
-    shortcut: "cmd+c",
+    name: "Copy",
+    description: "Copy script content to clipboard",
+    shortcut: `${cmd}+c`,
   },
   ["copy-path"]: {
-    name: "Copy path of script to clipboard",
+    name: "Copy Path",
+    description: "Copy full path of script to clipboard",
   },
   ["new-quick"]: {
-    name: "Quick new script",
-    shortcut: "cmd+n",
+    name: "Quick New",
+    description: "Create a new script with a random name",
+    shortcut: `${cmd}+n`,
   },
   duplicate: {
-    name: "Duplicate script",
-    shortcut: "cmd+d",
+    name: "Duplicate",
+    description: "Duplicate the selected script",
+    shortcut: `${cmd}+d`,
   },
   rename: {
-    name: "Rename script",
-    shortcut: "cmd+r",
+    name: "Rename",
+    description: "Rename the selected script",
+    shortcut: `${cmd}+r`,
   },
   remove: {
-    name: "Remove script",
-    shortcut: "cmd+shift+backspace",
+    name: "Remove",
+    description: "Delete the selected script",
+    shortcut: `${cmd}+shift+backspace`,
   },
   ["open-script-log"]: {
-    name: `Open script log`,
-    shortcut: "cmd+l",
+    name: "Open Log",
+    description:
+      "Open the .log file for the selected script",
+    shortcut: `${cmd}+l`,
   },
   ["open-script-database"]: {
-    name: `Open script database`,
-    shortcut: "cmd+b",
+    name: "Open Database",
+    description: "Open the db file for the selected script",
+    shortcut: `${cmd}+b`,
   },
   ["clear-script-database"]: {
-    name: `Clear script database`,
+    name: "Delete Database",
+    description:
+      "Delete the db file for the selected script",
   },
   ["share-script"]: {
     name: "Share as Gist",
-    shortcut: "cmd+g",
+    description: "Share the selected script as a gist",
+    shortcut: `${cmd}+g`,
   },
   ["share-script-as-kit-link"]: {
     name: "Share as kit:// link",
+    description:
+      "Create a link which will install the script",
     shortcut: "option+s",
   },
   ["share-script-as-link"]: {
     name: "Share as URL",
-    shortcut: "cmd+u",
+    description:
+      "Create a URL which will install the script",
+    shortcut: `${cmd}+u`,
   },
   ["share-script-as-discussion"]: {
-    name: "Share as discussion",
-    shortcut: "cmd+s",
+    name: "Share as GitHub Discussion",
+    description:
+      "Copies shareable info to clipboard and opens GitHub Discussions",
+    shortcut: `${cmd}+s`,
   },
   ["share-script-as-markdown"]: {
     name: "Share as Markdown",
-    shortcut: "cmd+m",
+    description:
+      "Copies script contents in fenced JS Markdown",
+    shortcut: `${cmd}+m`,
   },
   ["change-shortcut"]: {
-    name: "Change shortcut",
+    name: "Change Shortcut",
+    description:
+      "Prompts to pick a new shortcut for the script",
   },
   move: {
-    name: "Move script to kenv",
-    shortcut: "cmd+m",
+    name: "Move Script to Kenv",
+    description: "Move the script between Kit Environments",
+    shortcut: `${cmd}+m`,
   },
   ["refresh-scripts-db"]: {
     name: "Refresh scripts db",
-    shortcut: "cmd+shift+r",
+    description: "Manually refresh scripts database",
+    shortcut: `${cmd}+shift+r`,
   },
   ["stream-deck"]: {
-    name: "Prepare script for Stream Deck",
+    name: "Prepare Script for Stream Deck",
+    description:
+      "Create a .sh file around the script for Stream Decks",
   },
-  [modifiers.cmd]: {
-    name: "Run script w/ cmd flag",
-    shortcut: "cmd+enter",
-  },
+  ...(global.isWin
+    ? {}
+    : {
+        [modifiers.cmd]: {
+          name: "Run script w/ cmd flag",
+          shortcut: `${cmd}+enter`,
+        },
+      }),
   [modifiers.shift]: {
     name: "Run script w/ shift flag",
     shortcut: "shift+enter",

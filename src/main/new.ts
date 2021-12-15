@@ -82,7 +82,7 @@ if (cliScript === "docs") {
 } else if (flag?.discuss) {
   let doc = await findDoc("new", cliScript)
   if (doc?.discussion) {
-    exec(`open ${doc.discussion}`)
+    browse(doc?.discussion)
   }
 } else if (
   newOptions.find(script => script.value === cliScript)

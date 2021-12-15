@@ -3,16 +3,17 @@ global.fileSearch = async (
   name,
   { onlyin = "~", kind = "" } = {}
 ) => {
-  let command = `mdfind${name ? ` -name ${name}` : ""}${
-    onlyin ? ` -onlyin ${onlyin}` : ``
-  }${kind ? ` "kind:${kind}"` : ``}`
+  let command = `/usr/bin/mdfind${
+    name ? ` -name ${name}` : ""
+  }${onlyin ? ` -onlyin ${onlyin}` : ``}${
+    kind ? ` "kind:${kind}"` : ``
+  }`
 
-  return global
-    .exec(command, {
-      silent: true,
-    })
-    .toString()
-    .split("\n")
+  let results = await global.execaCommand(command, {
+    shell: true,
+  })
+
+  return results.stdout.split("\n").filter(Boolean)
 }
 
 global.getSelectedFile = async () => {
