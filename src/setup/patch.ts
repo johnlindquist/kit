@@ -1,5 +1,4 @@
 import { getAppDb, appDefaults } from "../core/db.js"
-import { promptDbPath } from "../core/utils.js"
 
 let copyIfNotExists = async (p: string, dest: string) => {
   if (!(await isFile(p))) await copyFile(p, dest)
@@ -49,8 +48,6 @@ try {
     if (appDb?.[k] === undefined) appDb[k] = v
   }
   await appDb.write()
-
-  await trash(promptDbPath)
 } catch (error) {
   console.log(error)
 }
