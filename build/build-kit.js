@@ -21,6 +21,13 @@ if (platform() === "win32") {
   )
 }
 
+let installNode = platform() === "darwin"
+exec(
+  `./build/install-node.sh v17.2.0 --prefix '${kitPath(
+    "node"
+  )}'`
+) || Promise.resolve()
+
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())
 cp("-R", "./src/types", kitPath())
