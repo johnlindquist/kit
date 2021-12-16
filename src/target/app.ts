@@ -23,12 +23,10 @@ import {
   tap,
   debounceTime,
   withLatestFrom,
-  distinctUntilChanged,
   Subject,
 } from "@johnlindquist/kit-internal/rxjs"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
-import { Convert } from "@johnlindquist/kit-internal/ansi-to-html"
 
 import { Mode, Channel, UI } from "../core/enum.js"
 import {
@@ -249,18 +247,14 @@ let waitForPromptValue = ({
             typeof validateMessage === "boolean" &&
             !validateMessage
           ) {
-            let convert = new Convert()
             global.setHint(
-              convert.toHtml(
-                chalk`${value} is {red not valid}`
-              )
+              chalk`${value} is {red not valid}`
             )
-            return undefined
+            return invalid
           }
 
           if (typeof validateMessage === "string") {
-            let convert = new Convert()
-            global.setHint(convert.toHtml(validateMessage))
+            global.setHint(validateMessage)
             // global.setChoices(global.kitPrevChoices)
             return invalid
           } else {
@@ -596,6 +590,8 @@ global.arg = async (
     ? global.args.shift()
     : null
 
+  let hint = ""
+
   if (firstArg) {
     let validate = (placeholderOrConfig as PromptConfig)
       ?.validate
@@ -606,11 +602,10 @@ global.arg = async (
       if (typeof valid === "boolean" && valid)
         return firstArg
 
-      let convert = new Convert()
-
-      return typeof valid === "boolean" && !valid
-        ? `${firstArg} is not valid`
-        : convert.toHtml(valid as string)
+      hint =
+        typeof valid === "boolean" && !valid
+          ? `${firstArg} is not valid`
+          : (valid as string)
     } else {
       return firstArg
     }
@@ -619,6 +614,7 @@ global.arg = async (
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({
       ui: UI.arg,
+      hint,
       placeholder: placeholderOrConfig,
       choices: choices,
     })
@@ -627,6 +623,7 @@ global.arg = async (
   return await global.kitPrompt({
     choices: choices,
     ...placeholderOrConfig,
+    hint,
   })
 }
 

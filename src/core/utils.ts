@@ -412,6 +412,11 @@ export let parseScript = async (
       metadata.name ||
       metadata.menu ||
       parsedFilePath.command,
+    description: metadata.description
+      ? metadata.description
+      : metadata.name || metadata.menu
+      ? parsedFilePath.command
+      : "",
   }
 }
 
