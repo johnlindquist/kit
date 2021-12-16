@@ -1,19 +1,25 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-KIT=$(cd "$(dirname ${BASH_SOURCE[0]})/.." &> /dev/null && pwd)
+KIT=$(cd "$(dirname ${BASH_SOURCE[0]})/.." &>/dev/null && pwd)
 # Check if "kit" is in node_modules/.bin
-[ -L $BASH_SOURCE ] && \
-[[ $BASH_SOURCE =~ "node_modules" ]] && \
-KIT="$( cd "$(dirname "$0")/.." ; pwd )/@johnlindquist/kit" && \
-KENV="$( cd "$(dirname "$0")/../.." ; pwd )"
+[ -L $BASH_SOURCE ] &&
+    [[ $BASH_SOURCE =~ "node_modules" ]] &&
+    KIT="$(
+        cd "$(dirname "$0")/.."
+        pwd
+    )/@johnlindquist/kit" &&
+    KENV="$(
+        cd "$(dirname "$0")/../.."
+        pwd
+    )"
 
 KIT_NODE="${KIT_NODE:=$KIT/node/bin/node}"
 # Default to system node if KIT_NODE doesn't exist
 [ ! -f $KIT_NODE ] && KIT_NODE=$(which node)
 
 KIT="$KIT" \
-KENV="$KENV" \
-NODE_NO_WARNINGS=1 \
-$KIT_NODE \
-$KIT/run/terminal.js \
-"$@"
+    KENV="$KENV" \
+    NODE_NO_WARNINGS=1 \
+    $KIT_NODE \
+    $KIT/run/terminal.js \
+    "$@"

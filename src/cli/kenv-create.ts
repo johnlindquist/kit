@@ -16,19 +16,17 @@ let newKenvName = await arg(
   async input => {
     let newKenvPath = kenvPath("kenvs", input)
     let exists = await isDir(newKenvPath)
-    let panel = !input
-      ? `A kenv name is required`
-      : exists
-      ? `A kenv named "${input}" already exists`
-      : `
-    <p>Will create to:</p>
-    <p class="font-mono text-xxs break-all">${newKenvPath}</p>`
-
-    return {
-      choices: [input],
-      panel,
-      className: `p-4`,
-    }
+    return md(
+      !input
+        ? `Please name your kit environment directory`
+        : exists
+        ? `A kenv named "${input}" already exists`
+        : `<p>Create a kit environment here:</p>
+    <p class="font-mono text-xxs break-all">${newKenvPath}</p>
+    
+<p>Next time you create a script, you will be prompted where to store it.</p>
+    `
+    )
   }
 )
 
@@ -37,10 +35,10 @@ let newKenvPath = kenvPath("kenvs", newKenvName)
 if (!newKenvPath) exit()
 await ensureDir(kenvPath("kenvs"))
 
-console.log({ newKenvPath })
-
 await degit(`johnlindquist/kenv-template`).clone(
   newKenvPath
 )
+
+await mainScript()
 
 export {}

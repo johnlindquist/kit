@@ -1,26 +1,42 @@
-import { kitMode, KIT_DEFAULT_PATH } from "../core/utils.js"
+import {
+  KIT_FIRST_PATH,
+  KIT_DEFAULT_PATH,
+} from "../core/utils.js"
 
 global.applescript = async (
   script,
   options = { silent: true }
 ) => {
-  let formattedScript = script.replace(/'/g, "'\"'\"'")
-  if (global.env?.DEBUG) {
-    await writeFile(
-      kenvPath("tmp", "_debug.applescript"),
-      script
+  let applescriptPath = tmpPath("latest.scpt")
+  await writeFile(applescriptPath, script)
+
+  let p = new Promise<string>((res, rej) => {
+    let stdout = ``
+    let stderr = ``
+    let child = spawn(
+      `osascript`,
+      [applescriptPath],
+      options
     )
-  }
 
-  let command = `osascript -e '${formattedScript}'`
-  let { stdout, stderr } = exec(command, options)
+    child.stdout.on("data", data => {
+      stdout += data.toString().trim()
+    })
+    child.stderr.on("data", data => {
+      stderr += data.toString().trim()
+    })
 
-  if (stderr) {
-    console.log(stderr)
-    throw new Error(stderr)
-  }
+    child.on("exit", () => {
+      global.setLoading(false)
+      res(stdout)
+    })
 
-  return stdout.trim()
+    child.on("error", () => {
+      rej(stderr)
+    })
+  })
+
+  return p
 }
 
 global.terminal = async script => {
@@ -85,14 +101,22 @@ let terminalEditor = editor => async file => {
 
 let execConfig = () => {
   return {
+    shell: true,
     env: {
       HOME: home(),
-      PATH: KIT_DEFAULT_PATH,
+      PATH: KIT_FIRST_PATH,
     },
   }
 }
 
-global.selectKitEditor = async reset => {
+global.selectKitEditor = async (reset = false) => {
+  let globalBins = []
+  let binPaths = KIT_DEFAULT_PATH.split(":")
+  for await (let binPath of binPaths) {
+    let bin = await readdir(binPath)
+    globalBins.push(...bin)
+  }
+
   let possibleEditors = () =>
     [
       "atom",
@@ -105,21 +129,42 @@ global.selectKitEditor = async reset => {
       "webstorm",
       "vim",
     ]
-      .filter(
-        editor =>
-          exec(`which ${editor}`, {
-            silent: true,
-            env: {
-              PATH: KIT_DEFAULT_PATH,
-            },
-          }).stdout
-      )
+      .filter(editor => globalBins.includes(editor))
       .map(name => ({ name, value: name }))
 
   return await global.env("KIT_EDITOR", {
     reset,
-    placeholder:
-      "Which code editor do you use? (You can always change this later in .env)",
+    placeholder: "Which code editor do you use?",
+    hint: `You can always change this later in .env`,
+    preview: md(`
+    
+## Don't see your editor?
+
+Set up your editor's command-line tools:
+
+- [Visual Studio Code](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line)
+- [WebStorm](https://www.jetbrains.com/help/webstorm/working-with-the-ide-features-from-command-line.html)
+- [Sublime](https://www.sublimetext.com/docs/command_line.html)
+- [Atom](https://flight-manual.atom.io/getting-started/sections/installing-atom/#installing-atom-on-mac)
+
+## Customized your editor command?
+
+If you edited your ~/.zshrc (or similar) for a custom command then sync your PATH to Script Kit's .env:
+
+Run the following in your terminal:
+~~~bash
+~/.kit/bin/kit sync-path
+~~~
+
+## Still not working?
+
+Kit.app reads the \`KIT_EDITOR\` value from your \`~/.kenv/.env\`. It can either be a command on the PATH
+or an absolute path to your editor. This prompt is attempting to set that value for you, but you can also do it manually.
+
+If you need additional help, we're happy to answer questions:
+
+- [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a)
+    `),
     choices: () => [
       ...possibleEditors(),
       {
@@ -141,7 +186,8 @@ let code = async (file, dir, line = 0, col = 0) => {
   let command = `code ${codeArgs.join(" ")}`
 
   let config = execConfig()
-  exec(command, config)
+
+  execaCommandSync(command, config)
 }
 
 let vim = terminalEditor("vim")
@@ -156,6 +202,7 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (file, dir, line = 0, col = 0) => {
+  setDescription(`Opening...`)
   if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)
@@ -163,18 +210,19 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   let execEditor = (file: string) => {
     let editCommand = `${KIT_EDITOR} ${file}`
 
-    exec(editCommand, execConfig())
+    let config = execConfig()
+    exec(editCommand, config)
   }
   let editorFn =
     fullySupportedEditors[KIT_EDITOR] || execEditor
-  console.log(
+  global.log(
     `Opening ${file} with ${global.env.KIT_EDITOR}`
   )
 
   let result = await editorFn(file, dir, line, col)
 
   if (result?.stderr) {
-    console.warn(`STDERR ${result.stderr}`)
+    global.warn(`STDERR ${result.stderr}`)
     exit()
   }
 }
@@ -187,4 +235,8 @@ global.openLog = () => {
   console.log(`📂 Open log ${logPath}`)
 
   global.edit(logPath)
+}
+
+global.browse = async (path: string) => {
+  global.exec(`open ${path}`)
 }

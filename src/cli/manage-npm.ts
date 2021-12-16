@@ -1,16 +1,25 @@
-// Menu: Manage npm
+// Name: Manage npm
 // Description: Add/remove npm packages
 
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 
+let hint = ``
 while (true) {
-  let script = await arg("Manage npm packages", [
-    { name: "Install", value: "install" },
-    { name: "Uninstall", value: "uninstall" },
-    { name: "More Info", value: "more-info" },
-  ])
+  let script = await arg(
+    {
+      placeholder: "Manage npm packages",
+      hint,
+    },
+    [
+      { name: "Install", value: "install" },
+      { name: "Uninstall", value: "uninstall" },
+      { name: "More Info", value: "more-info" },
+    ]
+  )
 
-  await cli(script as keyof CLI)
+  let { packages } = await cli(script as keyof CLI)
+  hint =
+    script === "more-info" ? "" : `${script}ed ${packages}`
 }
 
 export {}

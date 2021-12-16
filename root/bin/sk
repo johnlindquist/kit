@@ -1,12 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-KIT=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
+KIT=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &>/dev/null && pwd)
 args="["
 first=true
-for var in "${@:2}"
-do
-  if [ $first = true ]
-  then
+for var in "${@:2}"; do
+  if [ $first = true ]; then
     first=false
   else
     args+=","
@@ -18,4 +16,4 @@ args+="]"
 json="{\"script\":\"$1\",\"args\":$args,\"cwd\":\"$(pwd)\"}"
 curl --unix-socket $KIT/kit.sock --header "Content-Type: application/json" \
   --data "$json" \
-   "http://localhost"
+  "http://localhost"

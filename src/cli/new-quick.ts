@@ -1,6 +1,6 @@
-// Menu: New Script
+// Name: New Script
 // Description: Creates a new script
-let generate = await npm("project-name-generator")
+import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let name = "quick-" + generate({ words: 2 }).dashed
 
@@ -27,7 +27,7 @@ let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
 
 if (arg?.url) {
-  contents = (await get(arg?.url)).data
+  contents = (await get<string>(arg?.url)).data
 }
 
 mkdir("-p", path.dirname(scriptPath))
@@ -35,7 +35,7 @@ await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)
 
-console.log(
+global.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 

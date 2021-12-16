@@ -1,5 +1,6 @@
 import { Choice } from "../types/core"
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
+import { addPreview, findDoc } from "../cli/lib/utils.js"
 
 let otherOptions: Choice<keyof CLI>[] = [
   {
@@ -35,9 +36,9 @@ let otherOptions: Choice<keyof CLI>[] = [
   },
 ]
 
-let cliScript = await arg<keyof CLI>(
+let cliScript = await arg(
   `Manage Kit environment`,
-  otherOptions
+  await addPreview(otherOptions, "kenv")
 )
 
 await cli(cliScript)

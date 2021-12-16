@@ -1,8 +1,9 @@
-export interface PlayAudioFile {
+import { ProcessOutput } from "@johnlindquist/globals"
+import { Display, Point } from "./electron"
+
+interface PlayAudioFile {
   (path: string, playInBackground?: boolean): void
 }
-
-import { Display, Point, Size, Rectangle } from "./electron"
 
 interface CopyPathAsImage {
   (path: string): Promise<string>
@@ -29,7 +30,9 @@ interface GetActiveTab {
   (browser?: Browser): Promise<string>
 }
 interface GetTabs {
-  (browser?: Browser): Promise<string[]>
+  (browser?: Browser): Promise<
+    { url: string; title: string }[]
+  >
 }
 
 interface FocusTab {
@@ -44,8 +47,8 @@ interface ScrapeSelector {
   (
     url: string,
     selector: string,
-    transform: (element: any) => any,
-    options: ScrapeOptions
+    transform?: (element: any) => any,
+    options?: ScrapeOptions
   )
 }
 interface ScrapeAttribute {
@@ -53,7 +56,7 @@ interface ScrapeAttribute {
     url: string,
     selector: string,
     attribute: string,
-    options: ScrapeOptions
+    options?: ScrapeOptions
   )
 }
 
@@ -184,6 +187,12 @@ interface GetActiveAppBounds {
 interface GetSelectedFile {
   (): Promise<string>
 }
+interface SelectFile {
+  (message?: string): Promise<string>
+}
+interface SelectFolder {
+  (message?: string): Promise<string>
+}
 
 interface GetSelectedText {
   (): Promise<string>
@@ -235,6 +244,8 @@ export interface PlatformApi {
   getMousePosition: GetMousePosition
   getScreens: GetScreens
   getSelectedFile: GetSelectedFile
+  selectFile: SelectFile
+  selectFolder: SelectFolder
   getSelectedText: GetSelectedText
   getTabs: GetTabs
   getWindows: GetWindows
@@ -273,6 +284,8 @@ declare global {
   var getMousePosition: GetMousePosition
   var getScreens: GetScreens
   var getSelectedFile: GetSelectedFile
+  var selectFile: SelectFile
+  var selectFolder: SelectFolder
   var getSelectedText: GetSelectedText
   var getTabs: GetTabs
   var getWindows: GetWindows

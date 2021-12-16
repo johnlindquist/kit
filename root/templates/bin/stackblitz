@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+// These ./bin files are customized for stackblitz
+// A local Script Kit install works a little differently
+let childProcess = require("child_process")
+let path = require("path")
+
+let [, scriptPath, ..._args] = process.argv
+let scriptName = path.basename(scriptPath)
+
+childProcess.spawnSync(
+  path.resolve(__dirname, "kit"),
+  [scriptName, ..._args],
+  {
+    stdio: "inherit",
+  }
+)

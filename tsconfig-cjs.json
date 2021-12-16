@@ -4,7 +4,9 @@
     "target": "ES2020",
     "rootDir": "./src/core",
     "outDir": "./dist/core",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "lib": ["esnext"],
+    "skipLibCheck": true
   },
   "include": ["./src/core/**/*.ts"]
 }

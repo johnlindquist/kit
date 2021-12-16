@@ -7,11 +7,18 @@ import {
 } from "fs/promises"
 import { copy } from "fs-extra"
 import path from "path"
+import { homedir } from "os"
 
 console.log(`Fixing cjs and moving to ./core ...`)
 
-let cjsDir = path.resolve(process.env.KIT, "cjs")
-let coreDir = path.resolve(process.env.KIT, "core")
+let kitPath = (...pathParts) =>
+  path.resolve(
+    process.env.KIT || path.resolve(homedir(), ".kit"),
+    ...pathParts
+  )
+
+let cjsDir = path.resolve(kitPath(), "cjs")
+let coreDir = path.resolve(kitPath(), "core")
 
 let files = await readdir(cjsDir)
 

@@ -16,7 +16,7 @@ ava.serial(
     `
     let type = "js"
 
-    await $`KIT_MODE=${type} kit new ${name} home --no-edit`
+    await $`KIT_MODE=${type} kit new ${name} main --no-edit`
 
     await appendFile(
       kenvPath("scripts", `${name}.js`),
@@ -46,7 +46,7 @@ ava(`All globals exist`, async t => {
     content += await readFile(kitPath("types", f), "utf-8")
   }
 
-  let matches = content.match(/(?<=var ).*(?=:)/gim)
+  let matches = content.match(/(?<=var ).*?(?=:)/gim)
 
   for (let m of matches) {
     t.true(

@@ -1,10 +1,12 @@
 // Description: Creates a script from an entered url
 
-import { exists } from "../core/utils.js"
+import { exists, stripMetadata } from "../core/utils.js"
+import { prependImport } from "./lib/utils.js"
 
 let url = await arg("Enter script url:")
 
-let contents = (await get(url)).data
+let contents = (await get<any>(url)).data
+if (!arg?.keepMetadata) contents = stripMetadata(contents)
 
 if (url.endsWith(".js")) {
   let nameFromUrl = url.split("/").pop().replace(".js", "")
@@ -21,6 +23,7 @@ let scriptPath = path.join(
   name + ".js"
 )
 
+contents = prependImport(contents)
 await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)

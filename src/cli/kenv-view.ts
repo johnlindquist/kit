@@ -1,12 +1,7 @@
-// Menu: Kit Environment
+// Name: Kit Environment
 // Description: Script Kit
 
-import {
-  toggleBackground,
-  selectScript,
-  selectKenv,
-  run,
-} from "../core/utils.js"
+import { toggleBackground, run } from "../core/utils.js"
 
 let { name: kenv } = await selectKenv()
 
@@ -73,7 +68,7 @@ let shouldEdit =
   flag?.open
 
 if (script.background) {
-  toggleBackground(script)
+  await toggleBackground(script)
 } else if (shouldEdit) {
   await edit(script.filePath, kenvPath())
 } else {

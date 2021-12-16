@@ -10,7 +10,13 @@ export interface Choice<Value = any> {
   img?: string
   icon?: string
   html?: string
-  preview?: string
+  hasPreview?: boolean
+  preview?:
+    | string
+    | ((
+        choice: Choice & { input: string; index: number }
+      ) => string | Promise<string>)
+  previewLang?: string
   id?: string
   shortcode?: string[]
   className?: string
@@ -22,6 +28,8 @@ export interface Choice<Value = any> {
         data?: string
       }
     | string
+  onFocus?: (choice: Choice) => Promise<void>
+  onSubmit?: (choice: Choice) => Promise<void>
 }
 
 export interface ScriptPathInfo {
@@ -33,6 +41,7 @@ export interface ScriptPathInfo {
 }
 
 export interface ScriptMetadata {
+  name?: string
   menu?: string
   description?: string
   shortcut?: string
@@ -47,13 +56,18 @@ export interface ScriptMetadata {
   watch?: string
   background?: string
   type: ProcessType
-  requiresPrompt: boolean
   timeout?: number
   tabs?: string[]
   tag?: string
   log?: "true" | "false"
   hasFlags?: boolean
   img?: string
+  cmd?: string
+  option?: string
+  ctrl?: string
+  shift?: string
+  hasPreview?: boolean
+  resize?: boolean
 }
 
 export type Script = ScriptMetadata &
@@ -67,15 +81,19 @@ export type PromptBounds = {
   height: number
 }
 
+export type PromptState = "collapsed" | "expanded"
+
 export type PromptDb = {
   screens: {
     [screenId: string]: {
-      [scriptId: string]: PromptBounds
+      [script: string]: {
+        [key in PromptState]: PromptBounds
+      }
     }
   }
 }
 
-type InputType =
+export type InputType =
   | "button"
   | "checkbox"
   | "color"
@@ -100,23 +118,25 @@ type InputType =
   | "week"
 
 export interface PromptData {
-  id: number
-  script: Script
-  ui: UI
-  placeholder: string
-  kitScript: string
-  choices: Choice[]
-  tabs: string[]
+  description: string
+  flags: FlagsOptions
+  hasPreview: boolean
+  hint: string
   ignoreBlur: boolean
-  textarea?: boolean
-  secret?: boolean
-  strict?: boolean
-  mode?: Mode
-  className?: string
-  hint?: string
-  input?: string
-  selected?: string
-  type?: InputType
+  input: string
+  kitArgs: string[]
+  kitScript: string
+  mode: Mode
+  name: string
+  placeholder: string
+  preview: string
+  secret: boolean
+  selected: string
+  strict: boolean
+  tabs: string[]
+  tabIndex: number
+  type: InputType
+  ui: UI
 }
 
 export interface GenerateChoices {
@@ -135,16 +155,15 @@ export type Panel =
   | string
   | (() => string)
   | (() => Promise<string>)
+  | ((input: string) => string)
   | ((input: string) => Promise<any>)
 
 export type FlagsOptions = {
-  [key: string]:
-    | {
-        shortcut?: string
-        name?: string
-        description?: string
-      }
-    | undefined
+  [key: string]: {
+    shortcut?: string
+    name?: string
+    description?: string
+  }
 }
 
 export interface PromptConfig
@@ -155,7 +174,11 @@ export interface PromptConfig
     choice: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
+  className?: string
   flags?: FlagsOptions
+  preview?: string | (() => string | Promise<string>)
+  onNoChoices?: (input: string) => void | Promise<void>
+  onChoices?: (input: string) => void | Promise<void>
 }
 
 export interface Metadata {

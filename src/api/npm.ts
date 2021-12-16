@@ -1,4 +1,4 @@
-let defaultImport = async modulePath => {
+let defaultImport = async (modulePath: string) => {
   let pkg = await import(modulePath)
   if (pkg.default) return pkg.default
   return pkg
@@ -93,7 +93,7 @@ export let createNpm = npmInstall => async packageName => {
     )
   )
 
-  let isKenvDep = kenvDeps[packageName]
+  let isKenvDep = kenvDeps?.[packageName]
   if (isKenvDep) {
     return kenvImport(packageName)
   }

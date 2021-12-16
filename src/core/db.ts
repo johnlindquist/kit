@@ -1,23 +1,39 @@
 import * as path from "path"
 import {
   appDbPath,
-  resolveKenv,
   kitPath,
+  kenvPath,
   mainScriptPath,
   prefsPath,
   promptDbPath,
   shortcutsPath,
-  writeScriptsDb,
   isDir,
   extensionRegex,
   resolveScriptToCommand,
+  parseScripts,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
-import { Low } from "lowdb"
+import {
+  Low,
+  JSONFile,
+} from "@johnlindquist/kit-internal/lowdb"
+
+export const resolveKenv = (...parts: string[]) => {
+  if (global.kitScript) {
+    return path.resolve(
+      global.kitScript,
+      "..",
+      "..",
+      ...parts
+    )
+  }
+
+  return kenvPath(...parts)
+}
 
 export let db = async (
   key: any,
-  defaults: any = {},
+  defaults?: any,
   fromCache = true
 ): Promise<Low & any> => {
   if (
@@ -27,11 +43,12 @@ export let db = async (
     defaults = key
     key = "_" + resolveScriptToCommand(global.kitScript)
   }
+  if (typeof defaults === "undefined") defaults = {}
 
-  let dbPath =
-    key.startsWith(path.sep) && key.endsWith(".json")
-      ? key
-      : resolveKenv("db", `${key}.json`)
+  let dbPath = key
+  if (!key.endsWith(".json")) {
+    dbPath = resolveKenv("db", `${key}.json`)
+  }
 
   let parentExists = await isDir(path.dirname(dbPath))
   if (!parentExists) {
@@ -45,8 +62,6 @@ export let db = async (
       write: () => {},
     }
   }
-
-  let { Low, JSONFile } = await import("lowdb")
 
   let _db = new Low(new JSONFile(dbPath))
 
@@ -101,14 +116,18 @@ export let getScriptsDb = async (
 ): Promise<{
   scripts: Script[]
 }> => {
-  if (!fromCache) console.log(`🔄 Refresh scripts db`)
+  // if (!fromCache) console.log(`🔄 Refresh scripts db`)
   return await db(
     kitPath("db", "scripts.json"),
     async () => ({
-      scripts: await writeScriptsDb(),
+      scripts: await parseScripts(),
     }),
     fromCache
   )
+}
+
+export let refreshScriptsDb = async () => {
+  await getScriptsDb(false)
 }
 
 export let getPrefs = async () => {
@@ -175,15 +194,23 @@ type AppDb = {
   needsRestart: boolean
   version: string
   openAtLogin: boolean
+  previewScripts: boolean
+  autoUpdate: boolean
+  tray: boolean
+}
+
+export const appDefaults = {
+  needsRestart: false,
+  version: "0.0.0",
+  autoUpdate: true,
+  tray: true,
+  openAtLogin: true,
 }
 
 export let getAppDb = async (): Promise<
   Low<any> & AppDb
 > => {
-  return await db(appDbPath, {
-    needsRestart: false,
-    version: "0.0.0",
-  })
+  return await db(appDbPath, appDefaults)
 }
 
 type ShortcutsDb = {
@@ -196,7 +223,9 @@ export let getShortcutsDb = async (): Promise<
 > => {
   return await db(shortcutsPath, {
     shortcuts: {
-      [mainScriptPath]: "cmd ;",
+      [mainScriptPath]: global.isWin
+        ? "control ;"
+        : "cmd ;",
     },
   })
 }

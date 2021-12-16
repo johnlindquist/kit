@@ -15,6 +15,6 @@ let postChoices = await getChoices()
 
 let url = await arg(`Pick a post to view:`, postChoices)
 
-exec(`open ${url}`)
+browse(url)
 
 export {}

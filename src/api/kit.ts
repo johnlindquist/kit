@@ -1,14 +1,32 @@
-import { Choice, FlagsOptions } from "../types/core"
+import * as os from "os"
+import { pathToFileURL } from "url"
+
+import {
+  Choice,
+  FlagsOptions,
+  PromptConfig,
+  Script,
+} from "../types/core"
 import { Channel } from "../core/enum.js"
 
 import {
   kitPath,
   kenvPath,
   resolveScriptToCommand,
-  copyTmpFile,
   run,
+  getKenvs,
+  getLastSlashSeparated,
 } from "../core/utils.js"
-import stripAnsi from "strip-ansi"
+import {
+  getScripts,
+  getScriptFromString,
+  getAppDb,
+} from "../core/db.js"
+import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+
+import { Kenv } from "../types/kit"
+
+global.isWin = os.platform().startsWith("win")
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -61,6 +79,28 @@ export let errorPrompt = async (error: Error) => {
   }
 }
 
+export const outputTmpFile = async (
+  fileName: string,
+  contents: string
+) => {
+  let outputPath = path.resolve(
+    global.tempdir(),
+    "kit",
+    fileName
+  )
+  await outputFile(outputPath, contents)
+  return outputPath
+}
+
+export const copyTmpFile = async (
+  fromFile: string,
+  fileName: string
+) =>
+  await outputTmpFile(
+    fileName,
+    await global.readFile(fromFile, "utf-8")
+  )
+
 global.attemptImport = async (scriptPath, ..._args) => {
   let importResult = undefined
   try {
@@ -107,16 +147,18 @@ global.attemptImport = async (scriptPath, ..._args) => {
         })
 
         importResult = await import(
-          outfile + "?uuid=" + global.uuid()
+          pathToFileURL(outfile).href +
+            "?uuid=" +
+            global.uuid()
         )
       } catch (error) {
         await errorPrompt(error)
       }
     } else {
-      //import caches loaded scripts, so we cache-bust with a uuid in case we want to load a script twice
-      //must use `import` for ESM
       importResult = await import(
-        scriptPath + "?uuid=" + global.uuid()
+        pathToFileURL(scriptPath).href +
+          "?uuid=" +
+          global.uuid()
       )
     }
   } catch (error) {
@@ -159,23 +201,59 @@ global.attemptImport = async (scriptPath, ..._args) => {
 //   console.log({ warning })
 // })
 
-global.send = async (channel, data) => {
+global.send = async (channel: Channel, value?: any) => {
   if (process?.send) {
     process.send({
       pid: process.pid,
       kitScript: global.kitScript,
       channel,
-      ...data,
+      value,
     })
   } else {
     // console.log(from, ...args)
   }
 }
 
+let _consoleLog = console.log.bind(console)
+let _consoleWarn = console.warn.bind(console)
+let _consoleClear = console.clear.bind(console)
+global.log = (...args) => {
+  if (process?.send) {
+    global.send(
+      Channel.KIT_LOG,
+      args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" ")
+    )
+  } else {
+    _consoleLog(...args)
+  }
+}
+global.warn = (...args) => {
+  if (process?.send) {
+    global.send(
+      Channel.KIT_WARN,
+      args
+        .map(a =>
+          typeof a != "string" ? JSON.stringify(a) : a
+        )
+        .join(" ")
+    )
+  } else {
+    _consoleWarn(...args)
+  }
+}
+global.clear = () => {
+  if (process?.send) {
+    global.send(Channel.KIT_CLEAR)
+  } else {
+    _consoleClear()
+  }
+}
+
 if (process?.send) {
-  let _consoleLog = console.log.bind(console)
-  let _consoleWarn = console.warn.bind(console)
-  let _consoleClear = console.clear.bind(console)
   console.log = (...args) => {
     let log = args
       .map(a =>
@@ -183,9 +261,7 @@ if (process?.send) {
       )
       .join(" ")
 
-    global.send(Channel.CONSOLE_LOG, {
-      log,
-    })
+    global.send(Channel.CONSOLE_LOG, log)
   }
 
   console.warn = (...args) => {
@@ -195,19 +271,22 @@ if (process?.send) {
       )
       .join(" ")
 
-    global.send(Channel.CONSOLE_WARN, {
-      warn,
-    })
+    global.send(Channel.CONSOLE_WARN, warn)
   }
 
   console.clear = () => {
-    global.send(Channel.CONSOLE_CLEAR, {})
+    global.send(Channel.CONSOLE_CLEAR)
   }
 }
 
 global.show = (html, options) => {
   global.send(Channel.SHOW, { options, html })
 }
+
+global.dev = data => {
+  global.send(Channel.DEV_TOOLS, data)
+}
+global.devTools = global.dev
 
 global.showImage = (image, options) => {
   global.send(Channel.SHOW_IMAGE, {
@@ -218,9 +297,7 @@ global.showImage = (image, options) => {
 }
 
 global.setPlaceholder = text => {
-  global.send(Channel.SET_PLACEHOLDER, {
-    text: stripAnsi(text),
-  })
+  global.send(Channel.SET_PLACEHOLDER, stripAnsi(text))
 }
 
 global.main = async (scriptPath: string, ..._args) => {
@@ -229,7 +306,9 @@ global.main = async (scriptPath: string, ..._args) => {
 }
 
 global.lib = async (lib: string, ..._args) => {
-  let libScriptPath = kenvPath("lib", lib) + ".js"
+  let libScriptPath =
+    path.resolve(global.kitScript, "..", "..", "lib", lib) +
+    ".js"
   return await global.attemptImport(libScriptPath, ..._args)
 }
 
@@ -250,7 +329,9 @@ global.setup = async (setupPath, ..._args) => {
 }
 
 global.tmpPath = (...parts) => {
-  let command = resolveScriptToCommand(global.kitScript)
+  let command = global?.kitScript
+    ? resolveScriptToCommand(global.kitScript)
+    : ""
   let scriptTmpDir = global.kenvPath(
     "tmp",
     command,
@@ -264,7 +345,7 @@ global.tmpPath = (...parts) => {
  * @deprecated use `tmpPath` instead
  */
 global.tmp = global.tmpPath
-global.inspect = async (data, extension) => {
+global.inspect = async (data, fileName) => {
   let dashedDate = () =>
     new Date()
       .toISOString()
@@ -279,10 +360,8 @@ global.inspect = async (data, extension) => {
     formattedData = JSON.stringify(data, null, "\t")
   }
 
-  if (extension) {
-    tmpFullPath = global.tmpPath(
-      `${dashedDate()}.${extension}`
-    )
+  if (fileName) {
+    tmpFullPath = global.tmpPath(fileName)
   } else if (typeof data === "object") {
     tmpFullPath = global.tmpPath(`${dashedDate()}.json`)
   } else {
@@ -312,14 +391,12 @@ global.onTab = (name, fn) => {
     if (global.flag?.tab === name) {
       let tabIndex = global.onTabs.length - 1
       global.onTabIndex = tabIndex
-      global.send(Channel.SET_TAB_INDEX, {
-        tabIndex,
-      })
+      global.send(Channel.SET_TAB_INDEX, tabIndex)
       global.currentOnTab = fn()
     }
   } else if (global.onTabs.length === 1) {
     global.onTabIndex = 0
-    global.send(Channel.SET_TAB_INDEX, { tabIndex: 0 })
+    global.send(Channel.SET_TAB_INDEX, 0)
     global.currentOnTab = fn()
   }
 }
@@ -338,8 +415,14 @@ global.setChoices = async (choices, className = "") => {
       }
 
       if (typeof choice === "object") {
+        if (Boolean(choice?.preview))
+          choice.hasPreview = true
+
         if (!choice?.id) {
           choice.id = global.uuid()
+        }
+        if (typeof choice?.name === "undefined") {
+          choice.name = ""
         }
         if (typeof choice.value === "undefined") {
           return {
@@ -359,11 +442,16 @@ global.setChoices = async (choices, className = "") => {
     scripts: true,
   })
   global.kitPrevChoices = choices
+
+  global.setLoading(false)
 }
 
 global.flag = {}
-global.setFlags = (flags: FlagsOptions) => {
+global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
   let validFlags = {}
+  for (let key of Object.keys(global?.flag)) {
+    delete global?.flag?.[key]
+  }
   for (let [key, value] of Object.entries(flags)) {
     validFlags[key] = {
       name: value?.name || key,
@@ -372,12 +460,189 @@ global.setFlags = (flags: FlagsOptions) => {
       value: key,
     }
   }
-  global.send(Channel.SET_FLAGS, { flags: validFlags })
+
+  return validFlags
 }
-global.hide = () => {
+
+global.setFlags = (flags: FlagsOptions) => {
+  global.send(Channel.SET_FLAGS, global.prepFlags(flags))
+}
+
+global.hide = async () => {
   global.send(Channel.HIDE_APP)
+  await wait(500)
 }
 
 global.run = run
 
-export {}
+let wrapCode = (
+  html: string,
+  containerClass: string,
+  codeStyles = ""
+) => {
+  return `<pre class="${containerClass}">
+  <style type="text/css">
+      code{
+        font-size: 0.75rem !important;
+        width: 100%;
+        white-space: pre-wrap;
+        ${codeStyles}
+      }
+      pre{
+        display: flex;
+      }
+      p{
+        margin-bottom: 1rem;
+      }
+  </style>
+  <code>
+${html.trim()}
+  </code>
+</pre>`
+}
+
+export let highlightJavaScript = async (
+  filePath: string
+): Promise<string> => {
+  let contents = await readFile(filePath, "utf-8")
+
+  let { default: highlight } = await import("highlight.js")
+  let highlightedContents = highlight.highlight(contents, {
+    language: "javascript",
+  }).value
+
+  let wrapped = wrapCode(highlightedContents, "px-5")
+  return wrapped
+}
+
+export let selectScript = async (
+  message: string | PromptConfig = "Select a script",
+  fromCache = true,
+  xf = (x: Script[]) => x
+): Promise<Script> => {
+  let scripts: Script[] = xf(await getScripts(fromCache))
+
+  scripts = scripts.map(s => {
+    s.preview = async () => {
+      return highlightJavaScript(s.filePath)
+    }
+    return s
+  })
+
+  let script: Script | string = await global.arg(
+    message,
+    scripts
+  )
+
+  if (
+    typeof script === "string" &&
+    (typeof message === "string" ||
+      message?.strict === true)
+  ) {
+    return await getScriptFromString(script)
+  } else {
+    return script as any //hmm...
+  }
+}
+
+global.selectScript = selectScript
+
+export let selectKenv = async (
+  ignorePattern = /^ignore$/
+) => {
+  let homeKenv = {
+    name: "main",
+    description: `Your main kenv: ${kenvPath()}`,
+    value: {
+      name: "main",
+      dirPath: kenvPath(),
+    },
+  }
+  let selectedKenv: Kenv | string = homeKenv.value
+
+  let kenvs = await getKenvs(ignorePattern)
+  if (kenvs.length) {
+    let kenvChoices = [
+      homeKenv,
+      ...kenvs.map(p => {
+        let name = getLastSlashSeparated(p, 1)
+        return {
+          name,
+          description: p,
+          value: {
+            name,
+            dirPath: p,
+          },
+        }
+      }),
+    ]
+
+    selectedKenv = await global.arg(
+      `Select target kenv`,
+      kenvChoices
+    )
+
+    if (typeof selectedKenv === "string") {
+      return kenvChoices.find(
+        c =>
+          c.value.name === selectedKenv ||
+          path.resolve(c.value.dirPath) ===
+            path.resolve(selectedKenv as string)
+      ).value
+    }
+  }
+  return selectedKenv as Kenv
+}
+
+global.selectKenv = selectKenv
+
+global.highlight = async (
+  markdown: string,
+  containerClass: string = "p-5 leading-loose",
+  injectStyles: string = ``
+) => {
+  let { default: hljs } = await import("highlight.js")
+
+  global.marked.setOptions({
+    renderer: new global.marked.Renderer(),
+    highlight: function (code, lang) {
+      const language = hljs.getLanguage(lang)
+        ? lang
+        : "plaintext"
+      return hljs.highlight(code, { language }).value
+    },
+    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
+    pedantic: false,
+    gfm: true,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false,
+    xhtml: false,
+  })
+
+  let highlightedMarkdown = global.marked(markdown)
+
+  let result = `<div class="${containerClass}">
+  <style>
+  p{
+    margin-bottom: 1rem;
+  }
+  li{
+    margin-bottom: .25rem;
+  }
+  ${injectStyles}
+  </style>
+  ${highlightedMarkdown}
+</div>`
+
+  return result
+}
+
+global.setTab = (tabName: string) => {
+  let i = global.onTabs.findIndex(
+    ({ name }) => name === tabName
+  )
+  global.send(Channel.SET_TAB_INDEX, i)
+  global.onTabs[i].fn()
+}

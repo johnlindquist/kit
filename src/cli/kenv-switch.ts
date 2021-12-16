@@ -10,6 +10,6 @@ let kenv = await arg(
   kitAppDb.KENVS
 )
 
-global.send(Channel.SWITCH_KENV, { kenvPath: kenv })
+global.send(Channel.SWITCH_KENV, kenv)
 
 export {}

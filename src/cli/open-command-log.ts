@@ -1,5 +1,3 @@
-import { selectScript } from "../core/utils.js"
-
 let { filePath, command } = await selectScript(
   `Open log for which script?`
 )

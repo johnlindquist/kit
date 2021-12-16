@@ -1,10 +1,17 @@
+// Name: New
 // Description: Create a new script
+// Log: false
+
 import {
   exists,
   kitMode,
-  selectKenv,
+  stripMetadata,
 } from "../core/utils.js"
-let generate = await npm("project-name-generator")
+import {
+  ensureTemplates,
+  prependImport,
+} from "./lib/utils.js"
+import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
@@ -17,7 +24,11 @@ let name = await arg({
   hint: `examples: ${examples}`,
 })
 
-let { dirPath: selectedKenvPath } = await selectKenv()
+div(md(`Opening ${name}...`))
+
+let { dirPath: selectedKenvPath } = await selectKenv(
+  /^examples$/
+)
 
 let scriptPath = path.join(
   selectedKenvPath,
@@ -31,19 +42,73 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
-let template = arg?.template || (await env("KIT_TEMPLATE"))
+let stripExtension = fileName =>
+  fileName.replace(path.extname(fileName), "")
 
-let templateContent = await readFile(
-  kenvPath("templates", `${template}.${kitMode()}`),
-  "utf8"
+await ensureTemplates()
+
+let ext = `.${kitMode()}`
+
+let template =
+  arg?.template ||
+  (await env("KIT_TEMPLATE", {
+    choices: _.uniq(
+      (
+        await readdir(kenvPath("templates"))
+      ).map(stripExtension)
+    ),
+  }))
+
+let templatePath = kenvPath(
+  "templates",
+  `${template}${ext}`
 )
+
+let templateExists = await pathExists(templatePath)
+if (!templateExists) {
+  console.log(
+    `${template} template doesn't exist. Creating blank ./templates/${template}${ext}`
+  )
+
+  await copyFile(
+    kitPath("templates", "scripts", `default${ext}`),
+    kenvPath("templates", `${template}${ext}`)
+  )
+}
+
+let templateContent = await readFile(templatePath, "utf8")
 
 let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
+if (arg.scriptName) {
+  contents = `// Name: ${arg?.scriptName || ""}
+
+${contents}
+`
+}
+
+if (arg?.url || arg?.content) {
+  contents = (await get<any>(arg?.url)).data
+  if (!arg?.keepMetadata) {
+    contents = stripMetadata(contents, [
+      "Menu",
+      "Name",
+      "Author",
+      "Twitter",
+      "Alias",
+      "Description",
+    ])
+  }
+}
 
 if (arg?.url) {
-  contents = (await get(arg?.url)).data
+  scriptPath = scriptPath.replace(
+    /\.(js|ts)$/g,
+    path.extname(arg?.url?.replace(/("|')$/g, ""))
+  )
 }
+
+contents = prependImport(contents)
 
 mkdir("-p", path.dirname(scriptPath))
 await writeFile(scriptPath, contents)
@@ -56,4 +121,4 @@ console.log(
 
 edit(scriptPath, kenvPath(), 3)
 
-export {}
+export { scriptPath }

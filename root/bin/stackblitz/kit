@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+NODE_NO_WARNINGS=1 \
+    node \
+    ./node_modules/@johnlindquist/kit/run/stackblitz.js

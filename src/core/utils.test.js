@@ -19,7 +19,7 @@ let mockMjsFile = kitMockPath(
 let prevCwd = cwd()
 
 ava.before(async () => {
-  await $`KIT_MODE=js kit new ${testingFindMe} home --no-edit`
+  await $`KIT_MODE=js kit new ${testingFindMe} main --no-edit`
 })
 
 ava("resolve full path", async t => {

@@ -1,5 +1,5 @@
-import { getScripts } from "../core/db.js"
+import { refreshScriptsDb } from "../core/db.js"
 
-await getScripts(false)
+await refreshScriptsDb()
 
-export {}
+export { }

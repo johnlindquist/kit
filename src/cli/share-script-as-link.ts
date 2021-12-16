@@ -1,8 +1,6 @@
 //Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
-let { Octokit } = await npm("scriptkit-octokit")
-
-import { selectScript } from "../core/utils.js"
+import { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
 
 let { filePath, command } = await selectScript(
   `Share which script?`
@@ -16,6 +14,7 @@ let octokit = new Octokit({
 })
 
 let fileBasename = path.basename(filePath)
+div(md(`Creating link...`))
 
 let response = await octokit.rest.gists.create({
   files: {
@@ -28,7 +27,8 @@ let response = await octokit.rest.gists.create({
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[fileBasename].raw_url}`
 copy(link)
-console.log(`Copied share link to clipboard`)
+div(md(`Copied share link to clipboard`))
 await wait(2000)
+submit(``)
 
 export {}

@@ -1,3 +1,6 @@
-$`cd ${kenvPath(
-  "kenvs"
-)} && git clone https://github.com/johnlindquist/kit-examples ./examples`
+cd(kenvPath("kenvs"))
+await exec(
+  `git clone https://github.com/johnlindquist/kit-examples examples`
+)
+
+export {}

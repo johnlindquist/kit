@@ -215,18 +215,18 @@ global.organizeWindows = async () => {
     let windowWidth = Math.floor(width / sqrt)
     let windowHeight = Math.floor(height / sqrt)
 
-    console.log({
-      process,
-      title,
-      index,
-      sqrt,
-      col,
-      row,
-      windowX,
-      windowY,
-      windowWidth,
-      windowHeight,
-    })
+    // console.log({
+    //   process,
+    //   title,
+    //   index,
+    //   sqrt,
+    //   col,
+    //   row,
+    //   windowX,
+    //   windowY,
+    //   windowWidth,
+    //   windowHeight,
+    // })
     await setWindowSizeByIndex(
       process,
       index,
@@ -313,31 +313,13 @@ end tell
 	`)
 }
 
-global.getActiveScreen = async (): Promise<any> =>
-  new Promise((res, rej) => {
-    let messageHandler = data => {
-      if (data.channel === "SCREEN_INFO") {
-        res(data.activeScreen)
-        process.off("message", messageHandler)
-      }
-    }
-    process.on("message", messageHandler)
-
-    global.send(Channel.GET_SCREEN_INFO)
-  })
+global.getActiveScreen = async () =>
+  (await global.getDataFromApp(Channel.GET_SCREEN_INFO))
+    .activeScreen
 
 global.getMousePosition = async () =>
-  new Promise((res, rej) => {
-    let messageHandler = data => {
-      if (data.channel === "MOUSE") {
-        res(data.mouseCursor)
-        process.off("message", messageHandler)
-      }
-    }
-    process.on("message", messageHandler)
-
-    global.send(Channel.GET_MOUSE)
-  })
+  (await global.getDataFromApp(Channel.GET_MOUSE))
+    .mouseCursor
 
 global.setActiveAppBounds = async ({
   left,

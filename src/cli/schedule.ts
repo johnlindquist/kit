@@ -1,14 +1,14 @@
-// Menu: View Schedule
+// Name: View Schedule
 // Description: Select a scheduled script to edit
 
-import { Schedule } from "../types/app"
-import {
-  parseFilePath,
-  parseScript,
-} from "../core/utils.js"
+import { Schedule } from "../types/kitapp"
+import { parseScript } from "../core/utils.js"
 
-let { formatDistanceToNowStrict, format, compareAsc } =
-  await npm("date-fns")
+import {
+  formatDistanceToNowStrict,
+  format,
+  compareAsc,
+} from "@johnlindquist/kit-internal/date-fns"
 
 let { schedule } = await global.getSchedule()
 
@@ -23,7 +23,7 @@ let choices = (
         description: `Next ${formatDistanceToNowStrict(
           d
         )} - ${format(d, "MMM eo, h:mm:ssa ")} - ${
-          script.schedule
+          script?.schedule
         }`,
         value: filePath,
       } as Schedule

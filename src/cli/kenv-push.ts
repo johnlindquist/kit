@@ -15,9 +15,14 @@ let dir = await arg(
   }))
 )
 
-await $`cd ${dir} && git add . && git commit -m "pushed from Script Kit" && git push`
+await exec(`cd ${dir}`)
+await exec(`git add .`)
+await exec(`git commit -m "pushed from Script Kit"`)
+await exec(`git push`)
 
 await getScripts(false)
+
+await mainScript()
 
 // Prompt if stash exists to re-apply changes
 

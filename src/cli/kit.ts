@@ -1,11 +1,18 @@
 //Description: Script Kit CLI
 
-import { CLI } from "../types/cli"
+import { CLI } from "../cli"
 import {
   kitMode,
   resolveToScriptPath,
   run,
+  jsh,
 } from "../core/utils.js"
+
+import { getScripts } from "../core/db.js"
+
+let scripts = await getScripts()
+
+let hasScripts = scripts?.length > 0
 
 interface CLIMenuItem {
   name?: string
@@ -13,9 +20,54 @@ interface CLIMenuItem {
   alias?: string
 }
 
-let cliScripts: CLIMenuItem[] = [
+let requiresScripts = [
   { name: "run", placeholder: "Run a script" },
   { name: "edit", placeholder: "Edit a script" },
+]
+
+let notJsh = [
+  {
+    name: "add-kenv-to-profile",
+    placeholder: "Add .kenv/bin to your path",
+  },
+  {
+    name: "add-kit-to-profile",
+    placeholder: "Add .kit/bin to your path",
+  },
+  { name: "env", placeholder: "Edit .env" },
+  { name: "issue", placeholder: "File an issue on github" },
+  { name: "open-at-login", placeholder: "Open at login" },
+  {
+    name: "create-all-bins",
+    placeholder: "Regen bin files",
+  },
+  {
+    name: "open-kit",
+    placeholder: "Open .kit directory in editor",
+  },
+  { name: "kenv-create", placeholder: "Create a kenv" },
+  { name: "kenv-clone", placeholder: "Clone a kenv" },
+  { name: "kenv-view", placeholder: "View kenv scripts" },
+  { name: "kenv-push", placeholder: "Push a kenv" },
+  { name: "kenv-pull", placeholder: "Pull a kenv" },
+  { name: "kenv-rm", placeholder: "Remove a kenv" },
+  { name: "sync-path", placeholder: "Update PATH" },
+  { name: "clear", placeholder: "Clear the caches" },
+]
+
+let shareScripts = [
+  {
+    name: "share-script",
+    placeholder: "Share a script as a Gist",
+  },
+  {
+    name: "share-script-as-link",
+    placeholder: "Share a script as a scriptkit.com link",
+  },
+]
+
+let cliScripts: CLIMenuItem[] = [
+  ...(hasScripts ? requiresScripts : []),
   {
     name: "new",
     placeholder: `Create a script using ${
@@ -37,14 +89,7 @@ let cliScripts: CLIMenuItem[] = [
     name: "new-from-url",
     placeholder: "Create a script from a url",
   },
-  {
-    name: "share-script",
-    placeholder: "Share a script as a Gist",
-  },
-  {
-    name: "share-script-as-link",
-    placeholder: "Share a script as a scriptkit.com link",
-  },
+  ...(jsh ? [] : shareScripts),
   {
     name: "duplicate",
     alias: "cp",
@@ -60,7 +105,7 @@ let cliScripts: CLIMenuItem[] = [
     alias: "rm",
     placeholder: "Remove a script",
   },
-  { name: "clear", placeholder: "Clear the caches" },
+
   // {
   //   name: "update",
   //   placeholder: `Version: ${process.env.KIT_APP_VERSION}`,
@@ -76,35 +121,13 @@ let cliScripts: CLIMenuItem[] = [
     placeholder: "Uninstall an npm package",
   },
   {
-    name: "add-kenv-to-profile",
-    placeholder: "Add .kenv/bin to your path",
-  },
-  {
-    name: "add-kit-to-profile",
-    placeholder: "Add .kit/bin to your path",
-  },
-  { name: "env", placeholder: "Edit .env" },
-  {
     name: "set-env-var",
     placeholder: "Add env var to .env",
   },
-  { name: "issue", placeholder: "File an issue on github" },
-  { name: "open-at-login", placeholder: "Open at login" },
-  {
-    name: "create-all-bins",
-    placeholder: "Regen bin files",
-  },
-  {
-    name: "open-kit",
-    placeholder: "Open .kit directory in editor",
-  },
   { name: "open-log", placeholder: "Open kit.log" },
-  { name: "kenv-create", placeholder: "Create a kenv" },
-  { name: "kenv-clone", placeholder: "Clone a kenv" },
-  { name: "kenv-view", placeholder: "View kenv scripts" },
-  { name: "kenv-push", placeholder: "Push a kenv" },
-  { name: "kenv-pull", placeholder: "Pull a kenv" },
-  { name: "kenv-rm", placeholder: "Remove a kenv" },
+
+  ...(jsh ? [] : notJsh),
+
   kitMode() === "ts"
     ? {
         name: "switch-to-js",
@@ -114,12 +137,18 @@ let cliScripts: CLIMenuItem[] = [
         name: "switch-to-ts",
         placeholder: "Switch to TypeScript Mode",
       },
-  { name: "sync-path", placeholder: "Update PATH" },
   { name: "quit", placeholder: "Quit Kit" },
 ]
 
 export let runCli = async () => {
-  let script = await arg("What do you want to do?", () =>
+  if (global?.flag?.start) {
+    console.log(
+      chalk`>_ Welcome to {green.bold Script Kit}!
+`
+    )
+  }
+
+  let script = await arg(`What do you want to do?`, () =>
     cliScripts.map(({ name, placeholder, alias }) => {
       return {
         name: chalk`{green.bold ${name}}${

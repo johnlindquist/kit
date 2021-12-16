@@ -1,23 +1,31 @@
-try {
-  await cli("install", kitPath())
+import { getAppDb, appDefaults } from "../core/db.js"
 
-  await copyFile(
+let copyIfNotExists = async (p: string, dest: string) => {
+  if (!(await isFile(p))) await copyFile(p, dest)
+}
+
+try {
+  let kenvPkgPath = kenvPath("package.json")
+  let kenvPkg = await readJson(kenvPkgPath)
+
+  if (!kenvPkg?.dependencies?.["@johnlindquist/kit"]) {
+    await cli("install", kitPath())
+  }
+
+  await copyIfNotExists(
     kitPath("templates", "config", "tsconfig.json"),
     kenvPath("tsconfig.json")
   )
 
-  await copyFile(
+  await copyIfNotExists(
     kitPath("templates", "scripts", "default.js"),
     kenvPath("templates", "default.js")
   )
 
-  await copyFile(
+  await copyIfNotExists(
     kitPath("templates", "scripts", "default.ts"),
     kenvPath("templates", "default.ts")
   )
-
-  let kenvPkgPath = kenvPath("package.json")
-  let kenvPkg = await readJson(kenvPkgPath)
 
   if (kenvPkg.dependencies?.kit) {
     await cli("uninstall", "kit")
@@ -34,6 +42,12 @@ try {
       )
     }
   }
+
+  let appDb = await getAppDb()
+  for (let [k, v] of Object.entries(appDefaults)) {
+    if (appDb?.[k] === undefined) appDb[k] = v
+  }
+  await appDb.write()
 } catch (error) {
   console.log(error)
 }

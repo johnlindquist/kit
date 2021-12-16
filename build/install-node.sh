@@ -90,7 +90,7 @@ resolve_node_version() {
     tag=
   fi
   # fetch "https://resolve-node.vercel.app/$tag"
-  echo "v16.10.0"
+  echo "v17.0.1"
 }
 
 # Currently known to support:
@@ -167,25 +167,73 @@ fi
 # parse argv variables
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    -v|--version) VERSION="$2"; shift 2;;
-    -p|--platform) PLATFORM="$2"; shift 2;;
-    -P|--prefix) PREFIX="$2"; shift 2;;
-    -a|--arch) ARCH="$2"; shift 2;;
-    -b|--base-url) BASE_URL="$2"; shift 2;;
+  -v | --version)
+    VERSION="$2"
+    shift 2
+    ;;
+  -p | --platform)
+    PLATFORM="$2"
+    shift 2
+    ;;
+  -P | --prefix)
+    PREFIX="$2"
+    shift 2
+    ;;
+  -a | --arch)
+    ARCH="$2"
+    shift 2
+    ;;
+  -b | --base-url)
+    BASE_URL="$2"
+    shift 2
+    ;;
 
-    -V|--verbose) VERBOSE=1; shift 1;;
-    -f|-y|--force|--yes) FORCE=1; shift 1;;
+  -V | --verbose)
+    VERBOSE=1
+    shift 1
+    ;;
+  -f | -y | --force | --yes)
+    FORCE=1
+    shift 1
+    ;;
 
-    -v=*|--version=*) VERSION="${1#*=}"; shift 1;;
-    -p=*|--platform=*) PLATFORM="${1#*=}"; shift 1;;
-    -P=*|--prefix=*) PREFIX="${1#*=}"; shift 1;;
-    -a=*|--arch=*) ARCH="${1#*=}"; shift 1;;
-    -b=*|--base-url=*) BASE_URL="${1#*=}"; shift 1;;
-    -V=*|--verbose=*) VERBOSE="${1#*=}"; shift 1;;
-    -f=*|-y=*|--force=*|--yes=*) FORCE="${1#*=}"; shift 1;;
+  -v=* | --version=*)
+    VERSION="${1#*=}"
+    shift 1
+    ;;
+  -p=* | --platform=*)
+    PLATFORM="${1#*=}"
+    shift 1
+    ;;
+  -P=* | --prefix=*)
+    PREFIX="${1#*=}"
+    shift 1
+    ;;
+  -a=* | --arch=*)
+    ARCH="${1#*=}"
+    shift 1
+    ;;
+  -b=* | --base-url=*)
+    BASE_URL="${1#*=}"
+    shift 1
+    ;;
+  -V=* | --verbose=*)
+    VERBOSE="${1#*=}"
+    shift 1
+    ;;
+  -f=* | -y=* | --force=* | --yes=*)
+    FORCE="${1#*=}"
+    shift 1
+    ;;
 
-    -*) error "Unknown option: $1"; exit 1;;
-    *) VERSION="$1"; shift 1;;
+  -*)
+    error "Unknown option: $1"
+    exit 1
+    ;;
+  *)
+    VERSION="$1"
+    shift 1
+    ;;
   esac
 done
 
@@ -232,16 +280,16 @@ info "Tarball URL: ${UNDERLINE}${BLUE}${URL}${NO_COLOR}"
 info "Installing Node.js, please wait…"
 
 if [ "${EXT}" = zip ]; then
-  fetch "${URL}" \
-    | tar xzf${VERBOSE} - \
+  fetch "${URL}" |
+    tar xzf${VERBOSE} - \
       --exclude CHANGELOG.md \
       --exclude LICENSE \
       --exclude README.md \
       --strip-components 1 \
       -C "${PREFIX}"
 else
-  fetch "${URL}" \
-    | tar xzf${VERBOSE} - \
+  fetch "${URL}" |
+    tar xzf${VERBOSE} - \
       --exclude CHANGELOG.md \
       --exclude LICENSE \
       --exclude README.md \

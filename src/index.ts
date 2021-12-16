@@ -1,4 +1,5 @@
 import path from "path"
+import { URL } from "url"
 
 export let kit = async (
   command: string,
@@ -46,5 +47,4 @@ global.kit = new Proxy(kit, {
   get: kitGet,
 })
 
-export { selectKenv, selectScript } from "./core/utils.js"
 //codegen

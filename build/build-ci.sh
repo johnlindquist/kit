@@ -1,6 +1,6 @@
 set -e
 
-export WD=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd)
+export WD=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &>/dev/null && pwd)
 export KIT="$WD/.kit"
 export PATH="$KIT/node/bin:$PATH"
 
@@ -11,9 +11,10 @@ mkdir -p $KIT
 cp -a root/. $KIT
 cp -r build $KIT
 cp -r src/types $KIT
+
 cp *.md package*.json LICENSE $KIT
 
-./build/install-node.sh v16.10.0 --prefix $KIT/node
+./build/install-node.sh v17.2.0 --prefix $KIT/node
 
 node --version
 npm --version

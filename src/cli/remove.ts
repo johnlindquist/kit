@@ -1,16 +1,11 @@
 // Description: Remove a script
 
-import { selectScript } from "../core/utils.js"
+import { refreshScriptsDb } from "../core/db.js"
+import { trashScript } from "../core/utils.js"
 
-let command, filePath
-let hint = command
-  ? `Removed ${command}. Remove another?`
-  : ``
+let script = await selectScript(`Remove a script:`)
 
-;({ command, filePath } = await selectScript({
-  placeholder: `Remove a script:`,
-  hint,
-}))
+let { command, filePath } = script
 
 let confirm =
   global?.flag?.confirm ||
@@ -20,14 +15,16 @@ let confirm =
       hint: filePath,
     },
     [
-      { name: "No, cancel.", value: false },
-      { name: `Yes, remove ${command}`, value: true },
+      { name: "[N]o, cancel.", value: false },
+      { name: `[Y]es, remove ${command}`, value: true },
     ]
   ))
 
 if (confirm) {
-  await trash([filePath, kenvPath("bin", command)])
-  await cli("refresh-scripts-db")
+  await trashScript(script)
+  await refreshScriptsDb()
 }
+
+await mainScript()
 
 export {}

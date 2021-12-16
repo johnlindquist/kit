@@ -3,6 +3,10 @@
 await import("../test/config.js")
 console.log({ kenvTestPath })
 
+if (test("-d", kitMockPath())) {
+  await rm(kitMockPath())
+}
+
 if (test("-d", kenvTestPath)) {
   console.log(`Clearing ${kenvTestPath}`)
   await rm(kenvTestPath)
@@ -14,6 +18,10 @@ if (stderr || !branch.match(/main|beta|alpha/)) exit(1)
 
 await degit(`johnlindquist/kenv#${branch}`).clone(
   kenvTestPath
+)
+
+await degit(`johnlindquist/kenv#${branch}`).clone(
+  kenvSetupPath
 )
 
 process.env.KENV = kenvTestPath

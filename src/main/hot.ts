@@ -1,18 +1,31 @@
 let url = await arg(
-  "Open discussion in browser",
+  {
+    placeholder: `Community Scripts and Announcements`,
+    input: arg?.input,
+  },
   async () => {
     try {
-      let response = await get(
-        "https://scriptkit.com/data/showandtell.json"
-      )
+      let hot = await readJson(kitPath("data", "hot.json"))
 
-      return response.data
+      return hot.map(choice => {
+        choice.preview = async () => {
+          if (choice?.body) {
+            return await highlight(
+              choice?.body,
+              "p-5 prose dark:prose-dark prose-sm"
+            )
+          }
+
+          return ""
+        }
+        return choice
+      })
     } catch (error) {
       return [error.message]
     }
   }
 )
 
-exec(`open ${url}`)
+browse(url)
 
 export {}

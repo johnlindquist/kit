@@ -1,9 +1,7 @@
 //Menu: Share Script as Gist
 //Description: Create a gist from the selected script
 
-let { Octokit } = await npm("scriptkit-octokit")
-
-import { selectScript } from "../core/utils.js"
+import { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
 
 let { filePath, command } = await selectScript(
   `Share which script?`
@@ -15,6 +13,8 @@ let octokit = new Octokit({
     env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
   },
 })
+
+div(md(`Creating gist...`))
 
 let response = await octokit.rest.gists.create({
   files: {
@@ -29,7 +29,7 @@ copy(
   response.data.files[command + path.extname(filePath)]
     .raw_url
 )
-console.log(`Copied raw gist url to clipboard`)
+div(md(`Copied raw gist url to clipboard`))
 await wait(2000)
-
+submit(``)
 export {}

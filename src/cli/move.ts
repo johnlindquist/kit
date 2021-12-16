@@ -1,12 +1,12 @@
 // Description: Move script to different kenv
 
-import {
-  createBinFromScript,
-  selectScript,
-  trashBinFromScript,
-} from "../core/utils.js"
+import { trashScriptBin } from "../core/utils.js"
+
+import { createBinFromScript } from "./lib/utils.js"
 
 import { Bin } from "../core/enum.js"
+import { refreshScriptsDb } from "../core/db.js"
+import { Script } from "../types/core.js"
 
 let script = await selectScript()
 
@@ -51,19 +51,25 @@ while (true) {
         ? `Sorry, ${script.command} already exists. Pick another`
         : `Move another script to kenv?`,
       hint: selectedKenvDir,
-    })
+    }) as Script
   }
 
-  exists = await isFile(target(script.filePath))
+  let targetPath = target(script.filePath)
+  exists = await isFile(targetPath)
+
+  await editor({
+    language: "json",
+    value: JSON.stringify({ selectedKenvDir, targetPath, script }, null, 2),
+  })
 
   if (!exists) {
-    trashBinFromScript(script)
-    mv(script.filePath, target(script.filePath))
-    await getScripts(false)
+    await trashScriptBin(script)
+    mv(script.filePath, targetPath)
+    await refreshScriptsDb()
     createBinFromScript(Bin.scripts, script)
   }
 
   script = null
 }
 
-export {}
+export { }

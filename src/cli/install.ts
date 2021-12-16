@@ -1,13 +1,17 @@
 import { KIT_NODE_PATH } from "../core/utils.js"
 
-let { formatDistanceToNow, parseISO } = (await npm(
-  "date-fns"
-)) as typeof import("date-fns")
+import {
+  formatDistanceToNow,
+  parseISO,
+} from "@johnlindquist/kit-internal/date-fns"
 
 let install = async packageNames => {
+  let os = await import("os")
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
-    isYarn ? `yarn add` : `npm i`
+    isYarn
+      ? `yarn${global.isWin ? `.cmd` : ``} add`
+      : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
   return await new Promise((res, rej) => {
     console.log(tool, command, ...packageNames)
@@ -15,7 +19,7 @@ let install = async packageNames => {
       KIT_NODE_PATH + path.delimiter + process.env.PATH
     let npm = spawn(
       tool,
-      [command, "--loglevel", "verbose", ...packageNames],
+      [command, "--quiet", ...packageNames],
       {
         stdio: "pipe",
         cwd: kenvPath(),
@@ -31,16 +35,26 @@ let install = async packageNames => {
     })
 
     npm.on("exit", exit => {
+      console.log(`Installed ${packageNames}`)
       res(exit)
     })
   })
 }
 
-let packageNames = await arg(
+let packages = await arg(
   "Which npm package/s would you like to install?",
   async input => {
     if (input.length < 3) return []
-    let response = await get(
+    type pkgs = {
+      objects: {
+        package: {
+          name: string
+          description: string
+          date: string
+        }
+      }[]
+    }
+    let response = await get<pkgs>(
       `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
     )
     let packages = response.data.objects
@@ -58,8 +72,8 @@ let packageNames = await arg(
   }
 )
 
-let installNames = [...packageNames.split(" ")]
-
+let installNames = [...packages.split(" ")]
+global.setChoices([])
 await install([...installNames, ...argOpts])
 
-export {}
+export { packages }

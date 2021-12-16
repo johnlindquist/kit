@@ -1,16 +1,23 @@
 // Description: Add Local Kenv Repo
 
 import { getLastSlashSeparated } from "../core/utils.js"
+import os from "os"
 
-let createKenvPathFromName = async name => {
+let createKenvPathFromName = async (name: string) => {
   let addKenvPath = ""
+  if (name === "") return ""
 
   if (name.startsWith(path.sep)) {
     addKenvPath = name
-  }
-
-  if (name.startsWith("~")) {
-    addKenvPath = home(name.slice(2))
+  } else {
+    if (name.startsWith("~")) {
+      addKenvPath = path.resolve(
+        os.homedir(),
+        name.slice(2)
+      )
+    } else {
+      addKenvPath = path.resolve(os.homedir(), name)
+    }
   }
 
   return addKenvPath
@@ -33,9 +40,8 @@ let existingKenvPath = await arg(
   },
   async input => {
     let attemptPath = await createKenvPathFromName(input)
-    let exists = await isDir(
-      path.join(attemptPath, "scripts")
-    )
+    let resolvedPath = path.resolve(attemptPath, "scripts")
+    let exists = await isDir(resolvedPath)
 
     if (!input) {
       setHint(`Type path to kenv`)
@@ -45,7 +51,7 @@ let existingKenvPath = await arg(
       setHint(`✅ found "scripts" dir`)
     }
 
-    return attemptPath
+    return md(attemptPath)
   }
 )
 
@@ -54,13 +60,6 @@ if (!existingKenvPath) exit()
 let input = getLastSlashSeparated(existingKenvPath, 2)
   .replace(/\.git|\./g, "")
   .replace(/\//g, "-")
-
-let panelContainer = content =>
-  `<div class="p-4">${content}</div>`
-
-let setPanelContainer = content => {
-  setPanel(panelContainer(content))
-}
 
 let kenvName = await arg(
   {
@@ -81,22 +80,21 @@ let kenvName = await arg(
   },
   async input => {
     let exists = await isDir(kenvPath("kenvs", input))
+    let out = ``
     if (!input) {
-      setPanelContainer(`A kenv name is required`)
+      out = `A kenv name is required`
     } else if (exists) {
-      setPanelContainer(
-        `A kenv named "${input}" already exists`
-      )
+      out = `A kenv named "${input}" already exists`
     } else {
-      setPanelContainer(
-        `
-        <p>Will symlink to to:</p>
-        <p class="font-mono">${kenvPath(
-          "kenvs",
-          input
-        )}</p>`
-      )
+      out = `
+          <p>Will symlink to to:</p>
+          <p class="font-mono">${kenvPath(
+            "kenvs",
+            input
+          )}</p>`
     }
+
+    return md(out)
   }
 )
 
@@ -105,5 +103,7 @@ let kenvDir = kenvPath("kenvs", kenvName)
 ln("-s", existingKenvPath, kenvDir)
 await getScripts(false)
 await cli("create-all-bins")
+
+await mainScript()
 
 export {}

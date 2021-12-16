@@ -1,6 +1,7 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
 import { exists, kitMode } from "../core/utils.js"
+import { ensureTemplates } from "./lib/utils.js"
 
 let name = await arg({
   placeholder: "Enter a name for your script:",
@@ -18,14 +19,18 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
-let templates = await readdir(kenvPath("templates"))
+await ensureTemplates()
+
+let kenvTemplatesPath = kenvPath("templates")
+let templates = await readdir(kenvTemplatesPath)
 let template = await arg(
   "Select a template",
   templates
     .filter(t => t.endsWith(kitMode()))
-    .map(t =>
-      t.replace(new RegExp(`/\.${kitMode()}$/`), "")
-    )
+    .map(t => {
+      let ext = path.extname(t)
+      return t.replace(new RegExp(`${ext}$`), "")
+    })
 )
 
 let templateContent = await readFile(
@@ -37,14 +42,14 @@ let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
 
 if (arg?.url) {
-  contents = (await get(arg?.url)).data
+  contents = (await get<string>(arg?.url)).data
 }
 
 await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)
 
-console.log(
+global.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
