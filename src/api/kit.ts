@@ -470,7 +470,9 @@ global.setFlags = (flags: FlagsOptions) => {
 
 global.hide = async () => {
   global.send(Channel.HIDE_APP)
-  await wait(500)
+  if (global.afterHideDelay) {
+    await wait(global.afterHideDelay)
+  }
 }
 
 global.run = run

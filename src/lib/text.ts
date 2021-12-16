@@ -2,6 +2,7 @@ import { Channel } from "../core/enum.js"
 
 global.getSelectedText = async () => {
   await global.hide()
+  // if (process.env.KIT_CONTEXT === "app") await wait(250)
 
   await applescript(
     String.raw`tell application "System Events" to keystroke "c" using command down`
@@ -11,7 +12,7 @@ global.getSelectedText = async () => {
 }
 
 /**
-@param text - a string to paste at the cursor
+@param text - A String to Paste at the Cursor
 @example
 ```
 await setSelectedText(`Script Kit is awesome!`)
