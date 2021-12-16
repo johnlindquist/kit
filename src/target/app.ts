@@ -241,21 +241,23 @@ let waitForPromptValue = ({
           await choice?.onSubmit(choice)
         }
 
+        // TODO: Refactor out an invalid$ stream
         if (validate) {
           let validateMessage = await validate(value)
           if (
             typeof validateMessage === "boolean" &&
             !validateMessage
           ) {
-            global.setHint(
+            send(
+              Channel.VALUE_INVALID,
               chalk`${value} is {red not valid}`
             )
             return invalid
           }
 
           if (typeof validateMessage === "string") {
-            global.setHint(validateMessage)
-            // global.setChoices(global.kitPrevChoices)
+            send(Channel.VALUE_INVALID, validateMessage)
+
             return invalid
           } else {
             return value
