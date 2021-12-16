@@ -393,6 +393,8 @@ export interface AppApi {
 
   appKeystroke: SendKeystroke
   Key: KeyType
+
+  afterHideDelay?: number
 }
 
 export interface Background {
@@ -450,4 +452,6 @@ declare global {
 
   var appKeystroke: SendKeystroke
   var Key: KeyType
+
+  var afterHideDelay: number
 }
