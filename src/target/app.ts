@@ -592,7 +592,8 @@ global.arg = async (
     ? global.args.shift()
     : null
 
-  let hint = ""
+  let hint =
+    (placeholderOrConfig as PromptConfig)?.hint || ""
 
   if (firstArg) {
     let validate = (placeholderOrConfig as PromptConfig)
