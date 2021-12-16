@@ -422,7 +422,7 @@ let waitForPromptValue = ({
 }
 
 let onNoChoicesDefault = async (input: string) => {
-  setPreview(`<div/>`)
+  setPreview(``)
 }
 
 let onChoicesDefault = async (input: string) => {}
@@ -440,6 +440,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
     kitArgs: global.args,
     mode: Mode.FILTER,
     placeholder: "",
+    panel: "",
     preview: "",
     secret: false,
     selected: "",
@@ -455,8 +456,13 @@ global.setPrompt = (data: Partial<PromptData>) => {
 }
 
 let prepPrompt = async (config: PromptConfig) => {
-  let { choices, placeholder, preview, ...restConfig } =
-    config
+  let {
+    choices,
+    placeholder,
+    preview,
+    panel,
+    ...restConfig
+  } = config
 
   global.setPrompt({
     strict: Boolean(choices),
@@ -471,6 +477,10 @@ let prepPrompt = async (config: PromptConfig) => {
         : Mode.FILTER,
     placeholder: stripAnsi(placeholder || ""),
 
+    panel:
+      panel && typeof panel === "function"
+        ? await panel()
+        : (panel as string),
     preview:
       preview && typeof preview === "function"
         ? await preview()
