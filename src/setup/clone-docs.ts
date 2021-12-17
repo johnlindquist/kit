@@ -1,4 +1,4 @@
-await exec(`cd ${kenvPath("kenvs")}`)
+cd(kenvPath("kenvs"))
 await exec(
   `git clone https://github.com/johnlindquist/kit-docs docs`
 )

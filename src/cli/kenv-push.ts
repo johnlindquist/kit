@@ -15,7 +15,7 @@ let dir = await arg(
   }))
 )
 
-await exec(`cd ${dir}`)
+cd(dir)
 await exec(`git add .`)
 await exec(`git commit -m "pushed from Script Kit"`)
 await exec(`git push`)

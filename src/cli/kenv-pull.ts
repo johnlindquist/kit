@@ -2,7 +2,7 @@
 
 let { dirPath: kPath } = await selectKenv()
 
-await exec(`cd ${kPath}`)
+cd(kPath)
 await exec(`git stash`)
 await exec(`git pull`)
 
