@@ -56,21 +56,31 @@ let previewChoices: Choice[] = await addPreview(
   "new"
 )
 
-let onNoChoices = async input => {
-  let scriptName = input.replace(/\s/g, "-").toLowerCase()
+let onChoices = () => {
+  setPanel(``)
+}
 
-  setPreview(
-    md(`# Create <code>${scriptName}</code>
+let onNoChoices = async input => {
+  if (input) {
+    let scriptName = input
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s/g, "-")
+      .toLowerCase()
+
+    setPanel(
+      md(`# Create <code>${scriptName}</code>
 
 Create a new script named <code>"${scriptName}"</code>
     `)
-  )
+    )
+  }
 }
 
 let cliScript = await arg<keyof CLI>(
   {
     placeholder: "Create a new script",
     strict: false,
+    onChoices,
     onNoChoices,
     input: arg?.input,
   },

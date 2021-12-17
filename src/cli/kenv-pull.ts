@@ -2,13 +2,17 @@
 
 let { dirPath: kPath } = await selectKenv()
 
-cd(kPath)
-await exec(`git stash`)
-await exec(`git pull`)
+try {
+  cd(kPath)
+  await exec(`git stash`)
+  await exec(`git pull`)
 
-await getScripts(false)
+  await getScripts(false)
 
-await mainScript()
+  await mainScript()
+} catch (error) {
+  console.log(`Failed to pull ${kPath}`)
+}
 // Prompt if stash exists to re-apply changes
 
 export {}

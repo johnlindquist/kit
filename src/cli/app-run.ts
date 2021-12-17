@@ -141,15 +141,24 @@ setFlags({
   },
 })
 
-let onNoChoices = async input => {
-  let scriptName = input.replace(/\s/g, "-").toLowerCase()
+let onChoices = () => {
+  setPanel(``)
+}
 
-  setPreview(
-    md(`# Create <code>${scriptName}</code>
+let onNoChoices = async input => {
+  if (input) {
+    let scriptName = input
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s/g, "-")
+      .toLowerCase()
+
+    setPanel(
+      md(`# Create <code>${scriptName}</code>
 
 Create a new script named <code>"${scriptName}"</code>
     `)
-  )
+    )
+  }
 }
 
 let script = await selectScript(
@@ -157,6 +166,7 @@ let script = await selectScript(
     placeholder: "Run Script",
     strict: false,
     onNoChoices,
+    onChoices,
     input: arg?.input || "",
   },
   true,

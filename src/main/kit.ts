@@ -147,7 +147,7 @@ ${md(`# Latest 100 Log Lines`)}
 let noChoices = false
 let onNoChoices = async input => {
   noChoices = true
-  setPreview(
+  setPanel(
     md(`
 
 # No Options Found for "${input}"
@@ -157,6 +157,7 @@ Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/
   )
 }
 let onChoices = async input => {
+  setPanel(``)
   noChoices = false
 }
 
@@ -164,8 +165,6 @@ let cliScript = await arg(
   {
     placeholder: `Kit Options`,
     strict: false,
-    onChoices,
-    onNoChoices,
     input: arg?.input || "",
   },
   await addPreview(kitManagementChoices, "kit", true)

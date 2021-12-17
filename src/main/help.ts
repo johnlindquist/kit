@@ -75,7 +75,7 @@ let kitHelpChoices: Choice[] = [
 let noChoices = false
 let onNoChoices = async input => {
   noChoices = true
-  setPreview(
+  setPanel(
     md(`
 
 # No Docs Found for "${input}"
@@ -88,6 +88,7 @@ Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/
 }
 
 let onChoices = async input => {
+  setPanel(``)
   noChoices = false
 }
 
