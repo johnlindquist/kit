@@ -241,21 +241,23 @@ let waitForPromptValue = ({
           await choice?.onSubmit(choice)
         }
 
+        // TODO: Refactor out an invalid$ stream
         if (validate) {
           let validateMessage = await validate(value)
           if (
             typeof validateMessage === "boolean" &&
             !validateMessage
           ) {
-            global.setHint(
+            send(
+              Channel.VALUE_INVALID,
               chalk`${value} is {red not valid}`
             )
             return invalid
           }
 
           if (typeof validateMessage === "string") {
-            global.setHint(validateMessage)
-            // global.setChoices(global.kitPrevChoices)
+            send(Channel.VALUE_INVALID, validateMessage)
+
             return invalid
           } else {
             return value
@@ -420,7 +422,7 @@ let waitForPromptValue = ({
 }
 
 let onNoChoicesDefault = async (input: string) => {
-  setPreview(`<div/>`)
+  setPreview(``)
 }
 
 let onChoicesDefault = async (input: string) => {}
@@ -438,6 +440,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
     kitArgs: global.args,
     mode: Mode.FILTER,
     placeholder: "",
+    panel: "",
     preview: "",
     secret: false,
     selected: "",
@@ -453,8 +456,13 @@ global.setPrompt = (data: Partial<PromptData>) => {
 }
 
 let prepPrompt = async (config: PromptConfig) => {
-  let { choices, placeholder, preview, ...restConfig } =
-    config
+  let {
+    choices,
+    placeholder,
+    preview,
+    panel,
+    ...restConfig
+  } = config
 
   global.setPrompt({
     strict: Boolean(choices),
@@ -469,6 +477,10 @@ let prepPrompt = async (config: PromptConfig) => {
         : Mode.FILTER,
     placeholder: stripAnsi(placeholder || ""),
 
+    panel:
+      panel && typeof panel === "function"
+        ? await panel()
+        : (panel as string),
     preview:
       preview && typeof preview === "function"
         ? await preview()
@@ -590,7 +602,8 @@ global.arg = async (
     ? global.args.shift()
     : null
 
-  let hint = ""
+  let hint =
+    (placeholderOrConfig as PromptConfig)?.hint || ""
 
   if (firstArg) {
     let validate = (placeholderOrConfig as PromptConfig)

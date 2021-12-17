@@ -130,6 +130,7 @@ export interface PromptData {
   name: string
   placeholder: string
   preview: string
+  panel: string
   secret: boolean
   selected: string
   strict: boolean
@@ -177,6 +178,7 @@ export interface PromptConfig
   className?: string
   flags?: FlagsOptions
   preview?: string | (() => string | Promise<string>)
+  panel?: string | (() => string | Promise<string>)
   onNoChoices?: (input: string) => void | Promise<void>
   onChoices?: (input: string) => void | Promise<void>
 }

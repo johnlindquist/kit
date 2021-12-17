@@ -232,6 +232,7 @@ export interface ChannelMap {
   }
   [Channel.SWITCH_KENV]: string
   [Channel.TOGGLE_BACKGROUND]: string
+  [Channel.VALUE_INVALID]: string
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
