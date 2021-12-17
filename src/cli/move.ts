@@ -46,21 +46,16 @@ let target = filePath =>
 
 while (true) {
   if (!script) {
-    script = await selectScript({
+    script = (await selectScript({
       placeholder: exists
         ? `Sorry, ${script.command} already exists. Pick another`
         : `Move another script to kenv?`,
       hint: selectedKenvDir,
-    }) as Script
+    })) as Script
   }
 
   let targetPath = target(script.filePath)
   exists = await isFile(targetPath)
-
-  await editor({
-    language: "json",
-    value: JSON.stringify({ selectedKenvDir, targetPath, script }, null, 2),
-  })
 
   if (!exists) {
     await trashScriptBin(script)
@@ -72,4 +67,4 @@ while (true) {
   script = null
 }
 
-export { }
+export {}
