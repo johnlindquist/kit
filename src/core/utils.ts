@@ -6,7 +6,7 @@ import {
   ScriptMetadata,
   Metadata,
 } from "../types/core"
-import * as os from "os"
+import { platform, homedir } from "os"
 import { lstatSync } from "fs"
 import { lstat, readdir, readFile } from "fs/promises"
 
@@ -14,13 +14,15 @@ import { execSync } from "child_process"
 
 import { ProcessType, Channel } from "./enum.js"
 
-export let isWin = os.platform().startsWith("win")
+export let isWin = platform().startsWith("win")
+export let isMac = platform().startsWith("darwin")
+export let isLinux = platform().startsWith("linux")
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 export let jsh = process.env?.SHELL?.includes("jsh")
 
 export let home = (...pathParts: string[]) => {
-  return path.resolve(os.homedir(), ...pathParts)
+  return path.resolve(homedir(), ...pathParts)
 }
 
 export let wait = async (time: number): Promise<void> =>

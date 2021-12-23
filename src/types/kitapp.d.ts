@@ -132,6 +132,7 @@ type SetTextAreaOptions = {
 export interface AppConfig {
   os: string
   isWin: boolean
+  isMac: boolean
   assetPath: string
   version: string
   delimiter: string

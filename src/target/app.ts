@@ -38,17 +38,21 @@ import {
   keyCodeFromKey,
 } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
-import { result } from "@johnlindquist/globals/types/lodash"
+
+export interface AppState {
+  pid: number
+  flaggedValue?: any
+  flag?: string
+  tab?: string
+  value?: any
+  index?: number
+  id?: string
+}
 
 interface AppMessage {
   channel: Channel
-  value?: any
   input?: string
-  tab?: string
-  flag?: string
-  index?: number
-  id?: string
-  pid?: number
+  state: AppState
 }
 
 interface DisplayChoicesProps {
@@ -57,6 +61,7 @@ interface DisplayChoicesProps {
   onNoChoices: PromptConfig["onNoChoices"]
   onChoices: PromptConfig["onChoices"]
   input: string
+  state: AppState
 }
 let displayChoices = async ({
   choices,
@@ -64,6 +69,7 @@ let displayChoices = async ({
   onNoChoices,
   onChoices,
   input,
+  state,
 }: DisplayChoicesProps) => {
   switch (typeof choices) {
     case "string":
@@ -79,7 +85,7 @@ let displayChoices = async ({
         resultChoices?.length > 0 &&
         typeof onChoices === "function"
       ) {
-        await onChoices(input)
+        await onChoices(input, state)
       }
 
       if (
@@ -87,7 +93,7 @@ let displayChoices = async ({
         input?.length > 0 &&
         typeof onNoChoices === "function"
       ) {
-        await onNoChoices(input)
+        await onNoChoices(input, state)
       }
       break
   }
@@ -194,18 +200,20 @@ let waitForPromptValue = ({
     let tab$ = process$.pipe(
       filter(data => data.channel === Channel.TAB_CHANGED),
       filter(data => {
+        let { tab } = data.state
         let tabIndex = global.onTabs.findIndex(
           ({ name }) => {
-            return name == data?.tab
+            return name == tab
           }
         )
 
         return tabIndex !== global.onTabIndex
       }),
       tap(data => {
+        let { tab } = data.state
         let tabIndex = global.onTabs.findIndex(
           ({ name }) => {
-            return name == data?.tab
+            return name == tab
           }
         )
 
@@ -229,11 +237,12 @@ let waitForPromptValue = ({
 
     let value$ = valueSubmitted$.pipe(
       tap(data => {
-        if (data.flag) {
-          global.flag[data.flag] = true
+        if (data.state?.flag) {
+          global.flag[data.state?.flag] = true
         }
       }),
-      switchMap(async ({ value, id }) => {
+      switchMap(async (data: AppMessage) => {
+        let { value, id } = data?.state
         let choice = (global.kitPrevChoices || []).find(
           (c: Choice) => c.id === id
         )
@@ -291,6 +300,7 @@ let waitForPromptValue = ({
               onNoChoices,
               onChoices,
               input,
+              state: data.state,
             })
           })
         )
@@ -324,10 +334,10 @@ let waitForPromptValue = ({
     onChoices$.subscribe(async data => {
       switch (data.channel) {
         case Channel.CHOICES:
-          await onChoices(data.input)
+          await onChoices(data.input, data.state)
           break
         case Channel.NO_CHOICES:
-          await onNoChoices(data.input)
+          await onNoChoices(data.input, data.state)
           break
       }
     })
@@ -341,6 +351,9 @@ let waitForPromptValue = ({
       input: "",
       onNoChoices,
       onChoices,
+      state: {
+        pid: -1,
+      },
     }).pipe(
       // filter(() => ui === UI.arg),
       switchMap(getInitialChoices),
@@ -358,8 +371,10 @@ let waitForPromptValue = ({
       .pipe(
         takeUntil(value$),
         switchMap(async data => {
+          let { input } = data
+          let { id, index } = data?.state
           let choice = (global.kitPrevChoices || []).find(
-            (c: Choice) => c.id === data?.id
+            (c: Choice) => c.id === id
           )
 
           if (
@@ -367,8 +382,8 @@ let waitForPromptValue = ({
             choice?.preview &&
             typeof choice?.preview === "function"
           ) {
-            ;(choice as any).index = data?.index
-            ;(choice as any).input = data?.input
+            ;(choice as any).index = index
+            ;(choice as any).input = input
 
             if (choice?.onFocus) {
               try {
@@ -509,6 +524,9 @@ global.kitPrompt = async (config: PromptConfig) => {
     className,
     onNoChoices,
     onChoices,
+    state: {
+      pid: -1,
+    },
   })
 }
 

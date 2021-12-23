@@ -179,8 +179,14 @@ export interface PromptConfig
   flags?: FlagsOptions
   preview?: string | (() => string | Promise<string>)
   panel?: string | (() => string | Promise<string>)
-  onNoChoices?: (input: string) => void | Promise<void>
-  onChoices?: (input: string) => void | Promise<void>
+  onNoChoices?: (
+    input: string,
+    state: AppState
+  ) => void | Promise<void>
+  onChoices?: (
+    input: string,
+    state: AppState
+  ) => void | Promise<void>
 }
 
 export interface Metadata {

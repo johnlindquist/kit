@@ -11,6 +11,7 @@ import {
   extensionRegex,
   resolveScriptToCommand,
   parseScripts,
+  isMac,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
 import {
@@ -223,9 +224,7 @@ export let getShortcutsDb = async (): Promise<
 > => {
   return await db(shortcutsPath, {
     shortcuts: {
-      [mainScriptPath]: global.isWin
-        ? "control ;"
-        : "cmd ;",
+      [mainScriptPath]: isMac ? "cmd ;" : "ctrl ;",
     },
   })
 }

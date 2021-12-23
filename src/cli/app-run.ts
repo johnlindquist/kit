@@ -107,7 +107,6 @@ setFlags({
   move: {
     name: "Move Script to Kenv",
     description: "Move the script between Kit Environments",
-    shortcut: `${cmd}+m`,
   },
   ["refresh-scripts-db"]: {
     name: "Refresh scripts db",
@@ -145,8 +144,8 @@ let onChoices = () => {
   setPanel(``)
 }
 
-let onNoChoices = async input => {
-  if (input) {
+let onNoChoices = async (input, state) => {
+  if (input && state.flaggedValue === "") {
     let scriptName = input
       .replace(/[^\w\s]/g, "")
       .replace(/\s/g, "-")

@@ -103,9 +103,9 @@ global.scrapeSelector = async (
   url: string,
   selector: string,
   xf?: (element: any) => any,
-  { headless = true, timeout = 5000 } = {
+  { headless = true, timeout = 10000 } = {
     headless: true,
-    timeout: 5000,
+    timeout: 10000,
   }
 ) => {
   /** @type typeof import("playwright") */

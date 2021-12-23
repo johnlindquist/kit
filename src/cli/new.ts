@@ -26,9 +26,7 @@ let name = await arg({
 
 div(md(`Opening ${name}...`))
 
-let { dirPath: selectedKenvPath } = await selectKenv(
-  /^examples$/
-)
+let { dirPath: selectedKenvPath } = await selectKenv()
 
 let scriptPath = path.join(
   selectedKenvPath,

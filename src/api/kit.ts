@@ -550,7 +550,7 @@ export let selectScript = async (
 global.selectScript = selectScript
 
 export let selectKenv = async (
-  ignorePattern = /^ignore$/
+  ignorePattern = /^examples$/
 ) => {
   let homeKenv = {
     name: "main",

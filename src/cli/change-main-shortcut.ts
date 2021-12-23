@@ -9,11 +9,11 @@ while (!confirm) {
   ;({ shortcut } = await hotkey("Type a key combo"))
   confirm = await arg(`Accept: "${shortcut}"`, [
     {
-      name: `Yes`,
+      name: `[Y]es`,
       value: true,
     },
     {
-      name: `Retry`,
+      name: `[R]etry`,
       value: false,
     },
   ])
