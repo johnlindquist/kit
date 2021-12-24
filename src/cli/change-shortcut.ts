@@ -32,7 +32,8 @@ let { filePath, command, menu, name } = await selectScript(
 )
 
 let { shortcut } = await hotkey({
-  hint: `Change shortcut for "${name}"`,
+  placeholder: `Enter a key combo:`,
+  panel: md(`Change shortcut for "${name}"`),
 })
 
 let fileContents = await readFile(filePath, "utf-8")

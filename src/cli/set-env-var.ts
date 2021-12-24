@@ -24,7 +24,7 @@ let exists = contents.match(
 
 let fn = exists ? updateEnv : writeNewEnv
 
-console.log(
+global.log(
   chalk`${
     exists ? "Updated" : "Set"
   } {yellow.bold ${envKey}} in ${kenvPath(".env")}`

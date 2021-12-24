@@ -3,7 +3,11 @@
 // Log: false
 
 import { Value } from "../core/enum.js"
-import { toggleBackground, run } from "../core/utils.js"
+import {
+  toggleBackground,
+  run,
+  cmd,
+} from "../core/utils.js"
 
 let modifiers = {
   cmd: "cmd",
@@ -11,8 +15,6 @@ let modifiers = {
   opt: "opt",
   ctrl: "ctrl",
 }
-
-let cmd = global.isWin ? "ctrl" : "cmd"
 
 setFlags({
   [""]: {
@@ -147,7 +149,7 @@ let onChoices = () => {
 let onNoChoices = async (input, state) => {
   if (input && state.flaggedValue === "") {
     let scriptName = input
-      .replace(/[^\w\s]/g, "")
+      .replace(/[^\w\s-]/g, "")
       .replace(/\s/g, "-")
       .toLowerCase()
 

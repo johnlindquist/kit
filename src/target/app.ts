@@ -32,6 +32,7 @@ import { Mode, Channel, UI } from "../core/enum.js"
 import {
   assignPropsTo,
   mainScriptPath,
+  cmd,
 } from "../core/utils.js"
 import {
   KeyEnum,
@@ -661,7 +662,7 @@ global.arg = async (
 global.textarea = async (
   options = {
     value: "",
-    placeholder: `cmd + s to submit\ncmd + w to close`,
+    placeholder: `${cmd} + s to submit\n${cmd} + w to close`,
   }
 ) => {
   let textAreaOptions =

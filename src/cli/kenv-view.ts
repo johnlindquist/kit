@@ -1,7 +1,11 @@
 // Name: Kit Environment
 // Description: Script Kit
 
-import { toggleBackground, run } from "../core/utils.js"
+import {
+  toggleBackground,
+  run,
+  cmd,
+} from "../core/utils.js"
 
 let { name: kenv } = await selectKenv()
 
@@ -12,43 +16,43 @@ setFlags({
   },
   open: {
     name: "Open script in editor",
-    shortcut: "cmd+o",
+    shortcut: `${cmd}+o`,
   },
   ["share-copy"]: {
     name: "Copy script content to clipboard",
-    shortcut: "cmd+c",
+    shortcut: `${cmd}+c`,
   },
   duplicate: {
     name: "Duplicate script",
-    shortcut: "cmd+d",
+    shortcut: `${cmd}+d`,
   },
   rename: {
     name: "Rename script",
-    shortcut: "cmd+r",
+    shortcut: `${cmd}+r`,
   },
   remove: {
     name: "Remove script",
-    shortcut: "cmd+delete",
+    shortcut: `${cmd}+shift+backspace`,
   },
   ["open-script-log"]: {
     name: `Open script log`,
-    shortcut: "cmd+l",
+    shortcut: `${cmd}+l`,
   },
   ["open-script-database"]: {
     name: `Open script database`,
-    shortcut: "cmd+b",
+    shortcut: `${cmd}+b`,
   },
   ["share-script"]: {
     name: "Share as Gist",
-    shortcut: "cmd+g",
+    shortcut: `${cmd}+g`,
   },
   ["share-script-as-link"]: {
     name: "Share as URL",
-    shortcut: "cmd+u",
+    shortcut: `${cmd}+u`,
   },
   ["share-script-as-discussion"]: {
     name: "Prep for discussion",
-    shortcut: "cmd+p",
+    shortcut: `${cmd}+p`,
   },
   ["change-shortcut"]: {
     name: "Change shortcut",
