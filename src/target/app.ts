@@ -1,4 +1,5 @@
 import {
+  ChannelHandler,
   Choice,
   PromptConfig,
   PromptData,
@@ -8,6 +9,9 @@ import {
   GetAppData,
   EditorConfig,
   KeyData,
+  AppState,
+  AppMessage,
+  EditorOptions,
 } from "../types/kitapp"
 
 import {
@@ -40,37 +44,35 @@ import {
 } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
 
-export interface AppState {
-  pid: number
-  flaggedValue?: any
-  flag?: string
-  tab?: string
-  value?: any
-  index?: number
-  id?: string
-}
-
-interface AppMessage {
-  channel: Channel
-  input?: string
-  state: AppState
-}
-
 interface DisplayChoicesProps {
   choices: PromptConfig["choices"]
   className: string
-  onNoChoices: PromptConfig["onNoChoices"]
-  onChoices: PromptConfig["onChoices"]
   input: string
   state: AppState
+  onInput?: PromptConfig["onEscape"]
+  onEscape?: PromptConfig["onEscape"]
+  onBack?: PromptConfig["onBack"]
+  onForward?: PromptConfig["onForward"]
+  onUp?: PromptConfig["onUp"]
+  onDown?: PromptConfig["onDown"]
+  onTab?: PromptConfig["onTab"]
+  onChoices?: PromptConfig["onChoices"]
+  onNoChoices?: PromptConfig["onNoChoices"]
+  onChoiceFocus?: PromptConfig["onChoiceFocus"]
 }
+
+let onExitHandler = () => {}
+global.onExit = handler => {
+  onExitHandler = handler
+}
+
+process.on("beforeExit", () => {
+  onExitHandler()
+})
+
 let displayChoices = async ({
   choices,
   className,
-  onNoChoices,
-  onChoices,
-  input,
-  state,
 }: DisplayChoicesProps) => {
   switch (typeof choices) {
     case "string":
@@ -82,20 +84,20 @@ let displayChoices = async ({
 
       global.setChoices(resultChoices, className)
 
-      if (
-        resultChoices?.length > 0 &&
-        typeof onChoices === "function"
-      ) {
-        await onChoices(input, state)
-      }
+      // if (
+      //   resultChoices?.length > 0 &&
+      //   typeof onChoices === "function"
+      // ) {
+      //   await onChoices(input, state)
+      // }
 
-      if (
-        resultChoices?.length === 0 &&
-        input?.length > 0 &&
-        typeof onNoChoices === "function"
-      ) {
-        await onNoChoices(input, state)
-      }
+      // if (
+      //   resultChoices?.length === 0 &&
+      //   input?.length > 0 &&
+      //   typeof onNoChoices === "function"
+      // ) {
+      //   await onNoChoices(input, state)
+      // }
       break
   }
 }
@@ -119,14 +121,15 @@ let checkResultInfo = result => {
 
 let promptId = 0
 
-interface PromptContext {
+interface InvokeChoicesProps extends DisplayChoicesProps {
   promptId: number
   tabIndex: number
 }
-interface InvokeChoicesProps extends DisplayChoicesProps {
-  ct: PromptContext
-}
+
+let invocation = 0
 let invokeChoices = async (props: InvokeChoicesProps) => {
+  invocation++
+  let localInvocation = invocation
   if (Array.isArray(props.choices)) {
     displayChoices(props)
     return props.choices
@@ -137,10 +140,10 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
 
   if (resultOrPromise && resultOrPromise.then) {
     let result = await resultOrPromise
-
+    if (localInvocation !== invocation) return
     if (
-      props.ct.promptId === promptId &&
-      props.ct.tabIndex === global.onTabIndex
+      props.promptId === promptId &&
+      props.tabIndex === global.onTabIndex
     ) {
       displayChoices({ ...props, choices: result })
       return result
@@ -169,19 +172,86 @@ interface WaitForPromptValueProps
 
 let invalid = Symbol("invalid")
 
+let beforePreviewId = ``
+let createOnChoiceFocusDefault = (
+  debounceChoiceFocus: number
+) =>
+  _.debounce(async (input: string, state: AppState) => {
+    let preview = ``
+
+    let { index, focused } = state
+    let { id } = focused
+    beforePreviewId = id
+
+    let choice = (global.kitPrevChoices || []).find(
+      (c: Choice) => c.id === id
+    )
+
+    if (
+      choice &&
+      choice?.preview &&
+      typeof choice?.preview === "function"
+    ) {
+      ;(choice as any).index = index
+      ;(choice as any).input = input
+
+      if (choice?.onFocus) {
+        try {
+          choice?.onFocus(choice)
+        } catch (error) {
+          throw new Error(error)
+        }
+      }
+
+      try {
+        preview = await choice?.preview(choice)
+      } catch {
+        preview = md(`## ⚠️ Failed to render preview`)
+      }
+    }
+
+    if (beforePreviewId === id) {
+      setPreview(preview)
+    }
+  }, debounceChoiceFocus)
+
+let onTabChanged = (input, state) => {
+  let { tab } = state
+  let tabIndex = global.onTabs.findIndex(({ name }) => {
+    return name == tab
+  })
+
+  global.onTabIndex = tabIndex
+  global.currentOnTab = global.onTabs?.[tabIndex]?.fn(input)
+}
+
 let waitForPromptValue = ({
   choices,
   validate,
   className,
   onNoChoices,
   onChoices,
+  onInput,
+  onEscape,
+  onBack,
+  onForward,
+  onUp,
+  onDown,
+  onTab,
+  onChoiceFocus,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
     promptId++
-    let ct = {
+    getInitialChoices({
       promptId,
       tabIndex: global.onTabIndex,
-    }
+      choices,
+      className,
+      input: "",
+      onNoChoices,
+      onChoices,
+      state: {},
+    })
 
     let process$ = new Observable<AppMessage>(observer => {
       let m = (data: AppMessage) => {
@@ -200,34 +270,10 @@ let waitForPromptValue = ({
 
     let tab$ = process$.pipe(
       filter(data => data.channel === Channel.TAB_CHANGED),
-      filter(data => {
-        let { tab } = data.state
-        let tabIndex = global.onTabs.findIndex(
-          ({ name }) => {
-            return name == tab
-          }
-        )
-
-        return tabIndex !== global.onTabIndex
-      }),
-      tap(data => {
-        let { tab } = data.state
-        let tabIndex = global.onTabs.findIndex(
-          ({ name }) => {
-            return name == tab
-          }
-        )
-
-        // console.log(`\nUPDATING TAB: ${tabIndex}`)
-        global.onTabIndex = tabIndex
-        global.currentOnTab = global.onTabs?.[tabIndex]?.fn(
-          data?.input
-        )
-      }),
       share()
     )
 
-    let message$ = process$.pipe(takeUntil(tab$))
+    let message$ = process$.pipe(takeUntil(tab$), share())
 
     let valueSubmitted$ = message$.pipe(
       filter(
@@ -235,6 +281,64 @@ let waitForPromptValue = ({
       ),
       share()
     )
+
+    tab$
+      .pipe(takeUntil(valueSubmitted$))
+      .subscribe(data => {
+        onTabChanged(data.input, data.state)
+      })
+
+    message$
+      .pipe(takeUntil(valueSubmitted$), share())
+      .subscribe({
+        next: async data => {
+          if (data.state?.count) {
+            onChoices(data.input, data.state)
+          } else {
+            onNoChoices(data.input, data.state)
+          }
+          switch (data.channel) {
+            case Channel.INPUT:
+              onInput(data.input, data.state)
+              break
+
+            case Channel.ESCAPE:
+              onEscape(data.input, data.state)
+              break
+
+            case Channel.BACK:
+              onBack(data.input, data.state)
+              break
+
+            case Channel.FORWARD:
+              onForward(data.input, data.state)
+              break
+
+            case Channel.UP:
+              onUp(data.input, data.state)
+              break
+
+            case Channel.DOWN:
+              onDown(data.input, data.state)
+              break
+
+            case Channel.TAB:
+              onTab(data.input, data.state)
+              break
+
+            case Channel.CHOICE_FOCUSED:
+              onChoiceFocus(data.input, data.state)
+              break
+
+            case Channel.PROMPT_BLURRED:
+              exit()
+              break
+          }
+        },
+        complete: () => {
+          global.log(`✂️ DISCONNECT MESSAGES`)
+        },
+      })
 
     let value$ = valueSubmitted$.pipe(
       tap(data => {
@@ -281,154 +385,12 @@ let waitForPromptValue = ({
       share()
     )
 
-    let generate$ = message$.pipe(
-      filter(
-        data => data.channel === Channel.GENERATE_CHOICES
-      ),
-      takeUntil(value$),
-      switchMap(data =>
-        of(data.input).pipe(
-          switchMap(input => {
-            let ct = {
-              promptId,
-              tabIndex: +Number(global.onTabIndex),
-            }
-
-            return invokeChoices({
-              ct,
-              choices,
-              className,
-              onNoChoices,
-              onChoices,
-              input,
-              state: data.state,
-            })
-          })
-        )
-      ),
-      share()
-    )
-
-    let blur$ = message$.pipe(
-      filter(
-        data => data.channel === Channel.PROMPT_BLURRED
-      ),
-      takeUntil(value$),
-      share()
-    )
-
-    blur$.subscribe(() => {
-      exit()
-    })
-
-    let onChoices$ = message$.pipe(
-      filter(data =>
-        [Channel.CHOICES, Channel.NO_CHOICES].includes(
-          data.channel
-        )
-      ),
-      switchMap(x => of(x)),
-      takeUntil(value$),
-      share()
-    )
-
-    onChoices$.subscribe(async data => {
-      switch (data.channel) {
-        case Channel.CHOICES:
-          await onChoices(data.input, data.state)
-          break
-        case Channel.NO_CHOICES:
-          await onNoChoices(data.input, data.state)
-          break
-      }
-    })
-
-    generate$.subscribe()
-
-    let initialChoices$ = of<InvokeChoicesProps>({
-      ct,
-      choices,
-      className,
-      input: "",
-      onNoChoices,
-      onChoices,
-      state: {
-        pid: -1,
-      },
-    }).pipe(
-      // filter(() => ui === UI.arg),
-      switchMap(getInitialChoices),
-      share()
-    )
-
-    let choice$ = message$.pipe(
-      filter(
-        data => data.channel === Channel.CHOICE_FOCUSED
-      ),
-      share()
-    )
-
-    choice$
-      .pipe(
-        takeUntil(value$),
-        switchMap(async data => {
-          let { input } = data
-          let { id, index } = data?.state
-          let choice = (global.kitPrevChoices || []).find(
-            (c: Choice) => c.id === id
-          )
-
-          if (
-            choice &&
-            choice?.preview &&
-            typeof choice?.preview === "function"
-          ) {
-            ;(choice as any).index = index
-            ;(choice as any).input = input
-
-            if (choice?.onFocus) {
-              try {
-                choice?.onFocus(choice)
-              } catch (error) {
-                throw new Error(error)
-              }
-            }
-
-            try {
-              return choice?.preview(choice)
-            } catch {
-              return `Failed to render preview`
-            }
-          }
-
-          return ``
-        }),
-        debounceTime(0),
-        withLatestFrom(onChoices$),
-        share()
-      )
-
-      .subscribe(
-        async ([preview, onChoiceData]: [
-          string,
-          AppMessage
-        ]) => {
-          if (onChoiceData.channel === Channel.CHOICES) {
-            global.setPreview(preview)
-          }
-        }
-      )
-
-    initialChoices$
-      .pipe(takeUntil(value$), share())
-      .subscribe()
-
     value$.subscribe({
       next: value => {
         resolve(value)
       },
       complete: () => {
-        global.log(`✅ Prompt #${promptId} Done`)
+        global.log(`✅ Prompt #${promptId} ${`hi`}`)
       },
       error: error => {
         reject(error)
@@ -441,7 +403,28 @@ let onNoChoicesDefault = async (input: string) => {
   setPreview(``)
 }
 
-let onChoicesDefault = async (input: string) => {}
+let onChoicesDefault = async () => {}
+
+let onEscapeDefault: ChannelHandler = async (
+  input,
+  state
+) => {
+  let { history } = state
+  let previousScript = history?.[history.length - 2]
+
+  send(Channel.SET_SCRIPT_HISTORY, [])
+  if (previousScript?.filePath === mainScriptPath) {
+    await mainScript()
+  } else {
+    process.exit()
+  }
+}
+
+let onBackDefault = async () => {}
+let onForwardDefault = async () => {}
+let onUpDefault = async () => {}
+let onDownDefault = async () => {}
+let onTabDefault = async () => {}
 
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
@@ -506,15 +489,48 @@ let prepPrompt = async (config: PromptConfig) => {
 
 let kitPrompt$ = new Subject()
 
+let createOnInputDefault = (
+  choices,
+  className,
+  debounceInput
+) =>
+  _.debounce(async (input, state) => {
+    return invokeChoices({
+      promptId,
+      tabIndex: global.onTabIndex,
+      choices,
+      className,
+      input,
+      state,
+    })
+  }, debounceInput)
+
 global.kitPrompt = async (config: PromptConfig) => {
   kitPrompt$.next(true)
-  await new Promise(r => setTimeout(r, 0)) //need to let tabs finish...
+  //need to let onTabs() gather tab names. See Word API
+  await new Promise(r => setTimeout(r, 0))
   let {
     choices = [],
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
     onChoices = onChoicesDefault,
+    onEscape = onEscapeDefault,
+    onBack = onBackDefault,
+    onForward = onForwardDefault,
+    onUp = onUpDefault,
+    onDown = onDownDefault,
+    onTab = onTabDefault,
+    debounceChoiceFocus = 0,
+    onChoiceFocus = createOnChoiceFocusDefault(
+      debounceChoiceFocus
+    ),
+    debounceInput = 200,
+    onInput = createOnInputDefault(
+      choices,
+      className,
+      debounceInput
+    ),
   } = config
 
   await prepPrompt(config)
@@ -523,11 +539,17 @@ global.kitPrompt = async (config: PromptConfig) => {
     choices,
     validate,
     className,
+    onInput,
     onNoChoices,
     onChoices,
-    state: {
-      pid: -1,
-    },
+    onEscape,
+    onBack,
+    onForward,
+    onUp,
+    onDown,
+    onTab,
+    onChoiceFocus,
+    state: {},
   })
 }
 
@@ -580,10 +602,13 @@ global.div = async (html = "", containerClasses = "") => {
 }
 
 global.editor = async (
-  options: EditorConfig & { hint?: string } = {
+  options: EditorOptions = {
     value: "",
     language: "",
     scrollTo: "top",
+    onInput: () => {},
+    onEscape: () => {},
+    submitOnEscape: false,
   }
 ) => {
   send(
@@ -595,8 +620,10 @@ global.editor = async (
   )
   return await global.kitPrompt({
     ui: UI.editor,
-    hint: options.hint,
+    hint: options?.hint,
     ignoreBlur: true,
+    onInput: options?.onInput,
+    onEscape: options?.onEscape,
   })
 }
 

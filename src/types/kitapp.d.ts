@@ -5,6 +5,7 @@ import { Channel, Mode } from "../core/enum.js"
 import { KeyEnum } from "../core/keyboard.js"
 
 import {
+  ChannelHandler,
   Choice,
   Choices,
   FlagsOptions,
@@ -19,6 +20,27 @@ import {
 } from "./electron"
 import { Flags } from "./kit"
 
+export interface AppState {
+  flaggedValue?: any
+  flag?: string
+  tab?: string
+  value?: any
+  index?: number
+  id?: string
+  focused?: Choice
+  history?: Script[]
+  modifiers?: string[]
+  count?: number
+}
+
+export interface AppMessage {
+  channel: Channel
+  pid: number
+  newPid?: number
+  input?: string
+  state: AppState
+}
+
 export type KeyType = {
   [key in keyof typeof KeyEnum]: string
 }
@@ -32,6 +54,10 @@ export interface EditorProps {
 export type EditorOptions =
   editor.IStandaloneEditorConstructionOptions & {
     scrollTo?: "top" | "center" | "bottom"
+    hint?: string
+    onInput?: ChannelHandler
+    onEscape?: ChannelHandler
+    submitOnEscape?: boolean
   }
 
 export type EditorConfig = string | EditorOptions
@@ -218,6 +244,7 @@ export interface ChannelMap {
   [Channel.SET_PROMPT_PROP]: any
   [Channel.SET_READY]: boolean
   [Channel.SET_SCRIPT]: Script
+  [Channel.SET_SCRIPT_HISTORY]: Script[]
   [Channel.SET_SPLASH_BODY]: string
   [Channel.SET_SPLASH_HEADER]: string
   [Channel.SET_SPLASH_PROGRESS]: number

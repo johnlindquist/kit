@@ -134,6 +134,8 @@ let errorAction: ErrorAction = await arg(
   ]
 )
 
+console.log(errorAction)
+
 await errorActions[errorAction]()
 
 export {}

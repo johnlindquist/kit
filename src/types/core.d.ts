@@ -167,6 +167,10 @@ export type FlagsOptions = {
   }
 }
 
+export interface ChannelHandler {
+  (input: string, state: AppState): void | Promise<void>
+}
+
 export interface PromptConfig
   extends Partial<
     Omit<PromptData, "choices" | "id" | "script">
@@ -179,14 +183,18 @@ export interface PromptConfig
   flags?: FlagsOptions
   preview?: string | (() => string | Promise<string>)
   panel?: string | (() => string | Promise<string>)
-  onNoChoices?: (
-    input: string,
-    state: AppState
-  ) => void | Promise<void>
-  onChoices?: (
-    input: string,
-    state: AppState
-  ) => void | Promise<void>
+  onNoChoices?: ChannelHandler
+  onChoices?: ChannelHandler
+  onEscape?: ChannelHandler
+  onBack?: ChannelHandler
+  onForward?: ChannelHandler
+  onUp?: ChannelHandler
+  onDown?: ChannelHandler
+  onTab?: ChannelHandler
+  debounceInput?: number
+  onInput?: ChannelHandler
+  debounceChoiceFocus?: number
+  onChoiceFocus?: ChannelHandler
 }
 
 export interface Metadata {

@@ -79,7 +79,7 @@ export let errorPrompt = async (error: Error) => {
   }
 }
 
-export const outputTmpFile = async (
+export let outputTmpFile = async (
   fileName: string,
   contents: string
 ) => {
@@ -92,7 +92,7 @@ export const outputTmpFile = async (
   return outputPath
 }
 
-export const copyTmpFile = async (
+export let copyTmpFile = async (
   fromFile: string,
   fileName: string
 ) =>
@@ -101,6 +101,53 @@ export const copyTmpFile = async (
     await global.readFile(fromFile, "utf-8")
   )
 
+export let buildTSScript = async (
+  scriptPath,
+  outPath = ""
+) => {
+  let outfile = outPath || determineOutFile(scriptPath)
+
+  let { build } = await import("esbuild")
+
+  await build({
+    entryPoints: [scriptPath],
+    outfile,
+    bundle: true,
+    platform: "node",
+    format: "esm",
+    external: [
+      ...(await global.readdir(kenvPath("node_modules"))),
+    ],
+    tsconfig: kitPath(
+      "templates",
+      "config",
+      "tsconfig.json"
+    ),
+  })
+}
+
+let determineOutFile = scriptPath => {
+  let tmpScriptName = global.path
+    .basename(scriptPath)
+    .replace(/\.ts$/, ".mjs")
+
+  let dirName = global.path.dirname(scriptPath)
+  let inScriptsDir = dirName.endsWith(
+    global.path.sep + "scripts"
+  )
+    ? ["..", ".scripts"]
+    : []
+
+  let outfile = global.path.join(
+    scriptPath,
+    "..",
+    ...inScriptsDir,
+    tmpScriptName
+  )
+
+  return outfile
+}
+
 global.attemptImport = async (scriptPath, ..._args) => {
   let importResult = undefined
   try {
@@ -108,44 +155,10 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
     if (scriptPath.endsWith(".ts")) {
       try {
-        let { build } = await import("esbuild")
-
-        let tmpScriptName = global.path
-          .basename(scriptPath)
-          .replace(/\.ts$/, ".mjs")
-
-        let dirName = global.path.dirname(scriptPath)
-        let inScriptsDir = dirName.endsWith(
-          global.path.sep + "scripts"
-        )
-          ? ["..", ".scripts"]
-          : []
-
-        let outfile = global.path.join(
-          scriptPath,
-          "..",
-          ...inScriptsDir,
-          tmpScriptName
-        )
-
-        await build({
-          entryPoints: [scriptPath],
-          outfile,
-          bundle: true,
-          platform: "node",
-          format: "esm",
-          external: [
-            ...(await global.readdir(
-              kenvPath("node_modules")
-            )),
-          ],
-          tsconfig: kitPath(
-            "templates",
-            "config",
-            "tsconfig.json"
-          ),
-        })
-
+        let outfile = determineOutFile(scriptPath)
+        if (process.env.KIT_CONTEXT !== "app") {
+          await buildTSScript(scriptPath, outfile)
+        }
         importResult = await import(
           pathToFileURL(outfile).href +
             "?uuid=" +

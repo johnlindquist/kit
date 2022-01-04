@@ -166,8 +166,25 @@ let script = await selectScript(
   {
     placeholder: "Run Script",
     strict: false,
-    onNoChoices,
-    onChoices,
+    // onNoChoices,
+    // onChoices,
+    onInput: async (input, { count }) => {
+      if (count === 0) {
+        let scriptName = input
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s/g, "-")
+          .toLowerCase()
+
+        setPanel(
+          md(`# Create \`${scriptName}\`
+
+Create a new script named \`"${scriptName}"\`
+        `)
+        )
+      } else {
+        setPanel(``)
+      }
+    },
     input: arg?.input || "",
   },
   true,

@@ -17,6 +17,8 @@ export let kit = async (
   return await global.run(command, ..._args)
 }
 
+export * from "./api/kit.js"
+
 let dirs = ["cli", "main"]
 
 let kitGet = (

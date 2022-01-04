@@ -6,10 +6,20 @@ if (!(await isDir(kenvsDir))) {
   mkdir("-p", kenvsDir)
 }
 
+// TODO: Better example kenvs
+
+let panel = md(`## Full url or \`user/repo\` for github
+
+### Examples
+* [\`johnlindquist/kit-examples\`](submit:johnlindquist/kit-examples)
+* [\`https://github.com/johnlindquist/kit-examples\`](submit:https://github.com/johnlindquist/kit-examples)
+
+`)
+// TODO: Move to a single command
 let repo = await arg({
   placeholder: `Enter url to kenv repo`,
   ignoreBlur: true,
-  hint: `Full url or "user/repo" for github: e.g., <code>johnlindquist/kit-examples</code>`,
+  panel,
 })
 
 if (repo?.match(/^[^\/|:]*\/[^\/]*$/)) {
@@ -20,46 +30,32 @@ let input =
   repo.replace(/\.git$/, "").match(/(?<=\/)[^\/]+$/)[0] ||
   ""
 
-let kenvName = await arg(
-  {
-    placeholder: `Enter a kenv name`,
-    input,
-    hint: md(`
-<div class="text-xs">
-
-<kbd>Enter</kbd> to accept suggested kenv name 
-
-<div>${input}</div>
-
-Or type a different name
-
-<div>
-    `),
-    validate: async input => {
-      let exists = await isDir(kenvPath("kenvs", input))
-      if (exists) {
-        return `${input} already exists`
-      }
-
-      return true
-    },
-  },
-  async input => {
-    let exists = await isDir(kenvPath("kenvs", input))
-    let panel = !input
-      ? `A kenv name is required`
-      : exists
-      ? `A kenv named "${input}" already exists`
-      : `
-    <p>Will clone to:</p>
-    <p class="font-mono text-xxs break-all">${kenvPath(
-      "kenvs",
-      input
-    )}</p>`
-
-    return `<div class="p-5">${panel}<div>`
+let validate = async input => {
+  let exists = await isDir(kenvPath("kenvs", input))
+  if (exists) {
+    return `${input} already exists`
   }
-)
+
+  return true
+}
+
+let onInput = async input => {
+  let exists = await isDir(kenvPath("kenvs", input))
+  let panel = !input
+    ? md(`## ⚠️ A kenv name is required`)
+    : exists
+    ? md(`## ⚠️ A kenv named "${input}" already exists`)
+    : md(`## Will clone to:
+\`${kenvPath("kenvs", input)}\``)
+  setPanel(panel)
+}
+
+let kenvName = await arg({
+  placeholder: `Enter a kenv name`,
+  input,
+  validate,
+  onInput,
+})
 
 let kenvDir = kenvPath("kenvs", kenvName)
 
