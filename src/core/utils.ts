@@ -69,17 +69,25 @@ export let isBin = async (
 }
 
 export let createPathResolver =
-  parentDir =>
+  (parentDir: string) =>
   (...parts: string[]) => {
-    return path.resolve(parentDir, ...parts.filter(Boolean))
+    return path.resolve(parentDir, ...parts)
   }
 
-export let kitPath = createPathResolver(
-  process.env.KIT || home(".kit")
-)
-export let kenvPath = createPathResolver(
-  process.env.KENV || home(".kenv")
-)
+//app
+export let kitPath = (...parts: string[]) =>
+  path.join(
+    process.env.KIT || home(".kit"),
+    ...parts.filter(Boolean)
+  )
+
+// //app
+export let kenvPath = (...parts: string[]) => {
+  return path.join(
+    process.env.KENV || home(".kenv"),
+    ...parts.filter(Boolean)
+  )
+}
 
 export let kitDotEnvPath = () => {
   return process.env.KIT_DOTENV_PATH || kenvPath()
