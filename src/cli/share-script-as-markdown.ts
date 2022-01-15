@@ -16,7 +16,7 @@ let octokit = new Octokit({
 
 let fileBasename = path.basename(filePath)
 
-div(md(`Creating gist...`))
+setDescription(`Creating gist...`)
 
 let content = await readFile(filePath, "utf8")
 let response = await octokit.rest.gists.create({
@@ -42,8 +42,6 @@ ${content}
 
 copy(discussionPost)
 
-div(md(`Copied ${command} to clipboard as markdown`))
-await wait(2000)
-submit(``)
+notify(`Copied ${command} to clipboard as markdown`)
 
 export {}

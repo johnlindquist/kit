@@ -18,6 +18,7 @@ export let kit = async (
 }
 
 export * from "./api/kit.js"
+export * from "./core/utils.js"
 
 let dirs = ["cli", "main"]
 

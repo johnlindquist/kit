@@ -4,14 +4,9 @@
 let { filePath } = await selectScript(`Share which script?`)
 
 copy(await readFile(filePath, "utf8"))
-div(
-  md(
-    `Copied content of "${path.basename(
-      filePath
-    )}" to clipboard`
-  )
+notify(
+  `Copied content of "${path.basename(
+    filePath
+  )}" to clipboard`
 )
-await wait(2000)
-submit(``)
-
 export {}

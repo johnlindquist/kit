@@ -7,7 +7,6 @@ import {
 
 import {
   GetAppData,
-  EditorConfig,
   KeyData,
   AppState,
   AppMessage,
@@ -16,17 +15,12 @@ import {
 
 import {
   filter,
-  map,
-  merge,
   Observable,
-  of,
   share,
   switchMap,
   take,
   takeUntil,
   tap,
-  debounceTime,
-  withLatestFrom,
   Subject,
 } from "@johnlindquist/kit-internal/rxjs"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
@@ -43,22 +37,28 @@ import {
   keyCodeFromKey,
 } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
+import { PlatformPath } from "path"
+import { Dirent } from "fs"
+import { refreshScriptsDb } from "../core/db.js"
 
 interface DisplayChoicesProps {
   choices: PromptConfig["choices"]
   className: string
   input: string
+  onInput?: PromptConfig["onInput"]
   state: AppState
-  onInput?: PromptConfig["onEscape"]
   onEscape?: PromptConfig["onEscape"]
   onBack?: PromptConfig["onBack"]
   onForward?: PromptConfig["onForward"]
   onUp?: PromptConfig["onUp"]
   onDown?: PromptConfig["onDown"]
+  onLeft?: PromptConfig["onLeft"]
+  onRight?: PromptConfig["onRight"]
   onTab?: PromptConfig["onTab"]
   onChoices?: PromptConfig["onChoices"]
   onNoChoices?: PromptConfig["onNoChoices"]
   onChoiceFocus?: PromptConfig["onChoiceFocus"]
+  onBlur?: PromptConfig["onChoiceFocus"]
 }
 
 let onExitHandler = () => {}
@@ -83,21 +83,6 @@ let displayChoices = async ({
       let resultChoices = checkResultInfo(choices)
 
       global.setChoices(resultChoices, className)
-
-      // if (
-      //   resultChoices?.length > 0 &&
-      //   typeof onChoices === "function"
-      // ) {
-      //   await onChoices(input, state)
-      // }
-
-      // if (
-      //   resultChoices?.length === 0 &&
-      //   input?.length > 0 &&
-      //   typeof onNoChoices === "function"
-      // ) {
-      //   await onNoChoices(input, state)
-      // }
       break
   }
 }
@@ -135,7 +120,7 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
     return props.choices
   }
   let resultOrPromise = (props.choices as Function)(
-    props.input
+    props.state.input
   )
 
   if (resultOrPromise && resultOrPromise.then) {
@@ -176,44 +161,47 @@ let beforePreviewId = ``
 let createOnChoiceFocusDefault = (
   debounceChoiceFocus: number
 ) =>
-  _.debounce(async (input: string, state: AppState) => {
-    let preview = ``
+  _.debounce(
+    async (input: string, state: AppState = {}) => {
+      let preview = ``
 
-    let { index, focused } = state
-    let { id } = focused
-    beforePreviewId = id
+      let { index, focused } = state
+      let { id } = focused
+      beforePreviewId = id
 
-    let choice = (global.kitPrevChoices || []).find(
-      (c: Choice) => c.id === id
-    )
+      let choice = (global.kitPrevChoices || []).find(
+        (c: Choice) => c.id === id
+      )
 
-    if (
-      choice &&
-      choice?.preview &&
-      typeof choice?.preview === "function"
-    ) {
-      ;(choice as any).index = index
-      ;(choice as any).input = input
+      if (
+        choice &&
+        choice?.preview &&
+        typeof choice?.preview === "function"
+      ) {
+        ;(choice as any).index = index
+        ;(choice as any).input = input
 
-      if (choice?.onFocus) {
+        if (choice?.onFocus) {
+          try {
+            choice?.onFocus(choice)
+          } catch (error) {
+            throw new Error(error)
+          }
+        }
+
         try {
-          choice?.onFocus(choice)
-        } catch (error) {
-          throw new Error(error)
+          preview = await choice?.preview(choice)
+        } catch {
+          preview = md(`## ⚠️ Failed to render preview`)
         }
       }
 
-      try {
-        preview = await choice?.preview(choice)
-      } catch {
-        preview = md(`## ⚠️ Failed to render preview`)
+      if (beforePreviewId === id) {
+        setPreview(preview)
       }
-    }
-
-    if (beforePreviewId === id) {
-      setPreview(preview)
-    }
-  }, debounceChoiceFocus)
+    },
+    debounceChoiceFocus
+  )
 
 let onTabChanged = (input, state) => {
   let { tab } = state
@@ -239,6 +227,9 @@ let waitForPromptValue = ({
   onDown,
   onTab,
   onChoiceFocus,
+  onBlur,
+  onLeft,
+  onRight,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
     promptId++
@@ -285,53 +276,64 @@ let waitForPromptValue = ({
     tab$
       .pipe(takeUntil(valueSubmitted$))
       .subscribe(data => {
-        onTabChanged(data.input, data.state)
+        onTabChanged(data.state.input, data.state)
       })
 
     message$
       .pipe(takeUntil(valueSubmitted$), share())
       .subscribe({
         next: async data => {
-          if (data.state?.count) {
-            onChoices(data.input, data.state)
-          } else {
-            onNoChoices(data.input, data.state)
-          }
           switch (data.channel) {
             case Channel.INPUT:
-              onInput(data.input, data.state)
+              onInput(data.state.input, data.state)
+              break
+
+            case Channel.CHOICES:
+              onChoices(data.state.input, data.state)
+              break
+
+            case Channel.NO_CHOICES:
+              onNoChoices(data.state.input, data.state)
               break
 
             case Channel.ESCAPE:
-              onEscape(data.input, data.state)
+              onEscape(data.state.input, data.state)
               break
 
             case Channel.BACK:
-              onBack(data.input, data.state)
+              onBack(data.state.input, data.state)
               break
 
             case Channel.FORWARD:
-              onForward(data.input, data.state)
+              onForward(data.state.input, data.state)
               break
 
             case Channel.UP:
-              onUp(data.input, data.state)
+              onUp(data.state.input, data.state)
               break
 
             case Channel.DOWN:
-              onDown(data.input, data.state)
+              onDown(data.state.input, data.state)
+              break
+
+            case Channel.LEFT:
+              onLeft(data.state.input, data.state)
+              break
+
+            case Channel.RIGHT:
+              onRight(data.state.input, data.state)
               break
 
             case Channel.TAB:
-              onTab(data.input, data.state)
+              onTab(data.state.input, data.state)
               break
 
             case Channel.CHOICE_FOCUSED:
-              onChoiceFocus(data.input, data.state)
+              onChoiceFocus(data.state.input, data.state)
               break
 
             case Channel.PROMPT_BLURRED:
-              exit()
+              onBlur(data.state.input, data.state)
               break
           }
         },
@@ -347,9 +349,9 @@ let waitForPromptValue = ({
         }
       }),
       switchMap(async (data: AppMessage) => {
-        let { value, id } = data?.state
+        let { value, focused } = data?.state
         let choice = (global.kitPrevChoices || []).find(
-          (c: Choice) => c.id === id
+          (c: Choice) => c.id === focused.id
         )
         if (choice?.onSubmit) {
           await choice?.onSubmit(choice)
@@ -406,14 +408,17 @@ let onNoChoicesDefault = async (input: string) => {
 let onChoicesDefault = async () => {}
 
 let onEscapeDefault: ChannelHandler = async (
-  input,
-  state
+  input: string,
+  state: AppState
 ) => {
-  let { history } = state
+  let { history, script } = state
   let previousScript = history?.[history.length - 2]
 
-  send(Channel.SET_SCRIPT_HISTORY, [])
-  if (previousScript?.filePath === mainScriptPath) {
+  if (
+    script.filePath !== mainScriptPath &&
+    previousScript?.filePath === mainScriptPath &&
+    !state?.inputChanged
+  ) {
     await mainScript()
   } else {
     process.exit()
@@ -424,6 +429,8 @@ let onBackDefault = async () => {}
 let onForwardDefault = async () => {}
 let onUpDefault = async () => {}
 let onDownDefault = async () => {}
+let onLeftDefault = async () => {}
+let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 
 global.setPrompt = (data: Partial<PromptData>) => {
@@ -431,6 +438,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
   if (tabs) global.onTabs = tabs
 
   global.send(Channel.SET_PROMPT_DATA, {
+    scriptPath: global.kitScript,
     flags: prepFlags(data?.flags || {}),
     hint: "",
     ignoreBlur: false,
@@ -450,6 +458,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
     tabIndex: 0,
     type: "text",
     ui: UI.arg,
+    resize: false,
     ...(data as PromptData),
   })
 }
@@ -463,6 +472,11 @@ let prepPrompt = async (config: PromptConfig) => {
     ...restConfig
   } = config
 
+  let mode =
+    typeof choices === "function" && choices?.length > 0
+      ? Mode.GENERATE
+      : Mode.FILTER
+
   global.setPrompt({
     strict: Boolean(choices),
     hasPreview: Boolean(preview),
@@ -470,10 +484,7 @@ let prepPrompt = async (config: PromptConfig) => {
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
-    mode:
-      typeof choices === "function" && choices?.length > 0
-        ? Mode.GENERATE
-        : Mode.FILTER,
+    mode,
     placeholder: stripAnsi(placeholder || ""),
 
     panel:
@@ -493,8 +504,14 @@ let createOnInputDefault = (
   choices,
   className,
   debounceInput
-) =>
-  _.debounce(async (input, state) => {
+) => {
+  let mode =
+    typeof choices === "function" && choices?.length > 0
+      ? Mode.GENERATE
+      : Mode.FILTER
+
+  if (mode !== Mode.GENERATE) return async () => {}
+  return _.debounce(async (input, state) => {
     return invokeChoices({
       promptId,
       tabIndex: global.onTabIndex,
@@ -504,10 +521,17 @@ let createOnInputDefault = (
       state,
     })
   }, debounceInput)
+}
+
+let onBlurDefault = () => {
+  console.log(`Blur caused exit`)
+  process.exit()
+}
 
 global.kitPrompt = async (config: PromptConfig) => {
   kitPrompt$.next(true)
   //need to let onTabs() gather tab names. See Word API
+
   await new Promise(r => setTimeout(r, 0))
   let {
     choices = [],
@@ -520,6 +544,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     onForward = onForwardDefault,
     onUp = onUpDefault,
     onDown = onDownDefault,
+    onLeft = onLeftDefault,
+    onRight = onRightDefault,
     onTab = onTabDefault,
     debounceChoiceFocus = 0,
     onChoiceFocus = createOnChoiceFocusDefault(
@@ -531,6 +557,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       className,
       debounceInput
     ),
+    onBlur = onBlurDefault,
   } = config
 
   await prepPrompt(config)
@@ -547,8 +574,11 @@ global.kitPrompt = async (config: PromptConfig) => {
     onForward,
     onUp,
     onDown,
+    onLeft,
+    onRight,
     onTab,
     onChoiceFocus,
+    onBlur,
     state: {},
   })
 }
@@ -601,29 +631,45 @@ global.div = async (html = "", containerClasses = "") => {
   })
 }
 
-global.editor = async (
-  options: EditorOptions = {
+global.editor = async (options?: EditorOptions) => {
+  if (options?.language) {
+    let fileTypes = {
+      css: "css",
+      js: "javascript",
+      json: "json",
+      md: "markdown",
+      mjs: "javascript",
+      ts: "typescript",
+    }
+
+    if (fileTypes[options?.language]) {
+      options.language = fileTypes[options.language]
+    }
+  }
+
+  let defaultOptions: EditorOptions = {
     value: "",
     language: "",
     scrollTo: "top",
     onInput: () => {},
     onEscape: () => {},
-    submitOnEscape: false,
+    onBlur: () => {},
+    ignoreBlur: true,
   }
-) => {
-  send(
-    Channel.SET_EDITOR_CONFIG,
 
+  let editorOptions =
     typeof options === "string"
-      ? { value: options }
-      : options
-  )
+      ? { ...defaultOptions, value: options }
+      : { ...defaultOptions, ...options }
+
+  send(Channel.SET_EDITOR_CONFIG, editorOptions)
   return await global.kitPrompt({
     ui: UI.editor,
-    hint: options?.hint,
+    hint: editorOptions?.hint,
     ignoreBlur: true,
-    onInput: options?.onInput,
-    onEscape: options?.onEscape,
+    onInput: editorOptions?.onInput,
+    onEscape: editorOptions?.onEscape,
+    onBlur: editorOptions?.onBlur,
   })
 }
 
@@ -796,6 +842,10 @@ global.setInput = async input => {
   global.send(Channel.SET_INPUT, input)
 }
 
+global.setFilterInput = async inputFilter => {
+  global.send(Channel.SET_FILTER_INPUT, inputFilter)
+}
+
 global.setIgnoreBlur = async ignore => {
   global.send(Channel.SET_IGNORE_BLUR, ignore)
 }
@@ -913,6 +963,125 @@ global.Key = KeyEnum
 global.mainScript = async () => {
   if (process.env.KIT_CONTEXT === "app")
     await run(mainScriptPath)
+}
+
+let __pathSelector = async (
+  currentDir: string = home(),
+  { showHidden } = { showHidden: false }
+) => {
+  if (!currentDir.endsWith(path.sep)) currentDir += path.sep
+  let slashCount = -1
+
+  let lsCurrentDir = async input => {
+    let dirFilter = dirent => {
+      if (dirent.name.startsWith(".")) {
+        return input.startsWith(".") || showHidden
+      }
+
+      return true
+    }
+
+    if (input.startsWith("~"))
+      input = input.replace("~", home() + path.sep)
+
+    if (input.endsWith(path.sep)) {
+      currentDir = input
+    } else {
+      currentDir = path.dirname(input)
+    }
+    if (await isDir(currentDir)) {
+      try {
+        let dirFiles = await readdir(currentDir, {
+          withFileTypes: true,
+        })
+        setFilterInput(`[^\/]+$`)
+        let dirents = dirFiles.filter(dirFilter)
+        let folders = dirents.filter(dirent =>
+          dirent.isDirectory()
+        )
+        let files = dirents.filter(
+          dirent => !dirent.isDirectory()
+        )
+
+        let mapDirents = (dirents: Dirent[]): Choice[] => {
+          return dirents.map(dirent => {
+            let fullPath = path.resolve(
+              currentDir,
+              dirent.name
+            )
+            let type = dirent.isDirectory()
+              ? "folder"
+              : "file"
+            return {
+              img: kitPath("icons", type + ".svg"),
+              name: dirent.name,
+              value: fullPath,
+              description: type,
+            }
+          })
+        }
+
+        let choices = mapDirents(folders.concat(files))
+
+        setChoices(choices)
+      } catch {
+        setPanel(md(`## Failed to read ${currentDir}`))
+      }
+    } else {
+      setPanel(md(`## ${currentDir} is not a path`))
+    }
+  }
+
+  let upDir = dir => {
+    setInput(
+      currentDir.replace(
+        new RegExp(`[^${path.sep}]+.$`, "gi"),
+        ""
+      )
+    )
+  }
+
+  let downDir = dir => {
+    setInput(path.resolve(currentDir, dir) + path.sep)
+  }
+
+  return await arg({
+    input: currentDir,
+    onInput: async (input, state) => {
+      let currentSlashCount = input.split(path.sep).length
+      if (currentSlashCount != slashCount) {
+        slashCount = currentSlashCount
+        await lsCurrentDir(input)
+      }
+    },
+    onTab: async (input, state) => {
+      let dir = state.focused.value
+
+      if (state.modifiers.includes("shift")) {
+        upDir(dir)
+      } else {
+        downDir(dir)
+      }
+    },
+    onRight: async (input, state) => {
+      downDir(state.focused.value)
+    },
+    onLeft: async (input, state) => {
+      upDir(state.focused.value)
+    },
+  })
+}
+
+let __path = global.path
+global.path = new Proxy(__pathSelector, {
+  get: (target, k: string) => {
+    if (k === "then") return __pathSelector
+    return __path[k]
+  },
+}) as unknown as PlatformPath
+
+global.tray = (text: string) => {
+  send(Channel.SET_TRAY, text)
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]

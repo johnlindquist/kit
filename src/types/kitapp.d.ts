@@ -21,23 +21,26 @@ import {
 import { Flags } from "./kit"
 
 export interface AppState {
+  input?: string
+  inputChanged?: boolean
   flaggedValue?: any
   flag?: string
   tab?: string
   value?: any
   index?: number
-  id?: string
   focused?: Choice
   history?: Script[]
   modifiers?: string[]
   count?: number
+  name?: string
+  description?: string
+  script?: Script
 }
 
 export interface AppMessage {
   channel: Channel
   pid: number
   newPid?: number
-  input?: string
   state: AppState
 }
 
@@ -57,7 +60,9 @@ export type EditorOptions =
     hint?: string
     onInput?: ChannelHandler
     onEscape?: ChannelHandler
-    submitOnEscape?: boolean
+    onBlur?: ChannelHandler
+    ignoreBlur?: boolean
+    extraLibs?: { content: string; filePath: string }[]
   }
 
 export type EditorConfig = string | EditorOptions
@@ -149,7 +154,13 @@ export interface AppleScript {
 }
 
 type SetImage = string | { src: string }
-type SetChoices = { choices: Choice[]; scripts: boolean }
+interface SetChoices {
+  (choices: Choice[], className?: string): void
+}
+type SetChoicesOptions = {
+  choices: Choice[]
+  scripts?: boolean
+}
 type SetTextAreaOptions = {
   value?: string
   placeholder?: string
@@ -191,6 +202,7 @@ export interface ChannelMap {
   [Channel.GET_BACKGROUND]: undefined
   [Channel.GET_MOUSE]: undefined
   [Channel.GET_SCHEDULE]: undefined
+  [Channel.GET_PROCESSES]: undefined
   [Channel.GET_BOUNDS]: undefined
   [Channel.GET_SCREEN_INFO]: undefined
   [Channel.GET_SCRIPTS_STATE]: undefined
@@ -212,15 +224,21 @@ export interface ChannelMap {
   [Channel.APP_CONFIG]: AppConfig
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
+  [Channel.SET_TRAY]: string
   [Channel.KIT_LOG]: string
   [Channel.KIT_WARN]: string
   [Channel.COPY_PATH_AS_PICTURE]: string
   [Channel.DEV_TOOLS]: any
   [Channel.EXIT]: number
+  [Channel.NOTIFY]: {
+    title: string
+    message: string
+    icon: string
+  }
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
   [Channel.SET_BOUNDS]: Partial<Rectangle>
-  [Channel.SET_CHOICES]: SetChoices
+  [Channel.SET_CHOICES]: SetChoicesOptions
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_DIV_HTML]: string
@@ -230,8 +248,10 @@ export interface ChannelMap {
   [Channel.SET_HINT]: string
   [Channel.SET_IGNORE_BLUR]: boolean
   [Channel.SET_INPUT]: string
+  [Channel.SET_FILTER_INPUT]: string
   [Channel.SET_LOADING]: boolean
   [Channel.SET_LOG]: string
+  [Channel.SET_LOGO]: string
   [Channel.SET_LOGIN]: boolean
   [Channel.SET_MODE]: Mode
   [Channel.SET_NAME]: string
@@ -240,6 +260,7 @@ export interface ChannelMap {
   [Channel.SET_PID]: number
   [Channel.SET_PLACEHOLDER]: string
   [Channel.SET_PREVIEW]: string
+  [Channel.SET_PROMPT_BLURRED]: boolean
   [Channel.SET_PROMPT_DATA]: PromptData
   [Channel.SET_PROMPT_PROP]: any
   [Channel.SET_READY]: boolean
@@ -253,12 +274,17 @@ export interface ChannelMap {
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
   [Channel.SET_TEXTAREA_VALUE]: string
   [Channel.SET_THEME]: any
+  [Channel.SHORTCUT_PRESSED]: string
   [Channel.SHOW]: { options: ShowOptions; html: string }
   [Channel.SHOW_IMAGE]: {
     options: ShowOptions
     image: string | { src: string }
   }
   [Channel.SWITCH_KENV]: string
+  [Channel.TOAST]: {
+    text: string
+    type: "info" | "error" | "success" | "warning"
+  }
   [Channel.TOGGLE_BACKGROUND]: string
   [Channel.VALUE_INVALID]: string
 }
@@ -305,6 +331,10 @@ export interface SetIgnoreBlur {
 
 export interface SetLoading {
   (loading: boolean): void
+}
+
+export interface SetTray {
+  (text: string): void
 }
 
 export interface SetPlaceholder {
@@ -378,10 +408,12 @@ export interface AppApi {
   setName: SetName
   setDescription: SetDescription
   setInput: SetInput
+  setFilterInput: SetInput
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur
   setLoading: SetLoading
+  setTray: SetTray
 
   show: ShowAppWindow
   showImage: ShowAppWindow
@@ -390,10 +422,7 @@ export interface AppApi {
 
   currentOnTab: any
 
-  setChoices: (
-    choices: Choices<any>,
-    className?: string
-  ) => void
+  setChoices: SetChoices
   getDataFromApp: (channel: Channel) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
@@ -451,6 +480,8 @@ declare global {
 
   var setPlaceholder: SetPlaceholder
   var setPanel: SetPanel
+  var setChoices: SetChoices
+  var setMode: SetMode
   var setDiv: SetPanel
   var setPreview: SetPreview
   var setPrompt: SetPrompt
@@ -461,9 +492,11 @@ declare global {
   var setName: SetName
   var setDescription: SetDescription
   var setInput: SetInput
+  var setFilterInput: SetInput
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
   var setLoading: SetLoading
+  var setTray: SetTray
 
   var show: ShowAppWindow
   var showImage: ShowAppWindow

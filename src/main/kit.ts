@@ -6,7 +6,6 @@ import { CLI } from "../cli"
 
 import { kitMode, run } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
-import { AppState } from "../types/kitapp"
 
 setFlags({
   discuss: {
@@ -146,16 +145,17 @@ ${md(`# Latest 100 Log Lines`)}
 ]
 
 let hasChoices = true
-let onInput = async (input: string, state: AppState) => {
-  hasChoices = Boolean(state.count)
-
-  let panel = hasChoices
-    ? ``
-    : md(`# No Options Found for "${input}"
+let onChoices = async (input: string) => {
+  hasChoices = true
+  setPanel(``)
+}
+let onNoChoices = async (input: string) => {
+  hasChoices = false
+  setPanel(
+    md(`# No Options Found for "${input}"
     
-Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).`)
-
-  setPanel(panel)
+  Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).`)
+  )
 }
 
 let cliScript = await arg(
@@ -163,7 +163,8 @@ let cliScript = await arg(
     placeholder: `Kit Options`,
     strict: false,
     input: arg?.input || "",
-    onInput,
+    onChoices,
+    onNoChoices,
   },
   await addPreview(kitManagementChoices, "kit", true)
 )

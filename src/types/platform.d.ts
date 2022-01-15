@@ -171,6 +171,10 @@ interface GetMousePosition {
   (): Promise<Point>
 }
 
+interface GetProcesses {
+  (): Promise<ProcessInfo[]>
+}
+
 interface Bounds {
   left: number
   top: number
@@ -282,6 +286,7 @@ declare global {
   var getActiveScreen: GetActiveScreen
   var getActiveTab: GetActiveTab
   var getMousePosition: GetMousePosition
+  var getProcesses: GetProcesses
   var getScreens: GetScreens
   var getSelectedFile: GetSelectedFile
   var selectFile: SelectFile

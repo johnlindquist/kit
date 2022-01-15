@@ -14,7 +14,7 @@ let octokit = new Octokit({
 })
 
 let fileBasename = path.basename(filePath)
-div(md(`Creating link...`))
+setDescription(`Creating link...`)
 
 let response = await octokit.rest.gists.create({
   files: {
@@ -27,8 +27,6 @@ let response = await octokit.rest.gists.create({
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[fileBasename].raw_url}`
 copy(link)
-div(md(`Copied share link to clipboard`))
-await wait(2000)
-submit(``)
+notify(`Copied share link to clipboard`)
 
 export {}

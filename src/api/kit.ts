@@ -661,3 +661,5 @@ global.setTab = (tabName: string) => {
   global.send(Channel.SET_TAB_INDEX, i)
   global.onTabs[i].fn()
 }
+
+export { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"

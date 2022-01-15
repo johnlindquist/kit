@@ -1,5 +1,6 @@
 export {}
 
+import { ChildProcess } from "child_process"
 import { ProcessType, UI, Mode } from "../core/enum.js"
 
 export interface Choice<Value = any> {
@@ -61,13 +62,18 @@ export interface ScriptMetadata {
   tag?: string
   log?: "true" | "false"
   hasFlags?: boolean
-  img?: string
   cmd?: string
   option?: string
   ctrl?: string
   shift?: string
   hasPreview?: boolean
-  resize?: boolean
+  logo?: string
+  ["color-primary-light"]?: string
+  ["color-secondary-light"]?: string
+  ["color-background-light"]?: string
+  ["color-primary-dark"]?: string
+  ["color-secondary-dark"]?: string
+  ["color-background-dark"]?: string
 }
 
 export type Script = ScriptMetadata &
@@ -81,14 +87,12 @@ export type PromptBounds = {
   height: number
 }
 
-export type PromptState = "collapsed" | "expanded"
+// export type PromptState = "collapsed" | "expanded"
 
 export type PromptDb = {
   screens: {
     [screenId: string]: {
-      [script: string]: {
-        [key in PromptState]: PromptBounds
-      }
+      [script: string]: PromptBounds
     }
   }
 }
@@ -118,6 +122,7 @@ export type InputType =
   | "week"
 
 export interface PromptData {
+  scriptPath: string
   description: string
   flags: FlagsOptions
   hasPreview: boolean
@@ -138,6 +143,7 @@ export interface PromptData {
   tabIndex: number
   type: InputType
   ui: UI
+  resize: boolean
 }
 
 export interface GenerateChoices {
@@ -190,13 +196,25 @@ export interface PromptConfig
   onForward?: ChannelHandler
   onUp?: ChannelHandler
   onDown?: ChannelHandler
+  onLeft?: ChannelHandler
+  onRight?: ChannelHandler
   onTab?: ChannelHandler
   debounceInput?: number
   onInput?: ChannelHandler
+  onBlur?: ChannelHandler
   debounceChoiceFocus?: number
   onChoiceFocus?: ChannelHandler
 }
 
 export interface Metadata {
   [key: string]: string
+}
+
+export interface ProcessInfo {
+  pid: number
+  scriptPath: string
+  child: ChildProcess
+  type: ProcessType
+  values: any[]
+  date: Date
 }

@@ -14,7 +14,7 @@ let octokit = new Octokit({
   },
 })
 
-div(md(`Creating gist...`))
+setDescription(`Creating gist...`)
 
 let response = await octokit.rest.gists.create({
   files: {
@@ -29,7 +29,7 @@ copy(
   response.data.files[command + path.extname(filePath)]
     .raw_url
 )
-div(md(`Copied raw gist url to clipboard`))
-await wait(2000)
-submit(``)
+
+notify(`Copied raw gist url to clipboard`)
+
 export {}

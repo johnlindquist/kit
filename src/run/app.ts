@@ -11,7 +11,7 @@ try {
 } catch (error) {
   // console.log(`No ./platform/${platform}.js`)
 }
-import "../target/app.js"
+await import("../target/app.js")
 
 configEnv()
 

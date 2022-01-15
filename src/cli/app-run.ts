@@ -142,23 +142,38 @@ setFlags({
   },
 })
 
+let panel = ``
 let onChoices = () => {
-  setPanel(``)
+  if (panel !== ``) {
+    panel = ``
+    setPanel(panel)
+  }
 }
 
 let onNoChoices = async (input, state) => {
   if (input && state.flaggedValue === "") {
+    let regex = /[!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?]/g
+    let invalid = regex.test(input)
+
+    if (invalid) {
+      panel = md(`# No matches found
+  
+No matches found for <code>${input}</code>
+            `)
+      setPanel(panel)
+      return
+    }
+
     let scriptName = input
       .replace(/[^\w\s-]/g, "")
       .replace(/\s/g, "-")
       .toLowerCase()
 
-    setPanel(
-      md(`# Create <code>${scriptName}</code>
+    panel = md(`# Create <code>${scriptName}</code>
 
 Create a new script named <code>"${scriptName}"</code>
-    `)
-    )
+          `)
+    setPanel(panel)
   }
 }
 
@@ -166,25 +181,25 @@ let script = await selectScript(
   {
     placeholder: "Run Script",
     strict: false,
-    // onNoChoices,
-    // onChoices,
-    onInput: async (input, { count }) => {
-      if (count === 0) {
-        let scriptName = input
-          .replace(/[^\w\s-]/g, "")
-          .replace(/\s/g, "-")
-          .toLowerCase()
+    onNoChoices,
+    onChoices,
+    //     onInput: async (input, { count }) => {
+    //       if (count === 0) {
+    //         let scriptName = input
+    //           .replace(/[^\w\s-]/g, "")
+    //           .replace(/\s/g, "-")
+    //           .toLowerCase()
 
-        setPanel(
-          md(`# Create \`${scriptName}\`
+    //         setPanel(
+    //           md(`# Create \`${scriptName}\`
 
-Create a new script named \`"${scriptName}"\`
-        `)
-        )
-      } else {
-        setPanel(``)
-      }
-    },
+    // Create a new script named \`"${scriptName}"\`
+    //         `)
+    //         )
+    //       } else {
+    //         setPanel(``)
+    //       }
+    //     },
     input: arg?.input || "",
   },
   true,

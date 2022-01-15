@@ -321,6 +321,10 @@ global.getMousePosition = async () =>
   (await global.getDataFromApp(Channel.GET_MOUSE))
     .mouseCursor
 
+global.getProcesses = async () =>
+  (await global.getDataFromApp(Channel.GET_PROCESSES))
+    .processes
+
 global.setActiveAppBounds = async ({
   left,
   top,
