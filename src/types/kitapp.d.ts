@@ -413,7 +413,7 @@ export interface AppApi {
 
   setIgnoreBlur: SetIgnoreBlur
   setLoading: SetLoading
-  setTray: SetTray
+  tray: SetTray
 
   show: ShowAppWindow
   showImage: ShowAppWindow
@@ -496,7 +496,7 @@ declare global {
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
   var setLoading: SetLoading
-  var setTray: SetTray
+  var tray: SetTray
 
   var show: ShowAppWindow
   var showImage: ShowAppWindow
