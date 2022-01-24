@@ -365,10 +365,6 @@ export interface SetLoading {
   (loading: boolean): void
 }
 
-export interface SetTray {
-  (text: string): void
-}
-
 export interface SetPlaceholder {
   (placeholder: string): void
 }
@@ -461,7 +457,6 @@ export interface AppApi {
 
   setIgnoreBlur: SetIgnoreBlur
   setLoading: SetLoading
-  tray: SetTray
 
   show: ShowAppWindow
   showImage: ShowAppWindow
@@ -545,7 +540,6 @@ declare global {
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
   var setLoading: SetLoading
-  var tray: SetTray
 
   var show: ShowAppWindow
   var showImage: ShowAppWindow
