@@ -3,6 +3,7 @@ import os from "os"
 
 await import("../api/global.js")
 await import("../api/kit.js")
+await import("../api/pro.js")
 await import("../api/lib.js")
 
 let platform = os.platform()

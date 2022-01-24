@@ -157,22 +157,19 @@ let onNoChoices = async (input, state) => {
 
     if (invalid) {
       panel = md(`# No matches found
-  
-No matches found for <code>${input}</code>
-            `)
+No matches found for <code>${input}</code>`)
       setPanel(panel)
       return
     }
 
     let scriptName = input
       .replace(/[^\w\s-]/g, "")
+      .trim()
       .replace(/\s/g, "-")
       .toLowerCase()
 
     panel = md(`# Create <code>${scriptName}</code>
-
-Create a new script named <code>"${scriptName}"</code>
-          `)
+Create a new script named <code>"${scriptName}"</code>`)
     setPanel(panel)
   }
 }
@@ -214,8 +211,9 @@ if (
 } else if (typeof script === "string") {
   await run(
     `${kitPath("cli", "new")}.js ${script
+      .trim()
       .replace(/\s/g, "-")
-      .toLowerCase()} --scriptName '${script}'`
+      .toLowerCase()} --scriptName '${script.trim()}'`
   )
 } else {
   let shouldEdit =

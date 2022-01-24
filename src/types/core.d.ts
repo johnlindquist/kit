@@ -144,6 +144,7 @@ export interface PromptData {
   type: InputType
   ui: UI
   resize: boolean
+  placeholderOnly: boolean
 }
 
 export interface GenerateChoices {
@@ -192,6 +193,7 @@ export interface PromptConfig
   onNoChoices?: ChannelHandler
   onChoices?: ChannelHandler
   onEscape?: ChannelHandler
+  onAbandon?: ChannelHandler
   onBack?: ChannelHandler
   onForward?: ChannelHandler
   onUp?: ChannelHandler

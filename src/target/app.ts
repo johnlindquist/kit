@@ -40,6 +40,7 @@ import { Rectangle } from "../types/electron"
 import { PlatformPath } from "path"
 import { Dirent } from "fs"
 import { refreshScriptsDb } from "../core/db.js"
+import { EventEmitter } from "events"
 
 interface DisplayChoicesProps {
   choices: PromptConfig["choices"]
@@ -48,6 +49,7 @@ interface DisplayChoicesProps {
   onInput?: PromptConfig["onInput"]
   state: AppState
   onEscape?: PromptConfig["onEscape"]
+  onAbandon?: PromptConfig["onAbandon"]
   onBack?: PromptConfig["onBack"]
   onForward?: PromptConfig["onForward"]
   onUp?: PromptConfig["onUp"]
@@ -170,7 +172,7 @@ let createOnChoiceFocusDefault = (
       beforePreviewId = id
 
       let choice = (global.kitPrevChoices || []).find(
-        (c: Choice) => c.id === id
+        (c: Choice) => c?.id === id
       )
 
       if (
@@ -221,6 +223,7 @@ let waitForPromptValue = ({
   onChoices,
   onInput,
   onEscape,
+  onAbandon,
   onBack,
   onForward,
   onUp,
@@ -253,9 +256,11 @@ let waitForPromptValue = ({
       }
       process.on("message", m)
       process.on("error", e)
+      global.__emitter__.on("message", m)
       return () => {
         process.off("message", m)
         process.off("error", e)
+        global.__emitter__.off("message", m)
       }
     }).pipe(takeUntil(kitPrompt$), share())
 
@@ -332,13 +337,19 @@ let waitForPromptValue = ({
               onChoiceFocus(data.state.input, data.state)
               break
 
-            case Channel.PROMPT_BLURRED:
+            case Channel.BLUR:
               onBlur(data.state.input, data.state)
+              break
+
+            case Channel.ABANDON:
+              onAbandon(data.state.input, data.state)
               break
           }
         },
         complete: () => {
-          global.log(`✂️ DISCONNECT MESSAGES`)
+          global.log(
+            `${process.pid}: ✂️  Remove all handlers`
+          )
         },
       })
 
@@ -351,7 +362,7 @@ let waitForPromptValue = ({
       switchMap(async (data: AppMessage) => {
         let { value, focused } = data?.state
         let choice = (global.kitPrevChoices || []).find(
-          (c: Choice) => c.id === focused.id
+          (c: Choice) => c.id === focused?.id
         )
         if (choice?.onSubmit) {
           await choice?.onSubmit(choice)
@@ -389,10 +400,13 @@ let waitForPromptValue = ({
 
     value$.subscribe({
       next: value => {
+        global.log(`${process.pid}: ✅  Value submitted`)
         resolve(value)
       },
       complete: () => {
-        global.log(`✅ Prompt #${promptId} ${`hi`}`)
+        global.log(
+          `${process.pid}: ✅ Prompt #${promptId} complete`
+        )
       },
       error: error => {
         reject(error)
@@ -423,6 +437,13 @@ let onEscapeDefault: ChannelHandler = async (
   } else {
     process.exit()
   }
+}
+
+let onAbandonDefault = () => {
+  global.log(
+    `${process.pid}: Abandon caused exit. Provive a "onAbandon" handler to override.`
+  )
+  process.exit()
 }
 
 let onBackDefault = async () => {}
@@ -524,7 +545,9 @@ let createOnInputDefault = (
 }
 
 let onBlurDefault = () => {
-  console.log(`Blur caused exit`)
+  global.log(
+    `${process.pid}: Blur caused exit. Provive a "onBlur" handler to override.`
+  )
   process.exit()
 }
 
@@ -540,6 +563,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onNoChoices = onNoChoicesDefault,
     onChoices = onChoicesDefault,
     onEscape = onEscapeDefault,
+    onAbandon = onAbandonDefault,
     onBack = onBackDefault,
     onForward = onForwardDefault,
     onUp = onUpDefault,
@@ -570,6 +594,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onNoChoices,
     onChoices,
     onEscape,
+    onAbandon,
     onBack,
     onForward,
     onUp,
@@ -653,6 +678,7 @@ global.editor = async (options?: EditorOptions) => {
     scrollTo: "top",
     onInput: () => {},
     onEscape: () => {},
+    onAbandon: () => {},
     onBlur: () => {},
     ignoreBlur: true,
   }
@@ -663,12 +689,14 @@ global.editor = async (options?: EditorOptions) => {
       : { ...defaultOptions, ...options }
 
   send(Channel.SET_EDITOR_CONFIG, editorOptions)
+
   return await global.kitPrompt({
     ui: UI.editor,
     hint: editorOptions?.hint,
     ignoreBlur: true,
     onInput: editorOptions?.onInput,
     onEscape: editorOptions?.onEscape,
+    onAbandon: editorOptions?.onAbandon,
     onBlur: editorOptions?.onBlur,
   })
 }
@@ -716,11 +744,16 @@ global.arg = async (
     }
   }
 
+  let placeholderOnly =
+    typeof placeholderOrConfig === "string" &&
+    typeof choices === "undefined"
+
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({
       ui: UI.arg,
       hint,
       placeholder: placeholderOrConfig,
+      placeholderOnly,
       choices: choices,
     })
   }
@@ -728,6 +761,7 @@ global.arg = async (
   return await global.kitPrompt({
     choices: choices,
     ...placeholderOrConfig,
+    placeholderOnly,
     hint,
   })
 }
@@ -850,7 +884,10 @@ global.setIgnoreBlur = async ignore => {
   global.send(Channel.SET_IGNORE_BLUR, ignore)
 }
 
-global.getDataFromApp = async (channel: GetAppData) => {
+global.getDataFromApp = async (
+  channel: GetAppData,
+  data: any
+) => {
   if (process?.send) {
     return await new Promise((res, rej) => {
       let messageHandler = data => {
@@ -861,7 +898,7 @@ global.getDataFromApp = async (channel: GetAppData) => {
       }
       process.on("message", messageHandler)
 
-      send(channel)
+      send(channel, data)
     })
   } else {
     return {}
@@ -893,18 +930,23 @@ global.setBounds = (bounds: Partial<Rectangle>) => {
 }
 
 global.getClipboardHistory = async () =>
-  (
-    await global.getDataFromApp(
-      Channel.GET_CLIPBOARD_HISTORY
-    )
-  )?.history
+  (await global.getDataFromApp(Channel.SHOW))?.history
 
 global.removeClipboardItem = (id: string) => {
   global.send(Channel.REMOVE_CLIPBOARD_HISTORY_ITEM, id)
 }
 
+global.__emitter__ = new EventEmitter()
+
 global.submit = (value: any) => {
-  global.send(Channel.SET_SUBMIT_VALUE, value)
+  let message: AppMessage = {
+    channel: Channel.VALUE_SUBMITTED,
+    state: {
+      value,
+    },
+    pid: process.pid,
+  }
+  global.__emitter__.emit("message", message)
 }
 
 global.wait = async (time: number) => {
@@ -965,6 +1007,7 @@ global.mainScript = async () => {
     await run(mainScriptPath)
 }
 
+// TODO:
 let __pathSelector = async (
   currentDir: string = home(),
   { showHidden } = { showHidden: false }
@@ -1045,7 +1088,9 @@ let __pathSelector = async (
     setInput(path.resolve(currentDir, dir) + path.sep)
   }
 
-  return await arg({
+  let createDir = false
+  let createFile = false
+  let selectedPath = await arg({
     input: currentDir,
     onInput: async (input, state) => {
       let currentSlashCount = input.split(path.sep).length
@@ -1069,7 +1114,35 @@ let __pathSelector = async (
     onLeft: async (input, state) => {
       upDir(state.focused.value)
     },
+    onNoChoices: async (input, state) => {
+      let hasExtension = path.extname(input) !== ""
+      if (hasExtension) {
+        setPanel(md(`## Create <code>${input}</code> file`))
+      } else {
+        setPanel(
+          md(`## Create <code>${input}</code> directory`)
+        )
+      }
+    },
+    onChoices: async (input, state) => {
+      setPanel(``)
+    },
   })
+
+  let hasExtension = path.extname(selectedPath) == ""
+  if (hasExtension) {
+    let isSelectedPathDir = await isDir(selectedPath)
+    if (!isSelectedPathDir) {
+      await ensureDir(selectedPath)
+    }
+  } else {
+    let isSelectedPathFile = await isFile(selectedPath)
+    if (!isSelectedPathFile) {
+      await ensureFile(selectedPath)
+    }
+  }
+
+  return selectedPath
 }
 
 let __path = global.path
@@ -1080,8 +1153,10 @@ global.path = new Proxy(__pathSelector, {
   },
 }) as unknown as PlatformPath
 
-global.tray = (text: string) => {
-  send(Channel.SET_TRAY, text)
+global.getEditorHistory = async () => {
+  return (
+    await global.getDataFromApp(Channel.GET_EDITOR_HISTORY)
+  )?.state?.editorHistory
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]

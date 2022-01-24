@@ -20,7 +20,6 @@ import {
 import {
   getScripts,
   getScriptFromString,
-  getAppDb,
 } from "../core/db.js"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
@@ -216,12 +215,16 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
 global.send = async (channel: Channel, value?: any) => {
   if (process?.send) {
-    process.send({
-      pid: process.pid,
-      kitScript: global.kitScript,
-      channel,
-      value,
-    })
+    try {
+      process.send({
+        pid: process.pid,
+        kitScript: global.kitScript,
+        channel,
+        value,
+      })
+    } catch (e) {
+      global.warn(e)
+    }
   } else {
     // console.log(from, ...args)
   }

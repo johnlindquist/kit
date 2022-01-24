@@ -42,6 +42,7 @@ export interface AppMessage {
   pid: number
   newPid?: number
   state: AppState
+  widgetId?: number
 }
 
 export type KeyType = {
@@ -56,11 +57,13 @@ export interface EditorProps {
 
 export type EditorOptions =
   editor.IStandaloneEditorConstructionOptions & {
+    file?: string
     scrollTo?: "top" | "center" | "bottom"
     hint?: string
-    onInput?: ChannelHandler
-    onEscape?: ChannelHandler
-    onBlur?: ChannelHandler
+    onInput?: PromptConfig["onInput"]
+    onEscape?: PromptConfig["onEscape"]
+    onAbandon?: PromptConfig["onAbandon"]
+    onBlur?: PromptConfig["onBlur"]
     ignoreBlur?: boolean
     extraLibs?: { content: string; filePath: string }[]
   }
@@ -90,9 +93,9 @@ export type PromptDb = {
 }
 
 export interface TextArea {
-  (
-    placeholderOrOptions?: string | TextareaConfig
-  ): Promise<string>
+  (placeholderOrOptions?: string | TextareaConfig): Promise<
+    string | void
+  >
 }
 
 export interface Drop {
@@ -201,12 +204,40 @@ export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined
   [Channel.GET_MOUSE]: undefined
+  [Channel.GET_EDITOR_HISTORY]: undefined
   [Channel.GET_SCHEDULE]: undefined
   [Channel.GET_PROCESSES]: undefined
   [Channel.GET_BOUNDS]: undefined
   [Channel.GET_SCREEN_INFO]: undefined
   [Channel.GET_SCRIPTS_STATE]: undefined
   [Channel.GET_CLIPBOARD_HISTORY]: undefined
+  [Channel.GET_WIDGET]: undefined
+  [Channel.UPDATE_WIDGET]: {
+    widgetId: number
+    html: string
+    options?: ShowOptions
+  }
+  [Channel.WIDGET_CAPTURE_PAGE]: undefined
+  [Channel.WIDGET_CLICK]: {
+    targetId: string
+    windowId: number
+  }
+  [Channel.WIDGET_INPUT]: {
+    targetId: string
+    windowId: number
+  }
+  [Channel.END_WIDGET]: { widgetId: number }
+  [Channel.FIT_WIDGET]: { widgetId: number }
+  [Channel.SET_SIZE_WIDGET]: {
+    widgetId: number
+    width: number
+    height: number
+  }
+  [Channel.SET_POSITION_WIDGET]: {
+    widgetId: number
+    x: number
+    y: number
+  }
 
   //
   [Channel.CLEAR_CACHE]: undefined
@@ -274,7 +305,7 @@ export interface ChannelMap {
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
   [Channel.SET_TEXTAREA_VALUE]: string
   [Channel.SET_THEME]: any
-  [Channel.SHORTCUT_PRESSED]: string
+  [Channel.START]: string
   [Channel.SHOW]: { options: ShowOptions; html: string }
   [Channel.SHOW_IMAGE]: {
     options: ShowOptions
@@ -287,6 +318,7 @@ export interface ChannelMap {
   }
   [Channel.TOGGLE_BACKGROUND]: string
   [Channel.VALUE_INVALID]: string
+  [Channel.TERMINATE_PROCESS]: number
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
@@ -369,13 +401,29 @@ export interface GetActiveScreen {
   (): Promise<Display>
 }
 
-type ShowOptions = BrowserWindowConstructorOptions & {
-  ttl?: number
+export interface GetEditorHistory {
+  (): Promise<
+    {
+      content: string
+      timestamp: string
+    }[]
+  >
 }
+
+export interface Submit {
+  (value: any): void
+}
+
+export type ShowOptions =
+  BrowserWindowConstructorOptions & {
+    ttl?: number
+    draggable?: boolean
+  }
 
 export interface ShowAppWindow {
   (content: string, options?: ShowOptions): void
 }
+
 interface ClipboardItem {
   name: string
   description: string
@@ -444,9 +492,10 @@ export interface AppApi {
 
   dev: (object: any) => void
   getClipboardHistory: () => Promise<ClipboardItem[]>
+  getEditorHistory: GetEditorHistory
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
-  submit: (value: any) => void
+  submit: Submit
   mainScript: () => Promise<void>
 
   appKeystroke: SendKeystroke
@@ -505,9 +554,10 @@ declare global {
 
   var dev: (object: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
+  var getEditorHistory: GetEditorHistory
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void
-  var submit: (value: any) => void
+  var submit: Submit
   var mainScript: () => Promise<void>
 
   var appKeystroke: SendKeystroke

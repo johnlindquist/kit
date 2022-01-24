@@ -6,6 +6,9 @@ let { filePath, command } = await selectScript(
   `Share which script?`
 )
 
+div(md(`## Creating Gist...`))
+setLoading(true)
+
 let octokit = new Octokit({
   auth: {
     scopes: ["gist"],
@@ -27,6 +30,14 @@ let response = await octokit.rest.gists.create({
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${response.data.files[fileBasename].raw_url}`
 copy(link)
-notify(`Copied share link to clipboard`)
+
+let message = `Copied share link to clipboard`
+
+await div(
+  md(`## ${message}
+
+[${link}](${link})
+`)
+)
 
 export {}

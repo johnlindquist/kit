@@ -20,11 +20,15 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: "Add/Remove/Update repos of scripts",
     value: "kenv-manage",
   },
-
   {
     name: "Settings",
     description: "Open settings/preferences",
     value: "settings",
+  },
+  {
+    name: "View Running Processes",
+    description: "View running processes",
+    value: "processes",
   },
   {
     name: "View schedule",
@@ -130,6 +134,16 @@ ${md(`# Latest 100 Log Lines`)}
 </div>
       `
     },
+  },
+  {
+    name: "View Editor History",
+    description: "View editor history",
+    value: "editor-history",
+  },
+  {
+    name: "Edit .env",
+    description: `Open ~/.kenv/.env in ${env.KIT_EDITOR}`,
+    value: "env",
   },
   {
     name: "Credits",

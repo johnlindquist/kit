@@ -2,12 +2,12 @@
 
 try {
   await download(
-    `https://github.com/johnlindquist/kit-docs/releases/latest/download/docs.json`,
+    `https://www.scriptkit.com/api/docs`,
     kitPath("data")
   )
 
-  console.log(`📝 Docs updated`)
+  global.log(`📝 Docs updated`)
 } catch {
-  console.warn(`Docs failed to download`)
+  global.warn(`Docs failed to download`)
 }
 export {}

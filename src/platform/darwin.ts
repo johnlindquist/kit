@@ -114,7 +114,6 @@ let execConfig = () => {
 }
 
 let macEditors = [
-  "kit",
   "atom",
   "code",
   "emacs",
@@ -225,7 +224,10 @@ let fullySupportedEditors = {
   atom,
 }
 
-global.edit = async (file, dir, line = 0, col = 0) => {
+global.edit = async (f, dir, line = 0, col = 0) => {
+  let file = path.resolve(
+    f?.startsWith("~") ? f.replace(/^~/, home()) : f
+  )
   if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)
@@ -233,7 +235,7 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   if (KIT_EDITOR === "kit") {
     setDescription(file)
     let language = global.extname(file).replace(/^\./, "")
-    let contents = await readFile(file, "utf8")
+    let contents = (await readFile(file, "utf8")) || ""
     let extraLibs = []
     if ((isInDir(kenvPath()), file)) {
       let defs = await readdir(kitPath("types"))
@@ -278,17 +280,21 @@ global.edit = async (file, dir, line = 0, col = 0) => {
     }
 
     let openMain = false
+    let onEscape = async (input, state) => {
+      openMain =
+        state?.history[0]?.filePath === mainScriptPath
+      submit(input || "")
+    }
+    let onAbandon = async (input, state) => {
+      submit(input || "")
+    }
+
     contents = await editor({
       value: contents,
       language,
       extraLibs,
-      onEscape: async (input, state) => {
-        if (input) {
-          openMain =
-            state?.history[0]?.filePath === mainScriptPath
-          submit(input)
-        }
-      },
+      onEscape,
+      onAbandon,
     })
     await writeFile(file, contents)
     if (openMain) {
@@ -297,7 +303,8 @@ global.edit = async (file, dir, line = 0, col = 0) => {
       await mainScript()
     }
   } else {
-    setDescription(`Opening...`)
+    hide()
+
     let execEditor = (file: string) => {
       let editCommand = `${KIT_EDITOR} ${file}`
 

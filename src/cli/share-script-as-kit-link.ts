@@ -12,6 +12,13 @@ let link = `kit://snippet?name=${command}&content=${c}`
 
 copy(link)
 
-notify(`Copied kit:// share link to clipboard`)
+let message = `Copied kit:// share link to clipboard`
+
+await div(
+  md(`## ${message}
+
+[${link}](${link})
+`)
+)
 
 export {}

@@ -3,9 +3,7 @@
 import { mainScriptPath } from "../core/utils.js"
 
 let email_address = await arg(
-  {
-    placeholder: "Enter e-mail to join newsletter:",
-  },
+  "Enter e-mail to join newsletter:",
   await highlight(`
 ## Script Kit Newletters include:
 * Tips for writing scripts
@@ -15,19 +13,13 @@ let email_address = await arg(
 `)
 )
 
-await post(
-  `https://app.convertkit.com/forms/2216586/subscriptions`,
-  {
-    email_address,
-  }
-)
+await post(`https://scriptkit.com/api/subscribe`, {
+  email_address,
+})
 
-setPanel(
-  `Thanks! Make sure to confirm in your mail app 😇`,
-  `p-6 text-xl`
+await div(
+  md(`## Thanks! Make sure to confirm in your mail app 😇`)
 )
-
-await wait(2000, null)
 
 if (process.env.KIT_CONTEXT === "app") {
   await run(mainScriptPath)
