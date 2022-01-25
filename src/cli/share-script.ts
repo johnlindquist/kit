@@ -26,16 +26,17 @@ let response = await octokit.rest.gists.create({
   public: true,
 })
 
-let { raw_url } =
+let link =
   response.data.files[command + path.extname(filePath)]
+    .raw_url
 
-copy(raw_url)
+copy(link)
 
 setLoading(false)
 await div(
   md(`## Copied Gist to Clipboard
 
-[${raw_url}](${raw_url})
+[${link}](${link})
 `)
 )
 
