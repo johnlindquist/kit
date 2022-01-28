@@ -17,9 +17,11 @@ let octokit = new Octokit({
 div(md(`## Creating Gist...`))
 setLoading(true)
 
+let fileBasename = path.basename(filePath)
+
 let response = await octokit.rest.gists.create({
   files: {
-    [command + ".js"]: {
+    [fileBasename]: {
       content: await readFile(filePath, "utf8"),
     },
   },
@@ -27,7 +29,7 @@ let response = await octokit.rest.gists.create({
 })
 
 let link =
-  response.data.files[command + path.extname(filePath)]
+  response.data?.files[command + path.extname(filePath)]
     .raw_url
 
 copy(link)

@@ -37,15 +37,14 @@ import {
   keyCodeFromKey,
 } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
-import { PlatformPath } from "path"
 import { Dirent } from "fs"
-import { refreshScriptsDb } from "../core/db.js"
 import { EventEmitter } from "events"
 
 interface DisplayChoicesProps {
   choices: PromptConfig["choices"]
   className: string
   input: string
+  scripts?: PromptConfig["scripts"]
   onInput?: PromptConfig["onInput"]
   state: AppState
   onEscape?: PromptConfig["onEscape"]
@@ -63,6 +62,8 @@ interface DisplayChoicesProps {
   onBlur?: PromptConfig["onChoiceFocus"]
 }
 
+let promptId = 0
+
 let onExitHandler = () => {}
 global.onExit = handler => {
   onExitHandler = handler
@@ -75,6 +76,7 @@ process.on("beforeExit", () => {
 let displayChoices = async ({
   choices,
   className,
+  scripts,
 }: DisplayChoicesProps) => {
   switch (typeof choices) {
     case "string":
@@ -82,9 +84,13 @@ let displayChoices = async ({
       break
 
     case "object":
-      let resultChoices = checkResultInfo(choices)
+      if (choices === null) {
+        global.setChoices(null)
+      } else {
+        let resultChoices = checkResultInfo(choices)
+        global.setChoices(resultChoices, className, scripts)
+      }
 
-      global.setChoices(resultChoices, className)
       break
   }
 }
@@ -105,8 +111,6 @@ let checkResultInfo = result => {
 
   return result
 }
-
-let promptId = 0
 
 interface InvokeChoicesProps extends DisplayChoicesProps {
   promptId: number
@@ -159,7 +163,6 @@ interface WaitForPromptValueProps
 
 let invalid = Symbol("invalid")
 
-let beforePreviewId = ``
 let createOnChoiceFocusDefault = (
   debounceChoiceFocus: number
 ) =>
@@ -169,11 +172,19 @@ let createOnChoiceFocusDefault = (
 
       let { index, focused } = state
       let { id } = focused
-      beforePreviewId = id
 
       let choice = (global.kitPrevChoices || []).find(
         (c: Choice) => c?.id === id
       )
+
+      let renderPreview = (html: string, cid: string) => {
+        let choice = (global.kitPrevChoices || []).find(
+          (c: Choice) => c?.id === cid
+        )
+
+        if (choice?.id === cid && id === cid) {
+        }
+      }
 
       if (
         choice &&
@@ -198,9 +209,7 @@ let createOnChoiceFocusDefault = (
         }
       }
 
-      if (beforePreviewId === id) {
-        setPreview(preview)
-      }
+      setPreview(preview)
     },
     debounceChoiceFocus
   )
@@ -236,6 +245,7 @@ let waitForPromptValue = ({
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
     promptId++
+    global.log(`>_ Wait for prompt value`, typeof choices)
     getInitialChoices({
       promptId,
       tabIndex: global.onTabIndex,
@@ -557,7 +567,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   await new Promise(r => setTimeout(r, 0))
   let {
-    choices = [],
+    choices = null,
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
@@ -639,7 +649,7 @@ global.form = async (html = "", formData = {}) => {
 
 let maybeWrapHtml = (html, containerClasses) => {
   return html?.length === 0
-    ? ``
+    ? `<div/>`
     : `<div class="${containerClasses}">${html}</div>`
 }
 
@@ -744,16 +754,11 @@ global.arg = async (
     }
   }
 
-  let placeholderOnly =
-    typeof placeholderOrConfig === "string" &&
-    typeof choices === "undefined"
-
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({
       ui: UI.arg,
       hint,
       placeholder: placeholderOrConfig,
-      placeholderOnly,
       choices: choices,
     })
   }
@@ -761,7 +766,6 @@ global.arg = async (
   return await global.kitPrompt({
     choices: choices,
     ...placeholderOrConfig,
-    placeholderOnly,
     hint,
   })
 }
@@ -810,25 +814,29 @@ let appInstall = async packageName => {
 
     let packageLink = `https://npmjs.com/package/${packageName}`
 
-    let hint = `[${packageName}](${packageLink}) has had ${
-      (
-        await get<{ downloads: number }>(
-          `https://api.npmjs.org/downloads/point/last-week/` +
-            packageName
-        )
-      ).data.downloads
-    } downloads from npm in the past week`
+    let preview = md(
+      `[${packageName}](${packageLink}) has had ${
+        (
+          await get<{ downloads: number }>(
+            `https://api.npmjs.org/downloads/point/last-week/` +
+              packageName
+          )
+        ).data.downloads
+      } downloads from npm in the past week`
+    )
 
     let trust = await global.arg(
-      { placeholder, hint: md(hint), ignoreBlur: true },
+      { placeholder, ignoreBlur: true },
       [
         {
           name: `Abort`,
           value: "false",
+          preview,
         },
         {
           name: `Install ${packageName}`,
           value: "true",
+          preview,
         },
       ]
     )
@@ -939,6 +947,7 @@ global.removeClipboardItem = (id: string) => {
 global.__emitter__ = new EventEmitter()
 
 global.submit = (value: any) => {
+  global.log(`Submitting ${value}`)
   let message: AppMessage = {
     channel: Channel.VALUE_SUBMITTED,
     state: {
@@ -947,6 +956,7 @@ global.submit = (value: any) => {
     pid: process.pid,
   }
   global.__emitter__.emit("message", message)
+  global.send(Channel.CLEAR_PREVIEW)
 }
 
 global.wait = async (time: number) => {
@@ -1007,7 +1017,13 @@ global.mainScript = async () => {
     await run(mainScriptPath)
 }
 
-// TODO:
+let getFileInfo = async (filePath: string) => {
+  return applescript(`
+  set aFile to (POSIX file "${filePath}") as alias
+  info for aFile    
+  `)
+}
+
 let __pathSelector = async (
   currentDir: string = home(),
   { showHidden } = { showHidden: false }
@@ -1016,6 +1032,9 @@ let __pathSelector = async (
   let slashCount = -1
 
   let lsCurrentDir = async input => {
+    if (!input) {
+      await mainScript()
+    }
     let dirFilter = dirent => {
       if (dirent.name.startsWith(".")) {
         return input.startsWith(".") || showHidden
@@ -1024,8 +1043,7 @@ let __pathSelector = async (
       return true
     }
 
-    if (input.startsWith("~"))
-      input = input.replace("~", home() + path.sep)
+    if (input.startsWith("~")) currentDir = home()
 
     if (input.endsWith(path.sep)) {
       currentDir = input
@@ -1060,6 +1078,21 @@ let __pathSelector = async (
               name: dirent.name,
               value: fullPath,
               description: type,
+              // preview: async () => {
+              //   try {
+              //     let fileInfo = await getFileInfo(fullPath)
+              //     let formattedInfo = fileInfo
+              //       .split(", ")
+              //       .map(line => {
+              //         return `* ${line}`
+              //       })
+              //       .join("\n")
+
+              //     return md(formattedInfo)
+              //   } catch (error) {
+              //     return md(error)
+              //   }
+              // },
             }
           })
         }
@@ -1088,46 +1121,68 @@ let __pathSelector = async (
     setInput(path.resolve(currentDir, dir) + path.sep)
   }
 
-  let createDir = false
-  let createFile = false
-  let selectedPath = await arg({
-    input: currentDir,
-    onInput: async (input, state) => {
-      let currentSlashCount = input.split(path.sep).length
-      if (currentSlashCount != slashCount) {
-        slashCount = currentSlashCount
-        await lsCurrentDir(input)
-      }
-    },
-    onTab: async (input, state) => {
-      let dir = state.focused.value
+  let onInput = async (input, state) => {
+    if (input.startsWith("~")) {
+      setInput(home() + path.sep)
+      return
+    }
+    let currentSlashCount = input.split(path.sep).length
+    if (currentSlashCount != slashCount) {
+      slashCount = currentSlashCount
+      await lsCurrentDir(input)
+    }
+  }
 
-      if (state.modifiers.includes("shift")) {
-        upDir(dir)
-      } else {
-        downDir(dir)
-      }
+  let onTab = async (input, state) => {
+    let dir = state.focused.value
+
+    if (state.modifiers.includes("shift")) {
+      upDir(dir)
+    } else {
+      downDir(dir)
+    }
+  }
+
+  let onRight = async (input, state) => {
+    downDir(state.focused.value)
+  }
+
+  let onLeft = async (input, state) => {
+    upDir(state.focused.value)
+  }
+
+  let onNoChoices = async input => {
+    let hasExtension = path.extname(input) !== ""
+    if (hasExtension) {
+      setPanel(md(`## Create <code>${input}</code> file`))
+    } else {
+      setPanel(
+        md(`## Create <code>${input}</code> directory`)
+      )
+    }
+  }
+
+  let onChoices = async () => {
+    setPanel(``)
+  }
+
+  let onEscape = async () => {
+    await mainScript()
+  }
+
+  let selectedPath = await arg(
+    {
+      input: currentDir,
+      onInput,
+      onTab,
+      onRight,
+      onLeft,
+      onNoChoices,
+      onChoices,
+      onEscape,
     },
-    onRight: async (input, state) => {
-      downDir(state.focused.value)
-    },
-    onLeft: async (input, state) => {
-      upDir(state.focused.value)
-    },
-    onNoChoices: async (input, state) => {
-      let hasExtension = path.extname(input) !== ""
-      if (hasExtension) {
-        setPanel(md(`## Create <code>${input}</code> file`))
-      } else {
-        setPanel(
-          md(`## Create <code>${input}</code> directory`)
-        )
-      }
-    },
-    onChoices: async (input, state) => {
-      setPanel(``)
-    },
-  })
+    []
+  )
 
   let hasExtension = path.extname(selectedPath) == ""
   if (hasExtension) {
@@ -1151,7 +1206,7 @@ global.path = new Proxy(__pathSelector, {
     if (k === "then") return __pathSelector
     return __path[k]
   },
-}) as unknown as PlatformPath
+}) as any
 
 global.getEditorHistory = async () => {
   return (

@@ -180,6 +180,11 @@ let script = await selectScript(
     strict: false,
     onNoChoices,
     onChoices,
+    onInput: input => {
+      if (input.startsWith("/")) submit("/")
+      if (input.startsWith("~")) submit("~")
+      if (input.startsWith(">")) submit(">")
+    },
     //     onInput: async (input, { count }) => {
     //       if (count === 0) {
     //         let scriptName = input
@@ -203,7 +208,11 @@ let script = await selectScript(
   scripts => scripts.filter(script => !script?.exclude)
 )
 
-if (
+if (script === "/" || script === "~") {
+  await run(kitPath("cli", "path-handler.js"), script)
+} else if (script === ">") {
+  await run(kitPath("cli", "terminal-handler.js"))
+} else if (
   script === Value.NoValue ||
   typeof script === "undefined"
 ) {

@@ -418,44 +418,50 @@ global.onTab = (name, fn) => {
 }
 
 global.kitPrevChoices = []
-global.setChoices = async (choices, className = "") => {
+global.setChoices = async (
+  choices,
+  className = "",
+  scripts = false
+) => {
   if (typeof choices === "object") {
-    choices = (choices as Choice<any>[]).map(choice => {
-      if (typeof choice === "string") {
-        return {
-          name: choice,
-          value: choice,
-          className,
-          id: global.uuid(),
-        }
-      }
-
-      if (typeof choice === "object") {
-        if (Boolean(choice?.preview))
-          choice.hasPreview = true
-
-        if (!choice?.id) {
-          choice.id = global.uuid()
-        }
-        if (typeof choice?.name === "undefined") {
-          choice.name = ""
-        }
-        if (typeof choice.value === "undefined") {
+    if (choices !== null) {
+      choices = (choices as Choice<any>[]).map(choice => {
+        if (typeof choice === "string") {
           return {
-            className,
-            ...choice,
+            name: choice,
             value: choice,
+            className,
+            id: global.uuid(),
           }
         }
-      }
 
-      return choice
-    })
+        if (typeof choice === "object") {
+          if (Boolean(choice?.preview))
+            choice.hasPreview = true
+
+          if (!choice?.id) {
+            choice.id = global.uuid()
+          }
+          if (typeof choice?.name === "undefined") {
+            choice.name = ""
+          }
+          if (typeof choice.value === "undefined") {
+            return {
+              className,
+              ...choice,
+              value: choice,
+            }
+          }
+        }
+
+        return choice
+      })
+    }
   }
 
   global.send(Channel.SET_CHOICES, {
     choices,
-    scripts: true,
+    scripts,
   })
   global.kitPrevChoices = choices
 
@@ -547,8 +553,19 @@ export let selectScript = async (
     return s
   })
 
+  let scriptsConfig =
+    typeof message === "string"
+      ? {
+          placeholder: message,
+          scripts: true,
+        }
+      : {
+          scripts: true,
+          ...message,
+        }
+
   let script: Script | string = await global.arg(
-    message,
+    scriptsConfig,
     scripts
   )
 

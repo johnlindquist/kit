@@ -39,7 +39,7 @@
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
   "dependencies": {
-    "@johnlindquist/globals": "^1.11.1",
+    "@johnlindquist/globals": "^1.11.2",
     "@johnlindquist/kit-internal": "^1.12.2",
     "@types/node-notifier": "^8.0.1",
     "@types/shelljs": "^0.8.9",
@@ -49,6 +49,7 @@
     "highlight.js": "^11.3.1",
     "node-ipc": "^10.0.2",
     "node-notifier": "^10.0.0",
+    "open": "^8.4.0",
     "shelljs": "^0.8.4",
     "trash": "^7.2.0"
   },

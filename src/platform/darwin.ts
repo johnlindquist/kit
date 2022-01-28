@@ -306,13 +306,14 @@ global.edit = async (f, dir, line = 0, col = 0) => {
     hide()
 
     let execEditor = (file: string) => {
-      let editCommand = `${KIT_EDITOR} ${file}`
+      let editCommand = `"${KIT_EDITOR}" ${file}`
 
       let config = execConfig()
       exec(editCommand, config)
     }
     let editorFn =
-      fullySupportedEditors[KIT_EDITOR] || execEditor
+      fullySupportedEditors[path.basename(KIT_EDITOR)] ||
+      execEditor
     global.log(
       `Opening ${file} with ${global.env.KIT_EDITOR}`
     )

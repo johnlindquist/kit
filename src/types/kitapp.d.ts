@@ -19,6 +19,7 @@ import {
   Rectangle,
 } from "./electron"
 import { Flags } from "./kit"
+import { PlatformPath } from "path"
 
 export interface AppState {
   input?: string
@@ -158,7 +159,11 @@ export interface AppleScript {
 
 type SetImage = string | { src: string }
 interface SetChoices {
-  (choices: Choice[], className?: string): void
+  (
+    choices: Choice[],
+    className?: string,
+    scripts?: boolean
+  ): void
 }
 type SetChoicesOptions = {
   choices: Choice[]
@@ -191,6 +196,7 @@ export type GetAppData =
 export type SendNoOptions =
   | Channel.CLEAR_CACHE
   | Channel.CLEAR_CLIPBOARD_HISTORY
+  | Channel.CLEAR_PREVIEW
   | Channel.CLEAR_PROMPT_CACHE
   | Channel.CONSOLE_CLEAR
   | Channel.KIT_CLEAR
@@ -243,6 +249,7 @@ export interface ChannelMap {
   [Channel.CLEAR_CACHE]: undefined
   [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
   [Channel.CLEAR_PROMPT_CACHE]: undefined
+  [Channel.CLEAR_PREVIEW]: undefined
   [Channel.CONSOLE_CLEAR]: undefined
   [Channel.KIT_CLEAR]: undefined
   [Channel.HIDE_APP]: undefined
@@ -495,6 +502,9 @@ export interface AppApi {
 
   appKeystroke: SendKeystroke
   Key: KeyType
+
+  log: typeof console.log
+  warn: typeof console.warn
 }
 
 export interface Background {
@@ -512,8 +522,6 @@ export interface Schedule extends Choice {
 
 declare global {
   var cwd: typeof process.cwd
-
-  var path: typeof import("path")
 
   var textarea: TextArea
   var drop: Drop
@@ -556,4 +564,7 @@ declare global {
 
   var appKeystroke: SendKeystroke
   var Key: KeyType
+
+  var log: typeof console.log
+  var warn: typeof console.warn
 }

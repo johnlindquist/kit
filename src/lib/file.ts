@@ -9,9 +9,7 @@ global.fileSearch = async (
     kind ? ` "kind:${kind}"` : ``
   }`
 
-  let results = await global.execaCommand(command, {
-    shell: true,
-  })
+  let results = await global.exec(command)
 
   return results.stdout.split("\n").filter(Boolean)
 }

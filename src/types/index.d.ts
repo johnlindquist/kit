@@ -5,13 +5,16 @@ import { PackagesApi } from "./packages"
 import { PlatformApi } from "./platform"
 import { ProAPI } from "./pro"
 
+type GlobalOverride = Omit<GlobalsApi, "path">
+
+type GlobalApi = Omit<GlobalsApi, "path"> &
+  KitApi &
+  PackagesApi &
+  PlatformApi &
+  AppApi &
+  ProAPI
+
 declare global {
-  type GlobalApi = AppApi &
-    KitApi &
-    ProAPI &
-    PackagesApi &
-    PlatformApi &
-    GlobalsApi
   namespace NodeJS {
     interface Global extends GlobalApi {}
   }

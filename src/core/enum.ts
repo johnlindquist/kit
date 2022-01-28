@@ -3,6 +3,7 @@ export enum Mode {
   GENERATE = "GENERATE",
   HOTKEY = "HOTKEY",
   MANUAL = "MANUAL",
+  CUSTOM = "CUSTOM",
 }
 
 export enum Channel {
@@ -11,6 +12,7 @@ export enum Channel {
   CHOICE_FOCUSED = "CHOICE_FOCUSED",
   CLEAR_CACHE = "CLEAR_CACHE",
   CLEAR_PROMPT_CACHE = "CLEAR_PROMPT_CACHE",
+  CLEAR_PREVIEW = "CLEAR_PREVIEW",
   CLEAR_CLIPBOARD_HISTORY = "CLEAR_CLIPBOARD_HISTORY",
   CONSOLE_CLEAR = "CONSOLE_CLEAR",
   CONSOLE_LOG = "CONSOLE_LOG",
@@ -166,6 +168,7 @@ export enum UI {
   div = 1 << 6,
   log = 1 << 7,
   splash = 1 << 8,
+  input = 1 << 9,
 }
 
 export enum Bin {

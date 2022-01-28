@@ -145,6 +145,7 @@ export interface PromptData {
   ui: UI
   resize: boolean
   placeholderOnly: boolean
+  scripts: boolean
 }
 
 export interface GenerateChoices {
