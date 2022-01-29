@@ -36,11 +36,6 @@ setFlags({
     name: "Copy Path",
     description: "Copy full path of script to clipboard",
   },
-  ["new-quick"]: {
-    name: "Quick New",
-    description: "Create a new script with a random name",
-    shortcut: `${cmd}+n`,
-  },
   duplicate: {
     name: "Duplicate",
     description: "Duplicate the selected script",
@@ -110,11 +105,6 @@ setFlags({
     name: "Move Script to Kenv",
     description: "Move the script between Kit Environments",
   },
-  ["refresh-scripts-db"]: {
-    name: "Refresh scripts db",
-    description: "Manually refresh scripts database",
-    shortcut: `${cmd}+shift+r`,
-  },
   ["stream-deck"]: {
     name: "Prepare Script for Stream Deck",
     description:
@@ -150,7 +140,16 @@ let onChoices = () => {
   }
 }
 
+// let submitted = false
+// let onInput = input => {
+//   if (input.startsWith("/")) submit("/")
+//   if (input.startsWith("~")) submit("~")
+//   if (input.startsWith(">")) submit(">")
+//   submitted = true
+// }
+
 let onNoChoices = async (input, state) => {
+  // if (submitted) return
   if (input && state.flaggedValue === "") {
     let regex = /[!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?]/g
     let invalid = regex.test(input)
@@ -180,10 +179,15 @@ let script = await selectScript(
     strict: false,
     onNoChoices,
     onChoices,
-    onInput: input => {
-      if (input.startsWith("/")) submit("/")
-      if (input.startsWith("~")) submit("~")
-      if (input.startsWith(">")) submit(">")
+    onInputSubmit: {
+      ">": kitPath("cli", "command-handler.js"),
+      "/": kitPath("cli", "path-handler.js") + ` /`,
+      "~": kitPath("cli", "path-handler.js") + ` ${home()}`,
+    },
+    onShortcutSubmit: {
+      [`${cmd}+p`]: kitPath("cli", "processes.js"),
+      [`${cmd}+f`]: kitPath("cli", "find.js"),
+      [`${cmd}+n`]: kitPath("cli", "new-quick.js"),
     },
     //     onInput: async (input, { count }) => {
     //       if (count === 0) {
@@ -208,22 +212,23 @@ let script = await selectScript(
   scripts => scripts.filter(script => !script?.exclude)
 )
 
-if (script === "/" || script === "~") {
-  await run(kitPath("cli", "path-handler.js"), script)
-} else if (script === ">") {
-  await run(kitPath("cli", "terminal-handler.js"))
-} else if (
+if (
   script === Value.NoValue ||
   typeof script === "undefined"
 ) {
   console.warn(`🤔 No script selected`, script)
 } else if (typeof script === "string") {
-  await run(
-    `${kitPath("cli", "new")}.js ${script
-      .trim()
-      .replace(/\s/g, "-")
-      .toLowerCase()} --scriptName '${script.trim()}'`
-  )
+  let [maybeScript] = script.split(" ")
+  if (await isFile(maybeScript)) {
+    await run(script)
+  } else {
+    await run(
+      `${kitPath("cli", "new")}.js ${script
+        .trim()
+        .replace(/\s/g, "-")
+        .toLowerCase()} --scriptName '${script.trim()}'`
+    )
+  }
 } else {
   let shouldEdit =
     script.watch ||
@@ -243,6 +248,7 @@ if (script === "/" || script === "~") {
     )
   } else if (script.background) {
     await toggleBackground(script)
+    await mainScript()
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
   } else {

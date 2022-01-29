@@ -146,6 +146,8 @@ export interface PromptData {
   resize: boolean
   placeholderOnly: boolean
   scripts: boolean
+  onInputSubmit: { [key: string]: any }
+  onShortcutSubmit: { [key: string]: any }
 }
 
 export interface GenerateChoices {
@@ -207,6 +209,12 @@ export interface PromptConfig
   onBlur?: ChannelHandler
   debounceChoiceFocus?: number
   onChoiceFocus?: ChannelHandler
+  onInputSubmit?: {
+    [key: string]: any
+  }
+  onShortcutSubmit?: {
+    [key: string]: any
+  }
 }
 
 export interface Metadata {

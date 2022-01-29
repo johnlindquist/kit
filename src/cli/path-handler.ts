@@ -1,3 +1,5 @@
+// Description: Select a Path
+
 setPrompt({ preview: "" })
 
 let initialPath = await arg("Initial path")
@@ -24,44 +26,58 @@ if (isPathHandlerJS) {
 
   setDescription(selectedPath)
 
-  let action = await arg<string>("Path action", [
+  let action = await arg<string>(
     {
-      name: "Open in Default App",
-      value: "open",
+      placeholder: "Selction Path Action:",
+      onEscape: async () => {
+        await run(
+          kitPath("cli", "path-handler.js"),
+          selectedPath.replace(
+            new RegExp(`${path.sep}$`),
+            ""
+          )
+        )
+      },
     },
-    {
-      name: "Show in Finder",
-      value: "finder",
-    },
-    {
-      name: "Show Info",
-      value: "info",
-    },
-    {
-      name: "Open in Terminal",
-      value: "terminal",
-    },
-    {
-      name: "Run Command",
-      value: "command",
-    },
-    {
-      name: "Open in VS Code",
-      value: "vscode",
-    },
-    {
-      name: "Copy Path",
-      value: "copy",
-    },
-    {
-      name: "Move",
-      value: "move",
-    },
-    {
-      name: "Trash",
-      value: "trash",
-    },
-  ])
+    [
+      {
+        name: "Open in Default App",
+        value: "open",
+      },
+      {
+        name: "Show in Finder",
+        value: "finder",
+      },
+      {
+        name: "Show Info",
+        value: "info",
+      },
+      {
+        name: "Open in Terminal",
+        value: "terminal",
+      },
+      {
+        name: "Run Command",
+        value: "command",
+      },
+      {
+        name: "Open in VS Code",
+        value: "vscode",
+      },
+      {
+        name: "Copy Path",
+        value: "copy",
+      },
+      {
+        name: "Move",
+        value: "move",
+      },
+      {
+        name: "Trash",
+        value: "trash",
+      },
+    ]
+  )
 
   switch (action) {
     case "open":
@@ -101,7 +117,7 @@ tell application "Finder" to open information window of aFile
       break
 
     case "move":
-      setHint("Select destination folder")
+      setDescription("Select destination folder")
       let destFolder = await path(
         path.dirname(selectedPath)
       )

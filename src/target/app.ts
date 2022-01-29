@@ -245,7 +245,6 @@ let waitForPromptValue = ({
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
     promptId++
-    global.log(`>_ Wait for prompt value`, typeof choices)
     getInitialChoices({
       promptId,
       tabIndex: global.onTabIndex,
@@ -500,6 +499,8 @@ let prepPrompt = async (config: PromptConfig) => {
     placeholder,
     preview,
     panel,
+    onInputSubmit = {},
+    onShortcutSubmit = {},
     ...restConfig
   } = config
 
@@ -512,6 +513,8 @@ let prepPrompt = async (config: PromptConfig) => {
     strict: Boolean(choices),
     hasPreview: Boolean(preview),
     ...restConfig,
+    onInputSubmit,
+    onShortcutSubmit,
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
@@ -687,8 +690,8 @@ global.editor = async (options?: EditorOptions) => {
     language: "",
     scrollTo: "top",
     onInput: () => {},
-    onEscape: () => {},
-    onAbandon: () => {},
+    onEscape: onEscapeDefault,
+    onAbandon: onAbandonDefault,
     onBlur: () => {},
     ignoreBlur: true,
   }
@@ -726,7 +729,7 @@ global.hotkey = async (
 
 global.arg = async (
   placeholderOrConfig = "Type a value:",
-  choices
+  choices = null
 ) => {
   let firstArg = global.args.length
     ? global.args.shift()
@@ -947,7 +950,6 @@ global.removeClipboardItem = (id: string) => {
 global.__emitter__ = new EventEmitter()
 
 global.submit = (value: any) => {
-  global.log(`Submitting ${value}`)
   let message: AppMessage = {
     channel: Channel.VALUE_SUBMITTED,
     state: {
@@ -1050,7 +1052,8 @@ let __pathSelector = async (
     } else {
       currentDir = path.dirname(input)
     }
-    if (await isDir(currentDir)) {
+    let isCurrentDir = await isDir(currentDir)
+    if (isCurrentDir) {
       try {
         let dirFiles = await readdir(currentDir, {
           withFileTypes: true,
@@ -1152,6 +1155,8 @@ let __pathSelector = async (
   }
 
   let onNoChoices = async input => {
+    let isCurrentDir = await isDir(path.resolve(input))
+    if (isCurrentDir) return
     let hasExtension = path.extname(input) !== ""
     if (hasExtension) {
       setPanel(md(`## Create <code>${input}</code> file`))
@@ -1167,6 +1172,7 @@ let __pathSelector = async (
   }
 
   let onEscape = async () => {
+    setInput(``)
     await mainScript()
   }
 

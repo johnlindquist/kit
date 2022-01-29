@@ -1,4 +1,4 @@
-// Descripiton: Terminate a Script Kit Process
+// Description: Terminate a Script Kit Process
 
 import { Channel } from "../core/enum.js"
 
