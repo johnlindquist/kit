@@ -7,7 +7,7 @@ import {
   Metadata,
 } from "../types/core"
 import { platform, homedir } from "os"
-import { lstatSync } from "fs"
+import { lstatSync, PathLike } from "fs"
 import { lstat, readdir, readFile } from "fs/promises"
 
 import { execSync } from "child_process"
@@ -68,6 +68,12 @@ export let isBin = async (
   }
 }
 
+export let createPathResolver =
+  (parentDir: string) =>
+  (...parts: string[]) => {
+    return path.resolve(parentDir, ...parts)
+  }
+
 //app
 export let kitPath = (...parts: string[]) =>
   path.join(
@@ -75,7 +81,7 @@ export let kitPath = (...parts: string[]) =>
     ...parts.filter(Boolean)
   )
 
-//app
+// //app
 export let kenvPath = (...parts: string[]) => {
   return path.join(
     process.env.KENV || home(".kenv"),
@@ -254,7 +260,7 @@ export const friendlyShortcut = (shortcut: string) => {
 //app
 export let getMetadata = (string: string): Metadata => {
   let matches = string.matchAll(
-    /(?<=^\/\/\s{0,2})(\w+)(?::)(.*)/gm
+    /(?<=^\/\/\s{0,2})([\w-]+)(?::)(.*)/gm
   )
   let metadata = {}
   for (let [, key, value] of matches) {
@@ -473,7 +479,6 @@ export let exists = async (input: string) => {
 }
 
 export let toggleBackground = async (script: Script) => {
-  console.log({ script })
   let { tasks } = await global.getBackgroundTasks()
 
   let task = tasks.find(
@@ -674,3 +679,13 @@ export let isParentOfDir = (
     !path.isAbsolute(relative)
   )
 }
+
+export let isInDir =
+  (parentDir: string) => (dir: string) => {
+    const relative = path.relative(parentDir, dir)
+    return (
+      relative &&
+      !relative.startsWith("..") &&
+      !path.isAbsolute(relative)
+    )
+  }

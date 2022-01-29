@@ -27,5 +27,6 @@ if (!tsDefaultTemplateExists) {
     tsDefaultTemplatePath
   )
 }
+await mainScript()
 
 export {}

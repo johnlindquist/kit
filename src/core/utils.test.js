@@ -1,6 +1,8 @@
 import ava from "ava"
 import "../../test/config.js"
 
+console.log(`KENV ${process.env.KENV}`)
+
 /** @type {import("./utils")} */
 let { resolveToScriptPath } = await import(
   kitPath("core", "utils.js")
@@ -65,11 +67,13 @@ ava("resolve ./scripts dir", async t => {
 
 ava("resolve in kenvPath", t => {
   let scriptPath = resolveToScriptPath(testingFindMe)
-
-  t.assert(
-    scriptPath,
-    kenvPath("scripts", `${testingFindMe}.js`)
+  let scriptInKenvPath = kenvPath(
+    "scripts",
+    `${testingFindMe}.js`
   )
+
+  t.log({ scriptPath, scriptInKenvPath })
+  t.assert(scriptPath, scriptInKenvPath)
 })
 
 ava("resolve in kenvPath with .js", t => {

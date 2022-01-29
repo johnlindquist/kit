@@ -20,11 +20,15 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     description: "Add/Remove/Update repos of scripts",
     value: "kenv-manage",
   },
-
   {
     name: "Settings",
     description: "Open settings/preferences",
     value: "settings",
+  },
+  {
+    name: "View Running Processes",
+    description: "View running processes",
+    value: "processes",
   },
   {
     name: "View schedule",
@@ -132,6 +136,16 @@ ${md(`# Latest 100 Log Lines`)}
     },
   },
   {
+    name: "View Editor History",
+    description: "View editor history",
+    value: "editor-history",
+  },
+  {
+    name: "Edit .env",
+    description: `Open ~/.kenv/.env in ${env.KIT_EDITOR}`,
+    value: "env",
+  },
+  {
     name: "Credits",
     description: `The wonderful people who make Script Kit`,
     value: "credits",
@@ -144,21 +158,18 @@ ${md(`# Latest 100 Log Lines`)}
   },
 ]
 
-let noChoices = false
-let onNoChoices = async input => {
-  noChoices = true
-  setPanel(
-    md(`
-
-# No Options Found for "${input}"
-
-Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).
-`)
-  )
-}
-let onChoices = async input => {
+let hasChoices = true
+let onChoices = async (input: string) => {
+  hasChoices = true
   setPanel(``)
-  noChoices = false
+}
+let onNoChoices = async (input: string) => {
+  hasChoices = false
+  setPanel(
+    md(`# No Options Found for "${input}"
+    
+  Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).`)
+  )
 }
 
 let cliScript = await arg(
@@ -166,11 +177,13 @@ let cliScript = await arg(
     placeholder: `Kit Options`,
     strict: false,
     input: arg?.input || "",
+    onChoices,
+    onNoChoices,
   },
   await addPreview(kitManagementChoices, "kit", true)
 )
 
-if (noChoices) {
+if (!hasChoices) {
   browse(
     `https://github.com/johnlindquist/kit/discussions/categories/q-a`
   )

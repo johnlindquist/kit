@@ -3,15 +3,20 @@
 
 let { filePath } = await selectScript(`Share which script?`)
 
-copy(await readFile(filePath, "utf8"))
-div(
-  md(
-    `Copied content of "${path.basename(
-      filePath
-    )}" to clipboard`
-  )
+let content = await readFile(filePath, "utf8")
+copy(content)
+
+let message = `Copied content of "${path.basename(
+  filePath
+)}" to clipboard`
+
+await div(
+  md(`## ${message}
+
+~~~js
+${content}
+~~~
+`)
 )
-await wait(2000)
-submit(``)
 
 export {}

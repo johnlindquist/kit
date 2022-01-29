@@ -7,6 +7,9 @@ let { filePath, command } = await selectScript(
   `Share which script?`
 )
 
+div(md(`## Creating Gist...`))
+setLoading(true)
+
 let octokit = new Octokit({
   auth: {
     scopes: ["gist"],
@@ -44,8 +47,14 @@ exec(
   `open 'https://github.com/johnlindquist/kit/discussions/new?category=share'`
 )
 
-div(md(`Copied ${command} to clipboard as markdown`))
-await wait(2000)
-submit(``)
+let message = `Copied ${command} to clipboard as markdown`
+await div(
+  md(`## ${message}
+
+~~~markdown
+${discussionPost}
+~~~
+`)
+)
 
 export {}

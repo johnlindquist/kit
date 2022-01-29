@@ -36,11 +36,6 @@ setFlags({
     name: "Copy Path",
     description: "Copy full path of script to clipboard",
   },
-  ["new-quick"]: {
-    name: "Quick New",
-    description: "Create a new script with a random name",
-    shortcut: `${cmd}+n`,
-  },
   duplicate: {
     name: "Duplicate",
     description: "Duplicate the selected script",
@@ -110,11 +105,6 @@ setFlags({
     name: "Move Script to Kenv",
     description: "Move the script between Kit Environments",
   },
-  ["refresh-scripts-db"]: {
-    name: "Refresh scripts db",
-    description: "Manually refresh scripts database",
-    shortcut: `${cmd}+shift+r`,
-  },
   ["stream-deck"]: {
     name: "Prepare Script for Stream Deck",
     description:
@@ -142,23 +132,44 @@ setFlags({
   },
 })
 
+let panel = ``
 let onChoices = () => {
-  setPanel(``)
+  if (panel !== ``) {
+    panel = ``
+    setPanel(panel)
+  }
 }
 
+// let submitted = false
+// let onInput = input => {
+//   if (input.startsWith("/")) submit("/")
+//   if (input.startsWith("~")) submit("~")
+//   if (input.startsWith(">")) submit(">")
+//   submitted = true
+// }
+
 let onNoChoices = async (input, state) => {
+  // if (submitted) return
   if (input && state.flaggedValue === "") {
+    let regex = /[!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?]/g
+    let invalid = regex.test(input)
+
+    if (invalid) {
+      panel = md(`# No matches found
+No matches found for <code>${input}</code>`)
+      setPanel(panel)
+      return
+    }
+
     let scriptName = input
       .replace(/[^\w\s-]/g, "")
+      .trim()
       .replace(/\s/g, "-")
       .toLowerCase()
 
-    setPanel(
-      md(`# Create <code>${scriptName}</code>
-
-Create a new script named <code>"${scriptName}"</code>
-    `)
-    )
+    panel = md(`# Create <code>${scriptName}</code>
+Create a new script named <code>"${scriptName}"</code>`)
+    setPanel(panel)
   }
 }
 
@@ -168,6 +179,33 @@ let script = await selectScript(
     strict: false,
     onNoChoices,
     onChoices,
+    onInputSubmit: {
+      ">": kitPath("cli", "command-handler.js"),
+      "/": kitPath("cli", "path-handler.js") + ` /`,
+      "~": kitPath("cli", "path-handler.js") + ` ${home()}`,
+    },
+    onShortcutSubmit: {
+      [`${cmd}+p`]: kitPath("cli", "processes.js"),
+      [`${cmd}+f`]: kitPath("cli", "find.js"),
+      [`${cmd}+n`]: kitPath("cli", "new-quick.js"),
+    },
+    //     onInput: async (input, { count }) => {
+    //       if (count === 0) {
+    //         let scriptName = input
+    //           .replace(/[^\w\s-]/g, "")
+    //           .replace(/\s/g, "-")
+    //           .toLowerCase()
+
+    //         setPanel(
+    //           md(`# Create \`${scriptName}\`
+
+    // Create a new script named \`"${scriptName}"\`
+    //         `)
+    //         )
+    //       } else {
+    //         setPanel(``)
+    //       }
+    //     },
     input: arg?.input || "",
   },
   true,
@@ -180,11 +218,17 @@ if (
 ) {
   console.warn(`🤔 No script selected`, script)
 } else if (typeof script === "string") {
-  await run(
-    `${kitPath("cli", "new")}.js ${script
-      .replace(/\s/g, "-")
-      .toLowerCase()} --scriptName '${script}'`
-  )
+  let [maybeScript] = script.split(" ")
+  if (await isFile(maybeScript)) {
+    await run(script)
+  } else {
+    await run(
+      `${kitPath("cli", "new")}.js ${script
+        .trim()
+        .replace(/\s/g, "-")
+        .toLowerCase()} --scriptName '${script.trim()}'`
+    )
+  }
 } else {
   let shouldEdit =
     script.watch ||
@@ -204,6 +248,7 @@ if (
     )
   } else if (script.background) {
     await toggleBackground(script)
+    await mainScript()
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
   } else {

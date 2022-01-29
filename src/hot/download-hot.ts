@@ -2,12 +2,12 @@
 
 try {
   await download(
-    `https://www.scriptkit.com/data/hot.json`,
+    `https://www.scriptkit.com/api/hot`,
     kitPath("data")
   )
-  console.log(`🔥 Hot updated`)
+  global.log(`🔥 Hot updated`)
 } catch {
-  console.warn(`Hot failed to download`)
+  global.warn(`Hot failed to download`)
 }
 
 export {}

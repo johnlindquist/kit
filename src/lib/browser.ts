@@ -137,9 +137,9 @@ global.scrapeAttribute = async (
   url: string,
   selector: string,
   attribute: string,
-  { headless = true, timeout = 5000 } = {
+  { headless = true, timeout = 10000 } = {
     headless: true,
-    timeout: 5000,
+    timeout: 10000,
   }
 ) => {
   let { chromium } = await global.npm("playwright")

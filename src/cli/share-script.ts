@@ -14,22 +14,32 @@ let octokit = new Octokit({
   },
 })
 
-div(md(`Creating gist...`))
+div(md(`## Creating Gist...`))
+setLoading(true)
+
+let fileBasename = path.basename(filePath)
 
 let response = await octokit.rest.gists.create({
   files: {
-    [command + ".js"]: {
+    [fileBasename]: {
       content: await readFile(filePath, "utf8"),
     },
   },
   public: true,
 })
 
-copy(
-  response.data.files[command + path.extname(filePath)]
+let link =
+  response.data?.files[command + path.extname(filePath)]
     .raw_url
+
+copy(link)
+
+setLoading(false)
+await div(
+  md(`## Copied Gist to Clipboard
+
+[${link}](${link})
+`)
 )
-div(md(`Copied raw gist url to clipboard`))
-await wait(2000)
-submit(``)
+
 export {}

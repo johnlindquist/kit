@@ -1,7 +1,11 @@
 import {
   KIT_FIRST_PATH,
   KIT_DEFAULT_PATH,
+  mainScriptPath,
+  isInDir,
 } from "../core/utils.js"
+
+import { refreshScriptsDb } from "../core/db.js"
 
 global.applescript = async (
   script,
@@ -14,7 +18,7 @@ global.applescript = async (
     let stdout = ``
     let stderr = ``
     let child = spawn(
-      `osascript`,
+      `/usr/bin/osascript`,
       [applescriptPath],
       options
     )
@@ -109,35 +113,54 @@ let execConfig = () => {
   }
 }
 
+let macEditors = [
+  "atom",
+  "code",
+  "emacs",
+  "nano",
+  "ne",
+  "nvim",
+  "sublime",
+  "webstorm",
+  "vim",
+]
+
 global.selectKitEditor = async (reset = false) => {
   let globalBins = []
   let binPaths = KIT_DEFAULT_PATH.split(":")
   for await (let binPath of binPaths) {
-    let bin = await readdir(binPath)
-    globalBins.push(...bin)
+    let bins = await readdir(binPath)
+    for (let bin of bins) {
+      let value = path.resolve(binPath, bin)
+      globalBins.push({
+        name: bin,
+        description: value,
+        value,
+      })
+    }
   }
 
-  let possibleEditors = () =>
-    [
-      "atom",
-      "code",
-      "emacs",
-      "nano",
-      "ne",
-      "nvim",
-      "sublime",
-      "webstorm",
-      "vim",
-    ]
-      .filter(editor => globalBins.includes(editor))
-      .map(name => ({ name, value: name }))
+  let possibleEditors = () => {
+    let filteredMacEditors = macEditors
+      .map(editor =>
+        globalBins.find(({ name }) => name === editor)
+      )
+      .filter(Boolean)
 
+    filteredMacEditors.unshift({
+      name: "kit",
+      description: "built-in Script Kit editor",
+      value: "kit",
+    })
+
+    return filteredMacEditors
+  }
   return await global.env("KIT_EDITOR", {
     reset,
     placeholder: "Which code editor do you use?",
-    hint: `You can always change this later in .env`,
     preview: md(`
-    
+> You can change your editor later in .env
+
 ## Don't see your editor?
 
 Set up your editor's command-line tools:
@@ -201,29 +224,106 @@ let fullySupportedEditors = {
   atom,
 }
 
-global.edit = async (file, dir, line = 0, col = 0) => {
-  setDescription(`Opening...`)
+global.edit = async (f, dir, line = 0, col = 0) => {
+  let file = path.resolve(
+    f?.startsWith("~") ? f.replace(/^~/, home()) : f
+  )
   if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)
 
-  let execEditor = (file: string) => {
-    let editCommand = `${KIT_EDITOR} ${file}`
+  if (KIT_EDITOR === "kit") {
+    setDescription(file)
+    let language = global.extname(file).replace(/^\./, "")
+    let contents = (await readFile(file, "utf8")) || ""
+    let extraLibs = []
+    if ((isInDir(kenvPath()), file)) {
+      let defs = await readdir(kitPath("types"))
+      let content = ``
+      for (let def of defs) {
+        content += await readFile(
+          kitPath("types", def),
+          "utf8"
+        )
+      }
 
-    let config = execConfig()
-    exec(editCommand, config)
-  }
-  let editorFn =
-    fullySupportedEditors[KIT_EDITOR] || execEditor
-  global.log(
-    `Opening ${file} with ${global.env.KIT_EDITOR}`
-  )
+      let globalTypesDir = kitPath(
+        "node_modules",
+        "@johnlindquist",
+        "globals",
+        "types"
+      )
+      let globalTypeDirs = (
+        await readdir(globalTypesDir)
+      ).filter(dir => !dir.endsWith(".ts"))
 
-  let result = await editorFn(file, dir, line, col)
+      content += await readFile(
+        path.resolve(globalTypesDir, "index.d.ts"),
+        "utf8"
+      )
 
-  if (result?.stderr) {
-    global.warn(`STDERR ${result.stderr}`)
-    exit()
+      for (let typeDir of globalTypeDirs) {
+        content += await readFile(
+          path.resolve(
+            globalTypesDir,
+            typeDir,
+            "index.d.ts"
+          ),
+          "utf8"
+        )
+      }
+
+      extraLibs.push({
+        content,
+        filePath: `file:///node_modules/@johnlindquist/kit/index.d.ts`,
+      })
+    }
+
+    let openMain = false
+    let onEscape = async (input, state) => {
+      openMain =
+        state?.history[0]?.filePath === mainScriptPath
+      submit(input || "")
+    }
+    let onAbandon = async (input, state) => {
+      submit(input || "")
+    }
+
+    contents = await editor({
+      value: contents,
+      language,
+      extraLibs,
+      onEscape,
+      onAbandon,
+    })
+    await writeFile(file, contents)
+    if (openMain) {
+      await refreshScriptsDb()
+
+      await mainScript()
+    }
+  } else {
+    hide()
+
+    let execEditor = (file: string) => {
+      let editCommand = `"${KIT_EDITOR}" ${file}`
+
+      let config = execConfig()
+      exec(editCommand, config)
+    }
+    let editorFn =
+      fullySupportedEditors[path.basename(KIT_EDITOR)] ||
+      execEditor
+    global.log(
+      `Opening ${file} with ${global.env.KIT_EDITOR}`
+    )
+
+    let result = await editorFn(file, dir, line, col)
+
+    if (result?.stderr) {
+      global.warn(`STDERR ${result.stderr}`)
+      exit()
+    }
   }
 }
 

@@ -38,6 +38,7 @@ ava(`All globals exist`, async t => {
   /** @type {import("../platform/darwin")} */
   await import(kitPath("platform", "darwin.js"))
   await import(kitPath("target", "app.js"))
+  await import(kitPath("api", "pro.js"))
   await import(kitPath("index.js"))
 
   let files = await readdir(kitPath("types"))

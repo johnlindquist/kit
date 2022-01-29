@@ -8,7 +8,7 @@ import { mainScriptPath } from "../core/utils.js"
 while (!confirm) {
   ;({ shortcut } = await hotkey({
     placeholder: `Enter a key combo:`,
-    panel: md(`Change main shortcut`),
+    panel: md(`## Change main shortcut`),
   }))
   confirm = await arg(`Accept: "${shortcut}"`, [
     {

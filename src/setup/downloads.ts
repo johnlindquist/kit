@@ -1,5 +1,5 @@
 // Description: Downloads the latest docs and hot
-// Schedule: 0 11 * * *
+// This is run by the app.
 
 try {
   await run(kitPath("hot", "download-hot.js"))
@@ -8,5 +8,4 @@ try {
   console.warn(`Failed to download data`)
 }
 
-export { }
-
+export {}

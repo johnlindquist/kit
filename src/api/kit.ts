@@ -20,7 +20,6 @@ import {
 import {
   getScripts,
   getScriptFromString,
-  getAppDb,
 } from "../core/db.js"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
@@ -79,7 +78,7 @@ export let errorPrompt = async (error: Error) => {
   }
 }
 
-export const outputTmpFile = async (
+export let outputTmpFile = async (
   fileName: string,
   contents: string
 ) => {
@@ -92,7 +91,7 @@ export const outputTmpFile = async (
   return outputPath
 }
 
-export const copyTmpFile = async (
+export let copyTmpFile = async (
   fromFile: string,
   fileName: string
 ) =>
@@ -101,6 +100,53 @@ export const copyTmpFile = async (
     await global.readFile(fromFile, "utf-8")
   )
 
+export let buildTSScript = async (
+  scriptPath,
+  outPath = ""
+) => {
+  let outfile = outPath || determineOutFile(scriptPath)
+
+  let { build } = await import("esbuild")
+
+  await build({
+    entryPoints: [scriptPath],
+    outfile,
+    bundle: true,
+    platform: "node",
+    format: "esm",
+    external: [
+      ...(await global.readdir(kenvPath("node_modules"))),
+    ],
+    tsconfig: kitPath(
+      "templates",
+      "config",
+      "tsconfig.json"
+    ),
+  })
+}
+
+let determineOutFile = scriptPath => {
+  let tmpScriptName = global.path
+    .basename(scriptPath)
+    .replace(/\.ts$/, ".mjs")
+
+  let dirName = global.path.dirname(scriptPath)
+  let inScriptsDir = dirName.endsWith(
+    global.path.sep + "scripts"
+  )
+    ? ["..", ".scripts"]
+    : []
+
+  let outfile = global.path.join(
+    scriptPath,
+    "..",
+    ...inScriptsDir,
+    tmpScriptName
+  )
+
+  return outfile
+}
+
 global.attemptImport = async (scriptPath, ..._args) => {
   let importResult = undefined
   try {
@@ -108,44 +154,10 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
     if (scriptPath.endsWith(".ts")) {
       try {
-        let { build } = await import("esbuild")
-
-        let tmpScriptName = global.path
-          .basename(scriptPath)
-          .replace(/\.ts$/, ".mjs")
-
-        let dirName = global.path.dirname(scriptPath)
-        let inScriptsDir = dirName.endsWith(
-          global.path.sep + "scripts"
-        )
-          ? ["..", ".scripts"]
-          : []
-
-        let outfile = global.path.join(
-          scriptPath,
-          "..",
-          ...inScriptsDir,
-          tmpScriptName
-        )
-
-        await build({
-          entryPoints: [scriptPath],
-          outfile,
-          bundle: true,
-          platform: "node",
-          format: "esm",
-          external: [
-            ...(await global.readdir(
-              kenvPath("node_modules")
-            )),
-          ],
-          tsconfig: kitPath(
-            "templates",
-            "config",
-            "tsconfig.json"
-          ),
-        })
-
+        let outfile = determineOutFile(scriptPath)
+        if (process.env.KIT_CONTEXT !== "app") {
+          await buildTSScript(scriptPath, outfile)
+        }
         importResult = await import(
           pathToFileURL(outfile).href +
             "?uuid=" +
@@ -203,12 +215,16 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
 global.send = async (channel: Channel, value?: any) => {
   if (process?.send) {
-    process.send({
-      pid: process.pid,
-      kitScript: global.kitScript,
-      channel,
-      value,
-    })
+    try {
+      process.send({
+        pid: process.pid,
+        kitScript: global.kitScript,
+        channel,
+        value,
+      })
+    } catch (e) {
+      global.warn(e)
+    }
   } else {
     // console.log(from, ...args)
   }
@@ -402,44 +418,50 @@ global.onTab = (name, fn) => {
 }
 
 global.kitPrevChoices = []
-global.setChoices = async (choices, className = "") => {
+global.setChoices = async (
+  choices,
+  className = "",
+  scripts = false
+) => {
   if (typeof choices === "object") {
-    choices = (choices as Choice<any>[]).map(choice => {
-      if (typeof choice === "string") {
-        return {
-          name: choice,
-          value: choice,
-          className,
-          id: global.uuid(),
-        }
-      }
-
-      if (typeof choice === "object") {
-        if (Boolean(choice?.preview))
-          choice.hasPreview = true
-
-        if (!choice?.id) {
-          choice.id = global.uuid()
-        }
-        if (typeof choice?.name === "undefined") {
-          choice.name = ""
-        }
-        if (typeof choice.value === "undefined") {
+    if (choices !== null) {
+      choices = (choices as Choice<any>[]).map(choice => {
+        if (typeof choice === "string") {
           return {
-            className,
-            ...choice,
+            name: choice,
             value: choice,
+            className,
+            id: global.uuid(),
           }
         }
-      }
 
-      return choice
-    })
+        if (typeof choice === "object") {
+          if (Boolean(choice?.preview))
+            choice.hasPreview = true
+
+          if (!choice?.id) {
+            choice.id = global.uuid()
+          }
+          if (typeof choice?.name === "undefined") {
+            choice.name = ""
+          }
+          if (typeof choice.value === "undefined") {
+            return {
+              className,
+              ...choice,
+              value: choice,
+            }
+          }
+        }
+
+        return choice
+      })
+    }
   }
 
   global.send(Channel.SET_CHOICES, {
     choices,
-    scripts: true,
+    scripts,
   })
   global.kitPrevChoices = choices
 
@@ -531,8 +553,19 @@ export let selectScript = async (
     return s
   })
 
+  let scriptsConfig =
+    typeof message === "string"
+      ? {
+          placeholder: message,
+          scripts: true,
+        }
+      : {
+          scripts: true,
+          ...message,
+        }
+
   let script: Script | string = await global.arg(
-    message,
+    scriptsConfig,
     scripts
   )
 
@@ -648,3 +681,5 @@ global.setTab = (tabName: string) => {
   global.send(Channel.SET_TAB_INDEX, i)
   global.onTabs[i].fn()
 }
+
+export { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"

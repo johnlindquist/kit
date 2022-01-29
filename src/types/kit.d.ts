@@ -48,6 +48,10 @@ export interface OnTab {
   (name: string, fn: () => void): void
 }
 
+export interface OnExit {
+  (fn: () => void): void
+}
+
 export interface KitModuleLoader {
   (
     packageName: string,
@@ -177,6 +181,7 @@ export interface KitApi {
   inspect: Inspect
 
   onTab: OnTab
+  onExit: OnExit
 
   attemptImport: KitModuleLoader
   npm: KitModuleLoader
@@ -242,6 +247,7 @@ declare global {
   var env: Env
   var arg: Arg
   var onTab: OnTab
+  var onExit: OnExit
   var args: Args
 
   var updateArgs: UpdateArgs

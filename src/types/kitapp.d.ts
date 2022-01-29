@@ -5,6 +5,7 @@ import { Channel, Mode } from "../core/enum.js"
 import { KeyEnum } from "../core/keyboard.js"
 
 import {
+  ChannelHandler,
   Choice,
   Choices,
   FlagsOptions,
@@ -18,6 +19,32 @@ import {
   Rectangle,
 } from "./electron"
 import { Flags } from "./kit"
+import { PlatformPath } from "path"
+
+export interface AppState {
+  input?: string
+  inputChanged?: boolean
+  flaggedValue?: any
+  flag?: string
+  tab?: string
+  value?: any
+  index?: number
+  focused?: Choice
+  history?: Script[]
+  modifiers?: string[]
+  count?: number
+  name?: string
+  description?: string
+  script?: Script
+}
+
+export interface AppMessage {
+  channel: Channel
+  pid: number
+  newPid?: number
+  state: AppState
+  widgetId?: number
+}
 
 export type KeyType = {
   [key in keyof typeof KeyEnum]: string
@@ -31,7 +58,15 @@ export interface EditorProps {
 
 export type EditorOptions =
   editor.IStandaloneEditorConstructionOptions & {
+    file?: string
     scrollTo?: "top" | "center" | "bottom"
+    hint?: string
+    onInput?: PromptConfig["onInput"]
+    onEscape?: PromptConfig["onEscape"]
+    onAbandon?: PromptConfig["onAbandon"]
+    onBlur?: PromptConfig["onBlur"]
+    ignoreBlur?: boolean
+    extraLibs?: { content: string; filePath: string }[]
   }
 
 export type EditorConfig = string | EditorOptions
@@ -59,9 +94,9 @@ export type PromptDb = {
 }
 
 export interface TextArea {
-  (
-    placeholderOrOptions?: string | TextareaConfig
-  ): Promise<string>
+  (placeholderOrOptions?: string | TextareaConfig): Promise<
+    string | void
+  >
 }
 
 export interface Drop {
@@ -123,7 +158,17 @@ export interface AppleScript {
 }
 
 type SetImage = string | { src: string }
-type SetChoices = { choices: Choice[]; scripts: boolean }
+interface SetChoices {
+  (
+    choices: Choice[],
+    className?: string,
+    scripts?: boolean
+  ): void
+}
+type SetChoicesOptions = {
+  choices: Choice[]
+  scripts?: boolean
+}
 type SetTextAreaOptions = {
   value?: string
   placeholder?: string
@@ -151,6 +196,7 @@ export type GetAppData =
 export type SendNoOptions =
   | Channel.CLEAR_CACHE
   | Channel.CLEAR_CLIPBOARD_HISTORY
+  | Channel.CLEAR_PREVIEW
   | Channel.CLEAR_PROMPT_CACHE
   | Channel.CONSOLE_CLEAR
   | Channel.KIT_CLEAR
@@ -164,16 +210,46 @@ export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined
   [Channel.GET_MOUSE]: undefined
+  [Channel.GET_EDITOR_HISTORY]: undefined
   [Channel.GET_SCHEDULE]: undefined
+  [Channel.GET_PROCESSES]: undefined
   [Channel.GET_BOUNDS]: undefined
   [Channel.GET_SCREEN_INFO]: undefined
   [Channel.GET_SCRIPTS_STATE]: undefined
   [Channel.GET_CLIPBOARD_HISTORY]: undefined
+  [Channel.GET_WIDGET]: undefined
+  [Channel.UPDATE_WIDGET]: {
+    widgetId: number
+    html: string
+    options?: ShowOptions
+  }
+  [Channel.WIDGET_CAPTURE_PAGE]: undefined
+  [Channel.WIDGET_CLICK]: {
+    targetId: string
+    windowId: number
+  }
+  [Channel.WIDGET_INPUT]: {
+    targetId: string
+    windowId: number
+  }
+  [Channel.END_WIDGET]: { widgetId: number }
+  [Channel.FIT_WIDGET]: { widgetId: number }
+  [Channel.SET_SIZE_WIDGET]: {
+    widgetId: number
+    width: number
+    height: number
+  }
+  [Channel.SET_POSITION_WIDGET]: {
+    widgetId: number
+    x: number
+    y: number
+  }
 
   //
   [Channel.CLEAR_CACHE]: undefined
   [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
   [Channel.CLEAR_PROMPT_CACHE]: undefined
+  [Channel.CLEAR_PREVIEW]: undefined
   [Channel.CONSOLE_CLEAR]: undefined
   [Channel.KIT_CLEAR]: undefined
   [Channel.HIDE_APP]: undefined
@@ -186,15 +262,21 @@ export interface ChannelMap {
   [Channel.APP_CONFIG]: AppConfig
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
+  [Channel.SET_TRAY]: string
   [Channel.KIT_LOG]: string
   [Channel.KIT_WARN]: string
   [Channel.COPY_PATH_AS_PICTURE]: string
   [Channel.DEV_TOOLS]: any
   [Channel.EXIT]: number
+  [Channel.NOTIFY]: {
+    title: string
+    message: string
+    icon: string
+  }
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
   [Channel.SET_BOUNDS]: Partial<Rectangle>
-  [Channel.SET_CHOICES]: SetChoices
+  [Channel.SET_CHOICES]: SetChoicesOptions
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_DIV_HTML]: string
@@ -204,8 +286,10 @@ export interface ChannelMap {
   [Channel.SET_HINT]: string
   [Channel.SET_IGNORE_BLUR]: boolean
   [Channel.SET_INPUT]: string
+  [Channel.SET_FILTER_INPUT]: string
   [Channel.SET_LOADING]: boolean
   [Channel.SET_LOG]: string
+  [Channel.SET_LOGO]: string
   [Channel.SET_LOGIN]: boolean
   [Channel.SET_MODE]: Mode
   [Channel.SET_NAME]: string
@@ -214,10 +298,12 @@ export interface ChannelMap {
   [Channel.SET_PID]: number
   [Channel.SET_PLACEHOLDER]: string
   [Channel.SET_PREVIEW]: string
+  [Channel.SET_PROMPT_BLURRED]: boolean
   [Channel.SET_PROMPT_DATA]: PromptData
   [Channel.SET_PROMPT_PROP]: any
   [Channel.SET_READY]: boolean
   [Channel.SET_SCRIPT]: Script
+  [Channel.SET_SCRIPT_HISTORY]: Script[]
   [Channel.SET_SPLASH_BODY]: string
   [Channel.SET_SPLASH_HEADER]: string
   [Channel.SET_SPLASH_PROGRESS]: number
@@ -226,14 +312,20 @@ export interface ChannelMap {
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
   [Channel.SET_TEXTAREA_VALUE]: string
   [Channel.SET_THEME]: any
+  [Channel.START]: string
   [Channel.SHOW]: { options: ShowOptions; html: string }
   [Channel.SHOW_IMAGE]: {
     options: ShowOptions
     image: string | { src: string }
   }
   [Channel.SWITCH_KENV]: string
+  [Channel.TOAST]: {
+    text: string
+    type: "info" | "error" | "success" | "warning"
+  }
   [Channel.TOGGLE_BACKGROUND]: string
   [Channel.VALUE_INVALID]: string
+  [Channel.TERMINATE_PROCESS]: number
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
@@ -312,13 +404,29 @@ export interface GetActiveScreen {
   (): Promise<Display>
 }
 
-type ShowOptions = BrowserWindowConstructorOptions & {
-  ttl?: number
+export interface GetEditorHistory {
+  (): Promise<
+    {
+      content: string
+      timestamp: string
+    }[]
+  >
 }
+
+export interface Submit {
+  (value: any): void
+}
+
+export type ShowOptions =
+  BrowserWindowConstructorOptions & {
+    ttl?: number
+    draggable?: boolean
+  }
 
 export interface ShowAppWindow {
   (content: string, options?: ShowOptions): void
 }
+
 interface ClipboardItem {
   name: string
   description: string
@@ -351,6 +459,7 @@ export interface AppApi {
   setName: SetName
   setDescription: SetDescription
   setInput: SetInput
+  setFilterInput: SetInput
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur
@@ -363,10 +472,7 @@ export interface AppApi {
 
   currentOnTab: any
 
-  setChoices: (
-    choices: Choices<any>,
-    className?: string
-  ) => void
+  setChoices: SetChoices
   getDataFromApp: (channel: Channel) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
@@ -388,13 +494,17 @@ export interface AppApi {
 
   dev: (object: any) => void
   getClipboardHistory: () => Promise<ClipboardItem[]>
+  getEditorHistory: GetEditorHistory
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
-  submit: (value: any) => void
+  submit: Submit
   mainScript: () => Promise<void>
 
   appKeystroke: SendKeystroke
   Key: KeyType
+
+  log: typeof console.log
+  warn: typeof console.warn
 }
 
 export interface Background {
@@ -413,8 +523,6 @@ export interface Schedule extends Choice {
 declare global {
   var cwd: typeof process.cwd
 
-  var path: typeof import("path")
-
   var textarea: TextArea
   var drop: Drop
   var div: Div
@@ -424,6 +532,8 @@ declare global {
 
   var setPlaceholder: SetPlaceholder
   var setPanel: SetPanel
+  var setChoices: SetChoices
+  var setMode: SetMode
   var setDiv: SetPanel
   var setPreview: SetPreview
   var setPrompt: SetPrompt
@@ -434,6 +544,7 @@ declare global {
   var setName: SetName
   var setDescription: SetDescription
   var setInput: SetInput
+  var setFilterInput: SetInput
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
   var setLoading: SetLoading
@@ -445,11 +556,15 @@ declare global {
 
   var dev: (object: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
+  var getEditorHistory: GetEditorHistory
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void
-  var submit: (value: any) => void
+  var submit: Submit
   var mainScript: () => Promise<void>
 
   var appKeystroke: SendKeystroke
   var Key: KeyType
+
+  var log: typeof console.log
+  var warn: typeof console.warn
 }

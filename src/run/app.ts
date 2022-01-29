@@ -3,6 +3,7 @@ import os from "os"
 
 await import("../api/global.js")
 await import("../api/kit.js")
+await import("../api/pro.js")
 await import("../api/lib.js")
 
 let platform = os.platform()
@@ -11,7 +12,7 @@ try {
 } catch (error) {
   // console.log(`No ./platform/${platform}.js`)
 }
-import "../target/app.js"
+await import("../target/app.js")
 
 configEnv()
 
