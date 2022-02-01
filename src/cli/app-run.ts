@@ -133,12 +133,6 @@ setFlags({
 })
 
 let panel = ``
-let onChoices = () => {
-  if (panel !== ``) {
-    panel = ``
-    setPanel(panel)
-  }
-}
 
 // let submitted = false
 // let onInput = input => {
@@ -178,7 +172,6 @@ let script = await selectScript(
     placeholder: "Run Script",
     strict: false,
     onNoChoices,
-    onChoices,
     onInputSubmit: {
       ">": kitPath("cli", "command-handler.js"),
       "/": kitPath("cli", "path-handler.js") + ` /`,
@@ -188,6 +181,7 @@ let script = await selectScript(
       [`${cmd}+p`]: kitPath("cli", "processes.js"),
       [`${cmd}+f`]: kitPath("cli", "find.js"),
       [`${cmd}+n`]: kitPath("cli", "new-quick.js"),
+      [`${cmd}+0`]: kitPath("cli", "kit-clear-prompt.js"),
     },
     //     onInput: async (input, { count }) => {
     //       if (count === 0) {

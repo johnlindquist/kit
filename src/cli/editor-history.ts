@@ -7,9 +7,6 @@ let history = await getEditorHistory()
 await arg(
   {
     placeholder: "Editor history",
-    onChoices: async input => {
-      setPanel(``)
-    },
     onNoChoices: async input => {
       setPanel(
         md(`## No History Found

@@ -159,10 +159,7 @@ ${md(`# Latest 100 Log Lines`)}
 ]
 
 let hasChoices = true
-let onChoices = async (input: string) => {
-  hasChoices = true
-  setPanel(``)
-}
+
 let onNoChoices = async (input: string) => {
   hasChoices = false
   setPanel(
@@ -177,8 +174,10 @@ let cliScript = await arg(
     placeholder: `Kit Options`,
     strict: false,
     input: arg?.input || "",
-    onChoices,
     onNoChoices,
+    onChoiceFocus: () => {
+      hasChoices = true
+    },
   },
   await addPreview(kitManagementChoices, "kit", true)
 )

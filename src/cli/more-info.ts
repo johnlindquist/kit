@@ -16,6 +16,8 @@ let site = await arg(
   }))
 )
 
-browse(site)
+console.log(`Opening ${site}`)
+
+await browse(site)
 
 export {}

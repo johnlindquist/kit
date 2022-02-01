@@ -56,10 +56,6 @@ let previewChoices: Choice[] = await addPreview(
   "new"
 )
 
-let onChoices = () => {
-  setPanel(``)
-}
-
 let onNoChoices = async input => {
   if (input) {
     let scriptName = input
@@ -80,7 +76,6 @@ let cliScript = await arg<keyof CLI>(
   {
     placeholder: "Create a new script",
     strict: false,
-    onChoices,
     onNoChoices,
     input: arg?.input,
   },

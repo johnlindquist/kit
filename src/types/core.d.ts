@@ -194,7 +194,6 @@ export interface PromptConfig
   preview?: string | (() => string | Promise<string>)
   panel?: string | (() => string | Promise<string>)
   onNoChoices?: ChannelHandler
-  onChoices?: ChannelHandler
   onEscape?: ChannelHandler
   onAbandon?: ChannelHandler
   onBack?: ChannelHandler

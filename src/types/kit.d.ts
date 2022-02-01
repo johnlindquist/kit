@@ -68,7 +68,7 @@ export interface Edit {
 }
 
 export interface Browse {
-  (url: string): Promise<void>
+  (url: string): ReturnType<exec>
 }
 
 export interface Wait {

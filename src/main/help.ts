@@ -87,17 +87,14 @@ Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/
   )
 }
 
-let onChoices = async input => {
-  setPanel(``)
-  noChoices = false
-}
-
 let selectedHelp = await arg(
   {
     placeholder: `Got questions?`,
     strict: false,
     onNoChoices,
-    onChoices,
+    onChoiceFocus: () => {
+      noChoices = false
+    },
     input: arg?.input,
   },
   await addPreview(kitHelpChoices, "help")
