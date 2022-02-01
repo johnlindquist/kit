@@ -1,11 +1,15 @@
 // Description: Kit.app Settings
 
-
 import { getAppDb } from "../core/db.js"
 import { Choice } from "../types/core.js"
 
-let createCheckbox = (id: string, name: string, value: boolean, preview: string): Choice => {
-    let html = `<div class="flex justify-between w-full h-full items-center">
+let createCheckbox = (
+  id: string,
+  name: string,
+  value: boolean,
+  preview: string
+): Choice => {
+  let html = `<div class="flex justify-between w-full h-full items-center">
     <span>${name}</span>
     
         <span class="text-2xl">
@@ -14,38 +18,57 @@ let createCheckbox = (id: string, name: string, value: boolean, preview: string)
     
 </div>`
 
-    return {
-        id,
-        name,
-        html,
-        value: id,
-        preview: md(`${preview}
+  return {
+    id,
+    name,
+    html,
+    value: id,
+    preview: () =>
+      md(
+        `${preview}
         
-[${value ? `Disable` : `Enable`}](submit:${id})`, "p-5 prose dark:prose-dark prose-sm")
-    }
+[${value ? `Disable` : `Enable`}](submit:${id})`,
+        "p-5 prose dark:prose-dark prose-sm"
+      ),
+  }
 }
 
 while (true) {
-    let d = await getAppDb()
+  let d = await getAppDb()
 
-    let key = await arg("Settings", [
-        createCheckbox(`openAtLogin`, "Open at Login", d.openAtLogin, `
+  let key = await arg("Settings", [
+    createCheckbox(
+      `openAtLogin`,
+      "Open at Login",
+      d.openAtLogin,
+      `
 # Open Kit.app at Login
-`),
-        createCheckbox(`tray`, "Show Icon in Menu Bar", d.tray, `
+`
+    ),
+    createCheckbox(
+      `tray`,
+      "Show Icon in Menu Bar",
+      d.tray,
+      `
 # Show Icon in Menu Bar
-`),
-        createCheckbox(`autoUpdate`, "Automatically Update", d.autoUpdate, `
+`
+    ),
+    createCheckbox(
+      `autoUpdate`,
+      "Automatically Update",
+      d.autoUpdate,
+      `
 # Automatically Update Kit.app
-        `)
-    ])
+        `
+    ),
+  ])
 
-    if (typeof d?.[key] !== "undefined") {
-        let toggled = !d[key]
-        d[key] = toggled
-        console.log(`${key} set to ${toggled}`)
-        await d.write()
-    }
+  if (typeof d?.[key] !== "undefined") {
+    let toggled = !d[key]
+    d[key] = toggled
+    console.log(`${key} set to ${toggled}`)
+    await d.write()
+  }
 }
 
-export { }
+export {}
