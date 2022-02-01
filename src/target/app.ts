@@ -163,7 +163,8 @@ interface WaitForPromptValueProps
 let invalid = Symbol("invalid")
 
 let createOnChoiceFocusDefault = (
-  debounceChoiceFocus: number
+  debounceChoiceFocus: number,
+  onUserChoiceFocus?: ChannelHandler
 ) =>
   _.debounce(
     async (input: string, state: AppState = {}) => {
@@ -175,15 +176,6 @@ let createOnChoiceFocusDefault = (
       let choice = (global.kitPrevChoices || []).find(
         (c: Choice) => c?.id === id
       )
-
-      let renderPreview = (html: string, cid: string) => {
-        let choice = (global.kitPrevChoices || []).find(
-          (c: Choice) => c?.id === cid
-        )
-
-        if (choice?.id === cid && id === cid) {
-        }
-      }
 
       if (
         choice &&
@@ -209,6 +201,9 @@ let createOnChoiceFocusDefault = (
       }
 
       setPreview(preview)
+
+      if (typeof onUserChoiceFocus === "function")
+        onUserChoiceFocus(input, state)
     },
     debounceChoiceFocus
   )
@@ -575,9 +570,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onRight = onRightDefault,
     onTab = onTabDefault,
     debounceChoiceFocus = 0,
-    onChoiceFocus = createOnChoiceFocusDefault(
-      debounceChoiceFocus
-    ),
+    onChoiceFocus,
     debounceInput = 200,
     onInput = createOnInputDefault(
       choices,
@@ -588,6 +581,11 @@ global.kitPrompt = async (config: PromptConfig) => {
   } = config
 
   await prepPrompt(config)
+
+  let choiceFocus = createOnChoiceFocusDefault(
+    debounceChoiceFocus,
+    onChoiceFocus
+  )
 
   return await waitForPromptValue({
     choices,
@@ -604,7 +602,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onLeft,
     onRight,
     onTab,
-    onChoiceFocus,
+    onChoiceFocus: choiceFocus,
     onBlur,
     state: {},
   })
