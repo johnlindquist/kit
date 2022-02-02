@@ -12,11 +12,6 @@ Share one! ❤️ [Share on GitHub Discussions](https://github.com/johnlindquist
   )
 }
 
-let onChoices = async input => {
-  setPanel(``)
-  noChoices = false
-}
-
 let loadHotChoices = async () => {
   try {
     let hot = await readJson(kitPath("data", "hot.json"))
@@ -46,7 +41,9 @@ let url = await arg(
     placeholder: `Community Scripts and Announcements`,
     input: arg?.input,
     onNoChoices,
-    onChoices,
+    onChoiceFocus: () => {
+      noChoices = false
+    },
   },
   choices
 )

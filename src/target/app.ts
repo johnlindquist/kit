@@ -56,7 +56,6 @@ interface DisplayChoicesProps {
   onLeft?: PromptConfig["onLeft"]
   onRight?: PromptConfig["onRight"]
   onTab?: PromptConfig["onTab"]
-  onChoices?: PromptConfig["onChoices"]
   onNoChoices?: PromptConfig["onNoChoices"]
   onChoiceFocus?: PromptConfig["onChoiceFocus"]
   onBlur?: PromptConfig["onChoiceFocus"]
@@ -164,7 +163,8 @@ interface WaitForPromptValueProps
 let invalid = Symbol("invalid")
 
 let createOnChoiceFocusDefault = (
-  debounceChoiceFocus: number
+  debounceChoiceFocus: number,
+  onUserChoiceFocus?: ChannelHandler
 ) =>
   _.debounce(
     async (input: string, state: AppState = {}) => {
@@ -176,15 +176,6 @@ let createOnChoiceFocusDefault = (
       let choice = (global.kitPrevChoices || []).find(
         (c: Choice) => c?.id === id
       )
-
-      let renderPreview = (html: string, cid: string) => {
-        let choice = (global.kitPrevChoices || []).find(
-          (c: Choice) => c?.id === cid
-        )
-
-        if (choice?.id === cid && id === cid) {
-        }
-      }
 
       if (
         choice &&
@@ -209,7 +200,14 @@ let createOnChoiceFocusDefault = (
         }
       }
 
+      if (typeof choice?.preview === "string") {
+        preview = choice?.preview
+      }
+
       setPreview(preview)
+
+      if (typeof onUserChoiceFocus === "function")
+        onUserChoiceFocus(input, state)
     },
     debounceChoiceFocus
   )
@@ -229,7 +227,6 @@ let waitForPromptValue = ({
   validate,
   className,
   onNoChoices,
-  onChoices,
   onInput,
   onEscape,
   onAbandon,
@@ -252,7 +249,6 @@ let waitForPromptValue = ({
       className,
       input: "",
       onNoChoices,
-      onChoices,
       state: {},
     })
 
@@ -300,10 +296,6 @@ let waitForPromptValue = ({
           switch (data.channel) {
             case Channel.INPUT:
               onInput(data.state.input, data.state)
-              break
-
-            case Channel.CHOICES:
-              onChoices(data.state.input, data.state)
               break
 
             case Channel.NO_CHOICES:
@@ -427,8 +419,6 @@ let waitForPromptValue = ({
 let onNoChoicesDefault = async (input: string) => {
   setPreview(``)
 }
-
-let onChoicesDefault = async () => {}
 
 let onEscapeDefault: ChannelHandler = async (
   input: string,
@@ -574,7 +564,6 @@ global.kitPrompt = async (config: PromptConfig) => {
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
-    onChoices = onChoicesDefault,
     onEscape = onEscapeDefault,
     onAbandon = onAbandonDefault,
     onBack = onBackDefault,
@@ -585,9 +574,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onRight = onRightDefault,
     onTab = onTabDefault,
     debounceChoiceFocus = 0,
-    onChoiceFocus = createOnChoiceFocusDefault(
-      debounceChoiceFocus
-    ),
+    onChoiceFocus,
     debounceInput = 200,
     onInput = createOnInputDefault(
       choices,
@@ -599,13 +586,17 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   await prepPrompt(config)
 
+  let choiceFocus = createOnChoiceFocusDefault(
+    debounceChoiceFocus,
+    onChoiceFocus
+  )
+
   return await waitForPromptValue({
     choices,
     validate,
     className,
     onInput,
     onNoChoices,
-    onChoices,
     onEscape,
     onAbandon,
     onBack,
@@ -615,7 +606,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onLeft,
     onRight,
     onTab,
-    onChoiceFocus,
+    onChoiceFocus: choiceFocus,
     onBlur,
     state: {},
   })
@@ -941,7 +932,11 @@ global.setBounds = (bounds: Partial<Rectangle>) => {
 }
 
 global.getClipboardHistory = async () =>
-  (await global.getDataFromApp(Channel.SHOW))?.history
+  (
+    await global.getDataFromApp(
+      Channel.GET_CLIPBOARD_HISTORY
+    )
+  )?.history
 
 global.removeClipboardItem = (id: string) => {
   global.send(Channel.REMOVE_CLIPBOARD_HISTORY_ITEM, id)
@@ -1014,9 +1009,11 @@ for (let method of loadingList) {
 
 global.Key = KeyEnum
 
-global.mainScript = async () => {
-  if (process.env.KIT_CONTEXT === "app")
+global.mainScript = async (input: string = "") => {
+  if (process.env.KIT_CONTEXT === "app") {
+    setInput(input)
     await run(mainScriptPath)
+  }
 }
 
 let getFileInfo = async (filePath: string) => {
@@ -1167,10 +1164,6 @@ let __pathSelector = async (
     }
   }
 
-  let onChoices = async () => {
-    setPanel(``)
-  }
-
   let onEscape = async () => {
     setInput(``)
     await mainScript()
@@ -1184,7 +1177,6 @@ let __pathSelector = async (
       onRight,
       onLeft,
       onNoChoices,
-      onChoices,
       onEscape,
     },
     []

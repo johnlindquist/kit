@@ -3,23 +3,25 @@
 
 import { CLI } from "../cli"
 
-let hint = ``
 while (true) {
   let script = await arg(
     {
-      placeholder: "Manage npm packages",
-      hint,
+      placeholder: "What would you like to do?",
     },
     [
-      { name: "Install", value: "install" },
-      { name: "Uninstall", value: "uninstall" },
-      { name: "More Info", value: "more-info" },
+      { name: "Install an npm package", value: "install" },
+      {
+        name: "Uninstall an npm package",
+        value: "uninstall",
+      },
+      {
+        name: "Get more info about an npm packaage",
+        value: "more-info",
+      },
     ]
   )
 
-  let { packages } = await cli(script as keyof CLI)
-  hint =
-    script === "more-info" ? "" : `${script}ed ${packages}`
+  await cli(script as keyof CLI)
 }
 
 export {}
