@@ -200,6 +200,10 @@ let createOnChoiceFocusDefault = (
         }
       }
 
+      if (typeof choice?.preview === "string") {
+        preview = choice?.preview
+      }
+
       setPreview(preview)
 
       if (typeof onUserChoiceFocus === "function")
@@ -1005,8 +1009,9 @@ for (let method of loadingList) {
 
 global.Key = KeyEnum
 
-global.mainScript = async () => {
+global.mainScript = async (input: string = "") => {
   if (process.env.KIT_CONTEXT === "app") {
+    setInput(input)
     await run(mainScriptPath)
   }
 }
