@@ -31,7 +31,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     value: "processes",
   },
   {
-    name: "View schedule",
+    name: "View Schedule",
     description: "View and edit upcoming jobs",
     value: "schedule",
   },

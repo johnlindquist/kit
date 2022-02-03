@@ -262,6 +262,18 @@ global.edit = async (f, dir, line = 0, col = 0) => {
         "utf8"
       )
 
+      content = content.replace(
+        /import {(.|\n)*?} from ".*?"/gim,
+        ""
+      )
+      content = content.replace(/export {(.|\n)*?}/gim, "")
+
+      //       content = `declare module '@johnlindquist/kit' {
+
+      // ${content}
+
+      // }`
+
       for (let typeDir of globalTypeDirs) {
         content += await readFile(
           path.resolve(

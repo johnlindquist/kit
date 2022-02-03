@@ -696,6 +696,7 @@ global.editor = async (options?: EditorOptions) => {
 
   return await global.kitPrompt({
     ui: UI.editor,
+    input: editorOptions.value,
     hint: editorOptions?.hint,
     ignoreBlur: true,
     onInput: editorOptions?.onInput,

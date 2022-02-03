@@ -2,11 +2,9 @@
 
 import { Channel } from "../core/enum.js"
 
-let processes = await getProcesses()
-
-let pid = await arg(
-  "Terminate Script Kit Process",
-  processes
+let formatProcesses = async () => {
+  let processes = await getProcesses()
+  return processes
     .filter(p => p?.scriptPath)
     .map(p => {
       return {
@@ -15,7 +13,19 @@ let pid = await arg(
         value: p.pid,
       }
     })
+}
+
+let argPromise = arg(
+  "Terminate Script Kit Process",
+  await formatProcesses()
 )
+
+let id = setInterval(async () => {
+  setChoices(await formatProcesses())
+}, 1000)
+
+let pid = await argPromise
+clearInterval(id)
 
 send(Channel.TERMINATE_PROCESS, pid)
 
