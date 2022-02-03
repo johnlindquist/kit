@@ -77,7 +77,7 @@ if (arg?.content) {
   contents = Buffer.from(
     arg.content,
     "base64url"
-  ).toString()  
+  ).toString()
   if (!arg?.keepMetadata) contents = stripMetadata(contents)
 }
 
@@ -89,7 +89,7 @@ await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)
 
-console.log(
+global.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
