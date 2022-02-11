@@ -15,8 +15,8 @@ global.applescript = async (
     let stdout = ``
     let stderr = ``
     let child = spawn(
-      `/usr/bin/osascript -e`,
-      script,
+      `/usr/bin/osascript`,
+      ["-e" , script]
       options
     )
 
