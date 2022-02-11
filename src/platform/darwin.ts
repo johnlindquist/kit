@@ -11,15 +11,12 @@ global.applescript = async (
   script,
   options = { silent: true }
 ) => {
-  let applescriptPath = tmpPath("latest.scpt")
-  await writeFile(applescriptPath, script)
-
   let p = new Promise<string>((res, rej) => {
     let stdout = ``
     let stderr = ``
     let child = spawn(
-      `/usr/bin/osascript`,
-      [applescriptPath],
+      `/usr/bin/osascript -e`,
+      script,
       options
     )
 
