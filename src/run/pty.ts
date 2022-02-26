@@ -1,8 +1,10 @@
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 
-let { default: pty } = await import("node-pty")
-let { default: express } = await import("express")
-let { default: expressWs } = await import("express-ws")
+let { default: pty } = (await import("node-pty")) as any
+let { default: express } = (await import("express")) as any
+let { default: expressWs } = (await import(
+  "express-ws"
+)) as any
 
 let argv = minimist(process.argv.slice(2))
 let command = argv?._?.[0]?.trim()
@@ -104,7 +106,7 @@ app.ws("/terminals/:pid", function (ws, req) {
   })
 })
 
-let { default: getPort } = await import("get-port")
+let { default: getPort } = (await import("get-port")) as any
 
 port = process.env.PORT || (await getPort({ port: 3131 }))
 
