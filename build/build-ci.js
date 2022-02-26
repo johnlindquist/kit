@@ -1,4 +1,5 @@
 import "@johnlindquist/globals"
+import { exit } from "process"
 import shelljs from "shelljs"
 
 let { cd, cp } = shelljs
@@ -22,21 +23,46 @@ let { stdout: npmVersion } = await exec(`npm --version`)
 console.log({ npmVersion })
 
 console.log(`Building ESM to ${kitPath()}`)
-let esm = await exec(`npx tsc --outDir ${kitPath()}`)
+try {
+  let esm = await exec(`npx tsc --outDir ${kitPath()}`)
+  console.log(esm)
+} catch (e) {
+  console.log(e)
+  exit(1)
+}
 
 console.log(`Building declarations to ${kitPath()}`)
-let dec = await exec(
-  `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
-)
+try {
+  let dec = await exec(
+    `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
+  )
+  console.log(dec)
+} catch (e) {
+  console.log(e)
+  exit(1)
+}
 
 console.log(`Building CJS to ${kitPath()}`)
-let cjs = await exec(
-  `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
-    "cjs"
-  )}"`
-)
+
+try {
+  let cjs = await exec(
+    `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
+      "cjs"
+    )}"`
+  )
+  console.log(cjs)
+} catch (e) {
+  console.log(e)
+  exit(1)
+}
 
 console.log(`Fixing cjs`)
-await exec(`node ./scripts/cjs-fix.js`)
+
+try {
+  await exec(`node ./scripts/cjs-fix.js`)
+} catch (e) {
+  console.log(e)
+  exit(1)
+}
 
 cd(kitPath())
