@@ -157,7 +157,9 @@ let widget: Widget = async (html, options = {}) => {
 
   let clickHandler: WidgetHandler = () => {}
   let inputHandler: WidgetHandler = () => {}
-  let closeHandler: WidgetHandler = () => {}
+  let closeHandler: WidgetHandler = () => {
+    process.exit()
+  }
   let resizedHandler: WidgetHandler = () => {}
   let movedHandler: WidgetHandler = () => {}
 
