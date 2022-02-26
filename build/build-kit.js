@@ -23,7 +23,7 @@ let installNodeWin = async () => {
 
   await new Promise(r => {
     download(
-      `https://nodejs.org/dist/v17.6.0/node-v17.6.0-win-x86.zip`
+      `https://nodejs.org/dist/v17.2.0/node-v17.2.0-win-x86.zip`
     )
       .pipe(Extract({ path: kitPath("node") }))
       .on("finish", r)
@@ -41,7 +41,7 @@ let installNodeWin = async () => {
 let installNode =
   platform() === "darwin"
     ? exec(
-        `./build/install-node.sh v17.6.0 --prefix '${kitPath(
+        `./build/install-node.sh v17.2.0 --prefix '${kitPath(
           "node"
         )}'`
       )
