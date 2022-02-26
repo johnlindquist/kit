@@ -1,6 +1,6 @@
 // Description: Git Pull Kenv Repo
 
-let { dirPath: kPath } = await selectKenv()
+let { dirPath: kPath } = await selectKenv(/^ignore$/)
 
 try {
   cd(kPath)

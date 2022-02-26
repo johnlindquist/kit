@@ -15,7 +15,6 @@ import {
   resolveScriptToCommand,
   run,
   getKenvs,
-  getLastSlashSeparated,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -665,7 +664,7 @@ export let selectKenv = async (
     let kenvChoices = [
       homeKenv,
       ...kenvs.map(p => {
-        let name = getLastSlashSeparated(p, 1)
+        let name = path.basename(p)
         return {
           name,
           description: p,
