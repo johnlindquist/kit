@@ -5,8 +5,6 @@ import { PackagesApi } from "./packages"
 import { PlatformApi } from "./platform"
 import { ProAPI } from "./pro"
 
-type GlobalOverride = Omit<GlobalsApi, "path">
-
 type GlobalApi = Omit<GlobalsApi, "path"> &
   KitApi &
   PackagesApi &

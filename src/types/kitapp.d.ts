@@ -36,6 +36,7 @@ export interface AppState {
   name?: string
   description?: string
   script?: Script
+  submitted?: boolean
 }
 
 export interface AppMessage {
@@ -217,11 +218,14 @@ export interface ChannelMap {
   [Channel.GET_SCREEN_INFO]: undefined
   [Channel.GET_SCRIPTS_STATE]: undefined
   [Channel.GET_CLIPBOARD_HISTORY]: undefined
-  [Channel.GET_WIDGET]: undefined
-  [Channel.UPDATE_WIDGET]: {
+  [Channel.WIDGET_GET]: undefined
+  [Channel.WIDGET_UPDATE]: {
     widgetId: number
     html: string
     options?: ShowOptions
+  }
+  [Channel.WIDGET_SET_STATE]: {
+    state: any
   }
   [Channel.WIDGET_CAPTURE_PAGE]: undefined
   [Channel.WIDGET_CLICK]: {
@@ -232,14 +236,14 @@ export interface ChannelMap {
     targetId: string
     windowId: number
   }
-  [Channel.END_WIDGET]: { widgetId: number }
-  [Channel.FIT_WIDGET]: { widgetId: number }
-  [Channel.SET_SIZE_WIDGET]: {
+  [Channel.WIDGET_END]: { widgetId: number }
+  [Channel.WIDGET_FIT]: { widgetId: number }
+  [Channel.WIDGET_SET_SIZE]: {
     widgetId: number
     width: number
     height: number
   }
-  [Channel.SET_POSITION_WIDGET]: {
+  [Channel.WIDGET_SET_POSITION]: {
     widgetId: number
     x: number
     y: number
@@ -262,7 +266,7 @@ export interface ChannelMap {
   [Channel.APP_CONFIG]: AppConfig
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
-  [Channel.SET_TRAY]: string
+  [Channel.SET_TRAY]: { label: string; scripts: string[] }
   [Channel.KIT_LOG]: string
   [Channel.KIT_WARN]: string
   [Channel.COPY_PATH_AS_PICTURE]: string
@@ -287,6 +291,7 @@ export interface ChannelMap {
   [Channel.SET_IGNORE_BLUR]: boolean
   [Channel.SET_INPUT]: string
   [Channel.SET_FILTER_INPUT]: string
+  [Channel.SET_FOCUSED]: string
   [Channel.SET_LOADING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGO]: string
@@ -319,6 +324,7 @@ export interface ChannelMap {
     image: string | { src: string }
   }
   [Channel.SWITCH_KENV]: string
+  [Channel.TERMINAL]: string
   [Channel.TOAST]: {
     text: string
     type: "info" | "error" | "success" | "warning"
@@ -362,6 +368,10 @@ export interface SetInput {
 
 export interface SetTextareaValue {
   (value: string): void
+}
+
+export interface SetFocused {
+  (id: string): void
 }
 
 export interface SetIgnoreBlur {
@@ -447,6 +457,7 @@ export interface AppApi {
   kitPrompt: (promptConfig: PromptConfig) => Promise<any>
   send: Send
 
+  setFocused: SetFocused
   setPlaceholder: SetPlaceholder
   setDiv: SetPanel
   setPanel: SetPanel
@@ -521,8 +532,6 @@ export interface Schedule extends Choice {
 }
 
 declare global {
-  var cwd: typeof process.cwd
-
   var textarea: TextArea
   var drop: Drop
   var div: Div
@@ -530,6 +539,7 @@ declare global {
   var hotkey: Hotkey
   var send: Send
 
+  var setFocused: SetFocused
   var setPlaceholder: SetPlaceholder
   var setPanel: SetPanel
   var setChoices: SetChoices

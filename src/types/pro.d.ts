@@ -1,11 +1,17 @@
-export interface WidgetAPI {
-  update: (html: string, options?: ShowOptions) => void
-  capturePage: () => Promise<string>
-  close: () => void
-  fit: () => void
-  setSize: (width: number, height: number) => void
-  setPosition: (x: number, y: number) => void
-}
+import {
+  BrowserWindowConstructorOptions,
+  Display,
+  Rectangle,
+} from "./electron"
+
+export type WidgetOptions =
+  BrowserWindowConstructorOptions & {
+    state?: any
+    draggable?: boolean
+    unpkg?: string[]
+    title?: string
+    ignoreMouse?: boolean
+  }
 
 export interface WidgetMessage {
   channel: Channel
@@ -13,12 +19,28 @@ export interface WidgetMessage {
   targetId: string
   widgetId: number
   value?: any
+  x: number
+  y: number
+  width?: number
+  height?: number
 }
 
-export type WidgetOptions = ShowOptions & {
-  onClose?: () => void
-  onInput?: (message: WidgetMessage) => void
-  onClick?: (message: WidgetMessage) => void
+export interface WidgetHandler {
+  (data: WidgetMessage): void
+}
+
+export interface WidgetAPI {
+  setState: (state: any) => void
+  capturePage: () => Promise<string>
+  close: () => void
+  fit: () => void
+  setSize: (width: number, height: number) => void
+  setPosition: (x: number, y: number) => void
+  onClick: (handler: WidgetHandler) => void
+  onInput: (handler: WidgetHandler) => void
+  onClose: (handler: WidgetHandler) => void
+  onResized: (handler: WidgetHandler) => void
+  onMoved: (handler: WidgetHandler) => void
 }
 
 export interface Widget {
@@ -29,21 +51,21 @@ export interface Widget {
 }
 
 export interface Menubar {
-  (text: string): Promise<void>
+  (text: string, scripts?: string[]): Promise<void>
 }
 
-export interface Beta {
-  widget: Widget
-  menubar: Menubar
-}
-
-export interface Pro {
-  beta: Beta
+export interface Terminal {
+  (command?: string): Promise<string>
 }
 
 export interface ProAPI {
-  beta: Beta
+  widget: Widget
+  menubar: Menubar
+  term: Terminal
 }
+
 declare global {
-  var pro: Pro
+  var widget: Widget
+  var menu: Menubar
+  var term: Terminal
 }

@@ -176,6 +176,7 @@ let script = await selectScript(
       ">": kitPath("cli", "command-handler.js"),
       "/": kitPath("cli", "path-handler.js") + ` /`,
       "~": kitPath("cli", "path-handler.js") + ` ${home()}`,
+      // "'": kitPath("cli", "path-handler.js") + ` ${home()}`,
     },
     onShortcutSubmit: {
       [`${cmd}+p`]: kitPath("cli", "processes.js"),

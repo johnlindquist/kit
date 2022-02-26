@@ -13,7 +13,7 @@ cp -a root/. $KIT
 cp -r build $KIT
 cp -r src/types $KIT
 
-./build/install-node.sh v17.0.1 --prefix $KIT/node
+./build/install-node.sh v17.6.0 --prefix $KIT/node
 cp *.md package*.json LICENSE $KIT
 
 echo "Building ESM kit to $KIT"

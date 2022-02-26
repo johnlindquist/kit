@@ -1,0 +1,10 @@
+{
+  "input": {
+    "files": ["./src/types/index.d.ts"],
+    "urls": [],
+    "stdin": true
+  },
+  "target": "esnext",
+  "outputAST": false,
+  "plugins": {}
+}

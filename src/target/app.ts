@@ -283,77 +283,6 @@ let waitForPromptValue = ({
       share()
     )
 
-    tab$
-      .pipe(takeUntil(valueSubmitted$))
-      .subscribe(data => {
-        onTabChanged(data.state.input, data.state)
-      })
-
-    message$
-      .pipe(takeUntil(valueSubmitted$), share())
-      .subscribe({
-        next: async data => {
-          switch (data.channel) {
-            case Channel.INPUT:
-              onInput(data.state.input, data.state)
-              break
-
-            case Channel.NO_CHOICES:
-              onNoChoices(data.state.input, data.state)
-              break
-
-            case Channel.ESCAPE:
-              onEscape(data.state.input, data.state)
-              break
-
-            case Channel.BACK:
-              onBack(data.state.input, data.state)
-              break
-
-            case Channel.FORWARD:
-              onForward(data.state.input, data.state)
-              break
-
-            case Channel.UP:
-              onUp(data.state.input, data.state)
-              break
-
-            case Channel.DOWN:
-              onDown(data.state.input, data.state)
-              break
-
-            case Channel.LEFT:
-              onLeft(data.state.input, data.state)
-              break
-
-            case Channel.RIGHT:
-              onRight(data.state.input, data.state)
-              break
-
-            case Channel.TAB:
-              onTab(data.state.input, data.state)
-              break
-
-            case Channel.CHOICE_FOCUSED:
-              onChoiceFocus(data.state.input, data.state)
-              break
-
-            case Channel.BLUR:
-              onBlur(data.state.input, data.state)
-              break
-
-            case Channel.ABANDON:
-              onAbandon(data.state.input, data.state)
-              break
-          }
-        },
-        complete: () => {
-          global.log(
-            `${process.pid}: ✂️  Remove all handlers`
-          )
-        },
-      })
-
     let value$ = valueSubmitted$.pipe(
       tap(data => {
         if (data.state?.flag) {
@@ -399,6 +328,74 @@ let waitForPromptValue = ({
       share()
     )
 
+    tab$.pipe(takeUntil(value$)).subscribe(data => {
+      onTabChanged(data.state.input, data.state)
+    })
+
+    message$.pipe(takeUntil(value$), share()).subscribe({
+      next: async data => {
+        // global.log({ channel: data.channel })
+        switch (data.channel) {
+          case Channel.INPUT:
+            onInput(data.state.input, data.state)
+            break
+
+          case Channel.NO_CHOICES:
+            onNoChoices(data.state.input, data.state)
+            break
+
+          case Channel.ESCAPE:
+            onEscape(data.state.input, data.state)
+            break
+
+          case Channel.BACK:
+            onBack(data.state.input, data.state)
+            break
+
+          case Channel.FORWARD:
+            onForward(data.state.input, data.state)
+            break
+
+          case Channel.UP:
+            onUp(data.state.input, data.state)
+            break
+
+          case Channel.DOWN:
+            onDown(data.state.input, data.state)
+            break
+
+          case Channel.LEFT:
+            onLeft(data.state.input, data.state)
+            break
+
+          case Channel.RIGHT:
+            onRight(data.state.input, data.state)
+            break
+
+          case Channel.TAB:
+            onTab(data.state.input, data.state)
+            break
+
+          case Channel.CHOICE_FOCUSED:
+            onChoiceFocus(data.state.input, data.state)
+            break
+
+          case Channel.BLUR:
+            onBlur(data.state.input, data.state)
+            break
+
+          case Channel.ABANDON:
+            onAbandon(data.state.input, data.state)
+            break
+        }
+      },
+      complete: () => {
+        global.log(
+          `${process.pid}: ✂️  Remove all handlers`
+        )
+      },
+    })
+
     value$.subscribe({
       next: value => {
         global.log(`${process.pid}: ✅  Value submitted`)
@@ -429,7 +426,8 @@ let onEscapeDefault: ChannelHandler = async (
 
   if (
     script.filePath !== mainScriptPath &&
-    previousScript?.filePath === mainScriptPath &&
+    (previousScript?.filePath === mainScriptPath ||
+      script.filePath.includes(".kit")) &&
     !state?.inputChanged
   ) {
     await mainScript()
@@ -440,7 +438,7 @@ let onEscapeDefault: ChannelHandler = async (
 
 let onAbandonDefault = () => {
   global.log(
-    `${process.pid}: Abandon caused exit. Provive a "onAbandon" handler to override.`
+    `${process.pid}: Abandon caused exit. Provide a "onAbandon" handler to override.`
   )
   process.exit()
 }
@@ -549,7 +547,7 @@ let createOnInputDefault = (
 
 let onBlurDefault = () => {
   global.log(
-    `${process.pid}: Blur caused exit. Provive a "onBlur" handler to override.`
+    `${process.pid}: Blur caused exit. Provide a "onBlur" handler to override.`
   )
   process.exit()
 }
@@ -665,10 +663,12 @@ global.editor = async (options?: EditorOptions) => {
     let fileTypes = {
       css: "css",
       js: "javascript",
+      jsx: "javascript",
       json: "json",
       md: "markdown",
       mjs: "javascript",
       ts: "typescript",
+      tsx: "typescript",
     }
 
     if (fileTypes[options?.language]) {
@@ -731,6 +731,15 @@ global.arg = async (
     (placeholderOrConfig as PromptConfig)?.hint || ""
 
   if (firstArg) {
+    global.log(
+      `🥡 ${
+        typeof placeholderOrConfig === "string"
+          ? placeholderOrConfig
+          : placeholderOrConfig.placeholder ||
+            "No placeholder"
+      }:`,
+      firstArg
+    )
     let validate = (placeholderOrConfig as PromptConfig)
       ?.validate
 
@@ -846,6 +855,7 @@ let appInstall = async packageName => {
   setIgnoreBlur(true)
 
   await global.cli("install", packageName)
+  console.clear()
 }
 
 let { createNpm } = await import("../api/npm.js")
@@ -1025,10 +1035,20 @@ let getFileInfo = async (filePath: string) => {
 }
 
 let __pathSelector = async (
-  currentDir: string = home(),
+  config:
+    | string
+    | { startPath?: string; hint?: string } = home(),
   { showHidden } = { showHidden: false }
 ) => {
-  if (!currentDir.endsWith(path.sep)) currentDir += path.sep
+  let startPath = ``
+  let hint = ``
+  if (typeof config === "string") startPath = config
+  if (typeof config === "object") {
+    startPath = config?.startPath || home()
+    hint = config?.hint || ``
+  }
+
+  if (!startPath.endsWith(path.sep)) startPath += path.sep
   let slashCount = -1
 
   let lsCurrentDir = async input => {
@@ -1043,17 +1063,17 @@ let __pathSelector = async (
       return true
     }
 
-    if (input.startsWith("~")) currentDir = home()
+    if (input.startsWith("~")) startPath = home()
 
     if (input.endsWith(path.sep)) {
-      currentDir = input
+      startPath = input
     } else {
-      currentDir = path.dirname(input)
+      startPath = path.dirname(input)
     }
-    let isCurrentDir = await isDir(currentDir)
+    let isCurrentDir = await isDir(startPath)
     if (isCurrentDir) {
       try {
-        let dirFiles = await readdir(currentDir, {
+        let dirFiles = await readdir(startPath, {
           withFileTypes: true,
         })
         setFilterInput(`[^\/]+$`)
@@ -1068,7 +1088,7 @@ let __pathSelector = async (
         let mapDirents = (dirents: Dirent[]): Choice[] => {
           return dirents.map(dirent => {
             let fullPath = path.resolve(
-              currentDir,
+              startPath,
               dirent.name
             )
             let type = dirent.isDirectory()
@@ -1079,6 +1099,7 @@ let __pathSelector = async (
               name: dirent.name,
               value: fullPath,
               description: type,
+              drag: fullPath,
               // preview: async () => {
               //   try {
               //     let fileInfo = await getFileInfo(fullPath)
@@ -1102,16 +1123,16 @@ let __pathSelector = async (
 
         setChoices(choices)
       } catch {
-        setPanel(md(`## Failed to read ${currentDir}`))
+        setPanel(md(`## Failed to read ${startPath}`))
       }
     } else {
-      setPanel(md(`## ${currentDir} is not a path`))
+      setPanel(md(`## ${startPath} is not a path`))
     }
   }
 
   let upDir = dir => {
     setInput(
-      currentDir.replace(
+      startPath.replace(
         new RegExp(`[^${path.sep}]+.$`, "gi"),
         ""
       )
@@ -1119,7 +1140,7 @@ let __pathSelector = async (
   }
 
   let downDir = dir => {
-    setInput(path.resolve(currentDir, dir) + path.sep)
+    setInput(path.resolve(startPath, dir) + path.sep)
   }
 
   let onInput = async (input, state) => {
@@ -1157,7 +1178,7 @@ let __pathSelector = async (
     if (isCurrentDir) return
     let hasExtension = path.extname(input) !== ""
     if (hasExtension) {
-      setPanel(md(`## Create <code>${input}</code> file`))
+      setPanel(md(`<code>${input}</code> not found`))
     } else {
       setPanel(
         md(`## Create <code>${input}</code> directory`)
@@ -1172,13 +1193,14 @@ let __pathSelector = async (
 
   let selectedPath = await arg(
     {
-      input: currentDir,
+      input: startPath,
       onInput,
       onTab,
       onRight,
       onLeft,
       onNoChoices,
       onEscape,
+      hint,
     },
     []
   )
@@ -1190,10 +1212,10 @@ let __pathSelector = async (
       await ensureDir(selectedPath)
     }
   } else {
-    let isSelectedPathFile = await isFile(selectedPath)
-    if (!isSelectedPathFile) {
-      await ensureFile(selectedPath)
-    }
+    // let isSelectedPathFile = await isFile(selectedPath)
+    // if (!isSelectedPathFile) {
+    //   await ensureFile(selectedPath)
+    // }
   }
 
   return selectedPath
@@ -1211,6 +1233,10 @@ global.getEditorHistory = async () => {
   return (
     await global.getDataFromApp(Channel.GET_EDITOR_HISTORY)
   )?.state?.editorHistory
+}
+
+global.setFocused = (id: string) => {
+  send(Channel.SET_FOCUSED, id)
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]

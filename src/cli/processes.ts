@@ -20,7 +20,7 @@ let argPromise = arg(
   await formatProcesses()
 )
 
-let id = setInterval(async () => {
+let id = setTimeout(async () => {
   setChoices(await formatProcesses())
 }, 1000)
 

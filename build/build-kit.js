@@ -23,7 +23,7 @@ let installNodeWin = async () => {
 
   await new Promise(r => {
     download(
-      `https://nodejs.org/dist/v17.2.0/node-v17.2.0-win-x86.zip`
+      `https://nodejs.org/dist/v17.6.0/node-v17.6.0-win-x86.zip`
     )
       .pipe(Extract({ path: kitPath("node") }))
       .on("finish", r)
@@ -41,7 +41,7 @@ let installNodeWin = async () => {
 let installNode =
   platform() === "darwin"
     ? exec(
-        `./build/install-node.sh v17.2.0 --prefix '${kitPath(
+        `./build/install-node.sh v17.6.0 --prefix '${kitPath(
           "node"
         )}'`
       )
@@ -71,13 +71,17 @@ let cjs = exec(
 )
 
 await Promise.all([installNode, esm, dec, cjs])
+console.log(`Fix cjs`)
 await exec(`node ./scripts/cjs-fix.js`)
 
 cd(kitPath())
 
+console.log(`Install deps`)
 await exec(`npm i --production`)
 
+console.log(`Downloading data`)
 await exec(`node ./run/terminal.js ./help/download-docs.js`)
 await exec(`node ./run/terminal.js ./hot/download-hot.js`)
 
+console.log(`Write .kitignore`)
 await writeFile(kitPath(".kitignore"), "*")

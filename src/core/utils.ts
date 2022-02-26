@@ -561,6 +561,7 @@ export let run = async (
   let resolvedScript = resolveToScriptPath(script)
   global.onTabs = []
   global.kitScript = resolvedScript
+  global.kitCommand = resolveScriptToCommand(resolvedScript)
 
   if (process.env.KIT_CONTEXT === "app") {
     let script = await parseScript(global.kitScript)
@@ -606,15 +607,25 @@ export let trashScriptBin = async (script: Script) => {
       )
 
   let binJS = await pathExists(binJSPath)
+  let commandBinPath = kenvPath(
+    kenv && `kenvs/${kenv}`,
+    "bin",
+    command
+  )
+  if (binJS) {
+    let binPath = jsh
+      ? kenvPath("node_modules", ".bin", command)
+      : commandBinPath
 
-  let binPath = jsh
-    ? kenvPath("node_modules", ".bin", command)
-    : kenvPath(kenv && `kenvs/${kenv}`, "bin", command)
+    await global.trash([
+      binPath,
+      ...(binJS ? [binJSPath] : []),
+    ])
+  }
 
-  await global.trash([
-    binPath,
-    ...(binJS ? [binJSPath] : []),
-  ])
+  if (await pathExists(commandBinPath)) {
+    await global.trash(commandBinPath)
+  }
 }
 
 export let trashScript = async (script: Script) => {
@@ -645,7 +656,7 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
   return result
     .filter(file => file.isFile())
     .map(file => file.name)
-    .filter(name => name.match(/\.(mj|t|j)s$/))
+    .filter(name => name.match(/\.(mj|t|j)(s|sx)$/))
     .map(file => path.join(scriptsPath, file))
 }
 
