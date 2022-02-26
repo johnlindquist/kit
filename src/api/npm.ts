@@ -26,6 +26,8 @@ let findMain = async (
     let { module, main, type } = packageJson
 
     if (module && type == "module") return kPath(module)
+    if (main && (await global.isFile(kPath(main))))
+      return kPath(main)
     if (main && main.endsWith(".js")) return kPath(main)
     if (main && !main.endsWith(".js")) {
       // Author forgot to add .js

@@ -1,5 +1,3 @@
-export {}
-
 import { ChildProcess } from "child_process"
 import { ProcessType, UI, Mode } from "../core/enum.js"
 
@@ -148,6 +146,7 @@ export interface PromptData {
   scripts: boolean
   onInputSubmit: { [key: string]: any }
   onShortcutSubmit: { [key: string]: any }
+  defaultChoiceId: string
 }
 
 export interface GenerateChoices {

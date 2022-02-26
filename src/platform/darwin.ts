@@ -47,8 +47,8 @@ global.terminal = async script => {
   let formattedScript = script.replace(/'|"/g, '\\"')
 
   let command = `tell application "Terminal"
-  do script "${formattedScript}"
   activate
+  do script "${formattedScript}"
   end tell
   `
 
@@ -59,6 +59,7 @@ global.iterm = async command => {
   command = `"${command.replace(/"/g, '\\"')}"`
   let script = `
     tell application "iTerm"
+        activate
         if application "iTerm" is running then
             try
                 tell the first window to create tab with default profile
@@ -70,7 +71,7 @@ global.iterm = async command => {
         delay 0.1
     
         tell the first window to tell current session to write text ${command}
-        activate
+        
     end tell
     `.trim()
   return await global.applescript(script)
@@ -199,14 +200,19 @@ If you need additional help, we're happy to answer questions:
 }
 
 let atom = async (file: string, dir: string) => {
-  let command = `atom "${file}"${dir ? ` "${dir}"` : ``}`
+  let command = `${global.env.KIT_EDITOR} '${file}' ${
+    dir ? ` '${dir}'` : ``
+  }`
   exec(command, execConfig())
 }
 
 let code = async (file, dir, line = 0, col = 0) => {
-  let codeArgs = ["--goto", `${file}:${line}:${col}`]
-  if (dir) codeArgs = [...codeArgs, "--folder-uri", dir]
-  let command = `code ${codeArgs.join(" ")}`
+  let codeArgs = ["--goto", `'${file}:${line}:${col}'`]
+  if (dir)
+    codeArgs = [...codeArgs, "--folder-uri", `'${dir}'`]
+  let command = `${global.env.KIT_EDITOR} ${codeArgs.join(
+    " "
+  )}`
 
   let config = execConfig()
 
@@ -224,6 +230,240 @@ let fullySupportedEditors = {
   atom,
 }
 
+let addNodeLibs = async (
+  extraLibs: { content: string; filePath: string }[]
+) => {
+  let nodeTypesDir = kitPath(
+    "node_modules",
+    "@types",
+    "node"
+  )
+  let nodeDirents = await readdir(nodeTypesDir, {
+    withFileTypes: true,
+  })
+
+  for await (let dirent of nodeDirents) {
+    if (dirent.isDirectory()) {
+      let { name } = dirent
+      let subDirent = await readdir(
+        path.resolve(nodeTypesDir, name),
+        {
+          withFileTypes: true,
+        }
+      )
+
+      for await (let sub of subDirent) {
+        if (sub.isFile() && sub.name.endsWith(".d.ts")) {
+          let filePath = path.resolve(
+            nodeTypesDir,
+            name,
+            sub.name
+          )
+          let content = await readFile(filePath, "utf8")
+          extraLibs.push({
+            content,
+            filePath: `file:///${name}/${sub.name}`,
+          })
+        }
+      }
+    } else {
+      let { name } = dirent
+      if (name.endsWith("d.ts")) {
+        let content = await readFile(
+          kitPath("node_modules", "@types", "node", name),
+          "utf8"
+        )
+        extraLibs.push({
+          content,
+          filePath: `file:///${name}`,
+        })
+      }
+    }
+  }
+}
+
+let addKitLibs = async (
+  extraLibs: { content: string; filePath: string }[]
+) => {
+  let utilsContent = await readFile(
+    kitPath("core", "utils.d.ts"),
+    "utf8"
+  )
+  extraLibs.push({
+    content: `declare module "@johnlindquist/kit" {
+      ${utilsContent}
+}`,
+    filePath: `file:///node_modules/@types/@johnlindquist/kit/index.d.ts`,
+  })
+
+  let kitTypesDir = kitPath("types")
+  let kitTypes = await readdir(kitTypesDir)
+
+  for await (let t of kitTypes) {
+    let content = await readFile(
+      kitPath("types", t),
+      "utf8"
+    )
+
+    extraLibs.push({
+      content,
+      filePath: `file:///${t}`,
+    })
+  }
+
+  let globalTypesDir = kitPath(
+    "node_modules",
+    "@johnlindquist",
+    "globals",
+    "types"
+  )
+
+  let globalTypeDirs = (
+    await readdir(globalTypesDir, { withFileTypes: true })
+  ).filter(dir => dir.isDirectory())
+
+  for await (let { name } of globalTypeDirs) {
+    let content = await readFile(
+      kitPath(
+        "node_modules",
+        "@johnlindquist",
+        "globals",
+        "types",
+        name,
+        "index.d.ts"
+      ),
+      "utf8"
+    )
+
+    // let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
+    let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
+
+    extraLibs.push({
+      content,
+      filePath,
+    })
+  }
+
+  let lodashCommonDir = kitPath(
+    "node_modules",
+    "@johnlindquist",
+    "globals",
+    "types",
+    "lodash",
+    "common"
+  )
+
+  let lodashCommon = await readdir(lodashCommonDir)
+
+  for await (let name of lodashCommon) {
+    let content = await readFile(
+      kitPath(
+        "node_modules",
+        "@johnlindquist",
+        "globals",
+        "types",
+        "lodash",
+        "common",
+        name
+      ),
+      "utf8"
+    )
+
+    // let filePath = `file:///node_modules/@johnlindquist/globals/${lib}/index.d.ts`
+    let filePath = `file:///node_modules/@johnlindquist/globals/lodash/common/${name}`
+
+    extraLibs.push({
+      content,
+      filePath,
+    })
+  }
+
+  // node_modules/@johnlindquist/globals/types/index.d.ts
+  let globalsIndexContent = await readFile(
+    kitPath(
+      "node_modules",
+      "@johnlindquist",
+      "globals",
+      "types",
+      "index.d.ts"
+    ),
+    "utf8"
+  )
+
+  //   globalsIndexContent = `declare module "@johnlindquist/globals" {
+  // ${globalsIndexContent}
+  //   }`
+
+  extraLibs.push({
+    content: globalsIndexContent,
+    filePath: `file:///node_modules/@johnlindquist/globals/index.d.ts`,
+  })
+
+  // let content = await readFile(
+  //   kitPath("types", "kit-editor.d.ts"),
+  //   "utf8"
+  // )
+  // extraLibs.push({
+  //   content,
+  //   filePath: `file:///kit.d.ts`,
+  // })
+
+  let shelljsContent = await readFile(
+    kitPath(
+      "node_modules",
+      "@types",
+      "shelljs",
+      "index.d.ts"
+    ),
+    "utf8"
+  )
+
+  extraLibs.push({
+    content: shelljsContent,
+    filePath: `file:///node_modules/@types/shelljs/index.d.ts`,
+  })
+
+  // let reactContent = await readFile(
+  //   kitPath(
+  //     "node_modules",
+  //     "@types",
+  //     "react",
+  //     "index.d.ts"
+  //   ),
+  //   "utf8"
+  // )
+
+  // extraLibs.push({
+  //   content: reactContent,
+  //   filePath: `react`,
+  // })
+
+  let nodeNotifierContent = await readFile(
+    kitPath(
+      "node_modules",
+      "@types",
+      "node-notifier",
+      "index.d.ts"
+    ),
+    "utf8"
+  )
+
+  extraLibs.push({
+    content: nodeNotifierContent,
+    filePath: `file:///node_modules/@types/node-notifier/index.d.ts`,
+  })
+
+  let clipboardyContent = await readFile(
+    kitPath("node_modules", "clipboardy", "index.d.ts"),
+    "utf8"
+  )
+
+  extraLibs.push({
+    content: clipboardyContent,
+    filePath: `file:///node_modules/@types/clipboardy/index.d.ts`,
+  })
+}
+
 global.edit = async (f, dir, line = 0, col = 0) => {
   let file = path.resolve(
     f?.startsWith("~") ? f.replace(/^~/, home()) : f
@@ -238,67 +478,18 @@ global.edit = async (f, dir, line = 0, col = 0) => {
     let contents = (await readFile(file, "utf8")) || ""
     let extraLibs = []
     if ((isInDir(kenvPath()), file)) {
-      let defs = await readdir(kitPath("types"))
-      let content = ``
-      for (let def of defs) {
-        content += await readFile(
-          kitPath("types", def),
-          "utf8"
-        )
-      }
-
-      let globalTypesDir = kitPath(
-        "node_modules",
-        "@johnlindquist",
-        "globals",
-        "types"
-      )
-      let globalTypeDirs = (
-        await readdir(globalTypesDir)
-      ).filter(dir => !dir.endsWith(".ts"))
-
-      content += await readFile(
-        path.resolve(globalTypesDir, "index.d.ts"),
-        "utf8"
-      )
-
-      content = content.replace(
-        /import {(.|\n)*?} from ".*?"/gim,
-        ""
-      )
-      content = content.replace(/export {(.|\n)*?}/gim, "")
-
-      //       content = `declare module '@johnlindquist/kit' {
-
-      // ${content}
-
-      // }`
-
-      for (let typeDir of globalTypeDirs) {
-        content += await readFile(
-          path.resolve(
-            globalTypesDir,
-            typeDir,
-            "index.d.ts"
-          ),
-          "utf8"
-        )
-      }
-
-      extraLibs.push({
-        content,
-        filePath: `file:///node_modules/@johnlindquist/kit/index.d.ts`,
-      })
+      await addNodeLibs(extraLibs)
+      await addKitLibs(extraLibs)
     }
 
     let openMain = false
     let onEscape = async (input, state) => {
       openMain =
         state?.history[0]?.filePath === mainScriptPath
-      submit(input || "")
+      if (input) submit(input)
     }
     let onAbandon = async (input, state) => {
-      submit(input || "")
+      if (input) submit(input)
     }
 
     contents = await editor({
@@ -308,6 +499,7 @@ global.edit = async (f, dir, line = 0, col = 0) => {
       onEscape,
       onAbandon,
     })
+
     await writeFile(file, contents)
     if (openMain) {
       await refreshScriptsDb()
@@ -318,7 +510,7 @@ global.edit = async (f, dir, line = 0, col = 0) => {
     hide()
 
     let execEditor = (file: string) => {
-      let editCommand = `"${KIT_EDITOR}" ${file}`
+      let editCommand = `"${KIT_EDITOR}" "${file}"`
 
       let config = execConfig()
       exec(editCommand, config)

@@ -100,6 +100,28 @@ export let copyTmpFile = async (
     await global.readFile(fromFile, "utf-8")
   )
 
+let determineOutFile = scriptPath => {
+  let tmpScriptName = global.path
+    .basename(scriptPath)
+    .replace(/\.(ts|jsx|tsx)$/, ".mjs")
+
+  let dirName = global.path.dirname(scriptPath)
+  let inScriptsDir = dirName.endsWith(
+    global.path.sep + "scripts"
+  )
+    ? ["..", ".scripts"]
+    : []
+
+  let outfile = global.path.join(
+    scriptPath,
+    "..",
+    ...inScriptsDir,
+    tmpScriptName
+  )
+
+  return outfile
+}
+
 export let buildTSScript = async (
   scriptPath,
   outPath = ""
@@ -124,27 +146,69 @@ export let buildTSScript = async (
     ),
   })
 }
+export let buildWidget = async (
+  scriptPath,
+  outPath = ""
+) => {
+  let outfile = outPath || determineOutFile(scriptPath)
 
-let determineOutFile = scriptPath => {
-  let tmpScriptName = global.path
-    .basename(scriptPath)
-    .replace(/\.ts$/, ".mjs")
+  // let { build } = await import("esbuild")
 
-  let dirName = global.path.dirname(scriptPath)
-  let inScriptsDir = dirName.endsWith(
-    global.path.sep + "scripts"
+  // await build({
+  //   jsx: "transform",
+  //   jsxFactory: "__renderToString",
+  //   entryPoints: [scriptPath],
+  //   outfile,
+  //   bundle: true,
+  //   platform: "node",
+  //   format: "esm",
+  //   external: [
+  //     ...(await global.readdir(kenvPath("node_modules"))),
+  //   ],
+  //   tsconfig: kitPath(
+  //     "templates",
+  //     "config",
+  //     "tsconfig.json"
+  //   ),
+  // })
+
+  let templateContent = await readFile(
+    kenvPath("templates", `widget.html`),
+    "utf8"
   )
-    ? ["..", ".scripts"]
-    : []
 
-  let outfile = global.path.join(
-    scriptPath,
-    "..",
-    ...inScriptsDir,
-    tmpScriptName
+  let REACT_PATH = kitPath(
+    "node_modules",
+    "react",
+    "index.js"
+  )
+  let REACT_DOM_PATH = kitPath(
+    "node_modules",
+    "react-dom",
+    "index.js"
   )
 
-  return outfile
+  let REACT_CONTENT = `
+  let { default: React } = await import(
+    kitPath("node_modules", "react", "umd", "react.development.js")
+  )
+  let { default: ReactDOM } = await import(
+    kitPath("node_modules", "react-dom", "umd", "react-dom.deveolpment.js")
+  )
+  
+  let __renderToString = (x, y, z)=> Server.renderToString(React.createElement(x, y, z))  
+  `
+
+  let templateCompiler = compile(templateContent)
+  let result = templateCompiler({
+    REACT_PATH,
+    REACT_DOM_PATH,
+    REACT_CONTENT,
+  })
+
+  let contents = await readFile(outfile, "utf8")
+
+  await writeFile(outfile, result)
 }
 
 global.attemptImport = async (scriptPath, ..._args) => {
@@ -152,7 +216,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
   try {
     global.updateArgs(_args)
 
-    if (scriptPath.endsWith(".ts")) {
+    if (scriptPath.match(/\.(ts|(t|j)sx)$/)) {
       try {
         let outfile = determineOutFile(scriptPath)
         if (process.env.KIT_CONTEXT !== "app") {
@@ -277,6 +341,7 @@ if (process?.send) {
       )
       .join(" ")
 
+    _consoleLog({ log })
     global.send(Channel.CONSOLE_LOG, log)
   }
 
@@ -612,10 +677,14 @@ export let selectKenv = async (
       }),
     ]
 
+    global.log({ args: global.args, ignorePattern })
+
     selectedKenv = await global.arg(
       `Select target kenv`,
       kenvChoices
     )
+
+    global.log({ selectedKenv })
 
     if (typeof selectedKenv === "string") {
       return kenvChoices.find(

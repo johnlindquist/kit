@@ -10,5 +10,5 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true
   },
-  "exclude": ["./root/**"]
+  "exclude": ["./root/**", "./build/**"]
 }
