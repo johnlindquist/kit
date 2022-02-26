@@ -37,6 +37,8 @@ let cjs = exec(
 )
 
 await Promise.all([esm, dec, cjs])
+
+console.log(`Fixing cjs`)
 await exec(`node ./scripts/cjs-fix.js`)
 
 cd(kitPath())
