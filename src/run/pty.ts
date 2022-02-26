@@ -1,6 +1,10 @@
+// TODO: Move to kitdeps
+
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 
-let { default: pty } = (await import("node-pty")) as any
+let nodePtyString = "node-pty"
+
+let { default: pty } = (await import(nodePtyString)) as any
 let { default: express } = (await import("express")) as any
 let { default: expressWs } = (await import(
   "express-ws"
@@ -106,7 +110,10 @@ app.ws("/terminals/:pid", function (ws, req) {
   })
 })
 
-let { default: getPort } = (await import("get-port")) as any
+let getPortString = "get-port"
+let { default: getPort } = (await import(
+  getPortString
+)) as any
 
 port = process.env.PORT || (await getPort({ port: 3131 }))
 
