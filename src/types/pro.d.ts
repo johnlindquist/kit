@@ -1,3 +1,4 @@
+import { ForkOptions } from "child_process"
 import {
   BrowserWindowConstructorOptions,
   Display,
@@ -11,6 +12,7 @@ export type WidgetOptions =
     unpkg?: string[]
     title?: string
     ignoreMouse?: boolean
+    ttl?: number
   }
 
 export interface WidgetMessage {
@@ -55,7 +57,7 @@ export interface Menubar {
 }
 
 export interface Terminal {
-  (command?: string): Promise<string>
+  (command?: string, options?: ForkOptions): Promise<string>
 }
 
 export interface ProAPI {

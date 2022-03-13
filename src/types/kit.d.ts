@@ -279,4 +279,7 @@ declare global {
   var selectScript: SelectScript
   var selectKenv: SelectKenv
   var highlight: Highlight
+
+  var terminal: (script: string) => Promise<string>
+  var iterm: (iterm: string) => Promise<string>
 }

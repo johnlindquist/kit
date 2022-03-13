@@ -13,32 +13,45 @@ let install = async packageNames => {
       ? `yarn${global.isWin ? `.cmd` : ``} add`
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
-  return await new Promise((res, rej) => {
-    console.log(tool, command, ...packageNames)
-    let PATH =
-      KIT_NODE_PATH + path.delimiter + process.env.PATH
-    let npm = spawn(
-      tool,
-      [command, "--quiet", ...packageNames],
-      {
-        stdio: "pipe",
-        cwd: kenvPath(),
-        env: {
-          PATH,
-        },
-      }
-    )
 
-    npm.on("error", error => {
-      console.log({ error })
-      rej(error)
-    })
+  let AND_OPERATOR = process?.env?.KIT_SHELL?.endsWith("nu")
+    ? ";"
+    : "&&"
 
-    npm.on("exit", exit => {
-      console.log(`Installed ${packageNames}`)
-      res(exit)
-    })
-  })
+  return await term(
+    `${tool} ${command} ${packageNames.join(
+      " "
+    )} ${AND_OPERATOR} echo '\n\ncmd+enter to continue script...'`,
+    {
+      cwd: kenvPath(),
+    }
+  )
+  // return await new Promise((res, rej) => {
+  //   console.log(tool, command, ...packageNames)
+  //   let PATH =
+  //     KIT_NODE_PATH + path.delimiter + process.env.PATH
+  //   let npm = spawn(
+  //     tool,
+  //     [command, "--quiet", ...packageNames],
+  //     {
+  //       stdio: "pipe",
+  //       cwd: kenvPath(),
+  //       env: {
+  //         PATH,
+  //       },
+  //     }
+  //   )
+
+  //   npm.on("error", error => {
+  //     console.log({ error })
+  //     rej(error)
+  //   })
+
+  //   npm.on("exit", exit => {
+  //     console.log(`Installed ${packageNames}`)
+  //     res(exit)
+  //   })
+  // })
 }
 
 let packages = await arg(

@@ -166,10 +166,7 @@ interface SetChoices {
     scripts?: boolean
   ): void
 }
-type SetChoicesOptions = {
-  choices: Choice[]
-  scripts?: boolean
-}
+
 type SetTextAreaOptions = {
   value?: string
   placeholder?: string
@@ -280,7 +277,7 @@ export interface ChannelMap {
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
   [Channel.SET_BOUNDS]: Partial<Rectangle>
-  [Channel.SET_CHOICES]: SetChoicesOptions
+  [Channel.SET_CHOICES]: Choice[]
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_DIV_HTML]: string

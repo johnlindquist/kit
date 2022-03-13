@@ -28,7 +28,7 @@ if (isPathHandlerJS) {
 
   let action = await arg<string>(
     {
-      placeholder: "Selction Path Action:",
+      placeholder: "Selected Path Action:",
       onEscape: async () => {
         await run(
           kitPath("cli", "path-handler.js"),
@@ -81,11 +81,11 @@ if (isPathHandlerJS) {
 
   switch (action) {
     case "open":
-      await exec(`open ${selectedPath}`)
+      await exec(`open '${selectedPath}'`)
       break
 
     case "finder":
-      await exec(`open ${path.dirname(selectedPath)}`)
+      await exec(`open '${path.dirname(selectedPath)}'`)
       await applescript(`select ${selectedPath}`)
       break
 
@@ -97,7 +97,7 @@ tell application "Finder" to open information window of aFile
       break
 
     case "terminal":
-      await exec(`open -a Terminal ${selectedPath}`)
+      await exec(`open -a Terminal '${selectedPath}'`)
       break
 
     case "command":
@@ -108,7 +108,7 @@ tell application "Finder" to open information window of aFile
 
     case "vscode":
       await exec(
-        `open -a "Visual Studio Code" ${selectedPath}`
+        `open -a 'Visual Studio Code' '${selectedPath}'`
       )
       break
 

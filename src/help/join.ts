@@ -2,7 +2,9 @@
 
 import { mainScriptPath } from "../core/utils.js"
 
-let email_address = await arg(
+setChoices([])
+
+let email = await arg(
   "Enter e-mail to join newsletter:",
   await highlight(`
 ## Script Kit Newletters include:
@@ -14,7 +16,7 @@ let email_address = await arg(
 )
 
 await post(`https://scriptkit.com/api/subscribe`, {
-  email_address,
+  email,
 })
 
 await div(

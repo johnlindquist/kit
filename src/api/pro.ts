@@ -74,27 +74,31 @@ let widget: Widget = async (html, options = {}) => {
     <script type="module">
     import { createApp } from '${petiteVuePath}?module'
   
-    function Widget() {
-      return {
-        $template: '#widget-template',
-        state:{},
-        setState(state) {
-          for (let [key, value] of Object.entries(state)) {
-            this[key] = value;
-          }  
-        },
-        mounted() {
-          ipcRenderer.on('WIDGET_SET_STATE', (event, state)=> {
-            this.setState(state);
-            onSetState(state);
-          })
+    ipcRenderer.on('WIDGET_INIT', (event, state)=> {
+      console.log({state})
+      function Widget() {
+        return {
+          $template: '#widget-template',
+          state,
+          ...state,
+          setState(state) {
+            for (let [key, value] of Object.entries(state)) {
+              this[key] = value;
+            }  
+          },
+          mounted() {
+            ipcRenderer.on('WIDGET_SET_STATE', (event, state)=> {
+              this.setState(state);
+              onSetState(state);
+            })
+          }
         }
       }
-    }
-  
-    createApp({
-      Widget
-    }).mount()
+    
+      createApp({
+        Widget
+      }).mount()
+    })
   </script>
   
   <template id="widget-template">
@@ -261,10 +265,6 @@ let widget: Widget = async (html, options = {}) => {
 
   process.on("message", messageHandler)
 
-  if (options?.state) {
-    api.setState(options.state)
-  }
-
   return api
 }
 
@@ -278,11 +278,21 @@ let menu = async (
   })
 }
 
-let term = async (command: string = "") => {
+let term = async (command: string = "", options = {}) => {
   let child
   let p = await new Promise<string>((res, rej) => {
     let out = ``
-    child = fork(kitPath("run", "pty.js"), [command])
+    let end = () => {
+      child?.removeAllListeners()
+      child?.kill()
+
+      res(stripAnsi(out).trim().replace(/%$/, ""))
+    }
+    child = fork(kitPath("run", "pty.js"), [command], {
+      cwd: process.cwd(),
+      env: process.env,
+      ...options,
+    })
 
     type PtyMessage = {
       socketURL: string
@@ -290,7 +300,7 @@ let term = async (command: string = "") => {
       data: string
     }
 
-    child.on("message", async (data: PtyMessage) => {
+    child.once("message", async (data: PtyMessage) => {
       let maybe = data.data
       if (maybe && !maybe.match(/^\s/)) out += maybe
       if (stripAnsi(maybe).endsWith(`\u0007`)) out = ``
@@ -303,20 +313,18 @@ let term = async (command: string = "") => {
       })
 
       send(Channel.TERMINAL, ``)
-      child?.kill()
-
-      res(stripAnsi(out).trim().replace(/%$/, ""))
+      end()
     })
 
     child.on("error", err => {
       rej(err)
     })
 
-    child.on("exit", code => {
-      res(stripAnsi(out).trim().replace(/%$/, ""))
-    })
+    child.on("exit", end)
+    child.on("close", end)
   })
 
+  child?.removeAllListeners()
   child?.kill()
 
   return p

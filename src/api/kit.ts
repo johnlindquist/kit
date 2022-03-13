@@ -482,11 +482,7 @@ global.onTab = (name, fn) => {
 }
 
 global.kitPrevChoices = []
-global.setChoices = async (
-  choices,
-  className = "",
-  scripts = false
-) => {
+global.setChoices = async (choices, className = "") => {
   if (typeof choices === "object") {
     if (choices !== null) {
       choices = (choices as Choice<any>[]).map(choice => {
@@ -523,10 +519,7 @@ global.setChoices = async (
     }
   }
 
-  global.send(Channel.SET_CHOICES, {
-    choices,
-    scripts,
-  })
+  global.send(Channel.SET_CHOICES, choices)
   global.kitPrevChoices = choices
 
   global.setLoading(false)
@@ -624,8 +617,8 @@ export let selectScript = async (
           scripts: true,
         }
       : {
-          scripts: true,
           ...message,
+          scripts: true,
         }
 
   let script: Script | string = await global.arg(

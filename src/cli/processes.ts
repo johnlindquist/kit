@@ -15,14 +15,24 @@ let formatProcesses = async () => {
     })
 }
 
-let argPromise = arg(
-  "Terminate Script Kit Process",
-  await formatProcesses()
-)
-
 let id = setTimeout(async () => {
   setChoices(await formatProcesses())
 }, 1000)
+
+let argPromise = arg(
+  {
+    placeholder: "Terminate Script Kit Process",
+    onEscape: async () => {
+      clearTimeout(id)
+      await mainScript()
+    },
+    onAbandon: async () => {
+      clearTimeout(id)
+      await mainScript()
+    },
+  },
+  await formatProcesses()
+)
 
 let pid = await argPromise
 clearInterval(id)

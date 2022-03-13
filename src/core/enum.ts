@@ -138,6 +138,7 @@ export enum Channel {
   WIDGET_SET_POSITION = "WIDGET_SET_POSITION",
   WIDGET_SET_SIZE = "WIDGET_SET_SIZE",
   WIDGET_FIT = "WIDGET_FIT",
+  WIDGET_INIT = "WIDGET_INIT",
 }
 
 export enum ProcessType {

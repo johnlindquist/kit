@@ -763,12 +763,12 @@ global.arg = async (
       ui: UI.arg,
       hint,
       placeholder: placeholderOrConfig,
-      choices: choices,
+      choices,
     })
   }
 
   return await global.kitPrompt({
-    choices: choices,
+    choices,
     ...placeholderOrConfig,
     hint,
   })
@@ -1048,7 +1048,11 @@ let __pathSelector = async (
     hint = config?.hint || ``
   }
 
-  if (!startPath.endsWith(path.sep)) startPath += path.sep
+  if (
+    !startPath.endsWith(path.sep) &&
+    (await isDir(startPath))
+  )
+    startPath += path.sep
   let slashCount = -1
 
   let lsCurrentDir = async input => {

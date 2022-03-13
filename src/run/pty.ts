@@ -1,6 +1,7 @@
 // TODO: Move to kitdeps
 
 import { minimist } from "@johnlindquist/kit-internal/minimist"
+import { randomUUID } from "crypto"
 
 let nodePtyString = "node-pty"
 
@@ -25,7 +26,7 @@ let t = pty.spawn(
     (process.platform === "win32" ? "cmd.exe" : "zsh"),
   [],
   {
-    name: "xterm-256color",
+    name: "xterm-256color-" + randomUUID(),
     cols: 80,
     rows: 24,
     cwd: process.cwd(),
@@ -34,11 +35,14 @@ let t = pty.spawn(
   }
 )
 
-if (command) t.write(command + "\n")
-
 app.ws("/terminals/:pid", function (ws, req) {
   console.log("Connected to terminal " + t.pid)
 
+  if (command) {
+    setTimeout(() => {
+      t.write(command + "\n")
+    }, 250)
+  }
   // string message buffering
   function buffer(socket, timeout) {
     let s = ""
