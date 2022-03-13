@@ -1,5 +1,3 @@
-import { KIT_NODE_PATH } from "../core/utils.js"
-
 import {
   formatDistanceToNow,
   parseISO,
@@ -18,10 +16,15 @@ let install = async packageNames => {
     ? ";"
     : "&&"
 
+  let continueString =
+    process.env.KIT_CONTEXT === "app"
+      ? ` ${AND_OPERATOR} echo '\n\ncmd+enter to continue script...'`
+      : ""
+
   return await term(
     `${tool} ${command} ${packageNames.join(
       " "
-    )} ${AND_OPERATOR} echo '\n\ncmd+enter to continue script...'`,
+    )}${continueString}`,
     {
       cwd: kenvPath(),
     }
