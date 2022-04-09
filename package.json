@@ -26,6 +26,7 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "build-kit": "node ./build/build-kit.js",
+    "rebuild-kit": "node ./build/rebuild-kit.js",
     "dev": "tsc --watch --outDir ~/.kit",
     "declaration": "tsc -p ./tsconfig-declaration.json --watch",
     "pretest:core": "node ./scripts/test-pre.js",

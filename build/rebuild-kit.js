@@ -38,14 +38,15 @@ let installNodeWin = async () => {
   )
 }
 
-let installNode =
-  platform() === "darwin"
-    ? exec(
-        `./build/install-node.sh v17.2.0 --prefix '${kitPath(
-          "node"
-        )}'`
-      )
-    : installNodeWin()
+let installNode = existsSync(kitPath("node", "bin"))
+  ? () => {}
+  : platform() === "darwin"
+  ? exec(
+      `./build/install-node.sh v17.2.0 --prefix '${kitPath(
+        "node"
+      )}'`
+    )
+  : installNodeWin()
 
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())

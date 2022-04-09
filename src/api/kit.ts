@@ -340,7 +340,7 @@ if (process?.send) {
       )
       .join(" ")
 
-    _consoleLog({ log })
+    _consoleLog(log)
     global.send(Channel.CONSOLE_LOG, log)
   }
 
