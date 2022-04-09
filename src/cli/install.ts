@@ -4,7 +4,6 @@ import {
 } from "@johnlindquist/kit-internal/date-fns"
 
 let install = async packageNames => {
-  let os = await import("os")
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
     isYarn
@@ -12,20 +11,13 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
-  let AND_OPERATOR = process?.env?.KIT_SHELL?.endsWith("nu")
-    ? ";"
-    : "&&"
-
-  // BUG: Find why the terminal has the KIT_CONTEXT set...
-  let continueString =
-    process.env.KIT_CONTEXT === "app"
-      ? ` ${AND_OPERATOR} echo 'cmd+enter to continue script...'`
-      : ""
-
   return await term(
-    `${tool} ${command} ${packageNames.join(
-      " "
-    )}${continueString}`,
+    {
+      command: `${tool} ${command} ${packageNames.join(
+        " "
+      )}`,
+      footer: `cmd+enter to continue script`,
+    },
     {
       cwd: kenvPath(),
     }
