@@ -16,9 +16,10 @@ let install = async packageNames => {
     ? ";"
     : "&&"
 
+  // BUG: Find why the terminal has the KIT_CONTEXT set...
   let continueString =
     process.env.KIT_CONTEXT === "app"
-      ? ` ${AND_OPERATOR} echo '\n\ncmd+enter to continue script...'`
+      ? ` ${AND_OPERATOR} echo 'cmd+enter to continue script...'`
       : ""
 
   return await term(

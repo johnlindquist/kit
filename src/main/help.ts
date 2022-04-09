@@ -1,5 +1,7 @@
+// Description: Help
+
 import { Choice } from "../types/core"
-import { kitDocsPath, run } from "../core/utils.js"
+import { run } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
 setFlags({

@@ -60,6 +60,7 @@ export interface EditorProps {
 export type EditorOptions =
   editor.IStandaloneEditorConstructionOptions & {
     file?: string
+    footer?: string
     scrollTo?: "top" | "center" | "bottom"
     hint?: string
     onInput?: PromptConfig["onInput"]
@@ -75,6 +76,7 @@ export type EditorConfig = string | EditorOptions
 export type TextareaConfig = {
   placeholder?: string
   value?: string
+  footer?: string
 }
 
 export type EditorRef = editor.IStandaloneCodeEditor
@@ -289,6 +291,7 @@ export interface ChannelMap {
   [Channel.SET_INPUT]: string
   [Channel.SET_FILTER_INPUT]: string
   [Channel.SET_FOCUSED]: string
+  [Channel.SET_FOOTER]: string
   [Channel.SET_LOADING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGO]: string
@@ -386,6 +389,11 @@ export interface SetPlaceholder {
 export interface SetPanel {
   (html: string, containerClasses?: string): void
 }
+
+export interface SetFooter {
+  (footer: string): void
+}
+
 export interface SetPrompt {
   (config: Partial<PromptData>): void
 }
@@ -435,6 +443,7 @@ export interface ShowAppWindow {
 }
 
 interface ClipboardItem {
+  id: string
   name: string
   description: string
   value: string
@@ -458,6 +467,7 @@ export interface AppApi {
   setPlaceholder: SetPlaceholder
   setDiv: SetPanel
   setPanel: SetPanel
+  setFooter: SetFooter
   setPreview: SetPreview
   setPrompt: SetPrompt
   setBounds: SetBounds
@@ -539,6 +549,7 @@ declare global {
   var setFocused: SetFocused
   var setPlaceholder: SetPlaceholder
   var setPanel: SetPanel
+  var setFooter: SetFooter
   var setChoices: SetChoices
   var setMode: SetMode
   var setDiv: SetPanel

@@ -485,6 +485,7 @@ let prepPrompt = async (config: PromptConfig) => {
   let {
     choices,
     placeholder,
+    footer,
     preview,
     panel,
     onInputSubmit = {},
@@ -498,6 +499,7 @@ let prepPrompt = async (config: PromptConfig) => {
       : Mode.FILTER
 
   global.setPrompt({
+    footer: footer || "",
     strict: Boolean(choices),
     hasPreview: Boolean(preview),
     ...restConfig,
@@ -508,7 +510,6 @@ let prepPrompt = async (config: PromptConfig) => {
     ),
     mode,
     placeholder: stripAnsi(placeholder || ""),
-
     panel:
       panel && typeof panel === "function"
         ? await panel()
@@ -613,7 +614,11 @@ global.kitPrompt = async (config: PromptConfig) => {
 global.drop = async (
   placeholder = "Waiting for drop..."
 ) => {
-  let config: { placeholder?: string; hint?: string } =
+  let config: {
+    placeholder?: string
+    hint?: string
+    footer?: string
+  } =
     typeof placeholder === "string"
       ? { placeholder }
       : placeholder
@@ -626,14 +631,18 @@ global.drop = async (
 }
 
 global.form = async (html = "", formData = {}) => {
-  let config: { html: string; hint?: string } =
-    typeof html === "string" ? { html } : html
+  let config: {
+    html: string
+    hint?: string
+    footer?: string
+  } = typeof html === "string" ? { html } : html
 
   send(Channel.SET_FORM_HTML, {
     html: config.html,
     formData,
   })
   return await global.kitPrompt({
+    footer: config?.footer || "",
     hint: config.hint,
     ui: UI.form,
   })
@@ -646,12 +655,16 @@ let maybeWrapHtml = (html, containerClasses) => {
 }
 
 global.div = async (html = "", containerClasses = "") => {
-  let config: { html?: string; hint?: string } =
-    typeof html === "string" ? { html } : html
+  let config: {
+    html?: string
+    hint?: string
+    footer?: string
+  } = typeof html === "string" ? { html } : html
 
   if (config.html.trim() === "")
     html = md("⚠️ html string was empty")
   return await global.kitPrompt({
+    footer: config?.footer || "",
     hint: config?.hint,
     choices: maybeWrapHtml(html, containerClasses),
     ui: UI.div,
@@ -703,6 +716,7 @@ global.editor = async (options?: EditorOptions) => {
     onEscape: editorOptions?.onEscape,
     onAbandon: editorOptions?.onAbandon,
     onBlur: editorOptions?.onBlur,
+    footer: editorOptions?.footer || "",
   })
 }
 
@@ -778,6 +792,7 @@ global.textarea = async (
   options = {
     value: "",
     placeholder: `${cmd} + s to submit\n${cmd} + w to close`,
+    footer: "",
   }
 ) => {
   let textAreaOptions =
@@ -861,9 +876,13 @@ let appInstall = async packageName => {
 let { createNpm } = await import("../api/npm.js")
 global.npm = createNpm(appInstall)
 
-global.setPanel = async (h, containerClasses = "") => {
+global.setPanel = (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PANEL, html)
+}
+
+global.setFooter = (footer: string) => {
+  global.send(Channel.SET_FOOTER, footer)
 }
 
 global.setDiv = async (h, containerClasses = "") => {
@@ -953,6 +972,10 @@ global.removeClipboardItem = (id: string) => {
   global.send(Channel.REMOVE_CLIPBOARD_HISTORY_ITEM, id)
 }
 
+global.clearClipboardHistory = () => {
+  global.send(Channel.CLEAR_CLIPBOARD_HISTORY)
+}
+
 global.__emitter__ = new EventEmitter()
 
 global.submit = (value: any) => {
@@ -1034,6 +1057,54 @@ let getFileInfo = async (filePath: string) => {
   `)
 }
 
+let createPathChoices = async (
+  startPath: string,
+  dirFilter = (dirent: Dirent) => true
+) => {
+  let dirFiles = await readdir(startPath, {
+    withFileTypes: true,
+  })
+  let dirents = dirFiles.filter(dirFilter)
+
+  let folders = dirents.filter(dirent =>
+    dirent.isDirectory()
+  )
+  let files = dirents.filter(
+    dirent => !dirent.isDirectory()
+  )
+
+  let mapDirents = (dirents: Dirent[]): Choice[] => {
+    return dirents.map(dirent => {
+      let fullPath = path.resolve(startPath, dirent.name)
+      let type = dirent.isDirectory() ? "folder" : "file"
+      return {
+        img: kitPath("icons", type + ".svg"),
+        name: dirent.name,
+        value: fullPath,
+        description: type,
+        drag: fullPath,
+        // preview: async () => {
+        //   try {
+        //     let fileInfo = await getFileInfo(fullPath)
+        //     let formattedInfo = fileInfo
+        //       .split(", ")
+        //       .map(line => {
+        //         return `* ${line}`
+        //       })
+        //       .join("\n")
+
+        //     return md(formattedInfo)
+        //   } catch (error) {
+        //     return md(error)
+        //   }
+        // },
+      }
+    })
+  }
+
+  return mapDirents(folders.concat(files))
+}
+
 let __pathSelector = async (
   config:
     | string
@@ -1077,54 +1148,11 @@ let __pathSelector = async (
     let isCurrentDir = await isDir(startPath)
     if (isCurrentDir) {
       try {
-        let dirFiles = await readdir(startPath, {
-          withFileTypes: true,
-        })
         setFilterInput(`[^\/]+$`)
-        let dirents = dirFiles.filter(dirFilter)
-        let folders = dirents.filter(dirent =>
-          dirent.isDirectory()
+        let choices = await createPathChoices(
+          startPath,
+          dirFilter
         )
-        let files = dirents.filter(
-          dirent => !dirent.isDirectory()
-        )
-
-        let mapDirents = (dirents: Dirent[]): Choice[] => {
-          return dirents.map(dirent => {
-            let fullPath = path.resolve(
-              startPath,
-              dirent.name
-            )
-            let type = dirent.isDirectory()
-              ? "folder"
-              : "file"
-            return {
-              img: kitPath("icons", type + ".svg"),
-              name: dirent.name,
-              value: fullPath,
-              description: type,
-              drag: fullPath,
-              // preview: async () => {
-              //   try {
-              //     let fileInfo = await getFileInfo(fullPath)
-              //     let formattedInfo = fileInfo
-              //       .split(", ")
-              //       .map(line => {
-              //         return `* ${line}`
-              //       })
-              //       .join("\n")
-
-              //     return md(formattedInfo)
-              //   } catch (error) {
-              //     return md(error)
-              //   }
-              // },
-            }
-          })
-        }
-
-        let choices = mapDirents(folders.concat(files))
-
         setChoices(choices)
       } catch {
         setPanel(md(`## Failed to read ${startPath}`))
@@ -1150,6 +1178,15 @@ let __pathSelector = async (
   let onInput = async (input, state) => {
     if (input.startsWith("~")) {
       setInput(home() + path.sep)
+      return
+    }
+
+    if (input.includes(path.sep + ".")) {
+      let choices = await createPathChoices(
+        startPath,
+        () => true
+      )
+      setChoices(choices)
       return
     }
     let currentSlashCount = input.split(path.sep).length

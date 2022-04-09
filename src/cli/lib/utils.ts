@@ -1,5 +1,4 @@
 import { Bin } from "../../core/enum"
-import { kitDocsPath } from "../../core/utils.js"
 import { Choice, Script } from "../../types/core"
 
 export let jsh = process.env?.SHELL?.includes("jsh")
@@ -171,7 +170,7 @@ export let addPreview = async (
   return [...enhancedChoices, ...docOnlyChoices]
 }
 
-export const prependImport = contents => {
+export let prependImport = contents => {
   let foundImport = contents.match(
     /import.*('|")@johnlindquist\/kit('|")/
   )
@@ -183,4 +182,28 @@ ${contents}`
   }
 
   return contents
+}
+
+export let runUserHandlerIfExists = async (
+  mainScript: string,
+  ...args: string[]
+) => {
+  let handlerPathJS = kenvPath(
+    "scripts",
+    `${global.kitCommand}.js`
+  )
+  let handlerPathTS = kenvPath(
+    "scripts",
+    `${global.kitCommand}.ts`
+  )
+
+  let isHandlerJS = await isFile(handlerPathJS)
+  let isHandlerTS = await isFile(handlerPathTS)
+  if (isHandlerJS) {
+    await run(handlerPathJS)
+  } else if (isHandlerTS) {
+    await run(handlerPathTS)
+  } else {
+    await run(kitPath("main", mainScript + ".js"), ...args)
+  }
 }

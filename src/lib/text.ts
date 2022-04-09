@@ -33,7 +33,7 @@ global.setSelectedText = async text => {
     String.raw`tell application "System Events" to keystroke "v" using command down`
   )
 
-  await applescript(String.raw`set the clipboard to ""`)
+  // await applescript(String.raw`set the clipboard to ""`)
 }
 
 export {}

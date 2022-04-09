@@ -45,7 +45,10 @@ export interface Inspect {
 }
 
 export interface OnTab {
-  (name: string, fn: () => void): void
+  (
+    name: string,
+    fn: (input?: string) => void | Promise<void>
+  ): void
 }
 
 export interface OnExit {

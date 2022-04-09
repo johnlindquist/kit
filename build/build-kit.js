@@ -38,14 +38,15 @@ let installNodeWin = async () => {
   )
 }
 
-let installNode =
-  platform() === "darwin"
-    ? exec(
-        `./build/install-node.sh v17.2.0 --prefix '${kitPath(
-          "node"
-        )}'`
-      )
-    : installNodeWin()
+let installNode = existsSync(kitPath("node", "bin"))
+  ? () => {}
+  : platform() === "darwin"
+  ? exec(
+      `./build/install-node.sh v17.2.0 --prefix '${kitPath(
+        "node"
+      )}'`
+    )
+  : installNodeWin()
 
 cp("-R", "./root/*", kitPath())
 cp("-R", "./build", kitPath())
@@ -81,7 +82,7 @@ console.log(`Install deps`)
 await exec(`${npm} i --production`)
 
 console.log(`Install app deps`)
-await exec(`${npm} i @johnlindquist/kitdeps@0.0.1`)
+await exec(`${npm} i @johnlindquist/kitdeps@0.1.0`)
 
 console.log(`Downloading data`)
 await exec(`node ./run/terminal.js ./help/download-docs.js`)

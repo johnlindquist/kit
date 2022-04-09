@@ -1,4 +1,5 @@
 import { ForkOptions } from "child_process"
+import { PromptConfig } from "./core"
 import {
   BrowserWindowConstructorOptions,
   Display,
@@ -56,8 +57,19 @@ export interface Menubar {
   (text: string, scripts?: string[]): Promise<void>
 }
 
+export interface TerminalOptions extends PromptConfig {
+  command?: string
+}
+
 export interface Terminal {
-  (command?: string, options?: ForkOptions): Promise<string>
+  (
+    command?: string,
+    forkOptions?: ForkOptions
+  ): Promise<string>
+  (
+    options?: TerminalOptions,
+    forkOptions?: ForkOptions
+  ): Promise<string>
 }
 
 export interface ProAPI {

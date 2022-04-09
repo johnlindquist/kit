@@ -26,7 +26,7 @@ let t = pty.spawn(
     (process.platform === "win32" ? "cmd.exe" : "zsh"),
   [],
   {
-    name: "xterm-256color-" + randomUUID(),
+    name: "xterm-256color",
     cols: 80,
     rows: 24,
     cwd: process.cwd(),

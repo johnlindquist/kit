@@ -167,16 +167,50 @@ Create a new script named <code>"${scriptName}"</code>`)
   }
 }
 
+/*
+> terminal
+~ browse home
+/ browse root
+' snippets
+" word api
+: emoji search
+; app launcher
+, "sticky note"
+. file search
+` google search
+< clipboard history
+0-9 calculator
+? docs
+*/
+
 let script = await selectScript(
   {
     placeholder: "Run Script",
     strict: false,
     onNoChoices,
     onInputSubmit: {
-      ">": kitPath("cli", "command-handler.js"),
-      "/": kitPath("cli", "path-handler.js") + ` /`,
-      "~": kitPath("cli", "path-handler.js") + ` ${home()}`,
-      // "'": kitPath("cli", "path-handler.js") + ` ${home()}`,
+      ">": kitPath("handler", "greaterthan-handler.js"),
+      "/": kitPath("handler", "slash-handler.js"),
+      "~": kitPath("handler", "tilde-handler.js"),
+      "'": kitPath("handler", "quote-handler.js"),
+      '"': kitPath("handler", "doublequote-handler.js"),
+      ";": kitPath("handler", "semicolon-handler.js"),
+      ":": kitPath("handler", "colon-handler.js"),
+      ".": kitPath("handler", "period-handler.js"),
+      ",": kitPath("handler", "comma-handler.js"),
+      "`": kitPath("handler", "backtick-handler.js"),
+      "<": kitPath("handler", "lessthan-handler.js"),
+      "1": kitPath("handler", "number-handler.js") + ` 1`,
+      "2": kitPath("handler", "number-handler.js") + ` 2`,
+      "3": kitPath("handler", "number-handler.js") + ` 3`,
+      "4": kitPath("handler", "number-handler.js") + ` 4`,
+      "5": kitPath("handler", "number-handler.js") + ` 5`,
+      "6": kitPath("handler", "number-handler.js") + ` 6`,
+      "7": kitPath("handler", "number-handler.js") + ` 7`,
+      "8": kitPath("handler", "number-handler.js") + ` 8`,
+      "9": kitPath("handler", "number-handler.js") + ` 9`,
+      "0": kitPath("handler", "number-handler.js") + ` 0`,
+      "?": kitPath("handler", "question-handler.js"),
     },
     onShortcutSubmit: {
       [`${cmd}+p`]: kitPath("cli", "processes.js"),

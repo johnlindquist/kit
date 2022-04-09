@@ -147,6 +147,7 @@ export interface PromptData {
   onInputSubmit: { [key: string]: any }
   onShortcutSubmit: { [key: string]: any }
   defaultChoiceId: string
+  footer: string
 }
 
 export interface GenerateChoices {

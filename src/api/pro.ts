@@ -2,6 +2,7 @@ import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 import { Channel, UI } from "../core/enum.js"
 import {
+  TerminalOptions as TerminalConfig,
   Widget,
   WidgetAPI,
   WidgetMessage,
@@ -278,7 +279,20 @@ let menu = async (
   })
 }
 
-let term = async (command: string = "", options = {}) => {
+let term = async (
+  commandOrConfig: string | TerminalConfig = "",
+  forkOptions = {}
+) => {
+  let command = ""
+  let config: TerminalConfig = {}
+
+  if (typeof commandOrConfig === "string") {
+    command = commandOrConfig
+  } else {
+    command = commandOrConfig?.command || ""
+    config = commandOrConfig
+  }
+
   let child
   let p = await new Promise<string>((res, rej) => {
     let out = ``
@@ -291,7 +305,7 @@ let term = async (command: string = "", options = {}) => {
     child = fork(kitPath("run", "pty.js"), [command], {
       cwd: process.cwd(),
       env: process.env,
-      ...options,
+      ...forkOptions,
     })
 
     type PtyMessage = {
@@ -305,14 +319,18 @@ let term = async (command: string = "", options = {}) => {
       if (maybe && !maybe.match(/^\s/)) out += maybe
       if (stripAnsi(maybe).endsWith(`\u0007`)) out = ``
 
-      send(Channel.TERMINAL, data?.socketURL)
+      log(`🔌 Terminal socket: ${data.socketURL}`)
+
+      send(Channel.TERMINAL, data.socketURL)
 
       await global.kitPrompt({
         input: command,
         ui: UI.term,
+        ...config,
       })
 
       send(Channel.TERMINAL, ``)
+
       end()
     })
 

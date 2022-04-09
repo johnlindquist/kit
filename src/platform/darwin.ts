@@ -126,11 +126,19 @@ let macEditors = [
   "vim",
 ]
 
+let safeReaddir = async (path: string) => {
+  try {
+    return await readdir(path)
+  } catch (e) {
+    return []
+  }
+}
+
 global.selectKitEditor = async (reset = false) => {
   let globalBins = []
   let binPaths = KIT_DEFAULT_PATH.split(":")
   for await (let binPath of binPaths) {
-    let bins = await readdir(binPath)
+    let bins = await safeReaddir(binPath)
     for (let bin of bins) {
       let value = path.resolve(binPath, bin)
       globalBins.push({

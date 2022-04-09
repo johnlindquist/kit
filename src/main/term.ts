@@ -1,7 +1,9 @@
 // Description: > Kit Terminal
 
 setName(``)
-await term()
+await term({
+  footer: `ctrl+c to exit`,
+})
 await mainScript()
 
 export {}

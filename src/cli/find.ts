@@ -26,6 +26,9 @@ let filePath = await arg(
   {
     placeholder: "Search Scripts",
     debounceInput: 400,
+    onEscape: async () => {
+      await mainScript()
+    },
   },
   async (input: string) => {
     let command = `grep -inR '${input}' ${kenvsString}`

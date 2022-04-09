@@ -265,6 +265,11 @@ global.removeClipboardItem = (id: string) => {
   notSupported("removeClipboardItem")
 }
 
+global.clearClipboardHistory = async () => {
+  notSupported("clearClipboardHistory")
+  return []
+}
+
 global.submit = (value: any) => {
   notSupported("submit")
 }

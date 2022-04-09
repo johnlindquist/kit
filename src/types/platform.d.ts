@@ -16,7 +16,7 @@ interface FileSearchOptions {
 interface FileSearch {
   (
     name: string,
-    fileSearchOptions: FileSearchOptions
+    fileSearchOptions?: FileSearchOptions
   ): Promise<string[]>
 }
 
