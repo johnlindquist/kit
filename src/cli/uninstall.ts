@@ -1,7 +1,5 @@
 import { KIT_NODE_PATH } from "../core/utils.js"
 
-export {}
-
 let file = JSON.parse(
   await readFile(kenvPath("package.json"), {
     encoding: "utf8",
