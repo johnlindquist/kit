@@ -1132,7 +1132,7 @@ let __pathSelector = async (
     }
     let dirFilter = dirent => {
       if (dirent.name.startsWith(".")) {
-        return input.startsWith(".") || showHidden
+        return input.includes(path.sep + ".") || showHidden
       }
 
       return true
@@ -1181,7 +1181,7 @@ let __pathSelector = async (
       return
     }
 
-    if (input.includes(path.sep + ".")) {
+    if (input.endsWith(path.sep + ".")) {
       let choices = await createPathChoices(
         startPath,
         () => true
