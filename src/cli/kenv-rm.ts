@@ -22,4 +22,6 @@ await trash(dir)
 
 await getScripts(false)
 
-await mainScript()
+if (process.env.KIT_CONTEXT === "app") {
+  await mainScript()
+}

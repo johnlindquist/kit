@@ -25,6 +25,7 @@ if (confirm) {
   await refreshScriptsDb()
 }
 
-await mainScript()
-
+if (process.env.KIT_CONTEXT === "app") {
+  await mainScript()
+}
 export {}

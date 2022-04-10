@@ -745,7 +745,11 @@ global.setTab = (tabName: string) => {
 
 export { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
 
-global.term = async (command, options) => {
+global.term = async (commandOrConfig, options) => {
+  let command =
+    (typeof commandOrConfig === "string"
+      ? commandOrConfig
+      : commandOrConfig?.command) || ""
   let task = global.exec(command, options as any)
   task.stdout.pipe(process.stdout)
   let result = await task
