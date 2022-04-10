@@ -1,7 +1,6 @@
 // TODO: Move to kitdeps
 
 import { minimist } from "@johnlindquist/kit-internal/minimist"
-import { randomUUID } from "crypto"
 
 let nodePtyString = "node-pty"
 

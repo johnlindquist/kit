@@ -82,7 +82,7 @@ console.log(`Install deps`)
 await exec(`${npm} i --production`)
 
 console.log(`Install app deps`)
-await exec(`${npm} i @johnlindquist/kitdeps@0.1.0`)
+await exec(`${npm} i @johnlindquist/kitdeps@0.1.1`)
 
 console.log(`Downloading data`)
 await exec(`node ./run/terminal.js ./help/download-docs.js`)
