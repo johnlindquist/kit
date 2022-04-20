@@ -9,7 +9,7 @@ await arg(
     placeholder: "Editor history",
     onNoChoices: async input => {
       setPanel(
-        md(`## No History Found
+        md(`### No History Found
     
 Open a file in the editor to add to the history.`)
       )

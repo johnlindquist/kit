@@ -9,10 +9,10 @@ let selectedFile = await arg(
   },
   async input => {
     if (!input || input === "undefined")
-      return md(`## Type at least 2 characters`)
+      return md(`### Type at least 2 characters`)
 
     if (input?.length < 3)
-      return md(`## Type at least 2 characters`)
+      return md(`### Type at least 2 characters`)
 
     let files = await fileSearch(input)
 
@@ -121,7 +121,7 @@ tell application "Finder" to open information window of aFile
   case "move":
     setDescription("Select destination folder")
     let destFolder = await path(path.dirname(selectedFile))
-    await exec(`mv ${selectedFile} ${destFolder}`)
+    mv(selectedFile, destFolder)
     break
 
   case "trash":

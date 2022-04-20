@@ -1,3 +1,6 @@
+import fs from "fs"
+import filesize from "filesize"
+
 import {
   ChannelHandler,
   Choice,
@@ -14,6 +17,11 @@ import {
 } from "../types/kitapp"
 
 import {
+  formatDistanceToNow,
+  parseISO,
+} from "@johnlindquist/kit-internal/date-fns"
+
+import {
   filter,
   Observable,
   share,
@@ -26,7 +34,7 @@ import {
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
-import { Mode, Channel, UI } from "../core/enum.js"
+import { Mode, Channel, UI, Value } from "../core/enum.js"
 import {
   assignPropsTo,
   mainScriptPath,
@@ -43,7 +51,6 @@ import { EventEmitter } from "events"
 interface DisplayChoicesProps {
   choices: PromptConfig["choices"]
   className: string
-  input: string
   scripts?: PromptConfig["scripts"]
   onInput?: PromptConfig["onInput"]
   state: AppState
@@ -148,7 +155,7 @@ let getInitialChoices = async (
   props: InvokeChoicesProps
 ) => {
   if (typeof props?.choices === "function") {
-    return await invokeChoices({ ...props, input: "" })
+    return await invokeChoices({ ...props })
   } else {
     displayChoices(props)
     return props.choices
@@ -156,7 +163,7 @@ let getInitialChoices = async (
 }
 
 interface WaitForPromptValueProps
-  extends Omit<DisplayChoicesProps, "input"> {
+  extends DisplayChoicesProps {
   validate?: PromptConfig["validate"]
 }
 
@@ -196,7 +203,7 @@ let createOnChoiceFocusDefault = (
         try {
           preview = await choice?.preview(choice)
         } catch {
-          preview = md(`## ⚠️ Failed to render preview`)
+          preview = md(`### ⚠️ Failed to render preview`)
         }
       }
 
@@ -239,6 +246,7 @@ let waitForPromptValue = ({
   onBlur,
   onLeft,
   onRight,
+  state,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
     promptId++
@@ -247,9 +255,8 @@ let waitForPromptValue = ({
       tabIndex: global.onTabIndex,
       choices,
       className,
-      input: "",
       onNoChoices,
-      state: {},
+      state,
     })
 
     let process$ = new Observable<AppMessage>(observer => {
@@ -334,6 +341,9 @@ let waitForPromptValue = ({
 
     message$.pipe(takeUntil(value$), share()).subscribe({
       next: async data => {
+        if (data.state.input === Value.Undefined) {
+          data.state.input = ""
+        }
         // global.log({ channel: data.channel })
         switch (data.channel) {
           case Channel.INPUT:
@@ -477,6 +487,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
     type: "text",
     ui: UI.arg,
     resize: false,
+    env: global.env,
     ...(data as PromptData),
   })
 }
@@ -534,13 +545,13 @@ let createOnInputDefault = (
       : Mode.FILTER
 
   if (mode !== Mode.GENERATE) return async () => {}
+  // "input" is on the state, so this is only provided as a convenience for the user
   return _.debounce(async (input, state) => {
     return invokeChoices({
       promptId,
       tabIndex: global.onTabIndex,
       choices,
       className,
-      input,
       state,
     })
   }, debounceInput)
@@ -581,6 +592,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       debounceInput
     ),
     onBlur = onBlurDefault,
+    input = "",
   } = config
 
   await prepPrompt(config)
@@ -607,7 +619,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onTab,
     onChoiceFocus: choiceFocus,
     onBlur,
-    state: {},
+    state: { input },
   })
 }
 
@@ -1076,12 +1088,22 @@ let createPathChoices = async (
   let mapDirents = (dirents: Dirent[]): Choice[] => {
     return dirents.map(dirent => {
       let fullPath = path.resolve(startPath, dirent.name)
+      let { size, mtime } = fs.statSync(fullPath)
       let type = dirent.isDirectory() ? "folder" : "file"
+      let description =
+        type === "folder"
+          ? ""
+          : `${filesize(
+              size
+            )} - Last modified ${formatDistanceToNow(
+              mtime
+            )} ago`
+
       return {
         img: kitPath("icons", type + ".svg"),
         name: dirent.name,
         value: fullPath,
-        description: type,
+        description,
         drag: fullPath,
         // preview: async () => {
         //   try {
@@ -1155,10 +1177,10 @@ let __pathSelector = async (
         )
         setChoices(choices)
       } catch {
-        setPanel(md(`## Failed to read ${startPath}`))
+        setPanel(md(`### Failed to read ${startPath}`))
       }
     } else {
-      setPanel(md(`## ${startPath} is not a path`))
+      setPanel(md(`### ${startPath} is not a path`))
     }
   }
 
@@ -1171,8 +1193,13 @@ let __pathSelector = async (
     )
   }
 
-  let downDir = dir => {
-    setInput(path.resolve(startPath, dir) + path.sep)
+  let downDir = async dir => {
+    let targetPath = path.resolve(startPath, dir)
+    if (await isDir(targetPath)) {
+      setInput(targetPath + path.sep)
+    } else {
+      submit(targetPath)
+    }
   }
 
   let onInput = async (input, state) => {
@@ -1222,7 +1249,9 @@ let __pathSelector = async (
       setPanel(md(`<code>${input}</code> not found`))
     } else {
       setPanel(
-        md(`## Create <code>${input}</code> directory`)
+        md(`### Create directory?
+
+<code>${input}</code>`)
       )
     }
   }
@@ -1249,7 +1278,8 @@ let __pathSelector = async (
   let hasExtension = path.extname(selectedPath) == ""
   if (hasExtension) {
     let isSelectedPathDir = await isDir(selectedPath)
-    if (!isSelectedPathDir) {
+    let doesPathExist = await pathExists(selectedPath)
+    if (!isSelectedPathDir && !doesPathExist) {
       await ensureDir(selectedPath)
     }
   } else {
@@ -1278,6 +1308,12 @@ global.getEditorHistory = async () => {
 
 global.setFocused = (id: string) => {
   send(Channel.SET_FOCUSED, id)
+}
+
+global.keyboard = {
+  type: async (text: string) => {
+    send(Channel.KEYBOARD_TYPE, text)
+  },
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]

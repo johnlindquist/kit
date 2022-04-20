@@ -170,7 +170,7 @@ global.selectKitEditor = async (reset = false) => {
     preview: md(`
 > You can change your editor later in .env
 
-## Don't see your editor?
+### Don't see your editor?
 
 Set up your editor's command-line tools:
 
@@ -179,7 +179,7 @@ Set up your editor's command-line tools:
 - [Sublime](https://www.sublimetext.com/docs/command_line.html)
 - [Atom](https://flight-manual.atom.io/getting-started/sections/installing-atom/#installing-atom-on-mac)
 
-## Customized your editor command?
+### Customized your editor command?
 
 If you edited your ~/.zshrc (or similar) for a custom command then sync your PATH to Script Kit's .env:
 
@@ -188,7 +188,7 @@ Run the following in your terminal:
 ~/.kit/bin/kit sync-path
 ~~~
 
-## Still not working?
+### Still not working?
 
 Kit.app reads the \`KIT_EDITOR\` value from your \`~/.kenv/.env\`. It can either be a command on the PATH
 or an absolute path to your editor. This prompt is attempting to set that value for you, but you can also do it manually.

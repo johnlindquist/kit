@@ -19,16 +19,16 @@ let result = await arg(
   async input => {
     input = String(input).trim() || ""
     if (!input || input === "undefined")
-      return md(`## Waiting for input...`)
+      return md(`### Waiting for input...`)
 
     try {
       if (input?.length < 2) {
-        return md(`## ${input}`)
+        return md(`### ${input}`)
       }
-      return md(`## ${String(calc.evaluate(input))}`)
+      return md(`### ${String(calc.evaluate(input))}`)
     } catch (error) {
       return md(`
-## Failed to parse
+### Failed to parse
 
 ~~~bash
 ${input}

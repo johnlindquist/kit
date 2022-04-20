@@ -332,6 +332,11 @@ export interface ChannelMap {
   [Channel.TOGGLE_BACKGROUND]: string
   [Channel.VALUE_INVALID]: string
   [Channel.TERMINATE_PROCESS]: number
+
+  [Channel.KEYBOARD_CONFIG]: KeyboardConfig
+  [Channel.KEYBOARD_TYPE]: string
+  [Channel.KEYBOARD_PRESS_KEY]: string
+  [Channel.KEYBOARD_RELEASE_KEY]: string
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
@@ -450,6 +455,10 @@ interface ClipboardItem {
   type: string
   timestamp: string
   maybeSecret: boolean
+}
+
+export interface Keyboard {
+  type: (text: string) => Promise<void>
 }
 
 export interface AppApi {
@@ -572,7 +581,7 @@ declare global {
 
   var hide: () => Promise<void>
 
-  var dev: (object: any) => void
+  var dev: (object?: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
   var getEditorHistory: GetEditorHistory
   var removeClipboardItem: (id: string) => void
@@ -585,4 +594,6 @@ declare global {
 
   var log: typeof console.log
   var warn: typeof console.warn
+
+  var keyboard: Keyboard
 }

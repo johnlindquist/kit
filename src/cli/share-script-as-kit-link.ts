@@ -15,7 +15,7 @@ copy(link)
 let message = `Copied kit:// share link to clipboard`
 
 await div(
-  md(`## ${message}
+  md(`### ${message}
 
 [${link}](${link})
 `)

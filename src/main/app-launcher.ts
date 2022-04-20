@@ -1,23 +1,21 @@
-// Description: App Launcher
+import { cmd } from "../core/utils.js"
 
+// Description: App Launcher
 setName(``)
 let findAppsAndPrefs = async () => {
   let apps = await fileSearch("", {
     onlyin: "/",
     kind: "application",
   })
-
   let prefs = await fileSearch("", {
     onlyin: "/",
     kind: "preferences",
   })
-
   return {
     apps,
     prefs,
   }
 }
-
 let createChoices = async () => {
   let { apps, prefs } = await findAppsAndPrefs()
   let group = path => apps =>
@@ -26,10 +24,8 @@ let createChoices = async () => {
       .sort((a, b) => {
         let aName = a.replace(/.*\//, "")
         let bName = b.replace(/.*\//, "")
-
         return aName > bName ? 1 : aName < bName ? -1 : 0
       })
-
   return [
     ...group(/^\/Applications\/(?!Utilities)/)(apps),
     ...group(/^\/System\/Applications/)(apps),
@@ -45,22 +41,40 @@ let createChoices = async () => {
     }
   })
 }
-
 let appsDb = await db("apps", async () => ({
   choices: await createChoices(),
 }))
 
-let app = await arg("Open app:", appsDb.choices)
-let command = `open -a "${app}"`
-if (app.endsWith(".prefPane")) {
-  command = `open ${app}`
+let REFRESH = `__REFRESH__`
+
+let input = ""
+let app = await arg(
+  {
+    input: (flag?.input as string) || "",
+    placeholder: "Select an app to launch",
+    footer: "cmd+enter to refresh",
+    onShortcutSubmit: {
+      [`${cmd}+enter`]: REFRESH,
+    },
+    onInput: i => {
+      input = i
+    },
+  },
+  appsDb.choices
+)
+if (app === REFRESH) {
+  await remove(kitPath("db", "apps.json"))
+  await run(
+    kitPath("main", "app-launcher.js"),
+    "--input",
+    input
+  )
+} else {
+  let command = `open -a "${app}"`
+  if (app.endsWith(".prefPane")) {
+    command = `open ${app}`
+  }
+  await exec(command)
+  hide()
 }
-
-await exec(command)
-
-hide()
-let choices = await createChoices()
-appsDb.choices = choices
-appsDb.write()
-
 export {}

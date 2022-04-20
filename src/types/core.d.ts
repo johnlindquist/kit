@@ -66,6 +66,7 @@ export interface ScriptMetadata {
   shift?: string
   hasPreview?: boolean
   logo?: string
+  snippet?: string
   ["color-primary-light"]?: string
   ["color-secondary-light"]?: string
   ["color-background-light"]?: string

@@ -280,6 +280,26 @@ let menu = async (
 }
 
 let term = async (
+  commandOrConfig: string | TerminalConfig = ""
+) => {
+  let command = ""
+  let config: TerminalConfig = {}
+
+  if (typeof commandOrConfig === "string") {
+    command = commandOrConfig
+  } else {
+    command = commandOrConfig?.command || ""
+    config = commandOrConfig
+  }
+
+  return await global.kitPrompt({
+    input: command,
+    ui: UI.term,
+    ...config,
+  })
+}
+
+let oldTerm = async (
   commandOrConfig: string | TerminalConfig = "",
   forkOptions = {}
 ) => {

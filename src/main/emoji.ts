@@ -1,7 +1,9 @@
 // Description: Emoji
 
 setName(``)
-let emojiJSON = await readJson(kitPath("db", "emoji.json"))
+let emojiJSON = await readJson(
+  kitPath("data", "emoji.json")
+)
 let emojiChoices = emojiJSON.map(emoji => {
   return {
     name: emoji.emoji + " " + emoji.description,

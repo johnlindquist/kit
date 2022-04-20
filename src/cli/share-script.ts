@@ -14,7 +14,7 @@ let octokit = new Octokit({
   },
 })
 
-div(md(`## Creating Gist...`))
+div(md(`### Creating Gist...`))
 setLoading(true)
 
 let fileBasename = path.basename(filePath)
@@ -36,7 +36,7 @@ copy(link)
 
 setLoading(false)
 await div(
-  md(`## Copied Gist to Clipboard
+  md(`### Copied Gist to Clipboard
 
 [${link}](${link})
 `)

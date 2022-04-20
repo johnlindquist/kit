@@ -14,8 +14,16 @@ let action = await arg<string>(
   {
     placeholder: "Selected Path Action:",
     onEscape: async () => {
+      submit(``)
       await run(
-        kitPath("cli", "path-handler.js"),
+        kitPath("main", "browse.js"),
+        selectedPath.replace(new RegExp(`${path.sep}$`), "")
+      )
+    },
+    onLeft: async () => {
+      submit(``)
+      await run(
+        kitPath("main", "browse.js"),
         selectedPath.replace(new RegExp(`${path.sep}$`), "")
       )
     },
@@ -103,7 +111,7 @@ tell application "Finder" to open information window of aFile
   case "move":
     setDescription("Select destination folder")
     let destFolder = await path(path.dirname(selectedPath))
-    await exec(`mv ${selectedPath} ${destFolder}`)
+    mv(selectedPath, destFolder)
     break
 
   case "trash":

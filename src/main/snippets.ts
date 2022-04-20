@@ -48,7 +48,7 @@ if (item) {
     await write()
   }
 
-  await run(kitPath("cli", "snippet-handler.js"))
+  await run(kitPath("main", "snippets.js"))
 }
 
 export {}

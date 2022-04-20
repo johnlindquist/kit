@@ -27,6 +27,7 @@ let filePath = await arg(
     placeholder: "Search Scripts",
     debounceInput: 400,
     onEscape: async () => {
+      submit(``)
       await mainScript()
     },
   },
@@ -37,7 +38,7 @@ let filePath = await arg(
       if (!input || input?.length < 3) {
         setChoices([])
         setPanel(
-          md(`## Please type more than 2 characters:`)
+          md(`### Please type more than 2 characters:`)
         )
         return
       }
@@ -63,7 +64,7 @@ let filePath = await arg(
     } catch (error) {
       setChoices([])
       setPanel(
-        md(`## No Results
+        md(`### No Results
       
 <code>${command}</code> failed`)
       )
@@ -71,4 +72,4 @@ let filePath = await arg(
   }
 )
 
-await edit(filePath)
+if (filePath) await edit(filePath)

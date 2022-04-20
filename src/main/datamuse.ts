@@ -3,7 +3,9 @@
 setName(``)
 
 let queryWords = (api, type) => async input => {
-  if (!input || input?.length < 3) return []
+  if (!input || input?.length < 3)
+    return md(`### Type at least 3 characters`)
+
   let url = `https://api.datamuse.com/${api}?${type}=${input}&md=d`
 
   let response = await get<{ word: string; defs: any[] }[]>(
@@ -26,7 +28,6 @@ let queryWords = (api, type) => async input => {
 }
 
 let wordApi = async (api, type, input = "") => {
-  setPanel(md(`## Type to search`))
   let word = await arg(
     {
       placeholder: "Type a word:",

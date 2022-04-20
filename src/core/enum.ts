@@ -39,6 +39,10 @@ export enum Channel {
   GET_SERVER_STATE = "GET_SERVER_STATE",
   GROW_PROMPT = "GROW_PROMPT",
   HIDE_APP = "HIDE_APP",
+  KEYBOARD_CONFIG = "KEYBOARD_CONFIG",
+  KEYBOARD_TYPE = "KEYBOARD_TYPE",
+  KEYBOARD_PRESS_KEY = "KEYBOARD_PRESS_KEY",
+  KEYBOARD_RELEASE_KEY = "KEYBOARD_RELEASE_KEY",
   KIT_LOG = "KIT_LOG",
   KIT_CLEAR = "KIT_CLEAR",
   KIT_WARN = "KIT_WARN",
@@ -190,5 +194,6 @@ export enum Secret {
 }
 
 export enum Value {
-  NoValue = "__NoValue__",
+  NoValue = "__noValue__",
+  Undefined = "__undefined__",
 }

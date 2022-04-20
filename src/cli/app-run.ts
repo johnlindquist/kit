@@ -189,6 +189,7 @@ let script = await selectScript(
     strict: false,
     onNoChoices,
     onInputSubmit: {
+      "=": kitPath("handler", "equals-handler.js"),
       ">": kitPath("handler", "greaterthan-handler.js"),
       "/": kitPath("handler", "slash-handler.js"),
       "~": kitPath("handler", "tilde-handler.js"),

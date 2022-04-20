@@ -230,7 +230,9 @@ interface KeyValue {
   [key: string]: any
 }
 
-type Run = (command: string, args?: string) => Promise<any>
+interface Run {
+  (command: string, ...args: string[]): Promise<any>
+}
 
 declare global {
   var isWin: boolean

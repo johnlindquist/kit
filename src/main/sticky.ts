@@ -14,6 +14,7 @@ let changed = false
 
 contents = await editor({
   value: contents,
+  scrollTo: "bottom",
   footer: `Escape to save to ${stickyPath}`,
   onEscape: async (input, { inputChanged }) => {
     changed = inputChanged
@@ -29,6 +30,6 @@ contents = await editor({
   },
 })
 
-if (changed) await writeFile(stickyPath, contents)
+if (changed) await writeFile(stickyPath, contents + "\n")
 
 export {}

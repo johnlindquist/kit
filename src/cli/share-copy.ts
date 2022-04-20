@@ -11,7 +11,7 @@ let message = `Copied content of "${path.basename(
 )}" to clipboard`
 
 await div(
-  md(`## ${message}
+  md(`### ${message}
 
 ~~~js
 ${content}
