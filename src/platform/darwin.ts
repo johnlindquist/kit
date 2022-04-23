@@ -297,9 +297,14 @@ let addKitLibs = async (
     kitPath("core", "utils.d.ts"),
     "utf8"
   )
+  let enumsContent = await readFile(
+    kitPath("core", "enum.d.ts"),
+    "utf8"
+  )
   extraLibs.push({
     content: `declare module "@johnlindquist/kit" {
       ${utilsContent}
+      ${enumsContent}
 }`,
     filePath: `file:///node_modules/@types/@johnlindquist/kit/index.d.ts`,
   })

@@ -147,8 +147,10 @@ export interface PromptData {
   scripts: boolean
   onInputSubmit: { [key: string]: any }
   onShortcutSubmit: { [key: string]: any }
+  onShortcut: { [key: string]: any }
   defaultChoiceId: string
   footer: string
+  env: any
 }
 
 export interface GenerateChoices {
@@ -215,6 +217,10 @@ export interface PromptConfig
   onShortcutSubmit?: {
     [key: string]: any
   }
+  onShortcut?: {
+    [key: string]: ChannelHandler
+  }
+  env?: any
 }
 
 export interface Metadata {

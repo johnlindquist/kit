@@ -7,3 +7,4 @@ await term({
 await mainScript()
 
 export {}
+// lgtm

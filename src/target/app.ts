@@ -19,6 +19,7 @@ import {
 import {
   formatDistanceToNow,
   parseISO,
+  compareAsc,
 } from "@johnlindquist/kit-internal/date-fns"
 
 import {
@@ -34,16 +35,19 @@ import {
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
-import { Mode, Channel, UI, Value } from "../core/enum.js"
+import {
+  Key,
+  Mode,
+  Channel,
+  UI,
+  Value,
+} from "../core/enum.js"
 import {
   assignPropsTo,
   mainScriptPath,
   cmd,
 } from "../core/utils.js"
-import {
-  KeyEnum,
-  keyCodeFromKey,
-} from "../core/keyboard.js"
+import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
 import { EventEmitter } from "events"
@@ -62,6 +66,7 @@ interface DisplayChoicesProps {
   onDown?: PromptConfig["onDown"]
   onLeft?: PromptConfig["onLeft"]
   onRight?: PromptConfig["onRight"]
+  onShortcut?: PromptConfig["onShortcut"]
   onTab?: PromptConfig["onTab"]
   onNoChoices?: PromptConfig["onNoChoices"]
   onChoiceFocus?: PromptConfig["onChoiceFocus"]
@@ -246,6 +251,7 @@ let waitForPromptValue = ({
   onBlur,
   onLeft,
   onRight,
+  onShortcut,
   state,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
@@ -397,6 +403,13 @@ let waitForPromptValue = ({
           case Channel.ABANDON:
             onAbandon(data.state.input, data.state)
             break
+
+          case Channel.SHORTCUT:
+            onShortcut[data?.state?.shortcut]?.(
+              data.state.input,
+              data.state
+            )
+            break
         }
       },
       complete: () => {
@@ -501,6 +514,7 @@ let prepPrompt = async (config: PromptConfig) => {
     panel,
     onInputSubmit = {},
     onShortcutSubmit = {},
+    onShortcut = {},
     ...restConfig
   } = config
 
@@ -516,6 +530,13 @@ let prepPrompt = async (config: PromptConfig) => {
     ...restConfig,
     onInputSubmit,
     onShortcutSubmit,
+    onShortcut: Object.keys(onShortcut).reduce(
+      (acc, curr) => {
+        acc[curr] = ""
+        return acc
+      },
+      {}
+    ),
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
@@ -529,6 +550,7 @@ let prepPrompt = async (config: PromptConfig) => {
       preview && typeof preview === "function"
         ? await preview()
         : (preview as string),
+    env: config?.env || process.env,
   })
 }
 
@@ -593,6 +615,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     ),
     onBlur = onBlurDefault,
     input = "",
+    onShortcut,
   } = config
 
   await prepPrompt(config)
@@ -619,6 +642,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onTab,
     onChoiceFocus: choiceFocus,
     onBlur,
+    onShortcut,
     state: { input },
   })
 }
@@ -1053,7 +1077,7 @@ for (let method of loadingList) {
   }
 }
 
-global.Key = KeyEnum
+global.Key = Key
 
 global.mainScript = async (input: string = "") => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -1071,7 +1095,8 @@ let getFileInfo = async (filePath: string) => {
 
 let createPathChoices = async (
   startPath: string,
-  dirFilter = (dirent: Dirent) => true
+  dirFilter = (dirent: Dirent) => true,
+  dirSort = (a: any, b: any) => 0
 ) => {
   let dirFiles = await readdir(startPath, {
     withFileTypes: true,
@@ -1105,6 +1130,8 @@ let createPathChoices = async (
         value: fullPath,
         description,
         drag: fullPath,
+        mtime,
+        size,
         // preview: async () => {
         //   try {
         //     let fileInfo = await getFileInfo(fullPath)
@@ -1124,7 +1151,9 @@ let createPathChoices = async (
     })
   }
 
-  return mapDirents(folders.concat(files))
+  let mapped = mapDirents(folders.concat(files))
+
+  return (mapped as any).sort(dirSort)
 }
 
 let __pathSelector = async (
@@ -1203,6 +1232,34 @@ let __pathSelector = async (
   }
 
   let onInput = async (input, state) => {
+    // if (input.endsWith(">")) {
+    //   let choices = await createPathChoices(
+    //     startPath,
+    //     () => true,
+    //     compareAsc
+    //   )
+    //   setChoices(choices)
+    //   return
+    // }
+    // if (input.endsWith("<")) {
+    //   let choices = await createPathChoices(
+    //     startPath,
+    //     () => true,
+    //     (a, b) => compareAsc(b, a)
+    //   )
+    //   setChoices(choices)
+    //   return
+    // }
+    // if (input.endsWith(";")) {
+    //   let choices = await createPathChoices(
+    //     startPath,
+    //     () => true,
+    //     ()=> 0
+    //   )
+    //   setChoices(choices)
+    //   return
+    // }
+
     if (input.startsWith("~")) {
       setInput(home() + path.sep)
       return
@@ -1261,6 +1318,35 @@ let __pathSelector = async (
     await mainScript()
   }
 
+  let sort = `name`
+  let dir = `desc`
+  let sorters = {
+    date: ({ mtime: a }, { mtime: b }) =>
+      dir === `asc` ? compareAsc(a, b) : compareAsc(b, a),
+    name: ({ name: a }, { name: b }) =>
+      dir === `desc` ? (a > b ? 1 : -1) : a > b ? -1 : 1,
+    size: ({ size: a }, { size: b }) =>
+      dir === `asc` ? (a > b ? 1 : -1) : a > b ? -1 : 1,
+  }
+  let createSorter = s => {
+    return async () => {
+      if (sort !== s) {
+        dir = `desc`
+      } else {
+        dir = dir === `asc` ? `desc` : `asc`
+      }
+
+      sort = s
+      let dirSort = sorters[s]
+      let choices = await createPathChoices(
+        startPath,
+        () => true,
+        dirSort
+      )
+
+      setChoices(choices)
+    }
+  }
   let selectedPath = await arg(
     {
       input: startPath,
@@ -1271,6 +1357,13 @@ let __pathSelector = async (
       onNoChoices,
       onEscape,
       hint,
+
+      onShortcut: {
+        [`${cmd}+,`]: createSorter(`name`),
+        [`${cmd}+.`]: createSorter(`size`),
+        [`${cmd}+/`]: createSorter(`date`),
+      },
+      footer: `Sort by - name: ${cmd}+, size: ${cmd}+. date: ${cmd}+/`,
     },
     []
   )
@@ -1313,6 +1406,15 @@ global.setFocused = (id: string) => {
 global.keyboard = {
   type: async (text: string) => {
     send(Channel.KEYBOARD_TYPE, text)
+  },
+  pressKey: async (...keys: Key[]) => {
+    send(Channel.KEYBOARD_PRESS_KEY, keys)
+  },
+  releaseKey: async (...keys: Key[]) => {
+    send(Channel.KEYBOARD_RELEASE_KEY, keys)
+  },
+  config: async config => {
+    send(Channel.KEYBOARD_CONFIG, config)
   },
 }
 

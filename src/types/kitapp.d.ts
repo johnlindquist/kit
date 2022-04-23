@@ -1,7 +1,11 @@
 export {}
 import { editor } from "./editor.api"
 
-import { Channel, Mode } from "../core/enum.js"
+import {
+  Key as KeyboardEnum,
+  Channel,
+  Mode,
+} from "../core/enum.js"
 import { KeyEnum } from "../core/keyboard.js"
 
 import {
@@ -37,6 +41,7 @@ export interface AppState {
   description?: string
   script?: Script
   submitted?: boolean
+  shortcut?: string
 }
 
 export interface AppMessage {
@@ -45,10 +50,6 @@ export interface AppMessage {
   newPid?: number
   state: AppState
   widgetId?: number
-}
-
-export type KeyType = {
-  [key in keyof typeof KeyEnum]: string
 }
 
 export interface EditorProps {
@@ -333,10 +334,10 @@ export interface ChannelMap {
   [Channel.VALUE_INVALID]: string
   [Channel.TERMINATE_PROCESS]: number
 
-  [Channel.KEYBOARD_CONFIG]: KeyboardConfig
+  [Channel.KEYBOARD_CONFIG]: { autoDelayMs: number }
   [Channel.KEYBOARD_TYPE]: string
-  [Channel.KEYBOARD_PRESS_KEY]: string
-  [Channel.KEYBOARD_RELEASE_KEY]: string
+  [Channel.KEYBOARD_PRESS_KEY]: Key[]
+  [Channel.KEYBOARD_RELEASE_KEY]: Key[]
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
@@ -459,6 +460,9 @@ interface ClipboardItem {
 
 export interface Keyboard {
   type: (text: string) => Promise<void>
+  pressKey: (...keys: Key[]) => Promise<void>
+  releaseKey: (...keys: Key[]) => Promise<void>
+  config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
 export interface AppApi {
@@ -528,7 +532,7 @@ export interface AppApi {
   mainScript: () => Promise<void>
 
   appKeystroke: SendKeystroke
-  Key: KeyType
+  Key: typeof KeyboardEnum
 
   log: typeof console.log
   warn: typeof console.warn
@@ -590,7 +594,7 @@ declare global {
   var mainScript: () => Promise<void>
 
   var appKeystroke: SendKeystroke
-  var Key: KeyType
+  var Key: typeof KeyboardEnum
 
   var log: typeof console.log
   var warn: typeof console.warn
