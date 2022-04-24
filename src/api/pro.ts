@@ -1,6 +1,7 @@
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 import { Channel, UI } from "../core/enum.js"
+import { KIT_LAST_PATH } from "../core/utils.js"
 import {
   TerminalOptions as TerminalConfig,
   Widget,
@@ -295,6 +296,10 @@ let term = async (
   return await global.kitPrompt({
     input: command,
     ui: UI.term,
+    env: {
+      ...global.env,
+      PATH: KIT_LAST_PATH,
+    },
     ...config,
   })
 }

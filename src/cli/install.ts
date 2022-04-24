@@ -2,6 +2,7 @@ import {
   formatDistanceToNow,
   parseISO,
 } from "@johnlindquist/kit-internal/date-fns"
+import { KIT_FIRST_PATH } from "../core/utils.js"
 
 let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))
@@ -11,17 +12,15 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
-  return await term(
-    {
-      command: `${tool} ${command} ${packageNames.join(
-        " "
-      )}`,
-      footer: `cmd+enter to continue script`,
+  return await term({
+    command: `${tool} ${command} ${packageNames.join(" ")}`,
+    footer: `cmd+enter to continue script`,
+    env: {
+      ...global.env,
+      PATH: KIT_FIRST_PATH,
     },
-    {
-      cwd: kenvPath(),
-    }
-  )
+    cwd: kenvPath(),
+  })
   // return await new Promise((res, rej) => {
   //   console.log(tool, command, ...packageNames)
   //   let PATH =

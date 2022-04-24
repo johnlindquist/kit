@@ -1,4 +1,4 @@
-import { KIT_NODE_PATH } from "../core/utils.js"
+import { KIT_FIRST_PATH } from "../core/utils.js"
 
 let file = JSON.parse(
   await readFile(kenvPath("package.json"), {
@@ -18,31 +18,24 @@ let packages = (await arg(
 if (typeof packages == "string") {
   packages = [packages, ...args]
 }
-let PATH = KIT_NODE_PATH + path.delimiter + process.env.PATH
-let uninstallPackage = spawn(
-  kitPath("node", "bin", "npm"),
-  [
-    "uninstall",
-    "--prefix",
-    kenvPath(),
-    ...packages,
-    ...args,
-  ],
-  {
-    stdio: "inherit",
-    cwd: env.KENV,
-    env: {
-      PATH,
-    },
-  }
-)
 
-uninstallPackage.on("error", error => {
-  console.log({ error })
+let isYarn = await isFile(kenvPath("yarn.lock"))
+let [tool, command] = (
+  isYarn
+    ? `yarn${global.isWin ? `.cmd` : ``} remove`
+    : `npm${global.isWin ? `.cmd` : ``} un`
+).split(" ")
+
+await term({
+  command: `${tool} ${command} ${packages.join(" ")}`,
+  footer: `cmd+enter to continue script`,
+  env: {
+    ...global.env,
+    PATH: KIT_FIRST_PATH,
+  },
+  cwd: kenvPath(),
 })
 
-uninstallPackage.on("exit", () => {
-  console.log(`Uninstalled ${packages}`)
-})
+await mainScript()
 
-export { packages }
+export {}

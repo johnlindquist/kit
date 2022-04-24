@@ -59,17 +59,12 @@ export interface Menubar {
 
 export interface TerminalOptions extends PromptConfig {
   command?: string
+  cwd?: string
 }
 
 export interface Terminal {
-  (
-    command?: string,
-    forkOptions?: ForkOptions
-  ): Promise<string>
-  (
-    options?: TerminalOptions,
-    forkOptions?: ForkOptions
-  ): Promise<string>
+  (command?: string): Promise<string>
+  (options?: TerminalOptions): Promise<string>
 }
 
 export interface ProAPI {

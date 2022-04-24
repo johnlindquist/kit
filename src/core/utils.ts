@@ -148,6 +148,18 @@ export const KIT_FIRST_PATH =
   path.delimiter +
   KIT_DEFAULT_PATH
 
+export const KIT_LAST_PATH =
+  process.env.PATH +
+  path.delimiter +
+  KIT_DEFAULT_PATH +
+  path.delimiter +
+  combinePath([
+    kitPath("node", "bin"),
+    kitPath("bin"),
+    ...(isWin ? [] : [kitPath("bin", "code")]),
+    kenvPath("bin"),
+  ])
+
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
   target: { [x: string]: unknown }

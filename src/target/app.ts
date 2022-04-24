@@ -550,7 +550,7 @@ let prepPrompt = async (config: PromptConfig) => {
       preview && typeof preview === "function"
         ? await preview()
         : (preview as string),
-    env: config?.env || process.env,
+    env: config?.env || global.env,
   })
 }
 
