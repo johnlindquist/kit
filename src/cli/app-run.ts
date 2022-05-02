@@ -44,7 +44,7 @@ setFlags({
   rename: {
     name: "Rename",
     description: "Rename the selected script",
-    shortcut: `${cmd}+r`,
+    shortcut: `${cmd}+shift+r`,
   },
   remove: {
     name: "Remove",
@@ -188,6 +188,7 @@ let script = await selectScript(
     placeholder: "Run Script",
     strict: false,
     onNoChoices,
+    // footer: `Script Options: ${cmd}+k`,
     onInputSubmit: {
       "=": kitPath("handler", "equals-handler.js"),
       ">": kitPath("handler", "greaterthan-handler.js"),
@@ -201,6 +202,8 @@ let script = await selectScript(
       ",": kitPath("handler", "comma-handler.js"),
       "`": kitPath("handler", "backtick-handler.js"),
       "<": kitPath("handler", "lessthan-handler.js"),
+      "-": kitPath("handler", "minus-handler.js"),
+      "[": kitPath("handler", "leftbracket-handler.js"),
       "1": kitPath("handler", "number-handler.js") + ` 1`,
       "2": kitPath("handler", "number-handler.js") + ` 2`,
       "3": kitPath("handler", "number-handler.js") + ` 3`,

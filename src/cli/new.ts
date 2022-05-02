@@ -80,8 +80,7 @@ let templateCompiler = compile(templateContent)
 contents += templateCompiler({ name, ...env })
 if (arg.scriptName) {
   contents = `// Name: ${arg?.scriptName || ""}
-
-${contents}
+${contents.startsWith("/") ? contents : "\n" + contents}
 `
 }
 

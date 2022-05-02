@@ -1,3 +1,15 @@
+global.mute = async () => {
+  return await applescript(
+    String.raw`set volume with output muted`
+  )
+}
+
+global.unmute = async () => {
+  return await applescript(
+    String.raw`set volume without output muted`
+  )
+}
+
 global.lock = async () => {
   return await applescript(
     String.raw`tell application "System Events" to keystroke "q" using {command down, control down}`
@@ -45,4 +57,21 @@ global.quitAllApps = async (appsToExclude = "") => {
   )
 }
 
+global.adjustVolume = async () => {
+  let volume = await arg({
+    name: "Adjust Volume",
+    description: "Enter a number between 0 and 100",
+  })
+  return await applescript(
+    String.raw`set volume output volume ${volume}`
+  )
+}
+
+global.sleepScreens = async () => {
+  await exec(`pmset displaysleepnow`)
+}
+
+global.caffeinate = async () => {
+  run(kitPath("cli", "caffeinate.js"))
+}
 export {}

@@ -1,3 +1,8 @@
+export interface Main {
+  snippets: Promise<typeof import("../main/snippets")>
+  templates: Promise<typeof import("../main/templates")>
+}
+
 export interface CLI {
   "add-kenv-to-profile": Promise<
     typeof import("./add-kenv-to-profile")

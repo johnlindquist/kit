@@ -347,7 +347,7 @@ let waitForPromptValue = ({
 
     message$.pipe(takeUntil(value$), share()).subscribe({
       next: async data => {
-        if (data.state.input === Value.Undefined) {
+        if (data?.state?.input === Value.Undefined) {
           data.state.input = ""
         }
         // global.log({ channel: data.channel })

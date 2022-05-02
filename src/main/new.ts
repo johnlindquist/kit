@@ -1,5 +1,6 @@
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
+import { Main } from "./index"
 import { kitMode, run } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
@@ -10,13 +11,27 @@ setFlags({
   },
 })
 
-let newOptions: Choice<keyof CLI>[] = [
+let newOptions: Choice<keyof CLI | keyof Main>[] = [
   {
     name: "New Script",
     description: `Create a script using ${
       kitMode() === "ts" ? "TypeScript" : "JavaScript"
     }`,
     value: "new",
+  },
+  {
+    name: "New Snippet Script",
+    description: `Create a script using ${
+      kitMode() === "ts" ? "TypeScript" : "JavaScript"
+    }`,
+    value: "snippets",
+  },
+  {
+    name: "New Template Script",
+    description: `Create a script using ${
+      kitMode() === "ts" ? "TypeScript" : "JavaScript"
+    }`,
+    value: "templates",
   },
   {
     name: "Download Script From URL",
@@ -72,7 +87,7 @@ Create a new script named <code>"${scriptName}"</code>
   }
 }
 
-let cliScript = await arg<keyof CLI>(
+let cliScript = await arg<keyof CLI | keyof Main>(
   {
     placeholder: "Create a new script",
     strict: false,
@@ -81,11 +96,12 @@ let cliScript = await arg<keyof CLI>(
   },
   previewChoices
 )
-
-if (cliScript === "docs") {
+if (cliScript === "snippets" || cliScript === "templates") {
+  await run(kitPath("main", `${cliScript}.js`))
+} else if (cliScript === "docs") {
   await setTab("Docs")
 } else if (flag?.discuss) {
-  let doc = await findDoc("new", cliScript)
+  let doc = await findDoc("templates", cliScript)
   if (doc?.discussion) {
     browse(doc?.discussion)
   }

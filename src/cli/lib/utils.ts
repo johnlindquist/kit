@@ -21,8 +21,10 @@ export let ensureTemplates = async () => {
     }
   }
 
-  await ensureTemplate("default.js")
-  await ensureTemplate("default.ts")
+  let templates = await readdir(kitTemplatesPath())
+  for await (let template of templates) {
+    await ensureTemplate(template)
+  }
 }
 
 export let createBinFromScript = async (

@@ -1,5 +1,3 @@
-import { cmd } from "../core/utils.js"
-
 // Description: App Launcher
 setName(``)
 let findAppsAndPrefs = async () => {
@@ -16,6 +14,7 @@ let findAppsAndPrefs = async () => {
     prefs,
   }
 }
+
 let createChoices = async () => {
   let { apps, prefs } = await findAppsAndPrefs()
   let group = path => apps =>
@@ -26,26 +25,66 @@ let createChoices = async () => {
         let bName = b.replace(/.*\//, "")
         return aName > bName ? 1 : aName < bName ? -1 : 0
       })
-  return [
-    ...group(/^\/Applications\/(?!Utilities)/)(apps),
-    ...group(/^\/System\/Applications/)(apps),
-    ...group(/\.prefPane$/)(prefs),
-    ...group(/^\/Applications\/Utilities/)(apps),
-    // ...group(/System/)(apps),
-    ...group(/Users/)(apps),
-  ].map(value => {
-    return {
-      name: value.split("/").pop().replace(".app", ""),
-      value,
-      description: value,
-    }
-  })
+  return await Promise.all(
+    [
+      ...group(/^\/Applications\/(?!Utilities)/)(apps),
+      ...group(/^\/System\/Applications/)(apps),
+      ...group(/\.prefPane$/)(prefs),
+      ...group(/^\/Applications\/Utilities/)(apps),
+      // ...group(/System/)(apps),
+      ...group(/Users/)(apps),
+    ].map(async appPath => {
+      let appName = appPath.split("/").pop()
+      let appResourceDir = path.resolve(
+        appPath,
+        "Contents",
+        "Resources"
+      )
+      let img = ``
+      if (await isDir(appResourceDir)) {
+        let appFiles = await readdir(appResourceDir)
+        let icon = appFiles.find(name =>
+          name.endsWith(`.icns`)
+        )
+        if (icon) {
+          let iconPath = path.resolve(appResourceDir, icon)
+          let assetsPath = kitPath(
+            "assets",
+            "app-launcher",
+            "icons"
+          )
+          await ensureDir(assetsPath)
+          let iconName = `${appName}.png`
+          img = path.resolve(assetsPath, iconName)
+          await exec(
+            `sips -z 320 320 -s format png '${iconPath}' --out '${img}'`
+          )
+        }
+      }
+      return {
+        name: appName.replace(".app", ""),
+        value: appPath,
+        description: appPath,
+        img,
+      }
+    })
+  )
 }
-let appsDb = await db("apps", async () => ({
-  choices: await createChoices(),
-}))
 
-let REFRESH = `__REFRESH__`
+let appsDb = await db("apps", async () => {
+  setChoices([])
+  setPrompt({
+    tabs: [],
+  })
+  console.log(
+    `First run: Indexing apps and converting icons...`
+  )
+  let choices = await createChoices()
+  console.clear()
+  return {
+    choices,
+  }
+})
 
 let input = ""
 let app = await arg(
@@ -53,16 +92,13 @@ let app = await arg(
     input: (flag?.input as string) || "",
     placeholder: "Select an app to launch",
     footer: "cmd+enter to refresh",
-    onShortcutSubmit: {
-      [`${cmd}+enter`]: REFRESH,
-    },
     onInput: i => {
       input = i
     },
   },
   appsDb.choices
 )
-if (app === REFRESH) {
+if (flag?.cmd) {
   await remove(kitPath("db", "apps.json"))
   await run(
     kitPath("main", "app-launcher.js"),
@@ -77,4 +113,5 @@ if (app === REFRESH) {
   await exec(command)
   hide()
 }
+
 export {}

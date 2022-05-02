@@ -684,6 +684,11 @@ export let parseScripts = async () => {
     scriptFiles.map(parseScript)
   )
   return scriptInfo.sort((a: Script, b: Script) => {
+    if (a?.index || b?.index) {
+      if ((a?.index || 9999) < (b?.index || 9999)) return -1
+      else return 1
+    }
+
     let aName = a.name.toLowerCase()
     let bName = b.name.toLowerCase()
 

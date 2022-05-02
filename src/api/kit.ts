@@ -125,19 +125,36 @@ export let buildTSScript = async (
   scriptPath,
   outPath = ""
 ) => {
+  let external = []
+  let mainKenvNodeModulesPath = home(
+    ".kenv",
+    "node_modules"
+  )
+  let subKenvNodeModulesPath = kenvPath("node_modules")
+  if (await isDir(mainKenvNodeModulesPath)) {
+    external = external.concat(
+      await global.readdir(mainKenvNodeModulesPath)
+    )
+  }
+
+  if (
+    subKenvNodeModulesPath !== mainKenvNodeModulesPath &&
+    (await isDir(subKenvNodeModulesPath))
+  ) {
+    external = external.concat(
+      await global.readdir(subKenvNodeModulesPath)
+    )
+  }
+
   let outfile = outPath || determineOutFile(scriptPath)
-
   let { build } = await import("esbuild")
-
   await build({
     entryPoints: [scriptPath],
     outfile,
     bundle: true,
     platform: "node",
     format: "esm",
-    external: [
-      ...(await global.readdir(kenvPath("node_modules"))),
-    ],
+    external,
     tsconfig: kitPath(
       "templates",
       "config",
@@ -145,6 +162,7 @@ export let buildTSScript = async (
     ),
   })
 }
+
 export let buildWidget = async (
   scriptPath,
   outPath = ""

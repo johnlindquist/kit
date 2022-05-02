@@ -1,0 +1,4 @@
+exec(`caffeinate`)
+hide()
+
+export {}

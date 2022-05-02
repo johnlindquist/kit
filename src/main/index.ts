@@ -13,6 +13,8 @@ export interface Main {
   kit: Promise<typeof import("./kit")>
   new: Promise<typeof import("./new")>
   showandtell: Promise<typeof import("./showandtell")>
+  snippets: Promise<typeof import("./snippets")>
+  templates: Promise<typeof import("./templates")>
 }
 
 interface MainModuleLoader {
