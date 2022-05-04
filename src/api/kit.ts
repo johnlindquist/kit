@@ -64,14 +64,18 @@ export let errorPrompt = async (error: Error) => {
     // .replaceAll('"', '\\"')
     // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
 
-    let child = global.spawnSync(kitPath("bin", "sk"), [
-      kitPath("cli", "error-action.js"),
-      script,
-      errorJsonPath, //.replaceAll('"', '\\"'),
-      errorFile,
-      line,
-      col,
-    ])
+    try {
+      global.spawnSync(kitPath("bin", "sk"), [
+        kitPath("cli", "error-action.js"),
+        script,
+        errorJsonPath, //.replaceAll('"', '\\"'),
+        errorFile,
+        line,
+        col,
+      ])
+    } catch (error) {
+      global.warn(error)
+    }
   } else {
     console.log(error)
   }

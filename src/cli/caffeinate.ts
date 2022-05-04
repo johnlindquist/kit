@@ -1,4 +1,4 @@
-exec(`caffeinate`)
+exec(`caffeinate -u`)
 hide()
 
 export {}

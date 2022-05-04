@@ -14,6 +14,7 @@ import {
   AppState,
   AppMessage,
   EditorOptions,
+  Config,
 } from "../types/kitapp"
 
 import {
@@ -1416,6 +1417,10 @@ global.keyboard = {
   config: async config => {
     send(Channel.KEYBOARD_CONFIG, config)
   },
+}
+
+global.setConfig = async (config: Config) => {
+  send(Channel.SET_CONFIG, config)
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]

@@ -18,6 +18,7 @@ export let isWin = platform().startsWith("win")
 export let isMac = platform().startsWith("darwin")
 export let isLinux = platform().startsWith("linux")
 export let cmd = isMac ? "cmd" : "ctrl"
+export let returnOrEnter = isMac ? "return" : "enter"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 export let jsh = process.env?.SHELL?.includes("jsh")

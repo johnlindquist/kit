@@ -77,7 +77,11 @@ if (!templateExists) {
 let templateContent = await readFile(templatePath, "utf8")
 
 let templateCompiler = compile(templateContent)
-contents += templateCompiler({ name, ...env })
+contents += templateCompiler({
+  name,
+  ...env,
+  ...Object.fromEntries(memoryMap),
+})
 if (arg.scriptName) {
   contents = `// Name: ${arg?.scriptName || ""}
 ${contents.startsWith("/") ? contents : "\n" + contents}

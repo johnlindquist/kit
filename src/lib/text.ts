@@ -22,6 +22,8 @@ await setSelectedText(`Script Kit is awesome!`)
 global.setSelectedText = async text => {
   await global.hide()
 
+  let prevText = await global.paste()
+
   await applescript(
     String.raw`set the clipboard to "${text.replaceAll(
       '"',
@@ -33,7 +35,9 @@ global.setSelectedText = async text => {
     String.raw`tell application "System Events" to keystroke "v" using command down`
   )
 
-  // await applescript(String.raw`set the clipboard to ""`)
+  await wait(250)
+
+  await global.copy(prevText)
 }
 
 export {}

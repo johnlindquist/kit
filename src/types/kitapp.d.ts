@@ -52,6 +52,10 @@ export interface AppMessage {
   widgetId?: number
 }
 
+export interface Config {
+  imagePath?: string
+}
+
 export interface EditorProps {
   options: EditorConfig
   height: number
@@ -256,6 +260,7 @@ export interface ChannelMap {
   [Channel.CLEAR_PREVIEW]: undefined
   [Channel.CONSOLE_CLEAR]: undefined
   [Channel.KIT_CLEAR]: undefined
+  [Channel.KIT_PASTE]: undefined
   [Channel.HIDE_APP]: undefined
   [Channel.NEEDS_RESTART]: undefined
   [Channel.TOGGLE_TRAY]: undefined
@@ -279,6 +284,7 @@ export interface ChannelMap {
   }
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
+  [Channel.SET_CONFIG]: Config
   [Channel.SET_BOUNDS]: Partial<Rectangle>
   [Channel.SET_CHOICES]: Choice[]
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
@@ -388,6 +394,10 @@ export interface SetLoading {
   (loading: boolean): void
 }
 
+export interface SetConfig {
+  (config: Config): void
+}
+
 export interface SetPlaceholder {
   (placeholder: string): void
 }
@@ -448,7 +458,7 @@ export interface ShowAppWindow {
   (content: string, options?: ShowOptions): void
 }
 
-interface ClipboardItem {
+export interface ClipboardItem {
   id: string
   name: string
   description: string
@@ -456,6 +466,7 @@ interface ClipboardItem {
   type: string
   timestamp: string
   maybeSecret: boolean
+  preview?: string
 }
 
 export interface Keyboard {
@@ -495,6 +506,8 @@ export interface AppApi {
 
   setIgnoreBlur: SetIgnoreBlur
   setLoading: SetLoading
+
+  setConfig: SetConfig
 
   show: ShowAppWindow
   showImage: ShowAppWindow
@@ -580,6 +593,8 @@ declare global {
   var setIgnoreBlur: SetIgnoreBlur
   var setLoading: SetLoading
 
+  var setConfig: SetConfig
+
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
@@ -587,6 +602,7 @@ declare global {
 
   var dev: (object?: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
+  var clearClipboardHistory: () => void
   var getEditorHistory: GetEditorHistory
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void

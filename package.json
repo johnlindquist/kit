@@ -53,7 +53,6 @@
     "googlethis": "1.2.7",
     "highlight.js": "11.3.1",
     "node-notifier": "10.0.0",
-    "petite-vue": "^0.4.1",
     "shelljs": "0.8.4",
     "suggestion": "^2.1.2",
     "trash": "7.2.0"
