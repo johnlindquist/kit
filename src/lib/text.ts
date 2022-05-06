@@ -19,13 +19,13 @@ await setSelectedText(`Script Kit is awesome!`)
 ```
 */
 
-global.setSelectedText = async text => {
-  await global.hide()
+global.setSelectedText = async (text = "", hide = true) => {
+  if (hide) await global.hide()
 
   let prevText = await global.paste()
 
   await applescript(
-    String.raw`set the clipboard to "${text.replaceAll(
+    String.raw`set the clipboard to "${text?.replaceAll(
       '"',
       '\\"'
     )}"`
@@ -37,7 +37,8 @@ global.setSelectedText = async text => {
 
   await wait(250)
 
-  await global.copy(prevText)
+  if (typeof prevText === "string")
+    await global.copy(prevText)
 }
 
 export {}

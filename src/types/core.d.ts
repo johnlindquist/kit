@@ -208,11 +208,13 @@ export interface PromptConfig
   onLeft?: ChannelHandler
   onRight?: ChannelHandler
   onTab?: ChannelHandler
-  debounceInput?: number
   onInput?: ChannelHandler
   onBlur?: ChannelHandler
-  debounceChoiceFocus?: number
   onChoiceFocus?: ChannelHandler
+  onPaste?: ChannelHandler
+  onDrop?: ChannelHandler
+  debounceInput?: number
+  debounceChoiceFocus?: number
   onInputSubmit?: {
     [key: string]: any
   }

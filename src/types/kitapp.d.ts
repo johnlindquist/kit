@@ -42,6 +42,8 @@ export interface AppState {
   script?: Script
   submitted?: boolean
   shortcut?: string
+  paste?: string
+  isPasteImage?: boolean
 }
 
 export interface AppMessage {
@@ -53,7 +55,8 @@ export interface AppMessage {
 }
 
 export interface Config {
-  imagePath?: string
+  imagePath: string
+  deleteSnippet: boolean
 }
 
 export interface EditorProps {
@@ -71,7 +74,9 @@ export type EditorOptions =
     onInput?: PromptConfig["onInput"]
     onEscape?: PromptConfig["onEscape"]
     onAbandon?: PromptConfig["onAbandon"]
+    onPaste?: PromptConfig["onPaste"]
     onBlur?: PromptConfig["onBlur"]
+    onDrop?: PromptConfig["onDrop"]
     ignoreBlur?: boolean
     extraLibs?: { content: string; filePath: string }[]
   }
@@ -284,7 +289,7 @@ export interface ChannelMap {
   }
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
-  [Channel.SET_CONFIG]: Config
+  [Channel.SET_CONFIG]: Partial<Config>
   [Channel.SET_BOUNDS]: Partial<Rectangle>
   [Channel.SET_CHOICES]: Choice[]
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]

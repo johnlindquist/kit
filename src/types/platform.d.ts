@@ -225,7 +225,7 @@ interface Say {
 }
 
 interface SetSelectedText {
-  (text: string): Promise<void>
+  (text: string, hide?: boolean): Promise<void>
 }
 
 interface KeyStroke {

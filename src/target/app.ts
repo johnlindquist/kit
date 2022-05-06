@@ -72,6 +72,8 @@ interface DisplayChoicesProps {
   onNoChoices?: PromptConfig["onNoChoices"]
   onChoiceFocus?: PromptConfig["onChoiceFocus"]
   onBlur?: PromptConfig["onChoiceFocus"]
+  onPaste?: PromptConfig["onPaste"]
+  onDrop?: PromptConfig["onDrop"]
 }
 
 let promptId = 0
@@ -253,6 +255,8 @@ let waitForPromptValue = ({
   onLeft,
   onRight,
   onShortcut,
+  onPaste,
+  onDrop,
   state,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
@@ -411,6 +415,14 @@ let waitForPromptValue = ({
               data.state
             )
             break
+
+          case Channel.ON_PASTE:
+            onPaste(data.state.input, data.state)
+            break
+
+          case Channel.ON_DROP:
+            onDrop(data.state.input, data.state)
+            break
         }
       },
       complete: () => {
@@ -474,6 +486,12 @@ let onDownDefault = async () => {}
 let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
+let onPasteDefault = async (input, state) => {
+  if (state.paste) setSelectedText(state.paste, false)
+}
+let onDropDefault = async (input, state) => {
+  if (state.drop) setSelectedText(state.drop, false)
+}
 
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
@@ -617,6 +635,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     onBlur = onBlurDefault,
     input = "",
     onShortcut,
+    onPaste = onPasteDefault,
+    onDrop = onDropDefault,
   } = config
 
   await prepPrompt(config)
@@ -644,6 +664,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     onChoiceFocus: choiceFocus,
     onBlur,
     onShortcut,
+    onPaste,
+    onDrop,
     state: { input },
   })
 }
@@ -733,6 +755,8 @@ global.editor = async (options?: EditorOptions) => {
     onInput: () => {},
     onEscape: onEscapeDefault,
     onAbandon: onAbandonDefault,
+    onPaste: onPasteDefault,
+    onDrop: onDropDefault,
     onBlur: () => {},
     ignoreBlur: true,
   }
@@ -753,6 +777,8 @@ global.editor = async (options?: EditorOptions) => {
     onEscape: editorOptions?.onEscape,
     onAbandon: editorOptions?.onAbandon,
     onBlur: editorOptions?.onBlur,
+    onPaste: editorOptions?.onPaste,
+    onDrop: editorOptions?.onDrop,
     footer: editorOptions?.footer || "",
   })
 }
@@ -1419,7 +1445,7 @@ global.keyboard = {
   },
 }
 
-global.setConfig = async (config: Config) => {
+global.setConfig = async (config: Partial<Config>) => {
   send(Channel.SET_CONFIG, config)
 }
 

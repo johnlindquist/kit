@@ -147,6 +147,8 @@ export enum Channel {
   WIDGET_FIT = "WIDGET_FIT",
   WIDGET_INIT = "WIDGET_INIT",
   SHORTCUT = "SHORTCUT",
+  ON_PASTE = "ON_PASTE",
+  ON_DROP = "ON_DROP",
 }
 
 export enum ProcessType {
