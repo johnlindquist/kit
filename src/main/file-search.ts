@@ -52,12 +52,8 @@ let action = await arg<string>(
       value: "info",
     },
     {
-      name: "Open in Terminal",
+      name: "Open File Path in Terminal",
       value: "terminal",
-    },
-    {
-      name: "Run Command",
-      value: "command",
     },
     {
       name: "Open in VS Code",
@@ -99,13 +95,10 @@ tell application "Finder" to open information window of aFile
     break
 
   case "terminal":
-    await exec(`open -a Terminal '${selectedFile}'`)
-    break
-
-  case "command":
-    cd(selectedFile)
-    setDescription(`> Run command:`)
-    await exec(await arg("Enter command:"))
+    let selectedDir = (await isDir(selectedFile))
+      ? selectedFile
+      : path.dirname(selectedFile)
+    terminal(`cd '${selectedDir}'`)
     break
 
   case "vscode":

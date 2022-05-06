@@ -1,7 +1,7 @@
-// Description: Terminate a Script Kit Process
+// Description: Process List
+// Log: false
 
 import { Channel } from "../core/enum.js"
-
 let formatProcesses = async () => {
   let processes = await getProcesses()
   return processes
@@ -10,18 +10,18 @@ let formatProcesses = async () => {
       return {
         name: p?.scriptPath,
         description: `${p.pid}`,
-        value: p.pid,
+        value: p,
       }
     })
 }
-
 let id = setTimeout(async () => {
   setChoices(await formatProcesses())
 }, 1000)
 
 let argPromise = arg(
   {
-    placeholder: "Terminate Script Kit Process",
+    placeholder: "Select Process",
+    hint: "Select to view log or terminate",
     onEscape: async () => {
       clearTimeout(id)
       await mainScript()
@@ -33,12 +33,33 @@ let argPromise = arg(
   },
   await formatProcesses()
 )
-
-let pid = await argPromise
+let { pid, scriptPath } = await argPromise
 clearInterval(id)
 
-send(Channel.TERMINATE_PROCESS, pid)
+setDescription(`${pid}: ${scriptPath}`)
+let action = await arg("Select action", [
+  {
+    name: `View Process Log`,
+    value: "logs",
+  },
+  {
+    name: `Terminate Process`,
+    value: "terminate",
+  },
+])
 
-await run(kitPath("cli", "processes.js"))
+if (action === "logs") {
+  let { dir, name } = path.parse(scriptPath)
+  let logPath = path.resolve(
+    dir,
+    "..",
+    "logs",
+    name + ".log"
+  )
+  await edit(logPath)
+}
 
-export {}
+if (action === "terminate") {
+  send(Channel.TERMINATE_PROCESS, pid)
+  await run(kitPath("cli", "processes.js"))
+}
