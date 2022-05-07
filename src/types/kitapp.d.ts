@@ -481,6 +481,13 @@ export interface Keyboard {
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
+export interface ExecLog {
+  (
+    command: string,
+    logger?: typeof console.log
+  ): ReturnType<exec>
+}
+
 export interface AppApi {
   textarea: TextArea
   drop: Drop
@@ -554,6 +561,9 @@ export interface AppApi {
 
   log: typeof console.log
   warn: typeof console.warn
+
+  keyboard: Keyboard
+  execLog: ExecLog
 }
 
 export interface Background {
@@ -621,4 +631,6 @@ declare global {
   var warn: typeof console.warn
 
   var keyboard: Keyboard
+
+  var execLog: ExecLog
 }

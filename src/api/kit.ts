@@ -777,3 +777,22 @@ global.term = async commandOrConfig => {
   let result = await task
   return result?.stdout || result?.stderr || ""
 }
+
+global.execLog = (command: string, logger = global.log) => {
+  let writeableStream = new Writable()
+  writeableStream._write = (chunk, encoding, next) => {
+    logger(chunk.toString().trim())
+    next()
+  }
+
+  let child = exec(command, {
+    all: true,
+    shell:
+      process?.env?.KIT_SHELL ||
+      (process.platform === "win32" ? "cmd.exe" : "zsh"),
+  })
+
+  child.all.pipe(writeableStream)
+
+  return child
+}

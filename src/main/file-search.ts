@@ -16,11 +16,12 @@ let selectedFile = await arg(
 
     let files = await fileSearch(input)
 
-    return files.map(path => {
+    return files.map(p => {
       return {
-        name: path.split("/").pop(),
-        description: path,
-        value: path,
+        name: path.basename(p),
+        description: p,
+        drag: p,
+        value: p,
       }
     })
   }

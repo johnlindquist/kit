@@ -21,7 +21,7 @@ let id = setTimeout(async () => {
 let argPromise = arg(
   {
     placeholder: "Select Process",
-    hint: "Select to view log or terminate",
+    footer: "Select to view process options",
     onEscape: async () => {
       clearTimeout(id)
       await mainScript()
@@ -36,26 +36,30 @@ let argPromise = arg(
 let { pid, scriptPath } = await argPromise
 clearInterval(id)
 
+let { dir, name } = path.parse(scriptPath)
+let logPath = path.resolve(dir, "..", "logs", name + ".log")
+let hasLog = await isFile(logPath)
+
 setDescription(`${pid}: ${scriptPath}`)
-let action = await arg("Select action", [
+
+let actions = [
   {
-    name: `View Process Log`,
-    value: "logs",
-  },
-  {
-    name: `Terminate Process`,
+    name: `Terminate`,
+    description: `Terminate process ${pid}`,
     value: "terminate",
   },
-])
+]
+
+if (hasLog) {
+  actions.unshift({
+    name: `View Log`,
+    description: logPath,
+    value: "logs",
+  })
+}
+let action = await arg("Select action", actions)
 
 if (action === "logs") {
-  let { dir, name } = path.parse(scriptPath)
-  let logPath = path.resolve(
-    dir,
-    "..",
-    "logs",
-    name + ".log"
-  )
   await edit(logPath)
 }
 
