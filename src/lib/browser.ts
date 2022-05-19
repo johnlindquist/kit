@@ -119,7 +119,7 @@ global.scrapeSelector = async (
 
   if (!url.startsWith("http")) url = "https://" + url
   await page.goto(url)
-  // await page.waitForSelector(selector)
+  await page.waitForSelector(selector)
   let selectorHandles = await page.$$(selector)
   let results = await Promise.all(
     selectorHandles.map(async handle => {
@@ -151,7 +151,7 @@ global.scrapeAttribute = async (
 
   if (!url.startsWith("http")) url = "https://" + url
   await page.goto(url)
-  // await page.waitForSelector(selector)
+  await page.waitForSelector(selector)
   let results = await page.getAttribute(selector, attribute)
 
   await browser.close()

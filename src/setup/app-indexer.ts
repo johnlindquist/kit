@@ -1,5 +1,6 @@
-// Description: App Launcher
-setName(``)
+let appsPath = kitPath("db", "apps.json")
+if (await isFile(appsPath)) await remove(appsPath)
+
 let findAppsAndPrefs = async () => {
   let apps = await fileSearch("", {
     onlyin: "/",
@@ -74,47 +75,10 @@ let createChoices = async () => {
   )
 }
 
-let appsDb = await db("apps", async () => {
-  setChoices([])
-  setPrompt({
-    tabs: [],
-  })
-  console.log(
-    `First run: Indexing apps and converting icons...`
-  )
-  let choices = await createChoices()
-  console.clear()
+await db("apps", async () => {
   return {
-    choices,
+    choices: await createChoices(),
   }
 })
-
-let input = ""
-let app = await arg(
-  {
-    input: (flag?.input as string) || "",
-    placeholder: "Select an app to launch",
-    footer: "cmd+enter to refresh",
-    onInput: i => {
-      input = i
-    },
-  },
-  appsDb.choices
-)
-if (flag?.cmd) {
-  await remove(kitPath("db", "apps.json"))
-  await run(
-    kitPath("main", "app-launcher.js"),
-    "--input",
-    input
-  )
-} else {
-  let command = `open -a "${app}"`
-  if (app.endsWith(".prefPane")) {
-    command = `open ${app}`
-  }
-  await exec(command)
-  hide()
-}
 
 export {}

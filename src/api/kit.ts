@@ -765,7 +765,7 @@ global.setTab = (tabName: string) => {
   global.onTabs[i].fn()
 }
 
-export { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
+export { Octokit } from "../share/auth-scriptkit.js"
 
 global.term = async commandOrConfig => {
   let command =

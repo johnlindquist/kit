@@ -195,11 +195,13 @@ export interface AppConfig {
 }
 
 export type GetAppData =
+  | Channel.GET_ACTIVE_APP
   | Channel.GET_BACKGROUND
   | Channel.GET_MOUSE
   | Channel.GET_SCHEDULE
   | Channel.GET_BOUNDS
   | Channel.GET_SCREEN_INFO
+  | Channel.GET_SCREENS_INFO
   | Channel.GET_SCRIPTS_STATE
   | Channel.GET_CLIPBOARD_HISTORY
 
@@ -225,6 +227,8 @@ export interface ChannelMap {
   [Channel.GET_PROCESSES]: undefined
   [Channel.GET_BOUNDS]: undefined
   [Channel.GET_SCREEN_INFO]: undefined
+  [Channel.GET_SCREENS_INFO]: undefined
+  [Channel.GET_ACTIVE_APP]: undefined
   [Channel.GET_SCRIPTS_STATE]: undefined
   [Channel.GET_CLIPBOARD_HISTORY]: undefined
   [Channel.WIDGET_GET]: undefined
@@ -308,7 +312,6 @@ export interface ChannelMap {
   [Channel.SET_LOG]: string
   [Channel.SET_LOGO]: string
   [Channel.SET_LOGIN]: boolean
-  [Channel.SET_MODE]: Mode
   [Channel.SET_NAME]: string
   [Channel.SET_OPEN]: boolean
   [Channel.SET_PANEL]: string

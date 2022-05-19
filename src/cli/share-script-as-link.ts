@@ -1,6 +1,6 @@
 //Menu: Share Script as scriptkit.com link
 //Description: Create a gist and share from ScriptKit
-import { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
+import { Octokit } from "../share/auth-scriptkit.js"
 
 let { filePath, command } = await selectScript(
   `Share which script?`

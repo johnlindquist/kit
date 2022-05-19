@@ -79,7 +79,6 @@ export enum Channel {
   SET_NAME = "SET_NAME",
   SET_MAIN_HEIGHT = "SET_MAIN_HEIGHT",
   SET_MAX_HEIGHT = "SET_MAX_HEIGHT",
-  SET_MODE = "SET_MODE",
   SET_OPEN = "SET_OPEN",
   SET_PANEL = "SET_PANEL",
   SET_PID = "SET_PID",
@@ -149,6 +148,8 @@ export enum Channel {
   SHORTCUT = "SHORTCUT",
   ON_PASTE = "ON_PASTE",
   ON_DROP = "ON_DROP",
+  GET_SCREENS_INFO = "GET_SCREENS_INFO",
+  GET_ACTIVE_APP = "GET_ACTIVE_APP",
 }
 
 export enum ProcessType {

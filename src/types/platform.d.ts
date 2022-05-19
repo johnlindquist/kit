@@ -40,7 +40,7 @@ interface FocusTab {
 }
 
 interface ScrapeOptions {
-  headless?: true
+  headless?: boolean
   timeout?: number
 }
 interface ScrapeSelector {
@@ -153,7 +153,7 @@ interface Screen {
   height: number
 }
 interface GetScreens {
-  (): Promise<Screen[]>
+  (): Promise<Display[]>
 }
 
 interface TileWindow {
@@ -183,6 +183,23 @@ interface Bounds {
 }
 interface SetActiveAppBounds {
   (bounds: Bounds): Promise<void>
+}
+interface SetActiveAppPosition {
+  (position: { x: number; y: number }): Promise<void>
+}
+interface SetActiveAppSize {
+  (size: { width: number; height: number }): Promise<void>
+}
+
+interface GetActiveAppInfo {
+  (): Promise<{
+    localizedName: string
+    bundleId: string
+    bundlePath: string
+    executablePath: string
+    isLaunched: boolean
+    pid: number
+  }>
 }
 interface GetActiveAppBounds {
   (): Promise<Bounds>
@@ -242,6 +259,9 @@ export interface PlatformApi {
   fileSearch: FileSearch
   focusTab: FocusTab
   focusWindow: FocusWindow
+  getActiveTab: GetActiveTab
+  getActiveScreen: GetActiveScreen
+  getActiveAppInfo: GetActiveAppInfo
   getActiveAppBounds: GetActiveAppBounds
   getActiveScreen: GetActiveScreen
   getActiveTab: GetActiveTab
@@ -265,6 +285,8 @@ export interface PlatformApi {
   scrapeAttribute: ScrapeAttribute
   scrapeSelector: ScrapeSelector
   setActiveAppBounds: SetActiveAppBounds
+  setActiveAppPosition: SetActiveAppPosition
+  setActiveAppSize: SetActiveAppSize
   setSelectedText: SetSelectedText
   setWindowBoundsByIndex: SetWindowBoundsByIndex
   setWindowPosition: SetWindowPosition
@@ -282,6 +304,7 @@ declare global {
   var fileSearch: FileSearch
   var focusTab: FocusTab
   var focusWindow: FocusWindow
+  var getActiveAppInfo: GetActiveAppInfo
   var getActiveAppBounds: GetActiveAppBounds
   var getActiveScreen: GetActiveScreen
   var getActiveTab: GetActiveTab
@@ -306,6 +329,8 @@ declare global {
   var scrapeAttribute: ScrapeAttribute
   var scrapeSelector: ScrapeSelector
   var setActiveAppBounds: SetActiveAppBounds
+  var setActiveAppPosition: SetActiveAppPosition
+  var setActiveAppSize: SetActiveAppSize
   var setSelectedText: SetSelectedText
   var setWindowBoundsByIndex: SetWindowBoundsByIndex
   var setWindowPosition: SetWindowPosition

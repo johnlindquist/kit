@@ -1,7 +1,11 @@
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 import { Main } from "./index"
-import { kitMode, run } from "../core/utils.js"
+import {
+  kitMode,
+  returnOrEnter,
+  run,
+} from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
 setFlags({
@@ -81,7 +85,7 @@ let onNoChoices = async input => {
     setPanel(
       md(`# Create <code>${scriptName}</code>
 
-Create a new script named <code>"${scriptName}"</code>
+Type <kbd>${returnOrEnter}</kd> to create a script named <code>${scriptName}</code>
     `)
     )
   }

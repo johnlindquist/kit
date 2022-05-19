@@ -959,10 +959,6 @@ global.setPreview = async (h, containerClasses = "") => {
   setLoading(false)
 }
 
-global.setMode = async mode => {
-  global.send(Channel.SET_MODE, mode)
-}
-
 global.setHint = async hint => {
   global.send(Channel.SET_HINT, hint)
 }

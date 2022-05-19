@@ -7,6 +7,7 @@ import {
   toggleBackground,
   run,
   cmd,
+  returnOrEnter,
 } from "../core/utils.js"
 
 let modifiers = {
@@ -162,7 +163,9 @@ No matches found for <code>${input}</code>`)
       .toLowerCase()
 
     panel = md(`# Create <code>${scriptName}</code>
-Create a new script named <code>"${scriptName}"</code>`)
+
+Type <kbd>${returnOrEnter}</kbd> to create a script named <code>${scriptName}</code>
+        `)
     setPanel(panel)
   }
 }
@@ -199,6 +202,8 @@ let script = await selectScript(
       ";": kitPath("handler", "semicolon-handler.js"),
       ":": kitPath("handler", "colon-handler.js"),
       ".": kitPath("handler", "period-handler.js"),
+      "\\": kitPath("handler", "backslash-handler.js"),
+      "|": kitPath("handler", "pipe-handler.js"),
       ",": kitPath("handler", "comma-handler.js"),
       "`": kitPath("handler", "backtick-handler.js"),
       "<": kitPath("handler", "lessthan-handler.js"),

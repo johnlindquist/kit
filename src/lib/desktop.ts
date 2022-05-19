@@ -276,31 +276,9 @@ global.setWindowSize = async (process, title, x, y) => {
   end tell`)
 }
 
-global.getScreens = async () => {
-  let result = await applescript(String.raw`
-${utils}
-
-repeat with screen in current application's NSScreen's screens
-	set theScreen to screen's frame()
-	set theOffset to item 1 of theScreen
-	set theSize to item 2 of theScreen
-	V's addPair("name", screen's localizedName() as string)
-	V's addPair("x", item 1 of theOffset)
-	V's addPair("y", item 2 of theOffset)
-	
-	V's addPair("width", item 1 of theSize)
-	V's addPair("height", item 2 of theSize)
-
-	
-	V's finalizeObject()
-end repeat
-
-V's finalizeJSON()
-get V's JSON
-	`)
-
-  return JSON.parse(result)
-}
+global.getScreens = async () =>
+  (await global.getDataFromApp(Channel.GET_SCREENS_INFO))
+    .displays
 
 global.tileWindow = async (app, leftOrRight) => {
   return await applescript(String.raw`
@@ -341,6 +319,26 @@ global.setActiveAppBounds = async ({
     end tell`
   )
 }
+global.setActiveAppPosition = async ({ x, y }) => {
+  await applescript(
+    `tell application "System Events"
+      set processName to name of first application process whose frontmost is true as text
+      tell process processName to set the position of front window to {${x}, ${y}}      
+    end tell`
+  )
+}
+
+global.setActiveAppSize = async ({ width, height }) => {
+  await applescript(
+    `tell application "System Events"
+      set processName to name of first application process whose frontmost is true as text
+      tell process processName to set the size of front window to {${width}, ${height}}
+    end tell`
+  )
+}
+
+global.getActiveAppInfo = async () =>
+  (await global.getDataFromApp(Channel.GET_ACTIVE_APP)).app
 
 global.getActiveAppBounds = async () => {
   let stringBounds = await applescript(String.raw`

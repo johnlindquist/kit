@@ -1,7 +1,7 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 
-import { Octokit } from "@johnlindquist/kit-internal/scriptkit-octokit"
+import { Octokit } from "../share/auth-scriptkit.js"
 
 let { filePath, command } = await selectScript(
   `Share which script?`
