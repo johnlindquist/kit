@@ -691,8 +691,6 @@ export let selectKenv = async (
       }),
     ]
 
-    global.log({ args: global.args, ignorePattern })
-
     selectedKenv = await global.arg(
       `Select target kenv`,
       kenvChoices
