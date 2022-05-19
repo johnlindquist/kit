@@ -696,8 +696,6 @@ export let selectKenv = async (
       kenvChoices
     )
 
-    global.log({ selectedKenv })
-
     if (typeof selectedKenv === "string") {
       return kenvChoices.find(
         c =>
