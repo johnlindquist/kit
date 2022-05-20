@@ -527,8 +527,6 @@ export interface AppApi {
   show: ShowAppWindow
   showImage: ShowAppWindow
 
-  setMode: (mode: Mode) => void
-
   currentOnTab: any
 
   setChoices: SetChoices
@@ -595,7 +593,6 @@ declare global {
   var setPanel: SetPanel
   var setFooter: SetFooter
   var setChoices: SetChoices
-  var setMode: SetMode
   var setDiv: SetPanel
   var setPreview: SetPreview
   var setPrompt: SetPrompt
