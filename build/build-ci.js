@@ -9,7 +9,7 @@ let kitPath = (...pathParts) =>
 
 console.log({ kitPath: kitPath() })
 
-cp("-R", "./root", kitPath())
+cp("-R", "./root/.", kitPath())
 cp("-R", "./build", kitPath())
 cp("-R", "./src/types", kitPath())
 

@@ -47,7 +47,7 @@ let installNode =
       )
     : installNodeWin()
 
-cp("-R", "./root/*", kitPath())
+cp("-R", "./root/.", kitPath())
 cp("-R", "./build", kitPath())
 cp("-R", "./src/types", kitPath())
 
