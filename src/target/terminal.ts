@@ -15,7 +15,14 @@ let notSupported = async (method: string) => {
 
 global.kitPrompt = async (config: any) => {
   if (config?.choices) {
-    config = { ...config, type: "autocomplete" }
+    config = {
+      ...config,
+      type: "autocomplete",
+      choices: config.choices.map(({ name, value }) => ({
+        name,
+        value,
+      })),
+    }
   }
   if (config?.secret) {
     config = { type: "password", ...config }
