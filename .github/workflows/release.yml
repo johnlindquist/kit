@@ -69,48 +69,52 @@ jobs:
           cd "${{ env.wd_path }}"
           npm i
 
-      - name: npm run test
+      - name: Check kit on PATH
         run: |
-          npm run test
-        env:
-          KIT: ${{ env.kit_path }}
+          which kit
 
-      - name: Semantic Release
-        run: |
-          cd "${{ env.wd_path }}"
-          npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: npm run test
+      #   run: |
+      #     npm run test
+      #   env:
+      #     KIT: ${{ env.kit_path }}
 
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
-        with:
-          filename: "kit.zip"
-          path: ".kit"
+      # - name: Semantic Release
+      #   run: |
+      #     cd "${{ env.wd_path }}"
+      #     npx semantic-release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create Draft Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.time.outputs.time }}
-          release_name: ${{ env.release_channel }}
-          draft: true
-          prerelease: false
+      # - name: Archive Release
+      #   uses: thedoctor0/zip-release@master
+      #   with:
+      #     filename: "kit.zip"
+      #     path: ".kit"
 
-      - uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./kit.zip
-          asset_name: kit.zip
-          asset_content_type: application/zip
+      # - name: Create Draft Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ steps.time.outputs.time }}
+      #     release_name: ${{ env.release_channel }}
+      #     draft: true
+      #     prerelease: false
 
-      - uses: eregon/publish-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          release_id: ${{ steps.create_release.outputs.id }}
+      # - uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./kit.zip
+      #     asset_name: kit.zip
+      #     asset_content_type: application/zip
+
+      # - uses: eregon/publish-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     release_id: ${{ steps.create_release.outputs.id }}
