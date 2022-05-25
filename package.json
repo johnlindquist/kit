@@ -44,6 +44,7 @@
     "@johnlindquist/globals": "^1.13.0",
     "@johnlindquist/kit-internal": "1.12.2",
     "@octokit/auth-oauth-device": "^3.1.2",
+    "@octokit/core": "^3.6.0",
     "@octokit/plugin-paginate-rest": "^2.17.0",
     "@octokit/plugin-rest-endpoint-methods": "^5.13.0",
     "@octokit/plugin-retry": "^3.0.9",

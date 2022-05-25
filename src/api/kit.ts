@@ -381,8 +381,15 @@ if (process?.send) {
   }
 }
 
-global.show = (html, options) => {
-  global.send(Channel.SHOW, { options, html })
+global.show = async (html, options) => {
+  await global.widget(
+    md(`## Show is Deprecated
+
+Please use the new \`widget\` function instead.
+
+[https://github.com/johnlindquist/kit/discussions/745](https://github.com/johnlindquist/kit/discussions/745)`)
+  )
+  // global.send(Channel.SHOW, { options, html })
 }
 
 global.dev = data => {
@@ -390,12 +397,16 @@ global.dev = data => {
 }
 global.devTools = global.dev
 
-global.showImage = (image, options) => {
-  global.send(Channel.SHOW_IMAGE, {
-    options,
-    image:
-      typeof image === "string" ? { src: image } : image,
-  })
+global.showImage = async (html, options) => {
+  await global.widget(
+    md(`## \`showImage\` is Deprecated
+
+Please use the new \`widget\` function instead.
+
+[https://github.com/johnlindquist/kit/discussions/745](https://github.com/johnlindquist/kit/discussions/745)
+`)
+  )
+  // global.send(Channel.SHOW, { options, html })
 }
 
 global.setPlaceholder = text => {

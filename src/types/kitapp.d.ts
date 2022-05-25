@@ -463,7 +463,7 @@ export type ShowOptions =
   }
 
 export interface ShowAppWindow {
-  (content: string, options?: ShowOptions): void
+  (content: string, options?: ShowOptions): Promise<void>
 }
 
 export interface ClipboardItem {
