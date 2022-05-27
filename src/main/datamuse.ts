@@ -21,6 +21,28 @@ let queryWords = (api, type) => async input => {
       name: `${word}`,
       value: word,
       description,
+      preview:
+        api === "sug"
+          ? async () => {
+              let api = "words"
+              let type = "ml"
+              let url = `https://api.datamuse.com/${api}?${type}=${word}&md=d$max=1`
+              let response = await get(url)
+              if (response?.data?.[0]?.defs?.[0]) {
+                let { defs } = response.data[0]
+                return md(
+                  defs
+                    .map(def => {
+                      let [type, meaning] = def.split("\t")
+                      return `* (${type}): ${meaning}`
+                    })
+                    .join("\n")
+                )
+              }
+
+              return ""
+            }
+          : "",
     }
   })
 

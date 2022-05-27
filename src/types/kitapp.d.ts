@@ -460,6 +460,7 @@ export type ShowOptions =
   BrowserWindowConstructorOptions & {
     ttl?: number
     draggable?: boolean
+    center?: boolean
   }
 
 export interface ShowAppWindow {
