@@ -32,6 +32,26 @@ global.getSelectedFile = async () => {
   )
 }
 
+global.getSelectedDir = async () => {
+  return await applescript(`
+ tell application "Finder"
+     if exists Finder window 1 then
+         set currentDir to target of Finder window 1 as alias
+     else
+         set currentDir to desktop as alias
+     end if
+ end tell
+ POSIX path of currentDir
+ `)
+}
+
+global.setSelectedFile = async (filePath: string) => {
+  await applescript(`
+set aFile to (POSIX file "${filePath}") as alias
+tell application "Finder" to select aFile
+`)
+}
+
 global.copyPathAsImage = async path =>
   await applescript(
     String.raw`set the clipboard to (read (POSIX file "${path}") as JPEG picture)`

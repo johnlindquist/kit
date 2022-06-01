@@ -24,36 +24,37 @@ export type StrategyOptions = {
   env?: string | false
 }
 
-const DEFAULT_CLIENT_ID = "149153b71e602700c2f2"
-const ENV_TOKEN_PREFIX = "GITHUB_TOKEN"
+let DEFAULT_CLIENT_ID = "149153b71e602700c2f2"
+let ENV_TOKEN_PREFIX = "GITHUB_TOKEN"
 
-export function createScriptKitAuth({
+let w = null
+function createScriptKitAuth({
   clientId = DEFAULT_CLIENT_ID,
   scopes = [],
   env,
 }: StrategyOptions) {
-  const deviceAuth = createOAuthDeviceAuth({
+  let deviceAuth = createOAuthDeviceAuth({
     clientType: "oauth-app",
     clientId: clientId,
     scopes,
-    onVerification(verification) {
+    async onVerification(verification) {
       global.exec(`open '${verification.verification_uri}'`)
       global.copy(verification.user_code)
-      global.arg(
-        {
-          placeholder: `Press <enter> after granting permissions`,
-          ignoreBlur: true,
-        },
+      w = await global.widget(
         md(
           `### Open <a href="${verification.verification_uri}">${verification.verification_uri}</a>
 
 Verification code <code>${verification.user_code}</code> copied to clipboard`.trim()
-        )
+        ),
+        {
+          width: 420,
+          height: 120,
+        }
       )
     },
   })
 
-  const envVariableName = env || scopesToEnvName(scopes)
+  let envVariableName = env || scopesToEnvName(scopes)
 
   return Object.assign(
     auth.bind(
@@ -86,7 +87,8 @@ async function auth(
     }
   }
 
-  const result = await deviceAuth({ type: "oauth" })
+  let result = await deviceAuth({ type: "oauth" })
+  if (w) w?.close()
 
   await global.cli(
     "set-env-var",
@@ -126,7 +128,8 @@ function hook(
   return deviceAuth
     .hook(request, route, parameters)
     .then(async (response: any) => {
-      const result = await deviceAuth({ type: "oauth" })
+      let result = await deviceAuth({ type: "oauth" })
+      if (w) w?.close()
       await global.cli(
         "set-env-var",
         envVariableName,
@@ -146,7 +149,7 @@ function scopesToEnvName(scopes: string[]) {
     .toUpperCase()
 }
 
-export const Octokit = OctokitCore.plugin(
+export let Octokit = OctokitCore.plugin(
   restEndpointMethods,
   paginateRest,
   retry,

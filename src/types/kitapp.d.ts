@@ -304,6 +304,7 @@ export interface ChannelMap {
   [Channel.SET_FORM_HTML]: { html: string; formData: any }
   [Channel.SET_HINT]: string
   [Channel.SET_IGNORE_BLUR]: boolean
+  [Channel.SET_KIT_STATE]: any
   [Channel.SET_INPUT]: string
   [Channel.SET_FILTER_INPUT]: string
   [Channel.SET_FOCUSED]: string
