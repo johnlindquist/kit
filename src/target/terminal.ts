@@ -3,6 +3,7 @@ import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { PromptConfig } from "../types/core"
 import { assignPropsTo } from "../core/utils.js"
 import { Rectangle } from "../types/electron"
+import { EditorOptions } from "../types/kitapp"
 
 type Enquirer =
   typeof import("@johnlindquist/kit-internal/enquirer").enquirer
@@ -15,10 +16,15 @@ let notSupported = async (method: string) => {
 
 global.kitPrompt = async (config: any) => {
   if (config?.choices) {
+    let choices = config.choices
+    if (typeof choices === "function") {
+      choices = await choices()
+    }
+
     config = {
       ...config,
       type: "autocomplete",
-      choices: config.choices.map(({ name, value }) => ({
+      choices: choices.map(({ name, value }) => ({
         name,
         value,
       })),
@@ -220,10 +226,38 @@ global.textarea = async () => {
   global.exit()
 }
 
-global.editor = async () => {
-  console.warn(`"editor" is not support in the terminal`)
+global.edit = async filePath => {
+  if (global?.env?.KIT_TERMINAL_EDITOR) {
+    if (global?.env?.KIT_TERMINAL_EDITOR === "kit") {
+      try {
+        await exec(
+          `~/.kit/kar ~/.kit/cli/edit.js '${filePath}'`
+        )
+      } catch (error) {}
+    } else {
+      await spawn(
+        global.env.KIT_TERMINAL_EDITOR,
+        [filePath],
+        {
+          stdio: "inherit",
+        }
+      )
+    }
+  } else {
+    if (global?.env?.KIT_EDITOR === "kit") {
+      await spawn("vim", [filePath], {
+        stdio: "inherit",
+      })
+    } else {
+      await spawn(global.env.KIT_EDITOR, [filePath], {
+        stdio: "inherit",
+      })
+    }
+  }
+}
 
-  global.exit()
+global.editor = async (options: EditorOptions) => {
+  global.edit(options.file)
 }
 
 global.drop = async () => {
