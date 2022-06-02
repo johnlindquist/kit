@@ -227,6 +227,7 @@ global.textarea = async () => {
 }
 
 global.edit = async filePath => {
+  if (global.flag?.edit === false) return
   if (global?.env?.KIT_TERMINAL_EDITOR) {
     if (global?.env?.KIT_TERMINAL_EDITOR === "kit") {
       try {
@@ -257,6 +258,7 @@ global.edit = async filePath => {
 }
 
 global.editor = async (options: EditorOptions) => {
+  if (global.flag?.edit === false) return
   global.edit(options.file)
 }
 
