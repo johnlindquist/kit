@@ -10,6 +10,7 @@ let importKit = async (...parts) =>
 await importKit("api/global.js")
 await importKit("api/kit.js")
 await importKit("api/lib.js")
+await importKit("target/terminal.js")
 
 export let kitMockPath = (...parts) =>
   path.resolve(home(".kit-mock-path"), ...parts)

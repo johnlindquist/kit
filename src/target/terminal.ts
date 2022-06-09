@@ -338,6 +338,13 @@ global.paste = async () => {
 }
 
 global.trash = async (...args) => {
+  global.flag.trust = true
+  let t = await npm("trash")
+  t(...args)
+}
+
+global.rm = async (...args) => {
+  global.flag.trust = true
   let t = await npm("trash")
   t(...args)
 }
