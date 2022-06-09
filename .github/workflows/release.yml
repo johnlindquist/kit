@@ -34,7 +34,7 @@ jobs:
       - name: Install Node
         run: |
           mkdir -p ./.kit/node
-          ./build/install-node.sh v17.2.0 --prefix ./.kit/node
+          ./build/install-node.sh v16.14.2 --prefix ./.kit/node
 
       - name: Build Kit
         run: |

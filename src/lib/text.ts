@@ -4,9 +4,11 @@ global.getSelectedText = async () => {
   await global.hide()
   // if (process.env.KIT_CONTEXT === "app") await wait(250)
 
-  await applescript(
-    String.raw`tell application "System Events" to keystroke "c" using command down`
-  )
+  await keyboard.pressKey(8, 47)
+  await keyboard.releaseKey(8, 47)
+  // await applescript(
+  //   String.raw`tell application "System Events" to keystroke "c" using command down`
+  // )
 
   return await global.paste()
 }
@@ -31,10 +33,12 @@ global.setSelectedText = async (text = "", hide = true) => {
     )}"`
   )
 
-  await applescript(
-    String.raw`tell application "System Events" to keystroke "v" using command down`
-  )
+  // await applescript(
+  //   String.raw`tell application "System Events" to keystroke "v" using command down`
+  // )
 
+  await keyboard.pressKey(8, 66)
+  await keyboard.releaseKey(8, 66)
   await wait(250)
 
   if (typeof prevText === "string")

@@ -975,7 +975,7 @@ global.setIgnoreBlur = async ignore => {
   global.send(Channel.SET_IGNORE_BLUR, ignore)
 }
 
-global.getDataFromApp = async (
+global.getDataFromApp = global.sendWait = async (
   channel: GetAppData,
   data: any
 ) => {
@@ -1428,13 +1428,13 @@ global.setFocused = (id: string) => {
 
 global.keyboard = {
   type: async (text: string) => {
-    send(Channel.KEYBOARD_TYPE, text)
+    await sendWait(Channel.KEYBOARD_TYPE, text)
   },
   pressKey: async (...keys: Key[]) => {
-    send(Channel.KEYBOARD_PRESS_KEY, keys)
+    await sendWait(Channel.KEYBOARD_PRESS_KEY, keys)
   },
   releaseKey: async (...keys: Key[]) => {
-    send(Channel.KEYBOARD_RELEASE_KEY, keys)
+    await sendWait(Channel.KEYBOARD_RELEASE_KEY, keys)
   },
   config: async config => {
     send(Channel.KEYBOARD_CONFIG, config)

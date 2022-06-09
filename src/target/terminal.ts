@@ -24,10 +24,14 @@ global.kitPrompt = async (config: any) => {
     config = {
       ...config,
       type: "autocomplete",
-      choices: choices.map(({ name, value }) => ({
-        name,
-        value,
-      })),
+      choices: choices?.map(c => {
+        if (typeof c === "string") return c
+        else
+          return {
+            name: c?.name || c?.value,
+            value: c?.value || c?.name,
+          }
+      }),
     }
   }
   if (config?.secret) {

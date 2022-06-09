@@ -503,7 +503,6 @@ export interface AppApi {
 
   kitPrompt: (promptConfig: PromptConfig) => Promise<any>
   send: Send
-
   setFocused: SetFocused
   setPlaceholder: SetPlaceholder
   setDiv: SetPanel
@@ -533,6 +532,7 @@ export interface AppApi {
 
   setChoices: SetChoices
   getDataFromApp: (channel: Channel) => Promise<any>
+  sendWait: (channel: Channel, value: any) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
     tasks: Background[]
@@ -589,6 +589,10 @@ declare global {
   var editor: Editor
   var hotkey: Hotkey
   var send: Send
+  var sendWait: (
+    channel: Channel,
+    value: any
+  ) => Promise<any>
 
   var setFocused: SetFocused
   var setPlaceholder: SetPlaceholder
