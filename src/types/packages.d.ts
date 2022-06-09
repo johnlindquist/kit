@@ -3,7 +3,7 @@ import * as shelljs from "shelljs"
 import * as clipboardy from "clipboardy"
 import { Notification } from "node-notifier"
 
-export type Trash = typeof import("trash")
+export type Trash = typeof import("trash").default
 export type KitNotification = string | Notification
 
 export interface Notify {
@@ -29,8 +29,8 @@ export interface PackagesApi {
   tempdir: typeof shelljs.tempdir
   test: typeof shelljs.test
   which: typeof shelljs.which
-  paste: typeof clipboardy.read
-  copy: typeof clipboardy.write
+  paste: () => Promise<text>
+  copy: (text: string) => Promise<void>
   trash: Trash
   rm: Trash
   notify: Notify
@@ -52,8 +52,8 @@ declare global {
   var test: typeof shelljs.test
   var which: typeof shelljs.which
 
-  var paste: typeof clipboardy.read
-  var copy: typeof clipboardy.write
+  var paste: () => Promise<text>
+  var copy: (text: string) => Promise<void>
 
   var trash: Trash
   var rm: Trash

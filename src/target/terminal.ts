@@ -326,3 +326,18 @@ global.setConfig = (value: any) => {
 }
 
 global.setLoading = (loading: boolean) => {}
+
+global.copy = async text => {
+  let c = await npm("clipboardy")
+  c.write(text)
+}
+
+global.paste = async () => {
+  let c = await npm("clipboardy")
+  return c.read()
+}
+
+global.trash = async (...args) => {
+  let t = await npm("trash")
+  t(...args)
+}

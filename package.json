@@ -49,12 +49,13 @@
     "@octokit/plugin-rest-endpoint-methods": "^5.13.0",
     "@octokit/plugin-retry": "^3.0.9",
     "@octokit/plugin-throttling": "^3.6.2",
+    "@types/clipboardy": "^2.0.1",
     "@types/node-notifier": "8.0.1",
     "@types/shelljs": "0.8.9",
+    "@types/trash": "^5.0.1",
     "advanced-calculator": "1.1.0",
     "async-exit-hook": "2.0.1",
     "chokidar": "3.5.3",
-    "clipboardy": "2.3.0",
     "esbuild": "0.13.8",
     "exit-hook": "3.0.0",
     "filesize": "8.0.7",
@@ -62,8 +63,7 @@
     "highlight.js": "11.3.1",
     "node-notifier": "10.0.0",
     "shelljs": "0.8.4",
-    "suggestion": "2.1.2",
-    "trash": "7.2.0"
+    "suggestion": "2.1.2"
   },
   "devDependencies": {
     "@types/async-exit-hook": "2.0.0",

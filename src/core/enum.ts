@@ -151,6 +151,9 @@ export enum Channel {
   ON_DROP = "ON_DROP",
   GET_SCREENS_INFO = "GET_SCREENS_INFO",
   GET_ACTIVE_APP = "GET_ACTIVE_APP",
+  TRASH = "TRASH",
+  COPY = "COPY",
+  PASTE = "PASTE",
 }
 
 export enum ProcessType {

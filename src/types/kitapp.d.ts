@@ -24,6 +24,7 @@ import {
 } from "./electron"
 import { Flags } from "./kit"
 import { PlatformPath } from "path"
+import { Trash } from "./packages"
 
 export interface AppState {
   input?: string
@@ -353,6 +354,14 @@ export interface ChannelMap {
   [Channel.KEYBOARD_TYPE]: string
   [Channel.KEYBOARD_PRESS_KEY]: Key[]
   [Channel.KEYBOARD_RELEASE_KEY]: Key[]
+
+  [Channel.TRASH]: {
+    input: Parameters<Trash>[0]
+    options: Parameters<Trash>[1]
+  }
+
+  [Channel.COPY]: string
+  [Channel.PASTE]: undefined
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
