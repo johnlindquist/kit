@@ -1,4 +1,5 @@
 import ava from "ava"
+import os from "os"
 import "../../test/config.js"
 
 /** @type {import("../core/utils")} */
@@ -7,7 +8,10 @@ let { isFile, KIT_FIRST_PATH } = await import(
 )
 
 let KIT = kitPath()
-let KENV = kenvSetupPath
+let KENV = kenvTestPath
+let KNODE =
+  process.env.KNODE || path.resolve(os.homedir(), ".knode")
+
 let kenvSetupMockPath = (...parts) => {
   return path.resolve(KENV, ...parts)
 }
@@ -19,6 +23,7 @@ const options = {
   env: {
     KIT,
     KENV,
+    KNODE,
     PATH: KIT_FIRST_PATH,
   },
 }

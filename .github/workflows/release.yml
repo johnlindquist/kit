@@ -45,11 +45,12 @@ jobs:
         run: |
           echo "wd_path=$PWD" >> $GITHUB_ENV
           echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "knode_path=$PWD/.knode" >> $GITHUB_ENV
           echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Add node and kit to PATH
         run: |
-          echo "${{ env.kit_path }}/node/bin" >> $GITHUB_PATH
+          echo "${{ env.knode_path }}/bin" >> $GITHUB_PATH
           echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
           echo "---"
           echo "$GITHUB_PATH"

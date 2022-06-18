@@ -16,13 +16,13 @@ let { stdout: branch, stderr } =
 
 if (stderr || !branch.match(/main|beta|alpha/)) exit(1)
 
-await degit(`johnlindquist/kenv#${branch}`).clone(
-  kenvTestPath
-)
+await degit(`johnlindquist/kenv#${branch}`, {
+  force: true,
+}).clone(kenvTestPath)
 
-await degit(`johnlindquist/kenv#${branch}`).clone(
-  kenvSetupPath
-)
+await degit(`johnlindquist/kenv#${branch}`, {
+  force: true,
+}).clone(kenvSetupPath)
 
 process.env.KENV = kenvTestPath
 await $`kit ${kitPath("setup", "setup.js")} --no-edit`
