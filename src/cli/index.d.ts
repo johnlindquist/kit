@@ -101,6 +101,7 @@ export interface CLI {
   remove: Promise<typeof import("./remove")>
   move: Promise<typeof import("./move")>
   rename: Promise<typeof import("./rename")>
+  reveal: Promise<typeof import("./reveal")>
   run: Promise<typeof import("./run")>
   schedule: Promise<typeof import("./schedule")>
   sdk: Promise<typeof import("./sdk")>

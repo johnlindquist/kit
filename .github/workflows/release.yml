@@ -33,13 +33,13 @@ jobs:
 
       - name: Install Node
         run: |
-          mkdir -p ./.kit/node
-          ./build/install-node.sh v16.14.2 --prefix ./.kit/node
+          mkdir -p ./.knode
+          ./build/install-node.sh v16.14.2 --prefix ./.knode
 
       - name: Build Kit
         run: |
-          PATH="./.kit/node/bin:$PATH" npm i
-          PATH="./.kit/node/bin:$PATH" KIT=./.kit node ./build/build-ci.js
+          PATH="./.knode/bin:$PATH" npm i
+          PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
 
       - name: Set env vars
         run: |

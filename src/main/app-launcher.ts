@@ -14,7 +14,6 @@ let findAppsAndPrefs = async () => {
     prefs,
   }
 }
-
 let createChoices = async () => {
   let { apps, prefs } = await findAppsAndPrefs()
   let group = path => apps =>
@@ -38,6 +37,29 @@ let createChoices = async () => {
       ...group(/Users/)(apps),
     ].map(async appPath => {
       let appName = appPath.split("/").pop()
+      let appPlist = path.resolve(
+        appPath,
+        "Contents",
+        "Info.plist"
+      )
+      let icon = ``
+
+      if (await isFile(appPlist)) {
+        console.warn = () => {}
+        let { default: plist } = await import("plist")
+        let plistContents = await readFile(
+          appPlist,
+          "utf-8"
+        )
+        try {
+          let appInfo = plist.parse(plistContents)
+          icon = appInfo.CFBundleIconFile
+          if (!icon.endsWith(".icns")) icon = icon + ".icns"
+        } catch (error) {
+          //   console.log(`Error parsing ${appPlist}`)
+        }
+      }
+
       let appResourceDir = path.resolve(
         appPath,
         "Contents",
@@ -45,10 +67,12 @@ let createChoices = async () => {
       )
       let img = ``
       if (await isDir(appResourceDir)) {
-        let appFiles = await readdir(appResourceDir)
-        let icon = appFiles.find(name =>
-          name.endsWith(`.icns`)
-        )
+        if (!icon) {
+          let resourceFiles = await readdir(appResourceDir)
+          icon = resourceFiles.find(file =>
+            file.match(/\.icns$/)
+          )
+        }
         if (icon) {
           let iconPath = path.resolve(appResourceDir, icon)
           let assetsPath = kitPath(
@@ -59,9 +83,13 @@ let createChoices = async () => {
           await ensureDir(assetsPath)
           let iconName = `${appName}.png`
           img = path.resolve(assetsPath, iconName)
-          await exec(
-            `sips -z 320 320 -s format png '${iconPath}' --out '${img}'`
-          )
+          try {
+            await exec(
+              `sips -z 320 320 -s format png '${iconPath}' --out '${img}'`
+            )
+          } catch {
+            log(`Failed to convert ${iconPath} to ${img}`)
+          }
         }
       }
       return {
@@ -73,7 +101,6 @@ let createChoices = async () => {
     })
   )
 }
-
 let appsDb = await db("apps", async () => {
   setChoices([])
   setPrompt({
@@ -88,7 +115,6 @@ let appsDb = await db("apps", async () => {
     choices,
   }
 })
-
 let input = ""
 let app = await arg(
   {
@@ -116,5 +142,4 @@ if (flag?.cmd) {
   await exec(command)
   hide()
 }
-
 export {}

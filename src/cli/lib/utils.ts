@@ -42,6 +42,8 @@ export let createBinFromScript = async (
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type,
+    KNODE: knodePath(),
+    KIT: kitPath(),
     ...global.env,
     TARGET_PATH: filePath,
   })
@@ -54,7 +56,7 @@ export let createBinFromScript = async (
   )
   let binFilePath = path.resolve(binDirPath, command)
 
-  global.mkdir("-p", path.dirname(binFilePath))
+  await global.ensureDir(path.dirname(binFilePath))
   await global.writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
 }

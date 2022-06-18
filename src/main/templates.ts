@@ -40,13 +40,10 @@ if (flag?.new) {
   //     .toLowerCase()
 
   await run(
-    `${kitPath(
-      "cli",
-      "new"
-    )}.js --template template ${script
+    `${kitPath("cli", "new")}.js ${script
       .trim()
       .replace(/\s/g, "-")
-      .toLowerCase()} --scriptName '${script.trim()}'`
+      .toLowerCase()} --template template --scriptName '${script.trim()}'`
   )
 } else if (flag?.edit) {
   await edit(

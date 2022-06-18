@@ -1,3 +1,4 @@
+import { homedir } from "os"
 import path from "path"
 import { URL } from "url"
 
@@ -8,6 +9,9 @@ export let kit = async (
   process.env.KIT =
     process.env.KIT ||
     path.dirname(new URL(import.meta.url).pathname)
+
+  process.env.KNODE =
+    process.env.KNODE || path.resolve(homedir(), ".knode")
 
   await import("./api/global.js")
   await import("./api/kit.js")

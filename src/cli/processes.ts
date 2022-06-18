@@ -45,7 +45,9 @@ setDescription(`${pid}: ${scriptPath}`)
 let actions = [
   {
     name: `Terminate`,
-    description: `Terminate process ${pid}`,
+    description: `Terminate process ${pid}: ${path.basename(
+      scriptPath
+    )}`,
     value: "terminate",
   },
 ]

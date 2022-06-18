@@ -6,6 +6,9 @@ process.env.NODE_NO_WARNINGS = 1
 process.env.KIT =
   process.env.KIT || path.resolve(os.homedir(), ".kit")
 
+process.env.KNODE =
+  process.env.KNODE || path.resolve(homedir(), ".knode")
+
 ava("kit setup", async t => {
   let envPath = kenvPath(".env")
   let fileCreated = test("-f", envPath)

@@ -718,6 +718,7 @@ global.div = async (html = "", containerClasses = "") => {
     html?: string
     hint?: string
     footer?: string
+    ignoreBlur?: boolean
   } = typeof html === "string" ? { html } : html
 
   if (config.html.trim() === "")
@@ -725,7 +726,8 @@ global.div = async (html = "", containerClasses = "") => {
   return await global.kitPrompt({
     footer: config?.footer || "",
     hint: config?.hint,
-    choices: maybeWrapHtml(html, containerClasses),
+    choices: maybeWrapHtml(config?.html, containerClasses),
+    ignoreBlur: config?.ignoreBlur || false,
     ui: UI.div,
   })
 }

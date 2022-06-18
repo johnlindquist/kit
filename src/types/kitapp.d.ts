@@ -137,14 +137,18 @@ export interface Form {
     formData?: any
   ): Promise<any>
 }
+
+export interface DivConfig {
+  html: string
+  placeholder?: string
+  hint?: string
+  ignoreBlur?: boolean
+  footer?: string
+}
+
 export interface Div {
   (
-    html?:
-      | string
-      | {
-          placeholder?: string
-          hint?: string
-        },
+    html?: string | DivConfig,
     containerClass?: string
   ): Promise<any>
 }
@@ -265,6 +269,7 @@ export interface ChannelMap {
 
   //
   [Channel.CLEAR_CACHE]: undefined
+  [Channel.CLEAR_SCRIPTS_MEMORY]: undefined
   [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
   [Channel.CLEAR_PROMPT_CACHE]: undefined
   [Channel.CLEAR_PREVIEW]: undefined

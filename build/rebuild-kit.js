@@ -11,8 +11,14 @@ let kitPath = (...pathParts) =>
     ...pathParts
   )
 
+let knodePath = (...parts) =>
+  path.join(
+    process.env.KNODE || path.resolve(homedir(), ".knode"),
+    ...parts.filter(Boolean)
+  )
+
 if (existsSync(kitPath())) rm("-rf", kitPath())
-await ensureDir(kitPath("node"))
+await ensureDir(knodePath())
 
 let installNodeWin = async () => {
   let { Extract } = await import("unzipper")

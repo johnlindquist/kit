@@ -28,7 +28,7 @@ setFlags({
     description: "Open the selected script in your editor",
     shortcut: `${cmd}+o`,
   },
-  reveal: {
+  ["reveal-script"]: {
     name: "Reveal",
     description: "Reveal the selected script in Finder",
     shortcut: `${cmd}+shift+f`,

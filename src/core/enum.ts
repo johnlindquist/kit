@@ -154,6 +154,7 @@ export enum Channel {
   TRASH = "TRASH",
   COPY = "COPY",
   PASTE = "PASTE",
+  CLEAR_SCRIPTS_MEMORY = "CLEAR_SCRIPTS_MEMORY",
 }
 
 export enum ProcessType {

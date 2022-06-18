@@ -171,6 +171,7 @@ export interface KitApi {
 
   kitPath: PathFn
   kenvPath: PathFn
+  knodePath: PathFn
   /**
    * Generate a path `~/.kenv/tmp/{command}/...parts`
    *
@@ -241,6 +242,7 @@ declare global {
 
   var kitPath: PathFn
   var kenvPath: PathFn
+  var knodePath: PathFn
   var tmpPath: PathFn
 
   var attemptImport: KitModuleLoader

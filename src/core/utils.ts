@@ -94,6 +94,12 @@ export let kitDotEnvPath = () => {
   return process.env.KIT_DOTENV_PATH || kenvPath()
 }
 
+export let knodePath = (...parts: string[]) =>
+  path.join(
+    process.env.KNODE || home(".knode"),
+    ...parts.filter(Boolean)
+  )
+
 export const prefsPath = kitPath("db", "prefs.json")
 export const shortcutsPath = kitPath("db", "shortcuts.json")
 export const promptDbPath = kitPath("db", "prompt.json")
@@ -101,8 +107,7 @@ export const appDbPath = kitPath("db", "app.json")
 export const tmpClipboardDir = kitPath("tmp", "clipboard")
 export const tmpDownloadsDir = kitPath("tmp", "downloads")
 export const mainScriptPath = kitPath("main", "index.js")
-export const execPath = kitPath(
-  "node",
+export const execPath = knodePath(
   "bin",
   `node${isWin ? `.exe` : ``}`
 )
@@ -141,7 +146,7 @@ export const KIT_DEFAULT_PATH = isWin
 
 export const KIT_FIRST_PATH =
   combinePath([
-    kitPath("node", "bin"),
+    knodePath("bin"),
     kitPath("bin"),
     ...(isWin ? [] : [kitPath("bin", "code")]),
     kenvPath("bin"),
@@ -155,7 +160,7 @@ export const KIT_LAST_PATH =
   KIT_DEFAULT_PATH +
   path.delimiter +
   combinePath([
-    kitPath("node", "bin"),
+    knodePath("bin"),
     kitPath("bin"),
     ...(isWin ? [] : [kitPath("bin", "code")]),
     kenvPath("bin"),
@@ -653,6 +658,8 @@ export let trashScript = async (script: Script) => {
   await global.trash([
     ...((await pathExists(filePath)) ? [filePath] : []),
   ])
+
+  await wait(100)
 }
 
 export let getScriptFiles = async (kenv = kenvPath()) => {

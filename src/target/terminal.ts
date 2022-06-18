@@ -348,3 +348,20 @@ global.rm = async (...args) => {
   let t = await npm("trash")
   t(...args)
 }
+
+type pathConfig = { startPath?: string; hint?: string }
+let __pathSelector = async (
+  config: string | pathConfig = home()
+) => {
+  return await arg(
+    (config as pathConfig)?.hint || "Select Path"
+  )
+}
+
+let __path = global.path
+global.path = new Proxy(__pathSelector, {
+  get: (target, k: string) => {
+    if (k === "then") return __pathSelector
+    return __path[k]
+  },
+}) as any

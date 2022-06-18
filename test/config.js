@@ -4,6 +4,9 @@ import os from "os"
 process.env.KIT =
   process.env.KIT || path.resolve(os.homedir(), ".kit")
 
+process.env.KNODE =
+  process.env.KNODE || path.resolve(homedir(), ".knode")
+
 let importKit = async (...parts) =>
   await import(path.resolve(process.env.KIT, ...parts))
 
