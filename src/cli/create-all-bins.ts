@@ -17,11 +17,12 @@ for await (let kenv of kenvs) {
   ])
 }
 
+await wait(200)
 let scripts = await getScripts(false)
+await wait(200)
 
 for (let script of scripts) {
   await createBinFromScript(Bin.scripts, script)
-  await wait(10)
 }
 
 export {}
