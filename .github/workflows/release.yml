@@ -75,6 +75,7 @@ jobs:
           npm run test
         env:
           KIT: ${{ env.kit_path }}
+          KNODE: ${{ env.knode_path }}
 
       - name: Semantic Release
         run: |
