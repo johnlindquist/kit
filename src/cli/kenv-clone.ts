@@ -60,7 +60,7 @@ let kenvName = await arg({
 let kenvDir = kenvPath("kenvs", kenvName)
 
 await exec(`git clone ${repo} ${kenvDir}`)
-await getScripts(false)
+
 await cli("create-all-bins")
 
 await mainScript()
