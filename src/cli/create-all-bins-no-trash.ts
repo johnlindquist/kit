@@ -7,19 +7,9 @@ let kenvs = await getKenvs()
 
 log(`🔎 Found kenvs`, kenvs)
 
-await trash([
-  `!${kenvPath("bin", ".gitignore")}`,
-  kenvPath("bin", "*"),
-])
-
 await ensureDir(kenvPath("bin"))
 
 for await (let kenv of kenvs) {
-  await trash([
-    `!${path.resolve(kenv, "bin", ".gitignore")}`,
-    path.resolve(kenv, "bin", "*"),
-  ])
-
   await ensureDir(path.resolve(kenv, "bin"))
 }
 
