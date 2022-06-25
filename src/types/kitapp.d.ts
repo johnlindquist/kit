@@ -199,6 +199,11 @@ export interface AppConfig {
   sep: string
 }
 
+export interface KitStatus {
+  color: "green" | "red" | "orange"
+  label: string
+}
+
 export type GetAppData =
   | Channel.GET_ACTIVE_APP
   | Channel.GET_BACKGROUND
@@ -334,6 +339,7 @@ export interface ChannelMap {
   [Channel.SET_SPLASH_BODY]: string
   [Channel.SET_SPLASH_HEADER]: string
   [Channel.SET_SPLASH_PROGRESS]: number
+  [Channel.SET_STATUS]: KitStatus
   [Channel.SET_SUBMIT_VALUE]: any
   [Channel.SET_TAB_INDEX]: number
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
@@ -415,6 +421,10 @@ export interface SetIgnoreBlur {
 
 export interface SetLoading {
   (loading: boolean): void
+}
+
+export interface SetStatus {
+  (status: KitStatus): void
 }
 
 export interface SetConfig {
@@ -536,6 +546,7 @@ export interface AppApi {
 
   setIgnoreBlur: SetIgnoreBlur
   setLoading: SetLoading
+  setStatus: SetStatus
 
   setConfig: SetConfig
 
@@ -627,6 +638,7 @@ declare global {
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
   var setLoading: SetLoading
+  var setStatus: SetStatus
 
   var setConfig: SetConfig
 
