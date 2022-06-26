@@ -5,6 +5,7 @@ import {
   Key as KeyboardEnum,
   Channel,
   Mode,
+  statuses,
 } from "../core/enum.js"
 import { KeyEnum } from "../core/keyboard.js"
 
@@ -25,6 +26,8 @@ import {
 import { Flags } from "./kit"
 import { PlatformPath } from "path"
 import { Trash } from "./packages"
+
+export type Status = typeof statuses[number]
 
 export interface AppState {
   input?: string
@@ -200,8 +203,8 @@ export interface AppConfig {
 }
 
 export interface KitStatus {
-  color: "green" | "red" | "orange"
-  label: string
+  status: Statu
+  message: string
 }
 
 export type GetAppData =

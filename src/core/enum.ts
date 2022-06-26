@@ -339,3 +339,12 @@ export enum Key {
   AudioRepeat = 125,
   AudioRandom = 126,
 }
+
+export const statuses = [
+  "default",
+  "success",
+  "warn",
+  "busy",
+  "error",
+  "paused",
+] as const
