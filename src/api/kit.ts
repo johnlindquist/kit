@@ -803,3 +803,8 @@ global.execLog = (command: string, logger = global.log) => {
 
   return child
 }
+
+global.projectPath = (...args) => {
+  console.log(`Script not loaded yet...`)
+  return ``
+}
