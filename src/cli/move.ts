@@ -1,6 +1,6 @@
 // Description: Move script to different kenv
 
-import { trashScriptBin } from "../core/utils.js"
+import { getKenvs, trashScriptBin } from "../core/utils.js"
 
 import { createBinFromScript } from "./lib/utils.js"
 
@@ -10,7 +10,7 @@ import { Script } from "../types/core.js"
 
 let script = await selectScript()
 
-let kenvDirs = (await readdir(kenvPath("kenvs"))) || []
+let kenvDirs = await getKenvs()
 
 let selectedKenvDir = kenvPath()
 
@@ -26,11 +26,10 @@ selectedKenvDir = await arg(
       value: kenvPath(),
     },
     ...kenvDirs.map(kenvDir => {
-      let value = kenvPath("kenvs", kenvDir)
       return {
-        name: kenvDir,
-        description: value,
-        value,
+        name: path.basename(kenvDir),
+        description: kenvDir,
+        value: kenvDir,
       }
     }),
   ]

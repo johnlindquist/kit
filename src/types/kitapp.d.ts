@@ -10,6 +10,7 @@ import {
 import { KeyEnum } from "../core/keyboard.js"
 
 import {
+  AppState,
   ChannelHandler,
   Choice,
   Choices,
@@ -28,27 +29,6 @@ import { PlatformPath } from "path"
 import { Trash } from "./packages"
 
 export type Status = typeof statuses[number]
-
-export interface AppState {
-  input?: string
-  inputChanged?: boolean
-  flaggedValue?: any
-  flag?: string
-  tab?: string
-  value?: any
-  index?: number
-  focused?: Choice
-  history?: Script[]
-  modifiers?: string[]
-  count?: number
-  name?: string
-  description?: string
-  script?: Script
-  submitted?: boolean
-  shortcut?: string
-  paste?: string
-  isPasteImage?: boolean
-}
 
 export interface AppMessage {
   channel: Channel
@@ -203,7 +183,7 @@ export interface AppConfig {
 }
 
 export interface KitStatus {
-  status: Statu
+  status: Status
   message: string
 }
 

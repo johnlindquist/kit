@@ -41,7 +41,7 @@
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
   "dependencies": {
-    "@johnlindquist/globals": "^1.13.0",
+    "@johnlindquist/globals": "^1.13.2",
     "@johnlindquist/kit-internal": "1.12.2",
     "@octokit/auth-oauth-device": "^3.1.2",
     "@octokit/core": "^3.6.0",
@@ -64,6 +64,7 @@
     "node-notifier": "10.0.0",
     "plist": "^3.0.5",
     "shelljs": "0.8.4",
+    "slugify": "^1.6.5",
     "suggestion": "2.1.2"
   },
   "devDependencies": {

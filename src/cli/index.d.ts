@@ -27,6 +27,9 @@ export interface CLI {
   "create-all-bins": Promise<
     typeof import("./create-all-bins")
   >
+  "create-all-bins-no-trash": Promise<
+    typeof import("./create-all-bins-no-trash")
+  >
   "create-bin": Promise<typeof import("./create-bin")>
   "edit-file": Promise<typeof import("./edit-file")>
   "editor-history": Promise<

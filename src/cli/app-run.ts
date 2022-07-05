@@ -17,7 +17,7 @@ let modifiers = {
   ctrl: "ctrl",
 }
 
-setFlags({
+let scriptFlags = {
   [""]: {
     name: "Run",
     description: "Run the selected script",
@@ -28,6 +28,7 @@ setFlags({
     description: "Open the selected script in your editor",
     shortcut: `${cmd}+o`,
   },
+
   ["reveal-script"]: {
     name: "Reveal",
     description: "Reveal the selected script in Finder",
@@ -41,6 +42,12 @@ setFlags({
   ["copy-path"]: {
     name: "Copy Path",
     description: "Copy full path of script to clipboard",
+  },
+  ["paste-as-markdown"]: {
+    name: "Paste as Markdown",
+    description:
+      "Paste the contents of the script as Markdown",
+    shortcut: `${cmd}+shift+p`,
   },
   duplicate: {
     name: "Duplicate",
@@ -136,7 +143,17 @@ setFlags({
     name: "Run script w/ ctrl flag",
     shortcut: "ctrl+enter",
   },
-})
+}
+
+if (env.KIT_EDITOR !== "code") {
+  scriptFlags["code"] = {
+    name: "Open Kenv in VS Code",
+    description: "Open the script's kenv in VS Code",
+    shortcut: `${cmd}+shift+o`,
+  }
+}
+
+setFlags(scriptFlags)
 
 let panel = ``
 
@@ -282,8 +299,13 @@ if (
   let selectedFlag: any = Object.keys(flag).find(f => {
     return f && !modifiers[f]
   })
-
-  if (selectedFlag && !flag?.open) {
+  if (selectedFlag && flag?.code) {
+    await exec(
+      `open -a 'Visual Studio Code' '${path.dirname(
+        path.dirname(script.filePath)
+      )}'`
+    )
+  } else if (selectedFlag && !flag?.open) {
     await run(
       `${kitPath("cli", selectedFlag)}.js ${
         script.filePath

@@ -33,6 +33,7 @@ let createChoices = async () => {
       ...group(
         /^\/System\/Library\/CoreServices\/Applications/
       )(apps),
+      ...group(/^\/System\/Library\/CoreServices/)(apps),
       // ...group(/System/)(apps),
       ...group(/Users/)(apps),
     ].map(async appPath => {

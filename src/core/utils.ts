@@ -461,10 +461,15 @@ export let getLastSlashSeparated = (
 }
 
 //app
-export const getLogFromScriptPath = (filePath: string) => {
-  return filePath
-    .replace("scripts", "logs")
-    .replace(/\.js$/, ".log")
+export let getLogFromScriptPath = (filePath: string) => {
+  let { name } = path.parse(filePath)
+  return path.resolve(
+    filePath,
+    "..",
+    "..",
+    "logs",
+    `${name}.log`
+  )
 }
 
 //new RegExp(`(^//([^(:|\W)]+
@@ -577,6 +582,11 @@ export let run = async (
         : item.trim().split(/\s/)
     )
   let resolvedScript = resolveToScriptPath(script)
+  global.projectPath = (...args) =>
+    path.resolve(
+      path.dirname(path.dirname(script)),
+      ...args
+    )
   global.onTabs = []
   global.kitScript = resolvedScript
   global.kitCommand = resolveScriptToCommand(resolvedScript)

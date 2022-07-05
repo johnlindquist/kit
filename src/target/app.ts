@@ -2,6 +2,7 @@ import fs from "fs"
 import filesize from "filesize"
 
 import {
+  AppState,
   ChannelHandler,
   Choice,
   PromptConfig,
@@ -11,7 +12,6 @@ import {
 import {
   GetAppData,
   KeyData,
-  AppState,
   AppMessage,
   EditorOptions,
   Config,
@@ -20,7 +20,6 @@ import {
 
 import {
   formatDistanceToNow,
-  parseISO,
   compareAsc,
 } from "@johnlindquist/kit-internal/date-fns"
 
@@ -220,7 +219,9 @@ let createOnChoiceFocusDefault = (
         preview = choice?.preview
       }
 
-      setPreview(preview)
+      if (preview) {
+        setPreview(preview)
+      }
 
       if (typeof onUserChoiceFocus === "function")
         onUserChoiceFocus(input, state)
@@ -1121,8 +1122,11 @@ let getFileInfo = async (filePath: string) => {
 
 let createPathChoices = async (
   startPath: string,
-  dirFilter = (dirent: Dirent) => true,
-  dirSort = (a: any, b: any) => 0
+  {
+    dirFilter = (dirent: Dirent) => true,
+    dirSort = (a: any, b: any) => 0,
+    onlyDirs = false,
+  }
 ) => {
   let dirFiles = await readdir(startPath, {
     withFileTypes: true,
@@ -1132,9 +1136,9 @@ let createPathChoices = async (
   let folders = dirents.filter(dirent =>
     dirent.isDirectory()
   )
-  let files = dirents.filter(
-    dirent => !dirent.isDirectory()
-  )
+  let files = onlyDirs
+    ? []
+    : dirents.filter(dirent => !dirent.isDirectory())
 
   let mapDirents = (dirents: Dirent[]): Choice[] => {
     return dirents.map(dirent => {
@@ -1185,15 +1189,27 @@ let createPathChoices = async (
 let __pathSelector = async (
   config:
     | string
-    | { startPath?: string; hint?: string } = home(),
+    | {
+        startPath?: string
+        hint?: string
+        onInput?: ChannelHandler
+        onChoiceFocus?: ChannelHandler
+        onlyDirs?: boolean
+      } = home(),
   { showHidden } = { showHidden: false }
 ) => {
   let startPath = ``
   let hint = ``
+  let onInputHook = null
+  let onChoiceFocusHook = () => {}
+  let onlyDirs = false
   if (typeof config === "string") startPath = config
   if (typeof config === "object") {
     startPath = config?.startPath || home()
     hint = config?.hint || ``
+    onInputHook = config?.onInput || null
+    onChoiceFocusHook = config?.onChoiceFocus || null
+    onlyDirs = config?.onlyDirs || false
   }
 
   if (
@@ -1226,10 +1242,10 @@ let __pathSelector = async (
     if (isCurrentDir) {
       try {
         setFilterInput(`[^\/]+$`)
-        let choices = await createPathChoices(
-          startPath,
-          dirFilter
-        )
+        let choices = await createPathChoices(startPath, {
+          dirFilter,
+          onlyDirs,
+        })
         setChoices(choices)
       } catch {
         setPanel(md(`### Failed to read ${startPath}`))
@@ -1258,6 +1274,7 @@ let __pathSelector = async (
   }
 
   let onInput = async (input, state) => {
+    if (onInputHook) onInputHook(input, state)
     // if (input.endsWith(">")) {
     //   let choices = await createPathChoices(
     //     startPath,
@@ -1292,10 +1309,10 @@ let __pathSelector = async (
     }
 
     if (input.endsWith(path.sep + ".")) {
-      let choices = await createPathChoices(
-        startPath,
-        () => true
-      )
+      let choices = await createPathChoices(startPath, {
+        dirFilter: () => true,
+        onlyDirs,
+      })
       setChoices(choices)
       return
     }
@@ -1364,11 +1381,11 @@ let __pathSelector = async (
 
       sort = s
       let dirSort = sorters[s]
-      let choices = await createPathChoices(
-        startPath,
-        () => true,
-        dirSort
-      )
+      let choices = await createPathChoices(startPath, {
+        dirFilter: () => true,
+        dirSort,
+        onlyDirs,
+      })
 
       setChoices(choices)
     }
@@ -1382,6 +1399,7 @@ let __pathSelector = async (
       onLeft,
       onNoChoices,
       onEscape,
+      onChoiceFocus: onChoiceFocusHook,
       hint,
 
       onShortcut: {

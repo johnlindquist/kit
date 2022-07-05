@@ -182,8 +182,29 @@ export type FlagsOptions = {
   }
 }
 
+export interface AppState {
+  input?: string
+  inputChanged?: boolean
+  flaggedValue?: any
+  flag?: string
+  tab?: string
+  value?: any
+  index?: number
+  focused?: Choice
+  history?: Script[]
+  modifiers?: string[]
+  count?: number
+  name?: string
+  description?: string
+  script?: Script
+  submitted?: boolean
+  shortcut?: string
+  paste?: string
+  isPasteImage?: boolean
+}
+
 export interface ChannelHandler {
-  (input: string, state: AppState): void | Promise<void>
+  (input?: string, state?: AppState): void | Promise<void>
 }
 
 export interface PromptConfig

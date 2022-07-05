@@ -1,6 +1,8 @@
 export {}
 
+import { PlatformPath } from "path"
 import {
+  ChannelHandler,
   Choices,
   FlagsOptions,
   Panel,
@@ -133,7 +135,22 @@ export interface Highlight {
     injectStyles?: string
   ): Promise<string>
 }
+
+type PathConfig = {
+  startPath?: string
+  hint?: string
+  onInput?: ChannelHandler
+  onChoiceFocus?: ChannelHandler
+  onlyDirs?: boolean
+}
+
+type PathPicker = (
+  config?: string | PathConfig
+) => Promise<string>
+export type PathSelector = PlatformPath & PathPicker
+
 export interface KitApi {
+  path: PathSelector
   isWin: boolean
   db: DB
 
@@ -225,6 +242,7 @@ export interface KitApi {
   selectScript: SelectScript
   selectKenv: SelectKenv
   highlight: Highlight
+  projectPath: PathFn
 }
 
 interface KeyValue {
@@ -236,6 +254,7 @@ interface Run {
 }
 
 declare global {
+  var path: PathSelector
   var isWin: boolean
   var edit: Edit
   var browse: Browse
@@ -289,4 +308,5 @@ declare global {
 
   var terminal: (script: string) => Promise<string>
   var iterm: (iterm: string) => Promise<string>
+  var projectPath: PathFn
 }
