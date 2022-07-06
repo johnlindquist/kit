@@ -26,9 +26,7 @@ let kitDb = await db(kitPath("db", "shortcuts.json"))
 kitDb.data.shortcuts[kitPath("main", "index.js")] = shortcut
 await kitDb.write()
 
-setPanel(md(`### ${shortcut} assigned to main`))
-
-await wait(2000, null)
+await div(md(`### ${shortcut} assigned to main`))
 
 if (process.env.KIT_CONTEXT === "app") {
   await run(mainScriptPath)

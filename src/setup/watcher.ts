@@ -4,15 +4,18 @@ import { appDbPath, shortcutsPath } from "../core/utils.js"
 let { default: chokidar } = await import("chokidar")
 
 let kenvScriptsWatcher = chokidar.watch(
-  [
-    path.resolve(kenvPath("scripts", "*")),
-    path.normalize(appDbPath),
-    path.normalize(shortcutsPath),
-  ],
+  path.resolve(kenvPath("scripts", "*")),
+
   {
     depth: 0,
   }
 )
+
+chokidar
+  .watch([appDbPath, shortcutsPath])
+  .on("all", (eventName, filePath) => {
+    process.send({ eventName, filePath })
+  })
 
 kenvScriptsWatcher.on("all", (eventName, filePath) => {
   process.send({
