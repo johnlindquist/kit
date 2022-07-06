@@ -5,6 +5,7 @@ import { retry } from "@octokit/plugin-retry"
 import { throttling } from "@octokit/plugin-throttling"
 
 import { createOAuthDeviceAuth } from "@octokit/auth-oauth-device"
+import { kitPath } from "../core/utils.js"
 
 let kitAppDb = await db(kitPath("db", "app.json"))
 let VERSION = kitAppDb.version
