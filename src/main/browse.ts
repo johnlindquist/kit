@@ -50,6 +50,10 @@ let action = await arg<string>(
       value: "command",
     },
     {
+      name: "Open in Kit Editor",
+      value: "editor",
+    },
+    {
       name: "Open in VS Code",
       value: "vscode",
     },
@@ -96,6 +100,16 @@ tell application "Finder" to open information window of aFile
     cd(selectedPath)
     setDescription(`> Run command:`)
     await exec(await arg("Enter command:"))
+    break
+
+  case "editor":
+    try {
+      let content = await readFile(selectedPath, "utf-8")
+      content = await editor(content)
+      await writeFile(selectedPath, content)
+    } catch (error) {
+      console.log(`Error: ${error}`)
+    }
     break
 
   case "vscode":

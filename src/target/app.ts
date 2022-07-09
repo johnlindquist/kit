@@ -1346,10 +1346,14 @@ let __pathSelector = async (
     if (isCurrentDir) return
     let hasExtension = path.extname(input) !== ""
     if (hasExtension) {
-      setPanel(md(`<code>${input}</code> not found`))
+      setPanel(
+        md(`### Create File
+
+<code>${input}</code>`)
+      )
     } else {
       setPanel(
-        md(`### Create directory?
+        md(`### Create directory
 
 <code>${input}</code>`)
       )
@@ -1420,10 +1424,10 @@ let __pathSelector = async (
       await ensureDir(selectedPath)
     }
   } else {
-    // let isSelectedPathFile = await isFile(selectedPath)
-    // if (!isSelectedPathFile) {
-    //   await ensureFile(selectedPath)
-    // }
+    let isSelectedPathFile = await isFile(selectedPath)
+    if (!isSelectedPathFile) {
+      await ensureFile(selectedPath)
+    }
   }
 
   return selectedPath

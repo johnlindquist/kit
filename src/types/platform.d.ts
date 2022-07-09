@@ -219,6 +219,9 @@ interface GetSelectedDir {
 interface SelectFile {
   (message?: string): Promise<string>
 }
+interface RevealInFinder {
+  (filePath?: string): Promise<void>
+}
 interface SelectFolder {
   (message?: string): Promise<string>
 }
@@ -278,6 +281,7 @@ export interface PlatformApi {
   getSelectedFile: GetSelectedFile
   setSelectedFile: SetSelectedFile
   getSelectedDir: GetSelectedDir
+  revealInFinder: RevealInFinder
   selectFile: SelectFile
   selectFolder: SelectFolder
   getSelectedText: GetSelectedText
@@ -322,6 +326,7 @@ declare global {
   var getProcesses: GetProcesses
   var getScreens: GetScreens
   var getSelectedFile: GetSelectedFile
+  var revealInFinder: RevealInFinder
   var selectFile: SelectFile
   var selectFolder: SelectFolder
   var getSelectedText: GetSelectedText

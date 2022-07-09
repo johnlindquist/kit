@@ -33,7 +33,7 @@ let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`
 
 await setSelectedText(
   "```js\n" +
-    content +
+    content.trim() +
     "\n```" +
     `\n\n[Open ${command} in Script Kit](${link})`
 )
