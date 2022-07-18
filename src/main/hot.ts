@@ -48,8 +48,6 @@ let url = await arg(
   choices
 )
 
-dev(url)
-
 if (noChoices) {
   browse(
     `https://github.com/johnlindquist/kit/discussions/categories/share`
