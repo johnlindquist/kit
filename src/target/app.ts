@@ -812,15 +812,6 @@ global.arg = async (
     (placeholderOrConfig as PromptConfig)?.hint || ""
 
   if (firstArg) {
-    global.log(
-      `🥡 ${
-        typeof placeholderOrConfig === "string"
-          ? placeholderOrConfig
-          : placeholderOrConfig.placeholder ||
-            "No placeholder"
-      }:`,
-      firstArg
-    )
     let validate = (placeholderOrConfig as PromptConfig)
       ?.validate
 

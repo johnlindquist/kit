@@ -72,13 +72,6 @@ let errorAction: ErrorAction = await arg(
         ]
       : []),
     {
-      name: `Open ${script} in editor`,
-      value: ErrorAction.Open,
-      preview: async () => {
-        return highlightJavaScript(errorFile)
-      },
-    },
-    {
       name: `Open ${errorLog} in editor`,
       value: ErrorAction.Log,
       preview: async () => {
@@ -127,6 +120,13 @@ let errorAction: ErrorAction = await arg(
   </div>
   </div>
         `
+      },
+    },
+    {
+      name: `Open ${script} in editor`,
+      value: ErrorAction.Open,
+      preview: async () => {
+        return highlightJavaScript(errorFile)
       },
     },
     {
