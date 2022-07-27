@@ -1,5 +1,6 @@
 import { ChildProcess } from "child_process"
 import { ProcessType, UI, Mode } from "../core/enum.js"
+import { Field } from "./kitapp.js"
 
 export interface Choice<Value = any> {
   name: string
@@ -215,6 +216,7 @@ export interface PromptConfig
     choice: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
+  fields?: Field[]
   className?: string
   flags?: FlagsOptions
   preview?: string | (() => string | Promise<string>)

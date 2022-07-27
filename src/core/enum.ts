@@ -65,6 +65,7 @@ export enum Channel {
   SET_EDITOR_CONFIG = "SET_EDITOR_CONFIG",
   SET_FLAGS = "SET_FLAGS",
   SET_DIV_HTML = "SET_DIV_HTML",
+  SET_FIELDS = "SET_FIELDS",
   SET_FILTER_INPUT = "SET_FILTER_INPUT",
   SET_FOCUSED = "SET_FOCUSED",
   SET_FOOTER = "SET_FOOTER",
@@ -194,6 +195,7 @@ export enum UI {
   splash = "splash",
   input = "input",
   term = "term",
+  fields = "fields",
 }
 
 export enum Bin {

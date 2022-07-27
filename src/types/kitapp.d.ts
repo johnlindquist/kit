@@ -65,6 +65,10 @@ export type EditorOptions =
     extraLibs?: { content: string; filePath: string }[]
   }
 
+export interface Field {
+  placeholder: string
+}
+
 export type EditorConfig = string | EditorOptions
 
 export type TextareaConfig = {
@@ -119,6 +123,11 @@ export interface Form {
         },
     formData?: any
   ): Promise<any>
+}
+
+export interface Fields {
+  (fields: Field[]): Promise<any>
+  (config: PromptConfig): Promise<any>
 }
 
 export interface DivConfig extends PromptConfig {
@@ -294,6 +303,7 @@ export interface ChannelMap {
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_DIV_HTML]: string
   [Channel.SET_EDITOR_CONFIG]: EditorConfig
+  [Channel.SET_FIELDS]: Field[]
   [Channel.SET_FLAGS]: FlagsOptions
   [Channel.SET_FORM_HTML]: { html: string; formData: any }
   [Channel.SET_HINT]: string
@@ -506,6 +516,7 @@ export interface AppApi {
   drop: Drop
   editor: Editor
   form: Form
+  fields: Fields
   div: Div
   hotkey: Hotkey
 

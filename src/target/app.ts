@@ -16,6 +16,7 @@ import {
   EditorOptions,
   Config,
   KitStatus,
+  Field,
 } from "../types/kitapp"
 
 import {
@@ -688,6 +689,21 @@ global.drop = async (
     ui: UI.drop,
     ...config,
     ignoreBlur: true,
+  })
+}
+
+global.fields = async (fields: Field[] | PromptConfig) => {
+  let config: PromptConfig = {}
+
+  if (Array.isArray(fields)) {
+    config.fields = fields
+  } else {
+    config = fields
+  }
+
+  return await global.kitPrompt({
+    ...config,
+    ui: UI.fields,
   })
 }
 
