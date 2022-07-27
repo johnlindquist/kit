@@ -121,7 +121,7 @@ export interface Form {
   ): Promise<any>
 }
 
-export interface DivConfig {
+export interface DivConfig extends PromptConfig {
   html: string
   placeholder?: string
   hint?: string
@@ -328,6 +328,7 @@ export interface ChannelMap {
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
   [Channel.SET_TEXTAREA_VALUE]: string
   [Channel.SET_THEME]: any
+  [Channel.SET_VALUE]: any
   [Channel.START]: string
   [Channel.SHOW]: { options: ShowOptions; html: string }
   [Channel.SHOW_IMAGE]: {

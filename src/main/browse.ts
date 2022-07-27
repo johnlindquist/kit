@@ -34,6 +34,12 @@ let action = await arg<string>(
       value: "open",
     },
     {
+      name: "Open with...",
+      description:
+        "Select from a list of apps to open the file with",
+      value: "open-with",
+    },
+    {
       name: "Show in Finder",
       value: "finder",
     },
@@ -77,12 +83,12 @@ switch (action) {
     await exec(`open '${selectedPath}'`)
     break
 
+  case "open-with":
+    await run(kitPath("main", "open-with.js"), selectedPath)
+    break
+
   case "finder":
-    await exec(`open '${path.dirname(selectedPath)}'`)
-    await applescript(`
-set aFile to (POSIX file "${selectedPath}") as alias
-tell application "Finder" to select aFile
-`)
+    await revealInFinder(selectedPath)
     break
 
   case "info":

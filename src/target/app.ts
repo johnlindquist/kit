@@ -715,21 +715,22 @@ let maybeWrapHtml = (html, containerClasses) => {
     : `<div class="${containerClasses}">${html}</div>`
 }
 
-global.div = async (html = "", containerClasses = "") => {
+global.div = async (
+  htmlOrConfig = "",
+  containerClasses = ""
+) => {
   let config: {
     html?: string
-    hint?: string
-    footer?: string
-    ignoreBlur?: boolean
-  } = typeof html === "string" ? { html } : html
+  } =
+    typeof htmlOrConfig === "string"
+      ? { html: htmlOrConfig }
+      : htmlOrConfig
 
   if (config.html.trim() === "")
-    html = md("⚠️ html string was empty")
+    htmlOrConfig = md("⚠️ html string was empty")
   return await global.kitPrompt({
-    footer: config?.footer || "",
-    hint: config?.hint,
+    ...config,
     choices: maybeWrapHtml(config?.html, containerClasses),
-    ignoreBlur: config?.ignoreBlur || false,
     ui: UI.div,
   })
 }
@@ -968,6 +969,10 @@ global.setFilterInput = async inputFilter => {
 
 global.setIgnoreBlur = async ignore => {
   global.send(Channel.SET_IGNORE_BLUR, ignore)
+}
+
+global.setValue = async value => {
+  global.send(Channel.SET_VALUE, value)
 }
 
 global.getDataFromApp = global.sendWait = async (
