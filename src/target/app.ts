@@ -692,38 +692,105 @@ global.drop = async (
   })
 }
 
-global.fields = async (fields: Field[] | PromptConfig) => {
+global.fields = async (...formFields) => {
   let config: PromptConfig = {}
-
-  if (Array.isArray(fields)) {
-    config.fields = fields
+  let f = []
+  if (Array.isArray(formFields) && !formFields[0]?.fields) {
+    f = formFields
   } else {
-    config = fields
+    config = formFields[0]
+    f = config?.fields
   }
 
-  return await global.kitPrompt({
-    ...config,
-    ui: UI.fields,
-  })
+  let inputs = f
+    .map((field, i) => {
+      let defaultElement: any = {
+        element: "input",
+        label: "Label",
+        required: true,
+      }
+      if (typeof field === "string") {
+        defaultElement.label = field
+      } else {
+        Object.entries(field).forEach(([key, value]) => {
+          defaultElement[key] = value
+        })
+      }
+
+      let { element, label, id, name, ...attrs } =
+        defaultElement
+
+      let attributes = Object.entries(attrs)
+        .map(([key, value]) => {
+          return ` ${key}="${value}" `
+        })
+        .join("")
+
+      log(attributes)
+
+      return `
+        <div class="w-full py-2">
+              <label htmlFor=${
+                id || i
+              } class="block text-sm font-medium dark:primary-light primary-dark">
+                ${label}
+              </label>
+                <${element}
+                    id="${id || i}"
+                    name="${name || i}"
+                    ${
+                      i === 0 ? `autofocus` : ``
+                    }                  
+                    ${attributes}   
+                    class="h-10 p-2 outline-none border-b-2 dark:border-primary-light border-primary-dark w-full"/>
+            </div>
+        
+        `
+    })
+    .join("")
+  config.html = `<div class="px-8 py-4 flex flex-col items-center">
+${inputs}
+<input type="submit" value="Submit" class="w-1/2 mt-12 bg-opacity-80 dark:bg-opacity-80
+bg-primary-dark dark:bg-primary-light
+text-white dark:text-black font-bold py-2 px-4 rounded"/>
+</div>`
+  let formResponse = await global.form(config)
+  return Object.values(formResponse)
 }
 
 global.form = async (html = "", formData = {}) => {
-  let config: {
-    html: string
-    hint?: string
-    footer?: string
-  } = typeof html === "string" ? { html } : html
+  let config: PromptConfig = {}
+  if ((html as PromptConfig)?.html) {
+    config = html as PromptConfig
+    config.formData = formData
+  } else {
+    config = {
+      html,
+      formData,
+    }
+  }
 
-  send(Channel.SET_FORM_HTML, {
-    html: config.html,
-    formData,
-  })
-  return await global.kitPrompt({
-    footer: config?.footer || "",
-    hint: config.hint,
-    ui: UI.form,
-  })
+  config.ui = UI.form
+
+  return await global.kitPrompt(config)
 }
+
+// global.form = async (
+//   ...fields: PromptConfig[] | string[]
+// ) => {
+//   let configs: PromptConfig[] = []
+
+//   for await (let f of fields) {
+//     if (typeof f === "string") {
+//       configs.push({
+//         placeholder: f,
+//       })
+//     } else {
+//       configs.push(f)
+//     }
+//   }
+//   send(Channel.SET_FORM, configs)
+// }
 
 let maybeWrapHtml = (html, containerClasses) => {
   return html?.length === 0

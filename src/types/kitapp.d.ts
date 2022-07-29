@@ -113,7 +113,7 @@ export interface Drop {
 export interface Editor {
   (config?: EditorConfig & { hint?: string }): Promise<any>
 }
-export interface Form {
+export interface OldForm {
   (
     html?:
       | string
@@ -125,8 +125,12 @@ export interface Form {
   ): Promise<any>
 }
 
+export interface Form {
+  (html: string, formData: any): Promise<any>
+}
+
 export interface Fields {
-  (fields: Field[]): Promise<any>
+  (...fields: string[]): Promise<any>
   (config: PromptConfig): Promise<any>
 }
 
@@ -306,6 +310,7 @@ export interface ChannelMap {
   [Channel.SET_FIELDS]: Field[]
   [Channel.SET_FLAGS]: FlagsOptions
   [Channel.SET_FORM_HTML]: { html: string; formData: any }
+  [Channel.SET_FORM]: PromptConfig[]
   [Channel.SET_HINT]: string
   [Channel.SET_IGNORE_BLUR]: boolean
   [Channel.SET_KIT_STATE]: any

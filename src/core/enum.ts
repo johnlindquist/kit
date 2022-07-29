@@ -158,6 +158,7 @@ export enum Channel {
   COPY = "COPY",
   PASTE = "PASTE",
   CLEAR_SCRIPTS_MEMORY = "CLEAR_SCRIPTS_MEMORY",
+  SET_FORM = "SET_FORM",
 }
 
 export enum ProcessType {
@@ -349,5 +350,6 @@ export const statuses = [
   "warn",
   "busy",
   "error",
-  "paused",
+  "pause",
+  "update",
 ] as const
