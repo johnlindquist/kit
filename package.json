@@ -63,7 +63,8 @@
     "plist": "3.0.5",
     "shelljs": "0.8.5",
     "slugify": "1.6.5",
-    "suggestion": "2.1.2"
+    "suggestion": "2.1.2",
+    "trash": "^8.1.0"
   },
   "devDependencies": {
     "@types/concurrently": "6.2.1",

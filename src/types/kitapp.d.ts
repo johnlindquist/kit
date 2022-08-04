@@ -332,6 +332,7 @@ export interface ChannelMap {
   [Channel.SET_PROMPT_DATA]: PromptData
   [Channel.SET_PROMPT_PROP]: any
   [Channel.SET_READY]: boolean
+  [Channel.SET_RESIZE]: boolean
   [Channel.SET_SCRIPT]: Script
   [Channel.SET_SCRIPT_HISTORY]: Script[]
   [Channel.SET_SPLASH_BODY]: string
@@ -416,6 +417,10 @@ export interface SetFocused {
 
 export interface SetIgnoreBlur {
   (ignoreBlur: boolean): void
+}
+
+export interface SetResize {
+  (resize: boolean): void
 }
 
 export interface SetLoading {
@@ -545,6 +550,7 @@ export interface AppApi {
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur
+  setResize: SetResize
   setLoading: SetLoading
   setStatus: SetStatus
 
@@ -637,6 +643,7 @@ declare global {
   var setFilterInput: SetInput
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
+  var setResize: SetResize
   var setLoading: SetLoading
   var setStatus: SetStatus
 

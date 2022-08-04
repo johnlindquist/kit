@@ -136,7 +136,7 @@ tell application "Finder" to open information window of aFile
 
   case "trash":
     let yn = await arg({
-      placeholder: "Are you sure?",
+      placeholder: `Trash ${path.basename(selectedPath)}?`,
       hint: "[y]/[n]",
     })
     if (yn === "y") {

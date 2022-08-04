@@ -26,5 +26,6 @@ let input = await arg(
   }
 )
 
-await run(kitPath("main", "google.js"), `--input`, input)
+// await run(kitPath("main", "google.js"), `--input`, input)
+setSelectedText(input)
 export {}

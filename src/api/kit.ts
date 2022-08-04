@@ -647,12 +647,11 @@ export let selectScript = async (
     typeof message === "string"
       ? {
           placeholder: message,
-          scripts: true,
         }
-      : {
-          ...message,
-          scripts: true,
-        }
+      : message
+
+  scriptsConfig.scripts = true
+  scriptsConfig.resize = false
 
   let script: Script | string = await global.arg(
     scriptsConfig,

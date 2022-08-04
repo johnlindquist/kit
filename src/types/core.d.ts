@@ -170,10 +170,15 @@ export type Choices<Value> =
 
 export type Panel =
   | string
+  | void
   | (() => string)
+  | (() => void)
   | (() => Promise<string>)
+  | (() => Promise<void>)
   | ((input: string) => string)
+  | ((input: string) => void)
   | ((input: string) => Promise<any>)
+  | ((input: string) => Promise<void>)
 
 export type FlagsOptions = {
   [key: string]: {

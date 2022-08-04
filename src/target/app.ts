@@ -521,7 +521,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
     tabIndex: 0,
     type: "text",
     ui: UI.arg,
-    resize: false,
+    resize: true,
     env: global.env,
     ...(data as PromptData),
   })
@@ -711,48 +711,51 @@ global.fields = async (...formFields) => {
       }
       if (typeof field === "string") {
         defaultElement.label = field
+        defaultElement.placeholder = field
       } else {
         Object.entries(field).forEach(([key, value]) => {
           defaultElement[key] = value
         })
       }
-
       let { element, label, id, name, ...attrs } =
         defaultElement
-
       let attributes = Object.entries(attrs)
         .map(([key, value]) => {
           return ` ${key}="${value}" `
         })
         .join("")
-
-      log(attributes)
-
+      // log(attributes)
       return `
-        <div class="w-full py-2">
-              <label htmlFor=${
-                id || i
-              } class="block text-sm font-medium dark:primary-light primary-dark">
-                ${label}
-              </label>
-                <${element}
-                    id="${id || i}"
-                    name="${name || i}"
-                    ${
-                      i === 0 ? `autofocus` : ``
-                    }                  
-                    ${attributes}   
-                    class="h-10 p-2 outline-none border-b-2 dark:border-primary-light border-primary-dark w-full"/>
-            </div>
-        
-        `
+      <div class="w-full pt-4 flex flex-col-reverse">
+           
+              <${element}
+                  id="${id || i}"
+                  name="${name || i}"
+                  ${
+                    i === 0 ? `autofocus` : ``
+                  }                  
+                  ${attributes}   
+                  class="peer text-xl h-10 px-4 py-0 outline-none border-b placeholder-black dark:placeholder-white dark:placeholder-opacity-25 placeholder-opacity-25 border-black dark:border-white border-opacity-15 dark:border-opacity-15 dark:focus:border-primary-light focus:border-primary-dark w-full"/>
+
+                  <label for=${id || i} htmlFor=${
+        id || i
+      } class="text-sm px-4 block font-normal dark:font-normal text-black dark:text-white peer-focus:text-primary-dark peer-focus:dark:text-primary-light">
+                          ${label}
+                        </label>
+          </div>
+      
+      `
     })
     .join("")
-  config.html = `<div class="px-8 py-4 flex flex-col items-center">
+  config.html = `<div class="flex flex-col items-center min-h-full">
+<div class="flex-1 w-full">
 ${inputs}
-<input type="submit" value="Submit" class="w-1/2 mt-12 bg-opacity-80 dark:bg-opacity-80
-bg-primary-dark dark:bg-primary-light
-text-white dark:text-black font-bold py-2 px-4 rounded"/>
+</div>
+<div class="flex flex-row w-full px-4">
+<div class="flex-1"></div>
+<input type="reset" value="Reset" class="focus:underline underline-offset-4 outline-none p-2 dark:text-white dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
+<input type="submit" value="Submit" class="focus:underline underline-offset-4 outline-none p-2 dark:text-white dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light"/>
+</div>
 </div>`
   let formResponse = await global.form(config)
   return Object.values(formResponse)
@@ -1052,6 +1055,10 @@ global.setFilterInput = async inputFilter => {
 
 global.setIgnoreBlur = async ignore => {
   global.send(Channel.SET_IGNORE_BLUR, ignore)
+}
+
+global.setResize = async ignore => {
+  global.send(Channel.SET_RESIZE, ignore)
 }
 
 global.setValue = async value => {

@@ -285,6 +285,7 @@ global.setPanelContainer = async (
 ) => {}
 
 global.setIgnoreBlur = async ignore => {}
+global.setResize = async resize => {}
 
 global.setBounds = (bounds: Partial<Rectangle>) => {}
 
