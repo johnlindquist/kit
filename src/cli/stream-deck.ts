@@ -54,6 +54,6 @@ let info = `
 
 await div(await highlight(info))
 
-exec(`open -a "Stream Deck.app"`)
+open("Stream Deck.app")
 
 export {}

@@ -40,7 +40,7 @@ export interface CLI {
   faq: Promise<typeof import("../help/faq")>
   "goto-docs": Promise<typeof import("./goto-docs")>
   "goto-guide": Promise<typeof import("./goto-guide")>
-  docs: Promise<typeof import("./docs")>
+  tips: Promise<typeof import("./tips")>
   "manage-npm": Promise<typeof import("./manage-npm")>
   "more-info": Promise<typeof import("./more-info")>
   "new-from-template": Promise<
@@ -66,6 +66,13 @@ export interface CLI {
   >
   "share-script-as-link": Promise<
     typeof import("./share-script-as-link")
+  >
+  "share-script-as-markdown": Promise<
+    typeof import("./share-script-as-markdown")
+  >
+
+  "share-script-as-kit-link": Promise<
+    typeof import("./share-script-as-kit-link")
   >
   "share-script": Promise<typeof import("./share-script")>
   "stream-deck": Promise<typeof import("./stream-deck")>

@@ -80,7 +80,7 @@ let action = await arg<string>(
 
 switch (action) {
   case "open":
-    await exec(`open '${selectedPath}'`)
+    await open(path.dirname(selectedPath))
     break
 
   case "open-with":

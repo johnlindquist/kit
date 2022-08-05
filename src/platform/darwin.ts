@@ -554,6 +554,6 @@ global.openLog = () => {
   global.edit(logPath)
 }
 
-global.browse = async (path: string) => {
-  return global.exec(`open '${path}'`)
+global.browse = (url: string) => {
+  return open(url)
 }

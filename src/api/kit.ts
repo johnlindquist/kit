@@ -570,6 +570,7 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
       shortcut: value?.shortcut || "",
       description: value?.description || "",
       value: key,
+      action: value?.action || "",
     }
   }
 

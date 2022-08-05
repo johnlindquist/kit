@@ -9,6 +9,7 @@ import {
   cmd,
   returnOrEnter,
 } from "../core/utils.js"
+import { FlagsOptions } from "../types/core.js"
 
 let modifiers = {
   cmd: "cmd",
@@ -17,16 +18,24 @@ let modifiers = {
   ctrl: "ctrl",
 }
 
-let scriptFlags = {
-  [""]: {
+let scriptFlags: FlagsOptions = {
+  ["run"]: {
     name: "Run",
     description: "Run the selected script",
     shortcut: "enter",
+    action: "right",
   },
   open: {
-    name: "Open",
+    name: "Edit",
     description: "Open the selected script in your editor",
     shortcut: `${cmd}+o`,
+    action: "right",
+  },
+  ["new-menu"]: {
+    name: "New",
+    description: "Create a new script",
+    shortcut: `${cmd}+n`,
+    action: "left",
   },
 
   ["reveal-script"]: {
@@ -80,6 +89,12 @@ let scriptFlags = {
     description:
       "Delete the db file for the selected script",
   },
+  ["share"]: {
+    name: "Share",
+    description: "Share the selected script",
+    shortcut: `${cmd}+s`,
+    action: "right",
+  },
   ["share-script"]: {
     name: "Share as Gist",
     description: "Share the selected script as a gist",
@@ -101,7 +116,6 @@ let scriptFlags = {
     name: "Share as GitHub Discussion",
     description:
       "Copies shareable info to clipboard and opens GitHub Discussions",
-    shortcut: `${cmd}+s`,
   },
   ["share-script-as-markdown"]: {
     name: "Share as Markdown",
@@ -142,6 +156,11 @@ let scriptFlags = {
   [modifiers.ctrl]: {
     name: "Run script w/ ctrl flag",
     shortcut: "ctrl+enter",
+  },
+  ["settings"]: {
+    name: "Settings",
+    description: "Open the settings menu",
+    shortcut: `${cmd}+,`,
   },
 }
 
@@ -246,7 +265,6 @@ let script = await selectScript(
     onShortcutSubmit: {
       [`${cmd}+p`]: kitPath("cli", "processes.js"),
       [`${cmd}+f`]: kitPath("cli", "find.js"),
-      [`${cmd}+n`]: kitPath("cli", "new-quick.js"),
       [`${cmd}+0`]: kitPath("cli", "kit-clear-prompt.js"),
     },
     //     onInput: async (input, { count }) => {
@@ -305,6 +323,13 @@ if (
         path.dirname(script.filePath)
       )}'`
     )
+  } else if (selectedFlag && selectedFlag === "settings") {
+    await run(kitPath("main", "kit.js"))
+  } else if (
+    selectedFlag &&
+    selectedFlag?.endsWith("menu")
+  ) {
+    await run(`${kitPath("cli", selectedFlag)}.js`)
   } else if (selectedFlag && !flag?.open) {
     await run(
       `${kitPath("cli", selectedFlag)}.js ${

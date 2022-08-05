@@ -4,6 +4,7 @@ import * as clipboardy from "clipboardy"
 import { Notification } from "node-notifier"
 
 export type Trash = typeof import("trash").default
+export type Open = typeof import("open").default
 export type KitNotification = string | Notification
 
 export interface Notify {
@@ -32,6 +33,7 @@ export interface PackagesApi {
   paste: () => Promise<text>
   copy: (text: string) => Promise<void>
   trash: Trash
+  open: Open
   rm: Trash
   notify: Notify
 }
@@ -56,6 +58,7 @@ declare global {
   var copy: (text: string) => Promise<void>
 
   var trash: Trash
+  var open: Open
   var rm: Trash
 
   var notify: Notify

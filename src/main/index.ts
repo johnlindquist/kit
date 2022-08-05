@@ -35,19 +35,19 @@ onTab("Run", async (input = "") => {
   await cli("app-run", "--input", input)
 })
 
-onTab("New", async (input = "") => {
-  await main("new", "--input", input)
-})
+// onTab("New", async (input = "") => {
+//   await main("new", "--input", input)
+// })
 
-onTab("Kit", async (input = "") => {
-  await main("kit", "--input", input)
-})
+// onTab("Kit", async (input = "") => {
+//   await main("kit", "--input", input)
+// })
 
-onTab("Docs", async (input = "") => {
+onTab("Tips", async (input = "") => {
   await main("help", "--input", input)
 })
 
-onTab("Hot 🔥", async (input = "") => {
+onTab("Community", async (input = "") => {
   await main("hot", "--input", input)
 })
 

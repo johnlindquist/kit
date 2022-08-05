@@ -39,7 +39,7 @@ function createScriptKitAuth({
     clientId: clientId,
     scopes,
     async onVerification(verification) {
-      global.exec(`open '${verification.verification_uri}'`)
+      await open(verification.verification_uri)
       global.copy(verification.user_code)
       w = await global.widget(
         md(

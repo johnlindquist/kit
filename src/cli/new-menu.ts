@@ -1,19 +1,21 @@
+// Name: New
+// Description: Script Kit
+
 import { Choice } from "../types/core"
-import { CLI } from "../cli"
-import { Main } from "./index"
+import { Main, CLI } from "./index"
 import {
   kitMode,
   returnOrEnter,
   run,
 } from "../core/utils.js"
-import { addPreview, findDoc } from "../cli/lib/utils.js"
+import { addPreview, findDoc } from "./lib/utils.js"
 
-setFlags({
-  discuss: {
-    name: "Discuss topic on Kit Dicussions",
-    description: "Open discussion in browser",
-  },
-})
+// setFlags({
+//   discuss: {
+//     name: "Discuss topic on Kit Dicussions",
+//     description: "Open discussion in browser",
+//   },
+// })
 
 let newOptions: Choice<keyof CLI | keyof Main>[] = [
   {
@@ -24,10 +26,17 @@ let newOptions: Choice<keyof CLI | keyof Main>[] = [
     value: "new",
   },
   {
-    name: "Download Script From URL",
-    description: "Enter a url then name it",
-    value: "new-from-url",
+    name: "New Snippet Script",
+    description: `Create a script using ${
+      kitMode() === "ts" ? "TypeScript" : "JavaScript"
+    }`,
+    value: "snippets",
   },
+  // {
+  //   name: "Download Script From URL",
+  //   description: "Enter a url then name it",
+  //   value: "new-from-url",
+  // },
   {
     name: "Browse Community Examples",
     description:
@@ -89,7 +98,7 @@ let cliScript = await arg<keyof CLI | keyof Main>(
 if (cliScript === "snippets" || cliScript === "templates") {
   await run(kitPath("main", `${cliScript}.js`))
 } else if (cliScript === "tips") {
-  await setTab("Docs")
+  await mainScript("", "tips")
 } else if (flag?.discuss) {
   let doc = await findDoc("templates", cliScript)
   if (doc?.discussion) {

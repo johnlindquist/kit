@@ -546,6 +546,7 @@ let prepPrompt = async (config: PromptConfig) => {
       : Mode.FILTER
 
   global.setPrompt({
+    id: uuid(),
     footer: footer || "",
     strict: Boolean(choices),
     hasPreview: Boolean(preview),
@@ -753,8 +754,8 @@ ${inputs}
 </div>
 <div class="flex flex-row w-full px-4">
 <div class="flex-1"></div>
-<input type="reset" value="Reset" class="focus:underline underline-offset-4 outline-none p-2 dark:text-white dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
-<input type="submit" value="Submit" class="focus:underline underline-offset-4 outline-none p-2 dark:text-white dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light"/>
+<input type="reset" value="Reset" class="focus:underline underline-offset-4 outline-none p-3 dark:text-white text-opacity-50 dark:text-opacity-50 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
+<input type="submit" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-primary-dark dark:text-primary-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
 </div>
 </div>`
   let formResponse = await global.form(config)
@@ -768,7 +769,7 @@ global.form = async (html = "", formData = {}) => {
     config.formData = formData
   } else {
     config = {
-      html,
+      html: html as string,
       formData,
     }
   }
@@ -1192,10 +1193,15 @@ for (let method of loadingList) {
 
 global.Key = Key
 
-global.mainScript = async (input: string = "") => {
+global.mainScript = async (
+  input: string = "",
+  tab: string
+) => {
   if (process.env.KIT_CONTEXT === "app") {
     setInput(input)
-    await run(mainScriptPath)
+    let m = run(mainScriptPath)
+    if (tab) setTab(tab)
+    await m
   }
 }
 

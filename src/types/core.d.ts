@@ -124,6 +124,7 @@ export type InputType =
   | "week"
 
 export interface PromptData {
+  id: string
   scriptPath: string
   description: string
   flags: FlagsOptions
@@ -185,6 +186,7 @@ export type FlagsOptions = {
     shortcut?: string
     name?: string
     description?: string
+    action?: "left" | "right"
   }
 }
 

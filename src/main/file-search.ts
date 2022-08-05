@@ -83,7 +83,7 @@ let action = await arg<string>(
 
 switch (action) {
   case "open":
-    await exec(`open '${selectedFile}'`)
+    await open(path.dirname(selectedFile))
     break
 
   case "open-with":

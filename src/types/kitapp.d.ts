@@ -126,7 +126,10 @@ export interface OldForm {
 }
 
 export interface Form {
-  (html: string, formData: any): Promise<any>
+  (
+    html: string | PromptConfig,
+    formData?: any
+  ): Promise<any>
 }
 
 export interface Fields {
@@ -617,6 +620,8 @@ declare global {
   var textarea: TextArea
   var drop: Drop
   var div: Div
+  var form: Form
+  var fields: Fields
   var editor: Editor
   var hotkey: Hotkey
   var send: Send
@@ -661,7 +666,7 @@ declare global {
   var removeClipboardItem: (id: string) => void
   var setTab: (tabName: string) => void
   var submit: Submit
-  var mainScript: () => Promise<void>
+  var mainScript: (input = "", tab = "") => Promise<void>
 
   var appKeystroke: SendKeystroke
   var Key: typeof KeyboardEnum

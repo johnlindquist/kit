@@ -80,7 +80,7 @@ global.selectFile = async (
 }
 
 global.revealInFinder = async filePath => {
-  await exec(`open '${path.dirname(filePath)}'`)
+  await open(path.dirname(filePath))
   await applescript(`
 set aFile to (POSIX file "${filePath}") as alias
 tell application "Finder" to select aFile

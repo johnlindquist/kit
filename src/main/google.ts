@@ -88,7 +88,7 @@ if (flag?.["paste-as-markdown"]) {
 } else if (flag?.["paste-title"]) {
   setSelectedText(title)
 } else {
-  if (url) exec(`open '${url}'`)
+  if (url) open(url)
 }
 
 export {}

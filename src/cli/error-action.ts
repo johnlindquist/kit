@@ -61,6 +61,7 @@ let errorAction: ErrorAction = await arg(
     onEscape: async () => {
       await mainScript()
     },
+    resize: false,
   },
   [
     ...(showCopyCommand
