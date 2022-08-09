@@ -8,12 +8,10 @@ let examples = Array.from({ length: 3 })
   .join(", ")
 
 import { stripMetadata } from "../core/utils.js"
-import { Script } from "../types/core.js"
 
-let { filePath } = (await selectScript({
-  placeholder: "Select Script to Duplicate",
-  enter: "Duplicate Selected Script",
-})) as Script
+let { filePath } = await selectScript(
+  "Select Script to Duplicate"
+)
 
 let newCommand = await arg({
   placeholder: `Enter name for new script`,
