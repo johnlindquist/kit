@@ -68,13 +68,13 @@ interface DisplayChoicesProps {
   onDown?: PromptConfig["onDown"]
   onLeft?: PromptConfig["onLeft"]
   onRight?: PromptConfig["onRight"]
-  onShortcut?: PromptConfig["onShortcut"]
   onTab?: PromptConfig["onTab"]
   onNoChoices?: PromptConfig["onNoChoices"]
   onChoiceFocus?: PromptConfig["onChoiceFocus"]
   onBlur?: PromptConfig["onChoiceFocus"]
   onPaste?: PromptConfig["onPaste"]
   onDrop?: PromptConfig["onDrop"]
+  shortcuts?: PromptConfig["shortcuts"]
 }
 
 let promptId = 0
@@ -257,10 +257,10 @@ let waitForPromptValue = ({
   onBlur,
   onLeft,
   onRight,
-  onShortcut,
   onPaste,
   onDrop,
   state,
+  shortcuts,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
     promptId++
@@ -413,10 +413,25 @@ let waitForPromptValue = ({
             break
 
           case Channel.SHORTCUT:
-            onShortcut[data?.state?.shortcut]?.(
-              data.state.input,
-              data.state
-            )
+            if (data?.state?.flag) {
+              global.flag[data.state.flag] = true
+            }
+            const shortcut = shortcuts.find(({ key }) => {
+              return key === data?.state?.shortcut
+            })
+
+            if (shortcut?.onPress) {
+              shortcut.onPress?.(
+                data.state.input,
+                data.state
+              )
+            } else {
+              submit(
+                data.state?.focused?.value ||
+                  data?.state?.input
+              )
+            }
+
             break
 
           case Channel.ON_PASTE:
@@ -535,8 +550,6 @@ let prepPrompt = async (config: PromptConfig) => {
     preview,
     panel,
     onInputSubmit = {},
-    onShortcutSubmit = {},
-    onShortcut = {},
     ...restConfig
   } = config
 
@@ -552,14 +565,6 @@ let prepPrompt = async (config: PromptConfig) => {
     hasPreview: Boolean(preview),
     ...restConfig,
     onInputSubmit,
-    onShortcutSubmit,
-    onShortcut: Object.keys(onShortcut).reduce(
-      (acc, curr) => {
-        acc[curr] = ""
-        return acc
-      },
-      {}
-    ),
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
@@ -638,9 +643,9 @@ global.kitPrompt = async (config: PromptConfig) => {
     ),
     onBlur = onBlurDefault,
     input = "",
-    onShortcut,
     onPaste = onPasteDefault,
     onDrop = onDropDefault,
+    shortcuts = [],
   } = config
 
   await prepPrompt(config)
@@ -667,9 +672,9 @@ global.kitPrompt = async (config: PromptConfig) => {
     onTab,
     onChoiceFocus: choiceFocus,
     onBlur,
-    onShortcut,
     onPaste,
     onDrop,
+    shortcuts,
     state: { input },
   })
 }
@@ -752,12 +757,19 @@ global.fields = async (...formFields) => {
 <div class="flex-1 w-full">
 ${inputs}
 </div>
-<div class="flex flex-row w-full px-4">
+<div class="flex flex-row w-full px-4 invisible">
 <div class="flex-1"></div>
-<input type="reset" value="Reset" class="focus:underline underline-offset-4 outline-none p-3 dark:text-white text-opacity-50 dark:text-opacity-50 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
-<input type="submit" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-primary-dark dark:text-primary-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
+<input type="reset" name="reset" value="Reset" accesskey="r"> class="focus:underline underline-offset-4 outline-none p-3 dark:text-white text-opacity-50 dark:text-opacity-50 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
+<input type="submit" name="submit" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-primary-dark dark:text-primary-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
 </div>
 </div>`
+  config.shortcuts = [
+    {
+      name: "Reset",
+      key: "cmd+alt+r",
+      bar: "right",
+    },
+  ]
   let formResponse = await global.form(config)
   return Object.values(formResponse)
 }
@@ -1137,7 +1149,6 @@ global.submit = (value: any) => {
     pid: process.pid,
   }
   global.__emitter__.emit("message", message)
-  global.send(Channel.CLEAR_PREVIEW)
 }
 
 global.wait = async (time: number) => {
@@ -1283,24 +1294,16 @@ let __pathSelector = async (
     | string
     | {
         startPath?: string
-        hint?: string
-        onInput?: ChannelHandler
-        onChoiceFocus?: ChannelHandler
         onlyDirs?: boolean
       } = home(),
   { showHidden } = { showHidden: false }
 ) => {
   let startPath = ``
-  let hint = ``
   let onInputHook = null
-  let onChoiceFocusHook = () => {}
   let onlyDirs = false
   if (typeof config === "string") startPath = config
   if (typeof config === "object") {
     startPath = config?.startPath || home()
-    hint = config?.hint || ``
-    onInputHook = config?.onInput || null
-    onChoiceFocusHook = config?.onChoiceFocus || null
     onlyDirs = config?.onlyDirs || false
   }
 
@@ -1488,6 +1491,7 @@ let __pathSelector = async (
   }
   let selectedPath = await arg(
     {
+      ...(config as PromptConfig),
       input: startPath,
       onInput,
       onTab,
@@ -1495,15 +1499,41 @@ let __pathSelector = async (
       onLeft,
       onNoChoices,
       onEscape,
-      onChoiceFocus: onChoiceFocusHook,
-      hint,
+      shortcuts: [
+        {
+          name: "Sort by name",
+          key: `${cmd}+,`,
+          onPress: createSorter("date"),
+          bar: "right",
+        },
+        {
+          name: "Sort by size",
+          key: `${cmd}+.`,
+          onPress: createSorter("size"),
+          bar: "right",
+        },
+        {
+          name: "Sort by date",
+          key: `${cmd}+/`,
+          onPress: createSorter("name"),
+          bar: "right",
+        },
+      ],
 
-      onShortcut: {
-        [`${cmd}+,`]: createSorter(`name`),
-        [`${cmd}+.`]: createSorter(`size`),
-        [`${cmd}+/`]: createSorter(`date`),
-      },
-      footer: `Sort by - name: ${cmd}+, size: ${cmd}+. date: ${cmd}+/`,
+      // onShortcut: {
+      //   [`${cmd}+,`]: {
+      //     name: "Sort by name",
+      //     handler: createSorter(`name`),
+      //   },
+      //   [`${cmd}+.`]: {
+      //     name: "Sort by size",
+      //     handler: createSorter(`size`),
+      //   },
+      //   [`${cmd}+/`]: {
+      //     name: "Sort by date",
+      //     handler: createSorter(`date`),
+      //   },
+      // },
     },
     []
   )

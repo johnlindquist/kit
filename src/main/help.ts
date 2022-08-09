@@ -1,15 +1,15 @@
 // Description: Help
 
 import { Choice } from "../types/core"
-import { run } from "../core/utils.js"
+import { cmd, run } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
-setFlags({
-  discuss: {
-    name: "Discuss topic on Kit Dicussions",
-    description: "Open discussion in browser",
-  },
-})
+// setFlags({
+//   discuss: {
+//     name: "Discuss topic on Kit Dicussions",
+//     description: "Open discussion in browser",
+//   },
+// })
 
 let kitHelpChoices: Choice[] = [
   {
@@ -80,7 +80,7 @@ let onNoChoices = async input => {
   setPanel(
     md(`
 
-# No Docs Found for "${input}"
+# No Tips Found for "${input}"
 
 Ask a question on our [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a).
 
@@ -98,6 +98,22 @@ let selectedHelp = await arg(
       noChoices = false
     },
     input: arg?.input,
+    shortcuts: [
+      {
+        name: "Discuss on GitHub",
+        key: `${cmd}+o`,
+        onPress: async (input, state) => {
+          let doc = await findDoc(
+            "help",
+            state?.focused?.value
+          )
+
+          if (doc?.discussion) {
+            browse(doc?.discussion)
+          }
+        },
+      },
+    ],
   },
   await addPreview(kitHelpChoices, "help")
 )
@@ -108,13 +124,7 @@ if (noChoices) {
   )
 } else {
   let maybeCli = kitPath(`help`, selectedHelp + ".js")
-  if (flag?.discuss) {
-    let doc = await findDoc("help", selectedHelp)
-
-    if (doc?.discussion) {
-      browse(doc?.discussion)
-    }
-  } else if (await pathExists(maybeCli)) {
+  if (await pathExists(maybeCli)) {
     await run(maybeCli)
   } else {
     let doc = await findDoc("help", selectedHelp)

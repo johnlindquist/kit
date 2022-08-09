@@ -30,6 +30,7 @@ export interface Choice<Value = any> {
     | string
   onFocus?: (choice: Choice) => Promise<void>
   onSubmit?: (choice: Choice) => Promise<void>
+  enter?: string
 }
 
 export interface ScriptPathInfo {
@@ -123,6 +124,17 @@ export type InputType =
   | "url"
   | "week"
 
+export type Shortcut = {
+  key: string
+  name: string
+  onPress?: (
+    input: string,
+    state: AppState
+  ) => Promise<void>
+  bar?: "right" | "left"
+  flag?: string
+}
+
 export interface PromptData {
   id: string
   scriptPath: string
@@ -150,11 +162,11 @@ export interface PromptData {
   placeholderOnly: boolean
   scripts: boolean
   onInputSubmit: { [key: string]: any }
-  onShortcutSubmit: { [key: string]: any }
-  onShortcut: { [key: string]: any }
   defaultChoiceId: string
   footer: string
   env: any
+  shortcuts: Shortcut[]
+  enter: string
 }
 
 export interface GenerateChoices {
@@ -250,13 +262,8 @@ export interface PromptConfig
   onInputSubmit?: {
     [key: string]: any
   }
-  onShortcutSubmit?: {
-    [key: string]: any
-  }
-  onShortcut?: {
-    [key: string]: ChannelHandler
-  }
   env?: any
+  shortcuts?: Shortcut[]
 }
 
 export interface Metadata {

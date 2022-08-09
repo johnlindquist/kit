@@ -21,7 +21,7 @@ let id = setTimeout(async () => {
 let argPromise = arg(
   {
     placeholder: "Select Process",
-    footer: "Select to view process options",
+    enter: "View Process Options",
     onEscape: async () => {
       clearTimeout(id)
       await mainScript()

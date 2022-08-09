@@ -273,6 +273,7 @@ global.drop = async () => {
 }
 
 global.setChoices = async () => {}
+global.clearTabs = async () => {}
 
 global.setPanel = async (html, containerClasses = "") => {}
 global.setPreview = async (

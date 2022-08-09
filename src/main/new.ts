@@ -8,12 +8,12 @@ import {
 } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
-setFlags({
-  discuss: {
-    name: "Discuss topic on Kit Dicussions",
-    description: "Open discussion in browser",
-  },
-})
+// setFlags({
+//   discuss: {
+//     name: "Discuss topic on Kit Dicussions",
+//     description: "Open discussion in browser",
+//   },
+// })
 
 let newOptions: Choice<keyof CLI | keyof Main>[] = [
   {
@@ -83,6 +83,7 @@ let cliScript = await arg<keyof CLI | keyof Main>(
     strict: false,
     onNoChoices,
     input: arg?.input,
+    enter: `Run`,
   },
   previewChoices
 )

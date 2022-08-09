@@ -44,6 +44,7 @@ let url = await arg(
     onChoiceFocus: () => {
       noChoices = false
     },
+    enter: "Open in Browser",
   },
   choices
 )

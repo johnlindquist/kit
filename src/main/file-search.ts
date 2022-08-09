@@ -2,18 +2,25 @@
 
 setName(``)
 
+let atLeast = `Type at least 3 characters`
 let selectedFile = await arg(
   {
     placeholder: "Search Files",
     footer: "Enter to open action menu",
+    enter: "Open Action Menu",
   },
   async input => {
-    if (!input || input === "undefined")
-      return md(`### Type at least 2 characters`)
+    if (!input || input === "undefined") {
+      setFooter(atLeast)
+      return []
+    }
 
-    if (input?.length < 3)
-      return md(`### Type at least 2 characters`)
+    if (input?.length < 3) {
+      setFooter(atLeast)
+      return []
+    }
 
+    setFooter(``)
     let files = await fileSearch(input)
 
     return files.map(p => {
@@ -32,9 +39,16 @@ setDescription(selectedFile)
 let action = await arg<string>(
   {
     placeholder: "Selected Path Action:",
-    onEscape: async () => {
+    shortcuts: [
+      {
+        name: "Back to Search",
+        key: "left",
+        bar: "right",
+      },
+    ],
+    onLeft: async () => {
       await run(
-        kitPath("cli", "path-handler.js"),
+        kitPath("main", "file-search.js"),
         selectedFile.replace(new RegExp(`${path.sep}$`), "")
       )
     },

@@ -19,24 +19,18 @@ let modifiers = {
 }
 
 let scriptFlags: FlagsOptions = {
-  ["run"]: {
-    name: "Run",
-    description: "Run the selected script",
-    shortcut: "enter",
-    action: "right",
-  },
   open: {
     name: "Edit",
     description: "Open the selected script in your editor",
     shortcut: `${cmd}+o`,
     action: "right",
   },
-  ["new-menu"]: {
-    name: "New",
-    description: "Create a new script",
-    shortcut: `${cmd}+n`,
-    action: "left",
-  },
+  // ["new-menu"]: {
+  //   name: "New",
+  //   description: "Create a new script",
+  //   shortcut: `${cmd}+n`,
+  //   action: "left",
+  // },
 
   ["reveal-script"]: {
     name: "Reveal",
@@ -95,34 +89,34 @@ let scriptFlags: FlagsOptions = {
     shortcut: `${cmd}+s`,
     action: "right",
   },
-  ["share-script"]: {
-    name: "Share as Gist",
-    description: "Share the selected script as a gist",
-    shortcut: `${cmd}+g`,
-  },
-  ["share-script-as-kit-link"]: {
-    name: "Share as kit:// link",
-    description:
-      "Create a link which will install the script",
-    shortcut: "option+s",
-  },
-  ["share-script-as-link"]: {
-    name: "Share as URL",
-    description:
-      "Create a URL which will install the script",
-    shortcut: `${cmd}+u`,
-  },
-  ["share-script-as-discussion"]: {
-    name: "Share as GitHub Discussion",
-    description:
-      "Copies shareable info to clipboard and opens GitHub Discussions",
-  },
-  ["share-script-as-markdown"]: {
-    name: "Share as Markdown",
-    description:
-      "Copies script contents in fenced JS Markdown",
-    shortcut: `${cmd}+m`,
-  },
+  // ["share-script"]: {
+  //   name: "Share as Gist",
+  //   description: "Share the selected script as a gist",
+  //   shortcut: `${cmd}+g`,
+  // },
+  // ["share-script-as-kit-link"]: {
+  //   name: "Share as kit:// link",
+  //   description:
+  //     "Create a link which will install the script",
+  //   shortcut: "option+s",
+  // },
+  // ["share-script-as-link"]: {
+  //   name: "Share as URL",
+  //   description:
+  //     "Create a URL which will install the script",
+  //   shortcut: `${cmd}+u`,
+  // },
+  // ["share-script-as-discussion"]: {
+  //   name: "Share as GitHub Discussion",
+  //   description:
+  //     "Copies shareable info to clipboard and opens GitHub Discussions",
+  // },
+  // ["share-script-as-markdown"]: {
+  //   name: "Share as Markdown",
+  //   description:
+  //     "Copies script contents in fenced JS Markdown",
+  //   shortcut: `${cmd}+m`,
+  // },
   ["change-shortcut"]: {
     name: "Change Shortcut",
     description:
@@ -143,19 +137,23 @@ let scriptFlags: FlagsOptions = {
         [modifiers.cmd]: {
           name: "Run script w/ cmd flag",
           shortcut: `${cmd}+enter`,
+          flag: "cmd",
         },
       }),
   [modifiers.shift]: {
     name: "Run script w/ shift flag",
     shortcut: "shift+enter",
+    flag: "shift",
   },
   [modifiers.opt]: {
     name: "Run script w/ opt flag",
     shortcut: "option+enter",
+    flag: "opt",
   },
   [modifiers.ctrl]: {
     name: "Run script w/ ctrl flag",
     shortcut: "ctrl+enter",
+    flag: "ctrl",
   },
   ["settings"]: {
     name: "Settings",
@@ -262,11 +260,38 @@ let script = await selectScript(
       "0": kitPath("handler", "number-handler.js") + ` 0`,
       "?": kitPath("handler", "question-handler.js"),
     },
-    onShortcutSubmit: {
-      [`${cmd}+p`]: kitPath("cli", "processes.js"),
-      [`${cmd}+f`]: kitPath("cli", "find.js"),
-      [`${cmd}+0`]: kitPath("cli", "kit-clear-prompt.js"),
-    },
+
+    shortcuts: [
+      {
+        name: "New",
+        key: `${cmd}+n`,
+        bar: "left",
+        onPress: async () => {
+          await run(kitPath("cli", "new-menu.js"))
+        },
+      },
+      {
+        name: "List Processes",
+        key: `${cmd}+p`,
+        onPress: async () => {
+          await run(kitPath("cli", "processes.js"))
+        },
+      },
+      {
+        name: "Find Script",
+        key: `${cmd}+f`,
+        onPress: async () => {
+          await run(kitPath("cli", "find.js"))
+        },
+      },
+      {
+        name: "Reset Prompt",
+        key: `${cmd}+0`,
+        onPress: async () => {
+          await run(kitPath("cli", "kit-clear-prompt.js"))
+        },
+      },
+    ],
     //     onInput: async (input, { count }) => {
     //       if (count === 0) {
     //         let scriptName = input

@@ -15,10 +15,14 @@ let name = await arg({
   placeholder:
     arg?.placeholder || "Enter a name for your script:",
   validate: exists,
-  hint: `examples: ${examples}`,
+  footer: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
 })
 
 let { dirPath: selectedKenvPath } = await selectKenv(
+  {
+    placeholder: `Select Where to Create Script`,
+    enter: "Create Script in Selected Kenv",
+  },
   /^examples$/
 )
 

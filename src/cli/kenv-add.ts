@@ -45,7 +45,7 @@ let onPathChange: ChannelHandler = async (
 }
 
 let existingKenvPath = await path({
-  hint: "Select a directory containing a scripts folder",
+  footer: "Select a directory containing a scripts folder",
   onInput: onPathChange,
   onChoiceFocus: onPathChange,
   onlyDirs: true,

@@ -13,13 +13,13 @@ setDescription(selectedPath)
 let action = await arg<string>(
   {
     placeholder: "Selected Path Action:",
-    onEscape: async () => {
-      submit(``)
-      await run(
-        kitPath("main", "browse.js"),
-        selectedPath.replace(new RegExp(`${path.sep}$`), "")
-      )
-    },
+    shortcuts: [
+      {
+        name: "Back to Browse",
+        key: "left",
+        bar: "right",
+      },
+    ],
     onLeft: async () => {
       submit(``)
       await run(

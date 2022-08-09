@@ -27,16 +27,25 @@ let id = ``
 let value = await arg(
   {
     placeholder: "Hit enter to paste",
-    onShortcut: {
-      [cmd + "+shift+backspace"]: async () => {
-        clearClipboardHistory()
-        setChoices(await historyWithPreviews())
+    enter: `Paste item`,
+    shortcuts: [
+      {
+        name: "Remove Item",
+        key: `${cmd}+delete`,
+        bar: "right",
       },
-    },
+      {
+        name: `Clear Clipboard History`,
+        key: `${cmd}+shift+delete`,
+        onPress: async () => {
+          clearClipboardHistory()
+          setChoices(await historyWithPreviews())
+        },
+      },
+    ],
     onChoiceFocus: async (input, state) => {
       id = state?.focused?.id
     },
-    footer: `Paste Item: ${returnOrEnter} | Remove Item: ${cmd}+delete | Clear History: ${cmd}+shift+delete`,
   },
   await historyWithPreviews()
 )

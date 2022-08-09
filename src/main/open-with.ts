@@ -103,9 +103,7 @@ let createChoices = async () => {
 }
 let appsDb = await db("apps", async () => {
   setChoices([])
-  setPrompt({
-    tabs: [],
-  })
+  clearTabs()
   console.log(
     `First run: Indexing apps and converting icons...`
   )

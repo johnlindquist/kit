@@ -1,4 +1,4 @@
-import { KIT_FIRST_PATH } from "../core/utils.js"
+import { cmd, KIT_FIRST_PATH } from "../core/utils.js"
 
 let file = JSON.parse(
   await readFile(kenvPath("package.json"), {
@@ -28,7 +28,14 @@ let [tool, command] = (
 
 await term({
   command: `${tool} ${command} ${packages.join(" ")}`,
-  footer: `cmd+enter to continue script`,
+  enter: "Continue Script",
+  shortcuts: [
+    {
+      name: "Terminate",
+      key: `ctrl+c`,
+      bar: "right",
+    },
+  ],
   env: {
     ...global.env,
     PATH: KIT_FIRST_PATH,

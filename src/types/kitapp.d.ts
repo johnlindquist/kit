@@ -219,6 +219,7 @@ export type SendNoOptions =
   | Channel.CLEAR_CLIPBOARD_HISTORY
   | Channel.CLEAR_PREVIEW
   | Channel.CLEAR_PROMPT_CACHE
+  | Channel.CLEAR_TABS
   | Channel.CONSOLE_CLEAR
   | Channel.KIT_CLEAR
   | Channel.HIDE_APP
@@ -565,6 +566,7 @@ export interface AppApi {
   currentOnTab: any
 
   setChoices: SetChoices
+  clearTabs: () => void
   getDataFromApp: (channel: Channel) => Promise<any>
   sendWait: (channel: Channel, value: any) => Promise<any>
   getBackgroundTasks: () => Promise<{
@@ -635,6 +637,7 @@ declare global {
   var setPanel: SetPanel
   var setFooter: SetFooter
   var setChoices: SetChoices
+  var clearTabs: () => void
   var setDiv: SetPanel
   var setPreview: SetPreview
   var setPrompt: SetPrompt

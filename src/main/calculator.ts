@@ -8,7 +8,13 @@ let input = await arg("Initial string")
 let result = await arg(
   {
     placeholder: "Calculator",
-    footer: `Enter to paste result`,
+    shortcuts: [
+      {
+        name: "Paste Result",
+        key: `enter`,
+        bar: "right",
+      },
+    ],
     input: String(input),
     debounceInput: 400,
     onEscape: async () => {

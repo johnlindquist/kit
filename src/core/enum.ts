@@ -160,6 +160,7 @@ export enum Channel {
   PASTE = "PASTE",
   CLEAR_SCRIPTS_MEMORY = "CLEAR_SCRIPTS_MEMORY",
   SET_FORM = "SET_FORM",
+  CLEAR_TABS = "CLEAR_TABS",
 }
 
 export enum ProcessType {

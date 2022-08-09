@@ -43,12 +43,12 @@ let newOptions: Choice<keyof CLI | keyof Main>[] = [
       "Visit scriptkit.com/scripts/ for a variety of examples",
     value: "browse-examples",
   },
-  {
-    name: "Create Scripts from Tips",
-    description:
-      "The Tips tab has many helpful snippets to choose from",
-    value: "tips",
-  },
+  // {
+  //   name: "Create Scripts from Tips",
+  //   description:
+  //     "The Tips tab has many helpful snippets to choose from",
+  //   value: "tips",
+  // },
   {
     name: "New Kit Environment",
     description: `Create a kenv for scripts`,
@@ -92,6 +92,7 @@ let cliScript = await arg<keyof CLI | keyof Main>(
     strict: false,
     onNoChoices,
     input: arg?.input,
+    enter: "Run",
   },
   previewChoices
 )

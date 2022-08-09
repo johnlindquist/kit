@@ -154,6 +154,13 @@ let term = async (
   return await global.kitPrompt({
     input: command,
     ui: UI.term,
+    shortcuts: [
+      {
+        name: "Terminate",
+        key: `ctrl+c`,
+        bar: "right",
+      },
+    ],
     env: {
       ...global.env,
       PATH: KIT_LAST_PATH,

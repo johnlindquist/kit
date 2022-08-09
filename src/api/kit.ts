@@ -653,6 +653,7 @@ export let selectScript = async (
 
   scriptsConfig.scripts = true
   scriptsConfig.resize = false
+  scriptsConfig.enter = scriptsConfig?.enter || "Run"
 
   let script: Script | string = await global.arg(
     scriptsConfig,
@@ -673,6 +674,10 @@ export let selectScript = async (
 global.selectScript = selectScript
 
 export let selectKenv = async (
+  config = {
+    placeholder: "Select a Kenv",
+    enter: "Select Kenv",
+  } as PromptConfig,
   ignorePattern = /^examples$/
 ) => {
   let homeKenv = {
@@ -702,10 +707,7 @@ export let selectKenv = async (
       }),
     ]
 
-    selectedKenv = await global.arg(
-      `Select target kenv`,
-      kenvChoices
-    )
+    selectedKenv = await global.arg(config, kenvChoices)
 
     if (typeof selectedKenv === "string") {
       return kenvChoices.find(
@@ -807,4 +809,8 @@ global.execLog = (command: string, logger = global.log) => {
 global.projectPath = (...args) => {
   console.log(`Script not loaded yet...`)
   return ``
+}
+
+global.clearTabs = () => {
+  global.send(Channel.CLEAR_TABS)
 }

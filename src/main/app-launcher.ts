@@ -1,3 +1,5 @@
+import { cmd } from "../core/utils.js"
+
 // Description: App Launcher
 setName(``)
 let findAppsAndPrefs = async () => {
@@ -98,44 +100,47 @@ let createChoices = async () => {
         value: appPath,
         description: appPath,
         img,
+        enter: `Launch ${appName}`,
       }
     })
   )
 }
 let appsDb = await db("apps", async () => {
   setChoices([])
-  setPrompt({
-    tabs: [],
-  })
-  console.log(
-    `First run: Indexing apps and converting icons...`
-  )
+  clearTabs()
+  setFooter(`Indexing apps and icons...`)
+
   let choices = await createChoices()
-  console.clear()
+  setFooter(``)
   return {
     choices,
   }
 })
-let input = ""
+
 let app = await arg(
   {
     input: (flag?.input as string) || "",
     placeholder: "Select an app to launch",
-    footer: "cmd+enter to refresh",
-    onInput: i => {
-      input = i
-    },
+    shortcuts: [
+      {
+        name: "Refresh App List",
+        key: `${cmd}+enter`,
+        bar: "right",
+        onPress: async input => {
+          await remove(kitPath("db", "apps.json"))
+          await run(
+            kitPath("main", "app-launcher.js"),
+            "--input",
+            input
+          )
+        },
+      },
+    ],
   },
   appsDb.choices
 )
-if (flag?.cmd) {
-  await remove(kitPath("db", "apps.json"))
-  await run(
-    kitPath("main", "app-launcher.js"),
-    "--input",
-    input
-  )
-} else {
+
+if (app) {
   let command = `open -a "${app}"`
   if (app.endsWith(".prefPane")) {
     command = `open ${app}`
@@ -143,4 +148,5 @@ if (flag?.cmd) {
   await exec(command)
   hide()
 }
+
 export {}

@@ -125,7 +125,10 @@ export interface Kenv {
   dirPath: string
 }
 export interface SelectKenv {
-  (ignorePattern?: RegExp): Promise<Kenv>
+  (
+    config?: PromptConfig,
+    ignorePattern?: RegExp
+  ): Promise<Kenv>
 }
 
 export interface Highlight {
@@ -136,11 +139,8 @@ export interface Highlight {
   ): Promise<string>
 }
 
-type PathConfig = {
+interface PathConfig extends PromptConfig {
   startPath?: string
-  hint?: string
-  onInput?: ChannelHandler
-  onChoiceFocus?: ChannelHandler
   onlyDirs?: boolean
 }
 
