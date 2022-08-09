@@ -15,12 +15,19 @@ let changed = false
 contents = await editor({
   value: contents,
   scrollTo: "bottom",
-  footer: `Escape to save to ${stickyPath}`,
-  onEscape: async (input, { inputChanged }) => {
-    changed = inputChanged
-    hide()
-    submit(input)
-  },
+  // footer: `Escape to save to ${stickyPath}`,
+  shortcuts: [
+    {
+      name: "Save and Close",
+      key: "escape",
+      onPress: async (input, { inputChanged }) => {
+        changed = inputChanged
+        await submit(input)
+        await hide()
+      },
+      bar: "right",
+    },
+  ],
   onAbandon: async (input, { inputChanged }) => {
     changed = inputChanged
     submit(input)

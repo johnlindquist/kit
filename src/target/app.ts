@@ -517,7 +517,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
 
   global.send(Channel.SET_PROMPT_DATA, {
     scriptPath: global.kitScript,
-    flags: prepFlags(data?.flags || {}),
+    flags: prepFlags(data?.flags),
     hint: "",
     ignoreBlur: false,
     input: "",
@@ -617,6 +617,11 @@ let onBlurDefault = () => {
 global.kitPrompt = async (config: PromptConfig) => {
   kitPrompt$.next(true)
   //need to let onTabs() gather tab names. See Word API
+  let escapeDefault = config?.shortcuts?.find(
+    s => s.key === "escape"
+  )
+    ? () => {}
+    : onEscapeDefault
 
   await new Promise(r => setTimeout(r, 0))
   let {
@@ -624,7 +629,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
-    onEscape = onEscapeDefault,
+    onEscape = escapeDefault,
     onAbandon = onAbandonDefault,
     onBack = onBackDefault,
     onForward = onForwardDefault,
@@ -875,15 +880,26 @@ global.editor = async (options?: EditorOptions) => {
   return await global.kitPrompt({
     ui: UI.editor,
     input: editorOptions.value,
-    hint: editorOptions?.hint,
-    ignoreBlur: true,
-    onInput: editorOptions?.onInput,
-    onEscape: editorOptions?.onEscape,
-    onAbandon: editorOptions?.onAbandon,
-    onBlur: editorOptions?.onBlur,
-    onPaste: editorOptions?.onPaste,
-    onDrop: editorOptions?.onDrop,
-    footer: editorOptions?.footer || "",
+    flags: {},
+    shortcuts: [
+      {
+        name: "Close",
+        key: `${cmd}+w`,
+        bar: "right",
+        onPress: () => {
+          exit()
+        },
+      },
+      {
+        name: "Submit",
+        key: `${cmd}+s`,
+        bar: "right",
+        onPress: async input => {
+          await submit(input)
+        },
+      },
+    ],
+    ...editorOptions,
   })
 }
 
@@ -1140,15 +1156,16 @@ global.clearClipboardHistory = () => {
 
 global.__emitter__ = new EventEmitter()
 
-global.submit = (value: any) => {
-  let message: AppMessage = {
-    channel: Channel.VALUE_SUBMITTED,
-    state: {
-      value,
-    },
-    pid: process.pid,
-  }
-  global.__emitter__.emit("message", message)
+global.submit = async (value: any) => {
+  await global.sendWait(Channel.SET_SUBMIT_VALUE, value)
+  // let message: AppMessage = {
+  //   channel: Channel.VALUE_SUBMITTED,
+  //   state: {
+  //     value,
+  //   },
+  //   pid: process.pid,
+  // }
+  // global.__emitter__.emit("message", message)
 }
 
 global.wait = async (time: number) => {

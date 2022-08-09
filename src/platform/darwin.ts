@@ -3,6 +3,7 @@ import {
   KIT_DEFAULT_PATH,
   mainScriptPath,
   isInDir,
+  cmd,
 } from "../core/utils.js"
 
 import { refreshScriptsDb } from "../core/db.js"
@@ -509,8 +510,23 @@ global.edit = async (f, dir, line = 0, col = 0) => {
       value: contents,
       language,
       extraLibs,
-      onEscape,
       onAbandon,
+      shortcuts: [
+        {
+          name: "Close",
+          key: `${cmd}+w`,
+          onPress: async (input, state) => {
+            exit()
+          },
+          bar: "right",
+        },
+        {
+          name: "Save and Close",
+          key: "escape",
+          onPress: onEscape,
+          bar: "right",
+        },
+      ],
     })
 
     await writeFile(file, contents)

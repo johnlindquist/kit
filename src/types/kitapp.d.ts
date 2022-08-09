@@ -69,7 +69,9 @@ export interface Field {
   placeholder: string
 }
 
-export type EditorConfig = string | EditorOptions
+export type EditorConfig =
+  | string
+  | (PromptConfig & EditorOptions)
 
 export type TextareaConfig = {
   placeholder?: string
@@ -486,7 +488,7 @@ export interface GetEditorHistory {
 }
 
 export interface Submit {
-  (value: any): void
+  (value: any): Promise<void>
 }
 
 export type ShowOptions =

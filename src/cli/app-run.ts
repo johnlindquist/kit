@@ -19,12 +19,12 @@ let modifiers = {
 }
 
 let scriptFlags: FlagsOptions = {
-  open: {
-    name: "Edit",
-    description: "Open the selected script in your editor",
-    shortcut: `${cmd}+o`,
-    action: "right",
-  },
+  // open: {
+  //   name: "Edit",
+  //   description: "Open the selected script in your editor",
+  //   shortcut: `${cmd}+o`,
+  //   action: "right",
+  // },
   // ["new-menu"]: {
   //   name: "New",
   //   description: "Create a new script",
@@ -83,12 +83,12 @@ let scriptFlags: FlagsOptions = {
     description:
       "Delete the db file for the selected script",
   },
-  ["share"]: {
-    name: "Share",
-    description: "Share the selected script",
-    shortcut: `${cmd}+s`,
-    action: "right",
-  },
+  // ["share"]: {
+  //   name: "Share",
+  //   description: "Share the selected script",
+  //   shortcut: `${cmd}+s`,
+  //   bar: "right",
+  // },
   // ["share-script"]: {
   //   name: "Share as Gist",
   //   description: "Share the selected script as a gist",
@@ -290,6 +290,25 @@ let script = await selectScript(
         onPress: async () => {
           await run(kitPath("cli", "kit-clear-prompt.js"))
         },
+      },
+      {
+        name: "Edit",
+        key: `${cmd}+o`,
+        onPress: async (input, { focused }) => {
+          await edit(focused.value.filePath, kenvPath())
+        },
+        bar: "right",
+      },
+      {
+        name: "Share",
+        key: `${cmd}+s`,
+        onPress: async (input, { focused }) => {
+          await run(
+            kitPath("cli", "share.js"),
+            focused?.value?.filePath
+          )
+        },
+        bar: "right",
       },
     ],
     //     onInput: async (input, { count }) => {

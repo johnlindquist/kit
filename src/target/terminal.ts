@@ -319,7 +319,7 @@ global.clearClipboardHistory = async () => {
   return []
 }
 
-global.submit = (value: any) => {
+global.submit = async (value: any) => {
   notSupported("submit")
 }
 

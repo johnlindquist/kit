@@ -193,14 +193,16 @@ export type Panel =
   | ((input: string) => Promise<any>)
   | ((input: string) => Promise<void>)
 
-export type FlagsOptions = {
-  [key: string]: {
-    shortcut?: string
-    name?: string
-    description?: string
-    action?: "left" | "right"
-  }
-}
+export type FlagsOptions =
+  | {
+      [key: string]: {
+        shortcut?: string
+        name?: string
+        description?: string
+        bar?: "left" | "right"
+      }
+    }
+  | boolean
 
 export interface AppState {
   input?: string
