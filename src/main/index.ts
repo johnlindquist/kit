@@ -39,9 +39,9 @@ onTab("Run", async (input = "") => {
 //   await main("new", "--input", input)
 // })
 
-// onTab("Kit", async (input = "") => {
-//   await main("kit", "--input", input)
-// })
+onTab("Kit", async (input = "") => {
+  await main("kit", "--input", input)
+})
 
 onTab("Tips", async (input = "") => {
   await main("help", "--input", input)

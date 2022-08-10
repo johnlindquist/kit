@@ -24,25 +24,27 @@ await setSelectedText(`Script Kit is awesome!`)
 global.setSelectedText = async (text = "", hide = true) => {
   if (hide) await global.hide()
 
-  let prevText = await global.paste()
+  // let prevText = await global.paste()
 
-  await applescript(
-    String.raw`set the clipboard to "${text?.replaceAll(
-      '"',
-      '\\"'
-    )}"`
-  )
+  // await applescript(
+  //   String.raw`set the clipboard to "${text?.replaceAll(
+  //     '"',
+  //     '\\"'
+  //   )}"`
+  // )
 
   // await applescript(
   //   String.raw`tell application "System Events" to keystroke "v" using command down`
   // )
 
-  await keyboard.pressKey(8, 66)
-  await keyboard.releaseKey(8, 66)
-  await wait(250)
+  // await keyboard.pressKey(8, 66)
+  // await keyboard.releaseKey(8, 66)
+  // await wait(250)
 
-  if (typeof prevText === "string")
-    await global.copy(prevText)
+  // if (typeof prevText === "string")
+  //   await global.copy(prevText)
+
+  await sendWait(Channel.SET_SELECTED_TEXT, text)
 }
 
 export {}

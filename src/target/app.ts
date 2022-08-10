@@ -1096,7 +1096,7 @@ global.setValue = async value => {
 
 global.getDataFromApp = global.sendWait = async (
   channel: GetAppData,
-  data: any
+  data?: any
 ) => {
   if (process?.send) {
     return await new Promise((res, rej) => {
@@ -1108,7 +1108,7 @@ global.getDataFromApp = global.sendWait = async (
       }
       process.on("message", messageHandler)
 
-      send(channel, data)
+      send(channel, data || {})
     })
   } else {
     return {}
@@ -1306,6 +1306,10 @@ let createPathChoices = async (
   return (mapped as any).sort(dirSort)
 }
 
+let verifyFullDiskAccess = async () => {
+  return global.sendWait(Channel.VERIFY_FULL_DISK_ACCESS)
+}
+
 let __pathSelector = async (
   config:
     | string
@@ -1315,6 +1319,11 @@ let __pathSelector = async (
       } = home(),
   { showHidden } = { showHidden: false }
 ) => {
+  let verified = await verifyFullDiskAccess()
+  if (!verified) {
+    await run(kitPath("help", "info-full-disk-access.js"))
+    exit()
+  }
   let startPath = ``
   let onInputHook = null
   let onlyDirs = false

@@ -345,6 +345,7 @@ export interface ChannelMap {
   [Channel.SET_SPLASH_HEADER]: string
   [Channel.SET_SPLASH_PROGRESS]: number
   [Channel.SET_STATUS]: KitStatus
+  [Channel.SET_SELECTED_TEXT]: string
   [Channel.SET_SUBMIT_VALUE]: any
   [Channel.SET_TAB_INDEX]: number
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
@@ -379,6 +380,8 @@ export interface ChannelMap {
 
   [Channel.COPY]: string
   [Channel.PASTE]: undefined
+
+  [Channel.VERIFY_FULL_DISK_ACCESS]: undefined
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
@@ -631,7 +634,7 @@ declare global {
   var send: Send
   var sendWait: (
     channel: Channel,
-    value: any
+    value?: any
   ) => Promise<any>
 
   var setFocused: SetFocused

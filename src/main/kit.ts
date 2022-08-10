@@ -4,15 +4,15 @@
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 
-import { kitMode, run } from "../core/utils.js"
+import { cmd, kitMode, run } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
-setFlags({
-  discuss: {
-    name: "Discuss topic on Kit Dicussions",
-    description: "Open discussion in browser",
-  },
-})
+// setFlags({
+//   discuss: {
+//     name: "Discuss topic on Kit Dicussions",
+//     description: "Open discussion in browser",
+//   },
+// })
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
@@ -178,6 +178,25 @@ let cliScript = await arg(
     onChoiceFocus: () => {
       hasChoices = true
     },
+    shortcuts: [
+      {
+        name: "Discuss on Github",
+        key: `${cmd}+enter`,
+        bar: "right",
+        onPress: async (input, { focused }) => {
+          let doc = await findDoc("kit", focused?.value)
+          if (doc?.discussion) {
+            browse(doc?.discussion)
+          } else {
+            await div(
+              md(
+                `# No Discussion Found for "${focused?.value?.filePath}"`
+              )
+            )
+          }
+        },
+      },
+    ],
   },
   await addPreview(kitManagementChoices, "kit", true)
 )
@@ -186,11 +205,6 @@ if (!hasChoices) {
   browse(
     `https://github.com/johnlindquist/kit/discussions/categories/q-a`
   )
-} else if (flag?.discuss) {
-  let doc = await findDoc("kit", cliScript)
-  if (doc?.discussion) {
-    browse(doc?.discussion)
-  }
 } else {
   await run(kitPath("cli", cliScript) + ".js")
 }
