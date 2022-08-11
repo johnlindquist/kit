@@ -201,9 +201,9 @@ No matches found for <code>${input}</code>`)
       .replace(/\s/g, "-")
       .toLowerCase()
 
-    panel = md(`# Create <code>${scriptName}</code>
+    panel = md(`# Quick New Script
 
-Type <kbd>${returnOrEnter}</kbd> to create a script named <code>${scriptName}</code>
+Create a script named <code>${scriptName}</code>
         `)
     setPanel(panel)
   }
