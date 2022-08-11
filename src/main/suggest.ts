@@ -8,7 +8,7 @@ let { default: suggest } = await import("suggestion")
 let input = await arg(
   {
     placeholder: "Google search:",
-    footer: "Enter to search",
+    enter: `Paste`
   },
   async input => {
     if (input?.length < 3)

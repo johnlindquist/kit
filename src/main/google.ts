@@ -13,41 +13,54 @@ const options = {
   },
 }
 
-setFlags({
-  ["paste-as-markdown"]: {
-    name: "Paste Title as Markdown",
-    description: "Convert the title and url to Markdown",
-    shortcut: `${cmd}+p`,
-  },
-  ["paste-as-input-markdown"]: {
-    name: "Paste Input as Markdown",
-    description:
-      "Convert the current input and url to Markdown",
-    shortcut: `${cmd}+i`,
-  },
-  ["paste-url"]: {
-    name: "Paste URL",
-    description: "Paste the selected URL",
-    shortcut: `${cmd}+u`,
-  },
-  ["paste-title"]: {
-    name: "Paste Title",
-    description: "Paste the selected title",
-    shortcut: `${cmd}+t`,
-  },
-})
-
 let currentInput = ``
 let title = ``
+let url = ``
 
-let url = await arg(
+let onPress = async () => {
+  let asMarkdown = `[${title}](${url})`
+  let asInputMarkdown = `[${currentInput}](${url})`
+
+  let result = await arg(
+    {
+      placeholder: "Paste",
+      enter: "Paste",
+    },
+    [
+      {
+        name: `Site Title + URL`,
+        description: asMarkdown,
+        value: asMarkdown,
+      },
+      {
+        name: `Input + URL`,
+        description: asInputMarkdown,
+        value: asInputMarkdown,
+      },
+      { name: `URL`, description: url, value: url },
+      { name: `Title`, description: title, value: title },
+    ]
+  )
+
+  setSelectedText(result)
+}
+
+await arg(
   {
     input: (flag?.input as string) || "",
     placeholder: "Search Google",
-    footer:
-      "Enter to open in browser | Right arrow to see options",
+    enter: `Open in Browser`,
+    shortcuts: [
+      {
+        name: `Paste`,
+        key: `${cmd}+enter`,
+        bar: `right`,
+        onPress,
+      },
+    ],
     onChoiceFocus: async (_, { focused }) => {
       title = focused?.name
+      url = focused?.value
     },
   },
   async input => {
@@ -79,16 +92,6 @@ let url = await arg(
   }
 )
 
-if (flag?.["paste-as-markdown"]) {
-  setSelectedText(`[${title}](${url})`)
-} else if (flag?.["paste-as-input-markdown"]) {
-  setSelectedText(`[${currentInput}](${url})`)
-} else if (flag?.["paste-url"]) {
-  setSelectedText(url)
-} else if (flag?.["paste-title"]) {
-  setSelectedText(title)
-} else {
-  if (url) open(url)
-}
+open(url)
 
 export {}
