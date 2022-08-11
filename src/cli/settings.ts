@@ -27,8 +27,7 @@ let createCheckbox = (
       md(
         `${preview}
         
-[${value ? `Disable` : `Enable`}](submit:${id})`,
-        "p-5 prose dark:prose-dark prose-sm"
+[${value ? `Disable` : `Enable`}](submit:${id})`
       ),
   }
 }

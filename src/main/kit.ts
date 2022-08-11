@@ -116,7 +116,7 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
       )
 
       return `
-      <div class="prose dark:prose-dark prose-sm">      
+      
 ${md(`# Latest 100 Log Lines`)}
 <div class="text-xxs font-mono whitespace-nowrap">      
       ${logFile
@@ -131,7 +131,7 @@ ${md(`# Latest 100 Log Lines`)}
         .reverse()
         .join("<br>")}
 </div>
-</div>
+
       `
     },
   },

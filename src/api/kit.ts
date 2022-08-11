@@ -818,3 +818,11 @@ global.projectPath = (...args) => {
 global.clearTabs = () => {
   global.send(Channel.CLEAR_TABS)
 }
+
+let _md = global.md
+global.md = (
+  content = "",
+  containerClasses = "p-5 prose dark:prose-dark prose-sm"
+) => {
+  return _md(content, containerClasses)
+}

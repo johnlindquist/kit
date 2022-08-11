@@ -19,10 +19,7 @@ let loadHotChoices = async () => {
     return hot.map(choice => {
       choice.preview = async () => {
         if (choice?.body) {
-          return await highlight(
-            choice?.body,
-            "p-5 prose dark:prose-dark prose-sm"
-          )
+          return await highlight(choice?.body)
         }
 
         return ""
