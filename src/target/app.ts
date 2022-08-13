@@ -579,6 +579,7 @@ let prepPrompt = async (config: PromptConfig) => {
         ? await preview()
         : (preview as string),
     env: config?.env || global.env,
+    choicesType: determineChoicesType(choices),
   })
 }
 
@@ -612,6 +613,19 @@ let onBlurDefault = () => {
     `${process.pid}: Blur caused exit. Provide a "onBlur" handler to override.`
   )
   process.exit()
+}
+
+let determineChoicesType = choices => {
+  if (!choices) return "null"
+  if (typeof choices === "function") {
+    if (choices.constructor.name === "AsyncFunction")
+      return "async"
+    return "function"
+  } else if (Array.isArray(choices)) {
+    return "array"
+  } else if (typeof choices === "string") {
+    return "string"
+  }
 }
 
 global.kitPrompt = async (config: PromptConfig) => {
@@ -1067,7 +1081,7 @@ global.setDiv = async (h, containerClasses = "") => {
 global.setPreview = async (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PREVIEW, html)
-  setLoading(false)
+  // setLoading(false)
 }
 
 global.setHint = async hint => {

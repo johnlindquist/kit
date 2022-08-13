@@ -167,6 +167,12 @@ export interface PromptData {
   env: any
   shortcuts: Shortcut[]
   enter: string
+  choicesType:
+    | "string"
+    | "array"
+    | "function"
+    | "async"
+    | "null"
 }
 
 export interface GenerateChoices {
