@@ -28,6 +28,6 @@ await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)
 
-edit(scriptPath, kenvPath())
+await run(kitPath("cli", "edit-script.js"), scriptPath)
 
 export {}

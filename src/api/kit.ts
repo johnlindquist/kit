@@ -657,7 +657,7 @@ export let selectScript = async (
 
   scriptsConfig.scripts = true
   scriptsConfig.resize = false
-  scriptsConfig.enter = scriptsConfig?.enter || "Run"
+  scriptsConfig.enter ||= "Select"
 
   let script: Script | string = await global.arg(
     scriptsConfig,

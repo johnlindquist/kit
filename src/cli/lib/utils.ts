@@ -42,9 +42,9 @@ export let createBinFromScript = async (
   let compiledBinTemplate = binTemplateCompiler({
     command,
     type,
-    KNODE: knodePath(),
-    KIT: kitPath(),
     ...global.env,
+    KNODE: knodePath().trim() || home(".knode"),
+    KIT: kitPath().trim() || home(".kit"),
     TARGET_PATH: filePath,
   })
 
@@ -142,6 +142,8 @@ export let addPreview = async (
       c.description = doc.description
     }
 
+    c.enter = (doc as any)?.enter || "Select"
+
     return c
   })
 
@@ -167,6 +169,7 @@ export let addPreview = async (
                 containerClasses
               )
             },
+            enter: "Discuss Topic",
           }
         })
         .sort((a, b) => (a.name > b.name ? 1 : -1))

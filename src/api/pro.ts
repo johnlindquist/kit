@@ -154,6 +154,7 @@ let term = async (
   return await global.kitPrompt({
     input: command,
     ui: UI.term,
+    enter: "",
     shortcuts: [
       {
         name: "Terminate",

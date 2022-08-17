@@ -1,7 +1,11 @@
 // Name: Search Scripts and Logs
 
 import "@johnlindquist/kit"
-import { getKenvs } from "../core/utils.js"
+import {
+  backToMainShortcut,
+  cmd,
+  getKenvs,
+} from "../core/utils.js"
 import { highlightJavaScript } from "../api/kit.js"
 
 let kenvs = await getKenvs()
@@ -26,10 +30,25 @@ let filePath = await arg(
   {
     placeholder: "Search Scripts",
     debounceInput: 400,
+    enter: "Run",
     onEscape: async () => {
       submit(``)
       await mainScript()
     },
+    shortcuts: [
+      backToMainShortcut,
+      {
+        name: `Edit`,
+        key: `${cmd}+o`,
+        onPress: async (input, { focused }) => {
+          await run(
+            kitPath("cli", "edit-script.js"),
+            focused.value
+          )
+        },
+        bar: "right",
+      },
+    ],
   },
   async (input: string) => {
     let command = `grep -inR '${input}' ${kenvsString}`
@@ -72,4 +91,4 @@ let filePath = await arg(
   }
 )
 
-if (filePath) await edit(filePath)
+if (filePath) await run(filePath)

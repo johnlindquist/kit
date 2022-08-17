@@ -39,6 +39,6 @@ await writeFile(newFilePath, newContent)
 
 await cli("create-bin", "scripts", newFilePath)
 
-edit(newFilePath, kenvPath())
+await run(kitPath("cli", "edit-script.js"), newFilePath)
 
 export {}

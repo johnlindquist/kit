@@ -1,11 +1,16 @@
 import { Script } from "../types/core"
 
 import { getScripts } from "../core/db.js"
+import { cliShortcuts } from "../core/utils.js"
 
 let scriptsCache: Script[] = await getScripts()
 
 let filePath = await arg(
-  "Which script do you want to edit?",
+  {
+    placeholder: "Which script do you want to edit?",
+    enter: "Select",
+    shortcuts: cliShortcuts,
+  },
   scriptsCache
     .filter(script => script?.system)
     .map(script => {
@@ -17,6 +22,6 @@ let filePath = await arg(
     })
 )
 
-edit(filePath, kenvPath())
+await run(kitPath("cli", "edit-script.js"), filePath)
 
 export {}

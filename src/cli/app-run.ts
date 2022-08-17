@@ -67,12 +67,6 @@ let scriptFlags: FlagsOptions = {
     description: "Delete the selected script",
     shortcut: `${cmd}+shift+backspace`,
   },
-  ["open-script-log"]: {
-    name: "Open Log",
-    description:
-      "Open the .log file for the selected script",
-    shortcut: `${cmd}+l`,
-  },
   ["open-script-database"]: {
     name: "Open Database",
     description: "Open the db file for the selected script",
@@ -228,6 +222,7 @@ Create a script named <code>${scriptName}</code>
 let script = await selectScript(
   {
     placeholder: "Run Script",
+    enter: "Run",
     strict: false,
     onNoChoices,
     // footer: `Script Options: ${cmd}+k`,
@@ -274,7 +269,12 @@ let script = await selectScript(
         name: "List Processes",
         key: `${cmd}+p`,
         onPress: async () => {
-          await run(kitPath("cli", "processes.js"))
+          let processes = await getProcesses()
+          if (
+            processes.filter(p => p?.scriptPath)?.length > 1
+          ) {
+            await run(kitPath("cli", "processes.js"))
+          }
         },
       },
       {
@@ -295,13 +295,26 @@ let script = await selectScript(
         name: "Edit",
         key: `${cmd}+o`,
         onPress: async (input, { focused }) => {
-          await edit(focused.value.filePath, kenvPath())
+          await run(
+            kitPath("cli", "edit-script.js"),
+            focused.value.filePath
+          )
         },
         bar: "right",
       },
       {
-        name: "Share",
-        key: `${cmd}+s`,
+        name: "Log",
+        key: `${cmd}+l`,
+        onPress: async (input, { focused }) => {
+          await run(
+            kitPath("cli", "open-script-log.js"),
+            focused?.value?.filePath
+          )
+        },
+      },
+      {
+        name: "Export",
+        key: `${cmd}+e`,
         onPress: async (input, { focused }) => {
           await run(
             kitPath("cli", "share.js"),

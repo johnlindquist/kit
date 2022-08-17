@@ -16,16 +16,19 @@ let kitHelpChoices: Choice[] = [
     name: "Get Help",
     description: `Post a question to Script Kit GitHub discussions`,
     value: "get-help",
+    enter: "Open Script Kit Discussions",
   },
   {
     name: "Subscribe to Newsletter",
     description: `Receive a newsletter with examples and tips`,
     value: "join",
+    enter: "Subscribe",
   },
   {
     name: "Script Kit FAQ",
     description: `Frequently asked questions`,
     value: "faq",
+    enter: "Open Script Kit FAQ",
   },
   // {
   //   name: "User Input",

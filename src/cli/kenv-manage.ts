@@ -3,7 +3,11 @@
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 
-import { getKenvs, run } from "../core/utils.js"
+import {
+  cliShortcuts,
+  getKenvs,
+  run,
+} from "../core/utils.js"
 import { addPreview } from "./lib/utils.js"
 
 let kenvsExist = Boolean((await getKenvs()).length)
@@ -52,7 +56,11 @@ let kenvManagementChoices: Choice<keyof CLI>[] = [
 ]
 
 let cliScript = await arg(
-  `Kit Environments`,
+  {
+    placeholder: "Kit Environment Actions",
+    enter: "Select",
+    shortcuts: cliShortcuts,
+  },
   await addPreview(kenvManagementChoices, "kenv")
 )
 

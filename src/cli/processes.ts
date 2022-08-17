@@ -2,10 +2,16 @@
 // Log: false
 
 import { Channel } from "../core/enum.js"
+import {
+  backToMainShortcut,
+  cmd,
+  viewLogShortcut,
+} from "../core/utils.js"
 let formatProcesses = async () => {
   let processes = await getProcesses()
   return processes
     .filter(p => p?.scriptPath)
+    .filter(p => !p?.scriptPath?.endsWith("processes.js"))
     .map(p => {
       return {
         name: p?.scriptPath,
@@ -21,11 +27,8 @@ let id = setTimeout(async () => {
 let argPromise = arg(
   {
     placeholder: "Select Process",
-    enter: "View Process Options",
-    onEscape: async () => {
-      clearTimeout(id)
-      await mainScript()
-    },
+    enter: "Terminate",
+    shortcuts: [backToMainShortcut, viewLogShortcut],
     onAbandon: async () => {
       clearTimeout(id)
       await mainScript()
@@ -36,36 +39,11 @@ let argPromise = arg(
 let { pid, scriptPath } = await argPromise
 clearInterval(id)
 
-let { dir, name } = path.parse(scriptPath)
-let logPath = path.resolve(dir, "..", "logs", name + ".log")
-let hasLog = await isFile(logPath)
-
 setDescription(`${pid}: ${scriptPath}`)
 
-let actions = [
-  {
-    name: `Terminate`,
-    description: `Terminate process ${pid}: ${path.basename(
-      scriptPath
-    )}`,
-    value: "terminate",
-  },
-]
-
-if (hasLog) {
-  actions.unshift({
-    name: `View Log`,
-    description: logPath,
-    value: "logs",
-  })
-}
-let action = await arg("Select action", actions)
-
-if (action === "logs") {
-  await edit(logPath)
-}
-
-if (action === "terminate") {
-  send(Channel.TERMINATE_PROCESS, pid)
+send(Channel.TERMINATE_PROCESS, pid)
+if ((await formatProcesses())?.length === 0) {
+  await mainScript()
+} else {
   await run(kitPath("cli", "processes.js"))
 }

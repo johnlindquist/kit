@@ -2,11 +2,14 @@
 // Description: Add/remove npm packages
 
 import { CLI } from "../cli"
+import { cliShortcuts } from "../core/utils.js"
 
 while (true) {
   let script = await arg(
     {
       placeholder: "What would you like to do?",
+      shortcuts: cliShortcuts,
+      enter: "Select",
     },
     [
       { name: "Install an npm package", value: "install" },

@@ -73,10 +73,8 @@ export type EditorConfig =
   | string
   | (PromptConfig & EditorOptions)
 
-export type TextareaConfig = {
-  placeholder?: string
+export interface TextareaConfig extends PromptConfig {
   value?: string
-  footer?: string
 }
 
 export type EditorRef = editor.IStandaloneCodeEditor

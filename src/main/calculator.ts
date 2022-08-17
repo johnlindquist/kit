@@ -18,7 +18,6 @@ let result = await arg(
     input: String(input),
     debounceInput: 400,
     onEscape: async () => {
-      submit(false)
       await mainScript()
     },
   },
@@ -31,10 +30,10 @@ let result = await arg(
       if (input?.length < 2) {
         return md(`### ${input}`)
       }
-      return md(`### ${String(calc.evaluate(input))}`)
+      return md(`## ${String(calc.evaluate(input))}`)
     } catch (error) {
       return md(`
-### Failed to parse
+## Failed to parse
 
 ~~~bash
 ${input}
@@ -44,6 +43,10 @@ ${input}
   }
 )
 
-if (result) setSelectedText(String(calc.evaluate(result)))
+if (result) {
+  try {
+    setSelectedText(String(calc.evaluate(result)))
+  } catch (error) {}
+}
 
 export {}

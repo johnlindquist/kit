@@ -5,6 +5,7 @@ import {
   ScriptPathInfo,
   ScriptMetadata,
   Metadata,
+  Shortcut,
 } from "../types/core"
 import { platform, homedir } from "os"
 import { lstatSync, PathLike } from "fs"
@@ -735,3 +736,83 @@ export let isInDir =
       !path.isAbsolute(relative)
     )
   }
+
+export let backToMainShortcut: Shortcut = {
+  name: `Back to Main`,
+  key: `escape`,
+  bar: "left",
+  onPress: async () => {
+    await mainScript()
+  },
+}
+
+export let closeShortcut: Shortcut = {
+  name: "Exit",
+  key: `${cmd}+w`,
+  bar: "right",
+  onPress: () => {
+    exit()
+  },
+}
+
+export let editScriptShortcut: Shortcut = {
+  name: "Edit Script",
+  key: `${cmd}+o`,
+  onPress: async (input, { script }) => {
+    await run(
+      kitPath("cli", "edit-script.js"),
+      script?.filePath
+    )
+  },
+  bar: "right",
+}
+
+export let submitShortcut: Shortcut = {
+  name: "Submit",
+  key: `${cmd}+s`,
+  bar: "right",
+  onPress: async input => {
+    await submit(input)
+  },
+}
+
+export let viewLogShortcut: Shortcut = {
+  name: "View Log",
+  key: `${cmd}+l`,
+  onPress: async (input, { focused }) => {
+    await run(
+      kitPath("cli", "open-script-log.js"),
+      focused?.value?.scriptPath
+    )
+  },
+  bar: "right",
+}
+
+export let defaultShortcuts: Shortcut[] = [
+  backToMainShortcut,
+  closeShortcut,
+  editScriptShortcut,
+  submitShortcut,
+]
+
+export let divShortcuts: Shortcut[] = [
+  backToMainShortcut,
+  closeShortcut,
+  editScriptShortcut,
+]
+
+export let formShortcuts: Shortcut[] = [
+  backToMainShortcut,
+  editScriptShortcut,
+  closeShortcut,
+  {
+    name: "Reset",
+    key: `${cmd}+alt+r`,
+    bar: "right",
+  },
+]
+
+export let cliShortcuts: Shortcut[] = [
+  backToMainShortcut,
+  closeShortcut,
+]

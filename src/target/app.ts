@@ -48,6 +48,11 @@ import {
   assignPropsTo,
   mainScriptPath,
   cmd,
+  defaultShortcuts,
+  backToMainShortcut,
+  closeShortcut,
+  editScriptShortcut,
+  formShortcuts,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
@@ -181,9 +186,11 @@ let invalid = Symbol("invalid")
 let createOnChoiceFocusDefault = (
   debounceChoiceFocus: number,
   onUserChoiceFocus?: ChannelHandler
-) =>
-  _.debounce(
+) => {
+  let _promptId = promptId
+  let debouncedChoiceFocus = _.debounce(
     async (input: string, state: AppState = {}) => {
+      if (_promptId !== promptId) return
       let preview = ``
 
       let { index, focused } = state
@@ -220,15 +227,15 @@ let createOnChoiceFocusDefault = (
         preview = choice?.preview
       }
 
-      if (preview) {
-        setPreview(preview)
-      }
+      setPreview(preview)
 
       if (typeof onUserChoiceFocus === "function")
         onUserChoiceFocus(input, state)
     },
     debounceChoiceFocus
   )
+  return debouncedChoiceFocus
+}
 
 let onTabChanged = (input, state) => {
   let { tab } = state
@@ -263,7 +270,6 @@ let waitForPromptValue = ({
   shortcuts,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
-    promptId++
     getInitialChoices({
       promptId,
       tabIndex: global.onTabIndex,
@@ -358,9 +364,10 @@ let waitForPromptValue = ({
         if (data?.state?.input === Value.Undefined) {
           data.state.input = ""
         }
-        // global.log({ channel: data.channel })
+
         switch (data.channel) {
           case Channel.INPUT:
+            global.log(`Input ${data.state.input}`)
             onInput(data.state.input, data.state)
             break
 
@@ -370,6 +377,7 @@ let waitForPromptValue = ({
 
           case Channel.ESCAPE:
             onEscape(data.state.input, data.state)
+
             break
 
           case Channel.BACK:
@@ -443,21 +451,23 @@ let waitForPromptValue = ({
             break
         }
       },
+      // TODO: Add a kit log
+      // TODO: Why abandon on CLI?
       complete: () => {
-        global.log(
-          `${process.pid}: ✂️  Remove all handlers`
-        )
+        // global.log(
+        //   `${process.pid}: ✂️  Remove all handlers`
+        // )
       },
     })
 
     value$.subscribe({
       next: value => {
-        global.log(`${process.pid}: ✅  Value submitted`)
+        global.log(`${process.pid}: Value submitted ✅ `)
         resolve(value)
       },
       complete: () => {
         global.log(
-          `${process.pid}: ✅ Prompt #${promptId} complete`
+          `${process.pid}: Prompt #${promptId} complete 👍`
         )
       },
       error: error => {
@@ -597,7 +607,9 @@ let createOnInputDefault = (
 
   if (mode !== Mode.GENERATE) return async () => {}
   // "input" is on the state, so this is only provided as a convenience for the user
+  let _promptId = promptId
   return _.debounce(async (input, state) => {
+    if (_promptId !== promptId) return
     return invokeChoices({
       promptId,
       tabIndex: global.onTabIndex,
@@ -629,21 +641,36 @@ let determineChoicesType = choices => {
 }
 
 global.kitPrompt = async (config: PromptConfig) => {
+  promptId++
   kitPrompt$.next(true)
+
   //need to let onTabs() gather tab names. See Word API
-  let escapeDefault = config?.shortcuts?.find(
-    s => s.key === "escape"
-  )
-    ? () => {}
-    : onEscapeDefault
 
   await new Promise(r => setTimeout(r, 0))
+
+  let shortcuts = config?.shortcuts || [
+    {
+      name: "Edit Script",
+      key: `${cmd}+o`,
+      bar: "right",
+      onPress: async (input, { script }) => {
+        await run(
+          kitPath("cli", "edit-script.js"),
+          script.filePath
+        )
+      },
+    },
+  ]
+
+  config.shortcuts = shortcuts
+
   let {
+    input = "",
     choices = null,
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
-    onEscape = escapeDefault,
+    onEscape = onEscapeDefault,
     onAbandon = onAbandonDefault,
     onBack = onBackDefault,
     onForward = onForwardDefault,
@@ -661,10 +688,8 @@ global.kitPrompt = async (config: PromptConfig) => {
       debounceInput
     ),
     onBlur = onBlurDefault,
-    input = "",
     onPaste = onPasteDefault,
     onDrop = onDropDefault,
-    shortcuts = [],
   } = config
 
   await prepPrompt(config)
@@ -712,6 +737,8 @@ global.drop = async (
 
   return await global.kitPrompt({
     ui: UI.drop,
+    enter: "",
+    shortcuts: [backToMainShortcut, closeShortcut],
     ...config,
     ignoreBlur: true,
   })
@@ -782,13 +809,9 @@ ${inputs}
 <input type="submit" name="submit" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-primary-dark dark:text-primary-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
 </div>
 </div>`
-  config.shortcuts = [
-    {
-      name: "Reset",
-      key: "cmd+alt+r",
-      bar: "right",
-    },
-  ]
+  config.shortcuts = formShortcuts
+
+  config.enter ||= "Submit"
   let formResponse = await global.form(config)
   return Object.values(formResponse)
 }
@@ -806,6 +829,8 @@ global.form = async (html = "", formData = {}) => {
   }
 
   config.ui = UI.form
+  config.enter ||= "Submit"
+  config.shortcuts ||= formShortcuts
 
   return await global.kitPrompt(config)
 }
@@ -847,6 +872,8 @@ global.div = async (
   if (config.html.trim() === "")
     htmlOrConfig = md("⚠️ html string was empty")
   return await global.kitPrompt({
+    enter: `Continue`,
+    shortcuts: defaultShortcuts,
     ...config,
     choices: maybeWrapHtml(config?.html, containerClasses),
     ui: UI.div,
@@ -895,25 +922,9 @@ global.editor = async (options?: EditorOptions) => {
     ui: UI.editor,
     input: editorOptions.value,
     flags: {},
-    shortcuts: [
-      {
-        name: "Close",
-        key: `${cmd}+w`,
-        bar: "right",
-        onPress: () => {
-          exit()
-        },
-      },
-      {
-        name: "Submit",
-        key: `${cmd}+s`,
-        bar: "right",
-        onPress: async input => {
-          await submit(input)
-        },
-      },
-    ],
+    shortcuts: defaultShortcuts,
     ...editorOptions,
+    enter: "",
   })
 }
 
@@ -924,8 +935,11 @@ global.hotkey = async (
     typeof placeholder === "string"
       ? { placeholder }
       : placeholder
+
   return await global.kitPrompt({
     ...config,
+    shortcuts: [backToMainShortcut],
+    enter: "",
     ui: UI.hotkey,
   })
 }
@@ -960,37 +974,39 @@ global.arg = async (
     }
   }
 
+  let shortcuts = defaultShortcuts
+
   if (typeof placeholderOrConfig === "string") {
     return await global.kitPrompt({
       ui: UI.arg,
       hint,
       placeholder: placeholderOrConfig,
       choices,
+      shortcuts,
     })
   }
 
   return await global.kitPrompt({
     choices,
+    shortcuts,
     ...placeholderOrConfig,
     hint,
   })
 }
 
-global.textarea = async (
-  options = {
-    value: "",
-    placeholder: `${cmd} + s to submit\n${cmd} + w to close`,
-    footer: "",
-  }
-) => {
-  let textAreaOptions =
+global.textarea = async (options = "") => {
+  let config =
     typeof options === "string"
       ? { value: options }
       : options
-  send(Channel.SET_TEXTAREA_CONFIG, textAreaOptions)
+
   return await global.kitPrompt({
     ui: UI.textarea,
     ignoreBlur: true,
+    enter: "",
+    shortcuts: defaultShortcuts,
+    ...config,
+    input: config?.value || config?.input || "",
   })
 }
 

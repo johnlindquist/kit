@@ -2,7 +2,12 @@
 // Description: Select a scheduled script to edit
 
 import { Schedule } from "../types/kitapp"
-import { parseScript } from "../core/utils.js"
+import {
+  backToMainShortcut,
+  cliShortcuts,
+  closeShortcut,
+  parseScript,
+} from "../core/utils.js"
 
 import {
   formatDistanceToNowStrict,
@@ -34,10 +39,14 @@ let choices = (
 ) as Schedule[]
 
 let filePath = await arg(
-  "Which script do you want to edit?",
+  {
+    placeholder: "Select a scheduled script to edit",
+    enter: "Select",
+    shortcuts: cliShortcuts,
+  },
   choices
 )
 
-edit(filePath, kenvPath())
+await run(kitPath("cli", "edit-script.js"), filePath)
 
 export {}

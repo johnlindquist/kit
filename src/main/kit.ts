@@ -16,16 +16,6 @@ import { addPreview, findDoc } from "../cli/lib/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
-    name: "Manage kenvs",
-    description: "Add/Remove/Update repos of scripts",
-    value: "kenv-manage",
-  },
-  {
-    name: "Settings",
-    description: "Open settings/preferences",
-    value: "settings",
-  },
-  {
     name: "View Running Processes",
     description: "View running processes",
     value: "processes",
@@ -39,6 +29,12 @@ let kitManagementChoices: Choice<keyof CLI>[] = [
     name: "System Scripts",
     description: "View and edit system event scripts",
     value: "system-events",
+  },
+
+  {
+    name: "Manage kenvs",
+    description: "Add/Remove/Update repos of scripts",
+    value: "kenv-manage",
   },
 
   {
@@ -146,15 +142,23 @@ ${md(`# Latest 100 Log Lines`)}
     value: "env",
   },
   {
+    name: "Settings",
+    description: "Open settings/preferences",
+    value: "settings",
+    enter: "Open app.json",
+  },
+  {
     name: "Credits",
     description: `The wonderful people who make Script Kit`,
     value: "credits",
-    img: kitPath("images", "icon.png"),
+    enter: "View @johnlindquist on Twitter",
+    // img: kitPath("images", "icon.png"),
   },
   {
     name: "Quit",
     description: `Quit Script Kit`,
     value: "quit",
+    enter: "Quit",
   },
 ]
 
@@ -178,25 +182,8 @@ let cliScript = await arg(
     onChoiceFocus: () => {
       hasChoices = true
     },
-    shortcuts: [
-      {
-        name: "Discuss on Github",
-        key: `${cmd}+enter`,
-        bar: "right",
-        onPress: async (input, { focused }) => {
-          let doc = await findDoc("kit", focused?.value)
-          if (doc?.discussion) {
-            browse(doc?.discussion)
-          } else {
-            await div(
-              md(
-                `# No Discussion Found for "${focused?.value?.filePath}"`
-              )
-            )
-          }
-        },
-      },
-    ],
+    shortcuts: [],
+    enter: "Select",
   },
   await addPreview(kitManagementChoices, "kit", true)
 )

@@ -124,6 +124,6 @@ global.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
-edit(scriptPath, kenvPath(), 3)
+await run(kitPath("cli", "edit-script.js"), scriptPath)
 
 export { scriptPath }
