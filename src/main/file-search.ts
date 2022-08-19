@@ -1,28 +1,25 @@
 // Description: File Search
-
+import { backToMainShortcut } from "../core/utils.js"
 setName(``)
-
 let atLeast = `Type at least 3 characters`
 let selectedFile = await arg(
   {
     placeholder: "Search Files",
-    footer: "Enter to open action menu",
     enter: "Open Action Menu",
+    shortcuts: [backToMainShortcut],
+    resize: true,
   },
   async input => {
     if (!input || input === "undefined") {
-      setFooter(atLeast)
+      setHint(atLeast)
       return []
     }
-
     if (input?.length < 3) {
-      setFooter(atLeast)
+      setHint(atLeast)
       return []
     }
-
-    setFooter(``)
+    setHint(``)
     let files = await fileSearch(input)
-
     return files.map(p => {
       return {
         name: path.basename(p),
@@ -33,24 +30,20 @@ let selectedFile = await arg(
     })
   }
 )
-
 setDescription(selectedFile)
-
-let action = await arg<string>(
+let action = await arg(
   {
     placeholder: "Selected Path Action:",
     shortcuts: [
+      backToMainShortcut,
       {
-        name: "Back to Search",
+        name: "Return to Search",
         key: "left",
         bar: "right",
       },
     ],
-    onLeft: async () => {
-      await run(
-        kitPath("main", "file-search.js"),
-        selectedFile.replace(new RegExp(`${path.sep}$`), "")
-      )
+    onBack: async () => {
+      await run(kitPath("main", "file-search.js"))
     },
   },
   [
@@ -94,50 +87,41 @@ let action = await arg<string>(
     },
   ]
 )
-
 switch (action) {
   case "open":
     await open(path.dirname(selectedFile))
     break
-
   case "open-with":
     await run(kitPath("main", "open-with.js"), selectedFile)
     break
-
   case "finder":
     await revealInFinder(selectedFile)
     break
-
   case "info":
     await applescript(`
 set aFile to (POSIX file "${selectedFile}") as alias
 tell application "Finder" to open information window of aFile
 `)
     break
-
   case "terminal":
     let selectedDir = (await isDir(selectedFile))
       ? selectedFile
       : path.dirname(selectedFile)
     terminal(`cd '${selectedDir}'`)
     break
-
   case "vscode":
     await exec(
       `open -a 'Visual Studio Code' '${selectedFile}'`
     )
     break
-
   case "copy":
     await copy(selectedFile)
     break
-
   case "move":
     setDescription("Select destination folder")
     let destFolder = await path(path.dirname(selectedFile))
     mv(selectedFile, destFolder)
     break
-
   case "trash":
     let yn = await arg({
       placeholder: "Are you sure?",
@@ -148,5 +132,3 @@ tell application "Finder" to open information window of aFile
     }
     break
 }
-
-export {}

@@ -34,6 +34,14 @@ ${contents}
   if (confirm === "y") {
     await trash(dbPath)
   }
+} else {
+  await div(
+    md(`
+## No data found for <code>${command}</code>
+  `)
+  )
 }
+
+await mainScript()
 
 export {}

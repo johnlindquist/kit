@@ -602,9 +602,8 @@ let wrapCode = (
   return `<pre class="${containerClass}">
   <style type="text/css">
       code{
-        font-size: 0.75rem !important;
+        font-size: 0.9rem !important;
         width: 100%;
-        white-space: pre-wrap;
         ${codeStyles}
       }
       pre{

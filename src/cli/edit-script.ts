@@ -10,7 +10,13 @@ if (process.env.KIT_EDITOR === "kit") {
     value,
     language: path.extname(scriptPath).slice(1),
     shortcuts: [
-      backToMainShortcut,
+      {
+        ...backToMainShortcut,
+        onPress: async input => {
+          await writeFile(scriptPath, input)
+          await mainScript()
+        },
+      },
       {
         name: `Duplicate`,
         key: `${cmd}+shift+d`,

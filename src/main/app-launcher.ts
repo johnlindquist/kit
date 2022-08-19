@@ -1,4 +1,4 @@
-import { cmd } from "../core/utils.js"
+import { backToMainShortcut, cmd } from "../core/utils.js"
 
 // Description: App Launcher
 setName(``)
@@ -121,7 +121,9 @@ let app = await arg(
   {
     input: (flag?.input as string) || "",
     placeholder: "Select an app to launch",
+    resize: true,
     shortcuts: [
+      backToMainShortcut,
       {
         name: "Refresh App List",
         key: `${cmd}+enter`,

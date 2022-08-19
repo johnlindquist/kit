@@ -1,21 +1,28 @@
 // Description: Select a Path
 
+import { backToMainShortcut } from "../core/utils.js"
+
 setName(``)
-setPrompt({ preview: "" })
 
 let initialPath = await arg("Initial path")
 if (initialPath === "~") initialPath = home()
 
-let selectedPath = await path(initialPath)
+let selectedPath = await path({
+  startPath: initialPath,
+  shortcuts: [backToMainShortcut],
+})
 
 setDescription(selectedPath)
 
 let action = await arg<string>(
   {
     placeholder: "Selected Path Action:",
+    enter: "Select",
+    resize: false,
     shortcuts: [
+      backToMainShortcut,
       {
-        name: "Back to Browse",
+        name: "Back",
         key: "left",
         bar: "right",
       },

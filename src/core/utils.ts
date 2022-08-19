@@ -738,7 +738,7 @@ export let isInDir =
   }
 
 export let backToMainShortcut: Shortcut = {
-  name: `Back to Main`,
+  name: `Back`,
   key: `escape`,
   bar: "left",
   onPress: async () => {
@@ -798,17 +798,23 @@ export let defaultShortcuts: Shortcut[] = [
 export let divShortcuts: Shortcut[] = [
   backToMainShortcut,
   closeShortcut,
-  editScriptShortcut,
+  {
+    ...editScriptShortcut,
+    bar: "",
+  },
 ]
 
 export let formShortcuts: Shortcut[] = [
   backToMainShortcut,
-  editScriptShortcut,
+  {
+    ...editScriptShortcut,
+    bar: "",
+  },
   closeShortcut,
   {
     name: "Reset",
     key: `${cmd}+alt+r`,
-    bar: "right",
+    bar: "",
   },
 ]
 

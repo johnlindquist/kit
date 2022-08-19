@@ -31,12 +31,15 @@ let scriptFlags: FlagsOptions = {
   //   shortcut: `${cmd}+n`,
   //   action: "left",
   // },
-
-  ["reveal-script"]: {
-    name: "Reveal",
-    description: "Reveal the selected script in Finder",
-    shortcut: `${cmd}+shift+f`,
+  ["edit-script"]: {
+    name: "Edit",
+    description: "Open the selected script in your editor",
   },
+  ["share"]: {
+    name: "Share",
+    description: "Share the selected script",
+  },
+
   ["share-copy"]: {
     name: "Copy",
     description: "Copy script content to clipboard",
@@ -76,6 +79,11 @@ let scriptFlags: FlagsOptions = {
     name: "Delete Database",
     description:
       "Delete the db file for the selected script",
+  },
+  ["reveal-script"]: {
+    name: "Reveal",
+    description: "Reveal the selected script in Finder",
+    shortcut: `${cmd}+shift+f`,
   },
   // ["share"]: {
   //   name: "Share",
@@ -398,7 +406,7 @@ if (
     await mainScript()
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
-  } else {
+  } else if (script && script?.filePath) {
     await run(
       script.filePath,
       Object.keys(flag)

@@ -546,7 +546,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
     tabIndex: 0,
     type: "text",
     ui: UI.arg,
-    resize: true,
+    resize: false,
     env: global.env,
     ...(data as PromptData),
   })
@@ -648,21 +648,40 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   await new Promise(r => setTimeout(r, 0))
 
-  let shortcuts = config?.shortcuts || [
-    {
-      name: "Edit Script",
-      key: `${cmd}+o`,
-      bar: "right",
-      onPress: async (input, { script }) => {
-        await run(
-          kitPath("cli", "edit-script.js"),
-          script.filePath
-        )
-      },
-    },
-  ]
+  config.shortcuts ||= []
 
-  config.shortcuts = shortcuts
+  // if (!config.shortcuts.find(s => s.key === `escape`)) {
+  //   config.shortcuts.push({
+  //     ...backToMainShortcut,
+  //     bar: "",
+  //   })
+  // }
+
+  if (!config.shortcuts.find(s => s.key === `${cmd}+o`)) {
+    config.shortcuts.push({
+      ...editScriptShortcut,
+      bar: "",
+    })
+  }
+
+  if (!config.shortcuts.find(s => s.key === `${cmd}+w`)) {
+    config.shortcuts.push({
+      ...closeShortcut,
+      bar: "",
+    })
+  }
+
+  if (config.ui === UI.arg) {
+    if (typeof config?.resize === "undefined") {
+      config.resize = false
+    } else {
+      config.resize = config.resize
+    }
+  } else if (typeof config?.resize === "undefined") {
+    config.resize = true
+  } else {
+    config.resize = config.resize
+  }
 
   let {
     input = "",
@@ -718,7 +737,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onBlur,
     onPaste,
     onDrop,
-    shortcuts,
+    shortcuts: config.shortcuts,
     state: { input },
   })
 }
@@ -799,12 +818,11 @@ global.fields = async (...formFields) => {
       `
     })
     .join("")
-  config.html = `<div class="flex flex-col items-center min-h-full">
-<div class="flex-1 w-full">
+  config.html = `<div class="flex flex-col items-center min-h-full flex-1 w-full">
+
 ${inputs}
-</div>
-<div class="flex flex-row w-full px-4 invisible">
-<div class="flex-1"></div>
+
+<div class="w-full px-4 invisible h-0">
 <input type="reset" name="reset" value="Reset" accesskey="r"> class="focus:underline underline-offset-4 outline-none p-3 dark:text-white text-opacity-50 dark:text-opacity-50 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
 <input type="submit" name="submit" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-primary-dark dark:text-primary-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
 </div>
@@ -873,7 +891,7 @@ global.div = async (
     htmlOrConfig = md("⚠️ html string was empty")
   return await global.kitPrompt({
     enter: `Continue`,
-    shortcuts: defaultShortcuts,
+    shortcuts: [backToMainShortcut],
     ...config,
     choices: maybeWrapHtml(config?.html, containerClasses),
     ui: UI.div,
@@ -987,6 +1005,7 @@ global.arg = async (
   }
 
   return await global.kitPrompt({
+    ui: UI.arg,
     choices,
     shortcuts,
     ...placeholderOrConfig,
@@ -1555,21 +1574,33 @@ let __pathSelector = async (
       onLeft,
       onNoChoices,
       onEscape,
+      enter: "Select",
+      resize: false,
       shortcuts: [
         {
-          name: "Sort by name",
+          name: "Out",
+          key: "left",
+          bar: "right",
+        },
+        {
+          name: "In",
+          key: "right",
+          bar: "right",
+        },
+        {
+          name: "Name",
           key: `${cmd}+,`,
           onPress: createSorter("date"),
           bar: "right",
         },
         {
-          name: "Sort by size",
+          name: "Size",
           key: `${cmd}+.`,
           onPress: createSorter("size"),
           bar: "right",
         },
         {
-          name: "Sort by date",
+          name: "Date",
           key: `${cmd}+/`,
           onPress: createSorter("name"),
           bar: "right",

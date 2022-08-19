@@ -131,7 +131,7 @@ export type Shortcut = {
     input: string,
     state: AppState
   ) => Promise<void>
-  bar?: "right" | "left"
+  bar?: "right" | "left" | ""
   flag?: string
 }
 

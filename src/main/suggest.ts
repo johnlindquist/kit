@@ -1,6 +1,7 @@
 // Description: Google Suggest
 
 import "@johnlindquist/kit"
+import { backToMainShortcut } from "../core/utils.js"
 
 setName(``)
 let { default: suggest } = await import("suggestion")
@@ -8,7 +9,9 @@ let { default: suggest } = await import("suggestion")
 let input = await arg(
   {
     placeholder: "Google search:",
-    enter: `Paste`
+    enter: `Paste`,
+    shortcuts: [backToMainShortcut],
+    resize: true,
   },
   async input => {
     if (input?.length < 3)
