@@ -53,6 +53,8 @@ import {
   closeShortcut,
   editScriptShortcut,
   formShortcuts,
+  argShortcuts,
+  smallShortcuts,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
@@ -367,7 +369,6 @@ let waitForPromptValue = ({
 
         switch (data.channel) {
           case Channel.INPUT:
-            global.log(`Input ${data.state.input}`)
             onInput(data.state.input, data.state)
             break
 
@@ -992,24 +993,23 @@ global.arg = async (
     }
   }
 
-  let shortcuts = defaultShortcuts
+  let defaultConfig: PromptConfig = {
+    ui: UI.arg,
+    enter: "Submit",
+    hint,
+    shortcuts: (placeholderOrConfig as PromptConfig)?.resize
+      ? smallShortcuts
+      : argShortcuts,
+    choices,
+  }
 
   if (typeof placeholderOrConfig === "string") {
-    return await global.kitPrompt({
-      ui: UI.arg,
-      hint,
-      placeholder: placeholderOrConfig,
-      choices,
-      shortcuts,
-    })
+    defaultConfig.placeholder = placeholderOrConfig
   }
 
   return await global.kitPrompt({
-    ui: UI.arg,
-    choices,
-    shortcuts,
-    ...placeholderOrConfig,
-    hint,
+    ...defaultConfig,
+    ...(placeholderOrConfig as PromptConfig),
   })
 }
 

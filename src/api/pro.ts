@@ -157,7 +157,7 @@ let term = async (
     enter: "",
     shortcuts: [
       {
-        name: "Terminate",
+        name: "Continue Script",
         key: `ctrl+c`,
         bar: "right",
       },

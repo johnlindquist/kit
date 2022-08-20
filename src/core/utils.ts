@@ -788,6 +788,17 @@ export let viewLogShortcut: Shortcut = {
   bar: "right",
 }
 
+export let smallShortcuts: Shortcut[] = [
+  backToMainShortcut,
+  closeShortcut,
+]
+
+export let argShortcuts: Shortcut[] = [
+  backToMainShortcut,
+  closeShortcut,
+  editScriptShortcut,
+]
+
 export let defaultShortcuts: Shortcut[] = [
   backToMainShortcut,
   closeShortcut,

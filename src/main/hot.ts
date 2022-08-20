@@ -12,9 +12,18 @@ Share one! ❤️ [Share on GitHub Discussions](https://github.com/johnlindquist
   )
 }
 
+let getHot = async () => {
+  let hotPath = kitPath("data", "hot.json")
+  if (await isFile(hotPath)) {
+    return await readJson(hotPath)
+  }
+
+  return []
+}
+
 let loadHotChoices = async () => {
   try {
-    let hot = await readJson(kitPath("data", "hot.json"))
+    let hot = await getHot()
 
     return hot.map(choice => {
       choice.preview = async () => {

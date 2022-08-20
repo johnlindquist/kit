@@ -61,8 +61,17 @@ export let createBinFromScript = async (
   global.chmod(755, binFilePath)
 }
 
+export let getDocs = async () => {
+  let docsPath = kitPath("data", "docs.json")
+  if (await isFile(docsPath)) {
+    return await readJson(docsPath)
+  }
+
+  return []
+}
+
 export let findDoc = async (dir, file: any) => {
-  let docs = await readJson(kitPath("data", "docs.json"))
+  let docs = await getDocs()
   let doc = docs?.find(d => {
     return d.dir === dir && (file?.value || file) === d.file
   })
@@ -93,9 +102,7 @@ export let addPreview = async (
 ) => {
   let containerClasses =
     "p-5 prose dark:prose-dark prose-sm"
-  let docs: Doc[] = await readJson(
-    kitPath("data", "docs.json")
-  )
+  let docs: Doc[] = await getDocs()
   let dirDocs = docs.filter(d => {
     return d?.dir === dir
   })
