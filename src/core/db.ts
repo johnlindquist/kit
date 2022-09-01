@@ -12,6 +12,9 @@ import {
   resolveScriptToCommand,
   parseScripts,
   isMac,
+  scriptsSort,
+  scriptsDbPath,
+  timestampsPath,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
 import {
@@ -114,12 +117,14 @@ global.db = db
 
 export let getScriptsDb = async (
   fromCache = true
-): Promise<{
-  scripts: Script[]
-}> => {
+): Promise<
+  Low & {
+    scripts: Script[]
+  }
+> => {
   // if (!fromCache) console.log(`🔄 Refresh scripts db`)
   return await db(
-    kitPath("db", "scripts.json"),
+    scriptsDbPath,
     async () => ({
       scripts: await parseScripts(),
     }),
@@ -127,12 +132,78 @@ export let getScriptsDb = async (
   )
 }
 
+export let setScriptTimestamp = async (
+  filePath: string
+): Promise<Script[]> => {
+  let timestampsDb = await getTimestamps()
+  let stamp = timestampsDb.stamps.find(
+    stamp => stamp.filePath === filePath
+  )
+  if (stamp) {
+    stamp.timestamp = Date.now()
+  } else {
+    timestampsDb.stamps.push({
+      filePath,
+      timestamp: Date.now(),
+    })
+  }
+
+  let scriptsDb = await getScriptsDb(false)
+  let script = scriptsDb.scripts.find(
+    s => s.filePath === filePath
+  )
+
+  if (script) {
+    scriptsDb.scripts = scriptsDb.scripts.sort(
+      scriptsSort(timestampsDb.stamps)
+    )
+    await scriptsDb.write()
+    await timestampsDb.write()
+  }
+
+  return scriptsDb.scripts
+}
+
+// export let removeScriptFromDb = async (
+//   filePath: string
+// ): Promise<Script[]> => {
+//   let scriptsDb = await getScriptsDb()
+//   let script = scriptsDb.scripts.find(
+//     s => s.filePath === filePath
+//   )
+
+//   if (script) {
+//     scriptsDb.scripts = scriptsDb.scripts.filter(
+//       s => s.filePath !== filePath
+//     )
+//     await scriptsDb.write()
+//   }
+
+//   return scriptsDb.scripts
+// }
+
 export let refreshScriptsDb = async () => {
   await getScriptsDb(false)
 }
 
 export let getPrefs = async () => {
   return await db(kitPath("db", "prefs.json"))
+}
+
+export let getTimestamps = async (
+  fromCache = true
+): Promise<
+  Low & {
+    stamps: { filePath: string; timestamp: number }[]
+  }
+> => {
+  return await db(
+    timestampsPath,
+    {
+      stamps: [],
+    },
+    fromCache
+  )
 }
 
 export let getScriptFromString = async (
@@ -175,6 +246,23 @@ export let getScriptFromString = async (
 
 export let getScripts = async (fromCache = true) =>
   (await getScriptsDb(fromCache)).scripts
+
+export let updateScripts = async (
+  changedScriptPath: string
+) => {
+  let scriptsDb = await getScriptsDb(false)
+  let scripts = await parseScripts()
+  let changedScript = scripts.find(
+    s => s.filePath === changedScriptPath
+  )
+  if (!changedScript) return
+  let index = scriptsDb.scripts.findIndex(
+    s => s.filePath === changedScriptPath
+  )
+  scriptsDb.scripts[index] = changedScript
+  scriptsDb.write()
+}
+
 export interface ScriptValue {
   (pluck: keyof Script, fromCache?: boolean): () => Promise<
     Choice<string>[]

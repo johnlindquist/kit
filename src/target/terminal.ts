@@ -29,7 +29,10 @@ global.kitPrompt = async (config: any) => {
         else
           return {
             name: c?.name || c?.value,
-            value: c?.value || c?.name,
+            value:
+              typeof c?.value !== "undefined"
+                ? c?.value
+                : c?.name,
           }
       }),
     }

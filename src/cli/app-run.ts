@@ -2,6 +2,10 @@
 // Description: Script Kit
 // Log: false
 
+import {
+  getScriptsDb,
+  setScriptTimestamp,
+} from "../core/db.js"
 import { Value } from "../core/enum.js"
 import {
   toggleBackground,
@@ -9,7 +13,7 @@ import {
   cmd,
   returnOrEnter,
 } from "../core/utils.js"
-import { FlagsOptions } from "../types/core.js"
+import { FlagsOptions, Script } from "../types/core.js"
 
 let modifiers = {
   cmd: "cmd",
@@ -407,12 +411,16 @@ if (
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
   } else if (script && script?.filePath) {
-    await run(
+    let runP = run(
       script.filePath,
       Object.keys(flag)
         .map(f => `--${f} `)
         .join(" ")
     )
+
+    setScriptTimestamp(script.filePath)
+
+    await runP
   }
 }
 

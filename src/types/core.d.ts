@@ -39,6 +39,7 @@ export interface ScriptPathInfo {
   kenv: string
   id: string
   icon?: string
+  timestamp?: number
 }
 
 export interface ScriptMetadata {

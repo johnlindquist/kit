@@ -18,6 +18,9 @@ chokidar
   })
 
 kenvScriptsWatcher.on("all", (eventName, filePath) => {
+  // only if .ts or .js
+  if (!filePath.match(/\.(ts|js)$/)) return
+
   process.send({
     eventName,
     filePath,

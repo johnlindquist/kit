@@ -101,6 +101,11 @@ export let knodePath = (...parts: string[]) =>
     ...parts.filter(Boolean)
   )
 
+export const scriptsDbPath = kitPath("db", "scripts.json")
+export const timestampsPath = kitPath(
+  "db",
+  "timestamps.json"
+)
 export const prefsPath = kitPath("db", "prefs.json")
 export const shortcutsPath = kitPath("db", "shortcuts.json")
 export const promptDbPath = kitPath("db", "prompt.json")
@@ -691,6 +696,39 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
     .map(file => path.join(scriptsPath, file))
 }
 
+type Timestamp = { filePath: string; timestamp: number }
+export let scriptsSort =
+  (timestamps: Timestamp[]) => (a: Script, b: Script) => {
+    let aTimestamp = timestamps.find(
+      t => t.filePath === a.filePath
+    )
+    let bTimestamp = timestamps.find(
+      t => t.filePath === b.filePath
+    )
+
+    if (aTimestamp && bTimestamp) {
+      return bTimestamp.timestamp - aTimestamp.timestamp
+    }
+
+    if (aTimestamp) {
+      return -1
+    }
+
+    if (bTimestamp) {
+      return 1
+    }
+
+    if (a?.index || b?.index) {
+      if ((a?.index || 9999) < (b?.index || 9999)) return -1
+      else return 1
+    }
+
+    let aName = (a?.name || "").toLowerCase()
+    let bName = (b?.name || "").toLowerCase()
+
+    return aName > bName ? 1 : aName < bName ? -1 : 0
+  }
+
 export let parseScripts = async () => {
   let scriptFiles = await getScriptFiles()
   let kenvDirs = await getKenvs()
@@ -702,17 +740,12 @@ export let parseScripts = async () => {
   let scriptInfo = await Promise.all(
     scriptFiles.map(parseScript)
   )
-  return scriptInfo.sort((a: Script, b: Script) => {
-    if (a?.index || b?.index) {
-      if ((a?.index || 9999) < (b?.index || 9999)) return -1
-      else return 1
-    }
-
-    let aName = a.name.toLowerCase()
-    let bName = b.name.toLowerCase()
-
-    return aName > bName ? 1 : aName < bName ? -1 : 0
-  })
+  let timestamps = []
+  try {
+    let json = await global.readJson(timestampsPath)
+    timestamps = json.stamps
+  } catch {}
+  return scriptInfo.sort(scriptsSort(timestamps))
 }
 
 export let isParentOfDir = (
