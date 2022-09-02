@@ -239,9 +239,10 @@ let fullySupportedEditors = {
   atom,
 }
 
-let addNodeLibs = async (
-  extraLibs: { content: string; filePath: string }[]
-) => {
+type ExtraLib = { content: string; filePath: string }
+
+let addNodeLibs = async () => {
+  let extraLibs: ExtraLib[] = []
   let nodeTypesDir = kitPath(
     "node_modules",
     "@types",
@@ -289,11 +290,12 @@ let addNodeLibs = async (
       }
     }
   }
+
+  return extraLibs
 }
 
-let addKitLibs = async (
-  extraLibs: { content: string; filePath: string }[]
-) => {
+let addKitLibs = async (): Promise<ExtraLib[]> => {
+  let extraLibs: ExtraLib[] = []
   let utilsContent = await readFile(
     kitPath("core", "utils.d.ts"),
     "utf8"
@@ -476,6 +478,12 @@ let addKitLibs = async (
     content: clipboardyContent,
     filePath: `file:///node_modules/@types/clipboardy/index.d.ts`,
   })
+
+  return extraLibs
+}
+
+global.getExtraLibs = async (): Promise<ExtraLib[]> => {
+  return [...(await addNodeLibs()), ...(await addKitLibs())]
 }
 
 global.edit = async (f, dir, line = 0, col = 0) => {
@@ -490,11 +498,7 @@ global.edit = async (f, dir, line = 0, col = 0) => {
     setDescription(file)
     let language = global.extname(file).replace(/^\./, "")
     let contents = (await readFile(file, "utf8")) || ""
-    let extraLibs = []
-    if ((isInDir(kenvPath()), file)) {
-      await addNodeLibs(extraLibs)
-      await addKitLibs(extraLibs)
-    }
+    let extraLibs = await global.getExtraLibs()
 
     let openMain = false
     let onEscape = async (input, state) => {

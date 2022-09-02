@@ -103,7 +103,7 @@ export let copyTmpFile = async (
     await global.readFile(fromFile, "utf-8")
   )
 
-let determineOutFile = scriptPath => {
+export let determineOutFile = scriptPath => {
   let tmpScriptName = global.path
     .basename(scriptPath)
     .replace(/\.(ts|jsx|tsx)$/, ".mjs")
@@ -159,6 +159,7 @@ export let buildTSScript = async (
     platform: "node",
     format: "esm",
     external,
+    charset: "utf8",
     tsconfig: kitPath(
       "templates",
       "config",

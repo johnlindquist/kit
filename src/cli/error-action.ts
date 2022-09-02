@@ -1,8 +1,7 @@
 //Description: An error has occurred
 
-import { extensionRegex } from "../core/utils.js"
+import { cmd, extensionRegex } from "../core/utils.js"
 import { ErrorAction } from "../core/enum.js"
-import { highlightJavaScript } from "../api/kit.js"
 
 let script = await arg()
 let stackFile = await arg()
@@ -61,6 +60,27 @@ let errorAction: ErrorAction = await arg(
     onEscape: async () => {
       await mainScript()
     },
+    shortcuts: [
+      {
+        name: "Close",
+        key: `${cmd}+w`,
+        onPress: async (input, state) => {
+          exit()
+        },
+        bar: "right",
+      },
+      {
+        name: "Edit Script",
+        key: `${cmd}+o`,
+        onPress: async (input, { focused }) => {
+          await run(
+            kitPath("cli", "edit-script.js"),
+            errorFile
+          )
+        },
+        bar: "right",
+      },
+    ],
     resize: false,
   },
   [
@@ -121,13 +141,6 @@ let errorAction: ErrorAction = await arg(
   </div>
   </div>
         `
-      },
-    },
-    {
-      name: `Open ${script} in editor`,
-      value: ErrorAction.Open,
-      preview: async () => {
-        return highlightJavaScript(errorFile)
       },
     },
     {

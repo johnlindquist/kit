@@ -47,11 +47,15 @@ global.env = async (envKey, promptConfig) => {
       ? await promptConfig()
       : typeof promptConfig === "string"
       ? await global.kitPrompt({
+          enter: "Write to .env",
+          shortcuts: [],
           placeholder: promptConfig,
           ignoreBlur,
           secret,
         })
       : await global.kitPrompt({
+          enter: "Write to .env",
+          shortcuts: [],
           placeholder: `Set ${envKey}:`,
           ignoreBlur,
           ...promptConfig,
