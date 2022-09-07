@@ -8,6 +8,7 @@ import {
   kenvPath,
   wait,
   knodePath,
+  getLogFromScriptPath,
 } from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
@@ -82,3 +83,49 @@ global.isFile = isFile
 global.home = home
 
 global.memoryMap = new Map()
+
+global.getLog = () => {
+  let log = getLogFromScriptPath(global.kitScript)
+  return log
+}
+
+let intervals
+
+// A proxy around setInterval that keeps track of all intervals
+global.setInterval = new Proxy(setInterval, {
+  apply: (
+    target,
+    thisArg,
+    args: Parameters<typeof setInterval>
+  ) => {
+    let id = target(...args)
+    intervals = intervals || new Set()
+    intervals.add(id)
+    return id
+  },
+})
+
+let timeouts
+
+global.setTimeout = new Proxy(setTimeout, {
+  apply: (
+    target,
+    thisArg,
+    args: Parameters<typeof setTimeout>
+  ) => {
+    let id = target(...args)
+    timeouts = timeouts || new Set()
+    timeouts.add(id)
+    return id
+  },
+})
+
+global.clearAllIntervals = () => {
+  intervals?.forEach(id => clearInterval(id))
+  intervals = new Set()
+}
+
+global.clearAllTimeouts = () => {
+  timeouts?.forEach(id => clearTimeout(id))
+  timeouts = new Set()
+}

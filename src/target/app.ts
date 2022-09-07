@@ -957,6 +957,16 @@ global.editor = async (options?: EditorOptions) => {
   })
 }
 
+global.template = async (
+  template: string = "",
+  options: EditorOptions = { language: "plaintext" }
+) => {
+  return global.editor({
+    template,
+    ...options,
+  })
+}
+
 global.hotkey = async (
   placeholder = "Press a key combo:"
 ) => {
@@ -1288,6 +1298,8 @@ global.mainScript = async (
   tab: string
 ) => {
   if (process.env.KIT_CONTEXT === "app") {
+    clearAllTimeouts()
+    clearAllIntervals()
     setInput(input)
     let m = run(mainScriptPath)
     if (tab) setTab(tab)
@@ -1694,6 +1706,14 @@ global.setConfig = async (config: Partial<Config>) => {
 
 global.setStatus = async (status: KitStatus) => {
   send(Channel.SET_STATUS, status)
+}
+
+global.setAlwaysOnTop = async (alwaysOnTop: boolean) => {
+  return sendWait(Channel.SET_ALWAYS_ON_TOP, alwaysOnTop)
+}
+
+global.focus = async () => {
+  return sendWait(Channel.FOCUS)
 }
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]

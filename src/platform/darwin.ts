@@ -48,6 +48,7 @@ global.terminal = async script => {
   let formattedScript = script.replace(/'|"/g, '\\"')
 
   let command = `tell application "Terminal"
+  if not application "Terminal" is running then launch
   activate
   do script "${formattedScript}"
   end tell

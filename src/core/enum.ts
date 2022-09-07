@@ -165,6 +165,8 @@ export enum Channel {
   SET_CLIPBOARD = "SET_CLIPBOARD",
   SET_SELECTED_TEXT = "SET_SELECTED_TEXT",
   ADD_CHOICE = "ADD_CHOICE",
+  FOCUS = "FOCUS",
+  SET_ALWAYS_ON_TOP = "SET_ALWAYS_ON_TOP",
 }
 
 export enum ProcessType {

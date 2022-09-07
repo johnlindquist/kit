@@ -309,4 +309,6 @@ declare global {
   var terminal: (script: string) => Promise<string>
   var iterm: (iterm: string) => Promise<string>
   var projectPath: PathFn
+  var clearAllTimeouts: () => void
+  var clearAllIntervals: () => void
 }

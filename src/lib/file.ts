@@ -62,21 +62,32 @@ global.copyPathAsPicture = copyPathAsImage
 global.selectFolder = async (
   message: string = "Pick a folder:"
 ) => {
-  return await applescript(
-    `set f to choose folder with prompt "${message}"
+  await hide()
+  let folderPath = await applescript(`
+    tell application "System Events"    
+    set f to choose folder with prompt "${message}"
     set p to POSIX path of f
-    `
-  )
+    end tell
+    `)
+
+  await focus()
+  return folderPath
 }
 
 global.selectFile = async (
   message: string = "Pick a file:"
 ) => {
-  return await applescript(
-    `set f to choose file with prompt "${message}"
+  await hide()
+  let filePath = await applescript(
+    `
+    tell application "System Events"
+    set f to choose file with prompt "${message}"
     set p to POSIX path of f
+    end tell
     `
   )
+  await focus()
+  return filePath
 }
 
 global.revealInFinder = async filePath => {

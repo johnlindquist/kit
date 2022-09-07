@@ -63,6 +63,7 @@ export type EditorOptions =
     onDrop?: PromptConfig["onDrop"]
     ignoreBlur?: boolean
     extraLibs?: { content: string; filePath: string }[]
+    template?: string
   }
 
 export interface Field {
@@ -111,7 +112,16 @@ export interface Drop {
   ): Promise<any>
 }
 export interface Editor {
-  (config?: EditorConfig & { hint?: string }): Promise<any>
+  (
+    config?: EditorConfig & { hint?: string }
+  ): Promise<string>
+}
+
+export interface Template {
+  (
+    template: string = "",
+    config?: EditorConfig
+  ): Promise<string>
 }
 export interface OldForm {
   (
@@ -236,6 +246,7 @@ export type SendNoOptions =
   | Channel.TOGGLE_TRAY
   | Channel.UPDATE_APP
   | Channel.QUIT_APP
+  | Channel.FOCUS
 
 export interface ChannelMap {
   // Figure these undefined out later
@@ -389,6 +400,7 @@ export interface ChannelMap {
   [Channel.PASTE]: undefined
 
   [Channel.VERIFY_FULL_DISK_ACCESS]: undefined
+  [Channel.SET_ALWAYS_ON_TOP]: boolean
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
@@ -541,6 +553,7 @@ export interface AppApi {
   textarea: TextArea
   drop: Drop
   editor: Editor
+  template: Template
   form: Form
   fields: Fields
   emoji: Emoji
@@ -616,6 +629,9 @@ export interface AppApi {
 
   keyboard: Keyboard
   execLog: ExecLog
+
+  focus: () => Promise<void>
+  setAlwaysOnTop: (alwaysOnTop: boolean) => Promise<void>
 }
 
 export interface Background {
@@ -639,6 +655,8 @@ declare global {
   var fields: Fields
   var emoji: Emoji
   var editor: Editor
+  var template: Template
+
   var hotkey: Hotkey
   var send: Send
   var sendWait: (
@@ -695,4 +713,9 @@ declare global {
   var keyboard: Keyboard
 
   var execLog: ExecLog
+
+  var focus: () => Promise<void>
+  var setAlwaysOnTop: (
+    alwaysOnTop: boolean
+  ) => Promise<void>
 }

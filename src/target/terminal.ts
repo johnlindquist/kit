@@ -267,6 +267,17 @@ global.edit = async filePath => {
 global.editor = async (options: EditorOptions) => {
   if (global.flag?.edit === false) return
   global.edit(options.file)
+
+  return ""
+}
+
+global.template = async (
+  template: string,
+  options: EditorOptions
+) => {
+  notSupported("template")
+
+  return ""
 }
 
 global.drop = async () => {
