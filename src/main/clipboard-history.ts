@@ -11,18 +11,18 @@ let historyWithPreviews = async () => {
     return item
   })
 }
-setFlags({
-  ["remove"]: {
-    name: "Remove",
-    description: "Remove from Clipboard History",
-    shortcut: `${cmd}+backspace`,
-  },
-  ["template"]: {
-    name: "Template",
-    description:
-      "Create a Template Script from Clipboard Item",
-  },
-})
+// setFlags({
+//   ["remove"]: {
+//     name: "Remove",
+//     description: "Remove from Clipboard History",
+//     shortcut: `${cmd}+backspace`,
+//   },
+//   ["template"]: {
+//     name: "Template",
+//     description:
+//       "Create a Template Script from Clipboard Item",
+//   },
+// })
 let id = ``
 let value = await arg(
   {
@@ -30,15 +30,21 @@ let value = await arg(
     enter: `Paste item`,
     shortcuts: [
       {
-        name: "Remove Item",
-        key: `${cmd}+delete`,
+        name: "Remove",
+        key: `${cmd}+backspace`,
         bar: "right",
+        onPress: async (input, { focused }) => {
+          if (focused?.id) {
+            await removeClipboardItem(focused?.id)
+          }
+          setChoices(await historyWithPreviews())
+        },
       },
       {
         name: `Clear Clipboard History`,
-        key: `${cmd}+shift+delete`,
+        key: `${cmd}+shift+backspace`,
         onPress: async () => {
-          clearClipboardHistory()
+          await clearClipboardHistory()
           setChoices(await historyWithPreviews())
         },
       },
@@ -49,24 +55,7 @@ let value = await arg(
   },
   await historyWithPreviews()
 )
-if (flag?.remove) {
-  await removeClipboardItem(id)
-  await run(kitPath("main", "clipboard-history.js"))
-} else if (flag?.template) {
-  memoryMap.set("template", value)
-  let script = await arg("Enter a Template Script Name")
 
-  await run(
-    `${kitPath(
-      "cli",
-      "new"
-    )}.js --template clipboard-template ${script
-      .trim()
-      .replace(/\s/g, "-")
-      .toLowerCase()} --scriptName '${script.trim()}'`
-  )
-} else {
-  await setSelectedText(value)
-}
+await setSelectedText(value)
 
 export {}

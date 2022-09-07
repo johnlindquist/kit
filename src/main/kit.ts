@@ -16,11 +16,6 @@ import { addPreview, findDoc } from "../cli/lib/utils.js"
 
 let kitManagementChoices: Choice<keyof CLI>[] = [
   {
-    name: "View Running Processes",
-    description: "View running processes",
-    value: "processes",
-  },
-  {
     name: "View Schedule",
     description: "View and edit upcoming jobs",
     value: "schedule",

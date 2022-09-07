@@ -516,6 +516,19 @@ global.onTab = (name, fn) => {
 }
 
 global.kitPrevChoices = []
+
+global.addChoice = async (choice: string | Choice) => {
+  if (typeof choice !== "object") {
+    choice = {
+      name: String(choice),
+      value: String(choice),
+    }
+  }
+
+  choice.id ||= global.uuid()
+  return await global.sendWait(Channel.ADD_CHOICE, choice)
+}
+
 global.setChoices = async (choices, className = "") => {
   if (typeof choices === "object") {
     if (choices !== null) {
@@ -553,10 +566,12 @@ global.setChoices = async (choices, className = "") => {
     }
   }
 
-  global.send(Channel.SET_CHOICES, choices)
+  let p = global.sendWait(Channel.SET_CHOICES, choices)
   global.kitPrevChoices = choices
 
   global.setLoading(false)
+
+  return p
 }
 
 global.flag = {}

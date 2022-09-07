@@ -313,13 +313,12 @@ global.getClipboardHistory = async () => {
   return []
 }
 
-global.removeClipboardItem = (id: string) => {
+global.removeClipboardItem = async (id: string) => {
   notSupported("removeClipboardItem")
 }
 
 global.clearClipboardHistory = async () => {
   notSupported("clearClipboardHistory")
-  return []
 }
 
 global.submit = async (value: any) => {

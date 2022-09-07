@@ -100,7 +100,7 @@ let createChoices = async () => {
         value: appPath,
         description: appPath,
         img,
-        enter: `Launch ${appName}`,
+        enter: `Open`,
       }
     })
   )
@@ -125,10 +125,11 @@ let app = await arg(
     shortcuts: [
       backToMainShortcut,
       {
-        name: "Refresh App List",
+        name: "Refresh Apps",
         key: `${cmd}+enter`,
         bar: "right",
         onPress: async input => {
+          setPlaceholder(`Refreshing apps...`)
           await remove(kitPath("db", "apps.json"))
           await run(
             kitPath("main", "app-launcher.js"),

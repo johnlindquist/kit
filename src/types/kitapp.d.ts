@@ -137,6 +137,10 @@ export interface Fields {
   (config: PromptConfig): Promise<any>
 }
 
+export interface Emoji {
+  (config?: PromptConfig): Promise<string>
+}
+
 export interface DivConfig extends PromptConfig {
   html: string
   placeholder?: string
@@ -175,12 +179,17 @@ export interface AppleScript {
 }
 
 type SetImage = string | { src: string }
+
+interface AddChoice {
+  (choice: string | Choice): Promise<void>
+}
+
 interface SetChoices {
   (
     choices: Choice[],
     className?: string,
     scripts?: boolean
-  ): void
+  ): Promise<void>
 }
 
 type SetTextAreaOptions = {
@@ -534,6 +543,7 @@ export interface AppApi {
   editor: Editor
   form: Form
   fields: Fields
+  emoji: Emoji
   div: Div
   hotkey: Hotkey
 
@@ -567,7 +577,7 @@ export interface AppApi {
   showImage: ShowAppWindow
 
   currentOnTab: any
-
+  addChoice: AddChoice
   setChoices: SetChoices
   clearTabs: () => void
   getDataFromApp: (channel: Channel) => Promise<any>
@@ -627,6 +637,7 @@ declare global {
   var div: Div
   var form: Form
   var fields: Fields
+  var emoji: Emoji
   var editor: Editor
   var hotkey: Hotkey
   var send: Send
@@ -639,6 +650,7 @@ declare global {
   var setPlaceholder: SetPlaceholder
   var setPanel: SetPanel
   var setFooter: SetFooter
+  var addChoice: AddChoice
   var setChoices: SetChoices
   var clearTabs: () => void
   var setDiv: SetPanel
@@ -667,9 +679,9 @@ declare global {
 
   var dev: (object?: any) => void
   var getClipboardHistory: () => Promise<ClipboardItem[]>
-  var clearClipboardHistory: () => void
+  var clearClipboardHistory: () => Promise<void>
   var getEditorHistory: GetEditorHistory
-  var removeClipboardItem: (id: string) => void
+  var removeClipboardItem: (id: string) => Promise<void>
   var setTab: (tabName: string) => void
   var submit: Submit
   var mainScript: (input = "", tab = "") => Promise<void>

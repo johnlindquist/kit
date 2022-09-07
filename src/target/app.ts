@@ -764,6 +764,16 @@ global.drop = async (
   })
 }
 
+global.emoji = async (config?: PromptConfig) => {
+  return await global.kitPrompt({
+    ui: UI.emoji,
+    enter: "Select",
+    shortcuts: [backToMainShortcut],
+    ignoreBlur: true,
+    ...config,
+  })
+}
+
 global.fields = async (...formFields) => {
   let config: PromptConfig = {}
   let f = []
@@ -1196,11 +1206,14 @@ global.getClipboardHistory = async () =>
   )?.history
 
 global.removeClipboardItem = (id: string) => {
-  global.send(Channel.REMOVE_CLIPBOARD_HISTORY_ITEM, id)
+  return global.sendWait(
+    Channel.REMOVE_CLIPBOARD_HISTORY_ITEM,
+    id
+  )
 }
 
 global.clearClipboardHistory = () => {
-  global.send(Channel.CLEAR_CLIPBOARD_HISTORY)
+  return global.sendWait(Channel.CLEAR_CLIPBOARD_HISTORY)
 }
 
 global.__emitter__ = new EventEmitter()

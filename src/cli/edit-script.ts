@@ -52,8 +52,8 @@ if (process.env.KIT_EDITOR === "kit") {
         bar: "right",
       },
       {
-        name: `Save and Run`,
-        key: `${cmd}+shift+s`,
+        name: `Run`,
+        key: `${cmd}+o`,
         onPress: async input => {
           let { default: chokidar } = await import(
             "chokidar"

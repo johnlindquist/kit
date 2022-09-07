@@ -164,6 +164,7 @@ export enum Channel {
   VERIFY_FULL_DISK_ACCESS = "VERIFY_FULL_DISK_ACCESS",
   SET_CLIPBOARD = "SET_CLIPBOARD",
   SET_SELECTED_TEXT = "SET_SELECTED_TEXT",
+  ADD_CHOICE = "ADD_CHOICE",
 }
 
 export enum ProcessType {
@@ -202,6 +203,7 @@ export enum UI {
   input = "input",
   term = "term",
   fields = "fields",
+  emoji = "emoji",
 }
 
 export enum Bin {
