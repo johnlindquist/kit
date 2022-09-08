@@ -247,6 +247,7 @@ export type SendNoOptions =
   | Channel.UPDATE_APP
   | Channel.QUIT_APP
   | Channel.FOCUS
+  | Channel.SHOW_EMOJI_PANEL
 
 export interface ChannelMap {
   // Figure these undefined out later
@@ -444,7 +445,7 @@ export interface SetFocused {
 }
 
 export interface SetIgnoreBlur {
-  (ignoreBlur: boolean): void
+  (ignoreBlur: boolean): Promise<void>
 }
 
 export interface SetResize {

@@ -118,7 +118,6 @@ let app = await arg(
   {
     input: (flag?.input as string) || "",
     placeholder: "Open with...",
-    footer: "cmd+enter to refresh list",
     onInput: i => {
       input = i
     },

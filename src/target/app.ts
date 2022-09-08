@@ -774,6 +774,10 @@ global.emoji = async (config?: PromptConfig) => {
   })
 }
 
+global.showEmojiPanel = () => {
+  send(Channel.SHOW_EMOJI_PANEL)
+}
+
 global.fields = async (...formFields) => {
   let config: PromptConfig = {}
   let f = []
@@ -1152,7 +1156,7 @@ global.setFilterInput = async inputFilter => {
 }
 
 global.setIgnoreBlur = async ignore => {
-  global.send(Channel.SET_IGNORE_BLUR, ignore)
+  return global.sendWait(Channel.SET_IGNORE_BLUR, ignore)
 }
 
 global.setResize = async ignore => {
@@ -1393,10 +1397,11 @@ let __pathSelector = async (
       } = home(),
   { showHidden } = { showHidden: false }
 ) => {
+  await setIgnoreBlur(true)
+  await setAlwaysOnTop(true)
   let verified = await verifyFullDiskAccess()
   if (!verified) {
     await run(kitPath("help", "info-full-disk-access.js"))
-    exit()
   }
   let startPath = ``
   let onInputHook = null
@@ -1461,6 +1466,15 @@ let __pathSelector = async (
 
   let downDir = async dir => {
     let targetPath = path.resolve(startPath, dir)
+    if (targetPath === home("Downloads")) {
+    }
+
+    if (targetPath === home("Documents")) {
+    }
+
+    if (targetPath === home("Desktop")) {
+    }
+
     if (await isDir(targetPath)) {
       setInput(targetPath + path.sep)
     } else {
@@ -1593,6 +1607,9 @@ let __pathSelector = async (
     {
       ...(config as PromptConfig),
       input: startPath,
+      hint: verified
+        ? `"Full Disk Access" required for some directories`
+        : (config as PromptConfig)?.hint || ``,
       onInput,
       onTab,
       onRight,

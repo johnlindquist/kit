@@ -167,6 +167,7 @@ export enum Channel {
   ADD_CHOICE = "ADD_CHOICE",
   FOCUS = "FOCUS",
   SET_ALWAYS_ON_TOP = "SET_ALWAYS_ON_TOP",
+  SHOW_EMOJI_PANEL = "SHOW_EMOJI_PANEL",
 }
 
 export enum ProcessType {

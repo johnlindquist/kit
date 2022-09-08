@@ -377,11 +377,7 @@ if (
     )
   }
 } else {
-  let shouldEdit =
-    script.watch ||
-    script.schedule ||
-    script.system ||
-    flag?.open
+  let shouldEdit = flag?.open
 
   let selectedFlag: any = Object.keys(flag).find(f => {
     return f && !modifiers[f]

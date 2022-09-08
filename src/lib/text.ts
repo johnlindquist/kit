@@ -44,7 +44,7 @@ global.setSelectedText = async (text = "", hide = true) => {
   // if (typeof prevText === "string")
   //   await global.copy(prevText)
 
-  await sendWait(Channel.SET_SELECTED_TEXT, text)
+  return await sendWait(Channel.SET_SELECTED_TEXT, text)
 }
 
 export {}
