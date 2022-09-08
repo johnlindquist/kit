@@ -1175,7 +1175,7 @@ global.getDataFromApp = global.sendWait = async (
     return await new Promise((res, rej) => {
       let messageHandler = data => {
         if (data.channel === channel) {
-          res(data?.value)
+          res(data?.value || data)
           process.off("message", messageHandler)
         }
       }
