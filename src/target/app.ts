@@ -1148,7 +1148,7 @@ global.setHint = async hint => {
 }
 
 global.setInput = async input => {
-  global.send(Channel.SET_INPUT, input)
+  return await global.sendWait(Channel.SET_INPUT, input)
 }
 
 global.setFilterInput = async inputFilter => {
@@ -1175,13 +1175,13 @@ global.getDataFromApp = global.sendWait = async (
     return await new Promise((res, rej) => {
       let messageHandler = data => {
         if (data.channel === channel) {
-          res(data)
+          res(data?.value)
           process.off("message", messageHandler)
         }
       }
       process.on("message", messageHandler)
 
-      send(channel, data || {})
+      send(channel, data)
     })
   } else {
     return {}
@@ -1402,8 +1402,10 @@ let __pathSelector = async (
   let verified = await verifyFullDiskAccess()
   if (!verified) {
     await run(kitPath("help", "info-full-disk-access.js"))
+    exit()
   }
   let startPath = ``
+  let focusOn = ``
   let onInputHook = null
   let onlyDirs = false
   if (typeof config === "string") startPath = config
@@ -1425,15 +1427,15 @@ let __pathSelector = async (
     }
     let dirFilter = dirent => {
       if (dirent.name.startsWith(".")) {
-        return input.includes(path.sep + ".") || showHidden
+        return input?.includes(path.sep + ".") || showHidden
       }
 
       return true
     }
 
-    if (input.startsWith("~")) startPath = home()
+    if (input?.startsWith("~")) startPath = home()
 
-    if (input.endsWith(path.sep)) {
+    if (input?.endsWith(path.sep)) {
       startPath = input
     } else {
       startPath = path.dirname(input)
@@ -1455,13 +1457,14 @@ let __pathSelector = async (
     }
   }
 
-  let upDir = dir => {
-    setInput(
+  let upDir = async dir => {
+    await setInput(
       startPath.replace(
         new RegExp(`[^${path.sep}]+.$`, "gi"),
         ""
       )
     )
+    if (dir) focusOn = path.basename(path.dirname(dir))
   }
 
   let downDir = async dir => {
@@ -1512,12 +1515,14 @@ let __pathSelector = async (
     //   return
     // }
 
-    if (input.startsWith("~")) {
+    if (!input) return
+
+    if (input?.startsWith("~")) {
       setInput(home() + path.sep)
       return
     }
 
-    if (input.endsWith(path.sep + ".")) {
+    if (input?.endsWith(path.sep + ".")) {
       let choices = await createPathChoices(startPath, {
         dirFilter: () => true,
         onlyDirs,
@@ -1525,7 +1530,7 @@ let __pathSelector = async (
       setChoices(choices)
       return
     }
-    let currentSlashCount = input.split(path.sep).length
+    let currentSlashCount = input?.split(path.sep).length
     if (currentSlashCount != slashCount) {
       slashCount = currentSlashCount
       await lsCurrentDir(input)
@@ -1607,15 +1612,16 @@ let __pathSelector = async (
     {
       ...(config as PromptConfig),
       input: startPath,
-      hint: verified
-        ? `"Full Disk Access" required for some directories`
-        : (config as PromptConfig)?.hint || ``,
       onInput,
       onTab,
       onRight,
       onLeft,
       onNoChoices,
       onEscape,
+      onChoiceFocus: async () => {
+        if (focusOn) setFocused(focusOn)
+        focusOn = ``
+      },
       enter: "Select",
       resize: false,
       shortcuts: [

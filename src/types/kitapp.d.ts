@@ -433,7 +433,7 @@ export interface SetDescription {
 }
 
 export interface SetInput {
-  (input: string): void
+  (input: string): Promise<void>
 }
 
 export interface SetTextareaValue {
