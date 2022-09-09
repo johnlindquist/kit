@@ -1175,7 +1175,11 @@ global.getDataFromApp = global.sendWait = async (
     return await new Promise((res, rej) => {
       let messageHandler = data => {
         if (data.channel === channel) {
-          res(data?.value || data)
+          res(
+            typeof data?.value === "undefined"
+              ? data
+              : data?.value
+          )
           process.off("message", messageHandler)
         }
       }
