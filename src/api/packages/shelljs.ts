@@ -1,6 +1,5 @@
 let { default: shelljs }: any = await import("shelljs")
 const {
-  cd,
   cp,
   chmod,
   echo,
@@ -16,7 +15,6 @@ const {
   which,
 } = shelljs
 
-global.cd = cd
 global.cp = cp
 global.chmod = chmod
 global.echo = echo

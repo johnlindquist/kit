@@ -16,7 +16,7 @@ export interface OnTab {
 }
 
 export interface PackagesApi {
-  cd: typeof shelljs.cd
+  cd: typeof import("zx").cd
   cp: typeof shelljs.cp
   chmod: typeof shelljs.chmod
   echo: typeof shelljs.echo
@@ -36,10 +36,12 @@ export interface PackagesApi {
   open: Open
   rm: Trash
   notify: Notify
+
+  $: typeof import("zx").$
 }
 
 declare global {
-  var cd: typeof shelljs.cd
+  var cd: typeof import("zx").cd
   var cp: typeof shelljs.cp
   var chmod: typeof shelljs.chmod
   var echo: typeof shelljs.echo
@@ -66,4 +68,6 @@ declare global {
   var memoryMap: Map<string, any>
 
   var onTabIndex: number
+
+  var $: typeof import("zx").$
 }

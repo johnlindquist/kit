@@ -17,6 +17,7 @@ import { PromptConfig } from "../types/core"
 global.getScripts = getScripts
 
 await import("@johnlindquist/globals")
+await import("./packages/zx.js")
 await import("./packages/clipboardy.js")
 await import("./packages/node-notifier.js")
 await import("./packages/shelljs.js")
