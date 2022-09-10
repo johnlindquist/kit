@@ -7,7 +7,9 @@ import { throttling } from "@octokit/plugin-throttling"
 import { createOAuthDeviceAuth } from "@octokit/auth-oauth-device"
 import { kitPath } from "../core/utils.js"
 
-let kitAppDb = await db(kitPath("db", "app.json"))
+let kitAppDb = await db<{ version: string }>(
+  kitPath("db", "app.json")
+)
 let VERSION = kitAppDb.version
 
 export type StrategyOptions = {

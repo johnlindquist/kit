@@ -23,6 +23,7 @@ while (!confirm) {
 }
 
 let kitDb = await db(kitPath("db", "shortcuts.json"))
+
 kitDb.data.shortcuts[kitPath("main", "index.js")] = shortcut
 await kitDb.write()
 

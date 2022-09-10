@@ -1,5 +1,6 @@
 export {}
 
+import { Low } from "@johnlindquist/kit-internal/lowdb"
 import { PlatformPath } from "path"
 import {
   ChannelHandler,
@@ -46,6 +47,25 @@ export interface Inspect {
   (data: any, extension?: string): Promise<void>
 }
 
+export type DB = <T = any>(
+  dataOrKeyOrPath?: string | T | (() => Promise<T>),
+  data?: T | (() => Promise<T>),
+  fromCache?: boolean
+) => Promise<
+  T extends string
+    ? {
+        write: () => Promise<void>
+        read: () => Promise<any>
+        data: any
+        [key: string]: any
+      }
+    : {
+        write: () => Promise<void>
+        read: () => Promise<T>
+        data: any
+      } & T
+>
+
 export interface OnTab {
   (
     name: string,
@@ -83,8 +103,6 @@ export interface Wait {
 export interface IsCheck {
   (file: string): Promise<boolean>
 }
-
-type DB = typeof import("../core/db").db
 
 export interface GetScripts {
   (fromCache?: boolean): Promise<Script[]>

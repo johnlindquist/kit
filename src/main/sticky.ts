@@ -3,12 +3,12 @@
 setName(``)
 
 let stickyPath = kenvPath("sticky.md")
-let contents = await ensureReadFile(
+let contents = (await ensureReadFile(
   stickyPath,
   `
 # Sticky Notes
 `.trim()
-)
+)) as string
 
 let changed = false
 

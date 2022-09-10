@@ -3,6 +3,8 @@ import shelljs from "shelljs"
 import { homedir, platform } from "os"
 import { existsSync } from "fs"
 
+let originalDir = process.cwd()
+
 let { cd, rm, cp } = shelljs
 
 let kitPath = (...pathParts) =>
@@ -18,7 +20,7 @@ let knodePath = (...parts) =>
   )
 
 if (existsSync(kitPath())) rm("-rf", kitPath())
-await ensureDir(kitPath("node"))
+await ensureDir(kitPath())
 
 let installNodeWin = async () => {
   let { Extract } = await import("unzipper")
@@ -72,21 +74,33 @@ let cjs = exec(
 )
 
 await Promise.all([installNode, esm, dec, cjs])
+
 console.log(`Fix cjs`)
 await exec(`node ./scripts/cjs-fix.js`)
 
-cd(kitPath())
-let npm = knodePath("bin", "npm")
-
 console.log(`Install deps`)
-await exec(`${npm} i --production`)
+
+let options = {
+  cwd: kitPath(),
+  env: {
+    PATH: `${knodePath("bin")}:${process.env.PATH}`,
+  },
+}
+await exec(`npm i --production`, options)
 
 // console.log(`Install app deps`)
 // await exec(`${npm} i @johnlindquist/kitdeps@0.1.1`)
 
-console.log(`Downloading data`)
-await exec(`node ./run/terminal.js ./help/download-docs.js`)
-await exec(`node ./run/terminal.js ./hot/download-hot.js`)
+await exec(
+  `node ./run/terminal.js ./help/download-docs.js`,
+  options
+)
+
+await exec(
+  `node ./run/terminal.js ./hot/download-hot.js`,
+  options
+)
 
 console.log(`Write .kitignore`)
 await writeFile(kitPath(".kitignore"), "*")
+cd(originalDir)

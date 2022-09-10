@@ -35,23 +35,27 @@ export const resolveKenv = (...parts: string[]) => {
   return kenvPath(...parts)
 }
 
-export let db = async (
-  key: any,
-  defaults?: any,
+export let db = async <T = any>(
+  dataOrKeyOrPath?: string | T | (() => Promise<T>),
+  data?: T | (() => Promise<T>),
   fromCache = true
 ): Promise<Low & any> => {
   if (
-    typeof defaults === "undefined" &&
-    typeof key !== "string"
+    typeof data === "undefined" &&
+    typeof dataOrKeyOrPath !== "string"
   ) {
-    defaults = key
-    key = "_" + resolveScriptToCommand(global.kitScript)
+    data = dataOrKeyOrPath
+    dataOrKeyOrPath =
+      "_" + resolveScriptToCommand(global.kitScript)
   }
-  if (typeof defaults === "undefined") defaults = {}
 
-  let dbPath = key
-  if (!key.endsWith(".json")) {
-    dbPath = resolveKenv("db", `${key}.json`)
+  let dbPath = ""
+
+  if (typeof dataOrKeyOrPath === "string") {
+    dbPath = dataOrKeyOrPath
+    if (!dataOrKeyOrPath.endsWith(".json")) {
+      dbPath = resolveKenv("db", `${dataOrKeyOrPath}.json`)
+    }
   }
 
   let parentExists = await isDir(path.dirname(dbPath))
@@ -62,7 +66,7 @@ export let db = async (
       )}. Returning defaults...`
     )
     return {
-      ...defaults,
+      ...(data || {}),
       write: () => {},
     }
   }
@@ -73,17 +77,16 @@ export let db = async (
 
   if (!_db.data || !fromCache) {
     let getData = async () => {
-      if (typeof defaults === "function") {
-        let data = await defaults()
-        if (Array.isArray(data)) return { items: data }
+      if (typeof data === "function") {
+        let result = await (data as any)()
+        if (Array.isArray(result)) return { items: result }
 
-        return data
+        return result
       }
 
-      if (Array.isArray(defaults))
-        return { items: defaults }
+      if (Array.isArray(data)) return { items: data }
 
-      return defaults
+      return data
     }
 
     _db.data = await getData()
