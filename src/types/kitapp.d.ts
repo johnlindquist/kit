@@ -6,7 +6,7 @@ import {
   Channel,
   Mode,
   statuses,
-} from "../core/enum.js"
+} from "../core/enum"
 import { KeyEnum } from "../core/keyboard.js"
 
 import {
@@ -389,8 +389,8 @@ export interface ChannelMap {
 
   [Channel.KEYBOARD_CONFIG]: { autoDelayMs: number }
   [Channel.KEYBOARD_TYPE]: string
-  [Channel.KEYBOARD_PRESS_KEY]: Key[]
-  [Channel.KEYBOARD_RELEASE_KEY]: Key[]
+  [Channel.KEYBOARD_PRESS_KEY]: KeyboardEnum[]
+  [Channel.KEYBOARD_RELEASE_KEY]: KeyboardEnum[]
 
   [Channel.TRASH]: {
     input: Parameters<Trash>[0]
@@ -537,9 +537,11 @@ export interface ClipboardItem {
 }
 
 export interface Keyboard {
-  type: (text: string) => Promise<void>
-  pressKey: (...keys: Key[]) => Promise<void>
-  releaseKey: (...keys: Key[]) => Promise<void>
+  type: (
+    ...text: (string | KeyboardEnum)[]
+  ) => Promise<void>
+  pressKey: (...keys: KeyboardEnum[]) => Promise<void>
+  releaseKey: (...keys: KeyboardEnum[]) => Promise<void>
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
@@ -620,7 +622,10 @@ export interface AppApi {
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
   submit: Submit
-  mainScript: () => Promise<void>
+  mainScript: (
+    input?: string,
+    tab?: string
+  ) => Promise<void>
 
   appKeystroke: SendKeystroke
   Key: typeof KeyboardEnum
@@ -703,7 +708,10 @@ declare global {
   var removeClipboardItem: (id: string) => Promise<void>
   var setTab: (tabName: string) => void
   var submit: Submit
-  var mainScript: (input = "", tab = "") => Promise<void>
+  var mainScript: (
+    input?: string,
+    tab?: string
+  ) => Promise<void>
 
   var appKeystroke: SendKeystroke
   var Key: typeof KeyboardEnum

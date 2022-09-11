@@ -1713,8 +1713,8 @@ global.setFocused = (id: string) => {
 }
 
 global.keyboard = {
-  type: async (text: string) => {
-    await sendWait(Channel.KEYBOARD_TYPE, text)
+  type: async (...textOrKeys: (string | Key)[]) => {
+    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys)
   },
   pressKey: async (...keys: Key[]) => {
     await sendWait(Channel.KEYBOARD_PRESS_KEY, keys)

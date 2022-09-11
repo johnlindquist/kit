@@ -297,21 +297,34 @@ let addNodeLibs = async () => {
 
 let addKitLibs = async (): Promise<ExtraLib[]> => {
   let extraLibs: ExtraLib[] = []
-  let utilsContent = await readFile(
-    kitPath("core", "utils.d.ts"),
-    "utf8"
-  )
-  let enumsContent = await readFile(
-    kitPath("core", "enum.d.ts"),
-    "utf8"
-  )
-  extraLibs.push({
-    content: `declare module "@johnlindquist/kit" {
-      ${utilsContent}
-      ${enumsContent}
-}`,
-    filePath: `file:///node_modules/@types/@johnlindquist/kit/index.d.ts`,
-  })
+  //   let utilsContent = await readFile(
+  //     kitPath("core", "utils.d.ts"),
+  //     "utf8"
+  //   )
+  //   let enumsContent = await readFile(
+  //     kitPath("core", "enum.d.ts"),
+  //     "utf8"
+  //   )
+  //   extraLibs.push({
+  //     content: `declare module "@johnlindquist/kit" {
+  //       ${utilsContent}
+  //       ${enumsContent}
+  // }`,
+  //     filePath: `file:///node_modules/@types/@johnlindquist/kit/index.d.ts`,
+  //   })
+  let kitCoreDir = kitPath("core")
+  let kitCoreTypes = await readdir(kitCoreDir)
+
+  for await (let t of kitCoreTypes.filter(t =>
+    t.endsWith(".d.ts")
+  )) {
+    let content = await readFile(kitPath("core", t), "utf8")
+
+    extraLibs.push({
+      content,
+      filePath: `file:///core/${t}`,
+    })
+  }
 
   let kitTypesDir = kitPath("types")
   let kitTypes = await readdir(kitTypesDir)
@@ -324,7 +337,7 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
 
     extraLibs.push({
       content,
-      filePath: `file:///${t}`,
+      filePath: `file:///types/${t}`,
     })
   }
 
