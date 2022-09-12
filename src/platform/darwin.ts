@@ -229,6 +229,15 @@ let code = async (file, dir, line = 0, col = 0) => {
   execaCommandSync(command, config)
 }
 
+let webstorm = async (file, dir, line = 0) => {
+  let path = dir ? `${dir}/${file}` : file
+  let command = `${global.env.KIT_EDITOR} --line ${line} ${path}`
+
+  let config = execConfig()
+
+  execaCommandSync(command, config)
+}
+
 let vim = terminalEditor("vim")
 let nvim = terminalEditor("nvim")
 let nano = terminalEditor("nano")
@@ -238,6 +247,7 @@ let fullySupportedEditors = {
   nvim,
   nano,
   atom,
+  webstorm
 }
 
 type ExtraLib = { content: string; filePath: string }
