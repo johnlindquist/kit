@@ -907,6 +907,7 @@ global.div = async (
   return await global.kitPrompt({
     enter: `Continue`,
     shortcuts: [backToMainShortcut],
+    resize: false,
     ...config,
     choices: maybeWrapHtml(config?.html, containerClasses),
     ui: UI.div,
