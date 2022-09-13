@@ -104,6 +104,10 @@ export interface IsCheck {
   (file: string): Promise<boolean>
 }
 
+export interface PathResolver {
+  (dir: string): (...pathParts: string[]) => string
+}
+
 export interface GetScripts {
   (fromCache?: boolean): Promise<Script[]>
 }
@@ -187,6 +191,7 @@ export interface KitApi {
   isFile: IsCheck
   isDir: IsCheck
   isBin: IsCheck
+  createPathResolver: PathResolver
   /**
    * @example
    * ```
@@ -303,6 +308,7 @@ declare global {
   var isFile: IsCheck
   var isDir: IsCheck
   var isBin: IsCheck
+  var createPathResolver: PathResolver
 
   var inspect: Inspect
 

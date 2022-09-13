@@ -9,6 +9,7 @@ import {
   wait,
   knodePath,
   getLogFromScriptPath,
+  createPathResolver,
 } from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
@@ -80,6 +81,7 @@ global.kenvPath = kenvPath
 global.knodePath = knodePath
 global.isBin = isBin
 global.isDir = isDir
+global.createPathResolver = createPathResolver
 global.isFile = isFile
 global.home = home
 

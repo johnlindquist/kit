@@ -85,10 +85,10 @@ export type Script = ScriptMetadata &
   Choice
 
 export type PromptBounds = {
-  x: number
-  y: number
-  width: number
-  height: number
+  x?: number
+  y?: number
+  width?: number
+  height?: number
 }
 
 // export type PromptState = "collapsed" | "expanded"
@@ -174,6 +174,10 @@ export interface PromptData {
     | "function"
     | "async"
     | "null"
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
 export interface GenerateChoices {
@@ -236,10 +240,7 @@ export interface ChannelHandler {
   (input?: string, state?: AppState): void | Promise<void>
 }
 
-export interface PromptConfig
-  extends Partial<
-    Omit<PromptData, "choices" | "id" | "script">
-  > {
+export type PromptConfig = {
   validate?: (
     choice: string
   ) => boolean | string | Promise<boolean | string>
@@ -273,7 +274,7 @@ export interface PromptConfig
   }
   env?: any
   shortcuts?: Shortcut[]
-}
+} & Partial<Omit<PromptData, "choices" | "id" | "script">>
 
 export interface Metadata {
   [key: string]: string

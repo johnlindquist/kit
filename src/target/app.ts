@@ -1,4 +1,5 @@
 import fs from "fs"
+import { unlink } from "fs/promises"
 import filesize from "filesize"
 
 import {
@@ -583,11 +584,11 @@ let prepPrompt = async (config: PromptConfig) => {
     placeholder: stripAnsi(placeholder || ""),
     panel:
       panel && typeof panel === "function"
-        ? await panel()
+        ? await (panel as Function)()
         : (panel as string),
     preview:
       preview && typeof preview === "function"
-        ? await preview()
+        ? await (preview as Function)()
         : (preview as string),
     env: config?.env || global.env,
     choicesType: determineChoicesType(choices),
@@ -670,18 +671,6 @@ global.kitPrompt = async (config: PromptConfig) => {
       ...closeShortcut,
       bar: "",
     })
-  }
-
-  if (config.ui === UI.arg) {
-    if (typeof config?.resize === "undefined") {
-      config.resize = false
-    } else {
-      config.resize = config.resize
-    }
-  } else if (typeof config?.resize === "undefined") {
-    config.resize = true
-  } else {
-    config.resize = config.resize
   }
 
   let {
@@ -1212,8 +1201,8 @@ global.getCurrentScreen = async () => {
 global.getScriptsState = () =>
   global.getDataFromApp(Channel.GET_SCRIPTS_STATE)
 
-global.setBounds = (bounds: Partial<Rectangle>) => {
-  global.send(Channel.SET_BOUNDS, bounds)
+global.setBounds = async (bounds: Partial<Rectangle>) => {
+  await global.sendWait(Channel.SET_BOUNDS, bounds)
 }
 
 global.getClipboardHistory = async () =>
@@ -1473,19 +1462,56 @@ let __pathSelector = async (
 
   let downDir = async dir => {
     let targetPath = path.resolve(startPath, dir)
-    if (targetPath === home("Downloads")) {
+    let allowed = true
+    let needsPermission =
+      targetPath === home("Downloads") ||
+      targetPath === home("Documents") ||
+      targetPath === home("Desktop")
+
+    if (needsPermission) {
+      const testFile = createPathResolver(targetPath)(
+        `._kit_test_file_${Date.now()}.txt`
+      )
+      await writeFile(testFile, `success`)
+      allowed = await isFile(testFile)
+      if (allowed) {
+        global.log(`Access granted to ${targetPath}`)
+        await unlink(testFile)
+      }
     }
 
-    if (targetPath === home("Documents")) {
-    }
-
-    if (targetPath === home("Desktop")) {
-    }
-
-    if (await isDir(targetPath)) {
-      setInput(targetPath + path.sep)
+    if (allowed) {
+      if (await isDir(targetPath)) {
+        setInput(targetPath + path.sep)
+      } else {
+        submit(targetPath)
+      }
     } else {
-      submit(targetPath)
+      let html = md(`
+## Unable to Access Folder
+
+Kit needs permission to access \`${targetPath}\`. 
+
+Please grant permission in System Preferences > Security & Privacy > Privacy > Files and Folders (or Full Disk Access).
+`)
+
+      await div({
+        html,
+        ignoreBlur: true,
+        enter: "Back to Main",
+        shortcuts: [
+          {
+            name: "Quit",
+            key: `${cmd}+q`,
+            bar: "right",
+            onPress: async () => {
+              send(Channel.QUIT_APP)
+            },
+          },
+        ],
+      })
+
+      await mainScript()
     }
   }
 
@@ -1745,3 +1771,263 @@ global.focus = async () => {
 
 delete process.env?.["ELECTRON_RUN_AS_NODE"]
 delete global?.env?.["ELECTRON_RUN_AS_NODE"]
+
+type ExtraLib = { content: string; filePath: string }
+
+let addNodeLibs = async () => {
+  let extraLibs: ExtraLib[] = []
+  let nodeTypesDir = kitPath(
+    "node_modules",
+    "@types",
+    "node"
+  )
+  let nodeDirents = await readdir(nodeTypesDir, {
+    withFileTypes: true,
+  })
+
+  for await (let dirent of nodeDirents) {
+    if (dirent.isDirectory()) {
+      let { name } = dirent
+      let subDirent = await readdir(
+        path.resolve(nodeTypesDir, name),
+        {
+          withFileTypes: true,
+        }
+      )
+
+      for await (let sub of subDirent) {
+        if (sub.isFile() && sub.name.endsWith(".d.ts")) {
+          let filePath = path.resolve(
+            nodeTypesDir,
+            name,
+            sub.name
+          )
+          let content = await readFile(filePath, "utf8")
+          extraLibs.push({
+            content,
+            filePath: `file:///${name}/${sub.name}`,
+          })
+        }
+      }
+    } else {
+      let { name } = dirent
+      if (name.endsWith("d.ts")) {
+        let content = await readFile(
+          kitPath("node_modules", "@types", "node", name),
+          "utf8"
+        )
+        extraLibs.push({
+          content,
+          filePath: `file:///${name}`,
+        })
+      }
+    }
+  }
+
+  return extraLibs
+}
+
+let addKitLibs = async (): Promise<ExtraLib[]> => {
+  let extraLibs: ExtraLib[] = []
+  //   let utilsContent = await readFile(
+  //     kitPath("core", "utils.d.ts"),
+  //     "utf8"
+  //   )
+  //   let enumsContent = await readFile(
+  //     kitPath("core", "enum.d.ts"),
+  //     "utf8"
+  //   )
+  //   extraLibs.push({
+  //     content: `declare module "@johnlindquist/kit" {
+  //       ${utilsContent}
+  //       ${enumsContent}
+  // }`,
+  //     filePath: `file:///node_modules/@types/@johnlindquist/kit/index.d.ts`,
+  //   })
+  let kitCoreDir = kitPath("core")
+  let kitCoreTypes = await readdir(kitCoreDir)
+
+  for await (let t of kitCoreTypes.filter(t =>
+    t.endsWith(".d.ts")
+  )) {
+    let content = await readFile(kitPath("core", t), "utf8")
+
+    extraLibs.push({
+      content,
+      filePath: `file:///core/${t}`,
+    })
+  }
+
+  let kitTypesDir = kitPath("types")
+  let kitTypes = await readdir(kitTypesDir)
+
+  for await (let t of kitTypes) {
+    let content = await readFile(
+      kitPath("types", t),
+      "utf8"
+    )
+
+    extraLibs.push({
+      content,
+      filePath: `file:///types/${t}`,
+    })
+  }
+
+  let globalTypesDir = kitPath(
+    "node_modules",
+    "@johnlindquist",
+    "globals",
+    "types"
+  )
+
+  let globalTypeDirs = (
+    await readdir(globalTypesDir, { withFileTypes: true })
+  ).filter(dir => dir.isDirectory())
+
+  for await (let { name } of globalTypeDirs) {
+    let content = await readFile(
+      kitPath(
+        "node_modules",
+        "@johnlindquist",
+        "globals",
+        "types",
+        name,
+        "index.d.ts"
+      ),
+      "utf8"
+    )
+
+    // let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
+    let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
+
+    extraLibs.push({
+      content,
+      filePath,
+    })
+  }
+
+  let lodashCommonDir = kitPath(
+    "node_modules",
+    "@johnlindquist",
+    "globals",
+    "types",
+    "lodash",
+    "common"
+  )
+
+  let lodashCommon = await readdir(lodashCommonDir)
+
+  for await (let name of lodashCommon) {
+    let content = await readFile(
+      kitPath(
+        "node_modules",
+        "@johnlindquist",
+        "globals",
+        "types",
+        "lodash",
+        "common",
+        name
+      ),
+      "utf8"
+    )
+
+    // let filePath = `file:///node_modules/@johnlindquist/globals/${lib}/index.d.ts`
+    let filePath = `file:///node_modules/@johnlindquist/globals/lodash/common/${name}`
+
+    extraLibs.push({
+      content,
+      filePath,
+    })
+  }
+
+  // node_modules/@johnlindquist/globals/types/index.d.ts
+  let globalsIndexContent = await readFile(
+    kitPath(
+      "node_modules",
+      "@johnlindquist",
+      "globals",
+      "types",
+      "index.d.ts"
+    ),
+    "utf8"
+  )
+
+  //   globalsIndexContent = `declare module "@johnlindquist/globals" {
+  // ${globalsIndexContent}
+  //   }`
+
+  extraLibs.push({
+    content: globalsIndexContent,
+    filePath: `file:///node_modules/@johnlindquist/globals/index.d.ts`,
+  })
+
+  // let content = await readFile(
+  //   kitPath("types", "kit-editor.d.ts"),
+  //   "utf8"
+  // )
+  // extraLibs.push({
+  //   content,
+  //   filePath: `file:///kit.d.ts`,
+  // })
+
+  let shelljsContent = await readFile(
+    kitPath(
+      "node_modules",
+      "@types",
+      "shelljs",
+      "index.d.ts"
+    ),
+    "utf8"
+  )
+
+  extraLibs.push({
+    content: shelljsContent,
+    filePath: `file:///node_modules/@types/shelljs/index.d.ts`,
+  })
+
+  // let reactContent = await readFile(
+  //   kitPath(
+  //     "node_modules",
+  //     "@types",
+  //     "react",
+  //     "index.d.ts"
+  //   ),
+  //   "utf8"
+  // )
+
+  // extraLibs.push({
+  //   content: reactContent,
+  //   filePath: `react`,
+  // })
+
+  let nodeNotifierContent = await readFile(
+    kitPath(
+      "node_modules",
+      "@types",
+      "node-notifier",
+      "index.d.ts"
+    ),
+    "utf8"
+  )
+
+  extraLibs.push({
+    content: nodeNotifierContent,
+    filePath: `file:///node_modules/@types/node-notifier/index.d.ts`,
+  })
+
+  let clipboardyContent = await readFile(
+    kitPath("node_modules", "clipboardy", "index.d.ts"),
+    "utf8"
+  )
+
+  extraLibs.push({
+    content: clipboardyContent,
+    filePath: `file:///node_modules/@types/clipboardy/index.d.ts`,
+  })
+
+  return extraLibs
+}
+
+global.getExtraLibs = async (): Promise<ExtraLib[]> => {
+  return [...(await addNodeLibs()), ...(await addKitLibs())]
+}
