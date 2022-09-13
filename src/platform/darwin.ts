@@ -230,8 +230,7 @@ let code = async (file, dir, line = 0, col = 0) => {
 }
 
 let webstorm = async (file, dir, line = 0) => {
-  let path = dir ? `${dir}/${file}` : file
-  let command = `${global.env.KIT_EDITOR} --line ${line} ${path}`
+  let command = `${global.env.KIT_EDITOR} --line ${line} ${file}`
 
   let config = execConfig()
 
