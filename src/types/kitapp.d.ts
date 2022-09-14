@@ -358,6 +358,7 @@ export interface ChannelMap {
   [Channel.SET_PROMPT_PROP]: any
   [Channel.SET_READY]: boolean
   [Channel.SET_RESIZE]: boolean
+  [Channel.SET_RESIZING]: boolean
   [Channel.SET_SCRIPT]: Script
   [Channel.SET_SCRIPT_HISTORY]: Script[]
   [Channel.SET_SPLASH_BODY]: string
@@ -402,6 +403,7 @@ export interface ChannelMap {
 
   [Channel.VERIFY_FULL_DISK_ACCESS]: undefined
   [Channel.SET_ALWAYS_ON_TOP]: boolean
+  [Channel.SET_APPEARANCE]: "light" | "dark" | "auto"
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
@@ -545,6 +547,10 @@ export interface Keyboard {
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
+export interface SetAppearance {
+  (appearance: "light" | "dark" | "auto"): Promise<void>
+}
+
 export interface ExecLog {
   (
     command: string,
@@ -638,6 +644,7 @@ export interface AppApi {
 
   focus: () => Promise<void>
   setAlwaysOnTop: (alwaysOnTop: boolean) => Promise<void>
+  setAppearance: SetAppearance
 }
 
 export interface Background {
@@ -727,4 +734,6 @@ declare global {
   var setAlwaysOnTop: (
     alwaysOnTop: boolean
   ) => Promise<void>
+
+  var setAppearance: SetAppearance
 }

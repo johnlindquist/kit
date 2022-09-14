@@ -681,7 +681,7 @@ export let trashScript = async (script: Script) => {
 export let getScriptFiles = async (kenv = kenvPath()) => {
   let scriptsPath = path.join(kenv, "scripts")
   if (!(await isDir(scriptsPath))) {
-    global.log(`${scriptsPath} isn't a valid kenv dir`)
+    // global.log(`${scriptsPath} isn't a valid kenv dir`)
     return []
   }
 

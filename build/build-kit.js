@@ -21,6 +21,7 @@ let knodePath = (...parts) =>
 
 if (existsSync(kitPath())) rm("-rf", kitPath())
 await ensureDir(kitPath())
+await ensureDir(knodePath())
 
 let installNodeWin = async () => {
   let { Extract } = await import("unzipper")

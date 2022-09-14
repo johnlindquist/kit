@@ -759,6 +759,7 @@ global.emoji = async (config?: PromptConfig) => {
     enter: "Select",
     shortcuts: [backToMainShortcut],
     ignoreBlur: true,
+    width: 360,
     ...config,
   })
 }
@@ -1392,11 +1393,7 @@ let __pathSelector = async (
 ) => {
   await setIgnoreBlur(true)
   await setAlwaysOnTop(true)
-  let verified = await verifyFullDiskAccess()
-  if (!verified) {
-    await run(kitPath("help", "info-full-disk-access.js"))
-    exit()
-  }
+
   let startPath = ``
   let focusOn = ``
   let onInputHook = null
@@ -1469,7 +1466,7 @@ let __pathSelector = async (
       targetPath === home("Desktop")
 
     if (needsPermission) {
-      const testFile = createPathResolver(targetPath)(
+      let testFile = createPathResolver(targetPath)(
         `._kit_test_file_${Date.now()}.txt`
       )
       await writeFile(testFile, `success`)
@@ -2030,4 +2027,8 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
 
 global.getExtraLibs = async (): Promise<ExtraLib[]> => {
   return [...(await addNodeLibs()), ...(await addKitLibs())]
+}
+
+global.setAppearance = async appearance => {
+  await sendWait(Channel.SET_APPEARANCE, appearance)
 }
