@@ -7,9 +7,11 @@ interface Notify {
 }
 
 global.notify = notification => {
-  return typeof notification === "string"
-    ? notifier.notify({ message: notification })
-    : notifier.notify(notification)
+  let options =
+    typeof notification === "string"
+      ? { message: notification }
+      : notification
+  return notifier.notify({ timeout: false, ...options })
 }
 declare global {
   var notify: Notify
