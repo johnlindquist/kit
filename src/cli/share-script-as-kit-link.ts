@@ -14,8 +14,9 @@ copy(link)
 
 let message = `Copied kit:// share link to clipboard`
 
+setAlwaysOnTop(true)
 await div(
-  md(`### ${message}
+  md(`## ${message}
 
 [${link}](${link})
 `)

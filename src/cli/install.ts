@@ -63,7 +63,7 @@ let packages = await arg(
   async input => {
     log({ input })
     if (!input || input?.length < 3)
-      return md(`### Type to search npm packages`)
+      return md(`## Type to search npm packages`)
     type pkgs = {
       objects: {
         package: {

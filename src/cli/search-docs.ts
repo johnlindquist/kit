@@ -6,7 +6,7 @@ let search = async input => {
   if (!input) return
   try {
     let { stdout } =
-      await $`grep -ri --include='*.md' '^### .*${input}' ~/.kit/docs`
+      await $`grep -ri --include='*.md' '^## .*${input}' ~/.kit/docs`
 
     let results = stdout.split("\n")
     let choices = Promise.all(
@@ -17,7 +17,7 @@ let search = async input => {
         //   await $`grep '^# .*' ${filePath}`
 
         return {
-          name: preview.split(`### `)[1],
+          name: preview.split(`## `)[1],
           value: filePath,
           description: filePath,
         }

@@ -283,7 +283,6 @@ export let scriptValue: ScriptValue =
   }
 
 type AppDb = {
-  needsRestart: boolean
   version: string
   openAtLogin: boolean
   previewScripts: boolean
@@ -292,7 +291,6 @@ type AppDb = {
 }
 
 export const appDefaults = {
-  needsRestart: false,
   version: "0.0.0",
   autoUpdate: true,
   tray: true,

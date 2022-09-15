@@ -10,8 +10,9 @@ let message = `Copied content of "${path.basename(
   filePath
 )}" to clipboard`
 
+setAlwaysOnTop(true)
 await div(
-  md(`### ${message}
+  md(`## ${message}
 
 ~~~js
 ${content}

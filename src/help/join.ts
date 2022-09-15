@@ -7,7 +7,7 @@ setChoices([])
 let email = await arg(
   "Enter e-mail to join newsletter:",
   await highlight(`
-### Script Kit Newletters include:
+## Script Kit Newletters include:
 * Tips for writing scripts
 * Community script highlights
 * Automation ideas
@@ -20,7 +20,7 @@ await post(`https://scriptkit.com/api/subscribe`, {
 })
 
 await div(
-  md(`### Thanks! Make sure to confirm in your mail app 😇`)
+  md(`## Thanks! Make sure to confirm in your mail app 😇`)
 )
 
 if (process.env.KIT_CONTEXT === "app") {

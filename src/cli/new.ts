@@ -25,7 +25,7 @@ let name = await arg({
   enter: `Create script and open in editor`,
 })
 
-// div(md(`### Opening ${name}...`))
+// div(md(`## Opening ${name}...`))
 
 let { dirPath: selectedKenvPath } = await selectKenv({
   placeholder: `Select Where to Create Script`,

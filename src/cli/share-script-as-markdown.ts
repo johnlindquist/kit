@@ -16,7 +16,7 @@ let octokit = new Octokit({
 
 let fileBasename = path.basename(filePath)
 
-div(md(`### Creating Gist...`))
+div(md(`## Creating Gist...`))
 setLoading(true)
 
 let content = await readFile(filePath, "utf8")
@@ -43,9 +43,10 @@ ${content}
 
 copy(discussionPost)
 
+setAlwaysOnTop(true)
 let message = `Copied ${command} to clipboard as markdown`
 await div(
-  md(`### ${message}
+  md(`## ${message}
 
 ~~~markdown
 ${discussionPost}

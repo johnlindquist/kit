@@ -20,7 +20,7 @@ let input = await arg(
     return await new Promise((res, rej) => {
       suggest(input, (err, suggestions) => {
         if (err) {
-          res(`### Error: ${err}`)
+          res(`## Error: ${err}`)
         } else {
           res(suggestions)
         }

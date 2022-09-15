@@ -9,8 +9,8 @@ let onInput = async input => {
     !input
       ? noInput
       : exists
-      ? `### ⚠️ A kenv named \`${input}\` already exists`
-      : `### Create a kit environment
+      ? `## ⚠️ A kenv named \`${input}\` already exists`
+      : `## Create a kit environment
 \`${newKenvPath}\`
   
 > Next time you create a script, you will be prompted to select a kit environment.`

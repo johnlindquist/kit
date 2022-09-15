@@ -18,7 +18,7 @@ if (dbPathExists) {
   let contents = await readFile(dbPath, "utf-8")
   let highlightedContents = await highlight(
     `
-### ${command}
+## ${command}
 ~~~json
 ${contents}
 ~~~`

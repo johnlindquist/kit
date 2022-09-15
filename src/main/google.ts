@@ -65,7 +65,7 @@ await arg(
   },
   async input => {
     if (!input || input?.length < 2)
-      return md(`### Type at least 2 characters`)
+      return md(`## Type at least 2 characters`)
     currentInput = input
     let response = await google.search(input, options)
     let definitions = response?.dictionary?.definitions

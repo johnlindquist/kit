@@ -8,9 +8,9 @@ if (!(await isDir(kenvsDir))) {
 
 // TODO: Better example kenvs
 
-let panel = md(`### Full url or \`user/repo\` for github
+let panel = md(`## Full url or \`user/repo\` for github
 
-### Examples
+## Examples
 * [\`johnlindquist/kit-examples\`](submit:johnlindquist/kit-examples)
 * [\`https://github.com/johnlindquist/kit-examples\`](submit:https://github.com/johnlindquist/kit-examples)
 
@@ -42,10 +42,10 @@ let validate = async input => {
 let onInput = async input => {
   let exists = await isDir(kenvPath("kenvs", input))
   let panel = !input
-    ? md(`### ⚠️ A kenv name is required`)
+    ? md(`## ⚠️ A kenv name is required`)
     : exists
-    ? md(`### ⚠️ A kenv named "${input}" already exists`)
-    : md(`### Will clone to:
+    ? md(`## ⚠️ A kenv named "${input}" already exists`)
+    : md(`## Will clone to:
 \`${kenvPath("kenvs", input)}\``)
   setPanel(panel)
 }

@@ -22,7 +22,7 @@ let result = await arg(
   async input => {
     input = String(input).trim() || ""
     if (!input || input === "undefined")
-      return md(`### Waiting for input...`)
+      return md(`## Waiting for input...`)
     try {
       if (input?.length < 2) {
         return format(input)

@@ -57,7 +57,7 @@ let filePath = await arg(
       if (!input || input?.length < 3) {
         setChoices([])
         setPanel(
-          md(`### Please type more than 2 characters:`)
+          md(`## Please type more than 2 characters:`)
         )
         return
       }
@@ -83,7 +83,7 @@ let filePath = await arg(
     } catch (error) {
       setChoices([])
       setPanel(
-        md(`### No Results
+        md(`## No Results
       
 <code>${command}</code> failed`)
       )

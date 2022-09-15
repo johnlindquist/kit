@@ -7,7 +7,7 @@ let { filePath, command } = await selectScript(
   `Share which script?`
 )
 
-div(md(`### Creating Gist...`))
+div(md(`## Creating Gist...`))
 setLoading(true)
 
 let octokit = new Octokit({
@@ -48,8 +48,11 @@ exec(
 )
 
 let message = `Copied ${command} to clipboard as markdown`
+
+setAlwaysOnTop(true)
+setIgnoreBlur(true)
 await div(
-  md(`### ${message}
+  md(`## ${message}
 
 ~~~markdown
 ${discussionPost}

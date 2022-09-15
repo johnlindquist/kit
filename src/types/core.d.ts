@@ -178,6 +178,8 @@ export interface PromptData {
   y: number
   width: number
   height: number
+  itemHeight: number
+  defaultValue: string
 }
 
 export interface GenerateChoices {

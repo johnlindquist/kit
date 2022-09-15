@@ -222,7 +222,7 @@ let createOnChoiceFocusDefault = (
         try {
           preview = await choice?.preview(choice)
         } catch {
-          preview = md(`### ⚠️ Failed to render preview`)
+          preview = md(`## ⚠️ Failed to render preview`)
         }
       }
 
@@ -1440,10 +1440,10 @@ let __pathSelector = async (
         })
         setChoices(choices)
       } catch {
-        setPanel(md(`### Failed to read ${startPath}`))
+        setPanel(md(`## Failed to read ${startPath}`))
       }
     } else {
-      setPanel(md(`### ${startPath} is not a path`))
+      setPanel(md(`## ${startPath} is not a path`))
     }
   }
 
@@ -1588,13 +1588,13 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     let hasExtension = path.extname(input) !== ""
     if (hasExtension) {
       setPanel(
-        md(`### Create File
+        md(`## Create File
 
 <code>${input}</code>`)
       )
     } else {
       setPanel(
-        md(`### Create directory
+        md(`## Create directory
 
 <code>${input}</code>`)
       )

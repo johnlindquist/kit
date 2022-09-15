@@ -6,7 +6,7 @@ let { filePath, command } = await selectScript(
   `Share which script?`
 )
 
-div(md(`### Creating Gist...`))
+div(md(`## Creating Gist...`))
 setLoading(true)
 
 let octokit = new Octokit({
@@ -33,8 +33,9 @@ copy(link)
 
 let message = `Copied share link to clipboard`
 
+setAlwaysOnTop(true)
 await div(
-  md(`### ${message}
+  md(`## ${message}
 
 [${link}](${link})
 `)
