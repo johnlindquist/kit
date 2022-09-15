@@ -126,3 +126,4 @@ fifo
 kit.sock
 .kitignore
 TODO.md
+.idea
