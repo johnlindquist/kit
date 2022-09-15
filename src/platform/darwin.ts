@@ -229,6 +229,14 @@ let code = async (file, dir, line = 0, col = 0) => {
   execaCommandSync(command, config)
 }
 
+let webstorm = async (file, dir, line = 0) => {
+  let command = `open -na "WebStorm.app" --args --line ${line} ${file}`
+
+  let config = execConfig()
+
+  execaCommandSync(command, config)
+}
+
 let vim = terminalEditor("vim")
 let nvim = terminalEditor("nvim")
 let nano = terminalEditor("nano")
@@ -238,6 +246,7 @@ let fullySupportedEditors = {
   nvim,
   nano,
   atom,
+  webstorm
 }
 
 global.edit = async (f, dir, line = 0, col = 0) => {
