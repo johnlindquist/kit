@@ -2,104 +2,145 @@
 // Description: Options and Helpers
 
 import { Choice } from "../types/core"
-import { CLI } from "../cli"
+import { kitMode, run } from "../core/utils.js"
+import { getDocs } from "../cli/lib/utils.js"
 
-import { cmd, kitMode, run } from "../core/utils.js"
-import { addPreview, findDoc } from "../cli/lib/utils.js"
+let docs = await getDocs()
+let containerClasses = "p-5 prose dark:prose-dark prose-sm"
+let createPreview =
+  (dir: string, file: string) => async () => {
+    try {
+      let doc = docs.find(
+        d => d.dir === dir && d.file === file
+      )
+      return await highlight(doc.content, containerClasses)
+    } catch (error) {
+      return `Preview not found for ${dir}/${file}`
+    }
+  }
 
-// setFlags({
-//   discuss: {
-//     name: "Discuss topic on Kit Dicussions",
-//     description: "Open discussion in browser",
-//   },
-// })
-
-let kitManagementChoices: Choice<keyof CLI>[] = [
+let kitChoices: Choice<string>[] = [
+  {
+    name: "Get Help",
+    description: `Post a question to Script Kit GitHub discussions`,
+    value: kitPath("cli", "get-help.js"),
+    enter: "Open Script Kit Discussions",
+    preview: createPreview("help", "get-help"),
+  },
+  {
+    name: "Subscribe to Newsletter",
+    description: `Receive a newsletter with examples and tips`,
+    value: kitPath("help", "join.js"),
+    preview: createPreview("help", "join"),
+    enter: "Subscribe",
+  },
+  {
+    name: "Script Kit FAQ",
+    description: `Frequently asked questions`,
+    value: kitPath("help", "faq.js"),
+    enter: "Open Script Kit FAQ",
+    preview: createPreview("help", "faq"),
+  },
   {
     name: "View Schedule",
     description: "View and edit upcoming jobs",
-    value: "schedule",
+    value: kitPath("cli", "schedule.js"),
+    preview: createPreview("help", "schedule"),
   },
   {
     name: "System Scripts",
     description: "View and edit system event scripts",
-    value: "system-events",
+    value: kitPath("cli", "system-events.js"),
+    preview: createPreview("kit", "system-events"),
   },
 
   {
     name: "Manage kenvs",
     description: "Add/Remove/Update repos of scripts",
-    value: "kenv-manage",
+    value: kitPath("cli", "kenv-manage.js"),
+    preview: createPreview("kit", "kenv-manage"),
   },
 
   {
     name: "Add ~/.kit/bin to $PATH",
     description: `Looks for your profile and appends to $PATH`,
-    value: "add-kit-to-profile",
+    value: kitPath("cli", "add-kit-to-profile.js"),
+    preview: createPreview("kit", "add-kit-to-profile"),
   },
   {
     name: "Add kenv bin to $PATH",
     description: `Select a kenv bin dir to append profile $PATH`,
-    value: "add-kenv-to-profile",
+    value: kitPath("cli", "add-kenv-to-profile.js"),
+    preview: createPreview("kit", "add-kenv-to-profile"),
   },
   {
     name: "Change App Shortcut",
     description:
       "Pick a new keyboard shortcut for the main menu",
-    value: "change-main-shortcut",
+    value: kitPath("cli", "change-main-shortcut.js"),
+    preview: createPreview("kit", "change-main-shortcut"),
   },
   {
     name: "Change Script Shortcut",
     description:
       "Pick a new keyboard shortcut for a script",
-    value: "change-shortcut",
+    value: kitPath("cli", "change-shortcut.js"),
+    preview: createPreview("kit", "change-shortcut"),
   },
   {
     name: "Generate bin Files",
     description: "Recreate all the terminal executables",
-    value: "create-all-bins",
+    value: kitPath("cli", "create-all-bins.js"),
+    preview: createPreview("kit", "create-all-bins"),
   },
 
   {
     name: "Change Editor",
     description: "Pick a new editor",
-    value: "change-editor",
+    value: kitPath("cli", "change-editor.js"),
+    preview: createPreview("kit", "change-editor"),
   },
   {
     name: "Clear Kit Prompt Cache",
     description: "Reset prompt position and sizes",
-    value: "kit-clear-prompt",
+    value: kitPath("cli", "kit-clear-prompt.js"),
+    preview: createPreview("kit", "kit-clear-prompt"),
   },
   {
     name: "Manage npm packages",
     description: `add or remove npm package`,
-    value: "manage-npm",
+    value: kitPath("cli", "manage-npm.js"),
+    preview: createPreview("kit", "manage-npm"),
   },
   kitMode() === "ts"
     ? {
         name: "Switch to JavaScript Mode",
         description: "Sets .env KIT_MODE=js",
-        value: "switch-to-js",
+        value: kitPath("cli", "switch-to-js.js"),
+        preview: createPreview("kit", "switch-to-js"),
       }
     : {
         name: "Switch to TypeScript mode",
         description: "Sets .env KIT_MODE=ts",
-        value: "switch-to-ts",
+        value: kitPath("cli", "switch-to-ts.js"),
+        preview: createPreview("kit", "switch-to-ts"),
       },
   {
     name: "Sync $PATH from Terminal to Kit.app",
     description: "Set .env PATH to the terminal $PATH",
-    value: "sync-path-instructions",
+    value: kitPath("cli", "sync-path-instructions.js"),
+    preview: createPreview("kit", "sync-path-instructions"),
   },
   {
     name: "Update Kit.app",
     description: `Version: ${env.KIT_APP_VERSION}`,
-    value: "update",
+    value: kitPath("cli", "update.js"),
+    preview: createPreview("kit", "update"),
   },
   {
     name: "Open kit.log",
     description: `Open ~/.kit/logs/kit.log in ${env.KIT_EDITOR}`,
-    value: "kit-log",
+    value: kitPath("cli", "kit-log.js"),
     preview: async () => {
       let logFile = await readFile(
         kitPath("logs", "kit.log"),
@@ -126,34 +167,42 @@ ${md(`# Latest 100 Log Lines`)}
       `
     },
   },
-  {
-    name: "View Editor History",
-    description: "View editor history",
-    value: "editor-history",
-  },
+  // {
+  //   name: "View Editor History",
+  //   description: "View editor history",
+  //   value: kitPath("cli", "editor-history.js"),
+  // },
   {
     name: "Edit .env",
     description: `Open ~/.kenv/.env in ${env.KIT_EDITOR}`,
-    value: "env",
+    value: kitPath("cli", "env.js"),
   },
   {
     name: "Settings",
     description: "Open settings/preferences",
-    value: "settings",
+    value: kitPath("cli", "settings.js"),
     enter: "Open app.json",
+    preview: createPreview("kit", "settings"),
+  },
+  {
+    name: "Download Latest Docs",
+    description: `Pull latest docs.json from scriptkit.com`,
+    value: "download-docs",
   },
   {
     name: "Credits",
     description: `The wonderful people who make Script Kit`,
-    value: "credits",
+    value: kitPath("cli", "credits.js"),
     enter: "View @johnlindquist on Twitter",
+    preview: createPreview("kit", "credits"),
     // img: kitPath("images", "icon.png"),
   },
   {
     name: "Quit",
     description: `Quit Script Kit`,
-    value: "quit",
+    value: kitPath("cli", "quit.js"),
     enter: "Quit",
+    preview: createPreview("kit", "quit"),
   },
 ]
 
@@ -168,7 +217,7 @@ let onNoChoices = async (input: string) => {
   )
 }
 
-let cliScript = await arg(
+let scriptPath = await arg(
   {
     placeholder: `Kit Options`,
     strict: false,
@@ -180,7 +229,7 @@ let cliScript = await arg(
     shortcuts: [],
     enter: "Select",
   },
-  await addPreview(kitManagementChoices, "kit", true)
+  kitChoices
 )
 
 if (!hasChoices) {
@@ -188,7 +237,9 @@ if (!hasChoices) {
     `https://github.com/johnlindquist/kit/discussions/categories/q-a`
   )
 } else {
-  await run(kitPath("cli", cliScript) + ".js")
+  if (await isFile(scriptPath)) {
+    await run(scriptPath)
+  }
 }
 
 export {}

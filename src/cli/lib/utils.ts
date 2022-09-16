@@ -61,7 +61,23 @@ export let createBinFromScript = async (
   global.chmod(755, binFilePath)
 }
 
-export let getDocs = async () => {
+interface Doc {
+  avatar?: string
+  twitter?: string
+  author?: string
+  discussion: string
+  url: string
+  title: string
+  command: string
+  content: string
+  extension: string
+  dir: string
+  file: string
+  description?: string
+  tag: string
+}
+
+export let getDocs = async (): Promise<Doc[]> => {
   let docsPath = kitPath("data", "docs.json")
   if (await isFile(docsPath)) {
     return await readJson(docsPath)
@@ -77,22 +93,6 @@ export let findDoc = async (dir, file: any) => {
   })
 
   return doc
-}
-
-interface Doc {
-  avatar?: string
-  twitter?: string
-  author?: string
-  discussion: string
-  url: string
-  title: string
-  command: string
-  content: string
-  extension: string
-  dir: string
-  file: string
-  description?: string
-  tag: string
 }
 
 export let addPreview = async (

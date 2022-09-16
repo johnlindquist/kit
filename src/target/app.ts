@@ -759,7 +759,8 @@ global.emoji = async (config?: PromptConfig) => {
     enter: "Select",
     shortcuts: [backToMainShortcut],
     ignoreBlur: true,
-    width: 360,
+    width: 350,
+    height: 510,
     ...config,
   })
 }
@@ -878,7 +879,9 @@ global.form = async (html = "", formData = {}) => {
 let maybeWrapHtml = (html, containerClasses) => {
   return html?.length === 0
     ? `<div/>`
-    : `<div class="${containerClasses}">${html}</div>`
+    : containerClasses
+    ? `<div class="${containerClasses}">${html}</div>`
+    : html
 }
 
 global.div = async (
@@ -1440,10 +1443,10 @@ let __pathSelector = async (
         })
         setChoices(choices)
       } catch {
-        setPanel(md(`## Failed to read ${startPath}`))
+        setPanel(md(`### Failed to read ${startPath}`))
       }
     } else {
-      setPanel(md(`## ${startPath} is not a path`))
+      setPanel(md(`### ${startPath} is not a path`))
     }
   }
 

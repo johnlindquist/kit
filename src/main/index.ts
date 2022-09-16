@@ -6,8 +6,9 @@
 // Log: false
 setDescription(`Script Kit`)
 export interface Main {
+  api: Promise<typeof import("./api")>
   edit: Promise<typeof import("./edit")>
-  help: Promise<typeof import("./help")>
+  guide: Promise<typeof import("./guide")>
   hot: Promise<typeof import("./hot")>
   index: Promise<typeof import("./index")>
   kenv: Promise<typeof import("./kenv")>
@@ -43,8 +44,12 @@ onTab("Kit", async (input = "") => {
   await main("kit", "--input", input)
 })
 
-onTab("Examples", async (input = "") => {
-  await main("help", "--input", input)
+onTab("API", async (input = "") => {
+  await main("api", "--input", input)
+})
+
+onTab("Guide", async (input = "") => {
+  await main("guide", "--input", input)
 })
 
 onTab("Community", async (input = "") => {
