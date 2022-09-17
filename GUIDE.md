@@ -872,3 +872,207 @@ Kit.app requires accessibility permission for the following reasons:
 ❗️ **You must quit Kit.app and re-open it for changes to take effect.** 
 
 ![osx preferences panel](https://user-images.githubusercontent.com/36073/174673600-59020e49-be04-4786-81f7-5bbe20a9ce6c.png)
+
+## Submit From Live Data
+
+Some scenarios require `setInterval` or other "live data" utils. This means you can't use `await` on the arg/div/textarea/etc because `await` prevents the script from continuing on to start the `setInterval`.
+
+![CleanShot 2021-11-28 at 08 58 04](https://user-images.githubusercontent.com/36073/143775792-34c1fb15-21b9-4690-b8e2-23e1447f65e5.gif)
+
+Use the Promise `then` on arg/div/textarea/etc to allow the script to continue to run to the `setInterval`. Inside of the `then` callback, you will have to clear the interval for your script to continue/complete:
+
+```js
+let intervalId = 0
+div(md(`Click a value`)).then(async value => {
+  clearInterval(intervalId)
+
+  await div(md(value))
+})
+
+intervalId = setInterval(() => {
+  let value = Math.random()
+
+  setPanel(
+    md(`
+  [${value}](submit:${value})
+  `)
+  )
+}, 1000)
+```
+
+
+## Strict Mode
+
+`strict` is enabled by default and it forces the user to pick an item from the list, preventing them from entering their own text.
+
+When you disabled `strict`, if you type something that eliminates the entire list, then hit <kbd>Enter</kbd>, the string from the input will be passed back.
+
+> Note: If the list values are Objects and the user inputs a String, you will need to handle either type being returned
+
+```js
+// If the list is completely filtered, hitting enter does nothing.
+let fruit = await arg(`You can only pick one`, [
+  `Apple`,
+  `Banana`,
+  `Orange`,
+])
+
+// If the list is completely filtered, hitting enter sends whatever
+// is currently in the input.
+let fruitOrInput = await arg(
+  {
+    placeholder: `Pick a fruit or type anything`,
+    strict: false,
+  },
+  [`Apple`, `Banana`, `Orange`]
+)
+
+await textarea(`${fruit} and ${fruitOrInput}`)
+```
+
+
+## Quick Keys
+
+A quick key allows you to bind a single key to submit a prompt.
+
+You can add quick keys inside the "hint" if you don't want to bother with choices:
+
+```js
+//Type "y" or "n"
+let confirm = await arg({
+  placeholder: "Eat a taco?",
+  hint: `[y]es/[n]o`,
+})
+
+console.log(confirm) //"y" or "n"
+```
+
+Otherwise, add the quick keys in the `name` of the choices and it will return the quick key:
+
+```js
+ // Type "a", "b", or "g"
+let fruit = await arg(`Pick one`, [
+  `An [a]pple`,
+  `A [b]anana`,
+  `a [g]rape`,
+])
+
+console.log(fruit) //"a", "b", or "g"
+```
+
+You can add a value, then typing the quick key will return the value:
+
+```js
+// Type "c" or "a"
+let vegetable = await arg("Pick a veggie", [
+  { name: "[C]elery", value: "Celery" },
+  { name: "C[a]rrot", value: "Carrot" },
+])
+
+console.log(vegetable) //"Celery" or "Carrot"
+```
+
+
+
+## Position a Widget on Screen
+
+You can control the size/position of each `show` window you create, but you'll need some info from the current screen (especially with a multi-monitor setup!) to be able to position the window where you want it:
+
+```js
+let width = 480
+let height = 320
+
+let { workArea } = await getActiveScreen()
+let { x, y, width: workAreaWidth } = workArea
+
+await widget(
+  md(`
+# I'm in the top right of the current screen!
+
+<div class="flex justify-center text-9xl">
+😘
+</div>
+`),
+  {
+    width,
+    height,
+    x: x + workAreaWidth - width,
+    y: y,
+  }
+)
+```
+
+## Update on Input
+
+When you pass a function as the second argument of `arg`, you can take the current `input` and return a string. Kit.app will then render the results as HTML. The simplest example looks like this:
+
+```js
+await arg("Start typing", input => input)
+```
+
+If you want to make it look a bit nicer, you can wrap the output with some HTML:
+
+```js
+await arg(
+  "Type something",
+  input =>
+    `<div class="text-3xl flex justify-center items-center p-5">
+${input || `Waiting for input`}
+</div>`
+)
+```
+
+Growing on the example above, here's a Celsius to Fahrenheit converter:
+
+```js
+let cToF = celsius => {
+  return (celsius * 9) / 5 + 32
+}
+
+await arg(
+  "Enter degress in celsius",
+  input =>
+    `<div class="text-3xl flex justify-center items-center p-5">
+${input ? cToF(input) + "f" : `Waiting for input`}
+</div>`
+)
+```
+
+## Clone Git Repos with degit
+
+We're developers. We clone project templates from github. [degit](https://www.npmjs.com/package/degit) is available on the global scope for exactly this scenario.
+
+```js
+let projectName = await arg("Name your project")
+let targetDir = home("projects", projectName)
+
+await degit(`https://github.com/sveltejs/template`).clone(
+  targetDir
+)
+
+edit(targetDir)
+```
+
+## View Logs
+
+When you use `console.log()` in a script, it writes the log out to a relative directory.
+
+For example:
+
+`~/.kenv/scripts/my-script.js`
+
+will write logs to:
+
+`~/.kenv/logs/my-script.log`
+
+You can view the live output of a log in your terminal with:
+
+```sh
+tail -f ~/.kenv/logs/my-script.log
+```
+
+If you want to watch the main log, you can use:
+
+```sh
+tail -f ~/.kit/logs/kit.log
+```
