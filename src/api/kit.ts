@@ -749,8 +749,18 @@ global.highlight = async (
 ) => {
   let { default: hljs } = await import("highlight.js")
 
+  let renderer = new marked.Renderer()
+  renderer.paragraph = p => {
+    // Convert a tag with href .mov, .mp4, or .ogg video links to video tags
+    if (p.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
+      let url = p.match(/href="(.*)"/)[1]
+      return `<video controls src="${url}" style="max-width: 100%;"></video>`
+    }
+
+    return p
+  }
   global.marked.setOptions({
-    renderer: new global.marked.Renderer(),
+    renderer,
     highlight: function (code, lang) {
       const language = hljs.getLanguage(lang)
         ? lang

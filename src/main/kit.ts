@@ -185,9 +185,9 @@ ${md(`# Latest 100 Log Lines`)}
     preview: createPreview("kit", "settings"),
   },
   {
-    name: "Download Latest Docs",
-    description: `Pull latest docs.json from scriptkit.com`,
-    value: "download-docs",
+    name: "Update API and Guide",
+    description: `Download latest version of API.md and GUIDE.md`,
+    value: "download-md",
   },
   {
     name: "Credits",

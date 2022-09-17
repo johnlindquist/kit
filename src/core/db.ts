@@ -91,7 +91,13 @@ export let db = async <T = any>(
 
     _db.data = await getData()
 
-    await _db.write()
+    try {
+      await _db.write()
+    } catch (error) {
+      if (global.warn) {
+        global.warn(error)
+      }
+    }
   }
 
   return new Proxy({} as any, {
