@@ -17,7 +17,7 @@ let currentInput = ``
 let title = ``
 let url = ``
 
-let onPress = async () => {
+let pasteOptions = async () => {
   let asMarkdown = `[${title}](${url})`
   let asInputMarkdown = `[${currentInput}](${url})`
 
@@ -53,9 +53,20 @@ await arg(
     shortcuts: [
       {
         name: `Paste`,
+        key: `${cmd}+shift+v`,
+        bar: `right`,
+        onPress: pasteOptions,
+      },
+      {
+        name: `Open and keep focus`,
         key: `${cmd}+enter`,
         bar: `right`,
-        onPress,
+        onPress: async () => {
+          setAlwaysOnTop(true)
+          setIgnoreBlur(true)
+          open(url)
+          setTimeout(focus, 100)
+        },
       },
     ],
     onChoiceFocus: async (_, { focused }) => {
