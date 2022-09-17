@@ -30,7 +30,7 @@ if (arg?.url) {
   contents = (await get<string>(arg?.url)).data
 }
 
-mkdir("-p", path.dirname(scriptPath))
+await ensureDir(path.dirname(scriptPath))
 await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)

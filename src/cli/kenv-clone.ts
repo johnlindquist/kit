@@ -3,7 +3,7 @@
 let kenvsDir = kenvPath("kenvs")
 
 if (!(await isDir(kenvsDir))) {
-  mkdir("-p", kenvsDir)
+  await ensureDir(kenvsDir)
 }
 
 // TODO: Better example kenvs

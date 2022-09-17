@@ -1,5 +1,92 @@
 # Script Kit Guide
 
+
+## Input Text with `await arg()`
+
+The simplest form of input you can accept from a user is an `arg()`
+
+```js
+// Name: Input Text
+
+import "@johnlindquist/kit"
+
+let name = await arg("Enter your name")
+
+await div(md(`Hello, ${name}`))
+```
+
+## Select From a List of Strings
+
+```js
+// Name: Select From a List
+
+import "@johnlindquist/kit"
+
+let fruit = await arg("Pick a fruit", [
+  "Apple",
+  "Banana",
+  "Cherry",
+])
+
+await div(md(`You selected ${fruit}`))
+```
+
+## Select From a List of Objects
+
+```js
+// Name: Select From a List of Objects
+
+import "@johnlindquist/kit"
+
+let { size, weight } = await arg("Select a Fruit", [
+  {
+    name: "Apple",
+    description: "A shiny red fruit",
+    // add any properties to "value"
+    value: {
+      size: "small",
+      weight: 1,
+    },
+  },
+  {
+    name: "Banana",
+    description: "A long yellow fruit",
+    value: {
+      size: "medium",
+      weight: 2,
+    },
+  },
+])
+
+await div(
+  md(
+    `You selected a fruit with size: ${size} and weight: ${weight}`
+  )
+)
+```
+
+## Display a Preview When Focusing a Choice
+
+```js
+// Name: Display a Preview When Focusing a Choice
+
+import "@johnlindquist/kit"
+
+let heights = [320, 480, 640]
+let choices = heights.map(h => {
+  return {
+    name: `Kitten height: ${h}`,
+    preview: () =>
+      `<img class="w-full" src="http://placekitten.com/640/${h}"`,
+    value: h,
+  }
+})
+
+let height = await arg("Select a Kitten", choices)
+
+await div(md(`You selected ${height}`))
+```
+
 ## Creating Previews
 
 Each choice in an `arg` can have an associated `preview`. Previews gracefully enhance from a string all the way up to multiple async functions that return strings based on choice.
@@ -102,13 +189,17 @@ Just type some text to see the choices update
 
 ## Display HTML
 
-Use the `div` method to display html.
+Use `await div('')` to display HTML.
 
 ```js
-await div(`<h1>Hi</h1>`)
+// Name: Display HTML
+
+import "@johnlindquist/kit"
+
+await div(`<h1>Hello World</h1>`)
 ```
 
-### Add Padding
+### Style the Container
 
 The second argument of `div` allows you to add [tailwind](https://tailwindcss.com/) classes to the container of your html. For example, `p-5` will add a `padding: 1.25rem;` to the container.
 
@@ -116,23 +207,32 @@ The second argument of `div` allows you to add [tailwind](https://tailwindcss.co
 await div(`<h1>Hi</h1>`, `p-5`)
 ```
 
-## Display Markdown
 
-Pass a string of markdown to the `md` method. This will convert the markdown to html which you can then pass to the `div`
+## Display HTML with CSS
+
+Script Kit bundles [Tailwind CSS](https://tailwindcss.com/).
 
 ```js
-let html = md(`
-# Hi
-`)
-await div(html)
+// Name: Display HTML with CSS
+
+import "@johnlindquist/kit"
+
+await div(
+  `<h1 class="p-10 text-4xl text-center">Hello World</h1>`
+)
 ```
 
-If you want to highlight your markdown, pass the markdown string to the `await highlight()` method:
+## Display Markdown
+
+The `md()` function will convert Markdown to HTML into HTML that you can pass into div. It will also add the default Tailwind styles so you won't have to think about formatting.
 
 ```js
-let html = await highlight(`
-# Hi
-`)
+// Name: Display Markdown
+
+import "@johnlindquist/kit"
+
+let html = md(`# Hello World`)
+
 await div(html)
 ```
 
@@ -228,7 +328,7 @@ while (true) {
 }
 ```
 
-[Open db-store in Script Kit](https://scriptkit.com/api/new?name=db-store&url=https://gist.githubusercontent.com/johnlindquist/a7cda43e196f6b6e38e4c66cba8cdb74/raw/8d93dc14970bac042763cb86b30456b32ba5fab7/db-store.js")
+
 
 ## Watch Files to Trigger Scripts
 
@@ -255,7 +355,7 @@ try {
 }
 ```
 
-[Open speak-file in Script Kit](https://scriptkit.com/api/new?name=speak-file&url=https://gist.githubusercontent.com/johnlindquist/ec65920283c6ef66429a2331cdc81539/raw/98584e1ee1cb6b5f4f235a6873bdfcb709dfb953/speak-file.js")
+
 
 ### Watch a Directory
 
@@ -276,7 +376,7 @@ if (event === "add") {
 }
 ```
 
-[Open download-log in Script Kit](https://scriptkit.com/api/new?name=download-log&url=https://gist.githubusercontent.com/johnlindquist/395ced3283e44c8ed2fea885104a1346/raw/e9b03ddfb0ae969d2b82e45c41ac8680ea2e686b/download-log.js")
+
 
 ## Run Shell Commands
 
@@ -320,7 +420,7 @@ let response = await get(
 await div(md(response.data.message))
 ```
 
-[Open get-example in Script Kit](https://scriptkit.com/api/new?name=get-example&url=https://gist.githubusercontent.com/johnlindquist/cdef2447a1b49ad163a9c696369c930d/raw/65407970a7dd1af406b0cbee94e876e84822e16e/get-example.js")
+
 
 ### Make a Post Request
 
@@ -339,7 +439,7 @@ let response = await post(
 await div(md(response.data.message))
 ```
 
-[Open post-example in Script Kit](https://scriptkit.com/api/new?name=post-example&url=https://gist.githubusercontent.com/johnlindquist/8bac8a4e303fe21c93b93787c828419f/raw/fcb26d4eafa0fa36fcb88b02716e4503e130b375/post-example.js")
+
 
 ## Download Files
 
@@ -359,7 +459,25 @@ let filePath = home(fileName)
 await writeFile(filePath, buffer)
 ```
 
-[Open download-a-file in Script Kit](https://scriptkit.com/api/new?name=download-a-file&url=https://gist.githubusercontent.com/johnlindquist/b10dbc2218d7c229fd4ed9865739b46f/raw/b9108056d761cdf6b1e8ec5c7d218d11f4002e56/download-a-file.js")
+## Read a Text File
+
+You can use `readFile` to read a text file from your system:
+
+```js
+// Name: Read a Text File
+
+import "@johnlindquist/kit"
+
+// Download a readme for the sake of the example
+let fileUrl = `https://raw.githubusercontent.com/johnlindquist/kit/main/README.md`
+let filePath = home("README.md")
+let buffer = await download(fileUrl)
+await writeFile(filePath, buffer)
+
+// Read the file
+let contents = await readFile(filePath, "utf-8")
+await editor(contents)
+```
 
 ## Create a Text File
 
@@ -379,7 +497,7 @@ if (!exists) {
 }
 ```
 
-[Open create-a-text-file in Script Kit](https://scriptkit.com/api/new?name=create-a-text-file&url=https://gist.githubusercontent.com/johnlindquist/24794c9b9bfce36ff898d34019555012/raw/c222c46aefd322ae50c9f5fc9e70ba0d2ef74d26/create-a-text-file.js")
+
 
 ## Live Edit a Text File
 
@@ -402,53 +520,6 @@ await editor({
 })
 ```
 
-[Open update-a-text-file in Script Kit](https://scriptkit.com/api/new?name=update-a-text-file&url=https://gist.githubusercontent.com/johnlindquist/b9aa415d3870b8760c54ca57ccabd77d/raw/d3a4645c645dfb0d1749f1719aee817f723357fc/update-a-text-file.js")
-
-## Display HTML
-
-Use `await div('')` to display HTML.
-
-```js
-// Name: Display HTML
-
-import "@johnlindquist/kit"
-
-await div(`<h1>Hello World</h1>`)
-```
-
-[Open display-html in Script Kit](https://scriptkit.com/api/new?name=display-html&url=https://gist.githubusercontent.com/johnlindquist/ba1d6754436d898f8cebe8558647e720/raw/468e99941e8c63eff51ba24b6cb7c86bb9dd70fe/display-html.js")
-
-## Display HTML with CSS
-
-Script Kit bundles [Tailwind CSS](https://tailwindcss.com/).
-
-```js
-// Name: Display HTML with CSS
-
-import "@johnlindquist/kit"
-
-await div(
-  `<h1 class="p-10 text-4xl text-center">Hello World</h1>`
-)
-```
-
-[Open display-html-with-css in Script Kit](https://scriptkit.com/api/new?name=display-html-with-css&url=https://gist.githubusercontent.com/johnlindquist/02b7a43e5dd49f2e1508d8c110d12371/raw/1d80190f0cfce860078cec799fd614bd6f49a474/display-html-with-css.js")
-
-## Display Markdown
-
-The `md()` function will convert Markdown to HTML into HTML that you can pass into div. It will also add the default Tailwind styles so you won't have to think about formatting.
-
-```js
-// Name: Display Markdown
-
-import "@johnlindquist/kit"
-
-let html = md(`# Hello World`)
-
-await div(html)
-```
-
-[Open display-markdown in Script Kit](https://scriptkit.com/api/new?name=display-markdown&url=https://gist.githubusercontent.com/johnlindquist/84779dbf8e39212c672b16ee72c68ccf/raw/7e985c988fa6aa878e4c0040dac6b87b8cfb173c/display-markdown.js")
 
 ## Run a Script on a Schedule
 
@@ -463,7 +534,7 @@ import "@johnlindquist/kit"
 notify(`Stand up and stretch`)
 ```
 
-[Open stand-up-and-stretch in Script Kit](https://scriptkit.com/api/new?name=stand-up-and-stretch&url=https://gist.githubusercontent.com/johnlindquist/4a857741902927cc97e10db7a43b497d/raw/e01f61d697941fe0f0e90d51d5eb35f81b214be7/stand-up-and-stretch.ts")
+
 
 [Crontab.guru](https://crontab.guru/) is a great utility to help generate and understand cron syntax.
 
@@ -481,7 +552,7 @@ let KEY = await env("MY_KEY")
 await div(md(`You loaded ${KEY} from ~/.kenv/.env`))
 ```
 
-[Open env-example in Script Kit](https://scriptkit.com/api/new?name=env-example&url=https://gist.githubusercontent.com/johnlindquist/84068b5eb52a366b0746aff3f984f3dd/raw/c22f3160535158d2d38952b4a7ee22a105d9359f/env-example.js")
+
 
 ## Environment Variable Async Prompt
 
@@ -508,7 +579,7 @@ await div(
 )
 ```
 
-[Open choose-an-environment-variable in Script Kit](https://scriptkit.com/api/new?name=choose-an-environment-variable&url=https://gist.githubusercontent.com/johnlindquist/cbc1029ea6abcdb8658cc3919b05875c/raw/cc8ca92d9edc57e16e4fcf2978e5560c6c73ab71/choose-an-environment-variable.js")
+
 
 ## Share as a Gist, Link, URL, or Markdown
 
@@ -545,4 +616,259 @@ dev({
 })
 ```
 
-[Open play-with-data-in-chrome-devtools in Script Kit](https://scriptkit.com/api/new?name=play-with-data-in-chrome-devtools&url=https://gist.githubusercontent.com/johnlindquist/3202a35d448efd09c37c4b49b7f7c95a/raw/187da03b4dae7c1ebe6fb79bd1ea47f7a492cb38/play-with-data-in-chrome-devtools.js")
+
+
+
+
+## // Shortcut Metadata
+
+Use the `// Shortcut` metadata to add a global keyboard shortcut to any script
+
+```js
+// Shortcut: cmd shift j
+
+import "@johnlindquist/kit"
+
+say(`You pressed command shift j`)
+```
+
+```js
+// Shortcut: opt i
+
+import "@johnlindquist/kit"
+
+say(`You pressed option i`)
+```
+
+## // Shortcode Metadata
+
+A shortcode allows you quickly run a script without needing to search for it.
+
+To trigger a `// Shortcode`, type the string of characters from the main menu, then hit `spacebar`. In this example, you would type `oi` then `spacebar` to run this script:
+
+```js
+// Shortcode: oi
+
+import "@johnlindquist/kit"
+
+say(`You pressed option i`)
+```
+
+## Quick Submit from Hint
+
+A common pattern from Terminal is to quickly submit a script from a hint. Using a bracket around a single character will submit that character when pressed.
+
+```js
+import "@johnlindquist/kit"
+
+let value = await arg({
+  placeholder: "Continue?",
+  hint: `Another [y]/[n]`,
+})
+
+if (value === "y") {
+  say(`You pressed y`)
+} else {
+  say(`You pressed n`)
+}
+```
+
+## Quick Submit from Choice
+
+If you need to provide a little more information to the user, use a choice instead of a hint. This allows you to provide a full value that will be submitted instead of just the single letter.
+
+```js
+import "@johnlindquist/kit"
+
+let value = await arg("Select a food", [
+  {
+    name: "[a]pple",
+    value: "apple",
+  },
+  {
+    name: "[b]anana",
+    value: "banana",
+  },
+  {
+    name: "[c]heese",
+    value: "cheese",
+  },
+])
+
+await div(md(value))
+```
+
+
+
+## Run Scripts from Other Apps
+
+Are you a fan of one of these amazing tools?
+- [Keyboard Maestro](https://www.keyboardmaestro.com/main/)
+- [Better Touch Tool](https://folivora.ai/)
+- [Karabiner](https://karabiner-elements.pqrs.org/)
+- [Raycast](https://www.raycast.com/)
+- [Alfred](https://www.alfredapp.com/)
+
+We love all these tools! So we made sure the scripts you create in Script Kit can be invoked by them too:
+
+If you have a script named `center-app`, then you can paste the following snippet into the "scripts" section of any of these tools.
+
+```bash
+~/.kit/kar center-app
+```
+
+`kar` is an executable that takes the script name and sends it to Kit.app to run.
+
+> It's named `kar` because we're HUGE fans of  [karabiner](https://karabiner-elements.pqrs.org/) and using "kit kar" as a transport
+> for scripts into the app makes us giggle 😇
+
+Any arguments you pass to the script will also be sent along. So if you want to run `center-app` with a padding of `50`:
+
+```bash
+~/.kit/kar center-app 50
+```
+
+
+## Select a Path
+
+```js
+// Name: Select a Path
+
+import "@johnlindquist/kit"
+
+let filePath = await path()
+
+await div(md(`You selected ${filePath}`))
+```
+
+## Select a Path with Options
+
+```js
+// Name: Select a Path with Options
+
+import "@johnlindquist/kit"
+
+await path({
+  hint: `Select a path containing JS files`,
+  onlyDirs: true,
+  onChoiceFocus: async (input, { focused }) => {
+    let focusedPath = focused.value
+    try {
+      let files = await readdir(focusedPath)
+      let hasJS = files.find(f => f.endsWith(".js"))
+
+      setPreview(
+        md(
+          `${
+            hasJS ? "✅ Found" : "🔴 Didn't find"
+          } JS files`
+        )
+      )
+    } catch (error) {
+      log(error)
+    }
+  },
+})
+```
+
+
+## Select from Finder Prompts
+
+```js
+// Name: Select from Finder Prompt
+
+import "@johnlindquist/kit"
+
+let filePath = await selectFile()
+
+let folderPath = await selectFolder()
+
+await div(md(`You selected ${filePath} and ${folderPath}`))
+```
+
+## Built-in Terminal
+
+```js
+// Name: Run Commands in the Terminal
+
+import "@johnlindquist/kit"
+
+await term({
+  //defaults to home dir
+  cwd: `~/.kenv/scripts`,
+  command: `ls`,
+})
+```
+
+> The shell defaults to `zsh`. You can change your shell by setting the `KIT_SHELL` environment variable in the ~/kenv/.env, but most of the testing has been done with `zsh`.
+
+
+
+
+
+## Built-in Editor
+
+Script Kit ships with a built-in version of the Monaco editor. Use `await editor()` to switch to the editor prompt.
+
+```js
+// Name: Editor Example
+
+import "@johnlindquist/kit"
+
+let result = await editor()
+
+await div(md(result))
+```
+
+## Load Text in the Editor
+
+```js
+// Name: Load Text Into the Editor
+
+import "@johnlindquist/kit"
+
+let { data } = await get(
+  `https://raw.githubusercontent.com/johnlindquist/kit/main/README.md`
+)
+
+let result = await editor({
+  value: data,
+  // Supports "css", "js", "ts", "md", "properties". "md" is default. More language support coming in future releases.
+  language: "md",
+  footer: `Hit cmd+s to continue...`,
+})
+
+await div(md(result))
+```
+
+
+## Add ~/.kit/bin to $PATH
+
+> This is similar to VS Code's "Add `code` to path"
+
+You can run the `kit` CLI from your terminal with
+
+```bash
+~/.kit/bin/kit
+```
+
+but this option will allow you run the CLI with:
+
+```bash
+kit
+```
+
+> If you're familiar with adding to your `.zshrc`, just add `~/.kit/bin` to your PATH.
+
+The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
+
+## Required Permissions for Features
+
+Kit.app requires accessibility permission for the following reasons:
+* Watch user input to trigger Snippets and Clipboard History
+* Send keystrokes to trigger for `setSelectedText`, `getSelectedText`, `keyboard.type` and others
+* In the future, recording Macros, mouse actions, and more
+
+❗️ **You must quit Kit.app and re-open it for changes to take effect.** 
+
+![osx preferences panel](https://user-images.githubusercontent.com/36073/174673600-59020e49-be04-4786-81f7-5bbe20a9ce6c.png)

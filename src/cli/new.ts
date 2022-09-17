@@ -5,6 +5,7 @@
 import {
   exists,
   kitMode,
+  returnOrEnter,
   stripMetadata,
 } from "../core/utils.js"
 import {
@@ -17,12 +18,31 @@ let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
 
+let onNoChoices = async input => {
+  if (input) {
+    let scriptName = input
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s/g, "-")
+      .toLowerCase()
+
+    setPanel(
+      md(`# Create <code>${scriptName}</code>
+  
+  Type <kbd>${returnOrEnter}</kd> to create a script named <code>${scriptName}</code>
+      `)
+    )
+  }
+}
+
 let name = await arg({
   placeholder:
     arg?.placeholder || "Enter a name for your script:",
-  validate: exists,
-  footer: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
+  hint: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
+  validate: input => {
+    return exists(input.replace(/\s/g, "-").toLowerCase())
+  },
   enter: `Create script and open in editor`,
+  onNoChoices,
 })
 
 // div(md(`## Opening ${name}...`))
@@ -115,7 +135,7 @@ if (arg?.url) {
 
 contents = prependImport(contents)
 
-mkdir("-p", path.dirname(scriptPath))
+await ensureDir(path.dirname(scriptPath))
 await writeFile(scriptPath, contents)
 
 await cli("create-bin", "scripts", name)

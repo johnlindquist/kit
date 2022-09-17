@@ -392,18 +392,6 @@ export let commandFromFilePath = (filePath: string) =>
   path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
 
 //app
-export let kenvFromFilePath = (filePath: string) => {
-  let base = path.basename(
-    path.dirname(path.dirname(filePath))
-  )
-  if (base === path.basename(kenvPath())) {
-    return ""
-  }
-
-  return base
-}
-
-//app
 export let iconFromKenv = async (kenv: string) => {
   let iconPath = kenv
     ? kenvPath("kenvs", kenv, "icon.png")
@@ -466,16 +454,22 @@ export let getLastSlashSeparated = (
   )
 }
 
+export let kenvFromFilePath = (filePath: string) => {
+  let { dir } = path.parse(filePath)
+  let { name: scriptsName, dir: kenvDir } = path.parse(dir)
+  if (scriptsName !== "scripts") return ".kit"
+  let { name: kenv } = path.parse(kenvDir)
+  return kenv
+}
+
 //app
 export let getLogFromScriptPath = (filePath: string) => {
-  let { name } = path.parse(filePath)
-  return path.resolve(
-    filePath,
-    "..",
-    "..",
-    "logs",
-    `${name}.log`
-  )
+  let { name, dir } = path.parse(filePath)
+  let { name: scriptsName, dir: kenvDir } = path.parse(dir)
+  if (scriptsName !== "scripts")
+    return kitPath("logs", "kit.log")
+
+  return path.resolve(kenvDir, "logs", `${name}.log`)
 }
 
 //new RegExp(`(^//([^(:|\W)]+
@@ -681,7 +675,6 @@ export let trashScript = async (script: Script) => {
 export let getScriptFiles = async (kenv = kenvPath()) => {
   let scriptsPath = path.join(kenv, "scripts")
   if (!(await isDir(scriptsPath))) {
-    // global.log(`${scriptsPath} isn't a valid kenv dir`)
     return []
   }
 

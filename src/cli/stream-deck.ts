@@ -29,7 +29,7 @@ let launchApp = await arg<boolean>("Run the script:", [
 ])
 
 let binPath = kenvPath("deck", command + ".sh")
-mkdir("-p", path.dirname(binPath))
+await ensureDir(path.dirname(binPath))
 await writeFile(binPath, createCommand(launchApp, filePath))
 chmod(755, binPath)
 let resolvedPath = path.resolve(binPath)
