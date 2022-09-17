@@ -459,6 +459,7 @@ export let kenvFromFilePath = (filePath: string) => {
   let { name: scriptsName, dir: kenvDir } = path.parse(dir)
   if (scriptsName !== "scripts") return ".kit"
   let { name: kenv } = path.parse(kenvDir)
+  if (path.relative(kenvDir, kenvPath()) === "") return ""
   return kenv
 }
 

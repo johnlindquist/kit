@@ -15,7 +15,10 @@ if (scriptPath.endsWith(".mjs")) {
     name + ".ts"
   )
 }
-if (process.env.KIT_EDITOR === "kit") {
+if (
+  process.env.KIT_EDITOR === "kit" &&
+  process.env.KIT_CONTEXT === "app"
+) {
   let value = await readFile(scriptPath, "utf-8")
   await editor({
     value,
