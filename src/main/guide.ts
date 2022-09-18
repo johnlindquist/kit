@@ -1,6 +1,10 @@
-import { convertMarkdownToArg } from "./main-helper.js"
+import { createGuideConfig } from "./main-helper.js"
 
-let markdownArg = await convertMarkdownToArg("GUIDE.md")
-await markdownArg()
+await guide(
+  kitPath("GUIDE.md"),
+  createGuideConfig({
+    itemHeight: 48,
+  })
+)
 
 export {}

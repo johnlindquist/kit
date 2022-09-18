@@ -7,5 +7,6 @@ let downloadMarkdown = async fileName => {
 
 await downloadMarkdown("API.md")
 await downloadMarkdown("GUIDE.md")
+await downloadMarkdown("KIT.md")
 
 export {}

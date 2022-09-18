@@ -1,6 +1,5 @@
 # Script Kit Guide
 
-
 ## Input Text with `await arg()`
 
 The simplest form of input you can accept from a user is an `arg()`

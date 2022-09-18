@@ -18,6 +18,7 @@ import {
   Config,
   KitStatus,
   Field,
+  GuideSection,
 } from "../types/kitapp"
 
 import {
@@ -904,6 +905,69 @@ global.div = async (
     choices: maybeWrapHtml(config?.html, containerClasses),
     ui: UI.div,
   })
+}
+
+global.guide = async (filePath: string, options = {}) => {
+  let fileMarkdown = await readFile(filePath, "utf-8")
+  let lexer = new marked.Lexer()
+  let tokens = lexer.lex(fileMarkdown)
+
+  let sections: GuideSection[] = []
+
+  for (let token of tokens) {
+    if (token.type === "heading" && token.depth === 1) {
+      setName(token.text)
+      continue
+    }
+
+    if (token.type === "heading" && token.depth === 2) {
+      sections.push({
+        name: token.text,
+        raw: `# ${token.text}\n\n`,
+        comments: {},
+      })
+    } else if (
+      sections.length &&
+      token.type === "html" &&
+      token.text.startsWith("<!--")
+    ) {
+      let [key, value] = token.text
+        .replace(/<!--(.*)-->/, "$1")
+        .trim()
+        .split(":")
+      sections[sections.length - 1].comments[key.trim()] =
+        value.trim()
+    } else if (sections.length) {
+      sections[sections.length - 1].raw += token.raw
+    }
+  }
+
+  let config =
+    typeof options === "function"
+      ? await options(sections, tokens)
+      : options
+
+  let containerClasses =
+    "p-5 prose dark:prose-dark prose-sm"
+
+  let choices = sections.map(section => {
+    return {
+      name: section.name,
+      preview: async () =>
+        highlight(section.raw, containerClasses),
+      value: section?.comments?.value || "",
+      ...section.comments,
+    }
+  })
+
+  return await arg(
+    {
+      placeholder: "Browse API",
+      enter: `Suggest Edit`,
+      ...config,
+    },
+    choices
+  )
 }
 
 global.editor = async (options?: EditorOptions) => {

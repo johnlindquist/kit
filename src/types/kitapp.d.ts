@@ -27,6 +27,7 @@ import {
 import { Flags } from "./kit"
 import { PlatformPath } from "path"
 import { Trash } from "./packages"
+import { marked } from "@johnlindquist/globals/types/marked"
 
 export type Status = typeof statuses[number]
 
@@ -551,6 +552,25 @@ export interface SetAppearance {
   (appearance: "light" | "dark" | "auto"): Promise<void>
 }
 
+export type GuideSection = {
+  name: string
+  raw: string
+  comments: {
+    [key: string]: string
+  }
+}
+export interface Guide<T = any> {
+  (
+    markdownPath: string,
+    options?:
+      | Partial<PromptConfig>
+      | ((
+          sections?: GuideSection[],
+          tokens?: marked.Token[]
+        ) => Promise<Partial<PromptConfig>>)
+  ): Promise<T>
+}
+
 export interface ExecLog {
   (
     command: string,
@@ -645,6 +665,7 @@ export interface AppApi {
   focus: () => Promise<void>
   setAlwaysOnTop: (alwaysOnTop: boolean) => Promise<void>
   setAppearance: SetAppearance
+  guide: Guide
 }
 
 export interface Background {
@@ -736,4 +757,5 @@ declare global {
   ) => Promise<void>
 
   var setAppearance: SetAppearance
+  var guide: Guide
 }

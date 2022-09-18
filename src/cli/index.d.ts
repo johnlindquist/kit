@@ -36,8 +36,8 @@ export interface CLI {
     typeof import("./editor-history")
   >
   "kenv-create": Promise<typeof import("./kenv-create")>
-  "get-help": Promise<typeof import("../help/get-help")>
-  faq: Promise<typeof import("../help/faq")>
+  "get-help": Promise<typeof import("./get-help")>
+  faq: Promise<typeof import("./faq")>
   "goto-docs": Promise<typeof import("./goto-docs")>
   "goto-guide": Promise<typeof import("./goto-guide")>
   tips: Promise<typeof import("./tips")>
