@@ -32,7 +32,6 @@ global.applescript = async (
     })
 
     child.on("exit", () => {
-      global.setLoading(false)
       res(stdout)
     })
 
@@ -246,7 +245,7 @@ let fullySupportedEditors = {
   nvim,
   nano,
   atom,
-  webstorm
+  webstorm,
 }
 
 global.edit = async (f, dir, line = 0, col = 0) => {

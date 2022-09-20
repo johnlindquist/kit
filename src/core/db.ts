@@ -288,12 +288,13 @@ export let scriptValue: ScriptValue =
     }))
   }
 
-type AppDb = {
+export type AppDb = {
   version: string
   openAtLogin: boolean
   previewScripts: boolean
   autoUpdate: boolean
   tray: boolean
+  appearance: "light" | "dark" | "auto"
 }
 
 export const appDefaults = {
@@ -301,6 +302,7 @@ export const appDefaults = {
   autoUpdate: true,
   tray: true,
   openAtLogin: true,
+  appearance: "auto",
 }
 
 export let getAppDb = async (): Promise<

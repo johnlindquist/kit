@@ -240,7 +240,7 @@ ava.serial("app-prompt.js", async t => {
   await $`kit new ${script} main --no-edit`
   await writeFile(scriptPath, contents)
 
-  let child = fork(KIT_APP_PROMPT, {
+  let mockApp = fork(KIT_APP_PROMPT, {
     env: {
       NODE_NO_WARNINGS: "1",
       KIT: home(".kit"),
@@ -250,33 +250,34 @@ ava.serial("app-prompt.js", async t => {
   })
 
   await new Promise((resolve, reject) => {
-    child.on("message", data => {
-      if (data?.channel === Channel.SET_PROMPT_DATA) {
-        let { kitScript } = data
-
-        let { placeholder: dataPlaceholder } = data.value
-        t.deepEqual(
-          {
-            placeholder: dataPlaceholder,
-            script: kitScript,
-          },
-          {
-            placeholder,
-            script: scriptPath,
-          }
-        )
-        resolve(data?.placeholder)
+    let command = "mock-script-with-arg"
+    let value = {
+      script: command,
+      args: ["hello"],
+    }
+    let id = null
+    /**
+  channel: Channel
+  pid: number
+  newPid?: number
+  state: AppState
+  widgetId?: number
+     * 
+     */
+    mockApp.on("message", data => {
+      if (id) clearInterval(id)
+      if (data.channel === Channel.SET_SCRIPT) {
+        t.is(data.value.command, command)
       }
+
+      resolve(data)
     })
 
-    setInterval(() => {
-      child.send(
+    id = setInterval(() => {
+      mockApp.send(
         {
           channel: Channel.VALUE_SUBMITTED,
-          value: {
-            script,
-            args: [],
-          },
+          value,
         },
         error => {}
       )

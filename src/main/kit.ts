@@ -3,7 +3,7 @@
 
 import { createGuideConfig } from "./main-helper.js"
 
-let cliScript = await guide(
+let cliScript = await docs(
   kitPath("KIT.md"),
   createGuideConfig({})
 )

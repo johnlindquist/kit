@@ -1,6 +1,6 @@
 import { createGuideConfig } from "./main-helper.js"
 
-await guide(
+await docs(
   kitPath("API.md"),
   createGuideConfig({
     itemHeight: 48,

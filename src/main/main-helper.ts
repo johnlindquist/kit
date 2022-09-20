@@ -43,6 +43,12 @@ export let createGuideConfig =
           setName("Copied to Clipboard!")
         },
       },
+      {
+        name: `Scroll`,
+        key: `${cmd}+down`,
+        bar: "right",
+        onPress: async (input, { focused }) => {},
+      },
     ]
 
     return {

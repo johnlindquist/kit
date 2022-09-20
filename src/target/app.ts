@@ -223,7 +223,7 @@ let createOnChoiceFocusDefault = (
         try {
           preview = await choice?.preview(choice)
         } catch {
-          preview = md(`## ⚠️ Failed to render preview`)
+          preview = md(`# Failed to render preview... 🤔`)
         }
       }
 
@@ -877,12 +877,10 @@ global.form = async (html = "", formData = {}) => {
 //   send(Channel.SET_FORM, configs)
 // }
 
-let maybeWrapHtml = (html, containerClasses) => {
-  return html?.length === 0
-    ? `<div/>`
-    : containerClasses
-    ? `<div class="${containerClasses}">${html}</div>`
-    : html
+let maybeWrapHtml = (html = "", containerClasses = "") => {
+  return containerClasses?.length === 0
+    ? html
+    : `<div class="${containerClasses}">${html}</div>`
 }
 
 global.div = async (
@@ -907,7 +905,7 @@ global.div = async (
   })
 }
 
-global.guide = async (filePath: string, options = {}) => {
+global.docs = async (filePath: string, options = {}) => {
   let fileMarkdown = await readFile(filePath, "utf-8")
   let lexer = new marked.Lexer()
   let tokens = lexer.lex(fileMarkdown)
@@ -1338,6 +1336,7 @@ global.setLoading = (loading: boolean) => {
 
 let loadingList = [
   "$",
+  "applescript",
   "degit",
   "download",
   "exec",
@@ -1347,12 +1346,16 @@ let loadingList = [
   "post",
   "put",
   "spawn",
+  "wait",
 ]
 for (let method of loadingList) {
   let captureMethod = global[method]
   global[method] = (...args) => {
     global.setLoading(true)
-    return captureMethod(...args)
+    return captureMethod(...args).then(result => {
+      global.setLoading(false)
+      return result
+    })
   }
 }
 

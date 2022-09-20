@@ -7,7 +7,6 @@ let selectedFile = await arg(
     placeholder: "Search Files",
     enter: "Open Action Menu",
     shortcuts: [backToMainShortcut],
-    resize: true,
   },
   async input => {
     if (!input || input === "undefined") {

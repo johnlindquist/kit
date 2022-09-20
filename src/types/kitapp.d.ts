@@ -331,7 +331,6 @@ export interface ChannelMap {
   [Channel.SET_CHOICES]: Choice[]
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
   [Channel.SET_DESCRIPTION]: string
-  [Channel.SET_DIV_HTML]: string
   [Channel.SET_EDITOR_CONFIG]: EditorConfig
   [Channel.SET_FIELDS]: Field[]
   [Channel.SET_FLAGS]: FlagsOptions
@@ -559,7 +558,7 @@ export type GuideSection = {
     [key: string]: string
   }
 }
-export interface Guide<T = any> {
+export interface Docs<T = any> {
   (
     markdownPath: string,
     options?:
@@ -665,7 +664,7 @@ export interface AppApi {
   focus: () => Promise<void>
   setAlwaysOnTop: (alwaysOnTop: boolean) => Promise<void>
   setAppearance: SetAppearance
-  guide: Guide
+  guide: Docs
 }
 
 export interface Background {
@@ -757,5 +756,5 @@ declare global {
   ) => Promise<void>
 
   var setAppearance: SetAppearance
-  var guide: Guide
+  var docs: Docs
 }

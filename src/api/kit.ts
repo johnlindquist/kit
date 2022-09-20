@@ -759,6 +759,10 @@ global.highlight = async (
 
     return p
   }
+
+  renderer.text = text => {
+    return `<span>${text}</span>`
+  }
   global.marked.setOptions({
     renderer,
     highlight: function (code, lang) {
