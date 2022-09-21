@@ -70,7 +70,9 @@ This will force the App to use the SDK so you can work on both simultaneously
 
 ### Building the App
 
-`yarn install-electron-deps`
-`yarn start`
+```bash
+yarn install-electron-deps
+yarn start
+```
 
 Assuming everything went well, the app should start up.

@@ -98,20 +98,18 @@ let errorAction: ErrorAction = await arg(
       preview: async () => {
         let logFile = await readFile(errorLogPath, "utf-8")
 
-        return `
-        <div class="prose dark:prose-dark">   
-        ${md(`# ${errorLog}`)}   
-  <div class="text-xxs font-mono whitespace-nowrap">      
-        ${logFile
-          .split("\n")
-          .map(line =>
-            line.replace(/[^\s]+?(?=\s\d)\s/, "[")
-          )
-          .reverse()
-          .join("<br>")}
-  </div>
-  </div>
-        `
+        return highlight(
+          `## ${errorLog}\n\n    
+~~~bash          
+${logFile
+  .split("\n")
+  .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+  .reverse()
+  .join("\n")}
+~~~`,
+          "",
+          `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
+        )
       },
     },
     {
@@ -123,24 +121,19 @@ let errorAction: ErrorAction = await arg(
           "utf-8"
         )
 
-        return `
-        <div class="prose dark:prose-dark">      
-  ${md(`# Latest 100 Log Lines`)}
-  <div class="text-xxs font-mono whitespace-nowrap">      
-        ${logFile
-          .split("\n")
-          .map(line =>
-            line
-              .replace(/[^\s]+?(?=\s\d)\s/, "[")
-              .replace("    ", "&emsp;")
-              .replace("  ", "&ensp;")
-          )
-          .slice(-100)
-          .reverse()
-          .join("<br>")}
-  </div>
-  </div>
-        `
+        return highlight(
+          `## ${errorLog}\n\n    
+~~~bash          
+${logFile
+  .split("\n")
+  .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+  .slice(-100)
+  .reverse()
+  .join("\n")}
+~~~`,
+          "",
+          `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
+        )
       },
     },
     {

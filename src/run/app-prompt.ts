@@ -16,18 +16,28 @@ try {
 
 await import("../target/app.js")
 
-let { script, args } = await new Promise<{
-  script: string
-  args: string[]
-}>((resolve, reject) => {
-  let messageHandler = data => {
-    if (data.channel === Channel.VALUE_SUBMITTED) {
-      process.off("message", messageHandler)
-      resolve(data.value)
+let script = ""
+let args = []
+let result = null
+try {
+  result = await new Promise<{
+    script: string
+    args: string[]
+  }>((resolve, reject) => {
+    let messageHandler = data => {
+      if (data.channel === Channel.VALUE_SUBMITTED) {
+        process.off("message", messageHandler)
+        resolve(data.value)
+      }
     }
-  }
-  process.on("message", messageHandler)
-})
+    process.on("message", messageHandler)
+  })
+} catch (e) {
+  global.warn(e)
+  exit()
+}
+
+;({ script, args } = result)
 
 configEnv()
 

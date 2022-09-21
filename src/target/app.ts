@@ -321,6 +321,10 @@ let waitForPromptValue = ({
         }
       }),
       switchMap(async (data: AppMessage) => {
+        if (!data?.state?.value) {
+          global.warn(`AppMessage failed:`, data)
+          exit()
+        }
         let { value, focused } = data?.state
         let choice = (global.kitPrevChoices || []).find(
           (c: Choice) => c.id === focused?.id
@@ -1345,17 +1349,16 @@ let loadingList = [
   "patch",
   "post",
   "put",
-  "spawn",
+  "del",
   "wait",
 ]
 for (let method of loadingList) {
   let captureMethod = global[method]
-  global[method] = (...args) => {
+  global[method] = async (...args) => {
     global.setLoading(true)
-    return captureMethod(...args).then(result => {
-      global.setLoading(false)
-      return result
-    })
+    let result = await captureMethod(...args)
+    global.setLoading(false)
+    return result
   }
 }
 
@@ -1508,7 +1511,9 @@ let __pathSelector = async (
           dirFilter,
           onlyDirs,
         })
-        setChoices(choices)
+        await setChoices(choices)
+        if (focusOn) setFocused(focusOn)
+        focusOn = ``
       } catch {
         setPanel(md(`### Failed to read ${startPath}`))
       }
@@ -1625,6 +1630,8 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
         onlyDirs,
       })
       setChoices(choices)
+      if (focusOn) setFocused(focusOn)
+      focusOn = ``
       return
     }
     let currentSlashCount = input?.split(path.sep).length
@@ -1715,10 +1722,6 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       onLeft,
       onNoChoices,
       onEscape,
-      onChoiceFocus: async () => {
-        if (focusOn) setFocused(focusOn)
-        focusOn = ``
-      },
       enter: "Select",
       resize: false,
       shortcuts: [
