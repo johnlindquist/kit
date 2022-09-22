@@ -169,6 +169,7 @@ export enum Channel {
   SET_ALWAYS_ON_TOP = "SET_ALWAYS_ON_TOP",
   SHOW_EMOJI_PANEL = "SHOW_EMOJI_PANEL",
   SET_APPEARANCE = "SET_APPEARANCE",
+  SET_TEMP_THEME = "SET_TEMP_THEME",
 }
 
 export enum ProcessType {

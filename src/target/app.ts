@@ -19,6 +19,7 @@ import {
   KitStatus,
   Field,
   GuideSection,
+  KitTheme,
 } from "../types/kitapp"
 
 import {
@@ -1829,6 +1830,14 @@ global.setConfig = async (config: Partial<Config>) => {
 
 global.setStatus = async (status: KitStatus) => {
   send(Channel.SET_STATUS, status)
+}
+
+global.setTheme = async (theme: KitTheme) => {
+  await sendWait(Channel.SET_THEME, theme)
+}
+
+global.setTempTheme = async (theme: KitTheme) => {
+  await sendWait(Channel.SET_TEMP_THEME, theme)
 }
 
 global.setAlwaysOnTop = async (alwaysOnTop: boolean) => {

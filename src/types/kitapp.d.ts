@@ -462,6 +462,20 @@ export interface SetStatus {
   (status: KitStatus): void
 }
 
+export interface KitTheme {
+  "--color-primary-light": string
+  "--color-secondary-light": string
+  "--color-primary-dark": string
+  "--color-secondary-dark": string
+  "--color-background-light": string
+  "--color-background-dark": string
+  "--opacity-themelight": string
+  "--opacity-themedark": string
+}
+export interface SetTheme {
+  (theme: Partial<KitTheme>): Promise<void>
+}
+
 export interface SetConfig {
   (config: Config): void
 }
@@ -611,6 +625,8 @@ export interface AppApi {
   setResize: SetResize
   setLoading: SetLoading
   setStatus: SetStatus
+  setTheme: SetTheme
+  setTempTheme: SetTheme
 
   setConfig: SetConfig
 
@@ -720,6 +736,8 @@ declare global {
   var setResize: SetResize
   var setLoading: SetLoading
   var setStatus: SetStatus
+  var setTheme: SetTheme
+  var setTempTheme: SetTheme
 
   var setConfig: SetConfig
 
