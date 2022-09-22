@@ -25,15 +25,17 @@ let action = await arg<string>(
         name: "Back",
         key: "left",
         bar: "right",
+        onPress: async () => {
+          await run(
+            kitPath("main", "browse.js"),
+            selectedPath.replace(
+              new RegExp(`${path.sep}$`),
+              ""
+            )
+          )
+        },
       },
     ],
-    onLeft: async () => {
-      submit(``)
-      await run(
-        kitPath("main", "browse.js"),
-        selectedPath.replace(new RegExp(`${path.sep}$`), "")
-      )
-    },
   },
   [
     {
