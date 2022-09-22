@@ -71,6 +71,7 @@ This will force the App to use the SDK so you can work on both simultaneously
 ### Building the App
 
 ```bash
+yarn webpack-dev
 yarn install-electron-deps
 yarn start
 ```

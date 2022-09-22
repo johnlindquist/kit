@@ -626,7 +626,7 @@ export interface AppApi {
   setLoading: SetLoading
   setStatus: SetStatus
   setTheme: SetTheme
-  setTempTheme: SetTheme
+  setScriptTheme: SetTheme
 
   setConfig: SetConfig
 
@@ -737,7 +737,7 @@ declare global {
   var setLoading: SetLoading
   var setStatus: SetStatus
   var setTheme: SetTheme
-  var setTempTheme: SetTheme
+  var setScriptTheme: SetTheme
 
   var setConfig: SetConfig
 

@@ -1838,7 +1838,7 @@ global.setTheme = async (theme: KitTheme) => {
   await sendWait(Channel.SET_THEME, theme)
 }
 
-global.setTempTheme = async (theme: KitTheme) => {
+global.setScriptTheme = async (theme: KitTheme) => {
   await sendWait(Channel.SET_TEMP_THEME, theme)
 }
 
