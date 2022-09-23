@@ -12,6 +12,24 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
+  if (global.isWin) {
+    let divP = div(
+      md(`## Installing ${packageNames.join(" ")}...`)
+    )
+    await exec(
+      `${tool} ${command} ${packageNames.join(" ")}`,
+      {
+        env: {
+          ...global.env,
+          PATH: KIT_FIRST_PATH,
+        },
+        cwd: kenvPath(),
+      }
+    )
+    await divP
+    return
+  }
+
   return await term({
     command: `${tool} ${command} ${packageNames.join(" ")}`,
     shortcuts: [
