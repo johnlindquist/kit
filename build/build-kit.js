@@ -45,10 +45,10 @@ let installNodeWin = async () => {
 }
 
 let installNode =
-  platform() === "darwin"
+  platform() !== "win32"
     ? exec(
-        `./build/install-node.sh v16.14.2 --prefix '${knodePath()}'`
-      )
+      `./build/install-node.sh v16.14.2 --prefix '${knodePath()}'`
+    )
     : installNodeWin()
 
 cp("-R", "./root/.", kitPath())
