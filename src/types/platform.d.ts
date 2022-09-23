@@ -244,12 +244,8 @@ interface QuitAllApps {
   (appsToExclude?: string): Promise<string>
 }
 
-interface SayOptions {
-  rate?: number
-  voice?: string
-}
 interface Say {
-  (text: string, options?: SayOptions): Promise<string>
+  (text: string, options: any): Promise<string>
 }
 
 interface SetSelectedText {

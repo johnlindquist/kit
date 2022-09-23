@@ -132,3 +132,30 @@ global.clearAllTimeouts = () => {
   timeouts?.forEach(id => clearTimeout(id))
   timeouts = new Set()
 }
+
+global.say = async (
+  text,
+  options = {
+    afplay: ["--volume", 1, "--rate", "1.4"],
+  }
+) => {
+  let { default: playSound } = await import("play-sound")
+  let player = playSound(options)
+
+  let url =
+    "https://translate.google.com/translate_tts?tl=" +
+    "en" +
+    "&q=" +
+    encodeURIComponent(text) +
+    "&client=tw-ob&speed=2"
+
+  let filePath = tmpPath("speech.mp3")
+  await writeFile(filePath, await download(url))
+
+  return await new Promise((resolve, reject) => {
+    player.play(filePath, options, err => {
+      if (err) reject(err)
+      else resolve(filePath)
+    })
+  })
+}
