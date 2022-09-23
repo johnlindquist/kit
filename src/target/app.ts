@@ -58,6 +58,7 @@ import {
   formShortcuts,
   argShortcuts,
   smallShortcuts,
+  isMac,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
@@ -1507,7 +1508,8 @@ let __pathSelector = async (
     let isCurrentDir = await isDir(startPath)
     if (isCurrentDir) {
       try {
-        setFilterInput(`[^\/]+$`)
+        let filterInput = isWin ? `[^\\\]+$` : `[^\/]+$`
+        setFilterInput(filterInput)
         let choices = await createPathChoices(startPath, {
           dirFilter,
           onlyDirs,
@@ -1524,11 +1526,9 @@ let __pathSelector = async (
   }
 
   let upDir = async dir => {
+    let filterInput = isWin ? `[^\\\]+$` : `[^/]+.$`
     await setInput(
-      startPath.replace(
-        new RegExp(`[^${path.sep}]+.$`, "gi"),
-        ""
-      )
+      startPath.replace(new RegExp(filterInput, "gi"), "")
     )
     if (dir) focusOn = path.basename(path.dirname(dir))
   }

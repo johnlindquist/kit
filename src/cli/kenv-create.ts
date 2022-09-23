@@ -38,9 +38,9 @@ let newKenvPath = kenvPath("kenvs", newKenvName)
 if (!newKenvPath) exit()
 await ensureDir(kenvPath("kenvs"))
 
-await degit(`johnlindquist/kenv-template`).clone(
-  newKenvPath
-)
+let kenvRepo = degit(`johnlindquist/kenv-template`)
+
+await kenvRepo.clone(newKenvPath)
 
 if (process.env.KIT_CONTEXT === "app") {
   await mainScript()
