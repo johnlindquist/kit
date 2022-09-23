@@ -1508,7 +1508,7 @@ let __pathSelector = async (
     let isCurrentDir = await isDir(startPath)
     if (isCurrentDir) {
       try {
-        let filterInput = isWin ? `[^\\\]+$` : `[^\/]+$`
+        let filterInput = `[^\\${path.sep}]+$`
         setFilterInput(filterInput)
         let choices = await createPathChoices(startPath, {
           dirFilter,
@@ -1526,10 +1526,7 @@ let __pathSelector = async (
   }
 
   let upDir = async dir => {
-    let filterInput = isWin ? `[^\\\]+$` : `[^/]+.$`
-    await setInput(
-      startPath.replace(new RegExp(filterInput, "gi"), "")
-    )
+    await setInput(path.dirname(startPath) + path.sep)
     if (dir) focusOn = path.basename(path.dirname(dir))
   }
 
