@@ -28,9 +28,9 @@ global.isWin = os.platform().startsWith("win")
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
-    console.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
+    global.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
     let stackWithoutId = error.stack.replace(/\?[^:]*/g, "")
-    console.warn(stackWithoutId)
+    global.warn(stackWithoutId)
     // console.warn(stackWithoutId)
 
     let errorFile = global.kitScript
@@ -65,14 +65,22 @@ export let errorPrompt = async (error: Error) => {
     // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
 
     try {
-      global.spawnSync(kitPath("bin", "sk"), [
+      // global.spawnSync(kitPath("bin", "sk"), [
+      //   kitPath("cli", "error-action.js"),
+      //   script,
+      //   errorJsonPath, //.replaceAll('"', '\\"'),
+      //   errorFile,
+      //   line,
+      //   col,
+      // ])
+      await run(
         kitPath("cli", "error-action.js"),
         script,
-        errorJsonPath, //.replaceAll('"', '\\"'),
+        errorJsonPath,
         errorFile,
         line,
-        col,
-      ])
+        col
+      )
     } catch (error) {
       global.warn(error)
     }
@@ -279,7 +287,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
       if (process.env.KIT_CONTEXT === "app") {
         await errorPrompt(error)
       } else {
-        console.warn(error)
+        global.warn(error)
       }
     }
   }

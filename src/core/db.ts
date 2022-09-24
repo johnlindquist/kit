@@ -94,8 +94,8 @@ export let db = async <T = any>(
     try {
       await _db.write()
     } catch (error) {
-      if (global.warn) {
-        global.warn(error)
+      if (global.log) {
+        global.log(error)
       }
     }
   }

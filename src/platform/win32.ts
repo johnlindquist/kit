@@ -12,12 +12,18 @@ global.browse = async (url: string) => {
 
 global.fileSearch = async (
   name,
-  { onlyin = home(), kind = "" }
+  { onlyin, kind } = { onlyin: home(), kind: "" }
 ) => {
-  let command = `dir /s /b /a-d *${name}*`
-  if (kind) command += ` | findstr /i /r /c:"${kind}"`
-  let { stdout } = await global.exec(command, {
-    cwd: onlyin,
-  })
-  return stdout.split(`\n`).filter(Boolean)
+  let command = `where /r ${onlyin} *${name.replace(
+    /\W/g,
+    "*"
+  )}*`
+  let stdout = ``
+  try {
+    stdout = (await global.exec(command)).stdout
+  } catch (error) {
+    stdout = `No results for ${name}`
+  }
+
+  return stdout.split("\n").filter(Boolean)
 }

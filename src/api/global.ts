@@ -136,6 +136,7 @@ global.clearAllTimeouts = () => {
 global.say = async (
   text,
   options = {
+    lang: "en",
     afplay: ["--volume", 1, "--rate", "1.4"],
   }
 ) => {
@@ -144,10 +145,10 @@ global.say = async (
 
   let url =
     "https://translate.google.com/translate_tts?tl=" +
-    "en" +
+    options?.lang +
     "&q=" +
     encodeURIComponent(text) +
-    "&client=tw-ob&speed=2"
+    "&client=tw-ob"
 
   let filePath = tmpPath("speech.mp3")
   await writeFile(filePath, await download(url))

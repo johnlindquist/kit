@@ -1,3 +1,5 @@
+import { pathToFileURL } from "url"
+
 let defaultImport = async (modulePath: string) => {
   let pkg = await import(modulePath)
   if (pkg.default) return pkg.default
@@ -66,7 +68,9 @@ let kenvImport = async packageName => {
       packageName,
       pkgPackageJson
     )
-    return await defaultImport(mainModule)
+    return await defaultImport(
+      pathToFileURL(mainModule).toString()
+    )
   } catch (error) {
     throw new Error(error)
   }

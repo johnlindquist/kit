@@ -339,13 +339,3 @@ global.openLog = () => {
 global.browse = (url: string) => {
   return open(url)
 }
-
-global.say = async (
-  string,
-  { rate = 250, voice = "Alex" } = {}
-) =>
-  await applescript(
-    String.raw`say "${string}" using "${voice}" speaking rate ${rate}`
-  )
-
-export {}

@@ -1,4 +1,5 @@
-//Description: An error has occurred
+// Name: Error
+// Description: An error has occurred
 
 import { cmd, extensionRegex } from "../core/utils.js"
 import { ErrorAction } from "../core/enum.js"
