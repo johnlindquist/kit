@@ -1375,7 +1375,10 @@ global.mainScript = async (
     clearAllIntervals()
     setInput(input)
     let m = run(mainScriptPath)
-    if (tab) setTab(tab)
+    if (tab) {
+      await wait(200)
+      setTab(tab)
+    }
     await m
   }
 }

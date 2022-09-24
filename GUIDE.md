@@ -1075,3 +1075,13 @@ If you want to watch the main log, you can use:
 ```sh
 tail -f ~/.kit/logs/kit.log
 ```
+
+## Missing Something?
+
+<!-- enter: Update Docs -->
+<!-- value: download-md.js -->
+
+This Guide constantly evolving. If you're missing something, [suggest an edit]([suggest an edit](https://github.com/johnlindquist/kit/edit/main/GUIDE.md)) to the docs or open an issue on GitHub.
+
+Hit <kbd>Enter</kbd> to download the latest docs.
+
