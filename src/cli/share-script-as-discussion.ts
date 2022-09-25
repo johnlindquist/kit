@@ -52,11 +52,9 @@ let message = `Copied ${command} to clipboard as markdown`
 setAlwaysOnTop(true)
 setIgnoreBlur(true)
 await div(
-  md(`## ${message}
+  await highlight(`## ${message}
 
-~~~markdown
 ${discussionPost}
-~~~
 `)
 )
 

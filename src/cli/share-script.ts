@@ -35,10 +35,11 @@ let link =
 copy(link)
 
 setLoading(false)
-await div(
-  md(`## Copied Gist to Clipboard
 
-[${link}](${link})
+await div(
+  await highlight(`## Copied Gist to Clipboard
+
+  [${link}](${link})
 `)
 )
 

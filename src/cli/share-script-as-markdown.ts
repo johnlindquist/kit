@@ -46,11 +46,9 @@ copy(discussionPost)
 setAlwaysOnTop(true)
 let message = `Copied ${command} to clipboard as markdown`
 await div(
-  md(`## ${message}
+  await highlight(`## ${message}
 
-~~~markdown
 ${discussionPost}
-~~~
 `)
 )
 export {}

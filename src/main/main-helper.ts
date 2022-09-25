@@ -1,11 +1,11 @@
-import { cmd } from "../core/utils.js"
+import { cmd, kitMode } from "../core/utils.js"
 import { PromptConfig } from "../types/core.js"
 import { GuideSection } from "../types/kitapp.js"
 
 export let createGuideConfig =
   (config: Partial<PromptConfig>) =>
   async (sections: GuideSection[]) => {
-    let getCodeblocks = (name: string) => {
+    let getCodeblocks = (name: string): string => {
       let fileMarkdown = sections.find(
         s => s.name === name
       ).raw
@@ -26,11 +26,45 @@ export let createGuideConfig =
         key: `${cmd}+n`,
         bar: "right",
         onPress: async (input, { focused }) => {
-          let codeBlocks = getCodeblocks(focused?.name)
+          let contents = getCodeblocks(focused?.name)
+          // replace any non-alphanumeric characters in focused?.name with a dash
+          let name = focused?.name.replace(
+            /[^a-zA-Z0-9]/g,
+            "-"
+          )
 
-          let c =
-            Buffer.from(codeBlocks).toString("base64url")
-          open(`kit://snippet?content=${c}`)
+          name = `playground-${name}`
+
+          // comment out every line of contents that has text
+          contents = contents
+            .split("\n")
+            .map(line => {
+              if (line.trim().length > 0) {
+                return `// ${line}`
+              } else {
+                return line
+              }
+            })
+            .join("\n")
+
+          contents = `// Name: ${name}
+// Description: Generated from ${focused?.name} docs
+import "@johnlindquist/kit"
+
+${contents}`
+
+          let scriptPath = kenvPath(
+            "scripts",
+            `${name}.${kitMode()}`
+          )
+
+          await writeFile(scriptPath, contents)
+          await cli("create-bin", "scripts", name)
+
+          await run(
+            kitPath("cli", "edit-script.js"),
+            scriptPath
+          )
         },
       },
       {

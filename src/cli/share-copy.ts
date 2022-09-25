@@ -12,11 +12,9 @@ let message = `Copied content of "${path.basename(
 
 setAlwaysOnTop(true)
 await div(
-  md(`## ${message}
+  await highlight(`## ${message}
 
-~~~js
 ${content}
-~~~
 `)
 )
 

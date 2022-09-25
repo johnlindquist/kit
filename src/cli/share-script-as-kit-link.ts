@@ -15,10 +15,11 @@ copy(link)
 let message = `Copied kit:// share link to clipboard`
 
 setAlwaysOnTop(true)
-await div(
-  md(`## ${message}
 
-[${link}](${link})
+await div(
+  await highlight(`## ${message}
+
+  [${link}](${link})
 `)
 )
 
