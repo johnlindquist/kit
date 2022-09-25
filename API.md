@@ -163,19 +163,19 @@ dev({
 The `editor` function opens a text editor with the given text. The editor is a full-featured "Monaco" editor with syntax highlighting, find/replace, and more. The editor is a great way to edit or update text to write a file. The default language is markdown.
 
 
-## Editor Hello World
+### editor Hello World
 
 ```js
 let content = await editor()
 ```
 
-## Editor with Initial Content
+### editor with Initial Content
 
 ```js
 let content = await editor("Hello world!")
 ```
 
-## Load Remote Text Content into Editor
+### Load Remote Text Content into Editor
 
 ```js
 let response = await get(`https://raw.githubusercontent.com/johnlindquist/kit/main/API.md`)
@@ -183,29 +183,93 @@ let response = await get(`https://raw.githubusercontent.com/johnlindquist/kit/ma
 let content = await editor(response.data)
 ```
 
+## term
+
+The `term` function opens a terminal window. The terminal is a full-featured terminal, but only intended for running commands and CLI tools that require user input. `term` is not suitable for long-running processes (try `exec` instead).
+
+### Details
+
+1. Optional: the first argument is a command to run with the terminal
+
+### term Hello World
+
+```js
+await term()
+```
+
+### term with Command
+
+```js
+await term(`cd ~/.kenv/scripts && ls`)
+```
 
 ## template
 
+The `template` prompt will present the editor populated by your template. You can then tab through each variable in your template and edit it. 
+
+### Details
+
+1. The first argument is a string template. Add variables using $1, $2, etc. You can also use \${1:default value} to set a default value.
+
+### Template Hello World
+
 ```js
-await template()
+let text = await template(`Hello $1!`)
+```
+
+### Standard Usage
+
+```js
+let text = await template(`
+Dear \${1:name},
+
+Please meet me at \${2:address}
+
+    Sincerely, John`)
 ```
 
 ## hotkey
 
-```js
-await hotkey()
+The `hotkey` prompt allows you to press modifier keys, then submits once you've pressed a non-monodifier key. For example, press `command` then `e` to submit key info about the `command` and `e` keys:
+
+```json
+{
+  "key": "e",
+  "command": true,
+  "shift": false,
+  "option": false,
+  "control": false,
+  "fn": false,
+  "hyper": false,
+  "os": false,
+  "super": false,
+  "win": false,
+  "shortcut": "command e",
+  "keyCode": "KeyE"
+}
 ```
 
+This can be useful when you want to use a palette of commands and trigger each of them by switching on a hotkey.
+
+### Details
+
+1. Optional: The first argument is a string to display in the prompt.
+
+
+### hotkey Hello World
+
+```js
+let keyInfo = await hotkey()
+await editor(JSON.stringify(keyInfo, null, 2))
+```
 
 ## drop
 
 Use `await drop()` to prompt the user to drop a file or folder.
 
+### drop Hello World
+
 ```js
-// Name: Drop Example
-
-import "@johnlindquist/kit"
-
 // Note: Dropping one or more files returns an array of file information
 // Dropping text or an image from the browser returns a string
 let fileInfos = await drop()
@@ -213,6 +277,40 @@ let fileInfos = await drop()
 let filePaths = fileInfos.map(f => f.path).join(",")
 
 await div(md(filePaths))
+```
+
+## fields
+
+The `fields` prompt allows you to rapidly create a form with fields. 
+
+### Details
+
+1. An array of labels or objects with label and field properties.
+
+### fields Hello World
+
+```js
+let [first, last] = await fields(["First name", "Last name"])
+```
+
+
+### fields with Field Properties
+
+```js
+let [name, age] = await fields([
+    {
+        name: "name",
+        label: "Name",
+        type: "text",
+        placeholder: "John"
+    },
+    {
+        name: "age",
+        label: "Age",
+        type: "number",
+        placeholder: "40"
+    }
+])
 ```
 
 ## selectFile
@@ -231,11 +329,101 @@ Prompt the user to select a folder using the Finder dialog:
 let folderPath = await selectFolder()
 ```
 
+## widget
+
+A `widget` creates a new window using HTML.
+
+### Details
+
+1. The first argument is a string of HTML to render in the window.
+2. Optional: the second argument is ["Browser Window Options"](https://www.electronjs.org/docs/latest/api/browser-window#new-browserwindowoptions)
+
+### widget Hello World
+
+```js
+await widget(`<h1 class="p-4 text-4xl">Hello World!</h1>`)
+```
+
+### widget Clock
+
+```js
+let clock = await widget(`<h1 class="text-7xl p-5 whitespace-nowrap">{{date}}</h1>`, {
+    transparent: true,
+    draggable: true,
+    hasShadow: false,
+    alwaysOnTop: true,
+})
+
+setInterval(()=> {
+    clock.setState({
+        date: new Date().toLocaleTimeString()
+    })
+}, 1000)
+```
+
+### widget Events
+
+```js
+
+let text = ""
+let count = 0
+
+let w = await widget(`
+<div class="p-5">
+    <h1>Widget Events</h1>
+    <input autofocus type="text" class="border dark:bg-black"/>
+    <button id="myButton" class="border px-2 py-1">+</button>
+    <span>{{count}}</span>    
+</div>
+`)
+
+w.onClick((event) => {
+    if (event.targetId === "myButton") {
+        w.setState({count: count++})
+    }
+})
+
+w.onClose(async () => {
+    await widget(`
+<div class="p-5">
+    <h1>You closed the other widget</h1>
+    <p>${text}</p>
+</div>
+`)
+})
+
+w.onInput((event) => {
+    text = event.value
+})
+
+w.onMoved(({ x, y}) => {
+    // e.g., save position
+})
+
+w.onResized(({ width, height }) => {
+    // e.g., save size
+})
+```
+
+
+## path
+
+The `path` prompt allows you to select a file or folder from the file system. You navigate with tab/shift+tab (or right/left arrows) and enter to select.
+
+### Details
+
+1. Optional: The first argument is the initial directory to open with. Defaults to the home directory.
+
+
+### path Hello World
+
+```js
+let selectedFile = await path()
+```
+
 ## Missing Something?
 
 <!-- enter: Update Docs -->
 <!-- value: download-md.js -->
 
-These API docs are constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/edit/main/API.md) to the docs or open an issue on GitHub.
-
-Hit <kbd>Enter</kbd> to download the latest docs.
+These API docs are definitely incomplete and constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/edit/main/API.md) to the docs or open an issue on GitHub. Hit <kbd>Enter</kbd> to download the latest docs.

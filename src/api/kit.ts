@@ -403,6 +403,7 @@ Please use the new \`widget\` function instead.
 
 global.dev = data => {
   global.send(Channel.DEV_TOOLS, data)
+  setTimeout(() => {}, 500)
 }
 global.devTools = global.dev
 

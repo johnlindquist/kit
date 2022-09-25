@@ -776,7 +776,7 @@ global.showEmojiPanel = () => {
   send(Channel.SHOW_EMOJI_PANEL)
 }
 
-global.fields = async (...formFields) => {
+global.fields = async formFields => {
   let config: PromptConfig = {}
   let f = []
   if (Array.isArray(formFields) && !formFields[0]?.fields) {

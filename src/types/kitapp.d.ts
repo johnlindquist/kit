@@ -143,8 +143,16 @@ export interface Form {
   ): Promise<any>
 }
 
+type Field = {
+  label?: string
+  placeholder?: string
+  value?: string
+  type?: string
+  [key: string]: string
+}
+
 export interface Fields {
-  (...fields: string[]): Promise<any>
+  (fields: string[] | Field[]): Promise<any>
   (config: PromptConfig): Promise<any>
 }
 
