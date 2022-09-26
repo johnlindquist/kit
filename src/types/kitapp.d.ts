@@ -257,6 +257,7 @@ export type SendNoOptions =
   | Channel.QUIT_APP
   | Channel.FOCUS
   | Channel.SHOW_EMOJI_PANEL
+  | Channel.BEEP
 
 export interface ChannelMap {
   // Figure these undefined out later

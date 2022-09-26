@@ -175,6 +175,7 @@ export enum Channel {
   SELECT_FOLDER = "SELECT_FOLDER",
   PLAY_AUDIO = "PLAY_AUDIO",
   SPEAK_TEXT = "SPEAK_TEXT",
+  BEEP = "BEEP",
 }
 
 export enum ProcessType {

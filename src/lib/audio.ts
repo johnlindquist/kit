@@ -40,4 +40,8 @@ global.say = async (
   return text
 }
 
+global.beep = async () => {
+  await sendWait(Channel.BEEP)
+}
+
 export {}
