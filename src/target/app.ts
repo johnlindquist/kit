@@ -324,13 +324,14 @@ let waitForPromptValue = ({
       }),
       switchMap(async (data: AppMessage) => {
         if (!data?.state) {
-          throw new Error(
+          global.warn(
             `AppMessage failed: ${JSON.stringify(
               data,
               null,
               2
             )}`
           )
+          return
         }
         let { value, focused } = data?.state
         let choice = (global.kitPrevChoices || []).find(
@@ -1358,6 +1359,8 @@ let loadingList = [
   "put",
   "del",
   "wait",
+  "say",
+  "playAudioFile",
 ]
 for (let method of loadingList) {
   let captureMethod = global[method]

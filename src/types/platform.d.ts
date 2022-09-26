@@ -2,7 +2,7 @@ import { ProcessOutput } from "@johnlindquist/globals"
 import { Display, Point } from "./electron"
 
 interface PlayAudioFile {
-  (path: string, playInBackground?: boolean): void
+  (path: string, options?: any): Promise<string>
 }
 
 interface CopyPathAsImage {
@@ -219,6 +219,10 @@ interface GetSelectedDir {
 interface SelectFile {
   (message?: string): Promise<string>
 }
+
+interface RevealFile {
+  (filePath: string): Promise<string>
+}
 interface RevealInFinder {
   (filePath?: string): Promise<void>
 }
@@ -245,7 +249,11 @@ interface QuitAllApps {
 }
 
 interface Say {
-  (text: string, options: any): Promise<string>
+  (text: string, options?: any): Promise<string>
+}
+
+interface Beep {
+  (): Promise<void>
 }
 
 interface SetSelectedText {
@@ -280,6 +288,7 @@ export interface PlatformApi {
   revealInFinder: RevealInFinder
   selectFile: SelectFile
   selectFolder: SelectFolder
+  revealFile: RevealFile
   getSelectedText: GetSelectedText
   getTabs: GetTabs
   getWindows: GetWindows
@@ -291,6 +300,7 @@ export interface PlatformApi {
   playAudioFile: PlayAudioFile
   quitAllApps: QuitAllApps
   say: Say
+  beep: Beep
   scatterWindows: ScatterWindows
   scrapeAttribute: ScrapeAttribute
   scrapeSelector: ScrapeSelector
@@ -310,6 +320,7 @@ export interface PlatformApi {
 
 declare global {
   var applescript: AppleScript
+  var beep: Beep
   var copyPathAsImage: CopyPathAsImage
   var fileSearch: FileSearch
   var focusTab: FocusTab
@@ -325,6 +336,7 @@ declare global {
   var revealInFinder: RevealInFinder
   var selectFile: SelectFile
   var selectFolder: SelectFolder
+  var revealFile: RevealFile
   var getSelectedText: GetSelectedText
   var getTabs: GetTabs
   var getWindows: GetWindows

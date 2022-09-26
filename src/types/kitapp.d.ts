@@ -332,6 +332,11 @@ export interface ChannelMap {
     message: string
     icon: string
   }
+  [Channel.SELECT_FILE]: string
+  [Channel.SELECT_FOLDER]: string
+  [Channel.REVEAL_FILE]: string
+  [Channel.PLAY_AUDIO]: string
+
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
   [Channel.SET_CONFIG]: Partial<Config>

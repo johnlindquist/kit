@@ -1,5 +1,5 @@
 // Description: File Search
-import { backToMainShortcut } from "../core/utils.js"
+import { backToMainShortcut, isMac } from "../core/utils.js"
 setName(``)
 let atLeast = `Type at least 3 characters`
 let selectedFile = await arg(
@@ -57,7 +57,7 @@ let action = await arg(
       value: "open-with",
     },
     {
-      name: "Show in Finder",
+      name: `Show in ${isMac ? "Finder" : "Explorer"}`,
       value: "finder",
     },
     {
@@ -94,7 +94,7 @@ switch (action) {
     await run(kitPath("main", "open-with.js"), selectedFile)
     break
   case "finder":
-    await revealInFinder(selectedFile)
+    await revealFile(selectedFile)
     break
   case "info":
     await applescript(`

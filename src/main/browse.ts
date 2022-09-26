@@ -1,6 +1,6 @@
 // Description: Select a Path
 
-import { backToMainShortcut } from "../core/utils.js"
+import { backToMainShortcut, isMac } from "../core/utils.js"
 
 setName(``)
 
@@ -49,7 +49,7 @@ let action = await arg<string>(
       value: "open-with",
     },
     {
-      name: "Show in Finder",
+      name: `Show in ${isMac ? "Finder" : "Explorer"}`,
       value: "finder",
     },
     {
@@ -97,7 +97,7 @@ switch (action) {
     break
 
   case "finder":
-    await revealInFinder(selectedPath)
+    await revealFile(selectedPath)
     break
 
   case "info":

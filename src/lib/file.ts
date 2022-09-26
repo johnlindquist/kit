@@ -1,3 +1,5 @@
+import { Channel } from "../core/enum.js"
+
 // TODO: Optimize, etc
 global.fileSearch = async (
   name,
@@ -62,31 +64,37 @@ global.copyPathAsPicture = copyPathAsImage
 global.selectFolder = async (
   message: string = "Pick a folder:"
 ) => {
-  await hide()
-  let folderPath = await applescript(`
-    tell application "System Events"    
-    set f to choose folder with prompt "${message}"
-    set p to POSIX path of f
-    end tell
-    `)
-
-  await focus()
-  return folderPath
+  let divP = div(md(`# ${message}`))
+  let filePath = await sendWait(
+    Channel.SELECT_FOLDER,
+    message
+  )
+  submit(filePath)
+  await divP
+  return filePath
 }
 
 global.selectFile = async (
   message: string = "Pick a file:"
 ) => {
-  await hide()
-  let filePath = await applescript(
-    `
-    tell application "System Events"
-    set f to choose file with prompt "${message}"
-    set p to POSIX path of f
-    end tell
-    `
+  let divP = div(md(`# ${message}`))
+  let filePath = await sendWait(
+    Channel.SELECT_FILE,
+    message
   )
-  await focus()
+  submit(filePath)
+  await divP
+  return filePath
+}
+
+global.revealFile = async filePath => {
+  //   await open(path.dirname(filePath))
+  //   await applescript(`
+  // set aFile to (POSIX file "${filePath}") as alias
+  // tell application "Finder" to select aFile
+  // `)
+
+  await sendWait(Channel.REVEAL_FILE, filePath)
   return filePath
 }
 
