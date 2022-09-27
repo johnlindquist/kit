@@ -1084,7 +1084,7 @@ global.arg = async (
     }
   }
 
-  let defaultConfig: PromptConfig = {
+  let promptConfig: PromptConfig = {
     ui: UI.arg,
     enter: "Submit",
     hint,
@@ -1095,13 +1095,17 @@ global.arg = async (
   }
 
   if (typeof placeholderOrConfig === "string") {
-    defaultConfig.placeholder = placeholderOrConfig
+    promptConfig.placeholder = placeholderOrConfig
   }
 
-  return await global.kitPrompt({
-    ...defaultConfig,
-    ...(placeholderOrConfig as PromptConfig),
-  })
+  if (typeof placeholderOrConfig === "object") {
+    promptConfig = {
+      ...promptConfig,
+      ...placeholderOrConfig,
+    }
+  }
+
+  return await global.kitPrompt(promptConfig)
 }
 
 global.textarea = async (options = "") => {

@@ -70,6 +70,7 @@ export interface ScriptMetadata {
   hasPreview?: boolean
   logo?: string
   snippet?: string
+  snippetDelay?: number
   index?: string
   template?: boolean
   ["color-primary-light"]?: string

@@ -612,11 +612,10 @@ global.setFlags = (flags: FlagsOptions) => {
 
 global.hide = async () => {
   await global.sendWait(Channel.HIDE_APP, {})
-  if (global.afterHideDelay) {
-    await wait(global.afterHideDelay)
+  if (process.env.KIT_HIDE_DELAY) {
+    await wait(-process.env.KIT_HIDE_DELAY)
   }
 }
-
 global.run = run
 
 let wrapCode = (
