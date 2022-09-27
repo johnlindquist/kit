@@ -765,7 +765,7 @@ global.highlight = async (
       return `<video controls src="${url}" style="max-width: 100%;"></video>`
     }
 
-    return p
+    return `<p>${p}</p>`
   }
 
   renderer.text = text => {
