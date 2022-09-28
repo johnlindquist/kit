@@ -426,4 +426,6 @@ let selectedFile = await path()
 <!-- enter: Update Docs -->
 <!-- value: download-md.js -->
 
-These API docs are definitely incomplete and constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/edit/main/API.md) to the docs or open an issue on GitHub. Hit <kbd>Enter</kbd> to download the latest docs.
+These API docs are definitely incomplete and constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/edit/main/API.md) to the docs or open an issue on GitHub. 
+
+Press <kbd>Enter</kbd> to download the latest docs.

@@ -64,46 +64,21 @@ global.copyPathAsPicture = copyPathAsImage
 global.selectFolder = async (
   message: string = "Pick a folder:"
 ) => {
-  let divP = div(md(`# ${message}`))
-  let filePath = await sendWait(
-    Channel.SELECT_FOLDER,
-    message
-  )
-  submit(filePath)
-  await divP
-  return filePath
+  return await sendWait(Channel.SELECT_FOLDER, message)
 }
 
 global.selectFile = async (
   message: string = "Pick a file:"
 ) => {
-  let divP = div(md(`# ${message}`))
-  let filePath = await sendWait(
-    Channel.SELECT_FILE,
-    message
-  )
-  submit(filePath)
-  await divP
-  return filePath
+  return await sendWait(Channel.SELECT_FILE, message)
 }
 
 global.revealFile = async filePath => {
-  //   await open(path.dirname(filePath))
-  //   await applescript(`
-  // set aFile to (POSIX file "${filePath}") as alias
-  // tell application "Finder" to select aFile
-  // `)
-
-  await sendWait(Channel.REVEAL_FILE, filePath)
-  return filePath
+  return sendWait(Channel.REVEAL_FILE, filePath)
 }
 
 global.revealInFinder = async filePath => {
-  await open(path.dirname(filePath))
-  await applescript(`
-set aFile to (POSIX file "${filePath}") as alias
-tell application "Finder" to select aFile
-`)
+  return sendWait(Channel.REVEAL_FILE, filePath)
 }
 
 export {}

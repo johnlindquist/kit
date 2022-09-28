@@ -1,4 +1,5 @@
 let sponsorsDir = kenvPath("kenvs", "sponsors")
+$.verbose = false
 if (await isDir(sponsorsDir)) {
   cd(sponsorsDir)
   await exec(`git pull --rebase --autostash --stat`)
