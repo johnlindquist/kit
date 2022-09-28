@@ -4,6 +4,7 @@ let script = await docs(
   kitPath("GUIDE.md"),
   createGuideConfig({
     itemHeight: 48,
+    placeholder: "Browse Guide",
   })
 )
 

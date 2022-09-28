@@ -4,6 +4,7 @@ let script = await docs(
   kitPath("API.md"),
   createGuideConfig({
     itemHeight: 48,
+    placeholder: "Browse API",
   })
 )
 
