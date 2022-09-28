@@ -923,10 +923,11 @@ global.docs = async (filePath: string, options = {}) => {
   let tokens = lexer.lex(fileMarkdown)
 
   let sections: GuideSection[] = []
-
+  let placeholder = ""
   for (let token of tokens) {
     if (token.type === "heading" && token.depth === 1) {
       setName(token.text)
+      placeholder = token.text
       continue
     }
 
@@ -944,7 +945,11 @@ global.docs = async (filePath: string, options = {}) => {
       let [key, value] = token.text
         .replace(/<!--(.*)-->/, "$1")
         .trim()
-        .split(":")
+        // Only split on the first colon and filter out empty strings
+        .split(/:(.+)/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+
       sections[sections.length - 1].comments[key.trim()] =
         value.trim()
     } else if (sections.length) {
@@ -965,15 +970,14 @@ global.docs = async (filePath: string, options = {}) => {
       name: section.name,
       preview: async () =>
         highlight(section.raw, containerClasses),
-      value: section?.comments?.value || "",
+      value: section?.comments?.value || section?.name,
       ...section.comments,
     }
   })
 
   return await arg(
     {
-      placeholder: "Browse API",
-      enter: `Suggest Edit`,
+      placeholder,
       ...config,
     },
     choices

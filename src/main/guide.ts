@@ -1,14 +1,21 @@
 import { createGuideConfig } from "./main-helper.js"
 
-let script = await docs(
+let selectedDoc = await docs(
   kitPath("GUIDE.md"),
   createGuideConfig({
     itemHeight: 48,
+    input: arg?.input || "",
     placeholder: "Browse Guide",
+    enter: `Suggest Edit`,
   })
 )
 
-await run(kitPath("cli", script))
-await mainScript("", "Guide")
+// if selected docs is a url, then open it
+if (selectedDoc.startsWith("http")) {
+  open(selectedDoc)
+} else {
+  await run(kitPath("cli", selectedDoc))
+  await mainScript("", "Guide")
+}
 
 export {}

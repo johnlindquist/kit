@@ -2,6 +2,8 @@
 
 ## Input Text with `await arg()`
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 The simplest form of input you can accept from a user is an `arg()`
 
 ```js
@@ -15,6 +17,8 @@ await div(md(`Hello, ${name}`))
 ```
 
 ## Select From a List of Strings
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 ```js
 // Name: Select From a List
@@ -31,6 +35,8 @@ await div(md(`You selected ${fruit}`))
 ```
 
 ## Select From a List of Objects
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 ```js
 // Name: Select From a List of Objects
@@ -66,6 +72,8 @@ await div(
 
 ## Display a Preview When Focusing a Choice
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 ```js
 // Name: Display a Preview When Focusing a Choice
 
@@ -87,6 +95,8 @@ await div(md(`You selected ${height}`))
 ```
 
 ## Creating Previews
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 Each choice in an `arg` can have an associated `preview`. Previews gracefully enhance from a string all the way up to multiple async functions that return strings based on choice.
 
@@ -173,6 +183,8 @@ await arg(
       await highlight(`
 ## This is just information
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Usually to help you make a choice
   
 Just type some text to see the choices update
@@ -187,6 +199,8 @@ Just type some text to see the choices update
 ```
 
 ## Display HTML
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 Use `await div('')` to display HTML.
 
@@ -209,6 +223,8 @@ await div(`<h1>Hi</h1>`, `p-5`)
 
 ## Display HTML with CSS
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Script Kit bundles [Tailwind CSS](https://tailwindcss.com/).
 
 ```js
@@ -222,6 +238,8 @@ await div(
 ```
 
 ## Display Markdown
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 The `md()` function will convert Markdown to HTML into HTML that you can pass into div. It will also add the default Tailwind styles so you won't have to think about formatting.
 
@@ -237,6 +255,8 @@ await div(html)
 
 ## Create a Widget
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Use the `widget` method to spawn a new, persisting window that is disconnected from the script.
 
 ```js
@@ -249,6 +269,8 @@ await widget(`
 ```
 
 ## Set Options using Flags
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 To add an options menu to your choices, you must provide a `flags` object. If one of the keyboard shortcuts are hit, or the user selects the option, then the `flag` global will have the matching key from your flags set to `true`:
 
@@ -292,6 +314,8 @@ my-sites --open
 
 ## Store Simple JSON data with db
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 The `db` helpers reads/writes to json files in the `~/.kenv/db` directory. It's meant as a simple wrapper around common json operations.
 
 ```js
@@ -330,6 +354,8 @@ while (true) {
 
 
 ## Watch Files to Trigger Scripts
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 The `// Watch` metadata enables you to watch for changes to a file on your system.
 
@@ -379,6 +405,8 @@ if (event === "add") {
 
 ## Run Shell Commands
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 ### Use zx to Run Shell Commands
 
 Script Kit bundles [zx](https://github.com/google/zx) as the global `$`
@@ -402,6 +430,8 @@ await $`mkdir /tmp/${name}`
 ```
 
 ## Make HTTP Requests with get, put, post, and del
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 The `get`, `post`, `put`, and `del` methods use the [axios](https://www.npmjs.com/package/axios) API
 
@@ -442,6 +472,8 @@ await div(md(response.data.message))
 
 ## Download Files
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Use `download` to download a file from a url:
 
 ```js
@@ -459,6 +491,8 @@ await writeFile(filePath, buffer)
 ```
 
 ## Read a Text File
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 You can use `readFile` to read a text file from your system:
 
@@ -480,6 +514,8 @@ await editor(contents)
 
 ## Create a Text File
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 ```js
 // Name: Create a Text File
 
@@ -499,6 +535,8 @@ if (!exists) {
 
 
 ## Live Edit a Text File
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 ```js
 // Name: Update a Text File
@@ -522,6 +560,8 @@ await editor({
 
 ## Run a Script on a Schedule
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Use cron syntax to run scripts on a schedule. The following example will show a notification to stand up and stretch every 15 minutes.
 
 ```js
@@ -539,6 +579,8 @@ notify(`Stand up and stretch`)
 
 ## Environment Variables
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 The `env` helper will read environment variables from ~/.kenv/.env. If the variable doesn't exist, it will prompt you to create it.
 
 ```js
@@ -554,6 +596,8 @@ await div(md(`You loaded ${KEY} from ~/.kenv/.env`))
 
 
 ## Environment Variable Async Prompt
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 If you pass a function as the second argument to `env`, it will only be called if the variable doesn't exist.
 This allows you to set Enviroment Variables from a list, an API, or any other data source.
@@ -582,6 +626,8 @@ await div(
 
 ## Share as a Gist, Link, URL, or Markdown
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 The Script Kit main window also includes many other share options:
 
 - Share as Gist <kbd>cmd+g</kbd>: Creates as Gist of the selected script, then copies the URL to the clipboard
@@ -590,6 +636,8 @@ The Script Kit main window also includes many other share options:
 - Share as Markdown <kbd>cmd+m</kbd>: Copies the selected script as a Markdown snippet to the clipboard
 
 ## Get Featured
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 Featured scripts are displayed in:
 
@@ -601,6 +649,8 @@ To get featured, post your script to the [Script Kit Github discussions Share pa
 As a shortcut, hit <kbd>cmd+s</kbd> with a script selected to automatically run the "Share as Discussion" process.
 
 ## Experiment with Data in Chrome DevTools
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 ```js
 // Name: Play with Data in Chrome DevTools
@@ -620,6 +670,8 @@ dev({
 
 
 ## // Shortcut Metadata
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 Use the `// Shortcut` metadata to add a global keyboard shortcut to any script
 
@@ -641,6 +693,8 @@ say(`You pressed option i`)
 
 ## // Shortcode Metadata
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 A shortcode allows you quickly run a script without needing to search for it.
 
 To trigger a `// Shortcode`, type the string of characters from the main menu, then hit `spacebar`. In this example, you would type `oi` then `spacebar` to run this script:
@@ -654,6 +708,8 @@ say(`You pressed option i`)
 ```
 
 ## Quick Submit from Hint
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 A common pattern from Terminal is to quickly submit a script from a hint. Using a bracket around a single character will submit that character when pressed.
 
@@ -673,6 +729,8 @@ if (value === "y") {
 ```
 
 ## Quick Submit from Choice
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 If you need to provide a little more information to the user, use a choice instead of a hint. This allows you to provide a full value that will be submitted instead of just the single letter.
 
@@ -700,6 +758,8 @@ await div(md(value))
 
 
 ## Run Scripts from Other Apps
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 Are you a fan of one of these amazing tools?
 - [Keyboard Maestro](https://www.keyboardmaestro.com/main/)
@@ -730,6 +790,8 @@ Any arguments you pass to the script will also be sent along. So if you want to 
 
 ## Select a Path
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 ```js
 // Name: Select a Path
 
@@ -741,6 +803,8 @@ await div(md(`You selected ${filePath}`))
 ```
 
 ## Select a Path with Options
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 ```js
 // Name: Select a Path with Options
@@ -773,6 +837,8 @@ await path({
 
 ## Select from Finder Prompts
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 ```js
 // Name: Select from Finder Prompt
 
@@ -786,6 +852,8 @@ await div(md(`You selected ${filePath} and ${folderPath}`))
 ```
 
 ## Built-in Terminal
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 ```js
 // Name: Run Commands in the Terminal
@@ -807,6 +875,8 @@ await term({
 
 ## Built-in Editor
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Script Kit ships with a built-in version of the Monaco editor. Use `await editor()` to switch to the editor prompt.
 
 ```js
@@ -820,6 +890,8 @@ await div(md(result))
 ```
 
 ## Load Text in the Editor
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 ```js
 // Name: Load Text Into the Editor
@@ -843,6 +915,8 @@ await div(md(result))
 
 ## Add ~/.kit/bin to $PATH
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 > This is similar to VS Code's "Add `code` to path"
 
 You can run the `kit` CLI from your terminal with
@@ -863,6 +937,8 @@ The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
 
 ## Required Permissions for Features
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Kit.app requires accessibility permission for the following reasons:
 * Watch user input to trigger Snippets and Clipboard History
 * Send keystrokes to trigger for `setSelectedText`, `getSelectedText`, `keyboard.type` and others
@@ -873,6 +949,8 @@ Kit.app requires accessibility permission for the following reasons:
 ![osx preferences panel](https://user-images.githubusercontent.com/36073/174673600-59020e49-be04-4786-81f7-5bbe20a9ce6c.png)
 
 ## Submit From Live Data
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 Some scenarios require `setInterval` or other "live data" utils. This means you can't use `await` on the arg/div/textarea/etc because `await` prevents the script from continuing on to start the `setInterval`.
 
@@ -901,6 +979,8 @@ intervalId = setInterval(() => {
 
 
 ## Strict Mode
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 `strict` is enabled by default and it forces the user to pick an item from the list, preventing them from entering their own text.
 
@@ -931,6 +1011,8 @@ await textarea(`${fruit} and ${fruitOrInput}`)
 
 
 ## Quick Keys
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 A quick key allows you to bind a single key to submit a prompt.
 
@@ -975,6 +1057,8 @@ console.log(vegetable) //"Celery" or "Carrot"
 
 ## Position a Widget on Screen
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 You can control the size/position of each `show` window you create, but you'll need some info from the current screen (especially with a multi-monitor setup!) to be able to position the window where you want it:
 
 ```js
@@ -1002,6 +1086,8 @@ await widget(
 ```
 
 ## Update on Input
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 When you pass a function as the second argument of `arg`, you can take the current `input` and return a string. Kit.app will then render the results as HTML. The simplest example looks like this:
 
@@ -1039,6 +1125,8 @@ ${input ? cToF(input) + "f" : `Waiting for input`}
 
 ## Clone Git Repos with degit
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 We're developers. We clone project templates from github. [degit](https://www.npmjs.com/package/degit) is available on the global scope for exactly this scenario.
 
 ```js
@@ -1053,6 +1141,8 @@ edit(targetDir)
 ```
 
 ## View Logs
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 When you use `console.log()` in a script, it writes the log out to a relative directory.
 
@@ -1078,10 +1168,12 @@ tail -f ~/.kit/logs/kit.log
 
 ## Missing Something?
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 <!-- enter: Update Docs -->
 <!-- value: download-md.js -->
 
-This Guide constantly evolving. If you're missing something, [suggest an edit]([suggest an edit](https://github.com/johnlindquist/kit/edit/main/GUIDE.md)) to the docs or open an issue on GitHub.
+This Guide constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/edit/main/GUIDE.md) to the docs or open an issue on GitHub.
 
 Hit <kbd>Enter</kbd> to download the latest docs.
 

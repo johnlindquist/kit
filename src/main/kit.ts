@@ -6,6 +6,7 @@ import { createGuideConfig } from "./main-helper.js"
 let cliScript = await docs(
   kitPath("KIT.md"),
   createGuideConfig({
+    input: arg?.input || "",
     placeholder: "Kit Actions",
   })
 )

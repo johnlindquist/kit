@@ -2,6 +2,8 @@
 
 ## arg
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
+
 The most common prompt for accepting user input.
 
 ### Details
@@ -89,6 +91,8 @@ let name = await arg({
 
 ## div
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
+
 `div` displays HTML. Pass a string of HTML to `div` to render it. `div` is commonly used in conjunction with `md` to render markdown.
 
 ### Details
@@ -137,6 +141,8 @@ await div(md(`# You selected ${name}`))
 
 ## dev
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
+
 `dev` Opens a standalone instance of Chrome Dev Tools so you can play with JavaScript in the console. Passing in an object will set the variable `x` to your object in the console making it easy to inspect.
 
 ### Details
@@ -159,6 +165,8 @@ dev({
 ```
 
 ## editor
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
 
 The `editor` function opens a text editor with the given text. The editor is a full-featured "Monaco" editor with syntax highlighting, find/replace, and more. The editor is a great way to edit or update text to write a file. The default language is markdown.
 
@@ -185,6 +193,8 @@ let content = await editor(response.data)
 
 ## term
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
+
 The `term` function opens a terminal window. The terminal is a full-featured terminal, but only intended for running commands and CLI tools that require user input. `term` is not suitable for long-running processes (try `exec` instead).
 
 ### Details
@@ -204,6 +214,8 @@ await term(`cd ~/.kenv/scripts && ls`)
 ```
 
 ## template
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
 
 The `template` prompt will present the editor populated by your template. You can then tab through each variable in your template and edit it. 
 
@@ -229,6 +241,8 @@ Please meet me at \${2:address}
 ```
 
 ## hotkey
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
 
 The `hotkey` prompt allows you to press modifier keys, then submits once you've pressed a non-monodifier key. For example, press `command` then `e` to submit key info about the `command` and `e` keys:
 
@@ -265,6 +279,8 @@ await editor(JSON.stringify(keyInfo, null, 2))
 
 ## drop
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
+
 Use `await drop()` to prompt the user to drop a file or folder.
 
 ### drop Hello World
@@ -280,6 +296,8 @@ await div(md(filePaths))
 ```
 
 ## fields
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
 
 The `fields` prompt allows you to rapidly create a form with fields. 
 
@@ -315,6 +333,8 @@ let [name, age] = await fields([
 
 ## selectFile
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
+
 Prompt the user to select a file using the Finder dialog:
 
 ```js
@@ -323,6 +343,8 @@ let filePath = await selectFile()
 
 ## selectFolder
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
+
 Prompt the user to select a folder using the Finder dialog:
 
 ```js
@@ -330,6 +352,8 @@ let folderPath = await selectFolder()
 ```
 
 ## widget
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/API.md -->
 
 A `widget` creates a new window using HTML.
 
