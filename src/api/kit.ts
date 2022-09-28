@@ -31,7 +31,6 @@ export let errorPrompt = async (error: Error) => {
     global.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
     let stackWithoutId = error.stack.replace(/\?[^:]*/g, "")
     global.warn(stackWithoutId)
-    // console.warn(stackWithoutId)
 
     let errorFile = global.kitScript
     let line: string = "1"

@@ -53,5 +53,3 @@ let kitGet = (
 global.kit = new Proxy(kit, {
   get: kitGet,
 })
-
-//codegen
