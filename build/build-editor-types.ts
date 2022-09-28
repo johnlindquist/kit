@@ -1,36 +1,4 @@
 let nodeContent = ``
-
-// nodeContent += await readFile(
-//   kitPath("node_modules/@types/node/process.d.ts"),
-//   "utf8"
-// )
-
-// nodeContent += await readFile(
-//   kitPath("node_modules/@types/node/child_process.d.ts"),
-//   "utf8"
-// )
-
-// let nodeTypesDir = path.resolve(
-//   "node_modules",
-//   "@types",
-//   "node"
-// )
-// let nodeTypeFiles = (await readdir(nodeTypesDir)).filter(
-//   f => f.endsWith(".d.ts")
-// )
-
-// for (let file of nodeTypeFiles) {
-//   nodeContent += await readFile(
-//     path.resolve(nodeTypesDir, file),
-//     "utf8"
-//   )
-// }
-
-// nodeContent = nodeContent.replace(
-//   /declare module '(\w+)'/g,
-//   "declare module $1"
-// )
-
 let kitContent = ``
 
 // exclude itself 😇

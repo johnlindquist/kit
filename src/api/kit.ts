@@ -61,18 +61,8 @@ export let errorPrompt = async (error: Error) => {
       `error-${dashedDate()}.txt`
     )
     await global.writeFile(errorJsonPath, errorToCopy)
-    // .replaceAll('"', '\\"')
-    // .replaceAll(/(?:\r\n|\r|\n)/gm, "$newline$")
 
     try {
-      // global.spawnSync(kitPath("bin", "sk"), [
-      //   kitPath("cli", "error-action.js"),
-      //   script,
-      //   errorJsonPath, //.replaceAll('"', '\\"'),
-      //   errorFile,
-      //   line,
-      //   col,
-      // ])
       await run(
         kitPath("cli", "error-action.js"),
         script,
