@@ -694,7 +694,8 @@ export let selectKenv = async (
     placeholder: "Select a Kenv",
     enter: "Select Kenv",
   } as PromptConfig,
-  ignorePattern = /^examples$/
+  // ignorePattern ignores examples and sponsors
+  ignorePattern = /^(examples|sponsors)$/
 ) => {
   let homeKenv = {
     name: "main",
