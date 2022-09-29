@@ -412,6 +412,10 @@ global.setPlaceholder = text => {
   global.send(Channel.SET_PLACEHOLDER, stripAnsi(text))
 }
 
+global.setEnter = text => {
+  global.send(Channel.SET_ENTER, text)
+}
+
 global.main = async (scriptPath: string, ..._args) => {
   let kitScriptPath = kitPath("main", scriptPath) + ".js"
   return await global.attemptImport(kitScriptPath, ..._args)

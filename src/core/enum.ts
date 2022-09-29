@@ -176,6 +176,7 @@ export enum Channel {
   PLAY_AUDIO = "PLAY_AUDIO",
   SPEAK_TEXT = "SPEAK_TEXT",
   BEEP = "BEEP",
+  SET_ENTER = "SET_ENTER",
 }
 
 export enum ProcessType {

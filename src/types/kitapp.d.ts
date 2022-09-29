@@ -346,6 +346,7 @@ export interface ChannelMap {
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_EDITOR_CONFIG]: EditorConfig
+  [Channel.SET_ENTER]: string
   [Channel.SET_FIELDS]: Field[]
   [Channel.SET_FLAGS]: FlagsOptions
   [Channel.SET_FORM_HTML]: { html: string; formData: any }
@@ -498,6 +499,10 @@ export interface SetPlaceholder {
   (placeholder: string): void
 }
 
+export interface SetEnter {
+  (text: string): void
+}
+
 export interface SetPanel {
   (html: string, containerClasses?: string): void
 }
@@ -620,6 +625,7 @@ export interface AppApi {
   send: Send
   setFocused: SetFocused
   setPlaceholder: SetPlaceholder
+  setEnter: SetEnter
   setDiv: SetPanel
   setPanel: SetPanel
   setFooter: SetFooter
@@ -728,6 +734,7 @@ declare global {
   ) => Promise<any>
 
   var setFocused: SetFocused
+  var setEnter: SetEnter
   var setPlaceholder: SetPlaceholder
   var setPanel: SetPanel
   var setFooter: SetFooter
