@@ -272,6 +272,7 @@ export interface ChannelMap {
   [Channel.GET_ACTIVE_APP]: undefined
   [Channel.GET_SCRIPTS_STATE]: undefined
   [Channel.GET_CLIPBOARD_HISTORY]: undefined
+  [Channel.CUT_TEXT]: undefined
   [Channel.WIDGET_GET]: undefined
   [Channel.WIDGET_UPDATE]: {
     widgetId: number

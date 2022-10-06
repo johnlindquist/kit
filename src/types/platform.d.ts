@@ -234,6 +234,10 @@ interface GetSelectedText {
   (): Promise<string>
 }
 
+interface CutText {
+  (): Promise<string>
+}
+
 interface Lock {
   (): Promise<string>
 }
@@ -290,6 +294,7 @@ export interface PlatformApi {
   selectFolder: SelectFolder
   revealFile: RevealFile
   getSelectedText: GetSelectedText
+  cutText: CutText
   getTabs: GetTabs
   getWindows: GetWindows
   getWindowsBounds: GetWindowsBounds
@@ -338,6 +343,7 @@ declare global {
   var selectFolder: SelectFolder
   var revealFile: RevealFile
   var getSelectedText: GetSelectedText
+  var cutText: CutText
   var getTabs: GetTabs
   var getWindows: GetWindows
   var getWindowsBounds: GetWindowsBounds

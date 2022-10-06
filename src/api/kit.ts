@@ -656,30 +656,44 @@ export let selectScript = async (
   xf = (x: Script[]) => x
 ): Promise<Script> => {
   let scripts: Script[] = xf(await getScripts(fromCache))
+  scripts = await Promise.all(
+    scripts.map(async s => {
+      if (typeof s?.preview === "string") {
+        if (s?.preview === "false") {
+          s.preview = `<div/>`
+          return s
+        }
+        try {
+          let content = await readFile(
+            path.resolve(
+              path.dirname(s.filePath),
+              s.preview
+            ),
+            "utf-8"
+          )
+          s.preview = await highlight(content)
+        } catch (error) {
+          s.preview = `Error: ${error.message}`
+        }
+      } else {
+        s.preview = async () => {
+          return highlightJavaScript(s.filePath)
+        }
+      }
 
-  scripts = scripts.map(s => {
-    s.preview = async () => {
-      return highlightJavaScript(s.filePath)
-    }
-    return s
-  })
-
+      return s
+    })
+  )
   let scriptsConfig =
     typeof message === "string"
       ? {
           placeholder: message,
         }
       : message
-
   scriptsConfig.scripts = true
   scriptsConfig.resize = false
   scriptsConfig.enter ||= "Select"
-
-  let script: Script | string = await global.arg(
-    scriptsConfig,
-    scripts
-  )
-
+  let script = await global.arg(scriptsConfig, scripts)
   if (
     typeof script === "string" &&
     (typeof message === "string" ||
@@ -687,7 +701,7 @@ export let selectScript = async (
   ) {
     return await getScriptFromString(script)
   } else {
-    return script as any //hmm...
+    return script //hmm...
   }
 }
 

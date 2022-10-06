@@ -17,11 +17,14 @@ try {
 await import("../target/app.js")
 
 let script = ""
+let trigger = ""
 let args = []
 let result = null
+process.title = `Kit Idle - App Prompt`
 try {
   result = await new Promise<{
     script: string
+    trigger: string
     args: string[]
   }>((resolve, reject) => {
     let messageHandler = data => {
@@ -37,8 +40,11 @@ try {
   exit()
 }
 
-;({ script, args } = result)
+;({ script, args, trigger } = result)
+
+process.env.KIT_TRIGGER = trigger
 
 configEnv()
+process.title = `Kit - ${path.basename(script)}`
 
 await run(script, ...args)

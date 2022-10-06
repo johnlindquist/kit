@@ -829,7 +829,7 @@ global.fields = async formFields => {
 
                   <label for=${id || i} htmlFor=${
         id || i
-      } class="text-sm px-4 block font-normal dark:font-normal text-black dark:text-white peer-focus:text-primary-dark peer-focus:dark:text-primary-light">
+      } class="text-sm px-4 block font-normal dark:font-normal text-black dark:text-white peer-focus:text-primary-dark peer-focus:dark:text-primary-light dark:peer-focus:text-primary-light">
                           ${label}
                         </label>
           </div>
@@ -1357,7 +1357,6 @@ global.setLoading = (loading: boolean) => {
 let loadingList = [
   "$",
   "applescript",
-  "degit",
   "download",
   "exec",
   "fetch",
@@ -1371,11 +1370,11 @@ let loadingList = [
   "playAudioFile",
 ]
 for (let method of loadingList) {
-  let captureMethod = global[method]
-  global[method] = async (...args) => {
-    global.setLoading(true)
-    let result = await captureMethod(...args)
-    global.setLoading(false)
+  let original = global[method]
+  global[method] = function (...args: any[]) {
+    setLoading(true)
+    let result = original.apply(this, args)
+    result.then(() => setLoading(false))
     return result
   }
 }

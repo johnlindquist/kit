@@ -1,24 +1,24 @@
 // Description: Clear selected script database
 
-let { filePath, command } = await selectScript(
+let { filePath } = await selectScript(
   `Open database for which script?`
 )
 
+let { name, dir } = path.parse(filePath)
+
 let dbPath = path.resolve(
-  filePath,
-  "..",
-  "..",
+  path.dirname(dir),
   "db",
-  `_${command}.json`
+  `_${name}.json`
 )
 
-let dbPathExists = await pathExists(dbPath)
+let dbPathExists = await isFile(dbPath)
 
 if (dbPathExists) {
   let contents = await readFile(dbPath, "utf-8")
   let highlightedContents = await highlight(
     `
-## ${command}
+## ${name}
 ~~~json
 ${contents}
 ~~~`
@@ -31,13 +31,23 @@ ${contents}
     highlightedContents
   )
 
-  if (confirm === "y") {
+  if (confirm !== "n") {
     await trash(dbPath)
   }
+  let divP = div(
+    md(`# Moved this file to trash:
+\`${dbPath}\`
+`)
+  )
+  await wait(1500)
+  submit("")
+  await divP
 } else {
   await div(
     md(`
-## No data found for <code>${command}</code>
+# No db found for <code>${name}</code>
+
+\`${dbPath}\` not found
   `)
   )
 }

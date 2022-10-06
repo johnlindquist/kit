@@ -29,4 +29,6 @@ global.setSelectedText = async (text = "", hide = true) => {
   return await sendWait(Channel.SET_SELECTED_TEXT, text)
 }
 
+global.cutText = () => sendWait(Channel.CUT_TEXT)
+
 export {}

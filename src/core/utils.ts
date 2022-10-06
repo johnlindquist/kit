@@ -622,7 +622,7 @@ export let configEnv = () => {
 }
 
 export let trashScriptBin = async (script: Script) => {
-  let { command, kenv } = script
+  let { command, kenv, filePath } = script
   let { pathExists } = await import(
     "@johnlindquist/kit-internal/fs-extra"
   )
@@ -636,11 +636,13 @@ export let trashScriptBin = async (script: Script) => {
       )
 
   let binJS = await pathExists(binJSPath)
-  let commandBinPath = kenvPath(
-    kenv && `kenvs/${kenv}`,
+  let { name, dir } = path.parse(filePath)
+  let commandBinPath = path.resolve(
+    path.dirname(dir),
     "bin",
-    command
+    name
   )
+
   if (binJS) {
     let binPath = jsh
       ? kenvPath("node_modules", ".bin", command)

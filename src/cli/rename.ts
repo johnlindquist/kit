@@ -4,7 +4,7 @@ import { refreshScriptsDb } from "../core/db.js"
 import {
   exists,
   extensionRegex,
-  trashScript,
+  trashScriptBin,
 } from "../core/utils.js"
 
 import { Script } from "../types/core.js"
@@ -30,11 +30,16 @@ let newFilePath = path.resolve(
   lenientCommand + scriptExtension
 )
 
+try {
+  await trashScriptBin(script)
+} catch (error) {
+  warn(error)
+}
+
 mv(filePath, newFilePath)
-await trashScript(script)
+await cli("create-bin", "scripts", newFilePath)
 await refreshScriptsDb()
 
-await cli("create-bin", "scripts", newFilePath)
 edit(newFilePath, kenvPath())
 
 export {}

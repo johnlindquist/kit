@@ -79,6 +79,7 @@ export interface ScriptMetadata {
   ["color-primary-dark"]?: string
   ["color-secondary-dark"]?: string
   ["color-background-dark"]?: string
+  preview?: Choice["preview"]
 }
 
 export type Script = ScriptMetadata &

@@ -15,6 +15,7 @@ try {
 await import("../target/app.js")
 
 configEnv()
-
+process.title = `Kit Idle - App`
 let script = await arg("Path to script:")
+process.title = path.basename(script)
 await run(script)
