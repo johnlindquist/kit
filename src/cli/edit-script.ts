@@ -1,4 +1,7 @@
-import { determineOutFile } from "../api/kit.js"
+import {
+  buildTSScript,
+  determineOutFile,
+} from "../api/kit.js"
 import {
   backToMainShortcut,
   closeShortcut,
@@ -58,19 +61,11 @@ if (
         name: `Run`,
         key: `${cmd}+o`,
         onPress: async input => {
-          let { default: chokidar } = await import(
-            "chokidar"
-          )
-          let outfile = scriptPath
-          if (scriptPath.match(/\.ts$/)) {
-            outfile = determineOutFile(scriptPath)
-          }
-          let watcher = chokidar.watch(outfile)
-          watcher.once("change", async () => {
-            watcher.close()
-            await run(scriptPath)
-          })
           await writeFile(scriptPath, input)
+          if (scriptPath.match(/\.ts$/)) {
+            await buildTSScript(scriptPath)
+          }
+          await run(scriptPath)
         },
         bar: "right",
       },

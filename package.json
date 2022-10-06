@@ -55,7 +55,6 @@
     "@types/trash": "5.0.1",
     "advanced-calculator": "1.1.0",
     "ansi-to-html": "0.7.2",
-    "chokidar": "3.5.3",
     "dompurify": "2.4.0",
     "esbuild": "0.15.7",
     "filesize": "9.0.11",
