@@ -1,8 +1,6 @@
 // Description: Google
 setName(``)
-
 import { cmd } from "../core/utils.js"
-
 let { default: google } = await import("googlethis")
 const options = {
   page: 0,
@@ -12,15 +10,12 @@ const options = {
     hl: "en",
   },
 }
-
 let currentInput = ``
 let title = ``
 let url = ``
-
 let pasteOptions = async () => {
   let asMarkdown = `[${title}](${url})`
   let asInputMarkdown = `[${currentInput}](${url})`
-
   let result = await arg(
     {
       placeholder: "Paste",
@@ -41,10 +36,8 @@ let pasteOptions = async () => {
       { name: `Title`, description: title, value: title },
     ]
   )
-
   setSelectedText(result)
 }
-
 await arg(
   {
     input: (flag?.input as string) || "",
@@ -52,7 +45,7 @@ await arg(
     enter: `Open in Browser`,
     shortcuts: [
       {
-        name: `Paste`,
+        name: `Paste Options`,
         key: `${cmd}+shift+v`,
         bar: `right`,
         onPress: pasteOptions,
@@ -96,13 +89,13 @@ await arg(
         name: r.title,
         description: r.url,
         value: r.url,
-        img,
-        preview,
+        img: r?.favicons?.high_res || img,
+        preview: md(`# ${r.title}
+${r.description}
+
+${r.url}`),
       }
     })
   }
 )
-
 open(url)
-
-export {}

@@ -1556,7 +1556,7 @@ let __pathSelector = async (
       targetPath === home("Documents") ||
       targetPath === home("Desktop")
 
-    if (needsPermission) {
+    if (needsPermission && isMac) {
       let testFile = createPathResolver(targetPath)(
         `._kit_test_file_${Date.now()}.txt`
       )

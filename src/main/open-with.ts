@@ -1,24 +1,21 @@
 // Description: Open with...
-
 let filePath = await path()
-
 setName(``)
 let findApps = async () => {
   let apps = await fileSearch("", {
     onlyin: "/",
     kind: "application",
   })
-
   return {
     apps,
   }
 }
-
 let createChoices = async () => {
+  let { fileIconToFile } = await npm("file-icon")
   let { apps } = await findApps()
-  let group = path => apps =>
+  let group = (regex: RegExp) => (apps: string[]) =>
     apps
-      .filter(app => app.match(path))
+      .filter(app => app.match(regex))
       .sort((a, b) => {
         let aName = a.replace(/.*\//, "")
         let bName = b.replace(/.*\//, "")
@@ -36,67 +33,27 @@ let createChoices = async () => {
       // ...group(/System/)(apps),
       ...group(/Users/)(apps),
     ].map(async appPath => {
-      let appName = appPath.split("/").pop()
-      let appPlist = path.resolve(
-        appPath,
-        "Contents",
-        "Info.plist"
+      let { base: appName } = path.parse(appPath)
+      let assetsPath = kitPath(
+        "assets",
+        "app-launcher",
+        "icons"
       )
-      let icon = ``
-
-      if (await isFile(appPlist)) {
-        console.warn = () => {}
-        let { default: plist } = await import("plist")
-        let plistContents = await readFile(
-          appPlist,
-          "utf-8"
-        )
-        try {
-          let appInfo = plist.parse(plistContents)
-          icon = appInfo.CFBundleIconFile
-          if (!icon.endsWith(".icns")) icon = icon + ".icns"
-        } catch (error) {
-          //   console.log(`Error parsing ${appPlist}`)
-        }
-      }
-
-      let appResourceDir = path.resolve(
-        appPath,
-        "Contents",
-        "Resources"
-      )
-      let img = ``
-      if (await isDir(appResourceDir)) {
-        if (!icon) {
-          let resourceFiles = await readdir(appResourceDir)
-          icon = resourceFiles.find(file =>
-            file.match(/\.icns$/)
-          )
-        }
-        if (icon) {
-          let iconPath = path.resolve(appResourceDir, icon)
-          let assetsPath = kitPath(
-            "assets",
-            "app-launcher",
-            "icons"
-          )
-          await ensureDir(assetsPath)
-          let iconName = `${appName}.png`
-          img = path.resolve(assetsPath, iconName)
-          try {
-            await exec(
-              `sips -z 320 320 -s format png '${iconPath}' --out '${img}'`
-            )
-          } catch {
-            log(`Failed to convert ${iconPath} to ${img}`)
-          }
-        }
+      let destination = `${assetsPath}/${appName}.png`
+      try {
+        await fileIconToFile(appPath, {
+          destination,
+          size: 48,
+        })
+      } catch (error) {
+        log(`Failed to get icon for ${appName}`)
       }
       return {
         name: appName.replace(".app", ""),
         value: appPath,
         description: appPath,
-        img,
+        img: destination,
+        enter: `Open`,
       }
     })
   )
