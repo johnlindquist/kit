@@ -13,6 +13,12 @@ let findApps = async () => {
 let createChoices = async () => {
   let { fileIconToFile } = await npm("file-icon")
   let { apps } = await findApps()
+  let assetsPath = kitPath(
+    "assets",
+    "app-launcher",
+    "icons"
+  )
+  await ensureDir(assetsPath)
   let group = (regex: RegExp) => (apps: string[]) =>
     apps
       .filter(app => app.match(regex))
@@ -34,12 +40,11 @@ let createChoices = async () => {
       ...group(/Users/)(apps),
     ].map(async appPath => {
       let { base: appName } = path.parse(appPath)
-      let assetsPath = kitPath(
-        "assets",
-        "app-launcher",
-        "icons"
+      let destination = path.resolve(
+        assetsPath,
+        `${appName}.png`
       )
-      let destination = `${assetsPath}/${appName}.png`
+      setFooter(`Creating icon for ${appName}`)
       try {
         await fileIconToFile(appPath, {
           destination,
@@ -61,11 +66,15 @@ let createChoices = async () => {
 let appsDb = await db("apps", async () => {
   setChoices([])
   clearTabs()
-  console.log(
-    `First run: Indexing apps and converting icons...`
+  setPlaceholder(`One sec...`)
+  setPanel(
+    md(`# First Run: Indexing Apps and Caching Icons...
+  
+  Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.
+    `)
   )
   let choices = await createChoices()
-  console.clear()
+  setFooter(``)
   return {
     choices,
   }

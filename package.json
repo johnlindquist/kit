@@ -55,6 +55,7 @@
     "@types/trash": "5.0.1",
     "advanced-calculator": "1.1.0",
     "esbuild": "0.15.7",
+    "file-icon": "5.1.0",
     "filesize": "9.0.11",
     "googlethis": "1.4.3",
     "highlight.js": "11.6.0",

@@ -27,6 +27,12 @@ let createChoices = async () => {
         let bName = b.replace(/.*\//, "")
         return aName > bName ? 1 : aName < bName ? -1 : 0
       })
+  let assetsPath = kitPath(
+    "assets",
+    "app-launcher",
+    "icons"
+  )
+  await ensureDir(assetsPath)
   return await Promise.all(
     [
       ...group(/^\/Applications\/(?!Utilities)/)(apps),
@@ -41,12 +47,10 @@ let createChoices = async () => {
       ...group(/Users/)(apps),
     ].map(async appPath => {
       let { base: appName } = path.parse(appPath)
-      let assetsPath = kitPath(
-        "assets",
-        "app-launcher",
-        "icons"
+      let destination = path.resolve(
+        assetsPath,
+        `${appName}.png`
       )
-      let destination = `${assetsPath}/${appName}.png`
       setFooter(`Creating icon for ${appName}`)
       try {
         await fileIconToFile(appPath, {
@@ -70,7 +74,13 @@ let createChoices = async () => {
 let appsDb = await db("apps", async () => {
   setChoices([])
   clearTabs()
-  setFooter(`Indexing apps and icons...`)
+  setPlaceholder(`One sec...`)
+  setPanel(
+    md(`# First Run: Indexing Apps and Caching Icons...
+  
+  Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.
+    `)
+  )
   let choices = await createChoices()
   setFooter(``)
   return {
