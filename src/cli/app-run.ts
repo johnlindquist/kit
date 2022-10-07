@@ -2,18 +2,14 @@
 // Description: Script Kit
 // Log: false
 
-import {
-  getScriptsDb,
-  setScriptTimestamp,
-} from "../core/db.js"
+import { setScriptTimestamp } from "../core/db.js"
 import { Value } from "../core/enum.js"
 import {
   toggleBackground,
   run,
   cmd,
-  returnOrEnter,
 } from "../core/utils.js"
-import { FlagsOptions, Script } from "../types/core.js"
+import { FlagsOptions } from "../types/core.js"
 
 let modifiers = {
   cmd: "cmd",
@@ -233,6 +229,7 @@ Create a script named <code>${scriptName}</code>
 
 let script = await selectScript(
   {
+    name: "Main",
     placeholder: "Run Script",
     enter: "Run",
     strict: false,

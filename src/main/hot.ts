@@ -44,6 +44,7 @@ let choices = await loadHotChoices()
 
 let url = await arg(
   {
+    name: "Community",
     placeholder: `Community Scripts and Announcements`,
     input: arg?.input,
     onNoChoices,

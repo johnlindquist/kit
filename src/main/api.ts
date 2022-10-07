@@ -3,6 +3,7 @@ import { createGuideConfig } from "./main-helper.js"
 let selectedDoc = await docs(
   kitPath("API.md"),
   createGuideConfig({
+    name: "API",
     itemHeight: 48,
     input: arg?.input || "",
     placeholder: "Browse API",
