@@ -6,6 +6,14 @@ let findApps = async () => {
     onlyin: "/",
     kind: "application",
   })
+  let manualAppDir = await readdir("/Applications")
+  apps = apps.concat(
+    manualAppDir
+      .filter(app => app.endsWith(".app"))
+      .map(app => `/Applications/${app}`)
+  )
+  apps = _.uniq(apps.filter(a => !a.includes("Users")))
+
   return {
     apps,
   }

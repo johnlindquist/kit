@@ -133,6 +133,11 @@ let scriptFlags: FlagsOptions = {
     description:
       "Create a .sh file around the script for Stream Decks",
   },
+  ["open-script-log"]: {
+    name: "Open Log",
+    description:
+      "Open the log file for the selected script",
+  },
   ...(global.isWin
     ? {}
     : {
@@ -331,6 +336,16 @@ let script = await selectScript(
           )
         },
         bar: "right",
+      },
+      {
+        name: "Share",
+        key: `${cmd}+s`,
+        onPress: async (input, { focused }) => {
+          await run(
+            kitPath("cli", "share-script-as-discussion.js"),
+            focused?.value?.filePath
+          )
+        },
       },
     ],
     //     onInput: async (input, { count }) => {

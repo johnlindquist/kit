@@ -28,10 +28,9 @@ let [tool, command] = (
 
 await term({
   command: `${tool} ${command} ${packages.join(" ")}`,
-  enter: "Continue Script",
   shortcuts: [
     {
-      name: "Terminate",
+      name: "Continue",
       key: `ctrl+c`,
       bar: "right",
     },

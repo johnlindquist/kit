@@ -32,6 +32,7 @@ let install = async packageNames => {
 
   return await term({
     command: `${tool} ${command} ${packageNames.join(" ")}`,
+    enter: "",
     shortcuts: [
       {
         name: "Continue Script",

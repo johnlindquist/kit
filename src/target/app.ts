@@ -1604,6 +1604,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   }
 
   let onInput = async (input, state) => {
+    setEnter("Select")
     if (onInputHook) onInputHook(input, state)
     // if (input.endsWith(">")) {
     //   let choices = await createPathChoices(
@@ -1680,16 +1681,18 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     if (isCurrentDir) return
     let hasExtension = path.extname(input) !== ""
     if (hasExtension) {
+      setEnter("Create File")
       setPanel(
-        md(`## Create File
+        md(`# Create and Select This File
 
-<code>${input}</code>`)
+> <code>${input}</code>`)
       )
     } else {
+      setEnter("Create Folder")
       setPanel(
-        md(`## Create directory
+        md(`# Create and Select this Folder
 
-<code>${input}</code>`)
+> <code>${input}</code>`)
       )
     }
   }
@@ -1709,7 +1712,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     size: ({ size: a }, { size: b }) =>
       dir === `asc` ? (a > b ? 1 : -1) : a > b ? -1 : 1,
   }
-  let createSorter = s => {
+  let createSorter = (s: "date" | "name" | "size") => {
     return async () => {
       if (sort !== s) {
         dir = `desc`
@@ -1756,7 +1759,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
         {
           name: "Name",
           key: `${cmd}+,`,
-          onPress: createSorter("date"),
+          onPress: createSorter("name"),
           bar: "right",
         },
         {
@@ -1768,7 +1771,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
         {
           name: "Date",
           key: `${cmd}+/`,
-          onPress: createSorter("name"),
+          onPress: createSorter("date"),
           bar: "right",
         },
       ],

@@ -6,6 +6,14 @@ let findAppsAndPrefs = async () => {
     onlyin: "/",
     kind: "application",
   })
+  let manualAppDir = await readdir("/Applications")
+  apps = apps.concat(
+    manualAppDir
+      .filter(app => app.endsWith(".app"))
+      .map(app => `/Applications/${app}`)
+  )
+  apps = _.uniq(apps.filter(a => !a.includes("Users")))
+
   let prefs = await fileSearch("", {
     onlyin: "/",
     kind: "preferences",
@@ -19,33 +27,14 @@ let createChoices = async () => {
   let { fileIconToFile } = await npm("file-icon")
   setLoading(true)
   let { apps, prefs } = await findAppsAndPrefs()
-  let group = (regex: RegExp) => (apps: string[]) =>
-    apps
-      .filter(app => app.match(regex))
-      .sort((a, b) => {
-        let aName = a.replace(/.*\//, "")
-        let bName = b.replace(/.*\//, "")
-        return aName > bName ? 1 : aName < bName ? -1 : 0
-      })
   let assetsPath = kitPath(
     "assets",
     "app-launcher",
     "icons"
   )
   await ensureDir(assetsPath)
-  return await Promise.all(
-    [
-      ...group(/^\/Applications\/(?!Utilities)/)(apps),
-      ...group(/^\/System\/Applications/)(apps),
-      ...group(/\.prefPane$/)(prefs),
-      ...group(/^\/Applications\/Utilities/)(apps),
-      ...group(
-        /^\/System\/Library\/CoreServices\/Applications/
-      )(apps),
-      ...group(/^\/System\/Library\/CoreServices/)(apps),
-      // ...group(/System/)(apps),
-      ...group(/Users/)(apps),
-    ].map(async appPath => {
+  let choices = await Promise.all(
+    apps.concat(prefs).map(async appPath => {
       let { base: appName } = path.parse(appPath)
       let destination = path.resolve(
         assetsPath,
@@ -60,7 +49,6 @@ let createChoices = async () => {
       } catch (error) {
         log(`Failed to get icon for ${appName}`)
       }
-
       return {
         name: appName.replace(".app", ""),
         value: appPath,
@@ -70,6 +58,10 @@ let createChoices = async () => {
       }
     })
   )
+
+  choices = _.sortBy(choices, "name")
+
+  return choices
 }
 let appsDb = await db("apps", async () => {
   setChoices([])
@@ -91,6 +83,7 @@ let app = await arg(
   {
     input: (flag?.input as string) || "",
     placeholder: "Select an app to launch",
+    resize: true,
     shortcuts: [
       backToMainShortcut,
       {

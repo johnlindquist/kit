@@ -1,15 +1,13 @@
+import { getLogFromScriptPath } from "../core/utils.js"
+
 let { filePath, command } = await selectScript(
   `Open log for which script?`
 )
 
-edit(
-  path.resolve(
-    filePath,
-    "..",
-    "..",
-    "logs",
-    `${command}.log`
-  )
-)
+let logPath = getLogFromScriptPath(filePath)
+
+await ensureFile(logPath)
+
+edit(logPath)
 
 export {}
