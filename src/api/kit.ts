@@ -826,12 +826,21 @@ global.setTab = (tabName: string) => {
 export { Octokit } from "../share/auth-scriptkit.js"
 
 global.term = async commandOrConfig => {
+  let defaultConfig = {
+    shell: true,
+  }
   let command =
     (typeof commandOrConfig === "string"
       ? commandOrConfig
       : commandOrConfig?.command) || ""
-  let task = global.exec(command, commandOrConfig)
+  let task = global.exec(command, {
+    ...defaultConfig,
+    ...(typeof commandOrConfig === "object"
+      ? commandOrConfig
+      : {}),
+  })
   task.stdout.pipe(process.stdout)
+  task.stderr.pipe(process.stderr)
   let result = await task
   return result?.stdout || result?.stderr || ""
 }

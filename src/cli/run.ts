@@ -1,11 +1,11 @@
 // Description: Run the selected script
 import { run } from "../core/utils.js"
 
-let { command } = await selectScript(
+let { filePath } = await selectScript(
   `Which script do you want to run?`,
   true,
   scripts => scripts.filter(script => !script?.exclude)
 )
-await run(command)
+await run(filePath)
 
 export {}
