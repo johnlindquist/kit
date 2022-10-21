@@ -595,6 +595,13 @@ export let run = async (
   if (process.env.KIT_CONTEXT === "app") {
     let script = await parseScript(global.kitScript)
 
+    if (commandArgs.includes("--cmd")) {
+      script.debug = true
+      global.send(Channel.DEBUG_SCRIPT, script)
+
+      return await Promise.resolve("Debugging...")
+    }
+
     global.send(Channel.SET_SCRIPT, script)
   }
 

@@ -80,6 +80,7 @@ export interface ScriptMetadata {
   ["color-secondary-dark"]?: string
   ["color-background-dark"]?: string
   preview?: Choice["preview"]
+  debug?: boolean
 }
 
 export type Script = ScriptMetadata &
@@ -215,6 +216,7 @@ export type FlagsOptions =
         name?: string
         description?: string
         bar?: "left" | "right"
+        flag?: string
       }
     }
   | boolean

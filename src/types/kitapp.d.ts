@@ -376,6 +376,7 @@ export interface ChannelMap {
   [Channel.SET_RESIZE]: boolean
   [Channel.SET_RESIZING]: boolean
   [Channel.SET_SCRIPT]: Script
+  [Channel.DEBUG_SCRIPT]: Script
   [Channel.SET_SCRIPT_HISTORY]: Script[]
   [Channel.SET_SPLASH_BODY]: string
   [Channel.SET_SPLASH_HEADER]: string

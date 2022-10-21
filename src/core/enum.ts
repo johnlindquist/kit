@@ -178,6 +178,7 @@ export enum Channel {
   BEEP = "BEEP",
   SET_ENTER = "SET_ENTER",
   CUT_TEXT = "CUT_TEXT",
+  DEBUG_SCRIPT = "DEBUG_SCRIPT",
 }
 
 export enum ProcessType {

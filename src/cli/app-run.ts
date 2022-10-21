@@ -138,15 +138,6 @@ let scriptFlags: FlagsOptions = {
     description:
       "Open the log file for the selected script",
   },
-  ...(global.isWin
-    ? {}
-    : {
-        [modifiers.cmd]: {
-          name: "Run script w/ cmd flag",
-          shortcut: `${cmd}+enter`,
-          flag: "cmd",
-        },
-      }),
   [modifiers.shift]: {
     name: "Run script w/ shift flag",
     shortcut: "shift+enter",
@@ -162,6 +153,21 @@ let scriptFlags: FlagsOptions = {
     shortcut: "ctrl+enter",
     flag: "ctrl",
   },
+  ...(global.isWin
+    ? {
+        [modifiers.ctrl]: {
+          name: "Debug Script",
+          shortcut: `${cmd}+enter`,
+          flag: "cmd",
+        },
+      }
+    : {
+        [modifiers.cmd]: {
+          name: "Debug Script",
+          shortcut: `${cmd}+enter`,
+          flag: "cmd",
+        },
+      }),
   ["settings"]: {
     name: "Settings",
     description: "Open the settings menu",
@@ -391,7 +397,9 @@ if (
 } else {
   let shouldEdit = flag?.open
 
-  let selectedFlag: any = Object.keys(flag).find(f => {
+  let selectedFlag: string | undefined = Object.keys(
+    flag
+  ).find(f => {
     return f && !modifiers[f]
   })
   if (selectedFlag && flag?.code) {
@@ -422,7 +430,7 @@ if (
     let runP = run(
       script.filePath,
       Object.keys(flag)
-        .map(f => `--${f} `)
+        .map(f => `--${f}`)
         .join(" ")
     )
 
