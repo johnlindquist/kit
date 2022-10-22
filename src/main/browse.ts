@@ -1,6 +1,10 @@
 // Description: Select a Path
 
-import { backToMainShortcut, isMac } from "../core/utils.js"
+import {
+  backToMainShortcut,
+  isMac,
+  isWin,
+} from "../core/utils.js"
 
 setName(``)
 
@@ -128,9 +132,13 @@ tell application "Finder" to open information window of aFile
     break
 
   case "vscode":
-    await exec(
-      `open -a 'Visual Studio Code' '${selectedPath}'`
-    )
+    if (isWin) {
+      await exec(`code ${selectedPath}`)
+    } else {
+      await exec(
+        `open -a 'Visual Studio Code' '${selectedPath}'`
+      )
+    }
     break
 
   case "copy":

@@ -1,5 +1,9 @@
 // Description: File Search
-import { backToMainShortcut, isMac } from "../core/utils.js"
+import {
+  backToMainShortcut,
+  isMac,
+  isWin,
+} from "../core/utils.js"
 setName(``)
 let atLeast = `Type at least 3 characters`
 let selectedFile = await arg(
@@ -109,9 +113,14 @@ tell application "Finder" to open information window of aFile
     terminal(`cd '${selectedDir}'`)
     break
   case "vscode":
-    await exec(
-      `open -a 'Visual Studio Code' '${selectedFile}'`
-    )
+    if (isWin) {
+      await exec(`code ${selectedFile}`)
+    } else {
+      await exec(
+        `open -a 'Visual Studio Code' '${selectedFile}'`
+      )
+    }
+
     break
   case "copy":
     await copy(selectedFile)
