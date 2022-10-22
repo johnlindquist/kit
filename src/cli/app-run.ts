@@ -153,21 +153,11 @@ let scriptFlags: FlagsOptions = {
     shortcut: "ctrl+enter",
     flag: "ctrl",
   },
-  ...(global.isWin
-    ? {
-        [modifiers.ctrl]: {
-          name: "Debug Script",
-          shortcut: `${cmd}+enter`,
-          flag: "cmd",
-        },
-      }
-    : {
-        [modifiers.cmd]: {
-          name: "Debug Script",
-          shortcut: `${cmd}+enter`,
-          flag: "cmd",
-        },
-      }),
+  [cmd]: {
+    name: "Debug Script",
+    shortcut: `${cmd}+enter`,
+    flag: cmd,
+  },
   ["settings"]: {
     name: "Settings",
     description: "Open the settings menu",
