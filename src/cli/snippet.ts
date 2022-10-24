@@ -100,7 +100,15 @@ if (arg?.content) {
     arg.content,
     "base64url"
   ).toString()
-  if (!arg?.keepMetadata) contents = stripMetadata(contents)
+  if (!arg?.keepMetadata)
+    contents = stripMetadata(contents, [
+      "Menu",
+      "Name",
+      "Author",
+      "Twitter",
+      "Alias",
+      "Description",
+    ])
 }
 contents = contents.trim()
 contents = prependImport(contents)

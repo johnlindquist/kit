@@ -13,10 +13,13 @@ let install = async packageNames => {
   ).split(" ")
 
   if (global.isWin) {
-    let divP = div(
-      md(`## Installing ${packageNames.join(" ")}...`)
-    )
-    await exec(
+    let contents = `## Installing ${packageNames.join(
+      " "
+    )}...\n\n`
+
+    let progress = ``
+    let divP = div(md(contents))
+    let { stdout, stderr } = exec(
       `${tool} ${command} ${packageNames.join(" ")}`,
       {
         env: {
@@ -26,6 +29,15 @@ let install = async packageNames => {
         cwd: kenvPath(),
       }
     )
+    let writable = new Writable({
+      write(chunk, encoding, callback) {
+        progress += chunk.toString()
+        setDiv(md(contents + `~~~bash\n${progress}\n~~~`))
+        callback()
+      },
+    })
+    stdout.pipe(writable)
+    stderr.pipe(writable)
     await divP
     return
   }

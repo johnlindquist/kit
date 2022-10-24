@@ -609,6 +609,11 @@ global.hide = async () => {
     await wait(-process.env.KIT_HIDE_DELAY)
   }
 }
+
+global.blur = async () => {
+  await global.sendWait(Channel.BLUR_APP, {})
+}
+
 global.run = run
 
 let wrapCode = (
@@ -639,7 +644,13 @@ ${html.trim()}
 export let highlightJavaScript = async (
   filePath: string
 ): Promise<string> => {
-  let contents = await readFile(filePath, "utf-8")
+  let isPathAFile = await isFile(filePath)
+  let contents = ``
+  if (isPathAFile) {
+    contents = await readFile(filePath, "utf8")
+  } else {
+    contents = filePath.trim()
+  }
 
   let { default: highlight } = await import("highlight.js")
   let highlightedContents = highlight.highlight(contents, {

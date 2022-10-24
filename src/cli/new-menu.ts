@@ -32,6 +32,11 @@ let newOptions: Choice<keyof CLI | keyof Main>[] = [
     }`,
     value: "snippets",
   },
+  {
+    name: "New from URL/Gist",
+    description: "Create a script from a URL or Gist",
+    value: "new-from-url",
+  },
   // {
   //   name: "Download Script From URL",
   //   description: "Enter a url then name it",

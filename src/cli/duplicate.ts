@@ -34,7 +34,12 @@ let newFilePath = path.join(
 )
 let oldContent = await readFile(filePath, "utf-8")
 
-let newContent = stripMetadata(oldContent)
+let newContent = stripMetadata(oldContent, [
+  "Author",
+  "Twitter",
+  "Alias",
+  "Description",
+])
 await writeFile(newFilePath, newContent)
 
 await cli("create-bin", "scripts", newFilePath)

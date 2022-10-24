@@ -251,6 +251,7 @@ export type SendNoOptions =
   | Channel.CONSOLE_CLEAR
   | Channel.KIT_CLEAR
   | Channel.HIDE_APP
+  | Channel.BLUR_APP
   | Channel.NEEDS_RESTART
   | Channel.TOGGLE_TRAY
   | Channel.UPDATE_APP
@@ -314,6 +315,7 @@ export interface ChannelMap {
   [Channel.KIT_CLEAR]: undefined
   [Channel.KIT_PASTE]: undefined
   [Channel.HIDE_APP]: undefined
+  [Channel.BLUR_APP]: undefined
   [Channel.NEEDS_RESTART]: undefined
   [Channel.TOGGLE_TRAY]: undefined
   [Channel.UPDATE_APP]: undefined

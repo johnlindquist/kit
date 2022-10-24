@@ -179,6 +179,7 @@ export enum Channel {
   SET_ENTER = "SET_ENTER",
   CUT_TEXT = "CUT_TEXT",
   DEBUG_SCRIPT = "DEBUG_SCRIPT",
+  BLUR_APP = "BLUR_APP",
 }
 
 export enum ProcessType {
