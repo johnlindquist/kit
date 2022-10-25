@@ -7,9 +7,12 @@ Have an idea on how to support it? Please share on our [GitHub Discussions](http
 `)
   )
 global.edit = async (path, dir, line, col) => {
-  await global.exec(
-    `${env?.KIT_EDITOR || "code"} ${path} ${dir}`
-  )
+  let e = () => {
+    if (env?.KIT_EDITOR) return `"${env.KIT_EDITOR}"`
+
+    return "code"
+  }
+  await global.exec(`${e()} ${path} ${dir}`)
 }
 
 global.browse = async (url: string) => {
@@ -32,6 +35,26 @@ global.fileSearch = async (
   }
 
   return stdout.split("\n").filter(Boolean)
+}
+
+global.selectKitEditor = async () => {
+  await div({
+    html: md(`# Select Kit Editor
+
+Create a \`KIT_EDITOR\` environment variable for the path of your editor
+
+Example:
+~~~bash
+KIT_EDITOR="C:\\Users\\johnl\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+~~~
+
+`),
+    enter: "Open .env",
+  })
+
+  await edit(kenvPath(".env"))
+
+  return "kit"
 }
 
 // comment out means they are supported in windows
@@ -95,3 +118,5 @@ global.setWindowSizeByIndex = notSupported(
 global.shutdown = notSupported("shutdown")
 global.sleep = notSupported("sleep")
 global.tileWindow = notSupported("tileWindow")
+
+global.term = notSupported("term")

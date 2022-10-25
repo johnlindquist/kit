@@ -20,7 +20,9 @@ let install = async packageNames => {
     let progress = ``
     let divP = div(md(contents))
     let { stdout, stderr } = exec(
-      `${tool} ${command} ${packageNames.join(" ")}`,
+      `${tool} ${command} ${packageNames.join(
+        " "
+      )} --loglevel verbose`,
       {
         env: {
           ...global.env,

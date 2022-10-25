@@ -34,7 +34,9 @@ if (global.isWin) {
   let progress = ``
   let divP = div(md(contents))
   let { stdout, stderr } = exec(
-    `${tool} ${command} ${packages.join(" ")}`,
+    `${tool} ${command} ${packages.join(
+      " "
+    )} --loglevel verbose`,
     {
       env: {
         ...global.env,
