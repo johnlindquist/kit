@@ -26,21 +26,50 @@ let [tool, command] = (
     : `npm${global.isWin ? `.cmd` : ``} un`
 ).split(" ")
 
-await term({
-  command: `${tool} ${command} ${packages.join(" ")}`,
-  shortcuts: [
+if (global.isWin) {
+  let contents = `## Uninstalling ${packages.join(
+    " "
+  )}...\n\n`
+
+  let progress = ``
+  let divP = div(md(contents))
+  let { stdout, stderr } = exec(
+    `${tool} ${command} ${packages.join(" ")}`,
     {
-      name: "Continue",
-      key: `ctrl+c`,
-      bar: "right",
+      env: {
+        ...global.env,
+        PATH: KIT_FIRST_PATH,
+      },
+      cwd: kenvPath(),
+    }
+  )
+  let writable = new Writable({
+    write(chunk, encoding, callback) {
+      progress += chunk.toString()
+      setDiv(md(contents + `~~~bash\n${progress}\n~~~`))
+      callback()
     },
-  ],
-  env: {
-    ...global.env,
-    PATH: KIT_FIRST_PATH,
-  },
-  cwd: kenvPath(),
-})
+  })
+  stdout.pipe(writable)
+  stderr.pipe(writable)
+  await divP
+} else {
+  await term({
+    command: `${tool} ${command} ${packages.join(" ")}`,
+    shortcuts: [
+      {
+        name: "Continue",
+        key: `ctrl+c`,
+        bar: "right",
+      },
+    ],
+    env: {
+      ...global.env,
+      PATH: KIT_FIRST_PATH,
+    },
+    cwd: kenvPath(),
+  })
+}
 
 await mainScript()
 

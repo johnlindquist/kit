@@ -74,11 +74,11 @@ global.selectFile = async (
 }
 
 global.revealFile = async filePath => {
-  return sendWait(Channel.REVEAL_FILE, filePath)
+  return sendWait(Channel.REVEAL_FILE, filePath.trim())
 }
 
 global.revealInFinder = async filePath => {
-  return sendWait(Channel.REVEAL_FILE, filePath)
+  return sendWait(Channel.REVEAL_FILE, filePath.trim())
 }
 
 export {}

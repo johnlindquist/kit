@@ -1808,7 +1808,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
-  return selectedPath
+  return selectedPath.trim()
 }
 
 let __path = global.path
