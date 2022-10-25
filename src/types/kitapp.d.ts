@@ -680,8 +680,9 @@ export interface AppApi {
   memoryMap: Map<string, any>
 
   hide: () => Promise<void>
+  blur: () => Promise<void>
 
-  dev: (object: any) => void
+  dev: (object: any) => Promise<void>
   getClipboardHistory: () => Promise<ClipboardItem[]>
   getEditorHistory: GetEditorHistory
   removeClipboardItem: (id: string) => void
@@ -770,8 +771,9 @@ declare global {
   var showImage: ShowAppWindow
 
   var hide: () => Promise<void>
+  var blur: () => Promise<void>
 
-  var dev: (object?: any) => void
+  var dev: (object?: any) => Promise<void>
   var getClipboardHistory: () => Promise<ClipboardItem[]>
   var clearClipboardHistory: () => Promise<void>
   var getEditorHistory: GetEditorHistory

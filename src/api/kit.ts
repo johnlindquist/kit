@@ -390,9 +390,8 @@ Please use the new \`widget\` function instead.
   // global.send(Channel.SHOW, { options, html })
 }
 
-global.dev = data => {
-  global.send(Channel.DEV_TOOLS, data)
-  setTimeout(() => {}, 500)
+global.dev = async data => {
+  await global.sendWait(Channel.DEV_TOOLS, data)
 }
 global.devTools = global.dev
 

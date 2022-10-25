@@ -309,6 +309,7 @@ let script = await selectScript(
             kitPath("cli", "edit-script.js"),
             focused.value.filePath
           )
+          submit(false)
         },
         bar: "right",
       },
@@ -366,6 +367,10 @@ let script = await selectScript(
   true,
   scripts => scripts.filter(script => !script?.exclude)
 )
+
+if (typeof script === "boolean" && !script) {
+  exit()
+}
 
 if (
   script === Value.NoValue ||
