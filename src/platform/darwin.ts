@@ -108,6 +108,7 @@ let terminalEditor = editor => async file => {
 let execConfig = () => {
   return {
     shell: true,
+    timeout: 200,
     env: {
       HOME: home(),
       PATH: KIT_FIRST_PATH,
@@ -212,7 +213,7 @@ let atom = async (file: string, dir: string) => {
   let command = `${global.env.KIT_EDITOR} '${file}' ${
     dir ? ` '${dir}'` : ``
   }`
-  exec(command, execConfig())
+  await exec(command, execConfig())
 }
 
 let code = async (file, dir, line = 0, col = 0) => {
@@ -225,7 +226,7 @@ let code = async (file, dir, line = 0, col = 0) => {
 
   let config = execConfig()
 
-  execaCommandSync(command, config)
+  await exec(command, config)
 }
 
 let webstorm = async (file, dir, line = 0) => {
@@ -233,7 +234,7 @@ let webstorm = async (file, dir, line = 0) => {
 
   let config = execConfig()
 
-  execaCommandSync(command, config)
+  await exec(command, config)
 }
 
 let vim = terminalEditor("vim")
@@ -316,13 +317,9 @@ global.edit = async (f, dir, line = 0, col = 0) => {
     global.log(
       `Opening ${file} with ${global.env.KIT_EDITOR}`
     )
-
-    let result = await editorFn(file, dir, line, col)
-
-    if (result?.stderr) {
-      global.warn(`STDERR ${result.stderr}`)
-      exit()
-    }
+    try {
+      await editorFn(file, dir, line, col)
+    } catch {}
   }
 }
 

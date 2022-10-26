@@ -1,3 +1,5 @@
+import { KIT_FIRST_PATH } from "../core/utils.js"
+
 let notSupported = name => async () =>
   await div(
     md(`# ${name} is Not Supported on Windows
@@ -12,7 +14,15 @@ global.edit = async (path, dir, line, col) => {
 
     return "code"
   }
-  await global.exec(`${e()} ${path} ${dir}`)
+  try {
+    await global.exec(`${e()} ${path} ${dir}`, {
+      shell: true,
+      timeout: 200,
+      env: {
+        HOME: home(),
+      },
+    })
+  } catch {}
 }
 
 global.browse = async (url: string) => {
