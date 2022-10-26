@@ -70,6 +70,44 @@ await div(
 )
 ```
 
+## Select from a Dynamic List
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
+```js
+// Name: Select From a Dynamic List
+
+import "@johnlindquist/kit"
+
+let { size, weight } = await arg("Select a Fruit", [
+  {
+    name: "Apple",
+    description: "A shiny red fruit",
+    // add any properties to "value"
+    value: {
+      size: "small",
+      weight: 1,
+    },
+  },
+  {
+    name: "Banana",
+    description: "A long yellow fruit",
+    value: {
+      size: "medium",
+      weight: 2,
+    },
+  },
+])
+
+await div(
+  md(
+    `You selected a fruit with size: ${size} and weight: ${weight}`
+  )
+)
+```
+
+
+
 ## Display a Preview When Focusing a Choice
 
 <!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
@@ -94,13 +132,11 @@ let height = await arg("Select a Kitten", choices)
 await div(md(`You selected ${height}`))
 ```
 
-## Creating Previews
+## Display HTML Beneath the Input
 
 <!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
-Each choice in an `arg` can have an associated `preview`. Previews gracefully enhance from a string all the way up to multiple async functions that return strings based on choice.
-
-You can toggle the preview pane open and closed with <kbd>cmd+P</kbd>
+If the second argument to `arg()` is a string, it will be displayed beneath the input as HTML.
 
 ```js
 // Just a string
@@ -109,6 +145,8 @@ await arg(
   md(`I recommend typing "Apple"`) // "md" converts strings to HTML
 )
 ```
+
+A function that returns a string will also be displayed beneath the input as HTML. You can use the `input` text in the function to create dynamic HTML.
 
 ```js
 // A function, takes typed "input", returns string
@@ -129,49 +167,6 @@ await arg(
 await arg("${input}")
 ~~~
   `)
-)
-```
-
-```js
-// A "preview" per choice
-await arg("Select a fruit", [
-  { name: "Apple", preview: `Apple, yum! 🍎` },
-  { name: "Banana", preview: `Banana, yum too! 🍌` },
-])
-```
-
-```js
-// Async "preview" per choice
-let preview = async ({ name, input }) =>
-  await highlight(`
-~~~js
-// ${name}
-await arg("${input}!")
-~~~
-`)
-```
-
-```js
-//"input" param is required to switch prompt mode from "filter list" to "generate list"
-await arg("Select a fruit", async input => {
-  return [
-    { name: `Apple ${input}`, preview },
-    { name: `Banana ${input}`, preview },
-  ]
-})
-```
-
-```js
-// Static preview with static choices
-await arg(
-  {
-    preview: md(`
-# Pick a fruit
-
-
-  `),
-  },
-  ["Apple", "Banana", "Orange"]
 )
 ```
 
@@ -198,7 +193,7 @@ Just type some text to see the choices update
 )
 ```
 
-## Display HTML
+## Display Only HTML
 
 <!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
@@ -664,10 +659,6 @@ dev({
   message: "Hello world",
 })
 ```
-
-
-
-
 
 ## // Shortcut Metadata
 
