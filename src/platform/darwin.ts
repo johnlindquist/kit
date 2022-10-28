@@ -108,7 +108,6 @@ let terminalEditor = editor => async file => {
 let execConfig = () => {
   return {
     shell: true,
-    timeout: 200,
     env: {
       HOME: home(),
       PATH: KIT_FIRST_PATH,

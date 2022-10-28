@@ -1039,6 +1039,7 @@ global.template = async (
   return global.editor({
     template,
     ...options,
+    enter: "",
   })
 }
 

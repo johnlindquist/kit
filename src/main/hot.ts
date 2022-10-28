@@ -51,6 +51,7 @@ let url = await arg(
     onChoiceFocus: () => {
       noChoices = false
     },
+    shortcuts: [],
     enter: "Open in Browser",
   },
   choices

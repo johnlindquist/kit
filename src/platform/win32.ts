@@ -9,15 +9,20 @@ Have an idea on how to support it? Please share on our [GitHub Discussions](http
 `)
   )
 global.edit = async (path, dir, line, col) => {
-  let e = () => {
-    if (env?.KIT_EDITOR) return `"${env.KIT_EDITOR}"`
+  let e = async () => {
+    if (env?.KIT_EDITOR) {
+      let isPath = await isFile(env.KIT_EDITOR)
+      return isPath ? `"${env.KIT_EDITOR}"` : env.KIT_EDITOR
+    }
 
-    return "code"
+    if (env?.PATH?.toLowerCase().includes("code"))
+      return "code"
+
+    return ""
   }
   try {
-    await global.exec(`${e()} ${path} ${dir}`, {
+    await global.exec(`${await e()} ${path} ${dir}`, {
       shell: true,
-      timeout: 200,
       env: {
         HOME: home(),
       },

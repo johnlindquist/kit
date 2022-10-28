@@ -31,6 +31,13 @@ let scriptFlags: FlagsOptions = {
   //   shortcut: `${cmd}+n`,
   //   action: "left",
   // },
+  [cmd]: {
+    name: "Debug Script",
+    description:
+      "Open inspector. Pause on debugger statements.",
+    shortcut: `${cmd}+enter`,
+    flag: cmd,
+  },
   ["edit-script"]: {
     name: "Edit",
     description: "Open the selected script in your editor",
@@ -152,11 +159,6 @@ let scriptFlags: FlagsOptions = {
     name: "Run script w/ ctrl flag",
     shortcut: "ctrl+enter",
     flag: "ctrl",
-  },
-  [cmd]: {
-    name: "Debug Script",
-    shortcut: `${cmd}+enter`,
-    flag: cmd,
   },
   ["settings"]: {
     name: "Settings",
