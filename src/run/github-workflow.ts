@@ -1,15 +1,7 @@
 import os from "os"
 import { configEnv } from "../core/utils.js"
 
-process.on("uncaughtException", error => {
-  console.error(error)
-  process.exit(1)
-})
-
-process.on("unhandledRejection", error => {
-  console.error(error)
-  process.exit(1)
-})
+process.exitCode = 1
 
 await import("../api/global.js")
 await import("../api/kit.js")
