@@ -1,5 +1,66 @@
 # Script Kit Guide
 
+## Running a Script
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
+Press `cmd+;` (or `ctrl+;` on Windows) to open the Script Kit prompt. Search for the script you want to run and press `enter` to run it.
+
+You can also open the prompt from the menu bar and select "Open Prompt."
+
+## Debugging a Script
+
+With the prompt open, run a script with `cmd+enter` (`ctrl+enter` on Windows) to launch the script in debug mode. An inspector will appear alongside the script, allowing you to inspect current values and step through it line by line. Use the `debugger` statement anywhere in your script to create a breakpoint where your script will pause. (When running the script normally, the `debugger` statement is simply ignored.)
+
+```js
+let response = await get("https://api.github.com/repos/johnlindquist/kit")
+
+// The inspector will pause your script so you can examine the value of "response""
+debugger
+```
+
+## Create a Script
+
+Keep your scripts in `~/.kenv/scripts` ("kenv" stands for "Kit Environment").
+
+With the Kit.app prompt open, start typing the name of the script you want to create, then hit `enter`` when prompted to create a script. Your editor will launch with the newly created script focused.
+
+Kit.app continuously watches the `~/.kenv/scripts` directory for changes. Creating, deleting, or modifying scripts will be automatically reflected in the Kit.app prompt.
+
+## Naming a Script
+
+The file name of the script is lowercased and dashed like `hello-world.js` by convention. You can add an addionational `//Name: Hello World` to the top of your script for a more friendly name to appear when searching in the prompt. 
+
+```js
+//Name: Hello World
+```
+
+When creating a script with the prompt, you can type the `Friendly Name` of the script and Kit.app will automatically create the dashed file name for you.
+
+
+## // Shortcut Metadata
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
+Use the `// Shortcut` metadata to add a global keyboard shortcut to any script
+
+```js
+// Shortcut: cmd shift j
+
+import "@johnlindquist/kit"
+
+say(`You pressed command shift j`)
+```
+
+```js
+// Shortcut: opt i
+
+import "@johnlindquist/kit"
+
+say(`You pressed option i`)
+```
+
+
 ## Input Text with `await arg()`
 
 <!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
@@ -658,28 +719,6 @@ import "@johnlindquist/kit"
 dev({
   message: "Hello world",
 })
-```
-
-## // Shortcut Metadata
-
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
-
-Use the `// Shortcut` metadata to add a global keyboard shortcut to any script
-
-```js
-// Shortcut: cmd shift j
-
-import "@johnlindquist/kit"
-
-say(`You pressed command shift j`)
-```
-
-```js
-// Shortcut: opt i
-
-import "@johnlindquist/kit"
-
-say(`You pressed option i`)
 ```
 
 ## // Shortcode Metadata

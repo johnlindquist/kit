@@ -26,13 +26,6 @@ let newOptions: Choice<keyof CLI | keyof Main>[] = [
     value: "new",
   },
   {
-    name: "New Snippet Script",
-    description: `Create a script using ${
-      kitMode() === "ts" ? "TypeScript" : "JavaScript"
-    }`,
-    value: "snippets",
-  },
-  {
     name: "New from URL/Gist",
     description: "Create a script from a URL or Gist",
     value: "new-from-url",

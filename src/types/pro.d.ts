@@ -27,6 +27,9 @@ export interface WidgetMessage {
   y: number
   width?: number
   height?: number
+  dataset?: {
+    [key: string]: any
+  }
 }
 
 export interface WidgetHandler {
