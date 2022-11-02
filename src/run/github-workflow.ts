@@ -3,12 +3,12 @@ import { configEnv } from "../core/utils.js"
 
 process.on("uncaughtException", error => {
   console.error(error)
-  process.exitCode = 1
+  // process.exitCode = 1
 })
 
 process.on("unhandledRejection", error => {
   console.error(error)
-  process.exitCode = 1
+  // process.exitCode = 1
 })
 
 await import("../api/global.js")
@@ -31,5 +31,5 @@ try {
   await runCli()
 } catch (error) {
   console.error(error)
-  process.exitCode = 1
+  // process.exitCode = 1
 }
