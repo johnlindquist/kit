@@ -15,6 +15,10 @@ await import(`../platform/${platform}.js`)
 configEnv()
 
 await import("../target/terminal.js")
+
+global.core = await npm("@actions/core")
+global.github = await npm("@actions/github")
+
 await import(
   resolveToScriptPath(await arg("Path to script"))
 )
