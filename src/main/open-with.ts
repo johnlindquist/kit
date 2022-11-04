@@ -20,6 +20,7 @@ let findApps = async () => {
 }
 let createChoices = async () => {
   let { fileIconToFile } = await npm("file-icon")
+  setLoading(true)
   let { apps } = await findApps()
   let assetsPath = kitPath(
     "assets",
@@ -27,40 +28,28 @@ let createChoices = async () => {
     "icons"
   )
   await ensureDir(assetsPath)
-  let group = (regex: RegExp) => (apps: string[]) =>
-    apps
-      .filter(app => app.match(regex))
-      .sort((a, b) => {
-        let aName = a.replace(/.*\//, "")
-        let bName = b.replace(/.*\//, "")
-        return aName > bName ? 1 : aName < bName ? -1 : 0
-      })
-  return await Promise.all(
-    [
-      ...group(/^\/Applications\/(?!Utilities)/)(apps),
-      ...group(/^\/System\/Applications/)(apps),
-      ...group(/^\/Applications\/Utilities/)(apps),
-      ...group(
-        /^\/System\/Library\/CoreServices\/Applications/
-      )(apps),
-      ...group(/^\/System\/Library\/CoreServices/)(apps),
-      // ...group(/System/)(apps),
-      ...group(/Users/)(apps),
-    ].map(async appPath => {
+  let destination = apps.map(appPath => {
+    let { base: appName } = path.parse(appPath)
+    return path.resolve(assetsPath, `${appName}.png`)
+  })
+
+  log(`Creating icons for ${apps.length} apps`)
+
+  await fileIconToFile(apps, {
+    size: 48,
+    destination,
+  })
+
+  log(`Done creating icons`)
+
+  let choices = _.sortBy(
+    apps.map(appPath => {
       let { base: appName } = path.parse(appPath)
       let destination = path.resolve(
         assetsPath,
         `${appName}.png`
       )
-      setFooter(`Creating icon for ${appName}`)
-      try {
-        await fileIconToFile(appPath, {
-          destination,
-          size: 48,
-        })
-      } catch (error) {
-        log(`Failed to get icon for ${appName}`)
-      }
+
       return {
         name: appName.replace(".app", ""),
         value: appPath,
@@ -68,8 +57,11 @@ let createChoices = async () => {
         img: destination,
         enter: `Open`,
       }
-    })
+    }),
+    ["value", "name"]
   )
+
+  return choices
 }
 let appsDb = await db("apps", async () => {
   setChoices([])

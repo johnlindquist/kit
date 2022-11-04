@@ -15,12 +15,15 @@ import {
   scriptsSort,
   scriptsDbPath,
   timestampsPath,
+  userDbPath,
 } from "./utils.js"
 import { Choice, Script, PromptDb } from "../types/core"
 import {
   Low,
   JSONFile,
 } from "@johnlindquist/kit-internal/lowdb"
+import { OctokitResponse } from "@octokit/plugin-paginate-rest/dist-types/types.js"
+import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 
 export const resolveKenv = (...parts: string[]) => {
   if (global.kitScript) {
@@ -297,6 +300,10 @@ export type AppDb = {
   appearance: "light" | "dark" | "auto"
 }
 
+export type UserDb = Partial<
+  RestEndpointMethodTypes["users"]["getAuthenticated"]["response"]["data"]
+>
+
 export const appDefaults = {
   version: "0.0.0",
   autoUpdate: true,
@@ -309,6 +316,16 @@ export let getAppDb = async (): Promise<
   Low<any> & AppDb
 > => {
   return await db(appDbPath, appDefaults)
+}
+
+export let getUserDb = async (): Promise<
+  Low<any> & UserDb
+> => {
+  return await db(userDbPath, {
+    username: "",
+    email: "",
+    avatarUrl: "",
+  })
 }
 
 type ShortcutsDb = {
