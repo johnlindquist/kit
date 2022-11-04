@@ -321,11 +321,7 @@ export let getAppDb = async (): Promise<
 export let getUserDb = async (): Promise<
   Low<any> & UserDb
 > => {
-  return await db(userDbPath, {
-    username: "",
-    email: "",
-    avatarUrl: "",
-  })
+  return await db(userDbPath, {})
 }
 
 type ShortcutsDb = {
