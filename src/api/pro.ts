@@ -69,6 +69,13 @@ let widget: Widget = async (html, options = {}) => {
         y,
       })
     },
+    call: (method, ...args) => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method,
+        args,
+      })
+    },
     onClick: (handler: WidgetHandler) => {
       clickHandler = handler
     },

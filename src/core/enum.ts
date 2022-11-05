@@ -180,6 +180,7 @@ export enum Channel {
   CUT_TEXT = "CUT_TEXT",
   DEBUG_SCRIPT = "DEBUG_SCRIPT",
   BLUR_APP = "BLUR_APP",
+  WIDGET_CALL = "WIDGET_CALL",
 }
 
 export enum ProcessType {

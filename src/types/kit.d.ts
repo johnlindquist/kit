@@ -1,6 +1,7 @@
 export {}
 
 import { Low } from "@johnlindquist/kit-internal/lowdb"
+import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 import { PlatformPath } from "path"
 import {
   ChannelHandler,
@@ -171,6 +172,17 @@ type PathPicker = (
 ) => Promise<string>
 export type PathSelector = PlatformPath & PathPicker
 
+type GistOptions = {
+  fileName?: string
+  description?: string
+  isPublic?: boolean
+}
+export interface CreateGist {
+  (content: string, options?: GistOptions): Promise<
+    RestEndpointMethodTypes["gists"]["create"]["response"]["data"]
+  >
+}
+
 export interface KitApi {
   path: PathSelector
   isWin: boolean
@@ -266,6 +278,7 @@ export interface KitApi {
   selectKenv: SelectKenv
   highlight: Highlight
   projectPath: PathFn
+  createGist: CreateGist
 }
 
 interface KeyValue {
@@ -335,4 +348,5 @@ declare global {
   var projectPath: PathFn
   var clearAllTimeouts: () => void
   var clearAllIntervals: () => void
+  var createGist: CreateGist
 }

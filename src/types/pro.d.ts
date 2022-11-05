@@ -43,6 +43,7 @@ export interface WidgetAPI {
   fit: () => void
   setSize: (width: number, height: number) => void
   setPosition: (x: number, y: number) => void
+  call: (name: string, ...args: any[]) => void
   onClick: (handler: WidgetHandler) => void
   onInput: (handler: WidgetHandler) => void
   onClose: (handler: WidgetHandler) => void

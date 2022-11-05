@@ -11,6 +11,7 @@ export interface Main {
   guide: Promise<typeof import("./guide")>
   hot: Promise<typeof import("./hot")>
   index: Promise<typeof import("./index")>
+  account: Promise<typeof import("./account")>
   kenv: Promise<typeof import("./kenv")>
   kit: Promise<typeof import("./kit")>
   new: Promise<typeof import("./new")>
@@ -54,6 +55,10 @@ onTab("Guide", async (input = "") => {
 
 onTab("Community", async (input = "") => {
   await main("hot", "--input", input)
+})
+
+onTab("Account__", async input => {
+  await main("account", "--input", input)
 })
 
 export {}

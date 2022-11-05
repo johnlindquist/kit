@@ -305,6 +305,12 @@ export interface ChannelMap {
     y: number
   }
 
+  [Channel.WIDGET_CALL]: {
+    widgetId: number
+    method: string
+    args?: any[]
+  }
+
   //
   [Channel.CLEAR_CACHE]: undefined
   [Channel.CLEAR_SCRIPTS_MEMORY]: undefined

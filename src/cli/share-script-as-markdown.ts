@@ -1,18 +1,13 @@
 //Menu: Share Script for Kit Discussion
 //Description: Create a gist and copy discussion content to clipboard
 
-import { Octokit } from "../share/auth-scriptkit.js"
+import { authenticate } from "../api/kit.js"
 
 let { filePath, command } = await selectScript(
   `Share which script?`
 )
 
-let octokit = new Octokit({
-  auth: {
-    scopes: ["gist"],
-    env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
-  },
-})
+let octokit = await authenticate()
 
 let fileBasename = path.basename(filePath)
 

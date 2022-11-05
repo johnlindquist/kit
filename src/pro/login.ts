@@ -1,21 +1,29 @@
-//Menu: Login to GitHub
-//Description: Authenticate to enable GitHub features
+// Name: Login to GitHub
+// Description: Authenticate to Enable Features
 
-import { getUserDb } from "../core/db.js"
-import { Octokit } from "../share/auth-scriptkit.js"
-await beep()
-let octokit = new Octokit({
-  auth: {
-    scopes: ["gist"],
-    env: "GITHUB_SCRIPTKIT_TOKEN",
-  },
-})
+import { authenticate } from "../api/kit.js"
 
-// get authenticated user
-let user = await octokit.rest.users.getAuthenticated()
+await div(
+  md(`
+# Sign in to GitHub
 
-let userDb = await getUserDb()
-_.assign(userDb, user.data)
-await userDb.write()
+## Sign in to Enable Features
+
+### Standard Features
+
+- Create Gists
+
+### Pro Features
+
+- Debugger
+- Sync Scripts to GitHub Repo
+- Run Scripts as GitHub Actions
+- 
+`)
+)
+
+await authenticate()
+
+await mainScript()
 
 export {}

@@ -1,18 +1,13 @@
 //Menu: Paste as Markdown
 //Description: Pastes Script as Markdown
 
-import { Octokit } from "../share/auth-scriptkit.js"
+import { authenticate } from "../api/kit.js"
 
 let { command, filePath } = await selectScript(
   `Share which script?`
 )
 
-let octokit = new Octokit({
-  auth: {
-    scopes: ["gist"],
-    env: "GITHUB_TOKEN_SCRIPT_KIT_GIST",
-  },
-})
+let octokit = await authenticate()
 
 let fileBasename = path.basename(filePath)
 

@@ -19,7 +19,10 @@ import {
 import {
   getScripts,
   getScriptFromString,
+  getUserDb,
 } from "../core/db.js"
+import { Octokit } from "../share/auth-scriptkit.js"
+
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 import { Kenv } from "../types/kit"
@@ -833,8 +836,6 @@ global.setTab = (tabName: string) => {
   global.onTabs[i].fn()
 }
 
-export { Octokit } from "../share/auth-scriptkit.js"
-
 global.term = async commandOrConfig => {
   let defaultConfig = {
     shell: true,
@@ -889,4 +890,43 @@ global.md = (
   containerClasses = "p-5 prose dark:prose-dark prose-sm"
 ) => {
   return _md(content, containerClasses)
+}
+
+export let authenticate = async () => {
+  let octokit = new Octokit({
+    auth: {
+      scopes: ["gist"],
+      env: "GITHUB_SCRIPTKIT_TOKEN",
+    },
+  })
+
+  let user = await octokit.rest.users.getAuthenticated()
+
+  let userDb = await getUserDb()
+  Object.assign(userDb, user.data)
+  await userDb.write()
+
+  return octokit
+}
+
+global.createGist = async (
+  content: string,
+  {
+    fileName = "file.txt",
+    description = "Gist Created in Script Kit",
+    isPublic = true,
+  }
+) => {
+  let octokit = await authenticate()
+  let response = await octokit.rest.gists.create({
+    description,
+    public: isPublic,
+    files: {
+      [fileName]: {
+        content,
+      },
+    },
+  })
+
+  return response.data
 }

@@ -22,7 +22,6 @@ import {
   Low,
   JSONFile,
 } from "@johnlindquist/kit-internal/lowdb"
-import { OctokitResponse } from "@octokit/plugin-paginate-rest/dist-types/types.js"
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 
 export const resolveKenv = (...parts: string[]) => {
