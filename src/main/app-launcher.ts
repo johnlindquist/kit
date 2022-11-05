@@ -34,7 +34,7 @@ let createChoices = async () => {
     "icons"
   )
   await ensureDir(assetsPath)
-  let allApps = apps.concat(prefs)
+  let allApps = _.uniq(apps.concat(prefs))
 
   let destination = allApps.map(appPath => {
     let { base: appName } = path.parse(appPath)
