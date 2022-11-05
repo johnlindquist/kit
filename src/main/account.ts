@@ -3,6 +3,7 @@
 import { authenticate } from "../api/kit.js"
 import { getUserDb } from "../core/db.js"
 import { userDbPath } from "../core/utils.js"
+setChoices([])
 let userDb = await getUserDb()
 if (userDb.login) {
   await arg("Account", ["Sign Out"])

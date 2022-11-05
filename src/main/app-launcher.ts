@@ -1,6 +1,6 @@
 import { backToMainShortcut, cmd } from "../core/utils.js"
 // Description: App Launcher
-log(`Startup`)
+
 setName(``)
 let findAppsAndPrefs = async () => {
   log(`findAppsAndPrefs`)
@@ -93,6 +93,7 @@ let app = await arg(
   {
     input: (flag?.input as string) || "",
     placeholder: "Select an app to launch",
+    resize: false,
     shortcuts: [
       backToMainShortcut,
       {
