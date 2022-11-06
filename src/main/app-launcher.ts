@@ -93,7 +93,6 @@ let app = await arg(
   {
     input: (flag?.input as string) || "",
     placeholder: "Select an app to launch",
-    resize: false,
     shortcuts: [
       backToMainShortcut,
       {

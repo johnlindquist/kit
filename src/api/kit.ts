@@ -914,8 +914,8 @@ global.createGist = async (
   {
     fileName = "file.txt",
     description = "Gist Created in Script Kit",
-    isPublic = true,
-  }
+    isPublic = false,
+  } = {}
 ) => {
   let octokit = await authenticate()
   let response = await octokit.rest.gists.create({

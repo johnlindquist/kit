@@ -5,9 +5,9 @@ import { backToMainShortcut } from "../core/utils.js"
 
 let featureName = await arg("Feature Name")
 
-let content = `# ${featureName} Requires Sponsorship
+let content = `# ${featureName} Requires Pro Account
 
-## A Script Kit Pro Sponsorship is Required to Use ${featureName}
+## A Script Kit Pro Sponsorship is Required for ${featureName}
 
 Please go to [https://github.com/sponsors/johnlindquist](https://github.com/sponsors/johnlindquist) to become a sponsor to unlock this feature.
 
