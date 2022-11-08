@@ -43,6 +43,7 @@ await arg(
     input: (flag?.input as string) || "",
     placeholder: "Search Google",
     enter: `Open in Browser`,
+    resize: true,
     shortcuts: [
       {
         name: `Paste Options`,

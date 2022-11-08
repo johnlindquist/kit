@@ -292,5 +292,5 @@ export interface ProcessInfo {
   child: ChildProcess
   type: ProcessType
   values: any[]
-  date: Date
+  date: number
 }

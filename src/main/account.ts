@@ -14,6 +14,7 @@ if (userDb.login) {
     files: kenvPath(".env"),
     from: /GITHUB_SCRIPTKIT_TOKEN=.*/g,
     to: ``,
+    disableGlobs: true,
   })
   process.env.GITHUB_SCRIPTKIT_TOKEN =
     env.GITHUB_SCRIPTKIT_TOKEN = ``

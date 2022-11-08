@@ -746,7 +746,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 }
 
 global.drop = async (
-  placeholder = "Waiting for drop..."
+  placeholder = "Drop something here..."
 ) => {
   let config: {
     placeholder?: string
@@ -825,7 +825,7 @@ global.fields = async formFields => {
                     i === 0 ? `autofocus` : ``
                   }                  
                   ${attributes}   
-                  class="peer text-xl h-10 px-4 py-0 outline-none border-b placeholder-black dark:placeholder-white dark:placeholder-opacity-25 placeholder-opacity-25 border-black dark:border-white border-opacity-15 dark:border-opacity-15 dark:focus:border-primary-light focus:border-primary-dark w-full"/>
+                  class="peer text-xl h-10 px-4 py-0 outline-none border-b dark:border-b border-opacity-25 dark:border-opacity-50 placeholder-black dark:placeholder-white dark:placeholder-opacity-25 placeholder-opacity-25 border-black dark:border-white border-opacity-15 dark:border-opacity-15 dark:focus:border-primary-light focus:border-primary-dark w-full"/>
 
                   <label for=${id || i} htmlFor=${
         id || i
@@ -843,7 +843,7 @@ ${inputs}
 
 <div class="w-full px-4 invisible h-0">
 <input type="reset" name="reset-form" value="Reset" accesskey="r"> class="focus:underline underline-offset-4 outline-none p-3 dark:text-white text-opacity-50 dark:text-opacity-50 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
-<input type="submit" name="submit-form" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-primary-dark dark:text-primary-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
+<input type="submit" name="submit-form" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-contrast-dark dark:text-contrast-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline bg-opacity-75 dark:bg-opacity-75"/>
 </div>
 </div>`
   config.shortcuts = formShortcuts

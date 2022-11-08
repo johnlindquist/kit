@@ -27,7 +27,6 @@ Or just hit _Enter_ to browse all.
 - Tutorials and lessons
 - Script Kit Tips and Tricks
 - Curated dev news
-<meta path="help/faq">
       
 ## FAQ
 
@@ -57,7 +56,7 @@ The main goal of Script Kit is to build a community of people who love to script
   - Scripts and utils for app setup, managing kenvs, parsing scripts, etc
 
 - kenvs - Kit Enviroments (AKA "kenv") are directories that contain a "scripts" directory. If you point "kit" at a "kenv", kit will parse the scripts and give you tools to simplify running and managing them.
-<meta path="help/schedule">
+
       
 ## View Scheduled Scripts
 
@@ -72,7 +71,7 @@ Use cron syntax to run scripts on a schedule:
 ```
 
 > Note: these scripts must not include `arg` or they will time out after 10 seconds
-<meta path="kit/system-events">
+
       
 ## View System Event Scripts
 
@@ -112,9 +111,9 @@ Available events:
 A "kenv" (Kit Environment) is a directory with a `scripts` directory. This is the place to create a kenv to manage scripts for your dev team or projects that expose APIs (GitHub, Vercel, etc). We'll be releasing official Script Kit kenvs in the future to show off some of the best practices. 👍
 
 Clone, create new, link, push, pull, remove. This menu allows you to manage any of the kenvs you've added to your machine.
-<meta url="https://github.com/johnlindquist/kit/discussions/529">
-<meta id="D_kwDOEu7MBc4AN_2Q">
-<meta path="kit/add-kit-to-profile">
+
+
+
       
 ## Add ~/.kit/bin to $PATH
 
@@ -138,7 +137,7 @@ kit
 
 > If you're familiar with adding to your `.zshrc`, just add `~/.kit/bin` to your PATH.
 
-The `kit` CLI will allow you to run, edit, etc scripts from your terminal.<meta path="kit/add-kenv-to-profile">
+The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
       
 ## Add ~/.kenv/bin to $PATH
 
@@ -191,7 +190,7 @@ This menu will manage that for you
 <!-- enter: Create bins -->
 
 If you manually manage files in the `scripts` dir (instead of using Kit.app or the `kit` CLI) you may run into the scenarios where you have to re-generate all the `bin` executables. This will do that for you.
-<meta path="kit/change-editor">
+
       
 ## Change Editor
 
@@ -233,7 +232,7 @@ This will help you install/uninstall packages from your `~/.kenv/node_modules`
 ```js
 let express = await npm("express")
 ```
-<meta path="kit/switch-to-js">
+
       
 ## Switch to JavaScript Mode
 
@@ -270,7 +269,7 @@ You can manually edit a `PATH` value any time in `~/.kenv/.env`
 <!-- enter: Check for Update -->
 
 Kit.app will check for updates each time your machine wakes from sleep. But if you heard about an update and just can't wait, trigger this command to grab it.
-<meta path="kit/settings">
+
 
 ## Open kit.log
 
@@ -297,7 +296,7 @@ This will open the `.env` file in your editor. This is where Script Kit stores e
 Hit <kbd>Enter</kbd> to modify Kit.app settings:
 - Toggle the menu bar icon
 - Toggle open at login
-- Toggle auto-update<meta path="kit/credits">
+- Toggle auto-update
       
 ## Credits
 
