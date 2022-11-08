@@ -1,5 +1,5 @@
 import { build } from "esbuild"
-import { lstat, readdir } from "fs/promises"
+import { lstat, readdir, writeFile } from "fs/promises"
 import os from "os"
 import * as path from "path"
 
@@ -74,20 +74,38 @@ let buildTSScript = async (scriptPath, outPath = "") => {
   }
 
   let outfile = outPath || determineOutFile(scriptPath)
-  await build({
-    entryPoints: [scriptPath],
-    outfile,
-    bundle: true,
-    platform: "node",
-    format: "esm",
-    external,
-    charset: "utf8",
-    tsconfig: kitPath(
-      "templates",
-      "config",
-      "tsconfig.json"
-    ),
-  })
+
+  let writeErrorFile = async () => {
+    let name = path.basename(scriptPath)
+    let errorScript = `
+await div(md(\`# Failed to Compile ${name}
+
+Please fix the errors and try again.\`))
+    `
+    await writeFile(outfile, errorScript)
+  }
+  try {
+    let result = await build({
+      entryPoints: [scriptPath],
+      outfile,
+      bundle: true,
+      platform: "node",
+      format: "esm",
+      external,
+      charset: "utf8",
+      tsconfig: kitPath(
+        "templates",
+        "config",
+        "tsconfig.json"
+      ),
+    })
+
+    if (result?.errors?.length) {
+      await writeErrorFile()
+    }
+  } catch (error) {
+    await writeErrorFile()
+  }
 }
 
 await buildTSScript(process.argv[2])

@@ -5,7 +5,7 @@ import { getUserDb } from "../core/db.js"
 import { cmd, userDbPath } from "../core/utils.js"
 setChoices([])
 
-let sponsorUrl = `https://github.com/sponsors/johnlindquist`
+let sponsorUrl = `https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205`
 let userDb = await getUserDb()
 if (userDb.login) {
   await arg("Account", ["Sign Out"])
@@ -20,7 +20,7 @@ if (userDb.login) {
   await mainScript()
 } else {
   let topPane = md(
-    `# Become a Script Kit Pro`,
+    `# Go Pro to Unlock the Full Power of Script Kit`,
     "px-5 pt-5 prose dark:prose-dark prose-sm"
   )
   let leftPane = md(`
@@ -31,7 +31,7 @@ if (userDb.login) {
 ## Pro Account Features
 
 - Debugger
-- Separate Log Window
+- Script Log Window
 - Custom Themes
 
 ## Upcoming Pro Features
@@ -54,13 +54,19 @@ if (userDb.login) {
       enter: "Sign In",
       shortcuts: [
         {
-          name: `Scroll`,
-          key: `${cmd}+down`,
+          name: `Scroll Up`,
+          key: `up`,
           bar: "right",
           onPress: async (input, { focused }) => {},
         },
         {
-          name: "Open Sponsor Page",
+          name: `Scroll Down`,
+          key: `down`,
+          bar: "right",
+          onPress: async (input, { focused }) => {},
+        },
+        {
+          name: "Sponsor to Go Pro",
           key: `${cmd}+o`,
           bar: "right",
           onPress: async (input, { focused }) => {

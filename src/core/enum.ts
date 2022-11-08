@@ -220,6 +220,7 @@ export enum UI {
   term = "term",
   fields = "fields",
   emoji = "emoji",
+  debugger = "debugger",
 }
 
 export enum Bin {
