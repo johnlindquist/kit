@@ -256,10 +256,6 @@ export let getScriptFromString = async (
 }
 
 export let getScripts = async (fromCache = true) => {
-  if (!(await isDir(kenvPath("kenvs")))) {
-    return await parseScripts()
-  }
-
   return (await getScriptsDb(fromCache)).scripts
 }
 
