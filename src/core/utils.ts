@@ -617,6 +617,7 @@ export let run = async (
       path.dirname(path.dirname(resolvedScript)),
       ...args
     )
+
   global.onTabs = []
   global.kitScript = resolvedScript
   global.kitCommand = resolveScriptToCommand(resolvedScript)
@@ -655,7 +656,6 @@ export let updateEnv = (scriptProjectPath: string) => {
   })
 
   if (parsed) {
-    assignPropsTo(parsed, process.env)
     assignPropsTo(process.env, global.env)
   }
 
@@ -676,7 +676,6 @@ export let configEnv = () => {
     path.delimiter +
     KIT_FIRST_PATH
 
-  assignPropsTo(parsed, process.env)
   assignPropsTo(process.env, global.env)
 
   return parsed
