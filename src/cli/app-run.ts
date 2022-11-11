@@ -148,7 +148,7 @@ let scriptFlags: FlagsOptions = {
       "Create a .sh file around the script for Stream Decks",
   },
   ["open-script-log"]: {
-    name: "Open Log",
+    name: "Open Log File",
     description:
       "Open the log file for the selected script",
   },
@@ -156,11 +156,6 @@ let scriptFlags: FlagsOptions = {
     name: "Run script w/ shift flag",
     shortcut: "shift+enter",
     flag: "shift",
-  },
-  [modifiers.opt]: {
-    name: "Run script w/ opt flag",
-    shortcut: "option+enter",
-    flag: "opt",
   },
   [modifiers.ctrl]: {
     name: "Run script w/ ctrl flag",

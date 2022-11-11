@@ -8,8 +8,8 @@ let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
     isYarn
-      ? `yarn${global.isWin ? `.cmd` : ``} add`
-      : `npm${global.isWin ? `.cmd` : ``} i`
+      ? `yarn${global.isWin ? `.cmd` : ``} add -D`
+      : `npm${global.isWin ? `.cmd` : ``} i -D`
   ).split(" ")
 
   if (global.isWin) {

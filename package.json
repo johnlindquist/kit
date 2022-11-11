@@ -36,7 +36,8 @@
     "test": "NODE_NO_WARNINGS=1 ava --no-worker-threads",
     "posttest": "node ./scripts/test-post.js",
     "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\" && node ./scripts/cjs-fix.js",
-    "build-editor-types": " kit ./build/build-editor-types.ts"
+    "build-editor-types": " kit ./build/build-editor-types.ts",
+    "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast"
   },
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",

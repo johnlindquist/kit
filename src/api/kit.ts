@@ -897,8 +897,9 @@ global.execLog = (command: string, logger = global.log) => {
 }
 
 global.projectPath = (...args) => {
-  console.log(`Script not loaded yet...`)
-  return ``
+  throw new Error(
+    `Script not loaded. Can't use projectPath() until a script is imported`
+  )
 }
 
 global.clearTabs = () => {

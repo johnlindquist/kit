@@ -1,13 +1,22 @@
 /** @type {import("/Users/johnlindquist/.kit")} */
-
 await import("../test/config.js")
 console.log({ kenvTestPath })
 
-if (test("-d", kitMockPath())) {
+let userKenv = (...parts) => {
+  return home(".kenv", ...parts.filter(Boolean))
+}
+let userBinPath = userKenv("bin")
+if (await isDir(userBinPath)) {
+  let staleMocks = userKenv("bin", "mock*")
+  console.log(`Removing stale mocks: ${staleMocks}`)
+  await rm(staleMocks)
+}
+
+if (await isDir("-d", kitMockPath())) {
   await rm(kitMockPath())
 }
 
-if (test("-d", kenvTestPath)) {
+if (await isDir(kenvTestPath)) {
   console.log(`Clearing ${kenvTestPath}`)
   await rm(kenvTestPath)
 }
@@ -25,6 +34,7 @@ await degit(`johnlindquist/kenv#${branch}`, {
 }).clone(kenvSetupPath)
 
 process.env.KENV = kenvTestPath
+await rm(kitPath("db", "scripts.json"))
 await $`kit ${kitPath("setup", "setup.js")} --no-edit`
 // console.log(
 //   await readFile(kenvPath("package.json"), "utf-8")

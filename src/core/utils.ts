@@ -9,7 +9,7 @@ import {
   Shortcut,
 } from "../types/core"
 import { platform, homedir } from "os"
-import { lstatSync, PathLike } from "fs"
+import { lstatSync, PathLike, realpathSync } from "fs"
 import { lstat, readdir, readFile } from "fs/promises"
 
 import { execSync } from "child_process"
@@ -203,6 +203,28 @@ export let resolveToScriptPath = (
   let resolvedScriptPath = ""
 
   // if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
+
+  // Check sibling scripts
+  if (global.kitScript) {
+    let currentRealScriptPath = realpathSync(
+      global.kitScript
+    )
+    let maybeSiblingScriptPath = path.join(
+      path.dirname(currentRealScriptPath),
+      script
+    )
+    if (fileExists(maybeSiblingScriptPath)) {
+      return maybeSiblingScriptPath
+    }
+
+    if (fileExists(maybeSiblingScriptPath + ".js")) {
+      return maybeSiblingScriptPath + ".js"
+    }
+
+    if (fileExists(maybeSiblingScriptPath + ".ts")) {
+      return maybeSiblingScriptPath + ".ts"
+    }
+  }
 
   // Check main kenv
 
@@ -592,16 +614,14 @@ export let run = async (
   let resolvedScript = resolveToScriptPath(script)
   global.projectPath = (...args) =>
     path.resolve(
-      path.dirname(path.dirname(script)),
+      path.dirname(path.dirname(resolvedScript)),
       ...args
     )
   global.onTabs = []
   global.kitScript = resolvedScript
   global.kitCommand = resolveScriptToCommand(resolvedScript)
-  let projectPath = path.dirname(
-    path.dirname(resolvedScript)
-  )
-  // updateEnv(projectPath)
+  let realProjectPath = projectPath()
+  updateEnv(realProjectPath)
   if (process.env.KIT_CONTEXT === "app") {
     let script = await parseScript(global.kitScript)
 
@@ -612,7 +632,7 @@ export let run = async (
       return await Promise.resolve("Debugging...")
     }
 
-    cd(projectPath)
+    cd(realProjectPath)
 
     global.send(Channel.SET_SCRIPT, script)
   }
@@ -629,11 +649,13 @@ export let run = async (
 
 export let updateEnv = (scriptProjectPath: string) => {
   let { parsed, error } = config({
+    node_env: process.env.NODE_ENV || "development",
     path: scriptProjectPath,
     silent: true,
   })
 
   if (parsed) {
+    assignPropsTo(parsed, process.env)
     assignPropsTo(process.env, global.env)
   }
 
@@ -644,6 +666,7 @@ export let updateEnv = (scriptProjectPath: string) => {
 
 export let configEnv = () => {
   let { parsed, error } = config({
+    node_env: process.env.NODE_ENV || "development",
     path: process.env.KIT_DOTENV_PATH || kenvPath(),
     silent: true,
   })
@@ -653,6 +676,7 @@ export let configEnv = () => {
     path.delimiter +
     KIT_FIRST_PATH
 
+  assignPropsTo(parsed, process.env)
   assignPropsTo(process.env, global.env)
 
   return parsed

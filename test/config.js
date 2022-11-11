@@ -48,12 +48,12 @@ global.execOptions = execOptions
 let testScript = async (name, content, type = "js") => {
   await $`KIT_MODE=${type} kit new ${name} main --no-edit`
 
-  await appendFile(
-    kenvPath("scripts", `${name}.js`),
-    content
-  )
+  let scriptPath = kenvPath("scripts", `${name}.js`)
+  await appendFile(scriptPath, content)
 
-  return await $`${kenvPath("bin", name)}`
+  let { stdout, stderr } = await $`${kenvPath("bin", name)}`
+
+  return { stdout, stderr, scriptPath }
 }
 
 global.testScript = testScript

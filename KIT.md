@@ -139,9 +139,11 @@ kit
 
 The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
       
-## Add ~/.kenv/bin to $PATH
+## Add kenv Executables to $PATH
 
 <!-- description: Select profile and append ~/.kenv/bin to $PATH -->
+<!-- value: add-kenv-to-profile.js -->
+<!-- enter: Select Kenv -->
 
 Each time you create a script, Script Kit also generates a command based on the name you can run from the terminal.
 

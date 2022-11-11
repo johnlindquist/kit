@@ -1,24 +1,18 @@
 // Description: Select a Path
-
 import {
   backToMainShortcut,
   isMac,
   isWin,
 } from "../core/utils.js"
-
 setName(``)
-
 let initialPath = await arg("Initial path")
 if (initialPath === "~") initialPath = home()
-
 let selectedPath = await path({
   startPath: initialPath,
   shortcuts: [backToMainShortcut],
 })
-
 setDescription(selectedPath)
-
-let action = await arg<string>(
+let action = await arg(
   {
     placeholder: "Selected Path Action:",
     enter: "Select",
@@ -77,12 +71,16 @@ let action = await arg<string>(
       value: "vscode",
     },
     {
-      name: "Copy Path",
-      value: "copy",
+      name: "Copy to...",
+      value: "copy_to",
     },
     {
       name: "Move",
       value: "move",
+    },
+    {
+      name: "Copy Path",
+      value: "copy",
     },
     {
       name: "Trash",
@@ -90,37 +88,30 @@ let action = await arg<string>(
     },
   ]
 )
-
 switch (action) {
   case "open":
     await open(path.dirname(selectedPath))
     break
-
   case "open-with":
     await run(kitPath("main", "open-with.js"), selectedPath)
     break
-
   case "finder":
     await revealFile(selectedPath)
     break
-
   case "info":
     await applescript(`
 set aFile to (POSIX file "${selectedPath}") as alias
 tell application "Finder" to open information window of aFile
 `)
     break
-
   case "terminal":
     await exec(`open -a Terminal '${selectedPath}'`)
     break
-
   case "command":
     cd(selectedPath)
     setDescription(`> Run command:`)
     await exec(await arg("Enter command:"))
     break
-
   case "editor":
     try {
       let content = await readFile(selectedPath, "utf-8")
@@ -130,7 +121,6 @@ tell application "Finder" to open information window of aFile
       console.log(`Error: ${error}`)
     }
     break
-
   case "vscode":
     if (isWin) {
       await exec(`code ${selectedPath}`)
@@ -140,17 +130,27 @@ tell application "Finder" to open information window of aFile
       )
     }
     break
-
   case "copy":
     await copy(selectedPath)
     break
 
+  case "copy_to":
+    let destination = await path({
+      hint: "Select destination",
+      startPath: home(),
+      onlyDirs: true,
+      shortcuts: [backToMainShortcut],
+    })
+    await copyFile(
+      selectedPath,
+      path.resolve(destination, path.basename(selectedPath))
+    )
+    break
   case "move":
     setDescription("Select destination folder")
     let destFolder = await path(path.dirname(selectedPath))
     mv(selectedPath, destFolder)
     break
-
   case "trash":
     let yn = await arg({
       placeholder: `Trash ${path.basename(selectedPath)}?`,
@@ -161,5 +161,3 @@ tell application "Finder" to open information window of aFile
     }
     break
 }
-
-export {}

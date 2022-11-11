@@ -101,3 +101,21 @@ ava("resolve doesn't exist", t => {
 //     force: true,
 //   })
 // })
+
+ava(
+  "projectPath gives the directory of the project",
+  async t => {
+    let script = `mock-project-path`
+
+    let { stdout, stderr, scriptPath } = await testScript(
+      script,
+      `
+      console.log(projectPath())    
+      `
+    )
+
+    let projectPath = path.dirname(path.dirname(scriptPath))
+
+    t.is(stdout.trim(), projectPath)
+  }
+)
