@@ -598,7 +598,10 @@ export let run = async (
   global.onTabs = []
   global.kitScript = resolvedScript
   global.kitCommand = resolveScriptToCommand(resolvedScript)
-
+  let projectPath = path.dirname(
+    path.dirname(resolvedScript)
+  )
+  updateEnv(projectPath)
   if (process.env.KIT_CONTEXT === "app") {
     let script = await parseScript(global.kitScript)
 
@@ -608,11 +611,9 @@ export let run = async (
 
       return await Promise.resolve("Debugging...")
     }
-    let projectPath = path.dirname(
-      path.dirname(script.filePath)
-    )
+
     cd(projectPath)
-    updateEnv(projectPath)
+
     global.send(Channel.SET_SCRIPT, script)
   }
 

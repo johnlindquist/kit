@@ -220,12 +220,7 @@ export let getTimestamps = async (
 export let getScriptFromString = async (
   script: string
 ): Promise<Script> => {
-  let scripts = []
-  if (process.env.KENV_PROJECT === "true") {
-    scripts = await parseScripts()
-  } else {
-    scripts = (await getScriptsDb()).scripts
-  }
+  let { scripts } = await getScriptsDb()
 
   if (!script.includes(path.sep)) {
     let result = scripts.find(

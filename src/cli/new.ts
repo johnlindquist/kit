@@ -34,11 +34,11 @@ let onInput = async input => {
   }
 }
 
-let scriptName = await arg(
+let name = await arg(
   {
     placeholder:
       arg?.placeholder || "Enter a name for your script:",
-    hint: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
+    hint: `e.g., ${examples}`,
     validate: input => {
       return exists(input.replace(/\s/g, "-").toLowerCase())
     },
@@ -47,11 +47,6 @@ let scriptName = await arg(
   onInput
 )
 
-let name = scriptName
-  .trim()
-  .replace(/\s/g, "-")
-  .toLowerCase()
-
 // div(md(`## Opening ${name}...`))
 
 let { dirPath: selectedKenvPath } = await selectKenv({
@@ -59,10 +54,14 @@ let { dirPath: selectedKenvPath } = await selectKenv({
   enter: "Create Script in Selected Kenv",
 })
 
+let stripName = (name: string) =>
+  path.parse(name.trim().replace(/\s/g, "-").toLowerCase())
+    .name
+
 let scriptPath = path.join(
   selectedKenvPath,
   "scripts",
-  `${name}.${kitMode()}`
+  `${stripName(name)}.${kitMode()}`
 )
 
 let contents = [arg?.npm]
@@ -114,9 +113,7 @@ contents += templateCompiler({
   name: arg?.scriptName || name,
 })
 if (!contents.includes(`Name:`)) {
-  contents = `// Name: ${
-    arg?.scriptName || scriptName || ""
-  }
+  contents = `// Name: ${arg?.scriptName || name || ""}
 ${contents.startsWith("/") ? contents : "\n" + contents}
 `
 }
