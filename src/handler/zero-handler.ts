@@ -1,2 +1,2 @@
 import { runUserHandlerIfExists } from "../cli/lib/utils.js"
-await runUserHandlerIfExists("focus-window")
+await runUserHandlerIfExists("emoji")

@@ -1,3 +1,21 @@
+import * as path from "path"
+import { lstatSync } from "fs"
+
+let dirExists = (dir: string) => {
+  try {
+    return lstatSync(dir, {
+      throwIfNoEntry: false,
+    })?.isDirectory()
+  } catch (erorr) {
+    return false
+  }
+}
+
+if (dirExists(path.join(process.cwd(), "scripts"))) {
+  process.env.KENV = path.join(process.cwd())
+  process.env.KENV_PROJECT = "true"
+}
+
 import os from "os"
 import { configEnv } from "../core/utils.js"
 

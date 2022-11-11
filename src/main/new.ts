@@ -24,7 +24,7 @@ let newOptions: Choice<keyof CLI | keyof Main>[] = [
     value: "new",
   },
   {
-    name: "Download Script From URL",
+    name: "Download From URL or Gist",
     description: "Enter a url then name it",
     value: "new-from-url",
   },

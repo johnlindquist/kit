@@ -220,7 +220,12 @@ export let getTimestamps = async (
 export let getScriptFromString = async (
   script: string
 ): Promise<Script> => {
-  let { scripts } = await getScriptsDb()
+  let scripts = []
+  if (process.env.KENV_PROJECT === "true") {
+    scripts = await parseScripts()
+  } else {
+    scripts = (await getScriptsDb()).scripts
+  }
 
   if (!script.includes(path.sep)) {
     let result = scripts.find(
@@ -255,8 +260,13 @@ export let getScriptFromString = async (
   )
 }
 
-export let getScripts = async (fromCache = true) =>
-  (await getScriptsDb(fromCache)).scripts
+export let getScripts = async (fromCache = true) => {
+  if (!(await isDir(kenvPath("kenvs")))) {
+    return await parseScripts()
+  }
+
+  return (await getScriptsDb(fromCache)).scripts
+}
 
 export let updateScripts = async (
   changedScriptPath: string

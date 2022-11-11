@@ -78,8 +78,13 @@ export interface ProAPI {
   term: Terminal
 }
 
+export interface ShowLogWindow {
+  (scriptPath?: string): Promise<void>
+}
+
 declare global {
   var widget: Widget
   var menu: Menubar
   var term: Terminal
+  var showLogWindow: ShowLogWindow
 }

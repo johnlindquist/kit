@@ -40,6 +40,7 @@ export interface ScriptPathInfo {
   id: string
   icon?: string
   timestamp?: number
+  needsDebugger?: boolean
 }
 
 export interface ScriptMetadata {
@@ -134,9 +135,10 @@ export type Shortcut = {
   onPress?: (
     input: string,
     state: AppState
-  ) => Promise<void>
+  ) => void | Promise<void>
   bar?: "right" | "left" | ""
   flag?: string
+  condition?: (choice: any) => boolean
 }
 
 export interface PromptData {

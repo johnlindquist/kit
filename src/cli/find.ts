@@ -1,5 +1,4 @@
 // Name: Search Scripts and Logs
-
 import "@johnlindquist/kit"
 import {
   backToMainShortcut,
@@ -7,25 +6,18 @@ import {
   getKenvs,
 } from "../core/utils.js"
 import { highlightJavaScript } from "../api/kit.js"
-
 let kenvs = await getKenvs()
 let allKenvs = [kenvPath(), ...kenvs]
 let searchDirs = [
   ...allKenvs.map(k => path.resolve(k, "scripts")),
   //   ...allKenvs.map(k => path.resolve(k, "logs")),
 ]
-
 let searchExistingDirs = []
 for await (let dir of searchDirs) {
   if (await isDir(dir)) {
-    searchExistingDirs.push(dir)
+    searchExistingDirs.push(dir + path.sep + "*")
   }
 }
-
-let kenvsString = searchExistingDirs
-  .map(d => `'${d}'`)
-  .join(" ")
-
 let filePath = await arg(
   {
     placeholder: "Search Scripts",
@@ -50,9 +42,7 @@ let filePath = await arg(
       },
     ],
   },
-  async (input: string) => {
-    let command = `grep -inR '${input}' ${kenvsString}`
-
+  async input => {
     try {
       if (!input || input?.length < 3) {
         setChoices([])
@@ -62,18 +52,21 @@ let filePath = await arg(
         return
       }
 
-      let { stdout } = await exec(command)
+      let filePaths = searchExistingDirs
+        .flatMap(dir => {
+          try {
+            let { stdout } = grep("-il", input, dir)
+            return stdout.split("\n")
+          } catch (error) {
+            return []
+          }
+        })
+        .filter(Boolean)
 
-      return stdout.split("\n").map(line => {
-        let [file, num, ...match] = line
-          .split(":")
-          .filter(Boolean)
-        let filePath = path.resolve(file)
-
+      return filePaths.map(filePath => {
         return {
-          name: match.join(":").slice(0, 50),
-          description:
-            file.replace(home(), "~") + `:${num}`,
+          name: path.basename(filePath),
+          description: filePath.replace(home(), "~"),
           value: filePath,
           preview: async () => {
             return highlightJavaScript(filePath)
@@ -85,10 +78,9 @@ let filePath = await arg(
       setPanel(
         md(`## No Results
       
-<code>${command}</code> failed`)
+<code>grep for ${input}</code> failed`)
       )
     }
   }
 )
-
 if (filePath) await run(filePath)

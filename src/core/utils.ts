@@ -1,4 +1,5 @@
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
+import { $ } from "zx"
 import * as path from "path"
 import {
   Script,
@@ -427,9 +428,14 @@ export let parseScript = async (
   let contents = await readFile(filePath, "utf8")
   let metadata = parseMetadata(contents)
 
+  let needsDebugger = Boolean(
+    contents.match(/^\s*debugger/gim)
+  )
+
   return {
     ...metadata,
     ...parsedFilePath,
+    needsDebugger,
     name:
       metadata.name ||
       metadata.menu ||
@@ -602,15 +608,37 @@ export let run = async (
 
       return await Promise.resolve("Debugging...")
     }
-
+    let projectPath = path.dirname(
+      path.dirname(script.filePath)
+    )
+    cd(projectPath)
+    updateEnv(projectPath)
     global.send(Channel.SET_SCRIPT, script)
   }
 
-  return await global.attemptImport(
+  let result = await global.attemptImport(
     resolvedScript,
     ...scriptArgs,
     ...commandArgs
   )
+
+  flag.tab = ""
+  return result
+}
+
+export let updateEnv = (scriptProjectPath: string) => {
+  let { parsed, error } = config({
+    path: scriptProjectPath,
+    silent: true,
+  })
+
+  if (parsed) {
+    assignPropsTo(process.env, global.env)
+  }
+
+  if (error) {
+    console.log(error)
+  }
 }
 
 export let configEnv = () => {
@@ -736,6 +764,7 @@ export let scriptsSort =
 export let parseScripts = async () => {
   let scriptFiles = await getScriptFiles()
   let kenvDirs = await getKenvs()
+
   for await (let kenvDir of kenvDirs) {
     let scripts = await getScriptFiles(kenvDir)
     scriptFiles = [...scriptFiles, ...scripts]

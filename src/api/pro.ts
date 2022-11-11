@@ -249,3 +249,7 @@ let oldTerm = async (
 global.widget = widget
 global.menu = menu
 global.term = term
+
+global.showLogWindow = async (scriptPath = "") => {
+  await sendWait(Channel.SHOW_LOG_WINDOW, scriptPath)
+}

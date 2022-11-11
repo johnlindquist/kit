@@ -92,6 +92,7 @@ let appsDb = await db(
 let app = await arg(
   {
     input: (flag?.input as string) || "",
+    resize: true,
     placeholder: "Select an app to launch",
     shortcuts: [
       backToMainShortcut,

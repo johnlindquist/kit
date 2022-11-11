@@ -235,6 +235,20 @@ let createOnChoiceFocusDefault = (
 
       setPreview(preview)
 
+      if (global?.__currentPromptConfig?.shortcuts) {
+        const shortcuts =
+          global?.__currentPromptConfig?.shortcuts?.filter(
+            shortcut => {
+              if (shortcut?.condition) {
+                return shortcut.condition(state.focused)
+              }
+              return true
+            }
+          )
+
+        if (setShortcuts) setShortcuts(shortcuts)
+      }
+
       if (typeof onUserChoiceFocus === "function")
         onUserChoiceFocus(input, state)
     },
@@ -477,13 +491,15 @@ let waitForPromptValue = ({
 
     value$.subscribe({
       next: value => {
-        global.log(`${process.pid}: Value submitted ✅ `)
+        global.log(
+          `${process.pid}: value: ${JSON.stringify(value)}`
+        )
         resolve(value)
       },
       complete: () => {
-        global.log(
-          `${process.pid}: Prompt #${promptId} complete 👍`
-        )
+        // global.log(
+        //   `${process.pid}: Prompt #${promptId} complete 👍`
+        // )
       },
       error: error => {
         reject(error)
@@ -655,8 +671,12 @@ let determineChoicesType = choices => {
   }
 }
 
+global.__currentPromptSecret = false
+global.__currentPromptConfig = {}
 global.kitPrompt = async (config: PromptConfig) => {
   promptId++
+  global.__currentPromptSecret = config.secret || false
+  global.currentUI = config?.ui || UI.arg
   kitPrompt$.next(true)
 
   //need to let onTabs() gather tab names. See Word API
@@ -714,6 +734,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onDrop = onDropDefault,
   } = config
 
+  global.__currentPromptConfig = config
   await prepPrompt(config)
 
   let choiceFocus = createOnChoiceFocusDefault(
@@ -2115,16 +2136,6 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
     filePath: `file:///node_modules/@types/node-notifier/index.d.ts`,
   })
 
-  let clipboardyContent = await readFile(
-    kitPath("node_modules", "clipboardy", "index.d.ts"),
-    "utf8"
-  )
-
-  extraLibs.push({
-    content: clipboardyContent,
-    filePath: `file:///node_modules/@types/clipboardy/index.d.ts`,
-  })
-
   let trashContent = await readFile(
     kitPath("node_modules", "trash", "index.d.ts"),
     "utf8"
@@ -2139,9 +2150,26 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
 }
 
 global.getExtraLibs = async (): Promise<ExtraLib[]> => {
-  return [...(await addNodeLibs()), ...(await addKitLibs())]
+  let nodeLibs = []
+  try {
+    nodeLibs = await addNodeLibs()
+  } catch (error) {
+    warn(error)
+  }
+
+  let kitLibs = []
+  try {
+    kitLibs = await addKitLibs()
+  } catch (error) {
+    warn(error)
+  }
+  return [...nodeLibs, ...kitLibs]
 }
 
 global.setAppearance = async appearance => {
   await sendWait(Channel.SET_APPEARANCE, appearance)
+}
+
+global.setShortcuts = async shortcuts => {
+  await sendWait(Channel.SET_SHORTCUTS, shortcuts)
 }

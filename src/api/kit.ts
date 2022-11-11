@@ -2,6 +2,7 @@ import * as os from "os"
 import { pathToFileURL } from "url"
 
 import {
+  AppState,
   Choice,
   FlagsOptions,
   PromptConfig,
@@ -15,6 +16,7 @@ import {
   resolveScriptToCommand,
   run,
   getKenvs,
+  configEnv,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -273,7 +275,9 @@ global.attemptImport = async (scriptPath, ..._args) => {
           .basename(scriptPath)
           .replace(/\.js$/, ".mjs")
       )
-      importResult = await run(tmpScript)
+      importResult = await import(
+        tmpScript + "?uuid=" + global.uuid()
+      )
       // await rm(mjsVersion)
     } else {
       if (process.env.KIT_CONTEXT === "app") {
@@ -568,6 +572,23 @@ global.setChoices = async (choices, className = "") => {
         return choice
       })
     }
+  }
+
+  if (
+    global?.__currentPromptConfig?.shortcuts &&
+    choices?.[0]
+  ) {
+    const shortcuts =
+      global?.__currentPromptConfig?.shortcuts?.filter(
+        shortcut => {
+          if (shortcut?.condition) {
+            return shortcut.condition(choices?.[0])
+          }
+          return true
+        }
+      )
+
+    if (setShortcuts) setShortcuts(shortcuts)
   }
 
   let p = global.sendWait(Channel.SET_CHOICES, choices)

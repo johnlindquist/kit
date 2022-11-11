@@ -6,6 +6,28 @@ import { cmd, userDbPath } from "../core/utils.js"
 setChoices([])
 
 let sponsorUrl = `https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205`
+try {
+  sponsorUrl = (
+    await readFile(
+      kitPath("data", "sponsor-url.txt"),
+      "utf-8"
+    )
+  ).trim()
+} catch (error) {
+  warn(`Failed to read sponsor-url.txt`)
+}
+
+try {
+  sponsorUrl = (
+    await readFile(
+      kitPath("data", "sponsor-url.txt"),
+      "utf-8"
+    )
+  ).trim()
+} catch (error) {
+  warn(`Failed to read sponsor-url.txt`)
+}
+
 let userDb = await getUserDb()
 if (userDb.login) {
   await arg("Account", ["Sign Out"])
@@ -24,16 +46,24 @@ if (userDb.login) {
     `# Go Pro to Unlock the Full Power of Script Kit`,
     "px-5 pt-5 prose dark:prose-dark prose-sm"
   )
+
   let leftPane = md(`
-## Free Account Features
+## No Account
 
-- Create Gists
+- All standard Kit features are free. No account required.
 
+  `)
+
+  let middlePane = md(`
+## Account Features
+
+- Custom Themes
+- Create Gists`)
+  let rightPane = md(`
 ## Pro Account Features
 
 - Debugger
 - Script Log Window
-- Custom Themes
 
 ## Upcoming Pro Features
 - Sync Scripts to GitHub Repo
@@ -44,10 +74,7 @@ if (userDb.login) {
 - Audio Recording
 - Webcam Capture
 - Desktop Color Picker
-- Measure Tool
-            `)
-  let rightPane = md(`
-> Select the [Script Kit Pro](${sponsorUrl}) Tier on the sponsor page to unlock all features`)
+- Measure Tool`)
 
   await arg(
     {
@@ -79,9 +106,10 @@ if (userDb.login) {
     `
 <div class="flex flex-col">
 ${topPane}
-<div class="flex flex-row -mt-6">
-  <div class="flex-1">${leftPane}</div>
-  <div class="flex-1">${rightPane}</div>
+<div class="flex flex-row -mt-5">
+  <div class="flex-1 border-r border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${leftPane}</div>
+  <div class="flex-1">${middlePane}</div>
+  <div class="flex-1 border-l border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${rightPane}</div>
 </div>
 </div>`
   )

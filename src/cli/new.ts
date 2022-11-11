@@ -18,7 +18,7 @@ let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
 
-let onNoChoices = async input => {
+let onInput = async input => {
   if (input) {
     let scriptName = input
       .replace(/[^\w\s]/g, "")
@@ -34,16 +34,23 @@ let onNoChoices = async input => {
   }
 }
 
-let name = await arg({
-  placeholder:
-    arg?.placeholder || "Enter a name for your script:",
-  hint: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
-  validate: input => {
-    return exists(input.replace(/\s/g, "-").toLowerCase())
+let scriptName = await arg(
+  {
+    placeholder:
+      arg?.placeholder || "Enter a name for your script:",
+    hint: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
+    validate: input => {
+      return exists(input.replace(/\s/g, "-").toLowerCase())
+    },
+    enter: `Create script and open in editor`,
   },
-  enter: `Create script and open in editor`,
-  onNoChoices,
-})
+  onInput
+)
+
+let name = scriptName
+  .trim()
+  .replace(/\s/g, "-")
+  .toLowerCase()
 
 // div(md(`## Opening ${name}...`))
 
@@ -106,8 +113,10 @@ contents += templateCompiler({
   ...Object.fromEntries(memoryMap),
   name: arg?.scriptName || name,
 })
-if (arg.scriptName && !contents.includes(`Name:`)) {
-  contents = `// Name: ${arg?.scriptName || ""}
+if (!contents.includes(`Name:`)) {
+  contents = `// Name: ${
+    arg?.scriptName || scriptName || ""
+  }
 ${contents.startsWith("/") ? contents : "\n" + contents}
 `
 }

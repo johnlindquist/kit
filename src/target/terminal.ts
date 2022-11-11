@@ -380,3 +380,7 @@ global.path = new Proxy(__pathSelector, {
     return __path[k]
   },
 }) as any
+
+global.setShortcuts = async () => {
+  notSupported("setShortcuts")
+}

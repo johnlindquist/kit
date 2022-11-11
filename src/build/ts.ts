@@ -75,12 +75,13 @@ let buildTSScript = async (scriptPath, outPath = "") => {
 
   let outfile = outPath || determineOutFile(scriptPath)
 
-  let writeErrorFile = async () => {
+  let writeErrorFile = async errorBody => {
     let name = path.basename(scriptPath)
     let errorScript = `
 await div(md(\`# Failed to Compile ${name}
+## Please fix the following errors and try again
 
-Please fix the errors and try again.\`))
+${errorBody}\`))
     `
     await writeFile(outfile, errorScript)
   }
@@ -99,12 +100,15 @@ Please fix the errors and try again.\`))
         "tsconfig.json"
       ),
     })
-
     if (result?.errors?.length) {
-      await writeErrorFile()
+      await writeErrorFile(
+        result.errors.map(e => e.text).join("\n")
+      )
     }
   } catch (error) {
-    await writeErrorFile()
+    await writeErrorFile(
+      error?.message || error?.toString() || error
+    )
   }
 }
 

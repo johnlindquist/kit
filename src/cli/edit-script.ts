@@ -2,6 +2,7 @@ import {
   buildTSScript,
   determineOutFile,
 } from "../api/kit.js"
+import { setScriptTimestamp } from "../core/db.js"
 import {
   backToMainShortcut,
   closeShortcut,
@@ -22,6 +23,7 @@ if (
   process.env.KIT_EDITOR === "kit" &&
   process.env.KIT_CONTEXT === "app"
 ) {
+  setScriptTimestamp(scriptPath)
   let value = await readFile(scriptPath, "utf-8")
   await editor({
     value,

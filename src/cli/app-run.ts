@@ -38,6 +38,13 @@ let scriptFlags: FlagsOptions = {
     shortcut: `${cmd}+enter`,
     flag: cmd,
   },
+  [modifiers.opt]: {
+    name: "Open Log Window",
+    description: "Open a log windowlt for selected script",
+    shortcut: `${modifiers.opt}+enter`,
+    flag: modifiers.opt,
+  },
+
   ["edit-script"]: {
     name: "Edit",
     description: "Open the selected script in your editor",
@@ -264,7 +271,7 @@ let script = await selectScript(
       "7": kitPath("handler", "number-handler.js") + ` 7`,
       "8": kitPath("handler", "number-handler.js") + ` 8`,
       "9": kitPath("handler", "number-handler.js") + ` 9`,
-      "0": kitPath("handler", "number-handler.js") + ` 0`,
+      "0": kitPath("handler", "zero-handler.js"),
       "?": kitPath("handler", "question-handler.js"),
     },
 
@@ -328,11 +335,22 @@ let script = await selectScript(
       {
         name: "Export",
         key: `${cmd}+e`,
+        condition: c => !c.needsDebugger,
         onPress: async (input, { focused }) => {
           await run(
             kitPath("cli", "share.js"),
             focused?.value?.filePath
           )
+        },
+        bar: "right",
+      },
+      {
+        name: "Debug",
+        key: `${cmd}+enter`,
+        condition: c => c.needsDebugger,
+        onPress: async (input, { focused }) => {
+          flag.cmd = true
+          submit(focused)
         },
         bar: "right",
       },
@@ -418,6 +436,8 @@ if (
         script.filePath
       } `
     )
+  } else if (flag[modifiers.opt]) {
+    showLogWindow(script?.filePath)
   } else if (script.background) {
     await toggleBackground(script)
     await mainScript()

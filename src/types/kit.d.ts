@@ -10,6 +10,7 @@ import {
   Panel,
   PromptConfig,
   Script,
+  Shortcut,
 } from "./core"
 
 export interface Arg {
@@ -119,11 +120,11 @@ export type PrepFlags = (
 ) => FlagsOptions
 export type Flags = {
   [key: string]: boolean | string
-  cmd?: string
-  ctrl?: string
-  shift?: string
-  option?: string
-  alt?: string
+  cmd?: boolean | string
+  ctrl?: boolean | string
+  shift?: boolean | string
+  option?: boolean | string
+  alt?: boolean | string
 }
 
 export interface SelectKitEditor {
@@ -181,6 +182,10 @@ export interface CreateGist {
   (content: string, options?: GistOptions): Promise<
     RestEndpointMethodTypes["gists"]["create"]["response"]["data"]
   >
+}
+
+export interface SetShortcuts {
+  (shortcuts: Shortcut[]): void
 }
 
 export interface KitApi {
@@ -279,6 +284,7 @@ export interface KitApi {
   highlight: Highlight
   projectPath: PathFn
   createGist: CreateGist
+  setShortcuts: SetShortcuts
 }
 
 interface KeyValue {
@@ -349,4 +355,5 @@ declare global {
   var clearAllTimeouts: () => void
   var clearAllIntervals: () => void
   var createGist: CreateGist
+  var setShortcuts: SetShortcuts
 }

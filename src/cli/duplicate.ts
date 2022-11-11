@@ -16,7 +16,7 @@ let { filePath } = await selectScript(
 let newCommand = await arg({
   placeholder: `Enter name for new script`,
   selected: filePath,
-  footer: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
+  hint: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
   validate: exists,
 })
 
