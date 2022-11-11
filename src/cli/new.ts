@@ -143,7 +143,7 @@ contents = prependImport(contents)
 await ensureDir(path.dirname(scriptPath))
 await writeFile(scriptPath, contents)
 
-await cli("create-bin", "scripts", name)
+await cli("create-bin", "scripts", command)
 
 global.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
