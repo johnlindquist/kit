@@ -18,13 +18,13 @@ let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
 
+let stripName = (name: string) =>
+  path.parse(name.trim().replace(/\s/g, "-").toLowerCase())
+    .name
+
 let onInput = async input => {
   if (input) {
-    let scriptName = input
-      .replace(/[^\w\s]/g, "")
-      .replace(/\s/g, "-")
-      .toLowerCase()
-
+    let scriptName = stripName(input)
     setPanel(
       md(`# Create <code>${scriptName}</code>
   
@@ -54,14 +54,12 @@ let { dirPath: selectedKenvPath } = await selectKenv({
   enter: "Create Script in Selected Kenv",
 })
 
-let stripName = (name: string) =>
-  path.parse(name.trim().replace(/\s/g, "-").toLowerCase())
-    .name
+let command = stripName(name)
 
 let scriptPath = path.join(
   selectedKenvPath,
   "scripts",
-  `${stripName(name)}.${kitMode()}`
+  `${command}.${kitMode()}`
 )
 
 let contents = [arg?.npm]
@@ -112,7 +110,10 @@ contents += templateCompiler({
   ...Object.fromEntries(memoryMap),
   name: arg?.scriptName || name,
 })
-if (!contents.includes(`Name:`)) {
+if (
+  (arg?.scriptName || command !== name) &&
+  !contents.includes(`Name:`)
+) {
   contents = `// Name: ${arg?.scriptName || name || ""}
 ${contents.startsWith("/") ? contents : "\n" + contents}
 `

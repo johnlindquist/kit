@@ -601,7 +601,7 @@ export let run = async (
   let projectPath = path.dirname(
     path.dirname(resolvedScript)
   )
-  updateEnv(projectPath)
+  // updateEnv(projectPath)
   if (process.env.KIT_CONTEXT === "app") {
     let script = await parseScript(global.kitScript)
 

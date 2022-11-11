@@ -41,8 +41,8 @@ ava.serial("parseScript", async t => {
 
   let parsedScript = await parseScript(findScript.filePath)
 
-  t.true(
-    parsedScript.filePath ==
-      kenvPath("scripts", testingParseScript + ".js")
+  t.is(
+    parsedScript.filePath,
+    kenvPath("scripts", testingParseScript + ".js")
   )
 })
