@@ -47,8 +47,6 @@ let name = await arg(
   onInput
 )
 
-// div(md(`## Opening ${name}...`))
-
 let { dirPath: selectedKenvPath } = await selectKenv({
   placeholder: `Select Where to Create Script`,
   enter: "Create Script in Selected Kenv",
