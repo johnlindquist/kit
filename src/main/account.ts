@@ -2,8 +2,32 @@
 // Description: Authenticate to Enable Features
 import { authenticate } from "../api/kit.js"
 import { getUserDb } from "../core/db.js"
-import { cmd, userDbPath } from "../core/utils.js"
+import {
+  backToMainShortcut,
+  cmd,
+  userDbPath,
+} from "../core/utils.js"
 setChoices([])
+
+let proPane = md(`
+## ⭐️ [Pro Account Features](submit:pro)
+
+- Custom Themes
+- Debugger
+- Script Log Window
+- Support through Discord
+
+## Upcoming Pro Features
+
+- Sync Scripts to GitHub Repo
+- Run Script Remotely as GitHub Actions
+- Advanced Widgets
+- Screenshots
+- Screen Recording
+- Audio Recording
+- Webcam Capture
+- Desktop Color Picker
+- Measure Tool`)
 
 let sponsorUrl = `https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205`
 try {
@@ -30,20 +54,46 @@ try {
 
 let userDb = await getUserDb()
 if (userDb.login) {
-  await arg("Account", ["Sign Out"])
-  await rm(userDbPath)
-  await replace({
-    files: kenvPath(".env"),
-    from: /GITHUB_SCRIPTKIT_TOKEN=.*/g,
-    to: ``,
-    disableGlobs: true,
-  })
-  process.env.GITHUB_SCRIPTKIT_TOKEN =
-    env.GITHUB_SCRIPTKIT_TOKEN = ``
-  await mainScript()
+  let option = await arg(
+    {
+      placeholder: "Account",
+      shortcuts: [backToMainShortcut],
+    },
+    [
+      {
+        name: "Unlock Script Kit Pro",
+        preview: proPane,
+        value: "pro",
+        enter: "Go Pro",
+      },
+      {
+        name: "Logout",
+        value: "logout",
+        enter: "Logout",
+      },
+    ]
+  )
+
+  switch (option) {
+    case "pro":
+      open(sponsorUrl)
+      break
+    case "logout":
+      await rm(userDbPath)
+      await replace({
+        files: kenvPath(".env"),
+        from: /GITHUB_SCRIPTKIT_TOKEN=.*/g,
+        to: ``,
+        disableGlobs: true,
+      })
+      process.env.GITHUB_SCRIPTKIT_TOKEN =
+        env.GITHUB_SCRIPTKIT_TOKEN = ``
+      await mainScript()
+      break
+  }
 } else {
   let topPane = md(
-    `# Go Pro to Unlock the Full Power of Script Kit`,
+    `# Unlock the Full Power of Script Kit!`,
     "px-5 pt-5 prose dark:prose-dark prose-sm"
   )
 
@@ -55,28 +105,13 @@ if (userDb.login) {
   `)
 
   let middlePane = md(`
-## Account Features
+## [Free Account](submit:free)
 
-- Custom Themes
-- Create Gists`)
-  let rightPane = md(`
-## Pro Account Features
+- Create Gists
+- Discord Server Invite
+`)
 
-- Debugger
-- Script Log Window
-
-## Upcoming Pro Features
-- Sync Scripts to GitHub Repo
-- Run Script Remotely as GitHub Actions
-- Advanced Widgets
-- Screenshots
-- Screen Recording
-- Audio Recording
-- Webcam Capture
-- Desktop Color Picker
-- Measure Tool`)
-
-  await arg(
+  let option = await arg(
     {
       placeholder: "Account",
       enter: "Sign In",
@@ -94,7 +129,7 @@ if (userDb.login) {
           onPress: async (input, { focused }) => {},
         },
         {
-          name: "Sponsor to Go Pro",
+          name: "Go Pro",
           key: `${cmd}+o`,
           bar: "right",
           onPress: async (input, { focused }) => {
@@ -109,12 +144,18 @@ ${topPane}
 <div class="flex flex-row -mt-5">
   <div class="flex-1 border-r border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${leftPane}</div>
   <div class="flex-1">${middlePane}</div>
-  <div class="flex-1 border-l border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${rightPane}</div>
+  <div class="flex-1 border-l border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${proPane}</div>
 </div>
 </div>`
   )
 
-  await authenticate()
+  switch (option) {
+    case "pro":
+      open(sponsorUrl)
+      break
+    default:
+      await authenticate()
+  }
 
   await mainScript()
 }

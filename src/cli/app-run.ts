@@ -41,7 +41,7 @@ let scriptFlags: FlagsOptions = {
   [modifiers.opt]: {
     name: "Open Log Window",
     description: "Open a log windowlt for selected script",
-    shortcut: `${modifiers.opt}+enter`,
+    shortcut: `alt+enter`,
     flag: modifiers.opt,
   },
 
