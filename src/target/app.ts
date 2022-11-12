@@ -1172,17 +1172,19 @@ global.updateArgs = arrayOfArgs => {
 global.updateArgs(process.argv.slice(2))
 
 let appInstall = async packageName => {
+  await arg(`Installing ${packageName}`)
   if (!global.arg?.trust) {
     let placeholder = `${packageName} is required for this script`
 
-    let packageLink = `https://npmjs.com/package/${packageName}`
+    let stripVersion = packageName.replace(/(@|\^|~).*/, "")
+    let packageLink = `https://npmjs.com/package/${stripVersion}`
 
     let preview = md(
-      `[${packageName}](${packageLink}) has had ${
+      `[${stripVersion}](${packageLink}) has had ${
         (
           await get<{ downloads: number }>(
             `https://api.npmjs.org/downloads/point/last-week/` +
-              packageName
+              stripVersion
           )
         ).data.downloads
       } downloads from npm in the past week`
@@ -1816,17 +1818,12 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     []
   )
 
-  let hasExtension = path.extname(selectedPath) == ""
-  if (hasExtension) {
-    let isSelectedPathDir = await isDir(selectedPath)
-    let doesPathExist = await pathExists(selectedPath)
-    if (!isSelectedPathDir && !doesPathExist) {
-      await ensureDir(selectedPath)
-    }
-  } else {
-    let isSelectedPathFile = await isFile(selectedPath)
-    if (!isSelectedPathFile) {
+  let doesPathExist = await pathExists(selectedPath)
+  if (!doesPathExist) {
+    if (path.extname(selectedPath)) {
       await ensureFile(selectedPath)
+    } else {
+      await ensureDir(selectedPath)
     }
   }
 

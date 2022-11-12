@@ -42,6 +42,7 @@ let name = await arg(
     validate: input => {
       return exists(input.replace(/\s/g, "-").toLowerCase())
     },
+    shortcuts: [],
     enter: `Create script and open in editor`,
   },
   onInput

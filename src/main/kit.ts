@@ -11,5 +11,5 @@ let cliScript = await docs(
     placeholder: "Kit Actions",
   })
 )
-await run(kitPath("cli", cliScript))
+await run(kitPath(cliScript))
 export {}

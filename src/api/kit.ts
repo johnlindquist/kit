@@ -697,17 +697,39 @@ export let selectScript = async (
           s.preview = `<div/>`
           return s
         }
-        try {
-          let content = await readFile(
-            path.resolve(
-              path.dirname(s.filePath),
-              s.preview
-            ),
-            "utf-8"
+        if (s?.preview === "docs") {
+          let previewPath = path.resolve(
+            path.dirname(path.dirname(s.filePath)),
+            "docs",
+            path.parse(s.filePath).name + ".md"
           )
-          s.preview = await highlight(content)
-        } catch (error) {
-          s.preview = `Error: ${error.message}`
+          try {
+            let preview = await readFile(
+              previewPath,
+              "utf8"
+            )
+            let content = await highlightJavaScript(
+              s.filePath
+            )
+            s.preview = md(preview) + content
+          } catch (error) {
+            warn(
+              `Could not find doc file ${previewPath} for ${s.name}`
+            )
+          }
+        } else {
+          try {
+            let content = await readFile(
+              path.resolve(
+                path.dirname(s.filePath),
+                s?.preview
+              ),
+              "utf-8"
+            )
+            s.preview = await highlight(content)
+          } catch (error) {
+            s.preview = `Error: ${error.message}`
+          }
         }
       } else {
         s.preview = async () => {

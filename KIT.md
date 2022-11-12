@@ -19,7 +19,7 @@ Or just hit _Enter_ to browse all.
 ## Subscribe to the Newsletter
 
 <!-- description: Receive a newsletter with examples and tips -->
-<!-- value: join.js -->
+<!-- value: cli/join.js -->
 <!-- enter: Subscribe -->
 
 - Featured Scripts
@@ -31,7 +31,7 @@ Or just hit _Enter_ to browse all.
 ## FAQ
 
 <!-- description: Frequently asked questions -->
-<!-- value: faq.js -->
+<!-- value: cli/faq.js -->
 <!-- enter: Discuss on GitHub -->
 
 ### What is Script Kit?
@@ -61,7 +61,7 @@ The main goal of Script Kit is to build a community of people who love to script
 ## View Scheduled Scripts
 
 <!-- description: View and edit upcoming jobs -->
-<!-- value: schedule.js -->
+<!-- value: cli/schedule.js -->
 <!-- enter: Open Schedule -->
 
 Use cron syntax to run scripts on a schedule:
@@ -76,7 +76,7 @@ Use cron syntax to run scripts on a schedule:
 ## View System Event Scripts
 
 <!-- description: View and edit system event scripts -->
-<!-- value: system-events.js -->
+<!-- value: cli/system-events.js -->
 <!-- enter: Open System Events -->
 
 This menu shows scripts that run on system events.
@@ -105,7 +105,7 @@ Available events:
 ## Manage Kenvs
 
 <!-- description: Manage Kit Environments -->
-<!-- value: kenv-manage.js -->
+<!-- value: cli/kenv-manage.js -->
 <!-- enter: Manage -->
 
 A "kenv" (Kit Environment) is a directory with a `scripts` directory. This is the place to create a kenv to manage scripts for your dev team or projects that expose APIs (GitHub, Vercel, etc). We'll be releasing official Script Kit kenvs in the future to show off some of the best practices. 👍
@@ -118,7 +118,7 @@ Clone, create new, link, push, pull, remove. This menu allows you to manage any 
 ## Add ~/.kit/bin to $PATH
 
 <!-- description: Select profile and append ~/.kit/bin to $PATH -->
-<!-- value: add-kit-to-profile.js -->
+<!-- value: cli/add-kit-to-profile.js -->
 <!-- enter: Select Profile -->
 
 > This is similar to VS Code's "Add `code` to path"
@@ -142,7 +142,7 @@ The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
 ## Add kenv Executables to $PATH
 
 <!-- description: Select profile and append ~/.kenv/bin to $PATH -->
-<!-- value: add-kenv-to-profile.js -->
+<!-- value: cli/add-kenv-to-profile.js -->
 <!-- enter: Select Kenv -->
 
 Each time you create a script, Script Kit also generates a command based on the name you can run from the terminal.
@@ -160,11 +160,20 @@ This will walk you through running the command without the full path:
 ```bash
 list-downloads
 ```
+
+## Theme Selector ⭐️
+
+With a Pro Account, you can select from a variety of themes.
+
+<!-- description: Preview Themes -->
+<!-- value: pro/theme-selector.js -->
+<!-- enter: Open Theme Selector -->
+
       
 ## Change Script Kit Shortcut
 
 <!-- description: Change the shortcut to open Script Kit -->
-<!-- value: change-main-shortcut.js -->
+<!-- value: cli/change-main-shortcut.js -->
 <!-- enter: Change -->
 
 Don't like `cmd+;`? Change it here!
@@ -172,7 +181,7 @@ Don't like `cmd+;`? Change it here!
 ## Add/Change a Script Shortcut
 
 <!-- description: List scripts with shortcuts, then prompt to change -->
-<!-- value: change-shortcut.js -->
+<!-- value: cli/change-shortcut.js -->
 <!-- enter: List Scripts -->
 
 This list all the scripts and allows you to add a shortcut to it.
@@ -188,7 +197,7 @@ This menu will manage that for you
 ## Generate bin Files
 
 <!-- description: Recreate all the terminal executables -->
-<!-- value: create-all-bins.js -->
+<!-- value: cli/create-all-bins.js -->
 <!-- enter: Create bins -->
 
 If you manually manage files in the `scripts` dir (instead of using Kit.app or the `kit` CLI) you may run into the scenarios where you have to re-generate all the `bin` executables. This will do that for you.
@@ -197,7 +206,7 @@ If you manually manage files in the `scripts` dir (instead of using Kit.app or t
 ## Change Editor
 
 <!-- description: Change the editor used to open scripts -->
-<!-- value: change-editor.js -->
+<!-- value: cli/change-editor.js -->
 <!-- enter: Select -->
 
 This will re-prompt you to pick an editor from your PATH by updating your kenv `.env`.
@@ -215,7 +224,7 @@ If `code` isn't on your PATH, you can add the full path to the editor.
 ## Clear Kit Prompt Cache
 
 <!-- description: Clear the positions and sizes of script prompts -->
-<!-- value: kit-clear-prompt.js -->
+<!-- value: cli/kit-clear-prompt.js -->
 <!-- enter: Clear Cache -->
 
 
@@ -224,7 +233,7 @@ Each time you move or resize the prompt around for your scripts, Script Kit will
 ## Manage npm Packages
 
 <!-- description: Add and remove npm packages for your kenv -->
-<!-- value: manage-npm.js -->
+<!-- value: cli/manage-npm.js -->
 <!-- enter: Manage -->
 
 This will help you install/uninstall packages from your `~/.kenv/node_modules`
@@ -239,7 +248,7 @@ let express = await npm("express")
 ## Switch to JavaScript Mode
 
 <!-- description: Set .env KIT_MODE=js -->
-<!-- value: switch-to-js.js -->
+<!-- value: cli/switch-to-js.js -->
 <!-- enter: Switch to JS -->
 
 Prefer JavaScript for your scripts? Hit _Enter_!
@@ -247,7 +256,7 @@ Prefer JavaScript for your scripts? Hit _Enter_!
 ## Switch to TypeScript Mode
 
 <!-- description: Set .env KIT_MODE=ts -->
-<!-- value: switch-to-ts.js -->
+<!-- value: cli/switch-to-ts.js -->
 <!-- enter: Switch to TS -->
 
 Prefer TypeScript for your scripts? Hit _Enter_!
@@ -255,7 +264,7 @@ Prefer TypeScript for your scripts? Hit _Enter_!
 ## Sync $PATH from Terminal to Kit.app
 
 <!-- description: Set .env PATH to the terminal $PATH -->
-<!-- value: sync-path-instructions.js -->
+<!-- value: cli/sync-path-instructions.js -->
 <!-- enter: Sync PATH -->
 
 Have a command that's working in your terminal, but doesn't work when you call it with Script Kit?
@@ -267,7 +276,7 @@ You can manually edit a `PATH` value any time in `~/.kenv/.env`
 ## Check for Update
 
 <!-- description: Check for an update to Kit.app -->
-<!-- value: update.js -->
+<!-- value: cli/update.js -->
 <!-- enter: Check for Update -->
 
 Kit.app will check for updates each time your machine wakes from sleep. But if you heard about an update and just can't wait, trigger this command to grab it.
@@ -276,7 +285,7 @@ Kit.app will check for updates each time your machine wakes from sleep. But if y
 ## Open kit.log
 
 <!-- description: Open the kit.log file -->
-<!-- value: kit-log.js -->
+<!-- value: cli/kit-log.js -->
 <!-- enter: Open Log -->
 
 This will open the `kit.log` file in your editor. This is where Script Kit logs errors and other information.
@@ -284,7 +293,7 @@ This will open the `kit.log` file in your editor. This is where Script Kit logs 
 ## Edit .env
 
 <!-- description: Open the .env file -->
-<!-- value: env.js -->
+<!-- value: cli/env.js -->
 <!-- enter: Edit .env -->
 
 This will open the `.env` file in your editor. This is where Script Kit stores environment variables for your scripts.
@@ -292,7 +301,7 @@ This will open the `.env` file in your editor. This is where Script Kit stores e
 ## Settings
 
 <!-- description: Manage settings for Kit.app -->
-<!-- value: settings.js -->
+<!-- value: cli/settings.js -->
 <!-- enter: Open Settings -->
 
 Hit <kbd>Enter</kbd> to modify Kit.app settings:
@@ -303,7 +312,7 @@ Hit <kbd>Enter</kbd> to modify Kit.app settings:
 ## Credits
 
 <!-- description: Follow @johnlindquist on Twitter -->
-<!-- value: credits.js -->
+<!-- value: cli/credits.js -->
 <!-- enter: Follow @johnlindquist -->
 
 ### John Lindquist
@@ -327,7 +336,7 @@ Design
 ## Quit
 
 <!-- description: Quit Kit.app -->
-<!-- value: quit.js -->
+<!-- value: cli/quit.js -->
 <!-- enter: Quit -->
 
 See you soon! 👋

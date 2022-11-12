@@ -8,8 +8,8 @@ let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
     isYarn
-      ? `yarn${global.isWin ? `.cmd` : ``} add -D`
-      : `npm${global.isWin ? `.cmd` : ``} i -D`
+      ? `yarn${global.isWin ? `.cmd` : ``} add`
+      : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
   if (global.isWin) {
@@ -20,7 +20,7 @@ let install = async packageNames => {
     let progress = ``
     let divP = div(md(contents))
     let { stdout, stderr } = exec(
-      `${tool} ${command} ${packageNames.join(
+      `${tool} ${command} -D ${packageNames.join(
         " "
       )} --loglevel verbose`,
       {
@@ -45,7 +45,9 @@ let install = async packageNames => {
   }
 
   return await term({
-    command: `${tool} ${command} ${packageNames.join(" ")}`,
+    command: `${tool} ${command} -D ${packageNames.join(
+      " "
+    )}`,
     enter: "",
     shortcuts: [
       {

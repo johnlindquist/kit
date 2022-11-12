@@ -76,34 +76,34 @@ let kenvImport = async packageName => {
   }
 }
 
-export let createNpm = npmInstall => async packageName => {
-  let { dependencies: kitDeps } = JSON.parse(
-    await global.readFile(
-      global.kitPath("package.json"),
-      "utf-8"
+export let createNpm =
+  npmInstall => async packageNameWithVersion => {
+    // remove any version numbers
+    let packageName = packageNameWithVersion.replace(
+      /(@|\^|~).*/,
+      ""
     )
-  )
-
-  let isKitDep = kitDeps[packageName]
-
-  if (isKitDep) {
-    return defaultImport(packageName)
-  }
-
-  //fix missing kenv dep
-
-  let { dependencies: kenvDeps } = JSON.parse(
-    await global.readFile(
-      global.kenvPath("package.json"),
-      "utf-8"
+    let { dependencies: kitDeps } = JSON.parse(
+      await global.readFile(
+        global.kitPath("package.json"),
+        "utf-8"
+      )
     )
-  )
-
-  let isKenvDep = kenvDeps?.[packageName]
-  if (isKenvDep) {
-    return kenvImport(packageName)
+    let isKitDep = kitDeps[packageName]
+    if (isKitDep) {
+      return defaultImport(packageName)
+    }
+    //fix missing kenv dep
+    let { dependencies: kenvDeps } = JSON.parse(
+      await global.readFile(
+        global.kenvPath("package.json"),
+        "utf-8"
+      )
+    )
+    let isKenvDep = kenvDeps?.[packageName]
+    if (isKenvDep) {
+      return kenvImport(packageName)
+    }
+    await npmInstall(packageNameWithVersion)
+    return await kenvImport(packageName)
   }
-
-  await npmInstall(packageName)
-  return await kenvImport(packageName)
-}
