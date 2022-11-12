@@ -80,27 +80,35 @@ export let createNpm =
   npmInstall => async packageNameWithVersion => {
     // remove any version numbers
     let packageName = packageNameWithVersion.replace(
-      /(@|\^|~).*/,
+      /(?<=.)(@|\^|~).*/g,
       ""
     )
-    let { dependencies: kitDeps } = JSON.parse(
+    let {
+      dependencies: kitDeps = {},
+      devDependencies: devDeps = {},
+    } = JSON.parse(
       await global.readFile(
         global.kitPath("package.json"),
         "utf-8"
       )
     )
-    let isKitDep = kitDeps[packageName]
+    let isKitDep =
+      kitDeps[packageName] || devDeps[packageName]
     if (isKitDep) {
       return defaultImport(packageName)
     }
     //fix missing kenv dep
-    let { dependencies: kenvDeps } = JSON.parse(
+    let {
+      dependencies: kenvDeps = {},
+      devDependencies: kenvDevDeps = {},
+    } = JSON.parse(
       await global.readFile(
         global.kenvPath("package.json"),
         "utf-8"
       )
     )
-    let isKenvDep = kenvDeps?.[packageName]
+    let isKenvDep =
+      kenvDeps?.[packageName] || kenvDevDeps?.[packageName]
     if (isKenvDep) {
       return kenvImport(packageName)
     }

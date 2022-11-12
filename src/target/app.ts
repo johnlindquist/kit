@@ -1176,7 +1176,10 @@ let appInstall = async packageName => {
   if (!global.arg?.trust) {
     let placeholder = `${packageName} is required for this script`
 
-    let stripVersion = packageName.replace(/(@|\^|~).*/, "")
+    let stripVersion = packageName.replace(
+      /(?<=.)(@|\^|~).*/g,
+      ""
+    )
     let packageLink = `https://npmjs.com/package/${stripVersion}`
 
     let preview = md(

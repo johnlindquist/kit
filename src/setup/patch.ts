@@ -8,7 +8,7 @@ try {
   let kenvPkgPath = kenvPath("package.json")
   let kenvPkg = await readJson(kenvPkgPath)
 
-  if (!kenvPkg?.dependencies?.["@johnlindquist/kit"]) {
+  if (!kenvPkg?.devDependencies?.["@johnlindquist/kit"]) {
     await cli("install", kitPath())
   }
 
@@ -27,7 +27,7 @@ try {
     kenvPath("templates", "default.ts")
   )
 
-  if (kenvPkg.dependencies?.kit) {
+  if (kenvPkg?.devDependencies?.kit) {
     await cli("uninstall", "kit")
   }
 

@@ -56,7 +56,7 @@ ava("kenv linked to kit", async t => {
   )
 
   t.assert(
-    pkg.dependencies?.["@johnlindquist/kit"],
+    pkg.devDependencies?.["@johnlindquist/kit"],
     "file:../.kit",
     `kenv linked to kit`
   )
