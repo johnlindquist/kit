@@ -8,13 +8,13 @@ let themes = {
     foreground: "255, 255, 255",
     accent: "251, 191, 36",
     background: "0, 0, 0",
-    opacity: "0.4",
+    opacity: "0.65",
   },
   ["Script Kit Light"]: {
     foreground: "0, 0, 0",
     accent: "79, 70, 229",
     background: "255, 255, 255",
-    opacity: "0.9",
+    opacity: "0.85",
   },
   ["VS Code Light"]: {
     foreground: "2C2C2C",
