@@ -51,7 +51,10 @@ let testScript = async (name, content, type = "js") => {
   let scriptPath = kenvPath("scripts", `${name}.js`)
   await appendFile(scriptPath, content)
 
-  let { stdout, stderr } = await $`${kenvPath("bin", name)}`
+  let { stdout, stderr } = await $`${kenvPath(
+    "bin",
+    name
+  )} --trust`
 
   return { stdout, stderr, scriptPath }
 }

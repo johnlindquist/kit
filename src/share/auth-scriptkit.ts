@@ -45,9 +45,10 @@ function createScriptKitAuth({
       global.copy(verification.user_code)
       w = await global.widget(
         md(
-          `## Open <a href="${verification.verification_uri}">${verification.verification_uri} to Authenticate</a>
-
-Verification code <code>${verification.user_code}</code> copied to clipboard`.trim()
+          `## Open <a href="${verification.verification_uri}">${verification.verification_uri}</a> to Authenticate
+      
+      Copied verification code to clipboard: <code>${verification.user_code}</code>`.trim(),
+          `bg-bg-light dark:bg-bg-dark h-screen w-screen flex flex-col justify-center items-center bg-opacity-themelight dark:bg-opacity-themedark`
         ),
         {
           width: 420,
