@@ -9,6 +9,7 @@ let apps = await db(kitPath("db", "apps.json"))
 
 let windows = await getWindows({
   showAllWindows: true,
+  onScreenOnly: false,
 })
 
 let ignore = ["Notification Center", "Dock"]

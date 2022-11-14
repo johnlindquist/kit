@@ -49,6 +49,12 @@ let scriptFlags: FlagsOptions = {
     name: "Edit",
     description: "Open the selected script in your editor",
   },
+
+  ["edit-doc"]: {
+    name: "Create/Edit Doc",
+    description:
+      "Open the selected script's markdown in your editor",
+  },
   ["share"]: {
     name: "Share",
     description: "Share the selected script",
@@ -316,6 +322,17 @@ let script = await selectScript(
           submit(false)
         },
         bar: "right",
+      },
+      {
+        name: "Create/Edit Doc",
+        key: `${cmd}+.`,
+        onPress: async (input, { focused }) => {
+          await run(
+            kitPath("cli", "edit-doc.js"),
+            focused.value.filePath
+          )
+          submit(false)
+        },
       },
       {
         name: "Log",

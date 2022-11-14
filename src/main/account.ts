@@ -8,14 +8,26 @@ import {
   userDbPath,
 } from "../core/utils.js"
 setChoices([])
-
 let proPane = md(`
-## ⭐️ [Pro Account Features](submit:pro)
+
+<h2 class="pb-1 text-xl">⭐️ Pro Account</h2>
+<a href="submit:pro" class="shadow-xl shadow-primary-dark/25 dark:shadow-primary-light/25 text-white dark:text-black font-bold px-3 py-3 h-6 no-underline rounded bg-primary-dark dark:bg-primary-light bg-opacity-90 dark:bg-opacity-100 hover:opacity-80 dark:hover:opacity-80">Unlock All Features ($7/m.)</a>
+
+<div class="py-1"></div>
+<div class="flex">
+
+<div class="list-inside">
+
+## Pro Features
 
 - Custom Themes
 - Debugger
 - Script Log Window
 - Support through Discord
+
+</div>
+
+<div>
 
 ## Upcoming Pro Features
 
@@ -27,8 +39,11 @@ let proPane = md(`
 - Audio Recording
 - Webcam Capture
 - Desktop Color Picker
-- Measure Tool`)
+- Measure Tool
 
+</div>
+</div>
+`)
 let sponsorUrl = `https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205`
 try {
   sponsorUrl = (
@@ -40,7 +55,6 @@ try {
 } catch (error) {
   warn(`Failed to read sponsor-url.txt`)
 }
-
 try {
   sponsorUrl = (
     await readFile(
@@ -51,7 +65,6 @@ try {
 } catch (error) {
   warn(`Failed to read sponsor-url.txt`)
 }
-
 let userDb = await getUserDb()
 if (userDb.login) {
   let option = await arg(
@@ -73,7 +86,6 @@ if (userDb.login) {
       },
     ]
   )
-
   switch (option) {
     case "pro":
       open(sponsorUrl)
@@ -96,21 +108,26 @@ if (userDb.login) {
     `# Unlock the Full Power of Script Kit!`,
     "px-5 pt-5 prose dark:prose-dark prose-sm"
   )
-
   let leftPane = md(`
-## No Account
+<h2 class="text-xl">No Account</h2>
 
 - All standard Kit features are free. No account required.
 
   `)
-
   let middlePane = md(`
-## [Free Account](submit:free)
+<h2 class="text-xl pb-1">Sign in with GitHub</h2>
+<a href="submit:login" class="shadow-xl text-white dark:text-black font-bold px-3 py-3 h-6 no-underline rounded bg-black dark:bg-white bg-opacity-80 dark:bg-opacity-80 hover:opacity-75 dark:hover:opacity-75">Sign in with GitHub</a>
+
+<div class="py-1"></div>
+
+<div>
+
+## Standard Features
 
 - Create Gists
 - Discord Server Invite
+</div>
 `)
-
   let option = await arg(
     {
       placeholder: "Account",
@@ -141,14 +158,12 @@ if (userDb.login) {
     `
 <div class="flex flex-col">
 ${topPane}
-<div class="flex flex-row -mt-5">
-  <div class="flex-1 border-r border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${leftPane}</div>
-  <div class="flex-1">${middlePane}</div>
-  <div class="flex-1 border-l border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${proPane}</div>
+<div class="flex flex-row -mt-5">  
+  <div class="px-4">${middlePane}</div>
+  <div class="px-4 flex-1 border-l border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${proPane}</div>
 </div>
 </div>`
   )
-
   switch (option) {
     case "pro":
       open(sponsorUrl)
@@ -156,6 +171,5 @@ ${topPane}
     default:
       await authenticate()
   }
-
   await mainScript()
 }

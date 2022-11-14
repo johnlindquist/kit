@@ -189,6 +189,13 @@ interface WaitForPromptValueProps
 
 let invalid = Symbol("invalid")
 
+let truncate = (str: string, length: number) => {
+  if (str.length > length) {
+    return str.slice(0, length) + "..."
+  }
+  return str
+}
+
 let createOnChoiceFocusDefault = (
   debounceChoiceFocus: number,
   onUserChoiceFocus?: ChannelHandler
@@ -492,7 +499,10 @@ let waitForPromptValue = ({
     value$.subscribe({
       next: value => {
         global.log(
-          `${process.pid}: value: ${JSON.stringify(value)}`
+          `${process.pid}: value: ${truncate(
+            JSON.stringify(value),
+            256
+          )}`
         )
         resolve(value)
       },

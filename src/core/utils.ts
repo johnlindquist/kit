@@ -305,9 +305,37 @@ export const friendlyShortcut = (shortcut: string) => {
   return f
 }
 
+export let setMetadata = (
+  contents: string,
+  overrides: {
+    [key: string]: string
+  }
+) => {
+  Object.entries(overrides).forEach(([key, value]) => {
+    let k = key[0].toUpperCase() + key.slice(1)
+    // if not exists, then add
+    if (
+      !contents.match(
+        new RegExp(`^\/\/\\s*(${key}|${k}):.*`, "gm")
+      )
+    ) {
+      // uppercase first letter
+      contents = `// ${k}: ${value}
+${contents}`.trim()
+    } else {
+      // if exists, then replace
+      contents = contents.replace(
+        new RegExp(`^\/\/\\s*(${key}|${k}):.*$`, "gm"),
+        `// ${k}: ${value}`
+      )
+    }
+  })
+  return contents
+}
+
 //app
-export let getMetadata = (string: string): Metadata => {
-  let matches = string.matchAll(
+export let getMetadata = (contents: string): Metadata => {
+  let matches = contents.matchAll(
     /(?<=^\/\/\s{0,2})([\w-]+)(?::)(.*)/gm
   )
   let metadata = {}

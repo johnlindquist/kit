@@ -1,20 +1,18 @@
 // Name: Theme Selector
 // Description: Preview and Apply Themes
-
 import "@johnlindquist/kit"
-
 let themes = {
   ["Script Kit Dark"]: {
     foreground: "255, 255, 255",
     accent: "251, 191, 36",
     background: "0, 0, 0",
-    opacity: "0.65",
+    opacity: "0.75",
   },
   ["Script Kit Light"]: {
     foreground: "0, 0, 0",
     accent: "79, 70, 229",
     background: "255, 255, 255",
-    opacity: "0.85",
+    opacity: "0.9",
   },
   ["VS Code Light"]: {
     foreground: "2C2C2C",
@@ -124,7 +122,6 @@ let themes = {
     background: "1A1B26",
     opacity: "0.9",
   },
-
   "Atelier Cave Dark": {
     background: "19171c",
     foreground: "efecf4",
@@ -246,9 +243,7 @@ let themes = {
     accent: "66ff00",
   },
 }
-
 let guide = await readFile(kitPath("GUIDE.md"), "utf-8")
-
 onTab("Select a Theme", async () => {
   const themeName = await arg(
     {
@@ -267,11 +262,13 @@ onTab("Select a Theme", async () => {
       }
     })
   )
-
   await setTheme(themes[themeName])
   await mainScript()
 })
+onTab("Customize Theme (Coming Soon!)", async () => {
+  await arg("Nothing to see here")
+})
 
-onTab("I'm just here to show tab colors", async () => {
+onTab("Account__", async () => {
   await arg("Nothing to see here")
 })
