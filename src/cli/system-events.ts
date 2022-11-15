@@ -1,15 +1,35 @@
-import { Script } from "../types/core"
+// Name: System Events Scripts
+// Description: Select a Script to Edit
 
 import { getScripts } from "../core/db.js"
 import { cliShortcuts } from "../core/utils.js"
-
-let scriptsCache: Script[] = await getScripts()
-
+let scriptsCache = await getScripts()
 let filePath = await arg(
   {
-    placeholder: "Which script do you want to edit?",
-    enter: "Select",
+    placeholder: "Select System Event Script to Edit",
+    enter: "Edit",
     shortcuts: cliShortcuts,
+    onNoChoices: async () => {
+      setPanel(
+        md(`# No System Event Scripts Found
+        
+Create a script with <code>// System:</code> metadata to add it to this list.
+
+Available events:
+
+- suspend
+- resume
+- on-ac
+- on-battery
+- shutdown
+- lock-screen
+- unlock-screen
+- user-did-become-active
+- user-did-resign-active
+- Read about the available events [here](https://www.electronjs.org/docs/latest/api/power-monitor#events)
+        `)
+      )
+    },
   },
   scriptsCache
     .filter(script => script?.system)
@@ -21,7 +41,4 @@ let filePath = await arg(
       }
     })
 )
-
 await run(kitPath("cli", "edit-script.js"), filePath)
-
-export {}

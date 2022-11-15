@@ -951,3 +951,40 @@ export let cliShortcuts: Shortcut[] = [
   backToMainShortcut,
   closeShortcut,
 ]
+
+export let proPane = () =>
+  `
+<h2 class="pb-1 text-xl">⭐️ Pro Account</h2>
+<a href="submit:pro" class="shadow-xl shadow-primary-dark/25 dark:shadow-primary-light/25 text-white dark:text-black font-bold px-3 py-3 h-6 no-underline rounded bg-primary-dark dark:bg-primary-light bg-opacity-90 dark:bg-opacity-100 hover:opacity-80 dark:hover:opacity-80">Unlock All Features ($7/m.)</a>
+
+<div class="py-1"></div>
+<div class="flex justify-evenly">
+
+<div class="list-inside">
+
+## Pro Features
+
+- Custom Themes
+- Debugger
+- Script Log Window
+- Support through Discord
+
+</div>
+
+<div>
+
+## Upcoming Pro Features
+
+- Sync Scripts to GitHub Repo
+- Run Script Remotely as GitHub Actions
+- Advanced Widgets
+- Screenshots
+- Screen Recording
+- Audio Recording
+- Webcam Capture
+- Desktop Color Picker
+- Measure Tool
+
+</div>
+</div>
+`
