@@ -7,7 +7,7 @@ import {
   isWin,
 } from "../core/utils.js"
 
-let initialPath = await arg("Initial path")
+let initialPath = args?.shift() || home()
 if (initialPath === "~") initialPath = home()
 let selectedPath = await path({
   startPath: initialPath,
