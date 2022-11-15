@@ -48,6 +48,12 @@ if (userDb.login) {
         enter: "Go Pro",
       },
       {
+        name: "Join Script Kit Discord",
+        preview: md(`# Join Us on the Script Kit Discord`),
+        value: "discord",
+        enter: "Join Discord Server",
+      },
+      {
         name: "Check Pro Status",
         preview: md(`# Ping the Script Kit Pro Server
 
@@ -66,6 +72,12 @@ This will check your Pro status and update your account if successful.
   switch (option) {
     case "pro":
       open(sponsorUrl)
+      break
+    case "discord":
+      let response = await get(
+        `https://scriptkit.com/api/discord-invite`
+      )
+      open(response.data)
       break
     case "pro-status":
       let isSponsor = await sendWait(Channel.PRO_STATUS)
