@@ -326,6 +326,7 @@ export interface ChannelMap {
   [Channel.TOGGLE_TRAY]: undefined
   [Channel.UPDATE_APP]: undefined
   [Channel.QUIT_APP]: undefined
+  [Channel.PRO_STATUS]: undefined
   //
 
   [Channel.APP_CONFIG]: AppConfig
@@ -400,6 +401,7 @@ export interface ChannelMap {
   [Channel.SET_VALUE]: any
   [Channel.START]: string
   [Channel.SHOW]: { options: ShowOptions; html: string }
+  [Channel.SHOW_LOG_WINDOW]: string
   [Channel.SHOW_IMAGE]: {
     options: ShowOptions
     image: string | { src: string }

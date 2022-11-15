@@ -3,6 +3,7 @@
 // Exclude: true
 import { authenticate } from "../api/kit.js"
 import { getUserDb } from "../core/db.js"
+import { Channel } from "../core/enum.js"
 import {
   backToMainShortcut,
   cmd,
@@ -81,6 +82,15 @@ if (userDb.login) {
         enter: "Go Pro",
       },
       {
+        name: "Check Pro Status",
+        preview: md(`# Ping the Script Kit Pro Server
+
+This will check your Pro status and update your account if successful.
+        `),
+        value: "pro-status",
+        enter: "Check Status",
+      },
+      {
         name: "Logout",
         value: "logout",
         enter: "Logout",
@@ -90,6 +100,20 @@ if (userDb.login) {
   switch (option) {
     case "pro":
       open(sponsorUrl)
+      break
+    case "pro-status":
+      let isSponsor = await sendWait(Channel.PRO_STATUS)
+      if (isSponsor) {
+        await div(md(`# You are a Sponsor! Thank you!`))
+      } else {
+        await div(
+          md(`# You are not currently a Sponsor...
+        
+Please go to [${sponsorUrl}](${sponsorUrl}) to become a sponsor to unlock all features.
+        `)
+        )
+      }
+
       break
     case "logout":
       await rm(userDbPath)

@@ -183,6 +183,7 @@ export enum Channel {
   BLUR_APP = "BLUR_APP",
   WIDGET_CALL = "WIDGET_CALL",
   SHOW_LOG_WINDOW = "SHOW_LOG_WINDOW",
+  PRO_STATUS = "PRO_STATUS",
 }
 
 export enum ProcessType {
