@@ -1182,7 +1182,6 @@ global.updateArgs = arrayOfArgs => {
 global.updateArgs(process.argv.slice(2))
 
 let appInstall = async packageName => {
-  await arg(`Installing ${packageName}`)
   if (!global.arg?.trust) {
     let placeholder = `${packageName} is required for this script`
 
