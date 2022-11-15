@@ -6,7 +6,7 @@ let themes = {
     foreground: "255, 255, 255",
     accent: "251, 191, 36",
     background: "0, 0, 0",
-    opacity: "0.75",
+    opacity: "0.7",
   },
   ["Script Kit Light"]: {
     foreground: "0, 0, 0",
