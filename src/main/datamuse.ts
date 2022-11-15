@@ -1,8 +1,6 @@
 // Name: Word API
 // Description: Find Word Alternatives
 
-setName(``)
-
 let queryWords = (api, type) => async input => {
   if (!input || input?.length < 3)
     return md(`## Type at least 3 characters`)

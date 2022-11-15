@@ -4,8 +4,6 @@
 import { Choice } from "../types"
 import { cmd, returnOrEnter } from "../core/utils.js"
 
-setName(``)
-
 let historyWithPreviews = async () => {
   let history = await getClipboardHistory()
   return history.map(item => {

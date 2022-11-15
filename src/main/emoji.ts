@@ -1,7 +1,6 @@
 // Name: Emoji Picker
 // Description: Select an Emoji to Paste
 
-setName(``)
 let emojiJSON = await readJson(
   kitPath("data", "emoji.json")
 )

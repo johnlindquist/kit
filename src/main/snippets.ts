@@ -7,7 +7,6 @@ import {
   cmd,
 } from "../core/utils.js"
 import { Script } from "../types/core.js"
-setName(``)
 
 let snippetScript = await selectScript(
   {

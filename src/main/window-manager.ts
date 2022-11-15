@@ -2,7 +2,6 @@
 // Description: Position and resize windows
 
 import "@johnlindquist/kit"
-setName(``)
 
 let activeApp = await getActiveAppInfo()
 let activeScreen = await getActiveScreen()

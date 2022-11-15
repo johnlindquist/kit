@@ -1,8 +1,6 @@
 // Name: System Commands
 // Description: Run system commands
 
-setName(``)
-
 let command = await arg("Select System Command", [
   {
     name: "Mute",

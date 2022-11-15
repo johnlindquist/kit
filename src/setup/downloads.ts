@@ -5,7 +5,8 @@ try {
   await run(kitPath("hot", "download-hot.js"))
   await run(kitPath("emoji", "download-emoji.js"))
   if (!arg.dev) await run(kitPath("cli", "download-md.js"))
-  await run(kitPath("setup", "clone-examples.js"))
+  if (!arg.dev)
+    await run(kitPath("setup", "clone-examples.js"))
   await run(kitPath("setup", "clone-sponsors.js"))
   let response = await get(
     `https://scriptkit.com/api/get-sponsor-url`

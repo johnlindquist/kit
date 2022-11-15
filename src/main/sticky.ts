@@ -1,8 +1,6 @@
 // Name: Sticky Pad
 // Description: Take Quick Notes
 
-setName(``)
-
 let stickyPath = kenvPath("sticky.md")
 let contents = await ensureReadFile(
   stickyPath,

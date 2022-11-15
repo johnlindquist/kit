@@ -6,7 +6,7 @@ import {
   isMac,
   isWin,
 } from "../core/utils.js"
-setName(``)
+
 let atLeast = `Type at least 3 characters`
 let selectedFile = await arg(
   {
