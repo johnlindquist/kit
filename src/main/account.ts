@@ -74,8 +74,11 @@ This will check your Pro status and update your account if successful.
       open(sponsorUrl)
       break
     case "discord":
-      let response = await get(
-        `https://scriptkit.com/api/discord-invite`
+      let response = await post(
+        `https://scriptkit.com/api/discord-invite`,
+        (
+          await getUserDb()
+        ).data
       )
       open(response.data)
       break
