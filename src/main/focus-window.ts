@@ -1,4 +1,5 @@
 // Name: Focus Window
+// Description: List and focus open windows
 
 import "@johnlindquist/kit"
 import { backToMainShortcut } from "../core/utils.js"
@@ -12,7 +13,12 @@ let windows = await getWindows({
   onScreenOnly: false,
 })
 
-let ignore = ["Notification Center", "Dock"]
+let ignore = [
+  "Notification Center",
+  "Dock",
+  "AvatarPickerMemojiPicker",
+  "com.apple.preference.security.r",
+]
 
 let selectedWindow = await arg<{
   name: string
@@ -27,7 +33,9 @@ let selectedWindow = await arg<{
     resize: true,
   },
   windows
-    .filter(w => !ignore.includes(w.name))
+    .filter(
+      w => !ignore.includes(w.ownerName) && w.name !== ""
+    )
     .map(w => {
       let img =
         (apps?.choices?.length ? apps.choices : []).find(

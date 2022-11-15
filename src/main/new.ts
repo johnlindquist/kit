@@ -1,3 +1,5 @@
+// Exclude: true
+
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 import { Main } from "./index"

@@ -30,6 +30,9 @@ import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 import { Kenv } from "../types/kit"
 
 global.isWin = os.platform().startsWith("win")
+global.isMac = os.platform().startsWith("darwin")
+global.isLinux = os.platform().startsWith("linux")
+global.cmd = global.isMac ? "cmd" : "ctrl"
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -713,6 +716,9 @@ export let selectScript = async (
             )
             s.preview = md(preview) + content
           } catch (error) {
+            s.preview = md(
+              `Could not find doc file ${previewPath} for ${s.name}`
+            )
             warn(
               `Could not find doc file ${previewPath} for ${s.name}`
             )
@@ -733,7 +739,20 @@ export let selectScript = async (
         }
       } else {
         s.preview = async () => {
-          return highlightJavaScript(s.filePath)
+          let preview = await readFile(s.filePath, "utf8")
+          if (
+            preview.startsWith("/*") &&
+            preview.includes("*/")
+          ) {
+            let index = preview.indexOf("*/")
+            let content = preview.slice(2, index).trim()
+            let markdown = md(content)
+            let js = await highlightJavaScript(
+              preview.slice(index + 2).trim()
+            )
+            return markdown + js
+          }
+          return highlightJavaScript(preview)
         }
       }
 

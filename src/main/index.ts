@@ -2,8 +2,9 @@
 // Description: Script Kit
 // Placeholder: Run script
 // UI: arg
-// preview: true
 // Log: false
+// Exclude: true
+
 setDescription(`Script Kit`)
 export interface Main {
   api: Promise<typeof import("./api")>

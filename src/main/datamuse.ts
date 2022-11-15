@@ -1,4 +1,5 @@
-// Description: Datamuse API
+// Name: Word API
+// Description: Find Word Alternatives
 
 setName(``)
 

@@ -1,4 +1,5 @@
 // Description: Templates
+// Exclude: true
 
 import {
   backToMainShortcut,

@@ -1,10 +1,12 @@
+// Name: Path Browser
 // Description: Select a Path
+
 import {
   backToMainShortcut,
   isMac,
   isWin,
 } from "../core/utils.js"
-setName(``)
+
 let initialPath = await arg("Initial path")
 if (initialPath === "~") initialPath = home()
 let selectedPath = await path({

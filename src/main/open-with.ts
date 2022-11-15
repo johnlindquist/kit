@@ -1,4 +1,6 @@
+// Exclude: true
 // Description: Open with...
+
 let filePath = await path()
 setName(``)
 let findApps = async () => {

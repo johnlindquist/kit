@@ -1,3 +1,5 @@
+// Exclude: true
+
 setPlaceholder(`Loading "show and tell" discussions...`)
 
 let showAndTell = `https://scriptkit.com/api/showandtell`

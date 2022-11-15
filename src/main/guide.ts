@@ -1,3 +1,5 @@
+// Exclude: true
+
 import { createGuideConfig } from "./main-helper.js"
 
 let selectedDoc = await docs(

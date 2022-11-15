@@ -1,4 +1,5 @@
-// Description: Sticky
+// Name: Sticky Pad
+// Description: Take Quick Notes
 
 setName(``)
 

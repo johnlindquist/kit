@@ -10,6 +10,7 @@ const {
   mkdir,
   mv,
   sed,
+  pwd,
   tempdir,
   test,
   which,
@@ -28,5 +29,6 @@ global.sed = sed
 global.tempdir = tempdir
 global.test = test
 global.which = which
+global.pwd = pwd
 
 export {}

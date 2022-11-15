@@ -2,14 +2,17 @@ let { filePath, command } = await selectScript(
   `Open database for which script?`
 )
 
-edit(
-  path.resolve(
-    filePath,
-    "..",
-    "..",
-    "db",
-    `_${command}.json`
-  )
+let scriptDb = path.resolve(
+  path.dirname(path.dirname(filePath)),
+  "db",
+  `_${command}.json`
 )
+
+await ensureReadFile(
+  scriptDb,
+  JSON.stringify({ items: [] })
+)
+
+edit(scriptDb)
 
 export {}

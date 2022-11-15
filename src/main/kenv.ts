@@ -1,3 +1,5 @@
+// Exclude: true
+
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
 import { addPreview, findDoc } from "../cli/lib/utils.js"

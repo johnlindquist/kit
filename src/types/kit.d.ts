@@ -285,6 +285,10 @@ export interface KitApi {
   projectPath: PathFn
   createGist: CreateGist
   setShortcuts: SetShortcuts
+  isWin: boolean
+  isMac: boolean
+  isLinux: boolean
+  cmd: "cmd" | "ctrl"
 }
 
 interface KeyValue {
@@ -356,4 +360,8 @@ declare global {
   var clearAllIntervals: () => void
   var createGist: CreateGist
   var setShortcuts: SetShortcuts
+  var isWin: boolean
+  var isMac: boolean
+  var isLinux: boolean
+  var cmd: "cmd" | "ctrl"
 }

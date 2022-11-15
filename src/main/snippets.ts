@@ -1,4 +1,5 @@
-// Description: Snippets
+// Name: View Snippets
+// Description: Browse and edit snippets
 
 import {
   backToMainShortcut,

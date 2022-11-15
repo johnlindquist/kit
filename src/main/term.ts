@@ -1,4 +1,5 @@
-// Description: > Kit Terminal
+// Name: Kit Terminal
+// Description: >_
 
 setName(``)
 await term({

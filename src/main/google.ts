@@ -1,4 +1,6 @@
-// Description: Google
+// Name: Google
+// Description: Search Google for Information
+
 setName(``)
 import { cmd } from "../core/utils.js"
 let { default: google } = await import("googlethis")

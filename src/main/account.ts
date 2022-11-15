@@ -1,5 +1,6 @@
 // Name: Login to GitHub
 // Description: Authenticate to Enable Features
+// Exclude: true
 import { authenticate } from "../api/kit.js"
 import { getUserDb } from "../core/db.js"
 import {

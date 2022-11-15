@@ -51,6 +51,7 @@ declare global {
   var ls: typeof shelljs.ls
   var mkdir: typeof shelljs.mkdir
   var mv: typeof shelljs.mv
+  var pwd: typeof shelljs.pwd
   var sed: typeof shelljs.sed
   var tempdir: typeof shelljs.tempdir
   var test: typeof shelljs.test

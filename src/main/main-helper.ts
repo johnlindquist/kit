@@ -1,3 +1,5 @@
+// Exclude: true
+
 import { cmd, kitMode } from "../core/utils.js"
 import { PromptConfig } from "../types/core.js"
 import { GuideSection } from "../types/kitapp.js"

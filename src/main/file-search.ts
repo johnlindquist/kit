@@ -1,4 +1,6 @@
-// Description: File Search
+// Name: File Search
+// Description: Search For Files then Take Actions
+
 import {
   backToMainShortcut,
   isMac,

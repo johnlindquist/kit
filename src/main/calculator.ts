@@ -1,8 +1,10 @@
-// Description: Calculator
+// Name: Calculator
+// Description: Evaluate a mathematical expression
+
 import { backToMainShortcut } from "../core/utils.js"
-setName(``)
+
 let { default: calc } = await import("advanced-calculator")
-let input = await arg("Initial string")
+let input = args?.shift() || ""
 
 let format = input =>
   `<div class="text-3xl px-4 flex items-center justify-center">${input}</div>`
@@ -13,7 +15,7 @@ let result = await arg(
     enter: "Paste Result",
     shortcuts: [backToMainShortcut],
     input: String(input),
-    debounceInput: 400,
+    debounceInput: 250,
     resize: true,
     onEscape: async () => {
       await mainScript()

@@ -1,4 +1,5 @@
-// Description: Window Manager
+// Name: Window Manager
+// Description: Position and resize windows
 
 import "@johnlindquist/kit"
 setName(``)

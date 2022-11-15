@@ -1,6 +1,9 @@
+// Name: Clipboard History
+// Description: Display and Paste Clipboard History
+
 import { Choice } from "../types"
 import { cmd, returnOrEnter } from "../core/utils.js"
-// Description: Clipboard History
+
 setName(``)
 
 let historyWithPreviews = async () => {

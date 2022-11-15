@@ -1,5 +1,6 @@
-//Menu: Edit Menu
-//Description: Select a script then edit action.
+// Name: Edit Menu
+// Description: Select a script then edit action.
+// Exclude: true
 
 import { Choice } from "../types/core"
 import { CLI } from "../cli"

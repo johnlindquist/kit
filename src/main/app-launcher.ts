@@ -1,7 +1,7 @@
 import { backToMainShortcut, cmd } from "../core/utils.js"
-// Description: App Launcher
+// Name: App Launcher
+// Description: Select an App to Launch
 
-setName(``)
 let findAppsAndPrefs = async () => {
   log(`findAppsAndPrefs`)
   let apps = await fileSearch("", {

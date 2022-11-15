@@ -1,4 +1,5 @@
-// Description: Emoji
+// Name: Emoji Picker
+// Description: Select an Emoji to Paste
 
 setName(``)
 let emojiJSON = await readJson(

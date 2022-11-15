@@ -1,4 +1,5 @@
-// Description: Google Suggest
+// Name: Google Suggest
+// Description: Start typing to see Google Suggest results
 
 import "@johnlindquist/kit"
 import { backToMainShortcut } from "../core/utils.js"

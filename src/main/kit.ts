@@ -1,5 +1,6 @@
 // Name: Manage Kit
 // Description: Options and Helpers
+// Exclude: true
 
 import { createGuideConfig } from "./main-helper.js"
 
