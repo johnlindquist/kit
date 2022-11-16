@@ -96,7 +96,6 @@ let packages = await arg(
       "Which npm package/s would you like to install?",
   },
   async input => {
-    log({ input })
     if (!input || input?.length < 3)
       return md(`## Type to search npm packages`)
     type pkgs = {

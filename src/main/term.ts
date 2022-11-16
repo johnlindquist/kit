@@ -1,5 +1,4 @@
-// Name: Kit Terminal
-// Description: >_
+// Description: Kit Terminal
 
 setName(``)
 await term({
