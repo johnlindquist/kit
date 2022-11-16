@@ -2182,3 +2182,21 @@ global.setAppearance = async appearance => {
 global.setShortcuts = async shortcuts => {
   await sendWait(Channel.SET_SHORTCUTS, shortcuts)
 }
+
+global.getMacWindows = async (config = {}) => {
+  return await sendWait(Channel.GET_MAC_WINDOWS, config)
+}
+
+global.getAppState = async () => {
+  return await sendWait(Channel.GET_APP_STATE)
+}
+
+process.addListener("unhandledRejection", async error => {
+  if (global.errorPrompt)
+    await global.errorPrompt(error as Error)
+})
+
+process.addListener("uncaughtException", async error => {
+  if (global.errorPrompt)
+    await global.errorPrompt(error as Error)
+})

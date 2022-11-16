@@ -273,6 +273,8 @@ export interface ChannelMap {
   [Channel.GET_ACTIVE_APP]: undefined
   [Channel.GET_SCRIPTS_STATE]: undefined
   [Channel.GET_CLIPBOARD_HISTORY]: undefined
+  [Channel.GET_MAC_WINDOWS]: GetMacWindowsOptions
+  [Channel.GET_APP_STATE]: undefined
   [Channel.CUT_TEXT]: undefined
   [Channel.WIDGET_GET]: undefined
   [Channel.WIDGET_UPDATE]: {
@@ -623,6 +625,22 @@ export interface ExecLog {
   ): ReturnType<exec>
 }
 
+export interface GetWindowsConfig {
+  showAllWindows?: boolean
+  onScreenOnly?: boolean
+}
+
+interface GetMacWindows {
+  (GetWindowsConfig?): Promise<
+    {
+      name: string
+      ownerName: string
+      number: number
+      pid: number
+    }[]
+  >
+}
+
 export interface AppApi {
   textarea: TextArea
   drop: Drop
@@ -714,7 +732,9 @@ export interface AppApi {
   focus: () => Promise<void>
   setAlwaysOnTop: (alwaysOnTop: boolean) => Promise<void>
   setAppearance: SetAppearance
-  guide: Docs
+  docs: Docs
+  getMacWindows: GetMacWindows
+  getAppState: any
 }
 
 export interface Background {
@@ -811,4 +831,6 @@ declare global {
 
   var setAppearance: SetAppearance
   var docs: Docs
+  var getMacWindows: GetMacWindows
+  var getAppState: any
 }

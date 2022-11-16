@@ -130,9 +130,6 @@ export const KIT_APP_PROMPT = kitPath(
   "run",
   "app-prompt.js"
 )
-export const KIT_NODE_PATH =
-  process.env.KIT_NODE_PATH || `${kitPath("node", "bin")}`
-
 let combinePath = (arrayOfPaths: string[]): string => {
   let [combinedPath, ...rest] = arrayOfPaths
   combinedPath = path.resolve(combinedPath)

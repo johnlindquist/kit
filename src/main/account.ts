@@ -34,6 +34,7 @@ try {
   warn(`Failed to read sponsor-url.txt`)
 }
 let userDb = await getUserDb()
+let appState = await getAppState()
 if (userDb.login) {
   let option = await arg(
     {
@@ -41,26 +42,30 @@ if (userDb.login) {
       shortcuts: [backToMainShortcut],
     },
     [
-      {
-        name: "Unlock Script Kit Pro",
-        preview: md(proPane()),
-        value: "pro",
-        enter: "Go Pro",
-      },
+      ...(appState?.isSponsor
+        ? []
+        : [
+            {
+              name: "Unlock Script Kit Pro",
+              preview: md(proPane()),
+              value: "pro",
+              enter: "Go Pro",
+            },
+            {
+              name: "Check Pro Status",
+              preview: md(`# Ping the Script Kit Pro Server
+      
+      This will check your Pro status and update your account if successful.
+              `),
+              value: "pro-status",
+              enter: "Check Status",
+            },
+          ]),
       {
         name: "Join Script Kit Discord",
         preview: md(`# Join Us on the Script Kit Discord`),
         value: "discord",
         enter: "Join Discord Server",
-      },
-      {
-        name: "Check Pro Status",
-        preview: md(`# Ping the Script Kit Pro Server
-
-This will check your Pro status and update your account if successful.
-        `),
-        value: "pro-status",
-        enter: "Check Status",
       },
       {
         name: "Logout",

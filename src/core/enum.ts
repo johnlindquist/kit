@@ -184,6 +184,8 @@ export enum Channel {
   WIDGET_CALL = "WIDGET_CALL",
   SHOW_LOG_WINDOW = "SHOW_LOG_WINDOW",
   PRO_STATUS = "PRO_STATUS",
+  GET_MAC_WINDOWS = "GET_MAC_WINDOWS",
+  GET_APP_STATE = "GET_APP_STATE",
 }
 
 export enum ProcessType {
