@@ -4,9 +4,14 @@
 import "@johnlindquist/kit"
 import { backToMainShortcut } from "../core/utils.js"
 
+let { getWindows } = await npm("mac-windows")
+
 let apps = await db(kitPath("db", "apps.json"))
 
-let windows = await getMacWindows()
+let windows = await getWindows({
+  showAllWindows: true,
+  onScreenOnly: false,
+})
 
 let ignore = [
   "Notification Center",
