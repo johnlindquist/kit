@@ -99,6 +99,16 @@ process.on("beforeExit", () => {
   onExitHandler()
 })
 
+let _exec = global.exec
+global.exec = (
+  command: string,
+  options = { shell: true, all: true, cwd: process.cwd() }
+) => {
+  let child = _exec(command, options)
+  if (child?.all) child.all.pipe(process.stdout)
+  return child as any
+}
+
 let displayChoices = async ({
   choices,
   className,
