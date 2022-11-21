@@ -1,4 +1,4 @@
-import { cmd, KIT_FIRST_PATH } from "../core/utils.js"
+import { KIT_FIRST_PATH, knodePath } from "../core/utils.js"
 
 let file = JSON.parse(
   await readFile(kenvPath("package.json"), {
@@ -57,7 +57,9 @@ if (global.isWin) {
   await divP
 } else {
   await term({
-    command: `${tool} ${command} ${packages.join(" ")}`,
+    command: `PATH=${knodePath(
+      "bin"
+    )} ${tool} ${command} ${packages.join(" ")}`,
     shortcuts: [
       {
         name: "Continue",
