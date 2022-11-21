@@ -24,6 +24,8 @@ let docPath = path.resolve(
   name + ".md"
 )
 
+await ensureFile(docPath)
+
 let contents = await readFile(scriptPath, "utf-8")
 let metadata = await setMetadata(contents, {
   preview: "docs",
