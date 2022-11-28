@@ -153,7 +153,9 @@ type Field = {
 
 export interface Fields {
   (fields: string[] | Field[]): Promise<any>
-  (config: PromptConfig): Promise<any>
+  (
+    config: PromptConfig & { fields: string[] | Field[] }
+  ): Promise<any>
 }
 
 export interface Emoji {

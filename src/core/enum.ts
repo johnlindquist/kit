@@ -186,6 +186,8 @@ export enum Channel {
   PRO_STATUS = "PRO_STATUS",
   GET_MAC_WINDOWS = "GET_MAC_WINDOWS",
   GET_APP_STATE = "GET_APP_STATE",
+  APP = "APP",
+  CHANGE = "CHANGE",
 }
 
 export enum ProcessType {

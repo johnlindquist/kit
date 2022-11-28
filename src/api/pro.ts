@@ -252,3 +252,7 @@ global.term = term
 global.showLogWindow = async (scriptPath = "") => {
   await sendWait(Channel.SHOW_LOG_WINDOW, scriptPath)
 }
+
+global.app = async (options = {}) => {
+  return sendWait(Channel.APP, options)
+}

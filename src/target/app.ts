@@ -70,6 +70,7 @@ interface DisplayChoicesProps {
   className: string
   scripts?: PromptConfig["scripts"]
   onInput?: PromptConfig["onInput"]
+  onChange?: PromptConfig["onChange"]
   state: AppState
   onEscape?: PromptConfig["onEscape"]
   onAbandon?: PromptConfig["onAbandon"]
@@ -290,6 +291,7 @@ let waitForPromptValue = ({
   className,
   onNoChoices,
   onInput,
+  onChange,
   onEscape,
   onAbandon,
   onBack,
@@ -415,6 +417,10 @@ let waitForPromptValue = ({
         switch (data.channel) {
           case Channel.INPUT:
             onInput(data.state.input, data.state)
+            break
+
+          case Channel.CHANGE:
+            onChange(data.state.input, data.state)
             break
 
           case Channel.NO_CHOICES:
@@ -678,6 +684,8 @@ let onBlurDefault = () => {
   process.exit()
 }
 
+let onChangeDefault = () => {}
+
 let determineChoicesType = choices => {
   if (!choices) return "null"
   if (typeof choices === "function") {
@@ -749,6 +757,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       className,
       debounceInput
     ),
+    onChange = onChangeDefault,
     onBlur = onBlurDefault,
     onPaste = onPasteDefault,
     onDrop = onDropDefault,
@@ -767,6 +776,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     validate,
     className,
     onInput,
+    onChange,
     onNoChoices,
     onEscape,
     onAbandon,
@@ -829,7 +839,7 @@ global.fields = async formFields => {
   if (Array.isArray(formFields) && !formFields[0]?.fields) {
     f = formFields
   } else {
-    config = formFields[0]
+    config = formFields
     f = config?.fields
   }
 
