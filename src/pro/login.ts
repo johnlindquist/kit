@@ -5,7 +5,7 @@ import { authenticate } from "../api/kit.js"
 
 await div(
   md(`
-# Sign in to GitHub
+# Sign in with GitHub
 
 ## Sign in to Enable Features
 

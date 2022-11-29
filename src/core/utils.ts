@@ -93,7 +93,7 @@ export let kenvPath = (...parts: string[]) => {
 }
 
 export let kitDotEnvPath = () => {
-  return process.env.KIT_DOTENV_PATH || kenvPath()
+  return process.env.KIT_DOTENV_PATH || kenvPath(".env")
 }
 
 export let knodePath = (...parts: string[]) =>
@@ -147,6 +147,7 @@ export const KIT_DEFAULT_PATH = isWin
       "/bin",
       "/usr/sbin",
       "/sbin",
+      process.env.PATH,
     ])
 
 export const KIT_FIRST_PATH =
@@ -952,7 +953,7 @@ export let cliShortcuts: Shortcut[] = [
 export let proPane = () =>
   `
 <h2 class="pb-1 text-xl">⭐️ Pro Account</h2>
-<a href="submit:pro" class="shadow-xl shadow-primary-dark/25 dark:shadow-primary-light/25 text-white dark:text-black font-bold px-3 py-3 h-6 no-underline rounded bg-primary-dark dark:bg-primary-light bg-opacity-90 dark:bg-opacity-100 hover:opacity-80 dark:hover:opacity-80">Unlock All Features ($7/m.)</a>
+<a href="submit:pro" class="shadow-xl shadow-primary-dark/25 dark:shadow-primary-light/25 text-contrast-light dark:text-contrast-dark font-bold px-3 py-3 h-6 no-underline rounded bg-primary-dark dark:bg-primary-light bg-opacity-90 dark:bg-opacity-100 hover:opacity-80 dark:hover:opacity-80">Unlock All Features ($7/m.)</a>
 
 <div class="py-1"></div>
 <div class="flex justify-evenly">

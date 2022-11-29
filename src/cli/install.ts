@@ -2,11 +2,7 @@ import {
   formatDistanceToNow,
   parseISO,
 } from "@johnlindquist/kit-internal/date-fns"
-import {
-  cmd,
-  KIT_FIRST_PATH,
-  knodePath,
-} from "../core/utils.js"
+import { KIT_FIRST_PATH, knodePath } from "../core/utils.js"
 
 let install = async packageNames => {
   let isYarn = await isFile(kenvPath("yarn.lock"))
@@ -48,10 +44,17 @@ let install = async packageNames => {
     return
   }
 
+  let PATH = ``
+
+  if (process.env.KIT_CONTEXT === "app") {
+    PATH = `PATH=${knodePath("bin")}`
+  }
+
   return await term({
-    command: `PATH=${knodePath(
-      "bin"
-    )} ${tool} ${command} -D ${packageNames.join(" ")}`,
+    command:
+      `${PATH} ${tool} ${command} -D ${packageNames.join(
+        " "
+      )}`.trim(),
     enter: "",
     shortcuts: [
       {

@@ -127,7 +127,7 @@ Please go to [${sponsorUrl}](${sponsorUrl}) to become a sponsor to unlock all fe
   `)
   let middlePane = md(`
 <h2 class="text-xl pb-1">Sign in with GitHub</h2>
-<a href="submit:login" class="text-white dark:text-black font-bold px-3 py-3 h-6 no-underline rounded bg-black dark:bg-white bg-opacity-80 dark:bg-opacity-80 hover:opacity-75 dark:hover:opacity-75">Sign in with GitHub</a>
+<a href="submit:login" class="text-contrast-light dark:text-contrast-dark font-bold px-3 py-3 h-6 no-underline rounded bg-black dark:bg-white bg-opacity-80 dark:bg-opacity-80 hover:opacity-75 dark:hover:opacity-75">Sign in with GitHub</a>
 
 <div class="py-1"></div>
 

@@ -56,10 +56,16 @@ if (global.isWin) {
   stderr.pipe(writable)
   await divP
 } else {
+  let PATH = ``
+
+  if (process.env.KIT_CONTEXT === "app") {
+    PATH = `PATH=${knodePath("bin")}`
+  }
+
   await term({
-    command: `PATH=${knodePath(
-      "bin"
-    )} ${tool} ${command} ${packages.join(" ")}`,
+    command: `${PATH} ${tool} ${command} ${packages.join(
+      " "
+    )}`.trim(),
     shortcuts: [
       {
         name: "Continue",
