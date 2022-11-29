@@ -139,16 +139,18 @@ let combinePath = (arrayOfPaths: string[]): string => {
 
   return combinedPath
 }
-export const KIT_DEFAULT_PATH = isWin
-  ? ``
+
+const DEFAULT_PATH = process?.env?.PATH
+  ? process.env.PATH
   : combinePath([
       "/usr/local/bin",
       "/usr/bin",
       "/bin",
       "/usr/sbin",
       "/sbin",
-      process.env.PATH,
     ])
+
+export const KIT_DEFAULT_PATH = isWin ? `` : DEFAULT_PATH
 
 export const KIT_FIRST_PATH =
   combinePath([
