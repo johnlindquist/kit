@@ -51,8 +51,8 @@ let install = async packageNames => {
     PATH = `PATH=${knodePath("bin")}`
   }
 
-  if (process.env.KIT_CONTEXT === "github-workflow") {
-    cwd = kenvPath("scripts")
+  if (process.env.KENV_PKG_DIR) {
+    cwd = kenvPath(process.env.KENV_PKG_DIR)
   }
 
   return await term({

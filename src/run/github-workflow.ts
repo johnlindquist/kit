@@ -8,7 +8,6 @@ await import("../api/global.js")
 await import("../api/kit.js")
 await import("../api/lib.js")
 
-process.env.KIT_CONTEXT = "github-workflow"
 let platform = process.env?.PLATFORM || os.platform()
 
 await import(`../platform/${platform}.js`)

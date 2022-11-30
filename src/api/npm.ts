@@ -92,7 +92,7 @@ let kenvImport = async (packageName: string) => {
         pathToFileURL(mainModule).toString()
       )
 
-    mainModule = await findMain("scripts")
+    mainModule = await findMain(process.env.KENV_PKG_DIR)
     if (mainModule)
       return await defaultImport(
         pathToFileURL(mainModule).toString()
@@ -127,19 +127,32 @@ export let createNpm =
     if (isKitDep) {
       return defaultImport(packageName)
     }
+
+    let pkgPath = await global.readFile(
+      global.kenvPath(
+        process.env.KENV_PKG_DIR || "",
+        "package.json"
+      ),
+      "utf-8"
+    )
+
+    if (!(await global.isFile(pkgPath))) {
+      throw new Error(
+        `Could not find package.json at ${pkgPath}`
+      )
+    }
+
     //fix missing kenv dep
     let {
       dependencies: kenvDeps = {},
       devDependencies: kenvDevDeps = {},
-    } = JSON.parse(
-      await global.readFile(
-        global.kenvPath("package.json"),
-        "utf-8"
-      )
-    )
+    } = JSON.parse(pkgPath)
+
     let isKenvDep =
       kenvDeps?.[packageName] || kenvDevDeps?.[packageName]
+
     if (isKenvDep) {
+      global.log(`Found ${packageName} in ${pkgPath}`)
       return kenvImport(packageName)
     }
     await npmInstall(packageNameWithVersion)
