@@ -57,12 +57,17 @@ let kenvImport = async packageName => {
     )
 
     if (process.env.KIT_CONTEXT == "github-workflow") {
+      console.log(
+        `🕵️‍♀️ GitHub Workflow Detected. Using scripts dir...`
+      )
       packageJson = global.kenvPath(
         "scripts",
         "node_modules",
         packageName,
         "package.json"
       )
+
+      console.log({ packageJson })
     }
 
     if (!(await global.isFile(packageJson))) {
