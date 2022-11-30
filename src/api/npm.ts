@@ -65,6 +65,10 @@ let findPackageJson =
       "package.json"
     )
 
+    if (!(await global.isFile(packageJson))) {
+      return false
+    }
+
     let pkgPackageJson = JSON.parse(
       await global.readFile(packageJson, "utf-8")
     )
