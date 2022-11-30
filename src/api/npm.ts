@@ -56,6 +56,15 @@ let kenvImport = async packageName => {
       "package.json"
     )
 
+    if (process.env.KIT_CONTEXT == "github-workflow") {
+      packageJson = global.kenvPath(
+        "scripts",
+        "node_modules",
+        packageName,
+        "package.json"
+      )
+    }
+
     if (!(await global.isFile(packageJson))) {
       throw new Error(`${packageJson} doesn't exist`)
     }
