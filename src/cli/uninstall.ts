@@ -57,9 +57,14 @@ if (global.isWin) {
   await divP
 } else {
   let PATH = ``
+  let cwd = kenvPath()
 
   if (process.env.KIT_CONTEXT === "app") {
     PATH = `PATH=${knodePath("bin")}`
+  }
+
+  if (process.env.KIT_CONTEXT === "github-workflow") {
+    cwd = kenvPath("scripts")
   }
 
   await term({
@@ -77,7 +82,7 @@ if (global.isWin) {
       ...global.env,
       PATH: KIT_FIRST_PATH,
     },
-    cwd: kenvPath(),
+    cwd,
   })
 }
 

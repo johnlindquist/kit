@@ -45,9 +45,14 @@ let install = async packageNames => {
   }
 
   let PATH = ``
+  let cwd = kenvPath()
 
   if (process.env.KIT_CONTEXT === "app") {
     PATH = `PATH=${knodePath("bin")}`
+  }
+
+  if (process.env.KIT_CONTEXT === "github-workflow") {
+    cwd = kenvPath("scripts")
   }
 
   return await term({
@@ -67,7 +72,7 @@ let install = async packageNames => {
       ...global.env,
       PATH: KIT_FIRST_PATH,
     },
-    cwd: kenvPath(),
+    cwd,
   })
   // return await new Promise((res, rej) => {
   //   console.log(tool, command, ...packageNames)
