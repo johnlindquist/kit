@@ -14,16 +14,23 @@ interface PackageJson {
 }
 
 let findMain = async (
+  parent = "",
   packageName: string,
   packageJson: PackageJson
 ) => {
   try {
     let kPath = (...pathParts: string[]) =>
       global.kenvPath(
+        parent,
         "node_modules",
         packageName,
         ...pathParts
       )
+
+    // if kPath doesn't exist, return false
+    if (!(await global.isDir(kPath()))) {
+      return false
+    }
 
     let { module, main, type } = packageJson
 
@@ -48,42 +55,47 @@ let findMain = async (
   }
 }
 
-let kenvImport = async packageName => {
-  try {
+let findPackageJson =
+  (packageName: string) =>
+  async (parent = "") => {
     let packageJson = global.kenvPath(
+      parent,
       "node_modules",
       packageName,
       "package.json"
     )
-
-    if (process.env.KIT_CONTEXT == "github-workflow") {
-      console.log(
-        `🕵️‍♀️ GitHub Workflow Detected. Using scripts dir...`
-      )
-      packageJson = global.kenvPath(
-        "scripts",
-        "node_modules",
-        packageName,
-        "package.json"
-      )
-
-      console.log({ packageJson })
-    }
-
-    if (!(await global.isFile(packageJson))) {
-      throw new Error(`${packageJson} doesn't exist`)
-    }
 
     let pkgPackageJson = JSON.parse(
       await global.readFile(packageJson, "utf-8")
     )
 
     let mainModule = await findMain(
+      parent,
       packageName,
       pkgPackageJson
     )
-    return await defaultImport(
-      pathToFileURL(mainModule).toString()
+
+    return mainModule || false
+  }
+
+let kenvImport = async (packageName: string) => {
+  try {
+    let findMain = findPackageJson(packageName)
+
+    let mainModule = await findMain("")
+    if (mainModule)
+      return await defaultImport(
+        pathToFileURL(mainModule).toString()
+      )
+
+    mainModule = await findMain("scripts")
+    if (mainModule)
+      return await defaultImport(
+        pathToFileURL(mainModule).toString()
+      )
+
+    throw new Error(
+      `Could not find main module for ${packageName}`
     )
   } catch (error) {
     throw new Error(error)
