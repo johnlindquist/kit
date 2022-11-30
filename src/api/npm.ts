@@ -128,12 +128,9 @@ export let createNpm =
       return defaultImport(packageName)
     }
 
-    let pkgPath = await global.readFile(
-      global.kenvPath(
-        process.env.KENV_PKG_DIR || "",
-        "package.json"
-      ),
-      "utf-8"
+    let pkgPath = global.kenvPath(
+      process.env.KENV_PKG_DIR || "",
+      "package.json"
     )
 
     if (!(await global.isFile(pkgPath))) {
@@ -146,7 +143,7 @@ export let createNpm =
     let {
       dependencies: kenvDeps = {},
       devDependencies: kenvDevDeps = {},
-    } = JSON.parse(pkgPath)
+    } = JSON.parse(await global.readFile(pkgPath, "utf-8"))
 
     let isKenvDep =
       kenvDeps?.[packageName] || kenvDevDeps?.[packageName]
