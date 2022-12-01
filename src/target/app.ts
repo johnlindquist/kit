@@ -514,12 +514,6 @@ let waitForPromptValue = ({
 
     value$.subscribe({
       next: value => {
-        global.log(
-          `${process.pid}: value: ${truncate(
-            JSON.stringify(value),
-            256
-          )}`
-        )
         resolve(value)
       },
       complete: () => {

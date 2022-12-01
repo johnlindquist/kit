@@ -384,3 +384,8 @@ global.path = new Proxy(__pathSelector, {
 global.setShortcuts = async () => {
   notSupported("setShortcuts")
 }
+
+global.revealFile = async () => {
+  notSupported("revealFile")
+  return ""
+}
