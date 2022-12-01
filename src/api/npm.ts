@@ -32,7 +32,7 @@ let findMain = async (
       return false
     }
 
-    let { module, main, type } = packageJson
+    let { module, main, type, exports } = packageJson
 
     if (module && type == "module") return kPath(module)
     if (main && (await global.isFile(kPath(main))))
@@ -49,6 +49,9 @@ let findMain = async (
         return kPath(main, "index.js")
       }
     }
+    if (exports && exports?.["."])
+      return kPath(exports?.["."])
+
     return kPath("index.js")
   } catch (error) {
     throw new Error(error)
@@ -84,15 +87,18 @@ let findPackageJson =
 
 let kenvImport = async (packageName: string) => {
   try {
-    let findMain = findPackageJson(packageName)
+    let findMainFromPackageJson =
+      findPackageJson(packageName)
 
-    let mainModule = await findMain("")
+    let mainModule = await findMainFromPackageJson("")
     if (mainModule)
       return await defaultImport(
         pathToFileURL(mainModule).toString()
       )
 
-    mainModule = await findMain(process.env.SCRIPTS_DIR)
+    mainModule = await findMainFromPackageJson(
+      process.env.SCRIPTS_DIR
+    )
     if (mainModule)
       return await defaultImport(
         pathToFileURL(mainModule).toString()
