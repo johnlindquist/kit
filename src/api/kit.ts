@@ -16,7 +16,6 @@ import {
   resolveScriptToCommand,
   run,
   getKenvs,
-  configEnv,
 } from "../core/utils.js"
 import {
   getScripts,
