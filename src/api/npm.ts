@@ -92,7 +92,7 @@ let kenvImport = async (packageName: string) => {
         pathToFileURL(mainModule).toString()
       )
 
-    mainModule = await findMain(process.env.KENV_PKG_DIR)
+    mainModule = await findMain(process.env.SCRIPTS_DIR)
     if (mainModule)
       return await defaultImport(
         pathToFileURL(mainModule).toString()
@@ -129,7 +129,7 @@ export let createNpm =
     }
 
     let pkgPath = global.kenvPath(
-      process.env.KENV_PKG_DIR || "",
+      process.env.SCRIPTS_DIR || "",
       "package.json"
     )
 

@@ -63,8 +63,8 @@ if (global.isWin) {
     PATH = `PATH=${knodePath("bin")}`
   }
 
-  if (process.env.KENV_PKG_DIR) {
-    cwd = kenvPath(process.env.KENV_PKG_DIR)
+  if (process.env.SCRIPTS_DIR) {
+    cwd = kenvPath(process.env.SCRIPTS_DIR)
   }
 
   await term({
