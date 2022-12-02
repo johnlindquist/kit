@@ -2203,7 +2203,7 @@ global.getAppState = async () => {
 }
 
 global.formatDate = format
-global.formatDistanceToNow = formatDistanceToNow
+global.formatDateToNow = formatDistanceToNow
 
 process.addListener("unhandledRejection", async error => {
   if (global.errorPrompt)
