@@ -298,6 +298,7 @@ export type AppDb = {
   autoUpdate: boolean
   tray: boolean
   appearance: "light" | "dark" | "auto"
+  authorized: boolean
 }
 
 export type UserDb = Partial<
