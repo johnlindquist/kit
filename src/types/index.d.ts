@@ -16,6 +16,8 @@ declare global {
   namespace NodeJS {
     interface Global extends GlobalApi {}
   }
+
+  const api: GlobalApi
 }
 
 export * from "./core"
