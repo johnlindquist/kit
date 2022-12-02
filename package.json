@@ -43,7 +43,7 @@
   "license": "ISC",
   "dependencies": {
     "@johnlindquist/globals": "1.14.9",
-    "@johnlindquist/kit-internal": "1.13.0",
+    "@johnlindquist/kit-internal": "1.13.1",
     "@octokit/auth-oauth-device": "4.0.2",
     "@octokit/core": "4.0.5",
     "@octokit/plugin-paginate-rest": "4.2.3",
