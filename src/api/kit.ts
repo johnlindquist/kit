@@ -992,5 +992,3 @@ global.createGist = async (
 
   return response.data
 }
-
-;(global as any).api = global

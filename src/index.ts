@@ -2,7 +2,7 @@ import { homedir } from "os"
 import path from "path"
 import { URL } from "url"
 
-export let kit = async (
+let kitRun = async (
   command: string,
   ..._args: string[]
 ) => {
@@ -50,6 +50,9 @@ let kitGet = (
   }
 }
 
-global.kit = new Proxy(kit, {
+let kitDefault = new Proxy(kitRun, {
   get: kitGet,
 })
+
+global.kit = kitDefault
+export default kitDefault

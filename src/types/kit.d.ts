@@ -277,7 +277,6 @@ export interface KitApi {
 
   selectKitEditor: SelectKitEditor
 
-  kit: Run
   run: Run
 
   flag: Flags
@@ -301,7 +300,7 @@ interface KeyValue {
   [key: string]: any
 }
 
-interface Run {
+export interface Run {
   (command: string, ...args: string[]): Promise<any>
 }
 
@@ -318,7 +317,6 @@ declare global {
 
   var attemptImport: KitModuleLoader
   var npm: KitModuleLoader
-  var kit: Run
   var run: Run
   var setup: KitModuleLoader
 

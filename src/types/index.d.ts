@@ -1,11 +1,11 @@
 import { GlobalsApi } from "@johnlindquist/globals"
 import { AppApi } from "./kitapp"
-import { KitApi } from "./kit"
+import { KitApi, Run } from "./kit"
 import { PackagesApi } from "./packages"
 import { PlatformApi } from "./platform"
 import { ProAPI } from "./pro"
 
-type GlobalApi = Omit<GlobalsApi, "path"> &
+export type GlobalApi = Omit<GlobalsApi, "path"> &
   KitApi &
   PackagesApi &
   PlatformApi &
@@ -13,11 +13,11 @@ type GlobalApi = Omit<GlobalsApi, "path"> &
   ProAPI
 
 declare global {
+  var kit: GlobalApi & Run
   namespace NodeJS {
     interface Global extends GlobalApi {}
   }
-
-  const api: GlobalApi
 }
 
 export * from "./core"
+export default kit
