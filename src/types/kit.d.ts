@@ -1,6 +1,10 @@
 export {}
 
 import { Low } from "@johnlindquist/kit-internal/lowdb"
+import {
+  format,
+  formatDistanceToNow,
+} from "@johnlindquist/kit-internal/date-fns"
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 import { PlatformPath } from "path"
 import {
@@ -289,6 +293,8 @@ export interface KitApi {
   isMac: boolean
   isLinux: boolean
   cmd: "cmd" | "ctrl"
+  formatDate: typeof format
+  formatDateToNow: typeof formatDistanceToNow
 }
 
 interface KeyValue {
@@ -364,4 +370,6 @@ declare global {
   var isMac: boolean
   var isLinux: boolean
   var cmd: "cmd" | "ctrl"
+  var formatDate: typeof format
+  var formatDateToNow: typeof formatDistanceToNow
 }

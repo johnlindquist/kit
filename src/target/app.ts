@@ -23,6 +23,7 @@ import {
 } from "../types/kitapp"
 
 import {
+  format,
   formatDistanceToNow,
   compareAsc,
 } from "@johnlindquist/kit-internal/date-fns"
@@ -2200,6 +2201,9 @@ global.setShortcuts = async shortcuts => {
 global.getAppState = async () => {
   return await sendWait(Channel.GET_APP_STATE)
 }
+
+global.formatDate = format
+global.formatDistanceToNow = formatDistanceToNow
 
 process.addListener("unhandledRejection", async error => {
   if (global.errorPrompt)
