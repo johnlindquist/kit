@@ -32,7 +32,7 @@ let installNodeWin = async () => {
 
   await new Promise(r => {
     download(
-      `https://nodejs.org/dist/v16.16.0/node-v16.16.0-win-x86.zip`
+      `https://nodejs.org/dist/v16.15.0/node-v16.15.0-win-x86.zip`
     )
       .pipe(Extract({ path: knodePath() }))
       .on("finish", r)
@@ -47,7 +47,7 @@ let installNodeWin = async () => {
 let installNode =
   platform() !== "win32"
     ? exec(
-        `./build/install-node.sh v16.16.0 --prefix '${knodePath()}'`
+        `./build/install-node.sh v16.15.0 --prefix '${knodePath()}'`
       )
     : installNodeWin()
 
