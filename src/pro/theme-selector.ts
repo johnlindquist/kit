@@ -2,18 +2,7 @@
 // Description: Preview and Apply Themes
 import "@johnlindquist/kit"
 let themes = {
-  ["Script Kit Dark"]: {
-    foreground: "255, 255, 255",
-    accent: "251, 191, 36",
-    background: "0, 0, 0",
-    opacity: "0.7",
-  },
-  ["Script Kit Light"]: {
-    foreground: "0, 0, 0",
-    accent: "79, 70, 229",
-    background: "255, 255, 255",
-    opacity: "0.9",
-  },
+  ["Script Kit"]: {},
   ["VS Code Light"]: {
     foreground: "2C2C2C",
     accent: "2F86D3",

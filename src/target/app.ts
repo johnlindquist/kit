@@ -875,7 +875,7 @@ global.fields = async formFields => {
 
                   <label for=${id || i} htmlFor=${
         id || i
-      } class="text-sm px-4 block font-normal dark:font-normal text-black dark:text-white peer-focus:text-primary-dark peer-focus:dark:text-primary-light dark:peer-focus:text-primary-light">
+      } class="text-sm px-4 block font-normal dark:font-normal text-black dark:text-white peer-focus:text-primary-dark peer-focus:dark:text-yellow dark:peer-focus:text-primary-light">
                           ${label}
                         </label>
           </div>

@@ -357,6 +357,7 @@ export interface ChannelMap {
   [Channel.SET_BOUNDS]: Partial<Rectangle>
   [Channel.SET_CHOICES]: Choice[]
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
+  [Channel.SET_DARK]: boolean
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_EDITOR_CONFIG]: EditorConfig
   [Channel.SET_ENTER]: string
