@@ -949,7 +949,7 @@ global.clearTabs = () => {
 let _md = global.md
 global.md = (
   content = "",
-  containerClasses = "p-5 prose dark:prose-dark prose-sm"
+  containerClasses = "p-5 prose prose-sm"
 ) => {
   return _md(content, containerClasses)
 }

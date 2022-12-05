@@ -1,7 +1,7 @@
 ## Get Help on Github Discussions
 
 <!-- description: Post a question to Script Kit GitHub discussions -->
-<!-- value: get-help.js -->
+<!-- value: cli/get-help.js -->
 
 The Script Kit community lives on GitHub discussions.
 

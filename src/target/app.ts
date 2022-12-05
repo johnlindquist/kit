@@ -871,11 +871,11 @@ global.fields = async formFields => {
                     i === 0 ? `autofocus` : ``
                   }                  
                   ${attributes}   
-                  class="peer text-xl h-10 px-4 py-0 outline-none border-b dark:border-b border-opacity-25 dark:border-opacity-50 placeholder-black dark:placeholder-white dark:placeholder-opacity-25 placeholder-opacity-25 border-black dark:border-white border-opacity-15 dark:border-opacity-15 dark:focus:border-primary-light focus:border-primary-dark w-full"/>
+                  class="peer text-xl h-10 px-4 py-0 outline-none border-b border-opacity-25 placeholder-text-base placeholder-opacity-25 border-text-base border-opacity-15 focus:border-primary w-full"/>
 
                   <label for=${id || i} htmlFor=${
         id || i
-      } class="text-sm px-4 block font-normal dark:font-normal text-black dark:text-white peer-focus:text-primary-dark peer-focus:dark:text-yellow dark:peer-focus:text-primary-light">
+      } class="text-sm px-4 block font-normal text-text-base text-opacity-75 peer-focus:text-primary peer-focus:text-opacity-90">
                           ${label}
                         </label>
           </div>
@@ -888,8 +888,8 @@ global.fields = async formFields => {
 ${inputs}
 
 <div class="w-full px-4 invisible h-0">
-<input type="reset" name="reset-form" value="Reset" accesskey="r"> class="focus:underline underline-offset-4 outline-none p-3 dark:text-white text-opacity-50 dark:text-opacity-50 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light  hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline"/>
-<input type="submit" name="submit-form" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-contrast-dark dark:text-contrast-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-primary-dark dark:focus:text-primary-light hover:text-primary-dark dark:hover:text-primary-light hover:underline dark:hover:underline bg-opacity-75 dark:bg-opacity-75"/>
+<input type="reset" name="reset-form" value="Reset" accesskey="r"> class="focus:underline underline-offset-4 outline-none p-3 dark:text-white text-opacity-50 dark:text-opacity-50 font-medium text-sm focus:text-text-base dark:focus:text-primary-light  hover:text-text-base dark:hover:text-primary-light hover:underline dark:hover:underline"/>
+<input type="submit" name="submit-form" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-contrast-dark dark:text-contrast-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-text-base dark:focus:text-primary-light hover:text-text-base dark:hover:text-primary-light hover:underline dark:hover:underline bg-opacity-75 dark:bg-opacity-75"/>
 </div>
 </div>`
   config.shortcuts = formShortcuts

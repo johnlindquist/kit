@@ -497,7 +497,7 @@ export interface SetStatus {
 export interface KitTheme {
   "--color-primary-light": string
   "--color-secondary-light": string
-  "--color-primary-dark": string
+  "--color-primary": string
   "--color-secondary-dark": string
   "--color-background-light": string
   "--color-background-dark": string

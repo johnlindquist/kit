@@ -74,12 +74,11 @@ export interface ScriptMetadata {
   snippetDelay?: number
   index?: string
   template?: boolean
-  ["color-primary-light"]?: string
-  ["color-secondary-light"]?: string
-  ["color-background-light"]?: string
-  ["color-primary-dark"]?: string
-  ["color-secondary-dark"]?: string
-  ["color-background-dark"]?: string
+  ["color-text"]?: string
+  ["color-primary"]?: string
+  ["color-secondary"]?: string
+  ["color-background"]?: string
+  ["opacity"]?: string
   preview?: Choice["preview"]
   debug?: boolean
 }
