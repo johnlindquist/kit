@@ -24,13 +24,13 @@ I have been unable to prioritize the time to switch over to another build system
 
 Thus, we use yarn to build the App and npm to build the SDK 🤦‍♂️
 
-### Using node 16.15.0 from ~/.knode
+### Using node 16.17.1 from ~/.knode
 
-Installing `Kit.app` already installed node 16.15.0 to ~/.knode. You'll want to use this node version for all build/run steps:
+Installing `Kit.app` already installed node 16.17.1 to ~/.knode. You'll want to use this node version for all build/run steps:
 
 `PATH=~/.knode/bin:$PATH`
 
-This will use 16.15.0's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
+This will use 16.17.1's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
 
 ### Clone Kit SDK
 
