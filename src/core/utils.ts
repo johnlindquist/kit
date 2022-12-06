@@ -203,6 +203,7 @@ export let resolveToScriptPath = (
   let resolvedScriptPath = ""
 
   // if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
+  if (fileExists(script)) return script
 
   // Check sibling scripts
   if (global.kitScript) {
