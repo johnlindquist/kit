@@ -1,6 +1,8 @@
 // Name: Theme Selector
 // Description: Preview and Apply Themes
 import "@johnlindquist/kit"
+import { highlightJavaScript } from "../api/kit.js"
+import { KitTheme } from "../types/kitapp"
 let themes = {
   ["Script Kit"]: {
     foreground: "white",
@@ -110,6 +112,118 @@ onTab("Select a Theme", async () => {
   await setTheme(themes[themeName])
   await mainScript()
 })
+
+onTab("Theme Randomizer (In Progress...)", async () => {
+  let randomize = async () => {
+    // random hex color, in 6 character hex with padding
+    let randomHex = () => {
+      let hex = Math.floor(
+        Math.random() * 16777215
+      ).toString(16)
+      return hex.padStart(6, "0")
+    }
+
+    // random shade of black, in 6 character hex
+    let randomGray = () => {
+      let gray = Math.floor(Math.random() * 255)
+      return gray.toString(16).repeat(3)
+    }
+
+    // random shade of white, in 6 character hex
+    let randomWhite = () => {
+      let white = Math.floor(255 - Math.random() * 20)
+      return white.toString(16).repeat(3)
+    }
+
+    // random shade of black or white
+    let randomGrayOrWhite = () => {
+      return Math.random() > 0.5
+        ? randomGray()
+        : randomWhite()
+    }
+
+    // random value between 0.8 and 1
+    let randomOpacity = () => {
+      return (Math.random() * 0.2 + 0.8).toFixed(2)
+    }
+
+    let randomTheme = {
+      foreground: `#${randomHex()}`,
+      accent: `#${randomHex()}`,
+      background: `#${randomGrayOrWhite()}`,
+      ui: `#${randomHex()}`,
+      opacity: `${randomOpacity()}`,
+    }
+
+    await setTheme(randomTheme as Partial<KitTheme>)
+
+    setDescription(`Tap 'r' to randomize, 'c' to copy`)
+    let preview = await highlightJavaScript(
+      `
+let theme = ${JSON.stringify(randomTheme, null, 2)}
+
+// use setTheme to apply the theme
+await setTheme(theme)  
+    
+    `.trim()
+    )
+
+    let className = "px-0"
+    await arg(
+      {
+        placeholder: "Tap 'r' to randomize, 'c' to copy",
+        hint: "These are truly random...",
+        shortcuts: [
+          {
+            key: "r",
+            name: "Randomize",
+            onPress: async () => {
+              await randomize()
+            },
+            bar: "right",
+          },
+          {
+            key: "c",
+            name: "Copy",
+            onPress: async () => {
+              copy(JSON.stringify(randomTheme, null, 2))
+            },
+            bar: "right",
+          },
+        ],
+      },
+      [
+        {
+          name: "Foreground",
+          className,
+          html: `<div class="w-full h-full text-bg-base p-2" style="background-color:${randomTheme.foreground}">Foreground</div>`,
+          preview,
+        },
+        {
+          name: "Accent",
+          className,
+          html: `<div class="w-full h-full text-text-base p-2" style="background-color:${randomTheme.accent}">Accent</div>`,
+          preview,
+        },
+        {
+          name: "Background",
+          className,
+          html: `<div class="w-full h-full text-text-base p-2" style="background-color:${randomTheme.background}">Background</div>`,
+          preview,
+        },
+        {
+          name: "UI",
+          className,
+          html: `<div class="w-full h-full text-text-base p-2" style="background-color:${randomTheme.ui}">UI</div>`,
+          preview,
+        },
+      ]
+    )
+  }
+
+  await randomize()
+})
+
 onTab("Customize Theme (Coming Soon!)", async () => {
   await arg("Nothing to see here")
 })

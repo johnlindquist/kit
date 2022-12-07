@@ -41,8 +41,10 @@ clearInterval(id)
 
 setDescription(`${pid}: ${scriptPath}`)
 
-send(Channel.TERMINATE_PROCESS, pid)
-if ((await formatProcesses())?.length === 0) {
+await sendWait(Channel.TERMINATE_PROCESS, pid)
+let processes = await formatProcesses()
+
+if (processes?.length === 0) {
   await mainScript()
 } else {
   await run(kitPath("cli", "processes.js"))
