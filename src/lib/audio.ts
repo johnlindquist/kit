@@ -21,17 +21,6 @@ global.say = async (
     name: "Daniel",
   }
 ) => {
-  // let url =
-  //   "https://translate.google.com/translate_tts?tl=" +
-  //   options?.lang +
-  //   "&q=" +
-  //   encodeURIComponent(text) +
-  //   "&client=tw-ob"
-
-  // let filePath = tmpPath(
-  //   Date.now().toString() + "-speech.mp3"
-  // )
-  // await writeFile(filePath, await download(url))
   await sendWait(Channel.SPEAK_TEXT, {
     text,
     ...options,
