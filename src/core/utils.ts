@@ -283,9 +283,16 @@ export let resolveScriptToCommand = (script: string) => {
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
-        .replace(/(option|opt)/i, "Alt")
-        .replace(/(command|cmd)/i, "CommandOrControl")
-        .replace(/(ctl|cntrl|ctrl)/, "Control")
+        .replace(
+          /(option|opt|alt)/i,
+          isMac ? "Option" : "Alt"
+        )
+        .replace(/(ctl|cntrl|ctrl|control)/, "Control")
+        .replace(
+          /(command|cmd)/i,
+          isMac ? "Command" : "Control"
+        )
+        .replace(/(shift|shft)/i, "Shift")
         .split(/\s/)
         .filter(Boolean)
         .map(part =>
@@ -296,9 +303,10 @@ export const shortcutNormalizer = (shortcut: string) =>
 
 export const friendlyShortcut = (shortcut: string) => {
   let f = ""
-  if (shortcut.includes("CommandOrControl+")) f += "cmd+"
+  if (shortcut.includes("Command+")) f += "cmd+"
   if (shortcut.match(/(?<!Or)Control\+/)) f += "ctrl+"
-  if (shortcut.includes("Alt+")) f += "opt+"
+  if (shortcut.includes("Alt+")) f += "alt+"
+  if (shortcut.includes("Option+")) f += "opt+"
   if (shortcut.includes("Shift+")) f += "shift+"
   if (shortcut.includes("+"))
     f += shortcut.split("+").pop()?.toLowerCase()
