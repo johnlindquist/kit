@@ -35,6 +35,7 @@ if (
         ...backToMainShortcut,
         onPress: async input => {
           await writeFile(scriptPath, input)
+          await wait(200)
           await mainScript()
         },
       },
@@ -55,6 +56,7 @@ if (
         key: `${cmd}+s`,
         onPress: async input => {
           await writeFile(scriptPath, input)
+          await wait(200)
           await mainScript()
         },
         bar: "right",
