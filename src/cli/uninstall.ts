@@ -1,4 +1,4 @@
-import { KIT_FIRST_PATH, knodePath } from "../core/utils.js"
+import { KIT_FIRST_PATH } from "../core/utils.js"
 
 let file = JSON.parse(
   await readFile(kenvPath("package.json"), {
@@ -56,19 +56,14 @@ if (global.isWin) {
   stderr.pipe(writable)
   await divP
 } else {
-  let PATH = ``
   let cwd = kenvPath()
-
-  if (process.env.KIT_CONTEXT === "app") {
-    PATH = `PATH=${knodePath("bin")}`
-  }
 
   if (process.env.SCRIPTS_DIR) {
     cwd = kenvPath(process.env.SCRIPTS_DIR)
   }
 
   await term({
-    command: `${PATH} ${tool} ${command} ${packages.join(
+    command: `${tool} ${command} ${packages.join(
       " "
     )}`.trim(),
     shortcuts: [
