@@ -8,6 +8,4 @@ let { stdout, stderr } = await exec(
     : `open /Applications/Kit.app`
 )
 
-console.log({ stdout, stderr })
-
 export {}
