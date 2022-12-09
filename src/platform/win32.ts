@@ -134,4 +134,4 @@ global.shutdown = notSupported("shutdown")
 global.sleep = notSupported("sleep")
 global.tileWindow = notSupported("tileWindow")
 
-global.term = notSupported("term")
+// global.term = notSupported("term")

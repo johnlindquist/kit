@@ -1050,7 +1050,7 @@ global.editor = async (options?: EditorOptions) => {
 
   let defaultOptions: EditorOptions = {
     value: "",
-    language: "",
+    language: "markdown",
     scrollTo: "top",
     onInput: () => {},
     onEscape: onEscapeDefault,
@@ -1076,6 +1076,23 @@ global.editor = async (options?: EditorOptions) => {
     ...editorOptions,
     enter: "",
   })
+}
+
+global.editor.setSuggestions = async (
+  suggestions: string[] = []
+) => {
+  await sendWait(
+    Channel.SET_EDITOR_SUGGESTIONS,
+    suggestions
+  )
+}
+
+global.editor.setConfig = async (config: EditorOptions) => {
+  await sendWait(Channel.SET_EDITOR_CONFIG, config)
+}
+
+global.editor.append = async (value: string) => {
+  await sendWait(Channel.APPEND_EDITOR_VALUE, value)
 }
 
 global.template = async (

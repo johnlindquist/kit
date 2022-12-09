@@ -65,6 +65,7 @@ export type EditorOptions =
     ignoreBlur?: boolean
     extraLibs?: { content: string; filePath: string }[]
     template?: string
+    suggestions?: string[]
   }
 
 export interface Field {
@@ -112,10 +113,14 @@ export interface Drop {
         }
   ): Promise<any>
 }
-export interface Editor {
+export type Editor = {
   (
     config?: EditorConfig & { hint?: string }
   ): Promise<string>
+} & {
+  setSuggestions?: (suggestions: string[]) => Promise<void>
+  setConfig?: (config: EditorConfig) => Promise<void>
+  append?: (text: string) => Promise<void>
 }
 
 export interface Template {
@@ -360,6 +365,8 @@ export interface ChannelMap {
   [Channel.SET_DARK]: boolean
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_EDITOR_CONFIG]: EditorConfig
+  [Channel.SET_EDITOR_SUGGESTIONS]: string[]
+  [Channel.APPEND_EDITOR_VALUE]: string
   [Channel.SET_ENTER]: string
   [Channel.SET_FIELDS]: Field[]
   [Channel.SET_FLAGS]: FlagsOptions

@@ -241,6 +241,7 @@ export interface AppState {
   shortcut?: string
   paste?: string
   isPasteImage?: boolean
+  cursor?: number
 }
 
 export interface ChannelHandler {

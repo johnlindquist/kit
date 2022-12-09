@@ -189,6 +189,8 @@ export enum Channel {
   GET_APP_STATE = "GET_APP_STATE",
   APP = "APP",
   CHANGE = "CHANGE",
+  SET_EDITOR_SUGGESTIONS = "SET_EDITOR_SUGGESTIONS",
+  APPEND_EDITOR_VALUE = "APPEND_EDITOR_VALUE",
 }
 
 export enum ProcessType {
