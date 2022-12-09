@@ -131,12 +131,13 @@ export const KIT_APP_PROMPT = kitPath(
   "app-prompt.js"
 )
 let combinePath = (arrayOfPaths: string[]): string => {
-  let combinedPath = process?.env?.PATH || ""
-  for (let p of arrayOfPaths) {
-    combinedPath += path.delimiter + path.resolve(p)
-  }
-
-  return combinedPath
+  return [
+    ...new Set(
+      [...arrayOfPaths]
+        .flatMap(p => (p ? p.split(path.delimiter) : []))
+        .filter(Boolean)
+    ),
+  ].join(path.delimiter)
 }
 
 const UNIX_DEFAULT_PATH = combinePath([
@@ -156,27 +157,24 @@ export const KIT_DEFAULT_PATH = isWin
   ? WIN_DEFAULT_PATH
   : UNIX_DEFAULT_PATH
 
-export const KIT_FIRST_PATH =
-  combinePath([
-    knodePath("bin"),
-    kitPath("bin"),
-    ...(isWin ? [] : [kitPath("override", "code")]),
-    kenvPath("bin"),
-  ]) +
-  path.delimiter +
-  KIT_DEFAULT_PATH
+export const KIT_BIN_PATHS = combinePath([
+  knodePath("bin"),
+  kitPath("bin"),
+  ...(isWin ? [] : [kitPath("override", "code")]),
+  kenvPath("bin"),
+])
 
-export const KIT_LAST_PATH =
-  process.env.PATH +
-  path.delimiter +
-  KIT_DEFAULT_PATH +
-  path.delimiter +
-  combinePath([
-    knodePath("bin"),
-    kitPath("bin"),
-    ...(isWin ? [] : [kitPath("override", "code")]),
-    kenvPath("bin"),
-  ])
+export const KIT_FIRST_PATH = combinePath([
+  KIT_BIN_PATHS,
+  process?.env?.PATH,
+  KIT_DEFAULT_PATH,
+])
+
+export const KIT_LAST_PATH = combinePath([
+  process.env.PATH,
+  KIT_DEFAULT_PATH,
+  KIT_BIN_PATHS,
+])
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
