@@ -140,7 +140,7 @@ let combinePath = (arrayOfPaths: string[]): string => {
   return combinedPath
 }
 
-const DEFAULT_PATH = process?.env?.PATH
+const UNIX_DEFAULT_PATH = process?.env?.PATH
   ? process.env.PATH
   : combinePath([
       "/usr/local/bin",
@@ -150,13 +150,19 @@ const DEFAULT_PATH = process?.env?.PATH
       "/sbin",
     ])
 
-export const KIT_DEFAULT_PATH = isWin ? `` : DEFAULT_PATH
+const WIN_DEFAULT_PATH = process?.env?.PATH
+  ? process.env.PATH
+  : combinePath(["C:\\Windows\\System32", "C:\\Windows"])
+
+export const KIT_DEFAULT_PATH = isWin
+  ? WIN_DEFAULT_PATH
+  : UNIX_DEFAULT_PATH
 
 export const KIT_FIRST_PATH =
   combinePath([
     knodePath("bin"),
     kitPath("bin"),
-    ...(isWin ? [] : [kitPath("bin", "code")]),
+    ...(isWin ? [] : [kitPath("override", "code")]),
     kenvPath("bin"),
   ]) +
   path.delimiter +
@@ -170,7 +176,7 @@ export const KIT_LAST_PATH =
   combinePath([
     knodePath("bin"),
     kitPath("bin"),
-    ...(isWin ? [] : [kitPath("bin", "code")]),
+    ...(isWin ? [] : [kitPath("override", "code")]),
     kenvPath("bin"),
   ])
 

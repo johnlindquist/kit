@@ -6,7 +6,7 @@
     startCommand:
       "kitbnode ./node_modules/@johnlindquist/kit/setup/kitblitz.js",
     env: {
-      PATH: `${$PROJECT}/bin:${$PROJECT}/node_modules/@johnlindquist/kit/stackblitz/bin:/bin:/usr/bin:/usr/local/bin`,
+      PATH: `${$PROJECT}/bin:${$PROJECT}/node_modules/@johnlindquist/kit/override/stackblitz/bin:/bin:/usr/bin:/usr/local/bin`,
     },
   }
   let sbrcPath = path.resolve($PROJECT, ".stackblitzrc")
