@@ -131,28 +131,26 @@ export const KIT_APP_PROMPT = kitPath(
   "app-prompt.js"
 )
 let combinePath = (arrayOfPaths: string[]): string => {
-  let [combinedPath, ...rest] = arrayOfPaths
-  combinedPath = path.resolve(combinedPath)
-  for (let p of rest) {
+  let combinedPath = process?.env?.PATH || ""
+  for (let p of arrayOfPaths) {
     combinedPath += path.delimiter + path.resolve(p)
   }
 
   return combinedPath
 }
 
-const UNIX_DEFAULT_PATH = process?.env?.PATH
-  ? process.env.PATH
-  : combinePath([
-      "/usr/local/bin",
-      "/usr/bin",
-      "/bin",
-      "/usr/sbin",
-      "/sbin",
-    ])
+const UNIX_DEFAULT_PATH = combinePath([
+  "/usr/local/bin",
+  "/usr/bin",
+  "/bin",
+  "/usr/sbin",
+  "/sbin",
+])
 
-const WIN_DEFAULT_PATH = process?.env?.PATH
-  ? process.env.PATH
-  : combinePath(["C:\\Windows\\System32", "C:\\Windows"])
+const WIN_DEFAULT_PATH = combinePath([
+  "C:\\Windows\\System32",
+  "C:\\Windows",
+])
 
 export const KIT_DEFAULT_PATH = isWin
   ? WIN_DEFAULT_PATH
