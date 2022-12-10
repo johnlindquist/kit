@@ -5,6 +5,18 @@ global.getActiveTab = async (browser = "Google Chrome") => {
 
   return result.trim()
 }
+global.getActiveVsCodeFilePath = async () => {
+  let result = await applescript(String.raw`
+  tell application "System Events"
+      tell process "Code"
+          set frontmost to true
+          set activeDocPath to value of attribute "AXDocument" of front window
+      end tell
+  end tell
+  return activeDocPath
+`)
+  return result.replace("file://", "")
+}
 
 global.getTabs = async (browser = "Google Chrome") => {
   let result = await applescript(String.raw`
