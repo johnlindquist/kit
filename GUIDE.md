@@ -183,7 +183,7 @@ let choices = heights.map(h => {
   return {
     name: `Kitten height: ${h}`,
     preview: () =>
-      `<img class="w-full" src="http://placekitten.com/640/${h}"`,
+      `<img class="w-full" src="http://placekitten.com/640/${h}">`,
     value: h,
   }
 })
