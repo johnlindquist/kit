@@ -34,7 +34,7 @@ This will use 16.17.1's node/npm when working with Kit. (Alternatively, you can 
 
 - Use `volta` to manage node versions.
     1. Install [volta](https://volta.sh/)
-    2. Volta will automatically switch node version to 16.17.1 when work with kit.
+    2. Volta will automatically switch node version to 16.17.1 when working with kit.
 
 ### Clone Kit SDK
 
