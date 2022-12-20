@@ -9,7 +9,6 @@ let onNoChoices = async input => {
 # No Examples Found for "${input}"
 
 Share one! ❤️ [Share on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/share)
-
 `)
   )
 }
