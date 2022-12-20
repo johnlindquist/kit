@@ -32,6 +32,10 @@ Installing `Kit.app` already installed node 16.17.1 to ~/.knode. You'll want to 
 
 This will use 16.17.1's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
 
+- Use `volta` to manage node versions.
+    1. Install [volta](https://volta.sh/)
+    2. Volta will automatically switch node version to 16.17.1 when working with kit.
+
 ### Clone Kit SDK
 
 Clone:
