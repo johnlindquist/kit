@@ -6,7 +6,6 @@ import {
   formatDistanceToNow,
 } from "@johnlindquist/kit-internal/date-fns"
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
-import { PlatformPath } from "path"
 import {
   ChannelHandler,
   Choices,
@@ -175,7 +174,8 @@ interface PathConfig extends PromptConfig {
 type PathPicker = (
   config?: string | PathConfig
 ) => Promise<string>
-export type PathSelector = PlatformPath & PathPicker
+export type PathSelector = typeof import("path") &
+  PathPicker
 
 type GistOptions = {
   fileName?: string

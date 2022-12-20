@@ -3,15 +3,17 @@ import { Channel } from "../core/enum.js"
 global.playAudioFile = async (
   filePath,
   options = {
-    rate: 1.2,
+    rate: 1.0,
   }
 ) => {
-  await sendWait(Channel.PLAY_AUDIO, {
+  return await sendWait(Channel.PLAY_AUDIO, {
     filePath,
     ...options,
   })
+}
 
-  return filePath
+global.stopAudioFile = async () => {
+  return await sendWait(Channel.STOP_AUDIO)
 }
 
 global.say = async (

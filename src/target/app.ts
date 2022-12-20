@@ -1758,7 +1758,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     } else {
       setEnter("Create Folder")
       setPanel(
-        md(`# Create and Select this Folder
+        md(`# Create and Select This Folder
 
 > <code>${input}</code>`)
       )

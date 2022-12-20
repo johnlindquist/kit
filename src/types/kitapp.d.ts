@@ -25,7 +25,6 @@ import {
   Rectangle,
 } from "./electron"
 import { Flags } from "./kit"
-import { PlatformPath } from "path"
 import { Trash } from "./packages"
 import { marked } from "@johnlindquist/globals/types/marked"
 

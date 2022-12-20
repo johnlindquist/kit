@@ -94,8 +94,30 @@ let errorAction: ErrorAction = await arg(
         ]
       : []),
     {
+      name: `Open ${errorFile}`,
+      value: ErrorAction.Open,
+      enter: "Open Script",
+      preview: async () => {
+        let logFile = await readFile(errorLogPath, "utf-8")
+
+        return highlight(
+          `## ${errorLog}\n\n    
+  ~~~bash          
+  ${logFile
+    .split("\n")
+    .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+    .reverse()
+    .join("\n")}
+  ~~~`,
+          "",
+          `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
+        )
+      },
+    },
+    {
       name: `Open ${errorLog} in editor`,
       value: ErrorAction.Log,
+      enter: "Open Log",
       preview: async () => {
         let logFile = await readFile(errorLogPath, "utf-8")
 

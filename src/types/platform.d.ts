@@ -5,6 +5,10 @@ interface PlayAudioFile {
   (path: string, options?: any): Promise<string>
 }
 
+interface StopAudioFile {
+  (): Promise<void>
+}
+
 interface CopyPathAsImage {
   (path: string): Promise<string>
 }
@@ -303,6 +307,7 @@ export interface PlatformApi {
   openLog: () => void
   organizeWindows: OrganizeWindows
   playAudioFile: PlayAudioFile
+  stopAudioFile: StopAudioFile
   quitAllApps: QuitAllApps
   say: Say
   beep: Beep
@@ -353,6 +358,7 @@ declare global {
   var openLog: () => void
   var organizeWindows: OrganizeWindows
   var playAudioFile: PlayAudioFile
+  var stopAudioFile: StopAudioFile
   var quitAllApps: QuitAllApps
   var say: Say
   var scatterWindows: ScatterWindows

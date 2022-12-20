@@ -49,9 +49,16 @@ let findMain = async (
         return kPath(main, "index.js")
       }
     }
-    if (exports && exports?.["."])
-      return kPath(exports?.["."])
-
+    if (exports) {
+      if (exports?.["."]) {
+        if (exports?.["."]?.import)
+          return kPath(exports?.["."]?.import)
+        if (exports?.["."]?.require)
+          return kPath(exports?.["."]?.require)
+        if (typeof exports?.["."] == "string")
+          return kPath(exports?.["."])
+      }
+    }
     return kPath("index.js")
   } catch (error) {
     throw new Error(error)
