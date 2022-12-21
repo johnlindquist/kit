@@ -5,6 +5,12 @@ import {
 import { KIT_FIRST_PATH } from "../core/utils.js"
 
 let install = async packageNames => {
+  let cwd = kenvPath()
+
+  if (process.env.SCRIPTS_DIR) {
+    cwd = kenvPath(process.env.SCRIPTS_DIR)
+  }
+
   let isYarn = await isFile(kenvPath("yarn.lock"))
   let [tool, command] = (
     isYarn
@@ -12,7 +18,10 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
-  if (global.isWin) {
+  if (
+    global.isWin &&
+    process.env.KIT_CONTEXT !== "workflow"
+  ) {
     let contents = `## Installing ${packageNames.join(
       " "
     )}...\n\n`
@@ -28,7 +37,7 @@ let install = async packageNames => {
           ...global.env,
           PATH: KIT_FIRST_PATH,
         },
-        cwd: kenvPath(),
+        cwd,
       }
     )
     let writable = new Writable({
@@ -42,12 +51,6 @@ let install = async packageNames => {
     stderr.pipe(writable)
     await divP
     return
-  }
-
-  let cwd = kenvPath()
-
-  if (process.env.SCRIPTS_DIR) {
-    cwd = kenvPath(process.env.SCRIPTS_DIR)
   }
 
   return await term({
