@@ -1,31 +1,35 @@
 import os from "os"
 import { randomUUID } from "crypto"
 import { pathToFileURL } from "url"
+
 import {
   configEnv,
   resolveToScriptPath,
+  kitPath,
 } from "../core/utils.js"
 
-let relativeImport = async (filePath: string) =>
+let kitImport = async (...pathParts: string[]) =>
   await import(
-    pathToFileURL(filePath).href + "?uuid=" + randomUUID()
+    pathToFileURL(kitPath(...pathParts)).href +
+      "?uuid=" +
+      randomUUID()
   )
 
-await relativeImport("../api/global.js")
-await relativeImport("../api/kit.js")
-await relativeImport("../api/lib.js")
+await kitImport("api", "global.js")
+await kitImport("api", "kit.js")
+await kitImport("api", "lib.js")
 
 let platform = process.env?.PLATFORM || os.platform()
 
-await relativeImport(`../platform/${platform}.js`)
+await kitImport("platform", `${platform}.js`)
 
 configEnv()
 
-await relativeImport("../target/terminal.js")
+await kitImport("target", "terminal.js")
 
 global.core = await npm("@actions/core")
 global.github = await npm("@actions/github")
 
-await relativeImport(
+await kitImport(
   resolveToScriptPath(await arg("Path to script"))
 )
