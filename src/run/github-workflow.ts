@@ -2,6 +2,8 @@ import os from "os"
 import { randomUUID } from "crypto"
 import { pathToFileURL } from "url"
 
+process.env.KIT_CONTEXT = "workflow"
+
 import {
   configEnv,
   resolveToScriptPath,

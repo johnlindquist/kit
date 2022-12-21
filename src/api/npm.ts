@@ -75,6 +75,10 @@ let findPackageJson =
       "package.json"
     )
 
+    if (process.env.KIT_CONTEXT == "workflow") {
+      log(`package.json path: ${packageJson}`)
+    }
+
     if (!(await global.isFile(packageJson))) {
       return false
     }
@@ -82,6 +86,10 @@ let findPackageJson =
     let pkgPackageJson = JSON.parse(
       await global.readFile(packageJson, "utf-8")
     )
+
+    if (process.env.KIT_CONTEXT == "workflow") {
+      log(`package.json: ${JSON.stringify(pkgPackageJson)}`)
+    }
 
     let mainModule = await findMain(
       parent,
