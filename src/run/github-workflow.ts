@@ -30,6 +30,9 @@ await kitImport("target", "terminal.js")
 global.core = await npm("@actions/core")
 global.github = await npm("@actions/github")
 
-await kitImport(
-  resolveToScriptPath(await arg("Path to script"))
+let scriptPath = resolveToScriptPath(
+  await arg("Path to script")
+)
+await import(
+  pathToFileURL(scriptPath).href + "?uuid=" + randomUUID()
 )
