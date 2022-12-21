@@ -1,4 +1,5 @@
 import os from "os"
+import { randomUUID } from "crypto"
 import { pathToFileURL } from "url"
 import {
   configEnv,
@@ -7,7 +8,7 @@ import {
 
 let relativeImport = async (filePath: string) =>
   await import(
-    pathToFileURL(filePath).href + "?uuid=" + global.uuid()
+    pathToFileURL(filePath).href + "?uuid=" + randomUUID()
   )
 
 await relativeImport("../api/global.js")
