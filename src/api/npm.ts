@@ -103,19 +103,15 @@ let kenvImport = async (packageName: string) => {
         pathToFileURL(mainModule).toString()
       )
 
-    mainModule = await findMainFromPackageJson("")
-    if (mainModule)
-      return await defaultImport(
-        pathToFileURL(mainModule).toString()
+    if (process.env?.SCRIPTS_DIR) {
+      mainModule = await findMainFromPackageJson(
+        process.env.SCRIPTS_DIR
       )
-
-    mainModule = await findMainFromPackageJson(
-      process.env.SCRIPTS_DIR || "scripts"
-    )
-    if (mainModule)
-      return await defaultImport(
-        pathToFileURL(mainModule).toString()
-      )
+      if (mainModule)
+        return await defaultImport(
+          pathToFileURL(mainModule).toString()
+        )
+    }
 
     throw new Error(
       `Could not find main module for ${packageName}`
