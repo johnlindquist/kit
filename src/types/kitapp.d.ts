@@ -603,6 +603,29 @@ export interface Keyboard {
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
+export interface KitClipboard {
+  readText: () => Promise<string>
+  readHTML: () => Promise<string>
+  readImage: () => Promise<Buffer>
+  readRTF: () => Promise<string>
+  readBookmark: () => Promise<{
+    title: string
+    url: string
+  }>
+  readFindText: () => Promise<string>
+
+  writeText: (text: string) => Promise<void>
+  writeHTML: (html: string) => Promise<void>
+  writeImage: (image: Buffer) => Promise<void>
+  writeRTF: (rtf: string) => Promise<void>
+  writeBookmark: ({
+    title: string,
+    url: string,
+  }) => Promise<void>
+  writeFindText: (text: string) => Promise<void>
+
+  clear: () => Promise<void>
+}
 export interface SetAppearance {
   (appearance: "light" | "dark" | "auto"): Promise<void>
 }
@@ -719,6 +742,7 @@ export interface AppApi {
   warn: typeof console.warn
 
   keyboard: Keyboard
+  clipboard: KitClipboard
   execLog: ExecLog
 
   focus: () => Promise<void>
@@ -812,6 +836,7 @@ declare global {
   var warn: typeof console.warn
 
   var keyboard: Keyboard
+  var clipboard: KitClipboard
 
   var execLog: ExecLog
 

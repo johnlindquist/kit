@@ -57,6 +57,10 @@ let action = await arg(
       value: "info",
     },
     {
+      name: "Open Path in Kit Term",
+      value: "kit-term",
+    },
+    {
       name: "Open in Terminal",
       value: "terminal",
     },
@@ -106,8 +110,15 @@ set aFile to (POSIX file "${selectedPath}") as alias
 tell application "Finder" to open information window of aFile
 `)
     break
+  case "kit-term":
+    await term(`cd ${selectedPath}`)
+    break
   case "terminal":
-    await exec(`open -a Terminal '${selectedPath}'`)
+    if (isWin) {
+      await exec(`start cmd /k "cd ${selectedPath}"`)
+    } else {
+      await exec(`open -a Terminal '${selectedPath}'`)
+    }
     break
   case "command":
     cd(selectedPath)

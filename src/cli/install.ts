@@ -18,41 +18,6 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
-  if (
-    global.isWin &&
-    process.env.KIT_CONTEXT !== "workflow"
-  ) {
-    let contents = `## Installing ${packageNames.join(
-      " "
-    )}...\n\n`
-
-    let progress = ``
-    let divP = div(md(contents))
-    let { stdout, stderr } = exec(
-      `${tool} ${command} -D ${packageNames.join(
-        " "
-      )} --loglevel verbose`,
-      {
-        env: {
-          ...global.env,
-          PATH: KIT_FIRST_PATH,
-        },
-        cwd,
-      }
-    )
-    let writable = new Writable({
-      write(chunk, encoding, callback) {
-        progress += chunk.toString()
-        setDiv(md(contents + `~~~bash\n${progress}\n~~~`))
-        callback()
-      },
-    })
-    stdout.pipe(writable)
-    stderr.pipe(writable)
-    await divP
-    return
-  }
-
   return await term({
     command: `${tool} ${command} -D ${packageNames.join(
       " "
@@ -71,32 +36,6 @@ let install = async packageNames => {
     },
     cwd,
   })
-  // return await new Promise((res, rej) => {
-  //   console.log(tool, command, ...packageNames)
-  //   let PATH =
-  //     KIT_NODE_PATH + path.delimiter + process.env.PATH
-  //   let npm = spawn(
-  //     tool,
-  //     [command, "--quiet", ...packageNames],
-  //     {
-  //       stdio: "pipe",
-  //       cwd: kenvPath(),
-  //       env: {
-  //         PATH,
-  //       },
-  //     }
-  //   )
-
-  //   npm.on("error", error => {
-  //     console.log({ error })
-  //     rej(error)
-  //   })
-
-  //   npm.on("exit", exit => {
-  //     console.log(`Installed ${packageNames}`)
-  //     res(exit)
-  //   })
-  // })
 }
 
 let packages = await arg(

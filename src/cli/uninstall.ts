@@ -26,60 +26,29 @@ let [tool, command] = (
     : `npm${global.isWin ? `.cmd` : ``} un`
 ).split(" ")
 
-if (global.isWin) {
-  let contents = `## Uninstalling ${packages.join(
-    " "
-  )}...\n\n`
+let cwd = kenvPath()
 
-  let progress = ``
-  let divP = div(md(contents))
-  let { stdout, stderr } = exec(
-    `${tool} ${command} ${packages.join(
-      " "
-    )} --loglevel verbose`,
-    {
-      env: {
-        ...global.env,
-        PATH: KIT_FIRST_PATH,
-      },
-      cwd: kenvPath(),
-    }
-  )
-  let writable = new Writable({
-    write(chunk, encoding, callback) {
-      progress += chunk.toString()
-      setDiv(md(contents + `~~~bash\n${progress}\n~~~`))
-      callback()
-    },
-  })
-  stdout.pipe(writable)
-  stderr.pipe(writable)
-  await divP
-} else {
-  let cwd = kenvPath()
-
-  if (process.env.SCRIPTS_DIR) {
-    cwd = kenvPath(process.env.SCRIPTS_DIR)
-  }
-
-  await term({
-    command: `${tool} ${command} ${packages.join(
-      " "
-    )}`.trim(),
-    shortcuts: [
-      {
-        name: "Continue",
-        key: `ctrl+c`,
-        bar: "right",
-      },
-    ],
-    env: {
-      ...global.env,
-      PATH: KIT_FIRST_PATH,
-    },
-    cwd,
-  })
+if (process.env.SCRIPTS_DIR) {
+  cwd = kenvPath(process.env.SCRIPTS_DIR)
 }
+
+await term({
+  command: `${tool} ${command} ${packages.join(
+    " "
+  )}`.trim(),
+  shortcuts: [
+    {
+      name: "Continue",
+      key: `ctrl+c`,
+      bar: "right",
+    },
+  ],
+  env: {
+    ...global.env,
+    PATH: KIT_FIRST_PATH,
+  },
+  cwd,
+})
 
 await mainScript()
 

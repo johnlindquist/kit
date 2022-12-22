@@ -389,3 +389,23 @@ global.revealFile = async () => {
   notSupported("revealFile")
   return ""
 }
+;(global as any).clipboard = new Proxy(
+  {},
+  {
+    get: (target, k: string) => {
+      return () => {
+        notSupported(`clipboard.${k}`)
+      }
+    },
+  }
+)
+;(global as any).keyboard = new Proxy(
+  {},
+  {
+    get: (target, k: string) => {
+      return () => {
+        notSupported(`keyboard.${k}`)
+      }
+    },
+  }
+)

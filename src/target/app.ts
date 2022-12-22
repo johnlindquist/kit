@@ -1907,6 +1907,70 @@ global.keyboard = {
   },
 }
 
+global.clipboard = {
+  readText: async () => {
+    return await sendWait(Channel.CLIPBOARD_READ_TEXT)
+  },
+  readHTML: async () => {
+    return await sendWait(Channel.CLIPBOARD_READ_HTML)
+  },
+  readImage: async () => {
+    let tmpPath = await sendWait(
+      Channel.CLIPBOARD_READ_IMAGE
+    )
+    return await readFile(tmpPath)
+  },
+  readRTF: async () => {
+    return await sendWait(Channel.CLIPBOARD_READ_RTF)
+  },
+  readBookmark: async () => {
+    return await sendWait(Channel.CLIPBOARD_READ_BOOKMARK)
+  },
+  readFindText: async () => {
+    return await sendWait(Channel.CLIPBOARD_READ_FIND_TEXT)
+  },
+  writeText: async (text: string) => {
+    return await sendWait(
+      Channel.CLIPBOARD_WRITE_TEXT,
+      text
+    )
+  },
+  writeHTML: async (html: string) => {
+    return await sendWait(
+      Channel.CLIPBOARD_WRITE_HTML,
+      html
+    )
+  },
+  writeImage: async (image: Buffer) => {
+    return await sendWait(
+      Channel.CLIPBOARD_WRITE_IMAGE,
+      image
+    )
+  },
+  writeRTF: async (rtf: string) => {
+    return await sendWait(Channel.CLIPBOARD_WRITE_RTF, rtf)
+  },
+  writeBookmark: async (bookmark: {
+    url: string
+    title: string
+  }) => {
+    return await sendWait(
+      Channel.CLIPBOARD_WRITE_BOOKMARK,
+      bookmark
+    )
+  },
+  writeFindText: async (findText: string) => {
+    return await sendWait(
+      Channel.CLIPBOARD_WRITE_FIND_TEXT,
+      findText
+    )
+  },
+
+  clear: async () => {
+    return await sendWait(Channel.CLIPBOARD_CLEAR)
+  },
+}
+
 global.setConfig = async (config: Partial<Config>) => {
   send(Channel.SET_CONFIG, config)
 }
