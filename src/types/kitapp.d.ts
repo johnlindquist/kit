@@ -630,6 +630,13 @@ export interface SetAppearance {
   (appearance: "light" | "dark" | "auto"): Promise<void>
 }
 
+export interface RegisterShortcut {
+  (
+    shortcut: string,
+    callback: (input?: string, state?: AppState) => void
+  ): Promise<void>
+}
+
 export type GuideSection = {
   name: string
   raw: string
@@ -750,6 +757,8 @@ export interface AppApi {
   setAppearance: SetAppearance
   docs: Docs
   getAppState: any
+
+  registerShortcut: RegisterShortcut
 }
 
 export interface Background {
@@ -848,4 +857,6 @@ declare global {
   var setAppearance: SetAppearance
   var docs: Docs
   var getAppState: any
+
+  var registerShortcut: RegisterShortcut
 }

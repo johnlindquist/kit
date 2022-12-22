@@ -36,14 +36,16 @@ global.cmd = global.isMac ? "cmd" : "ctrl"
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
     global.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
-    let stackWithoutId = error.stack.replace(/\?[^:]*/g, "")
+    let stackWithoutId =
+      error?.stack?.replace(/\?[^:]*/g, "") ||
+      "No Error Stack"
     global.warn(stackWithoutId)
 
     let errorFile = global.kitScript
     let line: string = "1"
     let col: string = "1"
 
-    let secondLine = stackWithoutId.split("\n")[1] || ""
+    let secondLine = stackWithoutId.split("\n")?.[1] || ""
 
     if (secondLine?.match("at file://")) {
       errorFile = secondLine

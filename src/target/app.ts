@@ -60,6 +60,8 @@ import {
   argShortcuts,
   smallShortcuts,
   isMac,
+  shortcutNormalizer,
+  friendlyShortcut,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
@@ -493,6 +495,17 @@ let waitForPromptValue = ({
               )
             }
 
+            break
+
+          case Channel.SHORTCUT_PRESSED:
+            try {
+              global.__kit__onShortcutPressed(
+                data.state.input,
+                data.state
+              )
+            } catch (error) {
+              warn(error)
+            }
             break
 
           case Channel.ON_PASTE:
@@ -2295,3 +2308,41 @@ process.addListener("uncaughtException", async error => {
   if (global.errorPrompt)
     await global.errorPrompt(error as Error)
 })
+
+let __kit__registeredShortcuts = new Map()
+global.__kit__onShortcutPressed = async (
+  input: string,
+  state: AppState
+) => {
+  let callback = __kit__registeredShortcuts.get(input)
+  if (callback) callback(input, state)
+}
+
+global.registerShortcut = async (
+  shortcut: string,
+  callback: (input?: string, state?: AppState) => void
+) => {
+  let properShortcut = friendlyShortcut(
+    shortcutNormalizer(shortcut)
+  )
+  process.on("beforeExit", () =>
+    global.unregisterShortcut(shortcut)
+  )
+
+  await sendWait(
+    Channel.REGISTER_GLOBAL_SHORTCUT,
+    properShortcut
+  )
+  __kit__registeredShortcuts.set(properShortcut, callback)
+}
+
+global.unregisterShortcut = async (shortcut: string) => {
+  let properShortcut = friendlyShortcut(
+    shortcutNormalizer(shortcut)
+  )
+  sendWait(
+    Channel.UNREGISTER_GLOBAL_SHORTCUT,
+    properShortcut
+  )
+  __kit__registeredShortcuts.delete(properShortcut)
+}
