@@ -631,10 +631,7 @@ export interface SetAppearance {
 }
 
 export interface RegisterShortcut {
-  (
-    shortcut: string,
-    callback: (input?: string, state?: AppState) => void
-  ): Promise<void>
+  (shortcut: string, callback: () => void): Promise<void>
 }
 
 export type GuideSection = {

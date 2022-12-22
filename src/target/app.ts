@@ -497,17 +497,6 @@ let waitForPromptValue = ({
 
             break
 
-          case Channel.SHORTCUT_PRESSED:
-            try {
-              global.__kit__onShortcutPressed(
-                data.state.input,
-                data.state
-              )
-            } catch (error) {
-              warn(error)
-            }
-            break
-
           case Channel.ON_PASTE:
             onPaste(data.state.input, data.state)
             break
@@ -2320,29 +2309,56 @@ global.__kit__onShortcutPressed = async (
 
 global.registerShortcut = async (
   shortcut: string,
-  callback: (input?: string, state?: AppState) => void
+  callback: () => void
 ) => {
-  let properShortcut = friendlyShortcut(
-    shortcutNormalizer(shortcut)
-  )
-  process.on("beforeExit", () =>
-    global.unregisterShortcut(shortcut)
-  )
+  if (process?.send) {
+    let properShortcut = shortcutNormalizer(shortcut)
 
-  await sendWait(
-    Channel.REGISTER_GLOBAL_SHORTCUT,
-    properShortcut
-  )
-  __kit__registeredShortcuts.set(properShortcut, callback)
+    let result = await sendWait(
+      Channel.REGISTER_GLOBAL_SHORTCUT,
+      properShortcut
+    )
+    if (!result) {
+      warn(
+        `Shortcut ${shortcut} failed to register. Ending process. 😰`
+      )
+      exit()
+    }
+    let messageHandler = (data: any) => {
+      if (!data.value) {
+        warn(`Shortcut ${shortcut} failed to register`)
+        exit()
+      }
+
+      if (
+        data.channel === Channel.GLOBAL_SHORTCUT_PRESSED &&
+        data.value === properShortcut
+      ) {
+        callback()
+      }
+    }
+    __kit__registeredShortcuts.set(
+      properShortcut,
+      messageHandler
+    )
+    process.on("message", messageHandler)
+    process.on("beforeExit", () => {
+      global.unregisterShortcut(shortcut)
+    })
+  }
 }
 
 global.unregisterShortcut = async (shortcut: string) => {
-  let properShortcut = friendlyShortcut(
-    shortcutNormalizer(shortcut)
-  )
+  let properShortcut = shortcutNormalizer(shortcut)
+
   sendWait(
     Channel.UNREGISTER_GLOBAL_SHORTCUT,
     properShortcut
   )
-  __kit__registeredShortcuts.delete(properShortcut)
+  let messageHandler =
+    __kit__registeredShortcuts.get(properShortcut)
+  if (messageHandler) {
+    process.removeListener("message", messageHandler)
+    __kit__registeredShortcuts.delete(properShortcut)
+  }
 }
