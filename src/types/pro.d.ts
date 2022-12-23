@@ -15,6 +15,7 @@ export type WidgetOptions =
     ignoreMouse?: boolean
     ttl?: number
     center?: boolean
+    containerClass?: string
   }
 
 export interface WidgetMessage {
