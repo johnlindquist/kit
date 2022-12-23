@@ -1944,9 +1944,11 @@ global.clipboard = {
     )
   },
   writeImage: async (image: Buffer) => {
+    let imagePath = tmpPath(`${uuid()}.png`)
+    await writeFile(imagePath, image)
     return await sendWait(
       Channel.CLIPBOARD_WRITE_IMAGE,
-      image
+      imagePath
     )
   },
   writeRTF: async (rtf: string) => {
