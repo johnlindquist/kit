@@ -236,10 +236,12 @@ export let getScriptFromString = async (
     }
 
     return result
-  }
-
-  if (script.startsWith(path.sep)) {
-    let result = scripts.find(s => s.filePath === script)
+  } else {
+    let result = scripts.find(
+      s =>
+        path.normalize(s.filePath) ===
+        path.normalize(script)
+    )
 
     if (!result) {
       throw new Error(
