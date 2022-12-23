@@ -634,6 +634,10 @@ export interface RegisterShortcut {
   (shortcut: string, callback: () => void): Promise<void>
 }
 
+export interface UnregisterShortcut {
+  (shortcut: string): Promise<void>
+}
+
 export type GuideSection = {
   name: string
   raw: string
@@ -756,6 +760,7 @@ export interface AppApi {
   getAppState: any
 
   registerShortcut: RegisterShortcut
+  unregisterShortcut: UnregisterShortcut
 }
 
 export interface Background {
@@ -856,4 +861,5 @@ declare global {
   var getAppState: any
 
   var registerShortcut: RegisterShortcut
+  var unregisterShortcut: UnregisterShortcut
 }

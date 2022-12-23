@@ -13,7 +13,15 @@ let widget: Widget = async (html, options = {}) => {
 
   let { widgetId } = await global.getDataFromApp(
     Channel.WIDGET_GET,
-    { command: global.kitCommand, html, options }
+    {
+      command: global.kitCommand,
+      html,
+      options: {
+        containerClass:
+          "overflow-auto flex justify-center items-center v-screen h-screen",
+        ...options,
+      },
+    }
   )
 
   type WidgetHandler = (message: WidgetMessage) => void

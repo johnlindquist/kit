@@ -2312,12 +2312,12 @@ global.registerShortcut = async (
   callback: () => void
 ) => {
   if (process?.send) {
-    let properShortcut = shortcutNormalizer(shortcut)
-
     let result = await sendWait(
       Channel.REGISTER_GLOBAL_SHORTCUT,
-      properShortcut
+      shortcut
     )
+
+    log({ result })
     if (!result) {
       warn(
         `Shortcut ${shortcut} failed to register. Ending process. 😰`
@@ -2325,22 +2325,14 @@ global.registerShortcut = async (
       exit()
     }
     let messageHandler = (data: any) => {
-      if (!data.value) {
-        warn(`Shortcut ${shortcut} failed to register`)
-        exit()
-      }
-
       if (
         data.channel === Channel.GLOBAL_SHORTCUT_PRESSED &&
-        data.value === properShortcut
+        data.value === shortcut
       ) {
         callback()
       }
     }
-    __kit__registeredShortcuts.set(
-      properShortcut,
-      messageHandler
-    )
+    __kit__registeredShortcuts.set(shortcut, messageHandler)
     process.on("message", messageHandler)
     process.on("beforeExit", () => {
       global.unregisterShortcut(shortcut)
@@ -2349,16 +2341,11 @@ global.registerShortcut = async (
 }
 
 global.unregisterShortcut = async (shortcut: string) => {
-  let properShortcut = shortcutNormalizer(shortcut)
-
-  sendWait(
-    Channel.UNREGISTER_GLOBAL_SHORTCUT,
-    properShortcut
-  )
+  sendWait(Channel.UNREGISTER_GLOBAL_SHORTCUT, shortcut)
   let messageHandler =
-    __kit__registeredShortcuts.get(properShortcut)
+    __kit__registeredShortcuts.get(shortcut)
   if (messageHandler) {
     process.removeListener("message", messageHandler)
-    __kit__registeredShortcuts.delete(properShortcut)
+    __kit__registeredShortcuts.delete(shortcut)
   }
 }
