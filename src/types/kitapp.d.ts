@@ -323,6 +323,7 @@ export interface ChannelMap {
   //
   [Channel.CLEAR_CACHE]: undefined
   [Channel.CLEAR_SCRIPTS_MEMORY]: undefined
+  [Channel.CLEAR_TABS]: string[]
   [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
   [Channel.CLEAR_PROMPT_CACHE]: undefined
   [Channel.CLEAR_PREVIEW]: undefined
@@ -339,6 +340,7 @@ export interface ChannelMap {
   //
 
   [Channel.APP_CONFIG]: AppConfig
+  [Channel.ADD_CHOICE]: Choice
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
   [Channel.SET_TRAY]: { label: string; scripts: string[] }
@@ -356,6 +358,8 @@ export interface ChannelMap {
   [Channel.SELECT_FOLDER]: string
   [Channel.REVEAL_FILE]: string
   [Channel.PLAY_AUDIO]: AudioOptions
+  [Channel.STOP_AUDIO]: undefined
+  [Channel.SPEAK_TEXT]: any
 
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
@@ -410,6 +414,7 @@ export interface ChannelMap {
   [Channel.SET_TEXTAREA_CONFIG]: TextareaConfig
   [Channel.SET_TEXTAREA_VALUE]: string
   [Channel.SET_THEME]: any
+  [Channel.SET_TEMP_THEME]: any
   [Channel.SET_VALUE]: any
   [Channel.START]: string
   [Channel.SHOW]: { options: ShowOptions; html: string }
