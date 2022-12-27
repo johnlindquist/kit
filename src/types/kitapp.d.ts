@@ -157,6 +157,11 @@ export interface Fields {
   ): Promise<any>
 }
 
+export type AudioOptions = {
+  filePath: string
+  playbackRate?: number
+}
+
 export interface Emoji {
   (config?: PromptConfig): Promise<string>
 }
@@ -231,6 +236,8 @@ export interface KitStatus {
   status: Status
   message: string
 }
+
+export type Appearance = "light" | "dark"
 
 export type GetAppData =
   | Channel.GET_ACTIVE_APP
@@ -348,7 +355,7 @@ export interface ChannelMap {
   [Channel.SELECT_FILE]: string
   [Channel.SELECT_FOLDER]: string
   [Channel.REVEAL_FILE]: string
-  [Channel.PLAY_AUDIO]: string
+  [Channel.PLAY_AUDIO]: AudioOptions
 
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
@@ -436,7 +443,7 @@ export interface ChannelMap {
 
   [Channel.VERIFY_FULL_DISK_ACCESS]: undefined
   [Channel.SET_ALWAYS_ON_TOP]: boolean
-  [Channel.SET_APPEARANCE]: "light" | "dark" | "auto"
+  [Channel.SET_APPEARANCE]: Appearance
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void
