@@ -45,12 +45,6 @@ global.edit = async (file, dir, line = 0, col = 0) => {
   return
 }
 
-global.browse = async url => {
-  unsupported()
-
-  return
-}
-
 global.openLog = () => {
   unsupported()
 

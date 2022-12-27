@@ -30,10 +30,6 @@ global.edit = async (path, dir, line, col) => {
   } catch {}
 }
 
-global.browse = async (url: string) => {
-  await global.exec(`start ${url}`)
-}
-
 global.fileSearch = async (
   name,
   { onlyin, kind } = { onlyin: home(), kind: "" }

@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "sourceMap": true
+    "sourceMap": true,
   },
-  "exclude": ["./root/**", "./build/**"]
+  "exclude": ["./root/**", "./build/**", "./node_modules/**"]
 }

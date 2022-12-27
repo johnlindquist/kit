@@ -1,5 +1,3 @@
-export {}
-
 import { Low } from "@johnlindquist/kit-internal/lowdb"
 import {
   format,
@@ -98,7 +96,7 @@ export interface Edit {
 }
 
 export interface Browse {
-  (url: string): ReturnType<exec>
+  (url: string): ReturnType<typeof import("open")>
 }
 
 export interface Wait {
@@ -194,7 +192,6 @@ export interface SetShortcuts {
 
 export interface KitApi {
   path: PathSelector
-  isWin: boolean
   db: DB
 
   wait: Wait
@@ -306,7 +303,6 @@ export interface Run {
 
 declare global {
   var path: PathSelector
-  var isWin: boolean
   var edit: Edit
   var browse: Browse
 

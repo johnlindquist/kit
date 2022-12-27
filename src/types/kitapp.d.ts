@@ -1,4 +1,4 @@
-export {}
+import { exec } from "@johnlindquist/globals"
 import { editor } from "./editor.api"
 
 import {
@@ -18,6 +18,7 @@ import {
   PromptConfig,
   PromptData,
   Script,
+  Shortcut,
 } from "./core"
 import {
   BrowserWindowConstructorOptions,
@@ -27,6 +28,7 @@ import {
 import { Flags } from "./kit"
 import { Trash } from "./packages"
 import { marked } from "@johnlindquist/globals/types/marked"
+import { ChildProcess } from "child_process"
 
 export type Status = typeof statuses[number]
 
@@ -66,10 +68,6 @@ export type EditorOptions =
     template?: string
     suggestions?: string[]
   }
-
-export interface Field {
-  placeholder: string
-}
 
 export type EditorConfig =
   | string
@@ -123,10 +121,7 @@ export type Editor = {
 }
 
 export interface Template {
-  (
-    template: string = "",
-    config?: EditorConfig
-  ): Promise<string>
+  (template: string, config?: EditorConfig): Promise<string>
 }
 export interface OldForm {
   (
@@ -183,7 +178,7 @@ export interface Div {
 
 export interface KeyData {
   key: KeyEnum
-  keyCode: number
+  keyCode: string
   command: boolean
   shift: boolean
   option: boolean
@@ -603,25 +598,24 @@ export interface Keyboard {
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
+export interface Bookmark {
+  title: string
+  url: string
+}
+
 export interface KitClipboard {
   readText: () => Promise<string>
   readHTML: () => Promise<string>
   readImage: () => Promise<Buffer>
   readRTF: () => Promise<string>
-  readBookmark: () => Promise<{
-    title: string
-    url: string
-  }>
+  readBookmark: () => Promise<Bookmark>
   readFindText: () => Promise<string>
 
   writeText: (text: string) => Promise<void>
   writeHTML: (html: string) => Promise<void>
   writeImage: (image: Buffer) => Promise<void>
   writeRTF: (rtf: string) => Promise<void>
-  writeBookmark: ({
-    title: string,
-    url: string,
-  }) => Promise<void>
+  writeBookmark: (bookmark: Bookmark) => Promise<void>
   writeFindText: (text: string) => Promise<void>
 
   clear: () => Promise<void>
@@ -661,7 +655,7 @@ export interface ExecLog {
   (
     command: string,
     logger?: typeof console.log
-  ): ReturnType<exec>
+  ): ChildProcess
 }
 
 export interface AppApi {

@@ -331,7 +331,3 @@ global.openLog = () => {
 
   global.edit(logPath)
 }
-
-global.browse = (url: string) => {
-  return open(url)
-}

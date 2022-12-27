@@ -184,6 +184,9 @@ export interface PromptData {
   height: number
   itemHeight: number
   defaultValue: string
+  formData?: any
+  html?: string
+  theme?: any
 }
 
 export interface GenerateChoices {

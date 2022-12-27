@@ -1,4 +1,4 @@
-import { ProcessOutput } from "@johnlindquist/globals"
+import { ProcessInfo } from "./core"
 import { Display, Point } from "./electron"
 
 interface PlayAudioFile {
@@ -286,8 +286,6 @@ export interface PlatformApi {
   getActiveScreen: GetActiveScreen
   getActiveAppInfo: GetActiveAppInfo
   getActiveAppBounds: GetActiveAppBounds
-  getActiveScreen: GetActiveScreen
-  getActiveTab: GetActiveTab
   getMousePosition: GetMousePosition
   getScreens: GetScreens
   getSelectedFile: GetSelectedFile

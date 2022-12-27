@@ -2347,7 +2347,7 @@ global.unregisterShortcut = async (shortcut: string) => {
   let messageHandler =
     __kit__registeredShortcuts.get(shortcut)
   if (messageHandler) {
-    process.removeListener("message", messageHandler)
+    process.off("message", messageHandler)
     __kit__registeredShortcuts.delete(shortcut)
   }
 }

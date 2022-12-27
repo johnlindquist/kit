@@ -994,3 +994,7 @@ global.createGist = async (
 
   return response.data
 }
+
+global.browse = (url: string) => {
+  return (global as any).open(url)
+}

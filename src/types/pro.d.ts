@@ -1,4 +1,5 @@
 import { ForkOptions } from "child_process"
+import { Channel } from "../core/enum"
 import { PromptConfig } from "./core"
 import {
   BrowserWindowConstructorOptions,
