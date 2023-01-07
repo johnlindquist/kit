@@ -53,7 +53,7 @@
     "@types/node-notifier": "8.0.2",
     "@types/shelljs": "0.8.11",
     "advanced-calculator": "1.1.0",
-    "esbuild": "0.15.7",
+    "esbuild": "0.16.15",
     "file-icon": "5.1.0",
     "filesize": "9.0.11",
     "googlethis": "1.4.3",
