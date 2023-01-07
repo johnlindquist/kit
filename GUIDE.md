@@ -407,6 +407,30 @@ while (true) {
 }
 ```
 
+This db helper can also be used as a simple Key/value Store like this: 
+
+```js
+// Menu: Database Read/Write Example 2
+// Description: Use 'db' helper as Key/Value Store
+
+// Open the json file with the same name as the script file, the data in the param is the default, 
+// which will be used when the db file is opened the first time
+const scriptDB = await db({hello: 'World'});
+
+// Note to PR Reviewer: don't know if that extra read is necessary. I simply want to open my database file and access the available content there 
+await scriptDB.read();
+
+if (scriptDB.data.hello === 'World') {
+    // change value in your db
+    scriptDB.data.hello = 'Bob';
+} else {
+    // change value back in your db
+    scriptDB.data.hello = 'World';
+}
+
+await scriptDB.write();
+
+```
 
 
 ## Watch Files to Trigger Scripts
