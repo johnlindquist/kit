@@ -4,6 +4,7 @@ global.notify = (...args) => {
   if (typeof args[0] === "string") {
     let notification = args[0]
     args[0] = {
+      title: "Script Kit",
       message: notification,
     }
   }
