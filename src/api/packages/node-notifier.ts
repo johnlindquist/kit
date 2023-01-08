@@ -1,24 +1,17 @@
 import notifier from "node-notifier"
-import { Notification } from "node-notifier"
 
-type KitNotification = string | Notification
-interface Notify {
-  (notification: KitNotification)
-}
-
-global.notify = notification => {
-  let options =
-    typeof notification === "string"
-      ? { message: notification }
-      : notification
-  return notifier.notify({ timeout: false, ...options })
-}
-declare global {
-  var notify: Notify
-
-  namespace NodeJS {
-    interface Global {
-      notify: Notify
+global.notify = (...args) => {
+  if (typeof args[0] === "string") {
+    let notification = args[0]
+    args[0] = {
+      message: notification,
     }
   }
+
+  // if timeout is not specified, use false
+  if ((args[0] as any).timeout === undefined) {
+    ;(args[0] as any).timeout = false
+  }
+
+  return notifier.notify(...args)
 }

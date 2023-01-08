@@ -1,13 +1,12 @@
 export {}
 import * as shelljs from "shelljs"
-import { Notification } from "node-notifier"
 
 export type Trash = typeof import("trash").default
 export type Open = typeof import("open")
-export type KitNotification = string | Notification
 
+type NodeNotify = typeof import("node-notifier").notify
 export interface Notify {
-  (notification: KitNotification)
+  (...args: Parameters<NodeNotify>): ReturnType<NodeNotify>
 }
 
 export interface OnTab {
