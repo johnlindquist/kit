@@ -1220,6 +1220,40 @@ If you want to watch the main log, you can use:
 tail -f ~/.kit/logs/kit.log
 ```
 
+## Scrape content from a webpage
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
+You can scrape content from a webpage. The first time you run this, you will be prompted to install Playwright.
+
+```js
+// Name: Scrape John's pinned Github repositories
+
+import "@johnlindquist/kit"
+
+const items = await scrapeSelector(
+  'https://github.com/johnlindquist',
+  // CSS Selector to target elements
+  '.pinned-item-list-item-content > div > a',
+  // [Optional] function to transform the elements, if omitted then `element.innerText` is returned
+  (element) => ({
+    title: element.innerText,
+    link: element.href,
+  }),
+  // [Optional] options
+  {
+    headless: false,
+    timeout: 60000,
+  }
+);
+
+let filePath = home(`pinned-repos.md`)
+
+// `ensureReadFile` will create the file with the content
+// if it doesn't exist
+let content = await ensureReadFile(filePath, items.map(({title, link}) => `- [${title}](${link})`).join('\n'))
+```
+
 ## Missing Something?
 
 <!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
