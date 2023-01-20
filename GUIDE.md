@@ -417,7 +417,8 @@ This db helper can also be used as a simple Key/value Store like this:
 // which will be used when the db file is opened the first time
 const scriptDB = await db({hello: 'World'});
 
-// Note to PR Reviewer: don't know if that extra read is necessary. I simply want to open my database file and access the available content there 
+// Note: This db read here should only make sure the db object has the latest content from disk. 
+// It may be unnecessary directly after opening the db object. 
 await scriptDB.read();
 
 if (scriptDB.data.hello === 'World') {
