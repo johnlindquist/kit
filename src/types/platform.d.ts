@@ -51,7 +51,11 @@ interface FocusTab {
 interface ScrapeOptions {
   headless?: boolean
   timeout?: number
-  /** {@link https://playwright.dev/docs/api/class-browser#browser-new-context} */
+  /**
+   * Playwright browser context options.
+   *
+   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+   */
   browserOptions?: BrowserContextOptions
 }
 
@@ -78,9 +82,17 @@ interface ScrapeAttribute {
 }
 interface ScreenshotFromWebpageOptions {
   timeout?: number
-  /** {@link https://playwright.dev/docs/api/class-browser#browser-new-context} */
+  /**
+   * Playwright browser context options.
+   *
+   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+   */
   browserOptions?: BrowserContextOptions
-  /** {@link https://playwright.dev/docs/api/class-page#page-screenshot} */
+  /**
+   * Playwright page screenshot options.
+   *
+   * {@link https://playwright.dev/docs/api/class-page#page-screenshot}
+   */
   screenshotOptions?: PageScreenshotOptions
 }
 
@@ -93,11 +105,23 @@ interface GetScreenshotFromWebpage {
 
 interface WebpageAsPdfOptions {
   timeout?: number
-  /** {@link https://playwright.dev/docs/api/class-browser#browser-new-context} */
+  /**
+   * Playwright browser context options.
+   *
+   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+   */
   browserOptions?: BrowserContextOptions
-  /** {@link https://playwright.dev/docs/api/class-page#page-pdf} */
+  /**
+   * Playwright page pdf options.
+   *
+   * {@link https://playwright.dev/docs/api/class-page#page-pdf}
+   */
   pdfOptions?: Parameters<Page["pdf"]>[0]
-  /** {@link https://playwright.dev/docs/api/class-page#page-emulate-media} */
+  /**
+   * Playwright page emulate media options.
+   *
+   * {@link https://playwright.dev/docs/api/class-page#page-emulate-media}
+   */
   mediaOptions?: Parameters<Page["emulateMedia"]>[0]
 }
 
