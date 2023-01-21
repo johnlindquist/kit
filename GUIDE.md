@@ -1220,6 +1220,41 @@ If you want to watch the main log, you can use:
 tail -f ~/.kit/logs/kit.log
 ```
 
+
+## Save webpage as a PDF
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
+You can save any webpage as a PDF.
+
+```js
+// Name: Save news as PDF
+
+import "@johnlindquist/kit"
+
+const pdfResults = await getWebpageAsPdf('https://legiblenews.com');
+
+await writeFile(home('news.pdf'), pdfResults);
+```
+
+## Take screenshot of webpage
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
+You can take a screenshot of any webpage.
+
+```js
+// Name: Take screenshot of news webpage
+
+import "@johnlindquist/kit"
+
+const screenshotResults = await getScreenshotFromWebpage('https://legiblenews.com', {
+  screenshotOptions: { fullPage: true },
+});
+
+await writeFile(home('news.png'), screenshotResults);
+```
+
 ## Missing Something?
 
 <!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
