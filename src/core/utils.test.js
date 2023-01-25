@@ -40,6 +40,18 @@ ava.serial("run full path", async t => {
     `some-script.js`
   )
 
+  let testingRunPackageJson = kitMockPath(
+    `.kit-testing-run-path`,
+    `package.json`
+  )
+
+  await outputFile(
+    testingRunPackageJson,
+    JSON.stringify({
+      type: "module",
+    })
+  )
+
   await outputFile(
     testingRunPath,
     `export let value = "success"`
@@ -47,7 +59,7 @@ ava.serial("run full path", async t => {
 
   t.true(await isFile(testingRunPath))
 
-  let result = await import(testingRunPath)
+  let result = await run(testingRunPath)
   t.log({ result })
 
   t.assert(result.value, "success")
@@ -59,6 +71,18 @@ ava.serial("run full path with spaces", async t => {
     `some-script.js`
   )
 
+  let testingSpacedPackageJson = kitMockPath(
+    `.kit testing spaced path`,
+    `package.json`
+  )
+
+  await outputFile(
+    testingSpacedPackageJson,
+    JSON.stringify({
+      type: "module",
+    })
+  )
+
   await outputFile(
     testingSpacedPath,
     `export let value = "success"`
@@ -66,7 +90,7 @@ ava.serial("run full path with spaces", async t => {
 
   t.true(await isFile(testingSpacedPath))
 
-  let result = await import(testingSpacedPath)
+  let result = await run(testingSpacedPath)
   t.log({ result })
 
   t.assert(result.value, "success")
