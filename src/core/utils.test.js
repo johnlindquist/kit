@@ -4,7 +4,7 @@ import "../../test/config.js"
 console.log(`KENV ${process.env.KENV}`)
 
 /** @type {import("./utils")} */
-let { resolveToScriptPath } = await import(
+let { resolveToScriptPath, run } = await import(
   kitPath("core", "utils.js")
 )
 
@@ -32,6 +32,35 @@ ava("resolve full path", async t => {
   let scriptPath = resolveToScriptPath(testingFullPath)
 
   t.assert(scriptPath, testingFullPath)
+})
+
+ava("run full path", async t => {
+  let testingRunPath = kitMockPath(
+    `.kit-testing-run-path`,
+    `some-script.js`
+  )
+
+  await outputFile(
+    testingRunPath,
+    `export let value = "success"`
+  )
+  let { value } = await run(testingRunPath)
+
+  t.assert(value, "success")
+})
+
+ava("run full path with spaces", async t => {
+  let testingSpacedPath = kitMockPath(
+    `.kit-testing-spaced-path`,
+    `some spaced script.js`
+  )
+  await outputFile(
+    testingSpacedPath,
+    `export let value = "success"`
+  )
+  let { value } = await run(testingSpacedPath)
+
+  t.assert(value, "success")
 })
 
 ava("resolve .mjs file", async t => {

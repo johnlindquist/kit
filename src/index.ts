@@ -1,6 +1,6 @@
 import { homedir } from "os"
 import path from "path"
-import { URL } from "url"
+import { URL, fileURLToPath } from "url"
 
 let kitRun = async (
   command: string,
@@ -8,7 +8,7 @@ let kitRun = async (
 ) => {
   process.env.KIT =
     process.env.KIT ||
-    path.dirname(new URL(import.meta.url).pathname)
+    path.dirname(fileURLToPath(new URL(import.meta.url)))
 
   process.env.KNODE =
     process.env.KNODE || path.resolve(homedir(), ".knode")
