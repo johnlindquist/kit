@@ -1,5 +1,4 @@
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
-import { $ } from "zx"
 import * as path from "path"
 import {
   Script,

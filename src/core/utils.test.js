@@ -40,12 +40,13 @@ ava.serial("run full path", async t => {
     `some-script.js`
   )
 
-  await ensureDir(path.dirname(testingRunPath))
-
   await outputFile(
     testingRunPath,
     `export let value = "success"`
   )
+
+  t.true(await isFile(testingRunPath))
+
   let result = await run(testingRunPath)
   t.log({ result })
 
@@ -54,15 +55,17 @@ ava.serial("run full path", async t => {
 
 ava.serial("run full path with spaces", async t => {
   let testingSpacedPath = kitMockPath(
-    `.kit-testing-spaced-path`,
-    `some spaced script.js`
+    `.kit testing spaced path`,
+    `some-script.js`
   )
 
-  await ensureDir(path.dirname(testingSpacedPath))
   await outputFile(
     testingSpacedPath,
     `export let value = "success"`
   )
+
+  t.true(await isFile(testingSpacedPath))
+
   let result = await run(testingSpacedPath)
   t.log({ result })
 
