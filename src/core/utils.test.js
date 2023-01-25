@@ -40,6 +40,8 @@ ava.serial("run full path", async t => {
     `some-script.js`
   )
 
+  await ensureDir(path.dirname(testingRunPath))
+
   await outputFile(
     testingRunPath,
     `export let value = "success"`
@@ -55,6 +57,8 @@ ava.serial("run full path with spaces", async t => {
     `.kit-testing-spaced-path`,
     `some spaced script.js`
   )
+
+  await ensureDir(path.dirname(testingSpacedPath))
   await outputFile(
     testingSpacedPath,
     `export let value = "success"`
