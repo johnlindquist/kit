@@ -47,7 +47,7 @@ ava.serial("run full path", async t => {
 
   t.true(await isFile(testingRunPath))
 
-  let result = await run(testingRunPath)
+  let result = await import(testingRunPath)
   t.log({ result })
 
   t.assert(result.value, "success")
@@ -66,7 +66,7 @@ ava.serial("run full path with spaces", async t => {
 
   t.true(await isFile(testingSpacedPath))
 
-  let result = await run(testingSpacedPath)
+  let result = await import(testingSpacedPath)
   t.log({ result })
 
   t.assert(result.value, "success")
