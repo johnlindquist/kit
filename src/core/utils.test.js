@@ -44,9 +44,10 @@ ava("run full path", async t => {
     testingRunPath,
     `export let value = "success"`
   )
-  let { value } = await run(testingRunPath)
+  let result = await run(testingRunPath)
+  t.log({ result })
 
-  t.assert(value, "success")
+  t.assert(result.value, "success")
 })
 
 ava("run full path with spaces", async t => {
@@ -58,9 +59,10 @@ ava("run full path with spaces", async t => {
     testingSpacedPath,
     `export let value = "success"`
   )
-  let { value } = await run(testingSpacedPath)
+  let result = await run(testingSpacedPath)
+  t.log({ result })
 
-  t.assert(value, "success")
+  t.assert(result.value, "success")
 })
 
 ava("resolve .mjs file", async t => {
