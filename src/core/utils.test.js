@@ -34,7 +34,7 @@ ava("resolve full path", async t => {
   t.assert(scriptPath, testingFullPath)
 })
 
-ava("run full path", async t => {
+ava.serial("run full path", async t => {
   let testingRunPath = kitMockPath(
     `.kit-testing-run-path`,
     `some-script.js`
@@ -50,7 +50,7 @@ ava("run full path", async t => {
   t.assert(result.value, "success")
 })
 
-ava("run full path with spaces", async t => {
+ava.serial("run full path with spaces", async t => {
   let testingSpacedPath = kitMockPath(
     `.kit-testing-spaced-path`,
     `some spaced script.js`
