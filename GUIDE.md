@@ -10,6 +10,8 @@ You can also open the prompt from the menu bar and select "Open Prompt."
 
 ## Debugging a Script
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 With the prompt open, run a script with `cmd+enter` (`ctrl+enter` on Windows) to launch the script in debug mode. An inspector will appear alongside the script, allowing you to inspect current values and step through it line by line. Use the `debugger` statement anywhere in your script to create a breakpoint where your script will pause. (When running the script normally, the `debugger` statement is simply ignored.)
 
 ```js
@@ -21,6 +23,8 @@ debugger
 
 ## Create a Script
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Keep your scripts in `~/.kenv/scripts` ("kenv" stands for "Kit Environment").
 
 With the Kit.app prompt open, start typing the name of the script you want to create, then hit `enter`` when prompted to create a script. Your editor will launch with the newly created script focused.
@@ -28,6 +32,8 @@ With the Kit.app prompt open, start typing the name of the script you want to cr
 Kit.app continuously watches the `~/.kenv/scripts` directory for changes. Creating, deleting, or modifying scripts will be automatically reflected in the Kit.app prompt.
 
 ## Naming a Script
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 The file name of the script is lowercased and dashed like `hello-world.js` by convention. You can add an addionational `//Name: Hello World` to the top of your script for a more friendly name to appear when searching in the prompt. 
 
@@ -417,7 +423,8 @@ This db helper can also be used as a simple Key/value Store like this:
 // which will be used when the db file is opened the first time
 const scriptDB = await db({hello: 'World'});
 
-// Note to PR Reviewer: don't know if that extra read is necessary. I simply want to open my database file and access the available content there 
+// Note: This db read here should only make sure the db object has the latest content from disk. 
+// It may be unnecessary directly after opening the db object. 
 await scriptDB.read();
 
 if (scriptDB.data.hello === 'World') {
@@ -1220,7 +1227,6 @@ If you want to watch the main log, you can use:
 tail -f ~/.kit/logs/kit.log
 ```
 
-
 ## Save webpage as a PDF
 
 <!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
@@ -1253,6 +1259,39 @@ const screenshotResults = await getScreenshotFromWebpage('https://legiblenews.co
 });
 
 await writeFile(home('news.png'), screenshotResults);
+
+## Scrape content from a webpage
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
+You can scrape content from a webpage. The first time you run this, you will be prompted to install Playwright.
+
+```js
+// Name: Scrape John's pinned Github repositories
+
+import "@johnlindquist/kit"
+
+const items = await scrapeSelector(
+  'https://github.com/johnlindquist',
+  // CSS Selector to target elements
+  '.pinned-item-list-item-content > div > a',
+  // [Optional] function to transform the elements, if omitted then `element.innerText` is returned
+  (element) => ({
+    title: element.innerText,
+    link: element.href,
+  }),
+  // [Optional] options
+  {
+    headless: false,
+    timeout: 60000,
+  }
+);
+
+let filePath = home(`pinned-repos.md`)
+
+// `ensureReadFile` will create the file with the content
+// if it doesn't exist
+let content = await ensureReadFile(filePath, items.map(({title, link}) => `- [${title}](${link})`).join('\n'))
 ```
 
 ## Missing Something?

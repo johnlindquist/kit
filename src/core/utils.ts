@@ -1,5 +1,4 @@
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
-import { $ } from "zx"
 import * as path from "path"
 import {
   Script,
@@ -650,6 +649,11 @@ export let run = async (
         ? item.replace(/'|"/g, "")
         : item.trim().split(/\s/)
     )
+  // In case a script is passed with a path, we want to use the full command
+  if (script.includes(path.sep)) {
+    script = command
+    scriptArgs = []
+  }
   let resolvedScript = resolveToScriptPath(script)
   global.projectPath = (...args) =>
     path.resolve(
