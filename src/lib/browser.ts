@@ -103,59 +103,132 @@ global.scrapeSelector = async (
   url: string,
   selector: string,
   xf?: (element: any) => any,
-  { headless = true, timeout = 10000 } = {
+  { headless = true, timeout = 10000, browserOptions } = {
     headless: true,
     timeout: 10000,
   }
 ) => {
   /** @type typeof import("playwright") */
-  let { chromium } = await global.npm("playwright")
+  const { chromium } = await global.npm("playwright")
 
   if (!xf) xf = el => el.innerText
-  let browser = await chromium.launch({ headless })
-  let context = await browser.newContext()
-  let page = await context.newPage()
-  page.setDefaultTimeout(timeout)
+  const browser = await chromium.launch({ headless })
 
-  if (!url.startsWith("http")) url = "https://" + url
-  await page.goto(url)
-  await page.waitForSelector(selector)
-  let selectorHandles = await page.$$(selector)
-  let results = await Promise.all(
-    selectorHandles.map(async handle => {
-      let result = await handle.evaluate(xf)
-      await handle.dispose()
-      return result
-    })
-  )
+  try {
+    const context = await browser.newContext(browserOptions)
+    const page = await context.newPage()
+    page.setDefaultTimeout(timeout)
 
-  await browser.close()
-  return results
+    if (!url.startsWith("http")) url = "https://" + url
+    await page.goto(url)
+
+    const locators = await page.locator(selector).all()
+    const results = await Promise.all(
+      locators.map(locator => locator.evaluate(xf))
+    )
+    return results
+  } catch (ex) {
+    throw ex
+  } finally {
+    await browser.close()
+  }
 }
 
 global.scrapeAttribute = async (
   url: string,
   selector: string,
   attribute: string,
-  { headless = true, timeout = 10000 } = {
+  { headless = true, timeout = 10000, browserOptions } = {
     headless: true,
     timeout: 10000,
   }
 ) => {
-  let { chromium } = await global.npm("playwright")
+  const { chromium } = await global.npm("playwright")
 
-  let browser = await chromium.launch({ headless, timeout })
-  let context = await browser.newContext()
-  let page = await context.newPage()
-  page.setDefaultTimeout(timeout)
+  const browser = await chromium.launch({
+    headless,
+    timeout,
+  })
 
-  if (!url.startsWith("http")) url = "https://" + url
-  await page.goto(url)
-  await page.waitForSelector(selector)
-  let results = await page.getAttribute(selector, attribute)
+  try {
+    const context = await browser.newContext()
+    const page = await context.newPage()
+    page.setDefaultTimeout(timeout)
 
-  await browser.close()
-  return results
+    if (!url.startsWith("http")) url = "https://" + url
+    await page.goto(url)
+    await page.waitForSelector(selector)
+    const results = await page.getAttribute(
+      selector,
+      attribute
+    )
+    return results
+  } catch (ex) {
+    throw ex
+  } finally {
+    await browser.close()
+  }
+}
+
+global.getScreenshotFromWebpage = async (
+  url,
+  { timeout = 10000, browserOptions, screenshotOptions } = {
+    timeout: 10000,
+    screenshotOptions: {},
+  }
+) => {
+  const { chromium } = await global.npm("playwright")
+
+  const browser = await chromium.launch({ timeout })
+
+  try {
+    const context = await browser.newContext(browserOptions)
+    const page = await context.newPage()
+    page.setDefaultTimeout(timeout)
+
+    if (!url.startsWith("http")) url = "https://" + url
+    await page.goto(url)
+
+    return await page.screenshot(screenshotOptions)
+  } catch (ex) {
+    throw ex
+  } finally {
+    await browser.close()
+  }
+}
+
+global.getWebpageAsPdf = async (
+  url,
+  {
+    timeout = 10000,
+    browserOptions,
+    pdfOptions = {},
+    mediaOptions,
+  } = {
+    timeout: 10000,
+    pdfOptions: {},
+  }
+) => {
+  const { chromium } = await global.npm("playwright")
+
+  const browser = await chromium.launch({ timeout })
+
+  try {
+    const context = await browser.newContext(browserOptions)
+    const page = await context.newPage()
+    page.setDefaultTimeout(timeout)
+
+    if (!url.startsWith("http")) url = "https://" + url
+    await page.goto(url)
+
+    if (mediaOptions) await page.emulateMedia(mediaOptions)
+
+    return await page.pdf(pdfOptions)
+  } catch (ex) {
+    throw ex
+  } finally {
+    await browser.close()
+  }
 }
 
 export {}

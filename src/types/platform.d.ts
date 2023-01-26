@@ -1,5 +1,10 @@
 import { ProcessInfo } from "./core"
 import { Display, Point } from "./electron"
+import type {
+  BrowserContextOptions,
+  Page,
+  PageScreenshotOptions,
+} from "playwright"
 
 interface PlayAudioFile {
   (path: string, options?: any): Promise<string>
@@ -46,22 +51,85 @@ interface FocusTab {
 interface ScrapeOptions {
   headless?: boolean
   timeout?: number
+  /**
+   * Playwright browser context options.
+   *
+   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+   */
+  browserOptions?: BrowserContextOptions
 }
-interface ScrapeSelector {
+
+interface ScrapeSelector<T = any> {
   (
     url: string,
     selector: string,
-    transform?: (element: any) => any,
+    /**
+     * Transformation to apply to each DOM node that was selected.
+     * By default, `element.innerText` is returned.
+     */
+    transform?: (element: any) => T,
     options?: ScrapeOptions
-  )
+  ): Promise<T[]>
 }
+
 interface ScrapeAttribute {
   (
     url: string,
     selector: string,
     attribute: string,
     options?: ScrapeOptions
-  )
+  ): Promise<string | null>
+}
+interface ScreenshotFromWebpageOptions {
+  timeout?: number
+  /**
+   * Playwright browser context options.
+   *
+   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+   */
+  browserOptions?: BrowserContextOptions
+  /**
+   * Playwright page screenshot options.
+   *
+   * {@link https://playwright.dev/docs/api/class-page#page-screenshot}
+   */
+  screenshotOptions?: PageScreenshotOptions
+}
+
+interface GetScreenshotFromWebpage {
+  (
+    url: string,
+    options?: ScreenshotFromWebpageOptions
+  ): Promise<Buffer>
+}
+
+interface WebpageAsPdfOptions {
+  timeout?: number
+  /**
+   * Playwright browser context options.
+   *
+   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+   */
+  browserOptions?: BrowserContextOptions
+  /**
+   * Playwright page pdf options.
+   *
+   * {@link https://playwright.dev/docs/api/class-page#page-pdf}
+   */
+  pdfOptions?: Parameters<Page["pdf"]>[0]
+  /**
+   * Playwright page emulate media options.
+   *
+   * {@link https://playwright.dev/docs/api/class-page#page-emulate-media}
+   */
+  mediaOptions?: Parameters<Page["emulateMedia"]>[0]
+}
+
+interface GetWebpageAsPdf {
+  (
+    url: string,
+    options?: WebpageAsPdfOptions
+  ): Promise<Buffer>
 }
 
 interface Window {
@@ -312,6 +380,8 @@ export interface PlatformApi {
   scatterWindows: ScatterWindows
   scrapeAttribute: ScrapeAttribute
   scrapeSelector: ScrapeSelector
+  getScreenshotFromWebpage: GetScreenshotFromWebpage
+  getWebpageAsPdf: GetWebpageAsPdf
   setActiveAppBounds: SetActiveAppBounds
   setActiveAppPosition: SetActiveAppPosition
   setActiveAppSize: SetActiveAppSize
@@ -362,6 +432,8 @@ declare global {
   var scatterWindows: ScatterWindows
   var scrapeAttribute: ScrapeAttribute
   var scrapeSelector: ScrapeSelector
+  var getScreenshotFromWebpage: GetScreenshotFromWebpage
+  var getWebpageAsPdf: GetWebpageAsPdf
   var setActiveAppBounds: SetActiveAppBounds
   var setActiveAppPosition: SetActiveAppPosition
   var setActiveAppSize: SetActiveAppSize
