@@ -10,6 +10,8 @@ You can also open the prompt from the menu bar and select "Open Prompt."
 
 ## Debugging a Script
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 With the prompt open, run a script with `cmd+enter` (`ctrl+enter` on Windows) to launch the script in debug mode. An inspector will appear alongside the script, allowing you to inspect current values and step through it line by line. Use the `debugger` statement anywhere in your script to create a breakpoint where your script will pause. (When running the script normally, the `debugger` statement is simply ignored.)
 
 ```js
@@ -21,6 +23,8 @@ debugger
 
 ## Create a Script
 
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+
 Keep your scripts in `~/.kenv/scripts` ("kenv" stands for "Kit Environment").
 
 With the Kit.app prompt open, start typing the name of the script you want to create, then hit `enter`` when prompted to create a script. Your editor will launch with the newly created script focused.
@@ -28,6 +32,8 @@ With the Kit.app prompt open, start typing the name of the script you want to cr
 Kit.app continuously watches the `~/.kenv/scripts` directory for changes. Creating, deleting, or modifying scripts will be automatically reflected in the Kit.app prompt.
 
 ## Naming a Script
+
+<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
 
 The file name of the script is lowercased and dashed like `hello-world.js` by convention. You can add an addionational `//Name: Hello World` to the top of your script for a more friendly name to appear when searching in the prompt. 
 
