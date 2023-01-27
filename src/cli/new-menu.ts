@@ -105,9 +105,10 @@ if (cliScript === "snippets" || cliScript === "templates") {
   await run(kitPath(`cli`, cliScript + ".js"))
 } else {
   await run(
-    `${kitPath("cli", "new")}.js ${cliScript
-      .replace(/\s/g, "-")
-      .toLowerCase()} --scriptName '${cliScript}'`
+    `${kitPath("cli", "new")}.js`,
+    cliScript.replace(/\s/g, "-").toLowerCase(),
+    `--scriptName`,
+    cliScript
   )
 }
 

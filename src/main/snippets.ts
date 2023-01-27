@@ -25,13 +25,12 @@ let snippetScript = await selectScript(
             shortcuts: [backToMainShortcut, closeShortcut],
           })
           await run(
-            `${kitPath(
-              "cli",
-              "new"
-            )}.js --template snippet ${script
-              .trim()
-              .replace(/\s/g, "-")
-              .toLowerCase()} --scriptName '${script.trim()}'`
+            `${kitPath("cli", "new")}.js`,
+            `--template`,
+            `snippet`,
+            script.trim().replace(/\s/g, "-").toLowerCase(),
+            `--scriptName`,
+            script.trim()
           )
         },
       },

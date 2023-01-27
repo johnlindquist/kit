@@ -415,10 +415,10 @@ if (
     await run(script)
   } else {
     await run(
-      `${kitPath("cli", "new")}.js ${script
-        .trim()
-        .replace(/\s/g, "-")
-        .toLowerCase()} --scriptName '${script.trim()}'`
+      `${kitPath("cli", "new")}.js`,
+      script.trim().replace(/\s/g, "-").toLowerCase(),
+      `--scriptName`,
+      script.trim()
     )
   }
 } else {
@@ -444,9 +444,8 @@ if (
     await run(`${kitPath("cli", selectedFlag)}.js`)
   } else if (selectedFlag && !flag?.open) {
     await run(
-      `${kitPath("cli", selectedFlag)}.js ${
-        script.filePath
-      } `
+      `${kitPath("cli", selectedFlag)}.js`,
+      script.filePath
     )
   } else if (flag[modifiers.opt]) {
     showLogWindow(script?.filePath)
@@ -458,9 +457,7 @@ if (
   } else if (script && script?.filePath) {
     let runP = run(
       script.filePath,
-      Object.keys(flag)
-        .map(f => `--${f}`)
-        .join(" ")
+      ...Object.keys(flag).map(f => `--${f}`)
     )
 
     setScriptTimestamp(script.filePath)
