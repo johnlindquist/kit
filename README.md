@@ -55,7 +55,7 @@ Install:
 ### (Skip if you already have a kenv from production) Clone the base kenv
 
 Clone:
-`git clone https://github.com/johnlindquist/kenv.git` ~/.kenv
+`git clone https://github.com/johnlindquist/kenv.git ~/.kenv`
 
 ### Building Kit SDK
 
