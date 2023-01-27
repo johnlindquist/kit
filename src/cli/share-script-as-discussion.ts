@@ -38,9 +38,11 @@ ${content}
 
 copy(discussionPost)
 
-exec(
-  `open 'https://github.com/johnlindquist/kit/discussions/new?category=share'`
-)
+// Mac Method errors on Win32
+exec(`open 'https://github.com/johnlindquist/kit/discussions/new?category=share'`)
+
+// Win32 Method tested working
+open('https://github.com/johnlindquist/kit/discussions/new?category=share')
 
 let message = `Copied ${command} to clipboard as markdown`
 
