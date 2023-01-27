@@ -2,7 +2,7 @@
 
 ## Running a Script
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Press `cmd+;` (or `ctrl+;` on Windows) to open the Script Kit prompt. Search for the script you want to run and press `enter` to run it.
 
@@ -10,7 +10,7 @@ You can also open the prompt from the menu bar and select "Open Prompt."
 
 ## Debugging a Script
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 With the prompt open, run a script with `cmd+enter` (`ctrl+enter` on Windows) to launch the script in debug mode. An inspector will appear alongside the script, allowing you to inspect current values and step through it line by line. Use the `debugger` statement anywhere in your script to create a breakpoint where your script will pause. (When running the script normally, the `debugger` statement is simply ignored.)
 
@@ -23,7 +23,7 @@ debugger
 
 ## Create a Script
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Keep your scripts in `~/.kenv/scripts` ("kenv" stands for "Kit Environment").
 
@@ -33,7 +33,7 @@ Kit.app continuously watches the `~/.kenv/scripts` directory for changes. Creati
 
 ## Naming a Script
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The file name of the script is lowercased and dashed like `hello-world.js` by convention. You can add an addionational `//Name: Hello World` to the top of your script for a more friendly name to appear when searching in the prompt. 
 
@@ -46,7 +46,7 @@ When creating a script with the prompt, you can type the `Friendly Name` of the 
 
 ## // Shortcut Metadata
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Use the `// Shortcut` metadata to add a global keyboard shortcut to any script
 
@@ -69,7 +69,7 @@ say(`You pressed option i`)
 
 ## Input Text with `await arg()`
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The simplest form of input you can accept from a user is an `arg()`
 
@@ -85,7 +85,7 @@ await div(md(`Hello, ${name}`))
 
 ## Select From a List of Strings
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Select From a List
@@ -103,7 +103,7 @@ await div(md(`You selected ${fruit}`))
 
 ## Select From a List of Objects
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Select From a List of Objects
@@ -139,7 +139,7 @@ await div(
 
 ## Select from a Dynamic List
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Select From a Dynamic List
@@ -177,7 +177,7 @@ await div(
 
 ## Display a Preview When Focusing a Choice
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Display a Preview When Focusing a Choice
@@ -201,7 +201,7 @@ await div(md(`You selected ${height}`))
 
 ## Display HTML Beneath the Input
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 If the second argument to `arg()` is a string, it will be displayed beneath the input as HTML.
 
@@ -245,7 +245,7 @@ await arg(
       await highlight(`
 ## This is just information
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Usually to help you make a choice
   
@@ -262,7 +262,7 @@ Just type some text to see the choices update
 
 ## Display Only HTML
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Use `await div('')` to display HTML.
 
@@ -285,7 +285,7 @@ await div(`<h1>Hi</h1>`, `p-5`)
 
 ## Display HTML with CSS
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Script Kit bundles [Tailwind CSS](https://tailwindcss.com/).
 
@@ -301,7 +301,7 @@ await div(
 
 ## Display Markdown
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The `md()` function will convert Markdown to HTML into HTML that you can pass into div. It will also add the default Tailwind styles so you won't have to think about formatting.
 
@@ -317,7 +317,7 @@ await div(html)
 
 ## Create a Widget
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Use the `widget` method to spawn a new, persisting window that is disconnected from the script.
 
@@ -332,7 +332,7 @@ await widget(`
 
 ## Set Options using Flags
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 To add an options menu to your choices, you must provide a `flags` object. If one of the keyboard shortcuts are hit, or the user selects the option, then the `flag` global will have the matching key from your flags set to `true`:
 
@@ -376,7 +376,7 @@ my-sites --open
 
 ## Store Simple JSON data with db
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The `db` helpers reads/writes to json files in the `~/.kenv/db` directory. It's meant as a simple wrapper around common json operations.
 
@@ -442,7 +442,7 @@ await scriptDB.write();
 
 ## Watch Files to Trigger Scripts
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The `// Watch` metadata enables you to watch for changes to a file on your system.
 
@@ -492,7 +492,7 @@ if (event === "add") {
 
 ## Run Shell Commands
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ### Use zx to Run Shell Commands
 
@@ -518,7 +518,7 @@ await $`mkdir /tmp/${name}`
 
 ## Make HTTP Requests with get, put, post, and del
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The `get`, `post`, `put`, and `del` methods use the [axios](https://www.npmjs.com/package/axios) API
 
@@ -559,7 +559,7 @@ await div(md(response.data.message))
 
 ## Download Files
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Use `download` to download a file from a url:
 
@@ -579,7 +579,7 @@ await writeFile(filePath, buffer)
 
 ## Read a Text File
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 You can use `readFile` to read a text file from your system:
 
@@ -601,7 +601,7 @@ await editor(contents)
 
 ## Create a Text File
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Create a Text File
@@ -623,7 +623,7 @@ if (!exists) {
 
 ## Live Edit a Text File
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Update a Text File
@@ -647,7 +647,7 @@ await editor({
 
 ## Run a Script on a Schedule
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Use cron syntax to run scripts on a schedule. The following example will show a notification to stand up and stretch every 15 minutes.
 
@@ -666,7 +666,7 @@ notify(`Stand up and stretch`)
 
 ## Environment Variables
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The `env` helper will read environment variables from ~/.kenv/.env. If the variable doesn't exist, it will prompt you to create it.
 
@@ -684,7 +684,7 @@ await div(md(`You loaded ${KEY} from ~/.kenv/.env`))
 
 ## Environment Variable Async Prompt
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 If you pass a function as the second argument to `env`, it will only be called if the variable doesn't exist.
 This allows you to set Enviroment Variables from a list, an API, or any other data source.
@@ -713,7 +713,7 @@ await div(
 
 ## Share as a Gist, Link, URL, or Markdown
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 The Script Kit main window also includes many other share options:
 
@@ -724,7 +724,7 @@ The Script Kit main window also includes many other share options:
 
 ## Get Featured
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Featured scripts are displayed in:
 
@@ -737,7 +737,7 @@ As a shortcut, hit <kbd>cmd+s</kbd> with a script selected to automatically run 
 
 ## Experiment with Data in Chrome DevTools
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Play with Data in Chrome DevTools
@@ -754,7 +754,7 @@ dev({
 
 ## // Shortcode Metadata
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 A shortcode allows you quickly run a script without needing to search for it.
 
@@ -770,7 +770,7 @@ say(`You pressed option i`)
 
 ## Quick Submit from Hint
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 A common pattern from Terminal is to quickly submit a script from a hint. Using a bracket around a single character will submit that character when pressed.
 
@@ -791,7 +791,7 @@ if (value === "y") {
 
 ## Quick Submit from Choice
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 If you need to provide a little more information to the user, use a choice instead of a hint. This allows you to provide a full value that will be submitted instead of just the single letter.
 
@@ -820,7 +820,7 @@ await div(md(value))
 
 ## Run Scripts from Other Apps
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Are you a fan of one of these amazing tools?
 - [Keyboard Maestro](https://www.keyboardmaestro.com/main/)
@@ -851,7 +851,7 @@ Any arguments you pass to the script will also be sent along. So if you want to 
 
 ## Select a Path
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Select a Path
@@ -865,7 +865,7 @@ await div(md(`You selected ${filePath}`))
 
 ## Select a Path with Options
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Select a Path with Options
@@ -898,7 +898,7 @@ await path({
 
 ## Select from Finder Prompts
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Select from Finder Prompt
@@ -914,7 +914,7 @@ await div(md(`You selected ${filePath} and ${folderPath}`))
 
 ## Built-in Terminal
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Run Commands in the Terminal
@@ -936,7 +936,7 @@ await term({
 
 ## Built-in Editor
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Script Kit ships with a built-in version of the Monaco editor. Use `await editor()` to switch to the editor prompt.
 
@@ -952,7 +952,7 @@ await div(md(result))
 
 ## Load Text in the Editor
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 ```js
 // Name: Load Text Into the Editor
@@ -976,7 +976,7 @@ await div(md(result))
 
 ## Add ~/.kit/bin to $PATH
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 > This is similar to VS Code's "Add `code` to path"
 
@@ -998,7 +998,7 @@ The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
 
 ## Required Permissions for Features
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Kit.app requires accessibility permission for the following reasons:
 * Watch user input to trigger Snippets and Clipboard History
@@ -1011,7 +1011,7 @@ Kit.app requires accessibility permission for the following reasons:
 
 ## Submit From Live Data
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 Some scenarios require `setInterval` or other "live data" utils. This means you can't use `await` on the arg/div/textarea/etc because `await` prevents the script from continuing on to start the `setInterval`.
 
@@ -1041,7 +1041,7 @@ intervalId = setInterval(() => {
 
 ## Strict Mode
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 `strict` is enabled by default and it forces the user to pick an item from the list, preventing them from entering their own text.
 
@@ -1073,7 +1073,7 @@ await textarea(`${fruit} and ${fruitOrInput}`)
 
 ## Quick Keys
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 A quick key allows you to bind a single key to submit a prompt.
 
@@ -1118,7 +1118,7 @@ console.log(vegetable) //"Celery" or "Carrot"
 
 ## Position a Widget on Screen
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 You can control the size/position of each `show` window you create, but you'll need some info from the current screen (especially with a multi-monitor setup!) to be able to position the window where you want it:
 
@@ -1148,7 +1148,7 @@ await widget(
 
 ## Update on Input
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 When you pass a function as the second argument of `arg`, you can take the current `input` and return a string. Kit.app will then render the results as HTML. The simplest example looks like this:
 
@@ -1186,7 +1186,7 @@ ${input ? cToF(input) + "f" : `Waiting for input`}
 
 ## Clone Git Repos with degit
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 We're developers. We clone project templates from github. [degit](https://www.npmjs.com/package/degit) is available on the global scope for exactly this scenario.
 
@@ -1203,7 +1203,7 @@ edit(targetDir)
 
 ## View Logs
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 When you use `console.log()` in a script, it writes the log out to a relative directory.
 
@@ -1229,7 +1229,7 @@ tail -f ~/.kit/logs/kit.log
 
 ## Save webpage as a PDF
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 You can save any webpage as a PDF.
 
@@ -1245,7 +1245,7 @@ await writeFile(home('news.pdf'), pdfResults);
 
 ## Take screenshot of webpage
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 You can take a screenshot of any webpage.
 
@@ -1262,7 +1262,7 @@ await writeFile(home('news.png'), screenshotResults);
 
 ## Scrape content from a webpage
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 You can scrape content from a webpage. The first time you run this, you will be prompted to install Playwright.
 
@@ -1296,12 +1296,12 @@ let content = await ensureReadFile(filePath, items.map(({title, link}) => `- [${
 
 ## Missing Something?
 
-<!-- value: https://github.com/johnlindquist/kit/edit/main/GUIDE.md -->
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
 <!-- enter: Update Docs -->
 <!-- value: download-md.js -->
 
-This Guide constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/edit/main/GUIDE.md) to the docs or open an issue on GitHub.
+This Guide constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/blob/main/GUIDE.md) to the docs or open an issue on GitHub.
 
 Hit <kbd>Enter</kbd> to download the latest docs.
 
