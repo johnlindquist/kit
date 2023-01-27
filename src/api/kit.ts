@@ -71,6 +71,10 @@ export let errorPrompt = async (error: Error) => {
     await global.writeFile(errorJsonPath, errorToCopy)
 
     try {
+      if (global?.args.length > 0) {
+        log({ args })
+        args = []
+      }
       await run(
         kitPath("cli", "error-action.js"),
         script,

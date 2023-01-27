@@ -18,7 +18,9 @@ let kitRun = async (
   await import("./api/lib.js")
   await import("./target/terminal.js")
 
-  return await global.run(command, ..._args)
+  if (command) {
+    return await global.run(command, ..._args)
+  }
 }
 
 export * from "./api/kit.js"

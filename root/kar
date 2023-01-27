@@ -15,6 +15,6 @@ args+="]"
 
 json="{\"script\":\"$1\",\"args\":$args}"
 echo $json
-curl --unix-socket $KIT/kit.sock --header "Content-Type: application/json" \
+curl --http0.9 --unix-socket $KIT/kit.sock --header "Content-Type: application/json" \
   --data "$json" \
    "http://localhost"
