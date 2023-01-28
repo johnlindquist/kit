@@ -59,5 +59,3 @@ ava.serial(`npm installs a package`, async t => {
   t.truthy(pkg.devDependencies?.["express"])
   t.falsy(pkg.dependencies?.["express"])
 })
-
-ava

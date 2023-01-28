@@ -1,15 +1,5 @@
 export {}
 
-copy(`~/.kit/bin/kit sync-path`)
-
-await div(
-  md(`
-Run the following command in your terminal:
-(already copied to clipboard)
-
-~~~bash
-~/.kit/bin/kit sync-path
-~~~
-`),
-  `p-4`
+await term(
+  `~/.kit/bin/kit set-env-var PATH ${process.env.PATH}`
 )

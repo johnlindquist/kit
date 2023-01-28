@@ -135,12 +135,12 @@ tell application "Finder" to open information window of aFile
     }
     break
   case "vscode":
-    if (isWin) {
-      await exec(`code ${selectedPath}`)
-    } else {
+    if (isMac) {
       await exec(
         `open -a 'Visual Studio Code' '${selectedPath}'`
       )
+    } else {
+      await exec(`code ${selectedPath}`)
     }
     break
   case "copy":

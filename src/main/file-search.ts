@@ -115,12 +115,12 @@ tell application "Finder" to open information window of aFile
     terminal(`cd '${selectedDir}'`)
     break
   case "vscode":
-    if (isWin) {
-      await exec(`code ${selectedFile}`)
-    } else {
+    if (isMac) {
       await exec(
         `open -a 'Visual Studio Code' '${selectedFile}'`
       )
+    } else {
+      await exec(`code ${selectedFile}`)
     }
 
     break
