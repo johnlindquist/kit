@@ -114,6 +114,11 @@ export let copyTmpFile = async (
   )
 
 export let determineOutFile = scriptPath => {
+  if (process.env.KIT_CONTEXT === "workflow") {
+    // replace .ts with .mjs
+    return scriptPath.replace(/\.ts$/, ".mjs")
+  }
+
   let tmpScriptName = global.path
     .basename(scriptPath)
     .replace(/\.(ts|jsx|tsx)$/, ".mjs")
