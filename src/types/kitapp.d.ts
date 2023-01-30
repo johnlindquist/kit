@@ -142,19 +142,19 @@ export interface Form {
   ): Promise<any>
 }
 
-type Field = {
-  label?: string
-  placeholder?: string
-  value?: string
-  type?: string
-  [key: string]: string
-}
+type Field =
+  | {
+      label?: string
+      placeholder?: string
+      value?: string
+      type?: string
+      [key: string]: string
+    }
+  | string
 
 export interface Fields {
-  (fields: string[] | Field[]): Promise<any>
-  (
-    config: PromptConfig & { fields: string[] | Field[] }
-  ): Promise<any>
+  (fields: Field[]): Promise<any>
+  (config: PromptConfig & { fields: Field[] }): Promise<any>
 }
 
 export type AudioOptions = {

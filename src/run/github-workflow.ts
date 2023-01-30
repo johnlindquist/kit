@@ -35,6 +35,4 @@ global.github = await npm("@actions/github")
 let scriptPath = resolveToScriptPath(
   await arg("Path to script")
 )
-await import(
-  pathToFileURL(scriptPath).href + "?uuid=" + randomUUID()
-)
+await run(scriptPath)
