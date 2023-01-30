@@ -140,6 +140,35 @@ export let buildTSScript = async (
   outPath = ""
 ) => {
   let external = []
+
+  let localKenvNodeModulesPath = path.resolve(
+    process.cwd(),
+    "node_modules"
+  )
+  if (await isDir(localKenvNodeModulesPath)) {
+    external = external.concat(
+      await global.readdir(localKenvNodeModulesPath)
+    )
+  }
+
+  let scriptsNodeModulesPath = path.resolve(
+    process.cwd(),
+    "scripts",
+    "node_modules"
+  )
+  if (await isDir(scriptsNodeModulesPath)) {
+    external = external.concat(
+      await global.readdir(scriptsNodeModulesPath)
+    )
+  }
+
+  let kitNodeModulesPath = kitPath("node_modules")
+  if (await isDir(kitNodeModulesPath)) {
+    external = external.concat(
+      await global.readdir(kitNodeModulesPath)
+    )
+  }
+
   let mainKenvNodeModulesPath = home(
     ".kenv",
     "node_modules"
