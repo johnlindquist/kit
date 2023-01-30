@@ -59,8 +59,6 @@ global.kitPrompt = async (config: any) => {
         choices,
       }
     } else {
-      let { default: _ } = (await import("lodash")) as any
-
       let suggest = _.debounce(async function (input) {
         let results = await f(input)
 
