@@ -2355,3 +2355,10 @@ global.unregisterShortcut = async (shortcut: string) => {
     __kit__registeredShortcuts.delete(shortcut)
   }
 }
+
+global.startDrag = async (
+  filePath: string,
+  iconPath: string
+) => {
+  await sendWait(Channel.START_DRAG, { filePath, iconPath })
+}

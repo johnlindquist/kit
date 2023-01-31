@@ -285,6 +285,10 @@ export interface ChannelMap {
   [Channel.GET_CLIPBOARD_HISTORY]: undefined
   [Channel.GET_APP_STATE]: undefined
   [Channel.CUT_TEXT]: undefined
+  [Channel.START_DRAG]: {
+    filePath: string
+    iconPath?: string
+  }
   [Channel.WIDGET_GET]: undefined
   [Channel.WIDGET_UPDATE]: {
     widgetId: number
@@ -299,7 +303,15 @@ export interface ChannelMap {
     targetId: string
     windowId: number
   }
+  [Channel.WIDGET_MOUSE_DOWN]: {
+    targetId: string
+    windowId: number
+  }
   [Channel.WIDGET_INPUT]: {
+    targetId: string
+    windowId: number
+  }
+  [Channel.WIDGET_DRAG_START]: {
     targetId: string
     windowId: number
   }
@@ -870,4 +882,8 @@ declare global {
 
   var registerShortcut: RegisterShortcut
   var unregisterShortcut: UnregisterShortcut
+  var startDrag: (
+    filePath: string,
+    iconPath?: string
+  ) => void
 }

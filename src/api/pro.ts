@@ -19,6 +19,7 @@ let widget: Widget = async (html, options = {}) => {
       options: {
         containerClass:
           "overflow-auto flex justify-center items-center v-screen h-screen",
+        draggable: true,
         ...options,
       },
     }
@@ -27,6 +28,7 @@ let widget: Widget = async (html, options = {}) => {
   type WidgetHandler = (message: WidgetMessage) => void
 
   let clickHandler: WidgetHandler = () => {}
+  let mouseDownHandler: WidgetHandler = () => {}
   let inputHandler: WidgetHandler = () => {}
   let closeHandler: WidgetHandler = () => {
     process.exit()
@@ -86,6 +88,9 @@ let widget: Widget = async (html, options = {}) => {
     onClick: (handler: WidgetHandler) => {
       clickHandler = handler
     },
+    onMouseDown: (handler: WidgetHandler) => {
+      mouseDownHandler = handler
+    },
     onInput: (handler: WidgetHandler) => {
       inputHandler = handler
     },
@@ -106,6 +111,13 @@ let widget: Widget = async (html, options = {}) => {
       data.widgetId == widgetId
     ) {
       clickHandler(data)
+    }
+
+    if (
+      data.channel == Channel.WIDGET_MOUSE_DOWN &&
+      data.widgetId == widgetId
+    ) {
+      mouseDownHandler(data)
     }
 
     if (
