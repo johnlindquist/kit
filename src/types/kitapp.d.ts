@@ -264,6 +264,7 @@ export type SendNoOptions =
   | Channel.TOGGLE_TRAY
   | Channel.UPDATE_APP
   | Channel.QUIT_APP
+  | Channel.OPEN_MENU
   | Channel.FOCUS
   | Channel.SHOW_EMOJI_PANEL
   | Channel.BEEP

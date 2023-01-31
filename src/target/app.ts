@@ -1225,15 +1225,19 @@ let appInstall = async packageName => {
     )
     let packageLink = `https://npmjs.com/package/${stripVersion}`
 
+    let response = null
+    try {
+      response = await get<{ downloads: number }>(
+        `https://api.npmjs.org/downloads/point/last-week/` +
+          stripVersion
+      )
+    } catch (error) {}
+
+    let downloads =
+      response?.data?.downloads || `an unknown number of`
+
     let preview = md(
-      `[${stripVersion}](${packageLink}) has had ${
-        (
-          await get<{ downloads: number }>(
-            `https://api.npmjs.org/downloads/point/last-week/` +
-              stripVersion
-          )
-        ).data.downloads
-      } downloads from npm in the past week`
+      `[${stripVersion}](${packageLink}) has had ${downloads} downloads from npm in the past week`
     )
 
     let trust = await global.arg(
