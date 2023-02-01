@@ -2,9 +2,9 @@
 # ../../ of this script
 
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
-KNODE="${KNODE:=$KIT/../.knode/bin/node}"
+KIT_NODE="${KIT_NODE:=$KIT/../.knode/bin/node}"
 
 NODE_NO_WARNINGS=1 \
-"$KNODE" \
+"$KIT_NODE" \
 "$KIT/run/terminal.js" \
 "$@"
