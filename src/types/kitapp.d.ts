@@ -303,6 +303,10 @@ export interface ChannelMap {
     targetId: string
     windowId: number
   }
+  [Channel.WIDGET_DROP]: {
+    targetId: string
+    windowId: number
+  }
   [Channel.WIDGET_MOUSE_DOWN]: {
     targetId: string
     windowId: number

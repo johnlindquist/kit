@@ -28,6 +28,7 @@ let widget: Widget = async (html, options = {}) => {
   type WidgetHandler = (message: WidgetMessage) => void
 
   let clickHandler: WidgetHandler = () => {}
+  let dropHandler: WidgetHandler = () => {}
   let mouseDownHandler: WidgetHandler = () => {}
   let inputHandler: WidgetHandler = () => {}
   let closeHandler: WidgetHandler = () => {
@@ -88,6 +89,9 @@ let widget: Widget = async (html, options = {}) => {
     onClick: (handler: WidgetHandler) => {
       clickHandler = handler
     },
+    onDrop: (handler: WidgetHandler) => {
+      dropHandler = handler
+    },
     onMouseDown: (handler: WidgetHandler) => {
       mouseDownHandler = handler
     },
@@ -111,6 +115,13 @@ let widget: Widget = async (html, options = {}) => {
       data.widgetId == widgetId
     ) {
       clickHandler(data)
+    }
+
+    if (
+      data.channel == Channel.WIDGET_DROP &&
+      data.widgetId == widgetId
+    ) {
+      dropHandler(data)
     }
 
     if (
