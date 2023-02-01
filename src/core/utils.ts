@@ -129,7 +129,9 @@ export const KIT_APP_PROMPT = kitPath(
   "run",
   "app-prompt.js"
 )
-let combinePath = (arrayOfPaths: string[]): string => {
+export let combinePath = (
+  arrayOfPaths: string[]
+): string => {
   return [
     ...new Set(
       [...arrayOfPaths]
@@ -714,10 +716,14 @@ export let configEnv = () => {
     silent: true,
   })
 
-  process.env.PATH =
-    (parsed?.PATH || process.env.PATH) +
-    path.delimiter +
-    KIT_FIRST_PATH
+  process.env.PATH_FROM_DOTENV = combinePath([
+    parsed?.PATH || process.env.PATH,
+  ])
+
+  process.env.PATH = combinePath([
+    process.env.PARSED_PATH,
+    KIT_FIRST_PATH,
+  ])
 
   assignPropsTo(process.env, global.env)
 
@@ -981,7 +987,6 @@ export let proPane = () =>
 
 - Debugger
 - Script Log Window
-- Custom Themes
 - Support through Discord
 
 </div>

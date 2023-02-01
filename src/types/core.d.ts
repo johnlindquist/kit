@@ -258,7 +258,6 @@ export type PromptConfig = {
   choices?: Choices<any> | Panel
   html?: string
   formData?: any
-  fields?: string[]
   className?: string
   flags?: FlagsOptions
   preview?: string | (() => string | Promise<string>)
