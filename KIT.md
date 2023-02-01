@@ -161,9 +161,9 @@ This will walk you through running the command without the full path:
 list-downloads
 ```
 
-## Theme Selector ⭐️
+## Theme Selector
 
-With a Pro Account, you can select from a variety of themes.
+Select from a variety of themes. Mostly a work in progress. We'll support community themes in the future. ❤️
 
 <!-- description: Preview Themes -->
 <!-- value: pro/theme-selector.js -->
