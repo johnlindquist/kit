@@ -831,7 +831,7 @@ global.showEmojiPanel = () => {
 }
 
 global.fields = async formFields => {
-  let config: PromptConfig = {}
+  let config: PromptConfig & { fields?: Field[] } = {}
   let f = []
   if (Array.isArray(formFields) && !formFields[0]?.fields) {
     f = formFields
