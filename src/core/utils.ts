@@ -385,6 +385,11 @@ export let formatScriptMetadata = (
         .map(sc => sc.trim().toLowerCase())
   }
 
+  if (metadata?.alias) {
+    ;(metadata as unknown as ScriptMetadata).alias =
+      metadata?.alias?.trim().toLowerCase()
+  }
+
   if (metadata?.image) {
     metadata.img = metadata?.image
   }

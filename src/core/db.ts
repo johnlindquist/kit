@@ -301,6 +301,7 @@ export type AppDb = {
   tray: boolean
   appearance: "light" | "dark" | "auto"
   authorized: boolean
+  searchDebounce?: boolean
 }
 
 export type UserDb = Partial<

@@ -448,6 +448,7 @@ export interface ChannelMap {
     type: "info" | "error" | "success" | "warning"
   }
   [Channel.TOGGLE_BACKGROUND]: string
+  [Channel.SET_SEARCH_DEBOUNCE]: boolean
   [Channel.VALUE_INVALID]: string
   [Channel.TERMINATE_PROCESS]: number
 
