@@ -68,21 +68,47 @@ global.iterm = async command => {
                 create window with default profile
             end try
         end if
-    
+
         delay 0.1
-    
+
         tell the first window to tell current session to write text ${command}
-        
+
+    end tell
+    `.trim()
+  return await global.applescript(script)
+}
+
+//TODO: refactor this work around if electron ever gets native osascript support
+// https://github.com/vercel/hyper/issues/3410
+// https://github.com/electron/electron/issues/4418
+global.hyper = async command => {
+  command = `"${command.replace(/"/g, '\\"')}"`
+  let script = `
+    tell application "Hyper"
+      activate
+      if application "Hyper" is running then
+          tell application "System Events" to keystroke "n" using command down
+      end if
+
+      delay 0.5
+
+      tell application "System Events"
+        if exists (window 1 of process "Hyper") then
+          keystroke ${command}
+          key code 36
+        end if
+      end tell
     end tell
     `.trim()
   return await global.applescript(script)
 }
 
 let terminalEditor = editor => async file => {
-  //TODO: Hyper? Other terminals?
+  //TODO: Other terminals?
   let supportedTerminalMap = {
     terminal: global.terminal,
     iterm: global.iterm,
+    hyper: global.hyper,
   }
 
   let possibleTerminals = () =>

@@ -259,6 +259,7 @@ export interface KitApi {
 
   terminal: (script: string) => Promise<string>
   iterm: (iterm: string) => Promise<string>
+  hyper: (hyper: string) => Promise<string>
 
   onTabs: {
     name: string
@@ -355,6 +356,7 @@ declare global {
 
   var terminal: (script: string) => Promise<string>
   var iterm: (iterm: string) => Promise<string>
+  var hyper: (hyper: string) => Promise<string>
   var projectPath: PathFn
   var clearAllTimeouts: () => void
   var clearAllIntervals: () => void
