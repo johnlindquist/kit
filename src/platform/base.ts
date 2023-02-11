@@ -33,6 +33,12 @@ global.iterm = async command => {
   return ""
 }
 
+global.hyper = async command => {
+  unsupported()
+
+  return ""
+}
+
 global.selectKitEditor = async (reset = false) => {
   unsupported()
 
