@@ -410,9 +410,9 @@ if (
 ) {
   console.warn(`🤔 No script selected`, script)
 } else if (typeof script === "string") {
-  let [maybeScript] = script.split(" ")
+  let [maybeScript, numarg] = script.split(/\s(?=\d)/)
   if (await isFile(maybeScript)) {
-    await run(script)
+    await run(maybeScript, numarg)
   } else {
     await run(
       `${kitPath("cli", "new")}.js`,

@@ -670,6 +670,7 @@ export let run = async (
       ...args
     )
 
+  global.setFlags({})
   global.onTabs = []
   global.kitScript = resolvedScript
   global.kitCommand = resolveScriptToCommand(resolvedScript)

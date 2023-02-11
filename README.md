@@ -24,17 +24,17 @@ I have been unable to prioritize the time to switch over to another build system
 
 Thus, we use yarn to build the App and npm to build the SDK 🤦‍♂️
 
-### Using node 16.17.1 from ~/.knode
+### Using node 18.12.1 from ~/.knode
 
-Installing `Kit.app` already installed node 16.17.1 to ~/.knode. You'll want to use this node version for all build/run steps:
+Installing `Kit.app` already installed node 18.12.1 to ~/.knode. You'll want to use this node version for all build/run steps:
 
 `PATH=~/.knode/bin:$PATH`
 
-This will use 16.17.1's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
+This will use 18.12.1's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
 
 - Use `volta` to manage node versions.
     1. Install [volta](https://volta.sh/)
-    2. Volta will automatically switch node version to 16.17.1 when working with kit.
+    2. Volta will automatically switch node version to 18.12.1 when working with kit.
 
 ### Clone Kit SDK
 
