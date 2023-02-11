@@ -301,6 +301,7 @@ let script = await selectScript(
         name: "Find Script",
         key: `${cmd}+f`,
         onPress: async () => {
+          global.setFlags({})
           await run(kitPath("cli", "find.js"))
         },
       },
