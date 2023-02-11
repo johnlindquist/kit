@@ -355,7 +355,8 @@ let folderPath = await selectFolder()
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
 
-A `widget` creates a new window using HTML.
+A `widget` creates a new window using HTML. The HTML can be styled via [Tailwind CSS](https://tailwindcss.com/docs/utility-first) class names.
+Templating and interactivity can be added via [petite-vue](https://github.com/vuejs/petite-vue).
 
 ### Details
 
