@@ -8,6 +8,7 @@ import {
   statuses,
 } from "../core/enum"
 import { KeyEnum } from "../core/keyboard.js"
+import { AppDb } from "../core/db.js"
 
 import {
   AppState,
@@ -358,6 +359,7 @@ export interface ChannelMap {
   //
 
   [Channel.APP_CONFIG]: AppConfig
+  [Channel.APP_DB]: AppDb
   [Channel.ADD_CHOICE]: Choice
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string

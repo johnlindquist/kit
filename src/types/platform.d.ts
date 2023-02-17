@@ -21,6 +21,7 @@ interface CopyPathAsImage {
 interface FileSearchOptions {
   onlyin?: string
   kind?: string
+  kMDItemContentType?: string
 }
 interface FileSearch {
   (

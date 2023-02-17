@@ -1,14 +1,19 @@
 import { Channel } from "../core/enum.js"
 
 // TODO: Optimize, etc
+// "kMDItemContentType = 'com.apple.application-bundle'"
 global.fileSearch = async (
   name,
-  { onlyin = "~", kind = "" } = {}
+  { onlyin = "~", kind = "", kMDItemContentType = "" } = {}
 ) => {
   let command = `/usr/bin/mdfind${
     name ? ` -name ${name}` : ""
   }${onlyin ? ` -onlyin ${onlyin}` : ``}${
     kind ? ` "kind:${kind}"` : ``
+  }${
+    kMDItemContentType
+      ? ` "kMDItemContentType:${kMDItemContentType}"`
+      : ``
   }`
 
   let results = await global.exec(command)

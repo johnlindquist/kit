@@ -302,6 +302,7 @@ export type AppDb = {
   appearance: "light" | "dark" | "auto"
   authorized: boolean
   searchDebounce?: boolean
+  termFont?: string
 }
 
 export type UserDb = Partial<

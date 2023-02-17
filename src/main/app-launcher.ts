@@ -6,7 +6,7 @@ let findAppsAndPrefs = async () => {
   log(`findAppsAndPrefs`)
   let apps = await fileSearch("", {
     onlyin: "/",
-    kind: "application",
+    kMDItemContentType: "com.apple.application-bundle",
   })
   let manualAppDir = await readdir("/Applications")
   apps = apps.concat(

@@ -9,6 +9,7 @@ export enum Mode {
 export enum Channel {
   ABANDON = "ABANDON",
   APP_CONFIG = "APP_CONFIG",
+  APP_DB = "APP_DB",
   AUDIO_ENDED = "AUDIO_ENDED",
   CHOICE_FOCUSED = "CHOICE_FOCUSED",
   CLEAR_CACHE = "CLEAR_CACHE",
