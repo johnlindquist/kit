@@ -1,6 +1,6 @@
 import fs from "fs"
 import { unlink } from "fs/promises"
-import filesize from "filesize"
+import { filesize } from "filesize"
 
 import {
   AppState,
