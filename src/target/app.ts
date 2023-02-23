@@ -1178,6 +1178,82 @@ global.arg = async (
   return await global.kitPrompt(promptConfig)
 }
 
+global.chat = async (options: any = {}) => {
+  let messageHandler = async (data: any) => {
+    switch (data.channel) {
+      case Channel.CHAT_MESSAGES_CHANGE:
+        options.onChange?.(data?.value)
+        break
+
+      case Channel.CHAT_SUBMIT:
+        options.onSubmit?.(data?.value)
+        break
+    }
+  }
+
+  process.on("message", messageHandler)
+  let messages = await global.kitPrompt({
+    ui: UI.chat,
+    onEscape: (input, state) => {
+      process.off("message", messageHandler)
+      onEscapeDefault(input, state)
+    },
+    shortcuts: [
+      {
+        name: "Done",
+        key: `${cmd}+enter`,
+        onPress: async () => {
+          let messages = await chat.getMessages()
+          submit(messages)
+        },
+        bar: "right",
+      },
+    ],
+    ...options,
+  })
+  process.off("message", messageHandler)
+
+  return messages
+}
+
+global.chat.addMessage = async (message = {}) => {
+  if (typeof message === "string") {
+    message = { text: message }
+  }
+  let messageDefaults = {
+    type: "text",
+    position: "left",
+    text: "",
+  }
+  await sendWait(Channel.CHAT_ADD_MESSAGE, {
+    ...messageDefaults,
+    ...message,
+  })
+}
+
+global.chat.getMessages = async () => {
+  return await sendWait(Channel.CHAT_GET_MESSAGES)
+}
+
+global.chat.setMessages = async (messages = []) => {
+  await sendWait(Channel.CHAT_SET_MESSAGES, messages)
+}
+
+global.chat.updateLastMessage = async (message = {}) => {
+  if (typeof message === "string") {
+    message = { text: message }
+  }
+  let messageDefaults = {
+    type: "text",
+    position: "left",
+    text: "",
+  }
+  await sendWait(Channel.CHAT_UPDATE_LAST_MESSAGE, {
+    ...messageDefaults,
+    ...message,
+  })
+}
+
 global.textarea = async (options = "") => {
   let config =
     typeof options === "string"
@@ -2361,4 +2437,8 @@ global.startDrag = async (
   iconPath: string
 ) => {
   await sendWait(Channel.START_DRAG, { filePath, iconPath })
+}
+
+global.eyeDropper = async () => {
+  return await sendWait(Channel.GET_COLOR)
 }

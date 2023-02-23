@@ -46,6 +46,47 @@ export interface Config {
   deleteSnippet: boolean
 }
 
+interface IMessage {
+  id: string | number
+  position: string
+  text: string
+  title: string
+  focus: boolean
+  date: number | Date
+  dateString?: string
+  avatar?: string
+  titleColor: string
+  forwarded: boolean
+  replyButton: boolean
+  removeButton: boolean
+  status: "waiting" | "sent" | "received" | "read"
+  copiableDate?: boolean
+  retracted: boolean
+  className?: string
+  type: string
+}
+
+export type Message = string | Partial<IMessage>
+
+export type Chat = {
+  (options?: any): Promise<string[]>
+} & {
+  addMessage?: (message: Message) => void
+  getMessages?: () => Promise<string[]>
+  setMessages?: (messages: string[]) => Promise<void>
+  updateLastMessage?: (message: Message) => Promise<void>
+}
+
+export type Editor = {
+  (
+    config?: EditorConfig & { hint?: string }
+  ): Promise<string>
+} & {
+  setSuggestions?: (suggestions: string[]) => Promise<void>
+  setConfig?: (config: EditorConfig) => Promise<void>
+  append?: (text: string) => Promise<void>
+}
+
 export interface EditorProps {
   options: EditorConfig
   height: number
@@ -111,16 +152,6 @@ export interface Drop {
         }
   ): Promise<any>
 }
-export type Editor = {
-  (
-    config?: EditorConfig & { hint?: string }
-  ): Promise<string>
-} & {
-  setSuggestions?: (suggestions: string[]) => Promise<void>
-  setConfig?: (config: EditorConfig) => Promise<void>
-  append?: (text: string) => Promise<void>
-}
-
 export interface Template {
   (template: string, config?: EditorConfig): Promise<string>
 }
@@ -274,6 +305,7 @@ export type SendNoOptions =
 export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined
+  [Channel.GET_COLOR]: undefined
   [Channel.GET_MOUSE]: undefined
   [Channel.GET_EDITOR_HISTORY]: undefined
   [Channel.GET_SCHEDULE]: undefined
@@ -893,4 +925,8 @@ declare global {
     filePath: string,
     iconPath?: string
   ) => void
+  var eyeDropper: () => Promise<{
+    sRGBHex: string
+  }>
+  var chat: Chat
 }
