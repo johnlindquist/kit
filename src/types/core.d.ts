@@ -148,6 +148,7 @@ export interface PromptData {
   hasPreview: boolean
   hint: string
   ignoreBlur: boolean
+
   input: string
   kitArgs: string[]
   kitScript: string
@@ -187,6 +188,7 @@ export interface PromptData {
   formData?: any
   html?: string
   theme?: any
+  alwaysOnTop?: boolean
 }
 
 export interface GenerateChoices {
@@ -278,6 +280,8 @@ export type PromptConfig = {
   onChoiceFocus?: ChannelHandler
   onPaste?: ChannelHandler
   onDrop?: ChannelHandler
+  onInit?: ChannelHandler
+  onSubmit?: ChannelHandler
   debounceInput?: number
   debounceChoiceFocus?: number
   onInputSubmit?: {

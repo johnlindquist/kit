@@ -69,12 +69,12 @@ interface IMessage {
 export type Message = string | Partial<IMessage>
 
 export type Chat = {
-  (options?: any): Promise<string[]>
+  (config?: PromptConfig): Promise<Message[]>
 } & {
   addMessage?: (message: Message) => void
   getMessages?: () => Promise<string[]>
   setMessages?: (messages: string[]) => Promise<void>
-  updateLastMessage?: (message: Message) => Promise<void>
+  pushToken?: (token: string) => Promise<void>
 }
 
 export type Editor = {

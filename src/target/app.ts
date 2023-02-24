@@ -68,28 +68,10 @@ import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
 import { EventEmitter } from "events"
 
-interface DisplayChoicesProps {
-  choices: PromptConfig["choices"]
+interface DisplayChoicesProps
+  extends Partial<PromptConfig> {
   className: string
-  scripts?: PromptConfig["scripts"]
-  onInput?: PromptConfig["onInput"]
-  onChange?: PromptConfig["onChange"]
   state: AppState
-  onEscape?: PromptConfig["onEscape"]
-  onAbandon?: PromptConfig["onAbandon"]
-  onBack?: PromptConfig["onBack"]
-  onForward?: PromptConfig["onForward"]
-  onUp?: PromptConfig["onUp"]
-  onDown?: PromptConfig["onDown"]
-  onLeft?: PromptConfig["onLeft"]
-  onRight?: PromptConfig["onRight"]
-  onTab?: PromptConfig["onTab"]
-  onNoChoices?: PromptConfig["onNoChoices"]
-  onChoiceFocus?: PromptConfig["onChoiceFocus"]
-  onBlur?: PromptConfig["onChoiceFocus"]
-  onPaste?: PromptConfig["onPaste"]
-  onDrop?: PromptConfig["onDrop"]
-  shortcuts?: PromptConfig["shortcuts"]
 }
 
 let promptId = 0
@@ -308,6 +290,8 @@ let waitForPromptValue = ({
   onRight,
   onPaste,
   onDrop,
+  onInit,
+  onSubmit,
   state,
   shortcuts,
 }: WaitForPromptValueProps) => {
@@ -504,6 +488,14 @@ let waitForPromptValue = ({
           case Channel.ON_DROP:
             onDrop(data.state.input, data.state)
             break
+
+          case Channel.ON_INIT:
+            onInit(data.state.input, data.state)
+            break
+
+          case Channel.ON_SUBMIT:
+            onSubmit(data.state.input, data.state)
+            break
         }
       },
       // TODO: Add a kit log
@@ -574,6 +566,9 @@ let onPasteDefault = async (input, state) => {
 let onDropDefault = async (input, state) => {
   if (state.drop) setSelectedText(state.drop, false)
 }
+
+let onInitDefault = async (input, state) => {}
+let onSubmitDefault = async (input, state) => {}
 
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
@@ -758,6 +753,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     onBlur = onBlurDefault,
     onPaste = onPasteDefault,
     onDrop = onDropDefault,
+    onInit = onInitDefault,
+    onSubmit = onSubmitDefault,
   } = config
 
   global.__currentPromptConfig = config
@@ -788,6 +785,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     onBlur,
     onPaste,
     onDrop,
+    onInit,
+    onSubmit,
     shortcuts: config.shortcuts,
     state: { input },
   })
@@ -1178,26 +1177,13 @@ global.arg = async (
   return await global.kitPrompt(promptConfig)
 }
 
-global.chat = async (options: any = {}) => {
-  let messageHandler = async (data: any) => {
-    switch (data.channel) {
-      case Channel.CHAT_MESSAGES_CHANGE:
-        options.onChange?.(data?.value)
-        break
-
-      case Channel.CHAT_SUBMIT:
-        options.onSubmit?.(data?.value)
-        break
-    }
+global.chat = async (
+  options = {
+    placeholder: "Chat",
   }
-
-  process.on("message", messageHandler)
+) => {
   let messages = await global.kitPrompt({
     ui: UI.chat,
-    onEscape: (input, state) => {
-      process.off("message", messageHandler)
-      onEscapeDefault(input, state)
-    },
     shortcuts: [
       {
         name: "Done",
@@ -1211,7 +1197,6 @@ global.chat = async (options: any = {}) => {
     ],
     ...options,
   })
-  process.off("message", messageHandler)
 
   return messages
 }
@@ -1239,19 +1224,8 @@ global.chat.setMessages = async (messages = []) => {
   await sendWait(Channel.CHAT_SET_MESSAGES, messages)
 }
 
-global.chat.updateLastMessage = async (message = {}) => {
-  if (typeof message === "string") {
-    message = { text: message }
-  }
-  let messageDefaults = {
-    type: "text",
-    position: "left",
-    text: "",
-  }
-  await sendWait(Channel.CHAT_UPDATE_LAST_MESSAGE, {
-    ...messageDefaults,
-    ...message,
-  })
+global.chat.pushToken = async (token: string = "") => {
+  await sendWait(Channel.CHAT_PUSH_TOKEN, token)
 }
 
 global.textarea = async (options = "") => {

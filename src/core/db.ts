@@ -303,6 +303,7 @@ export type AppDb = {
   authorized: boolean
   searchDebounce?: boolean
   termFont?: string
+  convertKeymap?: boolean
 }
 
 export type UserDb = Partial<
