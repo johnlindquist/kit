@@ -194,6 +194,16 @@ export let buildTSScript = async (
     )
   }
 
+  let contents = await readFile(scriptPath, "utf-8")
+  // find all imports inside of the npm() function
+  let imports = contents.match(
+    /(?<=\snpm\(('|"))(.*)(?=('|")\))/g
+  )
+
+  if (Array.isArray(imports)) {
+    external = external.concat(imports)
+  }
+
   let outfile = outPath || determineOutFile(scriptPath)
   let { build } = await import("esbuild")
   await build({

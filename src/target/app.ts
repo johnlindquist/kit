@@ -1184,6 +1184,7 @@ global.chat = async (
 ) => {
   let messages = await global.kitPrompt({
     ui: UI.chat,
+    enter: "",
     shortcuts: [
       {
         name: "Done",

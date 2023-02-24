@@ -75,13 +75,28 @@ let buildTSScript = async (scriptPath, outPath = "") => {
 
   let outfile = outPath || determineOutFile(scriptPath)
 
+  let contents = await readFile(scriptPath, "utf-8")
+  // find all imports inside of the npm() function
+  let imports = contents.match(
+    /(?<=\snpm\(('|"))(.*)(?=('|")\))/g
+  )
+
+  if (Array.isArray(imports)) {
+    external = external.concat(imports)
+  }
+
   let writeErrorFile = async errorBody => {
     let name = path.basename(scriptPath)
     let errorScript = `
 await div(md(\`# Failed to Compile ${name}
 ## Please fix the following errors and try again
 
-${errorBody}\`))
+${errorBody}
+
+## Found npm packages:
+${external.join("\n* ")}
+
+\`))
     `
     await writeFile(outfile, errorScript)
   }
