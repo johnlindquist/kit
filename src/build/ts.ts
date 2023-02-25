@@ -1,5 +1,10 @@
 import { build } from "esbuild"
-import { lstat, readdir, writeFile } from "fs/promises"
+import {
+  lstat,
+  readdir,
+  writeFile,
+  readFile,
+} from "fs/promises"
 import os from "os"
 import * as path from "path"
 
