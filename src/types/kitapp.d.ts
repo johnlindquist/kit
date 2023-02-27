@@ -46,10 +46,15 @@ export interface Config {
   deleteSnippet: boolean
 }
 
-interface IMessage {
-  id: string | number
-  position: string
+export interface BaseMessage {
   text: string
+  position: string
+  type: string
+}
+
+// Todo: Implement more methods and fix types accordingly
+export interface IMessage extends BaseMessage {
+  id: string | number
   title: string
   focus: boolean
   date: number | Date
@@ -63,7 +68,6 @@ interface IMessage {
   copiableDate?: boolean
   retracted: boolean
   className?: string
-  type: string
 }
 
 export type Message = string | Partial<IMessage>
@@ -78,8 +82,8 @@ export type Chat = {
 } & {
   addMessage?: (message: Message) => void
   setMessage?: (index: number, message: Message) => void
-  getMessages?: () => Promise<string[]>
-  setMessages?: (messages: string[]) => Promise<void>
+  getMessages?: () => Promise<BaseMessage[]>
+  setMessages?: (messages: Message[]) => Promise<void>
   pushToken?: (token: string) => Promise<void>
 }
 

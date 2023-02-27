@@ -13,7 +13,17 @@ let result = await arg(
   {
     placeholder: "Calculator",
     enter: "Paste Result",
-    shortcuts: [backToMainShortcut],
+    shortcuts: [
+      backToMainShortcut,
+      {
+        name: "Copy Result",
+        key: `${cmd}+c`,
+        onPress: async input => {
+          copy(String(calc.evaluate(input)))
+        },
+        bar: "right",
+      },
+    ],
     input: String(input),
     debounceInput: 250,
     resize: true,
@@ -27,17 +37,28 @@ let result = await arg(
       return md(`## Waiting for input...`)
     try {
       if (input?.length < 2) {
-        return format(input)
+        let html = format(input)
+        return [
+          {
+            html,
+            value: input,
+          },
+        ]
       }
-      return format(String(calc.evaluate(input)))
+      let html = format(String(calc.evaluate(input)))
+      return [
+        {
+          html,
+          value: input,
+        },
+      ]
     } catch (error) {
-      return md(`
-## Failed to parse
-
-~~~bash
-${input}
-~~~
-`)
+      return [
+        {
+          name: `Failed to parse: ${input}`,
+          value: null,
+        },
+      ]
     }
   }
 )
