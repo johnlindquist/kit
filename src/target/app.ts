@@ -285,6 +285,7 @@ let waitForPromptValue = ({
   onDown,
   onTab,
   onChoiceFocus,
+  onItemFocus,
   onBlur,
   onLeft,
   onRight,
@@ -451,6 +452,10 @@ let waitForPromptValue = ({
             onChoiceFocus(data.state.input, data.state)
             break
 
+          case Channel.ITEM_FOCUSED:
+            onItemFocus(data.state.input, data.state)
+            break
+
           case Channel.BLUR:
             onBlur(data.state.input, data.state)
             break
@@ -560,6 +565,7 @@ let onDownDefault = async () => {}
 let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
+let onItemFocusDefault = async () => {}
 let onPasteDefault = async (input, state) => {
   if (state.paste) setSelectedText(state.paste, false)
 }
@@ -743,6 +749,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onTab = onTabDefault,
     debounceChoiceFocus = 0,
     onChoiceFocus,
+    onItemFocus = onItemFocusDefault,
     debounceInput = 200,
     onInput = createOnInputDefault(
       choices,
@@ -782,6 +789,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onRight,
     onTab,
     onChoiceFocus: choiceFocus,
+    onItemFocus,
     onBlur,
     onPaste,
     onDrop,
@@ -1227,6 +1235,27 @@ global.chat.setMessages = async (messages = []) => {
 
 global.chat.pushToken = async (token: string = "") => {
   await sendWait(Channel.CHAT_PUSH_TOKEN, token)
+}
+
+global.chat.setMessage = async (
+  index: number,
+  message = ""
+) => {
+  if (typeof message === "string") {
+    message = { text: message }
+  }
+  let messageDefaults = {
+    type: "text",
+    position: "left",
+    text: "",
+  }
+  await sendWait(Channel.CHAT_SET_MESSAGE, {
+    index,
+    message: {
+      ...messageDefaults,
+      ...message,
+    },
+  })
 }
 
 global.textarea = async (options = "") => {

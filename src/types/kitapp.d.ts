@@ -69,9 +69,15 @@ interface IMessage {
 export type Message = string | Partial<IMessage>
 
 export type Chat = {
-  (config?: PromptConfig): Promise<Message[]>
+  (
+    config?: PromptConfig & {
+      autoLink?: boolean
+      autoMarkdown?: boolean
+    }
+  ): Promise<Message[]>
 } & {
   addMessage?: (message: Message) => void
+  setMessage?: (index: number, message: Message) => void
   getMessages?: () => Promise<string[]>
   setMessages?: (messages: string[]) => Promise<void>
   pushToken?: (token: string) => Promise<void>
