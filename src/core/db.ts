@@ -304,6 +304,8 @@ export type AppDb = {
   searchDebounce?: boolean
   termFont?: string
   convertKeymap?: boolean
+  cachePrompt?: boolean
+  mini?: boolean
 }
 
 export type UserDb = Partial<
