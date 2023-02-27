@@ -285,7 +285,7 @@ let waitForPromptValue = ({
   onDown,
   onTab,
   onChoiceFocus,
-  onItemFocus,
+  onMessageFocus,
   onBlur,
   onLeft,
   onRight,
@@ -452,8 +452,8 @@ let waitForPromptValue = ({
             onChoiceFocus(data.state.input, data.state)
             break
 
-          case Channel.ITEM_FOCUSED:
-            onItemFocus(data.state.input, data.state)
+          case Channel.MESSAGE_FOCUSED:
+            onMessageFocus(data.state.input, data.state)
             break
 
           case Channel.BLUR:
@@ -565,7 +565,7 @@ let onDownDefault = async () => {}
 let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
-let onItemFocusDefault = async () => {}
+let onMessageFocusDefault = async () => {}
 let onPasteDefault = async (input, state) => {
   if (state.paste) setSelectedText(state.paste, false)
 }
@@ -749,7 +749,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onTab = onTabDefault,
     debounceChoiceFocus = 0,
     onChoiceFocus,
-    onItemFocus = onItemFocusDefault,
+    onMessageFocus = onMessageFocusDefault,
     debounceInput = 200,
     onInput = createOnInputDefault(
       choices,
@@ -789,7 +789,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onRight,
     onTab,
     onChoiceFocus: choiceFocus,
-    onItemFocus,
+    onMessageFocus,
     onBlur,
     onPaste,
     onDrop,
