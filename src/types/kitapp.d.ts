@@ -68,17 +68,13 @@ export interface IMessage extends BaseMessage {
   copiableDate?: boolean
   retracted: boolean
   className?: string
+  renderHTML?: boolean
 }
 
 export type Message = string | Partial<IMessage>
 
 export type Chat = {
-  (
-    config?: PromptConfig & {
-      autoLink?: boolean
-      autoMarkdown?: boolean
-    }
-  ): Promise<Message[]>
+  (config?: PromptConfig): Promise<Message[]>
 } & {
   addMessage?: (message: Message) => void
   setMessage?: (index: number, message: Message) => void

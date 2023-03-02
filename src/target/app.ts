@@ -1185,12 +1185,10 @@ global.arg = async (
   return await global.kitPrompt(promptConfig)
 }
 
-global.chat = async (
-  options = {
-    placeholder: "Chat",
-  }
-) => {
+global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
+    placeholder: "",
+    ignoreBlur: true,
     ui: UI.chat,
     enter: "",
     shortcuts: [

@@ -317,7 +317,9 @@ export const appDefaults = {
   autoUpdate: true,
   tray: true,
   openAtLogin: true,
-  appearance: "auto",
+  searchDebounce: true,
+  mini: false,
+  convertKeymap: true,
 }
 
 export let getAppDb = async (): Promise<

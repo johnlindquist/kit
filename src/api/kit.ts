@@ -1001,7 +1001,7 @@ global.md = (
   content = "",
   containerClasses = "p-5 prose prose-sm"
 ) => {
-  return _md(content, containerClasses)
+  return _md(content + "\n", containerClasses)
 }
 
 export let authenticate = async () => {
