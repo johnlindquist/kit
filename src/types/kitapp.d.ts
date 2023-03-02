@@ -83,6 +83,10 @@ export type Chat = {
   pushToken?: (token: string) => Promise<void>
 }
 
+export type Toast = {
+  (toast: string, options?: any): void
+}
+
 export type Editor = {
   (
     config?: EditorConfig & { hint?: string }
@@ -485,7 +489,7 @@ export interface ChannelMap {
   [Channel.TERMINAL]: string
   [Channel.TOAST]: {
     text: string
-    type: "info" | "error" | "success" | "warning"
+    options: any
   }
   [Channel.TOGGLE_BACKGROUND]: string
   [Channel.SET_SEARCH_DEBOUNCE]: boolean
@@ -935,4 +939,5 @@ declare global {
     sRGBHex: string
   }>
   var chat: Chat
+  var toast: Toast
 }

@@ -2444,3 +2444,10 @@ global.startDrag = async (
 global.eyeDropper = async () => {
   return await sendWait(Channel.GET_COLOR)
 }
+
+global.toast = async (text: string, options: any = {}) => {
+  return await sendWait(Channel.TOAST, {
+    text,
+    options,
+  })
+}
