@@ -2446,7 +2446,8 @@ global.eyeDropper = async () => {
 }
 
 /**
- * @experimental
+ * @experimental - API, types, etc TBD
+ *
  */
 global.toast = async (text: string, options: any = {}) => {
   return await sendWait(Channel.TOAST, {
