@@ -2445,6 +2445,9 @@ global.eyeDropper = async () => {
   return await sendWait(Channel.GET_COLOR)
 }
 
+/**
+ * @experimental
+ */
 global.toast = async (text: string, options: any = {}) => {
   return await sendWait(Channel.TOAST, {
     text,
