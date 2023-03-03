@@ -1259,6 +1259,7 @@ const screenshotResults = await getScreenshotFromWebpage('https://legiblenews.co
 });
 
 await writeFile(home('news.png'), screenshotResults);
+```
 
 ## Scrape content from a webpage
 
