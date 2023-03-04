@@ -33,7 +33,7 @@ ava.serial(
   }
 )
 
-ava(`All globals exist`, async t => {
+ava.serial(`All globals exist`, async t => {
   // TODO: Make platform independent...
   /** @type {import("../platform/darwin")} */
   await import(kitPath("platform", "darwin.js"))

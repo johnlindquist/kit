@@ -9,7 +9,7 @@ process.env.KIT =
 process.env.KNODE =
   process.env.KNODE || path.resolve(homedir(), ".knode")
 
-ava("kit setup", async t => {
+ava.serial("kit setup", async t => {
   let envPath = kenvPath(".env")
   let fileCreated = test("-f", envPath)
 
@@ -22,13 +22,28 @@ ava("kit setup", async t => {
 ava.serial(`TypeScript support`, async t => {
   let tsScript = `mock-typescript-script`
   await $`kit set-env-var KIT_MODE ts`
+
+  let envContents = await readFile(
+    kenvPath(".env"),
+    "utf-8"
+  )
+
+  t.log({
+    envContents,
+  })
+
+  t.true(
+    envContents.includes(`KIT_MODE=ts`),
+    `Should set KIT_MODE=ts ${envContents}`
+  )
+
   await $`kit new ${tsScript} main --no-edit`
 
   let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
 
   t.true(
     await pathExists(tsScriptPath),
-    `Should create ${tsScript}.ts`
+    `Should create ${tsScriptPath}`
   )
 
   t.is(
@@ -303,7 +318,7 @@ ava.serial(`Run both JS and TS scripts`, async t => {
   t.is(tsErr, "")
 })
 
-ava(`Run kit from package.json`, async t => {
+ava.serial(`Run kit from package.json`, async t => {
   let command = `mock-pkg-json-script`
   let scriptPath = kenvPath("scripts", `${command}.js`)
   await $`KIT_MODE=js kit new ${command} main --no-edit`

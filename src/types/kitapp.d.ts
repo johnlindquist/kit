@@ -30,7 +30,6 @@ import { Flags } from "./kit"
 import { Trash } from "./packages"
 import { marked } from "@johnlindquist/globals/types/marked"
 import { ChildProcess } from "child_process"
-import { Low } from "@johnlindquist/kit-internal/lowdb"
 
 export type Status = typeof statuses[number]
 
@@ -87,8 +86,6 @@ export type Chat = {
 export type Toast = {
   (toast: string, options?: any): void
 }
-
-export type Settings = Db<AppDb>
 
 export type Editor = {
   (
@@ -943,6 +940,4 @@ declare global {
   }>
   var chat: Chat
   var toast: Toast
-  var prefs: Settings
-  var getKitPrefs: () => Promise<Settings>
 }

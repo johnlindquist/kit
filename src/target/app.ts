@@ -2456,14 +2456,3 @@ global.toast = async (text: string, options: any = {}) => {
     options,
   })
 }
-
-global.prefs ||= {}
-
-global.getKitPrefs = async () => {
-  try {
-    return await db(appDbPath)
-  } catch (error) {
-    warn(error)
-    return {}
-  }
-}

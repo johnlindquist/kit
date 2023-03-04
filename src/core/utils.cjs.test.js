@@ -19,7 +19,7 @@ let { getScripts } = await import(
 
 let testingParseScript = `testing-parse-script`
 
-ava("kitPath", async t => {
+ava.serial("kitPath", async t => {
   t.true(_.isString(kitPath()), "kitPath is a string")
   t.true(
     kitPath().includes(path.sep),
@@ -27,7 +27,7 @@ ava("kitPath", async t => {
   )
 })
 
-ava("isDir", async t => {
+ava.serial("isDir", async t => {
   t.truthy(await isDir(kitPath()))
   t.falsy(await isDir(kitPath("package.json")))
 })
