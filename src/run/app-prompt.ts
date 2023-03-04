@@ -16,8 +16,6 @@ try {
 
 await import("../target/app.js")
 
-global.prefs = await getKitPrefs()
-
 let script = ""
 let trigger = ""
 let args = []
