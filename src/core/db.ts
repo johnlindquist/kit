@@ -306,6 +306,7 @@ export type AppDb = {
   convertKeymap?: boolean
   cachePrompt?: boolean
   mini?: boolean
+  disableGpu?: boolean
 }
 
 export type UserDb = Partial<
@@ -314,12 +315,17 @@ export type UserDb = Partial<
 
 export const appDefaults = {
   version: "0.0.0",
+  openAtLogin: true,
+  previewScripts: true,
   autoUpdate: true,
   tray: true,
-  openAtLogin: true,
+  authorized: false,
   searchDebounce: true,
-  mini: false,
+  termFont: "monospace",
   convertKeymap: true,
+  cachePrompt: true,
+  mini: false,
+  disableGpu: false,
 }
 
 export let getAppDb = async (): Promise<
