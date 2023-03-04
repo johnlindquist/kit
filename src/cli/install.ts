@@ -48,8 +48,8 @@ let packages = await arg(
     if (!input || input?.length < 3)
       return [
         {
-          name: "__DISABLE_SUBMIT__",
-          html: md(`## Search for npm packages`),
+          name: `Search for npm packages`,
+          disableSubmit: true,
         },
       ]
     type pkgs = {

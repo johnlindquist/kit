@@ -73,8 +73,8 @@ await arg(
     if (!input || input?.length < 2)
       return [
         {
-          name: "__DISABLE_SUBMIT__",
-          html: md(`## Type at least 2 characters`),
+          name: `Type at least 2 characters`,
+          disableSubmit: true,
         },
       ]
     currentInput = input

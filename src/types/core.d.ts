@@ -31,6 +31,7 @@ export interface Choice<Value = any> {
   onFocus?: (choice: Choice) => Promise<void>
   onSubmit?: (choice: Choice) => Promise<void>
   enter?: string
+  disableSubmit?: boolean
 }
 
 export interface ScriptPathInfo {

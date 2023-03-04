@@ -110,6 +110,7 @@ export const prefsPath = kitPath("db", "prefs.json")
 export const shortcutsPath = kitPath("db", "shortcuts.json")
 export const promptDbPath = kitPath("db", "prompt.json")
 export const appDbPath = kitPath("db", "app.json")
+export const themeDbPath = kitPath("db", "theme.json")
 export const userDbPath = kitPath("db", "user.json")
 export const tmpClipboardDir = kitPath("tmp", "clipboard")
 export const tmpDownloadsDir = kitPath("tmp", "downloads")
@@ -841,9 +842,11 @@ export let scriptsSort =
     return aName > bName ? 1 : aName < bName ? -1 : 0
   }
 
-export let parseScripts = async () => {
+export let parseScripts = async (
+  ignoreKenvPattern = /^ignore$/
+) => {
   let scriptFiles = await getScriptFiles()
-  let kenvDirs = await getKenvs()
+  let kenvDirs = await getKenvs(ignoreKenvPattern)
 
   for await (let kenvDir of kenvDirs) {
     let scripts = await getScriptFiles(kenvDir)

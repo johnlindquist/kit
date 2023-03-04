@@ -127,7 +127,8 @@ export let db = async <T = any>(
 global.db = db
 
 export let getScriptsDb = async (
-  fromCache = true
+  fromCache = true,
+  ignoreKenvPattern = /^ignore$/
 ): Promise<
   Low & {
     scripts: Script[]
@@ -137,7 +138,7 @@ export let getScriptsDb = async (
   return await db(
     scriptsDbPath,
     async () => ({
-      scripts: await parseScripts(),
+      scripts: await parseScripts(ignoreKenvPattern),
     }),
     fromCache
   )
@@ -257,8 +258,12 @@ export let getScriptFromString = async (
   )
 }
 
-export let getScripts = async (fromCache = true) => {
-  return (await getScriptsDb(fromCache)).scripts
+export let getScripts = async (
+  fromCache = true,
+  ignoreKenvPattern = /^ignore$/
+) => {
+  return (await getScriptsDb(fromCache, ignoreKenvPattern))
+    .scripts
 }
 
 export let updateScripts = async (
@@ -299,7 +304,6 @@ export type AppDb = {
   previewScripts: boolean
   autoUpdate: boolean
   tray: boolean
-  appearance: "light" | "dark" | "auto"
   authorized: boolean
   searchDebounce?: boolean
   termFont?: string
@@ -307,13 +311,14 @@ export type AppDb = {
   cachePrompt?: boolean
   mini?: boolean
   disableGpu?: boolean
+  hideExamples?: boolean
 }
 
 export type UserDb = Partial<
   RestEndpointMethodTypes["users"]["getAuthenticated"]["response"]["data"]
 >
 
-export const appDefaults = {
+export const appDefaults: AppDb = {
   version: "0.0.0",
   openAtLogin: true,
   previewScripts: true,
@@ -326,6 +331,7 @@ export const appDefaults = {
   cachePrompt: true,
   mini: false,
   disableGpu: false,
+  hideExamples: false,
 }
 
 export let getAppDb = async (): Promise<

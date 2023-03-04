@@ -18,8 +18,8 @@ let input = await arg(
     if (input?.length < 3)
       return [
         {
-          name: "__DISABLE_SUBMIT__",
-          html: md(`## Type at least 4 characters`),
+          name: `Type at least 4 characters`,
+          disableSubmit: true,
         },
       ]
 

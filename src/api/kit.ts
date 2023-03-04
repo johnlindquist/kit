@@ -739,9 +739,12 @@ export let highlightJavaScript = async (
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
   fromCache = true,
-  xf = (x: Script[]) => x
+  xf = (x: Script[]) => x,
+  ignoreKenvPattern = /^ignore$/
 ): Promise<Script> => {
-  let scripts: Script[] = xf(await getScripts(fromCache))
+  let scripts: Script[] = xf(
+    await getScripts(fromCache, ignoreKenvPattern)
+  )
   scripts = await Promise.all(
     scripts.map(async s => {
       if (typeof s?.preview === "string") {

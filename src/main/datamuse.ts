@@ -5,8 +5,8 @@ let queryWords = (api, type) => async input => {
   if (!input || input?.length < 3)
     return [
       {
-        name: "__DISABLE_SUBMIT__",
-        html: md(`## Type at least 3 characters`),
+        name: `Type at least 3 characters`,
+        disableSubmit: true,
       },
     ]
 

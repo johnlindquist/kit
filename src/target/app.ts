@@ -62,6 +62,7 @@ import {
   isMac,
   shortcutNormalizer,
   friendlyShortcut,
+  appDbPath,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
@@ -2454,4 +2455,15 @@ global.toast = async (text: string, options: any = {}) => {
     text,
     options,
   })
+}
+
+global.prefs ||= {}
+
+global.getKitPrefs = async () => {
+  try {
+    return await db(appDbPath)
+  } catch (error) {
+    warn(error)
+    return {}
+  }
 }

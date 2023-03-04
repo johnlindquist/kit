@@ -38,8 +38,8 @@ let result = await arg(
     if (!input || input === "undefined") {
       return [
         {
-          name: `__DISABLE_SUBMIT__`,
-          html: format(`Waiting for input...`),
+          name: `Waiting for input...`,
+          disableSubmit: true,
         },
       ]
     }
@@ -65,8 +65,7 @@ let result = await arg(
       return [
         {
           name: `Failed to parse: ${input}`,
-          html: format(`Failed to parse: ${input}`),
-          value: null,
+          disableSubmit: true,
         },
       ]
     }
