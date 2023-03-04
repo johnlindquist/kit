@@ -7,7 +7,10 @@ let file = JSON.parse(
 )
 
 let packages = (await arg(
-  chalk`Which packages do you want to {red uninstall}`,
+  {
+    placeholder: chalk`Which packages do you want to {red uninstall}`,
+    enter: "Uninstall",
+  },
   [
     ...Object.keys(file?.dependencies || []),
     ...Object.keys(file?.devDependencies || []),

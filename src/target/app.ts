@@ -734,7 +734,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   let {
     input = "",
-    choices = null,
+    choices = ``,
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
@@ -1133,7 +1133,7 @@ global.hotkey = async (
 
 global.arg = async (
   placeholderOrConfig = "Type a value:",
-  choices = null
+  choices = ``
 ) => {
   let firstArg = global.args.length
     ? global.args.shift()

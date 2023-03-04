@@ -16,7 +16,12 @@ let input = await arg(
   },
   async input => {
     if (input?.length < 3)
-      return md(`## Please type more than 3 characters`)
+      return [
+        {
+          name: "__DISABLE_SUBMIT__",
+          html: md(`## Type at least 4 characters`),
+        },
+      ]
 
     return await new Promise((res, rej) => {
       suggest(input, (err, suggestions) => {

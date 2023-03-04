@@ -3,7 +3,12 @@
 
 let queryWords = (api, type) => async input => {
   if (!input || input?.length < 3)
-    return md(`## Type at least 3 characters`)
+    return [
+      {
+        name: "__DISABLE_SUBMIT__",
+        html: md(`## Type at least 3 characters`),
+      },
+    ]
 
   let url = `https://api.datamuse.com/${api}?${type}=${input}&md=d`
 

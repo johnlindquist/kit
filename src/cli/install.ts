@@ -40,12 +40,18 @@ let install = async packageNames => {
 
 let packages = await arg(
   {
+    enter: "Install",
     placeholder:
       "Which npm package/s would you like to install?",
   },
   async input => {
     if (!input || input?.length < 3)
-      return md(`## Type to search npm packages`)
+      return [
+        {
+          name: "__DISABLE_SUBMIT__",
+          html: md(`## Search for npm packages`),
+        },
+      ]
     type pkgs = {
       objects: {
         package: {
