@@ -311,7 +311,6 @@ export type AppDb = {
   cachePrompt?: boolean
   mini?: boolean
   disableGpu?: boolean
-  hideExamples?: boolean
 }
 
 export type UserDb = Partial<
@@ -331,7 +330,6 @@ export const appDefaults: AppDb = {
   cachePrompt: true,
   mini: false,
   disableGpu: false,
-  hideExamples: false,
 }
 
 export let getAppDb = async (): Promise<

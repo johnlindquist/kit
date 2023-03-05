@@ -237,7 +237,9 @@ Create a script named <code>${scriptName}</code>
 0-9 calculator
 ? docs
 */
-
+let excludeKenvs =
+  env?.KIT_EXCLUDE_KENVS?.split(",").map(k => k.trim()) ||
+  []
 let script = await selectScript(
   {
     name: "Main",
@@ -398,7 +400,14 @@ let script = await selectScript(
     input: arg?.input || "",
   },
   true,
-  scripts => scripts.filter(script => !script?.exclude)
+  scripts =>
+    scripts.filter(
+      script =>
+        !(
+          script?.exclude ||
+          excludeKenvs.includes(script?.kenv)
+        )
+    )
 )
 
 if (typeof script === "boolean" && !script) {

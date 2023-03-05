@@ -73,15 +73,20 @@ let createChoices = async () => {
 let appsDb = await db(
   kitPath("db", "apps.json"),
   async () => {
-    setChoices([])
+    setChoices([
+      {
+        name: `First Run: Indexing Apps and Caching Icons...`,
+        disableSubmit: true,
+      },
+      {
+        name: `Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.`,
+        disableSubmit: true,
+      },
+    ])
+
     clearTabs()
     setPlaceholder(`One sec...`)
-    setPanel(
-      md(`# First Run: Indexing Apps and Caching Icons...
-  
-  Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.
-    `)
-    )
+
     let choices = await createChoices()
     setFooter(``)
     return {
