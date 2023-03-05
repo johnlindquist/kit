@@ -82,6 +82,7 @@ export interface ScriptMetadata {
   ["opacity"]?: string
   preview?: Choice["preview"]
   debug?: boolean
+  silent?: boolean
 }
 
 export type Script = ScriptMetadata &

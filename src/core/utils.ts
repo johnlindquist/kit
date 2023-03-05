@@ -393,6 +393,11 @@ export let formatScriptMetadata = (
       metadata?.alias?.trim().toLowerCase()
   }
 
+  if (metadata?.silent) {
+    ;(metadata as unknown as ScriptMetadata).silent =
+      Boolean(metadata?.silent === "true")
+  }
+
   if (metadata?.image) {
     metadata.img = metadata?.image
   }
