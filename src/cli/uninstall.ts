@@ -35,8 +35,10 @@ if (process.env.SCRIPTS_DIR) {
   cwd = kenvPath(process.env.SCRIPTS_DIR)
 }
 
+let PATH = isWin ? "" : `PATH=${knodePath("bin")}:$PATH `
+
 await term({
-  command: `${tool} ${command} ${packages.join(
+  command: `${PATH}${tool} ${command} ${packages.join(
     " "
   )}`.trim(),
   shortcuts: [

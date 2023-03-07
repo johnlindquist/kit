@@ -18,10 +18,13 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
+  let PATH = isWin ? "" : `PATH=${knodePath("bin")}:$PATH `
+
   return await term({
-    command: `${tool} ${command} -D ${packageNames.join(
-      " "
-    )}`.trim(),
+    command:
+      `${PATH}${tool} ${command} -D ${packageNames.join(
+        " "
+      )}`.trim(),
     enter: "",
     shortcuts: [
       {
