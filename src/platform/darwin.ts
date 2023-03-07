@@ -1,9 +1,11 @@
+import { PromptConfig } from "@johnlindquist/kit"
 import {
   KIT_FIRST_PATH,
   KIT_DEFAULT_PATH,
   mainScriptPath,
   isInDir,
   cmd,
+  backToMainShortcut,
 } from "../core/utils.js"
 
 import { refreshScriptsDb } from "../core/db.js"
@@ -356,4 +358,46 @@ global.openLog = () => {
   console.log(`📂 Open log ${logPath}`)
 
   global.edit(logPath)
+}
+
+global.find = async (config: PromptConfig) => {
+  let defaultConfig = {
+    placeholder: "Search Files",
+  }
+
+  let disabled = [
+    {
+      name: "Type at least 3 characters to search",
+      disableSubmit: true,
+    },
+  ]
+
+  let selectedFile = await arg(
+    {
+      placeholder: "Search Files",
+      enter: "Select File",
+      shortcuts: [backToMainShortcut],
+      ...defaultConfig,
+    },
+    async input => {
+      if (!input || input === "undefined") {
+        return disabled
+      }
+      if (input?.length < 3) {
+        return disabled
+      }
+
+      let files = await fileSearch(input)
+      return files.map(p => {
+        return {
+          name: path.basename(p),
+          description: p,
+          drag: p,
+          value: p,
+        }
+      })
+    }
+  )
+
+  return selectedFile
 }

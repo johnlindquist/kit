@@ -87,6 +87,10 @@ export type Toast = {
   (toast: string, options?: any): void
 }
 
+export type Find = {
+  (config?: PromptConfig): Promise<string>
+}
+
 export type Editor = {
   (
     config?: EditorConfig & { hint?: string }
@@ -940,4 +944,5 @@ declare global {
   }>
   var chat: Chat
   var toast: Toast
+  var find: Find
 }
