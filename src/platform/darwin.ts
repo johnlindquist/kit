@@ -1,4 +1,3 @@
-import { PromptConfig } from "@johnlindquist/kit"
 import {
   KIT_FIRST_PATH,
   KIT_DEFAULT_PATH,
@@ -360,9 +359,11 @@ global.openLog = () => {
   global.edit(logPath)
 }
 
-global.find = async (config: PromptConfig) => {
+global.find = async config => {
   let defaultConfig = {
     placeholder: "Search Files",
+    enter: "Select File",
+    shortcuts: [backToMainShortcut],
   }
 
   let disabled = [
@@ -374,10 +375,8 @@ global.find = async (config: PromptConfig) => {
 
   let selectedFile = await arg(
     {
-      placeholder: "Search Files",
-      enter: "Select File",
-      shortcuts: [backToMainShortcut],
       ...defaultConfig,
+      ...config,
     },
     async input => {
       if (!input || input === "undefined") {
