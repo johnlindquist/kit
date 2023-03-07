@@ -36,7 +36,7 @@ ava.before(`Run setup script`, t => {
   )
 })
 
-ava("env was created", async t => {
+ava.serial("env was created", async t => {
   let checkEnv = await isFile(kenvSetupMockPath(".env"))
   let contents = await readFile(
     kenvSetupMockPath(".env"),
@@ -50,7 +50,7 @@ ava("env was created", async t => {
   )
 })
 
-ava("kenv linked to kit", async t => {
+ava.serial("kenv linked to kit", async t => {
   let pkg = await readJson(
     kenvSetupMockPath("package.json")
   )
@@ -62,7 +62,7 @@ ava("kenv linked to kit", async t => {
   )
 })
 
-ava("kenv degit", async t => {
+ava.serial("kenv degit", async t => {
   let files = await readdir(kenvSetupMockPath())
 
   t.false(
@@ -71,7 +71,7 @@ ava("kenv degit", async t => {
   )
 })
 
-ava("chmod", async t => {
+ava.serial("chmod", async t => {
   let { access } = await import("fs/promises")
   let { constants } = await import("fs")
 
@@ -91,7 +91,7 @@ ava("chmod", async t => {
   }
 })
 
-ava("example script exists", async t => {
+ava.serial("example script exists", async t => {
   t.truthy(
     await pathExists(
       kenvPath("scripts", "browse-scriptkit.js")

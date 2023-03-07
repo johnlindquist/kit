@@ -24,7 +24,7 @@ ava.before(async () => {
   await $`KIT_MODE=js kit new ${testingFindMe} main --no-edit`
 })
 
-ava("resolve full path", async t => {
+ava.serial("resolve full path", async t => {
   await outputFile(
     testingFullPath,
     `console.log(await arg())`
@@ -96,14 +96,14 @@ ava.serial("run full path with spaces", async t => {
   t.assert(result.value, "success")
 })
 
-ava("resolve .mjs file", async t => {
+ava.serial("resolve .mjs file", async t => {
   await outputFile(mockMjsFile, `console.log(await arg())`)
   let scriptPath = resolveToScriptPath(mockMjsFile)
 
   t.assert(scriptPath, mockMjsFile)
 })
 
-ava("resolve ./scripts dir", async t => {
+ava.serial("resolve ./scripts dir", async t => {
   let script = "mock-some-script"
   let mockScriptsInProject = kitMockPath(
     `.kit-testing-scripts-in-project`
@@ -127,7 +127,7 @@ ava("resolve ./scripts dir", async t => {
   cd(prevCwd)
 })
 
-ava("resolve in kenvPath", t => {
+ava.serial("resolve in kenvPath", t => {
   let scriptPath = resolveToScriptPath(testingFindMe)
   let scriptInKenvPath = kenvPath(
     "scripts",
@@ -138,7 +138,7 @@ ava("resolve in kenvPath", t => {
   t.assert(scriptPath, scriptInKenvPath)
 })
 
-ava("resolve in kenvPath with .js", t => {
+ava.serial("resolve in kenvPath with .js", t => {
   let scriptPath = resolveToScriptPath(
     testingFindMe + ".js"
   )
@@ -149,7 +149,7 @@ ava("resolve in kenvPath with .js", t => {
   )
 })
 
-ava("resolve doesn't exist", t => {
+ava.serial("resolve doesn't exist", t => {
   let error = t.throws(() => {
     resolveToScriptPath(`i-dont-exist`)
   })
@@ -164,7 +164,7 @@ ava("resolve doesn't exist", t => {
 //   })
 // })
 
-ava(
+ava.serial(
   "projectPath return the directory of the script's project",
   async t => {
     let script = `mock-project-path`

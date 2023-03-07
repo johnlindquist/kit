@@ -14,7 +14,7 @@ let { ProcessType, UI } = await import(
   kitPath("core", "enum.js")
 )
 
-ava(`Get metadata from a string`, t => {
+ava.serial(`Get metadata from a string`, t => {
   let name = `Eat a Taco`
   let description = `Orders a taco`
   let file = `
@@ -29,7 +29,7 @@ console.log("taco")
   t.deepEqual(metadata, { name, description })
 })
 
-ava(`No metadata`, t => {
+ava.serial(`No metadata`, t => {
   let file = ``
 
   let metadata = parseMetadata(file)
@@ -39,7 +39,7 @@ ava(`No metadata`, t => {
   })
 })
 
-ava(`Empty metadata`, t => {
+ava.serial(`Empty metadata`, t => {
   let file = `
 // Name:
 // Description:      
@@ -52,7 +52,7 @@ ava(`Empty metadata`, t => {
   })
 })
 
-ava(`Strip metadata`, t => {
+ava.serial(`Strip metadata`, t => {
   let code = `console.log("hello")`
   let file = `
 // Name: This is a Menu
@@ -77,7 +77,7 @@ ${code}
   )
 })
 
-ava(`Strip metadata variations`, t => {
+ava.serial(`Strip metadata variations`, t => {
   let code = `console.log("hello")`
   let file = `
 //Menu: This is a Menu
@@ -102,7 +102,7 @@ ${code}
   )
 })
 
-ava(`Strip metadata exclude`, t => {
+ava.serial(`Strip metadata exclude`, t => {
   let code = `console.log("hello")`
   let file = `
 // Name: This is a Menu
@@ -127,7 +127,7 @@ ${code}
   )
 })
 
-ava(`Don't strip after comments`, t => {
+ava.serial(`Don't strip after comments`, t => {
   let file = `
 // How many entries should the chart show
 const child = exec(command, { async: true });  
