@@ -82,7 +82,7 @@ export interface ScriptMetadata {
   ["opacity"]?: string
   preview?: Choice["preview"]
   debug?: boolean
-  silent?: boolean
+  verbose?: boolean
 }
 
 export type Script = ScriptMetadata &
@@ -191,6 +191,7 @@ export interface PromptData {
   html?: string
   theme?: any
   alwaysOnTop?: boolean
+  cwd?: string
 }
 
 export interface GenerateChoices {
