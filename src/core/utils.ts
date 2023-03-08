@@ -349,10 +349,13 @@ ${contents}`.trim()
 //app
 export let getMetadata = (contents: string): Metadata => {
   let matches = contents.matchAll(
-    /(?<=^\/\/\s{0,2})([\w-]+)(?::)(.*)/gm
+    /(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/gm
   )
+
   let metadata = {}
   for (let [, key, value] of matches) {
+    if (!value || !key) continue
+
     let v = value.trim()
     if (v.length) {
       let k = key.trim()
@@ -362,6 +365,20 @@ export let getMetadata = (contents: string): Metadata => {
   }
 
   return metadata
+}
+
+export let getInterpreterFromShebang = (
+  contents: string
+): string | undefined => {
+  let shebang = contents.match(/^#!(.*)$/m)
+  if (shebang) {
+    console.log({ shebang })
+    let interpreter = shebang[1].trim()
+    console.log({ interpreter })
+    if (interpreter) return interpreter
+  }
+
+  return ""
 }
 
 //app
@@ -502,12 +519,14 @@ export let parseScript = async (
 
   let contents = await readFile(filePath, "utf8")
   let metadata = parseMetadata(contents)
+  let interpreter = getInterpreterFromShebang(contents)
 
   let needsDebugger = Boolean(
     contents.match(/^\s*debugger/gim)
   )
 
   return {
+    interpreter,
     ...metadata,
     ...parsedFilePath,
     needsDebugger,
@@ -810,7 +829,7 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
   return result
     .filter(file => file.isFile())
     .map(file => file.name)
-    .filter(name => name.match(/\.(mj|t|j)(s|sx)$/))
+    .filter(name => !name.startsWith("."))
     .map(file => path.join(scriptsPath, file))
 }
 

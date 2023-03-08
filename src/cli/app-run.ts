@@ -9,7 +9,7 @@ import {
   run,
   cmd,
 } from "../core/utils.js"
-import { FlagsOptions } from "../types/core.js"
+import { FlagsOptions, Script } from "../types/core.js"
 
 let modifiers = {
   cmd: "cmd",
@@ -414,7 +414,13 @@ if (typeof script === "boolean" && !script) {
   exit()
 }
 
-if (
+if ((script as Script)?.interpreter) {
+  let { interpreter, filePath } = script as Script
+  spawn(interpreter, [filePath], {
+    stdio: "inherit",
+    detached: true,
+  })
+} else if (
   script === Value.NoValue ||
   typeof script === "undefined"
 ) {
