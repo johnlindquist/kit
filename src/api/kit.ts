@@ -726,7 +726,8 @@ ${html.trim()}
 }
 
 export let highlightJavaScript = async (
-  filePath: string
+  filePath: string,
+  shebang = ""
 ): Promise<string> => {
   let isPathAFile = await isFile(filePath)
   let contents = ``
@@ -737,9 +738,21 @@ export let highlightJavaScript = async (
   }
 
   let { default: highlight } = await import("highlight.js")
-  let highlightedContents = highlight.highlight(contents, {
-    language: "javascript",
-  }).value
+  let highlightedContents = ``
+  if (shebang) {
+    // split shebang into command and args
+    let [command, ...shebangArgs] = shebang.split(" ")
+    let language = command.endsWith("env")
+      ? shebangArgs?.[0]
+      : command.split("/").pop() || "bash"
+    highlightedContents = highlight.highlight(contents, {
+      language,
+    }).value
+  } else {
+    highlightedContents = highlight.highlight(contents, {
+      language: "javascript",
+    }).value
+  }
 
   let wrapped = wrapCode(highlightedContents, "px-5")
   return wrapped
@@ -773,7 +786,8 @@ export let selectScript = async (
               "utf8"
             )
             let content = await highlightJavaScript(
-              s.filePath
+              s.filePath,
+              s.shebang
             )
             s.preview = md(preview) + content
           } catch (error) {
@@ -813,7 +827,10 @@ export let selectScript = async (
             )
             return markdown + js
           }
-          return highlightJavaScript(preview)
+          return highlightJavaScript(
+            preview,
+            s?.shebang || ""
+          )
         }
       }
 

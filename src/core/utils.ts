@@ -367,15 +367,13 @@ export let getMetadata = (contents: string): Metadata => {
   return metadata
 }
 
-export let getInterpreterFromShebang = (
+export let getShebangFromContents = (
   contents: string
 ): string | undefined => {
-  let shebang = contents.match(/^#!(.*)$/m)
-  if (shebang) {
-    console.log({ shebang })
-    let interpreter = shebang[1].trim()
-    console.log({ interpreter })
-    if (interpreter) return interpreter
+  let shebangLine = contents.match(/^#!(.*)$/m)
+  if (shebangLine) {
+    let shebang = shebangLine[1].trim()
+    if (shebang) return shebang
   }
 
   return ""
@@ -519,14 +517,14 @@ export let parseScript = async (
 
   let contents = await readFile(filePath, "utf8")
   let metadata = parseMetadata(contents)
-  let interpreter = getInterpreterFromShebang(contents)
+  let shebang = getShebangFromContents(contents)
 
   let needsDebugger = Boolean(
     contents.match(/^\s*debugger/gim)
   )
 
   return {
-    interpreter,
+    shebang,
     ...metadata,
     ...parsedFilePath,
     needsDebugger,

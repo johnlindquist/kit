@@ -861,7 +861,6 @@ global.fields = async formFields => {
       let defaultElement: any = {
         element: "input",
         label: "Label",
-        required: true,
       }
       if (typeof field === "string") {
         defaultElement.label = field

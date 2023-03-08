@@ -414,12 +414,21 @@ if (typeof script === "boolean" && !script) {
   exit()
 }
 
-if ((script as Script)?.interpreter) {
-  let { interpreter, filePath } = script as Script
-  spawn(interpreter, [filePath], {
+if ((script as Script)?.shebang) {
+  let { shebang, filePath } = script as Script
+  // split shebang into command and args
+  let [command, ...shebangArgs] = shebang.split(/\s+/)
+  let child = spawn(command, [...shebangArgs, filePath], {
     stdio: "inherit",
     detached: true,
   })
+
+  if (child.stdout && child.stderr) {
+    child.stdout.pipe(process.stdout)
+    child.stderr.pipe(process.stderr)
+  }
+
+  child.unref()
 } else if (
   script === Value.NoValue ||
   typeof script === "undefined"

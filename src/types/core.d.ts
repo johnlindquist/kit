@@ -46,7 +46,7 @@ export interface ScriptPathInfo {
 }
 
 export interface ScriptMetadata {
-  interpreter?: string
+  shebang?: string
   name?: string
   menu?: string
   description?: string
