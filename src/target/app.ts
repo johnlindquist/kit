@@ -294,6 +294,7 @@ let waitForPromptValue = ({
   onDrop,
   onInit,
   onSubmit,
+  onValidationFailed,
   state,
   shortcuts,
 }: WaitForPromptValueProps) => {
@@ -502,6 +503,10 @@ let waitForPromptValue = ({
           case Channel.ON_SUBMIT:
             onSubmit(data.state.input, data.state)
             break
+
+          case Channel.ON_VALIDATION_FAILED:
+            onValidationFailed(data.state.input, data.state)
+            break
         }
       },
       // TODO: Add a kit log
@@ -576,6 +581,7 @@ let onDropDefault = async (input, state) => {
 
 let onInitDefault = async (input, state) => {}
 let onSubmitDefault = async (input, state) => {}
+let onValidationFailedDefault = async (input, state) => {}
 
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
@@ -763,6 +769,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onDrop = onDropDefault,
     onInit = onInitDefault,
     onSubmit = onSubmitDefault,
+    onValidationFailed = onValidationFailedDefault,
   } = config
 
   global.__currentPromptConfig = config
@@ -796,6 +803,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onDrop,
     onInit,
     onSubmit,
+    onValidationFailed,
     shortcuts: config.shortcuts,
     state: { input },
   })

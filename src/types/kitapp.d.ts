@@ -263,6 +263,10 @@ interface SetChoices {
   ): Promise<void>
 }
 
+interface AppendChoices {
+  (choices: Choice[]): Promise<void>
+}
+
 type SetTextAreaOptions = {
   value?: string
   placeholder?: string
@@ -872,6 +876,7 @@ declare global {
   var setPanel: SetPanel
   var setFooter: SetFooter
   var addChoice: AddChoice
+  var appendChoices: AppendChoices
   var setChoices: SetChoices
   var clearTabs: () => void
   var setDiv: SetPanel

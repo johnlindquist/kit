@@ -83,7 +83,7 @@ let buildTSScript = async (scriptPath, outPath = "") => {
   let contents = await readFile(scriptPath, "utf-8")
   // find all imports inside of the npm() function
   let imports = contents.match(
-    /(?<=\snpm\(('|"))(.*)(?=('|")\))/g
+    /(?<=\s(npm|import)\(('|"))(.*)(?=('|")\))/g
   )
 
   if (Array.isArray(imports)) {

@@ -76,11 +76,8 @@ let appsDb = await db(
     setChoices([
       {
         name: `First Run: Indexing Apps and Caching Icons...`,
-        disableSubmit: true,
-      },
-      {
-        name: `Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.`,
-        disableSubmit: true,
+        description: `Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.`,
+        info: true,
       },
     ])
 

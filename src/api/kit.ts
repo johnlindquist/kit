@@ -197,7 +197,7 @@ export let buildTSScript = async (
   let contents = await readFile(scriptPath, "utf-8")
   // find all imports inside of the npm() function
   let imports = contents.match(
-    /(?<=\snpm\(('|"))(.*)(?=('|")\))/g
+    /(?<=\s(npm|import)\(('|"))(.*)(?=('|")\))/g
   )
 
   if (Array.isArray(imports)) {
@@ -587,6 +587,15 @@ global.addChoice = async (choice: string | Choice) => {
 
   choice.id ||= global.uuid()
   return await global.sendWait(Channel.ADD_CHOICE, choice)
+}
+
+global.appendChoices = async (
+  choices: string[] | Choice[]
+) => {
+  return await global.sendWait(
+    Channel.APPEND_CHOICES,
+    choices
+  )
 }
 
 global.setChoices = async (choices, className = "") => {

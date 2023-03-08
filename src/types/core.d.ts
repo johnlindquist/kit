@@ -32,6 +32,7 @@ export interface Choice<Value = any> {
   onSubmit?: (choice: Choice) => Promise<void>
   enter?: string
   disableSubmit?: boolean
+  info?: boolean
 }
 
 export interface ScriptPathInfo {
@@ -286,6 +287,7 @@ export type PromptConfig = {
   onDrop?: ChannelHandler
   onInit?: ChannelHandler
   onSubmit?: ChannelHandler
+  onValidationFailed?: ChannelHandler
   debounceInput?: number
   debounceChoiceFocus?: number
   onInputSubmit?: {
