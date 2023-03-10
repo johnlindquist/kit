@@ -976,26 +976,6 @@ global.setTab = (tabName: string) => {
   global.onTabs[i].fn()
 }
 
-global.term = async commandOrConfig => {
-  let defaultConfig = {
-    shell: true,
-  }
-  let command =
-    (typeof commandOrConfig === "string"
-      ? commandOrConfig
-      : commandOrConfig?.command) || ""
-  let task = global.exec(command, {
-    ...defaultConfig,
-    ...(typeof commandOrConfig === "object"
-      ? commandOrConfig
-      : {}),
-  })
-  task.stdout.pipe(process.stdout)
-  task.stderr.pipe(process.stderr)
-  let result = await task
-  return result?.stdout || result?.stderr || ""
-}
-
 global.execLog = (command: string, logger = global.log) => {
   let writeableStream = new Writable()
   writeableStream._write = (chunk, encoding, next) => {

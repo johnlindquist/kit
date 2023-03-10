@@ -69,6 +69,10 @@ export interface Menubar {
 export interface TerminalOptions extends PromptConfig {
   command?: string
   cwd?: string
+  shell?: string
+  env?: {
+    [key: string]: string
+  }
 }
 
 export interface Terminal {

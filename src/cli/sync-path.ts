@@ -12,9 +12,6 @@ if (contents.includes("PATH=")) {
     /^PATH=.*$/gm,
     `PATH=${process.env.PATH}`
   )
-  console.log("replaced", {
-    contents,
-  })
 } else {
   contents += `
 PATH=${process.env.PATH}

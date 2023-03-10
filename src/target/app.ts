@@ -47,6 +47,7 @@ import {
   Channel,
   UI,
   Value,
+  PromptSize,
 } from "../core/enum.js"
 import {
   assignPropsTo,
@@ -717,6 +718,7 @@ global.kitPrompt = async (config: PromptConfig) => {
   await new Promise(r => setTimeout(r, 0))
 
   config.shortcuts ||= []
+  config.height ||= PromptSize.DEFAULT_HEIGHT
 
   // if (!config.shortcuts.find(s => s.key === `escape`)) {
   //   config.shortcuts.push({
@@ -1178,6 +1180,24 @@ global.arg = async (
       : argShortcuts,
     choices,
   }
+
+  let getHeight = () => {
+    let height = 0
+    if (choices) {
+      height = PromptSize.DEFAULT_HEIGHT
+    } else {
+      height += PromptSize.TOP_FRAME_HEIGHT
+      height += PromptSize.INPUT_HEIGHT
+      if (promptConfig.selected || global.onTabs?.length) {
+        height += PromptSize.INPUT_INFO_HEIGHT
+      }
+      height += PromptSize.BOTTOM_FRAME_HEIGHT
+    }
+
+    return height
+  }
+
+  promptConfig.height ||= getHeight()
 
   if (typeof placeholderOrConfig === "string") {
     promptConfig.placeholder = placeholderOrConfig
@@ -2463,3 +2483,5 @@ global.toast = async (text: string, options: any = {}) => {
     options,
   })
 }
+
+global.PromptSize = PromptSize
