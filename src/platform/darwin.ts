@@ -213,7 +213,7 @@ If you edited your ~/.zshrc (or similar) for a custom command then sync your PAT
 
 Run the following in your terminal:
 ~~~bash
-~/.kit/bin/kit sync-path
+~/.knode/bin/node ~/.kit/cli/sync-path.js ~/.kenv/.env
 ~~~
 
 ## Still not working?

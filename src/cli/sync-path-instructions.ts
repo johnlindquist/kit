@@ -1,5 +1,8 @@
-export {}
+let scriptPath = kitPath("cli", "sync-path-node.js")
+let envPath = kenvPath(".env")
+let node = isWin ? "node.exe" : "node"
+let nodePath = knodePath("bin", node)
 
-await term(
-  `~/.kit/bin/kit set-env-var PATH ${process.env.PATH}`
-)
+await term(`${nodePath} ${scriptPath} ${envPath}`)
+
+export {}
