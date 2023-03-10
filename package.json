@@ -42,7 +42,7 @@
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
   "dependencies": {
-    "@johnlindquist/globals": "^1.14.12",
+    "@johnlindquist/globals": "^1.14.15",
     "@johnlindquist/kit-internal": "^1.13.2",
     "@octokit/auth-oauth-device": "4.0.2",
     "@octokit/core": "4.2.0",
