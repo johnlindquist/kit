@@ -13,6 +13,7 @@ let { filePath } = await selectScript(
   "Select Script to Duplicate"
 )
 
+// TODO: Consider Using the "info" approach
 let newCommand = await arg({
   placeholder: `Enter name for new script`,
   selected: filePath,
