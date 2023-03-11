@@ -26,7 +26,10 @@ await setSelectedText(`Script Kit is awesome!`)
 global.setSelectedText = async (text = "", hide = true) => {
   if (hide) await global.hide()
 
-  return await sendWait(Channel.SET_SELECTED_TEXT, text)
+  return await sendWait(Channel.SET_SELECTED_TEXT, {
+    text,
+    hide,
+  })
 }
 
 global.cutText = () => sendWait(Channel.CUT_TEXT)
