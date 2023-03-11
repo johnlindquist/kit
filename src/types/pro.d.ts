@@ -69,10 +69,12 @@ export interface Menubar {
 export interface TerminalOptions extends PromptConfig {
   command?: string
   cwd?: string
-  shell?: string
+  shell?: string | boolean
+  args?: string[]
   env?: {
     [key: string]: string
   }
+  closeOnExit?: boolean
 }
 
 export interface Terminal {

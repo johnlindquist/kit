@@ -43,19 +43,35 @@ function createScriptKitAuth({
     async onVerification(verification) {
       await open(verification.verification_uri)
       global.copy(verification.user_code)
-      w = await global.widget(
-        md(
-          `## Authenticating... <a class="text-primary ring-0 ring-opacity-0 focus:ring-0 focus:ring-opacity-0 focus:outline-none outline-none"  href="${verification.verification_uri}">${verification.verification_uri}</a>
+      let content = `## 🔐 Authenticating with GitHub 
+
+## <a class="text-primary ring-0 ring-opacity-0 focus:ring-0 focus:ring-opacity-0 focus:outline-none outline-none"  href="${verification.verification_uri}">${verification.verification_uri}</a>
             
-Copied verification code to clipboard: <code>${verification.user_code}</code>`,
-          `p-6 bg-bg-base text-text-base h-screen w-screen flex flex-col justify-center items-center bg-opacity`
-        ),
+<p class="pt-2"/>
+Code copied to clipboard: <code class="text-primary font-bold">${verification.user_code}</code>
+
+<ol class="text-sm pt-3 ml-4 mb-4">
+    <li>Paste the code on https://github.com/login/device</li>
+    <li>Click "Continue"</li>
+    <li>Click "Authorize"</li>
+    <li>Script Kit should automatically re-open</li>
+</ol>
+
+`
+      let containerClass = `px-8 bg-bg-base text-text-base h-screen w-screen flex flex-col justify-center bg-opacity`
+
+      let w = await global.widget(
+        md(content, containerClass),
         {
           width: 420,
-          height: 120,
+          height: 250,
           alwaysOnTop: true,
         }
       )
+
+      w.onClose(() => {
+        global.log(`Auth widget closed`)
+      })
 
       w.call("setVisibleOnAllWorkspaces", true)
     },
