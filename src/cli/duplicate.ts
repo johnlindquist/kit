@@ -14,12 +14,22 @@ let { filePath } = await selectScript(
 )
 
 // TODO: Consider Using the "info" approach
-let newCommand = await arg({
-  placeholder: `Enter name for new script`,
-  selected: filePath,
-  hint: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
-  validate: exists,
-})
+
+setDescription(`Duplicate ${filePath}`)
+let newCommand = await arg(
+  {
+    placeholder: `Enter name for new script`,
+    validate: exists,
+    strict: false,
+  },
+  [
+    {
+      info: true,
+      name: `Requirements: lowercase, dashed, no extension`,
+      description: `Examples: ${examples}`,
+    },
+  ]
+)
 
 if (!(await isFile(filePath))) {
   console.warn(`${filePath} doesn't exist...`)

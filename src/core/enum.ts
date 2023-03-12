@@ -485,15 +485,20 @@ export enum Trigger {
   RunTxt = "runTxt",
 }
 
-export enum PromptSize {
-  DEFAULT_WIDTH = 768,
-  DEFAULT_HEIGHT = 480,
-  MINI_WIDTH = 300,
-  DEFAULT_CHOICE_HEIGHT = 56,
-  DEFAULT_MAIN_HEIGHT = 346,
-  INPUT_HEIGHT = 56,
-  TOP_FRAME_HEIGHT = 24,
-  BOTTOM_FRAME_HEIGHT = 28,
-  INPUT_INFO_HEIGHT = 26,
-  CONDENSED_HEIGHT = TOP_FRAME_HEIGHT + INPUT_HEIGHT,
+export const PROMPT = {
+  WIDTH: {
+    MAIN_DEFAULT: 768,
+    MINI: 300,
+  },
+  HEIGHT: {
+    MAIN_DEFAULT: 480,
+    CHOICE_DEFAULT: 56,
+    TOP_FRAME: 24,
+    BOTTOM_FRAME: 28,
+    INPUT_INFO: 26,
+    INPUT: 56,
+    get CONDENSED() {
+      return this.INPUT + this.INPUT_INFO
+    },
+  },
 }

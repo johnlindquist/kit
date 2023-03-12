@@ -6,7 +6,7 @@ import {
   Channel,
   Mode,
   statuses,
-  PromptSize,
+  PROMPT as PROMPT_OBJECT,
 } from "../core/enum"
 import { KeyEnum } from "../core/keyboard.js"
 import { AppDb } from "../core/db.js"
@@ -951,5 +951,5 @@ declare global {
   var chat: Chat
   var toast: Toast
   var find: Find
-  var PromptSize: PromptSizeEnum
+  var PROMPT: typeof PROMPT_OBJECT
 }

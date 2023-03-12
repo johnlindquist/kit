@@ -1,12 +1,10 @@
 // Name: Theme Selector
 // Description: Preview and Apply Themes
 import "@johnlindquist/kit"
-import { highlightJavaScript } from "../api/kit.js"
-import { KitTheme } from "../types/kitapp"
 let themes = {
   ["Script Kit"]: {
     foreground: "white",
-    background: "black",
+    background: "15, 15, 15",
     accent: "251, 191, 36",
     ui: "52, 52, 52",
     opacity: "0.85",
@@ -89,145 +87,122 @@ let themes = {
     opacity: "0.6",
     ui: "#5E3947",
   },
+  Cobalt2: {
+    foreground: "#FFFFFF",
+    accent: "#FFC600",
+    background: "#193549",
+    opacity: "0.8",
+    ui: "#5E3947",
+  },
+  "Shades of Purple": {
+    foreground: "#FFFFFF",
+    accent: "#FF9D00",
+    background: "#2D2B55",
+    opacity: "0.9",
+    ui: "#9E9D24",
+  },
+  "Winter is Coming": {
+    foreground: "#D4D4D4",
+    accent: "#569CD6",
+    background: "#1E1E1E",
+    opacity: "0.85",
+    ui: "80, 80, 80",
+  },
+  "Monokai Pro": {
+    foreground: "#FCFCFA",
+    accent: "#FC9867",
+    background: "#2D2A2E",
+    opacity: "0.9",
+    ui: "#7B6F3E",
+  },
+  Omni: {
+    foreground: "#E1E1E6",
+    accent: "#FF79C6",
+    background: "#191622",
+    opacity: "0.8",
+    ui: "#9E9D24",
+  },
+  "Tokyo Night": {
+    foreground: "#C0CAF5",
+    accent: "#7AA2F7",
+    background: "#1A1B26",
+    opacity: "0.85",
+    ui: "#647C32",
+  },
+  Noctis: {
+    foreground: "#F3F3F3",
+    accent: "#4CBF99",
+    background: "#282A36",
+    opacity: "0.9",
+    ui: "#5E3947",
+  },
+  Panda: {
+    foreground: "#E6E6E6",
+    accent: "#FF2C83",
+    background: "#292A2B",
+    opacity: "0.8",
+    ui: "#4C5F2F",
+  },
+  Andromeda: {
+    foreground: "#FFFFFF",
+    accent: "#FF4081",
+    background: "#212121",
+    opacity: "0.8",
+    ui: "#9E9D24",
+  },
+  Darcula: {
+    foreground: "#A9B7C6",
+    accent: "#BB86FC",
+    background: "#282828",
+    opacity: "0.85",
+    ui: "#583822",
+  },
+  Eva: {
+    foreground: "#EEEEEE",
+    accent: "#FFEB3B",
+    background: "#32374D",
+    opacity: "0.8",
+    ui: "#647C32",
+  },
+  Bearded: {
+    foreground: "#FFFFFF",
+    accent: "#00BCD4",
+    background: "#262626",
+    opacity: "0.85",
+    ui: "#5e3947",
+  },
+  Vue: {
+    foreground: "#FFFFFF",
+    accent: "#41B883",
+    background: "#273849",
+    opacity: "0.8",
+    ui: "#4c5f2f",
+  },
 }
 let guide = await readFile(kitPath("GUIDE.md"), "utf-8")
-onTab("Select a Theme", async () => {
-  const themeName = await arg(
-    {
-      placeholder: "Theme Selector",
-      preview: md(guide),
-      onChoiceFocus: (input, { focused }) => {
-        setScriptTheme(themes[focused.value])
-      },
-      enter: "Set Theme",
+
+const themeName = await arg(
+  {
+    placeholder: "Theme Selector",
+    hint: `Design your own: <a href="submit:theme-designer">Open Theme Designer</a>`,
+    preview: md(guide),
+    onChoiceFocus: (input, { focused }) => {
+      setScriptTheme(themes[focused.value])
     },
-    Object.keys(themes).map(theme => {
-      return {
-        name: theme,
-        description: `This is the ${theme} theme`,
-        value: theme,
-      }
-    })
-  )
+    enter: "Set Theme",
+  },
+  Object.keys(themes).map(theme => {
+    return {
+      name: theme,
+      description: `This is the ${theme} theme`,
+      value: theme,
+    }
+  })
+)
+
+if (themeName === "theme-designer") {
+  await run(kitPath("pro", "theme-designer.js"))
+} else {
   await setTheme(themes[themeName])
   await mainScript()
-})
-
-onTab("Theme Randomizer (In Progress...)", async () => {
-  let randomize = async () => {
-    // random hex color, in 6 character hex with padding
-    let randomHex = () => {
-      let hex = Math.floor(
-        Math.random() * 16777215
-      ).toString(16)
-      return hex.padStart(6, "0")
-    }
-
-    // random shade of black, in 6 character hex
-    let randomGray = () => {
-      let gray = Math.floor(Math.random() * 255)
-      return gray.toString(16).repeat(3)
-    }
-
-    // random shade of white, in 6 character hex
-    let randomWhite = () => {
-      let white = Math.floor(255 - Math.random() * 20)
-      return white.toString(16).repeat(3)
-    }
-
-    // random shade of black or white
-    let randomGrayOrWhite = () => {
-      return Math.random() > 0.5
-        ? randomGray()
-        : randomWhite()
-    }
-
-    // random value between 0.8 and 1
-    let randomOpacity = () => {
-      return (Math.random() * 0.2 + 0.8).toFixed(2)
-    }
-
-    let randomTheme = {
-      foreground: `#${randomHex()}`,
-      accent: `#${randomHex()}`,
-      background: `#${randomGrayOrWhite()}`,
-      ui: `#${randomHex()}`,
-      opacity: `${randomOpacity()}`,
-    }
-
-    await setTheme(randomTheme as Partial<KitTheme>)
-
-    setDescription(`Tap 'r' to randomize, 'c' to copy`)
-    let preview = await highlightJavaScript(
-      `
-let theme = ${JSON.stringify(randomTheme, null, 2)}
-
-// use setTheme to apply the theme
-await setTheme(theme)  
-    
-    `.trim()
-    )
-
-    let className = "px-0"
-    await arg(
-      {
-        placeholder: "Tap 'r' to randomize, 'c' to copy",
-        hint: "These are truly random...",
-        shortcuts: [
-          {
-            key: "r",
-            name: "Randomize",
-            onPress: async () => {
-              await randomize()
-            },
-            bar: "right",
-          },
-          {
-            key: "c",
-            name: "Copy",
-            onPress: async () => {
-              copy(JSON.stringify(randomTheme, null, 2))
-            },
-            bar: "right",
-          },
-        ],
-      },
-      [
-        {
-          name: "Foreground",
-          className,
-          html: `<div class="w-full h-full text-bg-base p-2" style="background-color:${randomTheme.foreground}">Foreground</div>`,
-          preview,
-        },
-        {
-          name: "Accent",
-          className,
-          html: `<div class="w-full h-full text-text-base p-2" style="background-color:${randomTheme.accent}">Accent</div>`,
-          preview,
-        },
-        {
-          name: "Background",
-          className,
-          html: `<div class="w-full h-full text-text-base p-2" style="background-color:${randomTheme.background}">Background</div>`,
-          preview,
-        },
-        {
-          name: "UI",
-          className,
-          html: `<div class="w-full h-full text-text-base p-2" style="background-color:${randomTheme.ui}">UI</div>`,
-          preview,
-        },
-      ]
-    )
-  }
-
-  await randomize()
-})
-
-onTab("Customize Theme (Coming Soon!)", async () => {
-  await arg("Nothing to see here")
-})
-
-onTab("Account__", async () => {
-  await arg("Nothing to see here")
-})
+}
