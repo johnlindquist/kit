@@ -1,13 +1,11 @@
 // Description: Duplicate the selected script
 
-import { exists } from "../core/utils.js"
+import { exists, stripMetadata } from "../core/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)
   .join(", ")
-
-import { stripMetadata } from "../core/utils.js"
 
 let { filePath } = await selectScript(
   "Select Script to Duplicate"

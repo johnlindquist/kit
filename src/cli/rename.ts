@@ -7,6 +7,12 @@ import {
   trashScriptBin,
 } from "../core/utils.js"
 
+import { generate } from "@johnlindquist/kit-internal/project-name-generator"
+
+let examples = Array.from({ length: 3 })
+  .map((_, i) => generate({ words: 2 }).dashed)
+  .join(", ")
+
 import { Script } from "../types/core.js"
 
 let script: Script = await selectScript(
@@ -17,11 +23,20 @@ let { filePath } = script
 
 let scriptExtension = path.extname(filePath)
 
-let newCommand = await arg({
-  placeholder: `Enter the new script name:`,
-  selected: filePath,
-  validate: exists,
-})
+setDescription(`Rename ${filePath}`)
+let newCommand = await arg(
+  {
+    placeholder: `Enter the new script name:`,
+    validate: exists,
+  },
+  [
+    {
+      info: true,
+      name: `Requirements: lowercase, dashed, no extension`,
+      description: `Examples: ${examples}`,
+    },
+  ]
+)
 
 let lenientCommand = newCommand.replace(extensionRegex, "")
 

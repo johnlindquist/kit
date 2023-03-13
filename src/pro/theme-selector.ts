@@ -7,7 +7,7 @@ let themes = {
     background: "15, 15, 15",
     accent: "251, 191, 36",
     ui: "52, 52, 52",
-    opacity: "0.85",
+    opacity: "0.75",
   },
   ["VS Code Light"]: {
     foreground: "2C2C2C",
@@ -77,7 +77,7 @@ let themes = {
     foreground: "#FBF1C7",
     accent: "#8EC07C",
     background: "#282828",
-    opacity: "0.85",
+    opacity: "0.75",
     ui: "#5E3947",
   },
   "Solarized Dark": {
@@ -105,7 +105,7 @@ let themes = {
     foreground: "#D4D4D4",
     accent: "#569CD6",
     background: "#1E1E1E",
-    opacity: "0.85",
+    opacity: "0.75",
     ui: "80, 80, 80",
   },
   "Monokai Pro": {
@@ -126,7 +126,7 @@ let themes = {
     foreground: "#C0CAF5",
     accent: "#7AA2F7",
     background: "#1A1B26",
-    opacity: "0.85",
+    opacity: "0.75",
     ui: "#647C32",
   },
   Noctis: {
@@ -154,7 +154,7 @@ let themes = {
     foreground: "#A9B7C6",
     accent: "#BB86FC",
     background: "#282828",
-    opacity: "0.85",
+    opacity: "0.75",
     ui: "#583822",
   },
   Eva: {
@@ -168,7 +168,7 @@ let themes = {
     foreground: "#FFFFFF",
     accent: "#00BCD4",
     background: "#262626",
-    opacity: "0.85",
+    opacity: "0.75",
     ui: "#5e3947",
   },
   Vue: {
