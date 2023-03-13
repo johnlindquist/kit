@@ -4,9 +4,9 @@ import "@johnlindquist/kit"
 let themes = {
   ["Script Kit"]: {
     foreground: "white",
-    background: "15, 15, 15",
+    background: "6, 6, 6",
     accent: "251, 191, 36",
-    ui: "52, 52, 52",
+    ui: "64, 64, 64",
     opacity: "0.75",
   },
   ["VS Code Light"]: {

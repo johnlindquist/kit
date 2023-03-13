@@ -293,6 +293,9 @@ let waitForPromptValue = ({
   onRight,
   onPaste,
   onDrop,
+  onDragEnter,
+  onDragLeave,
+  onDragOver,
   onInit,
   onSubmit,
   onValidationFailed,
@@ -497,6 +500,18 @@ let waitForPromptValue = ({
             onDrop(data.state.input, data.state)
             break
 
+          case Channel.ON_DRAG_ENTER:
+            onDragEnter(data.state.input, data.state)
+            break
+
+          case Channel.ON_DRAG_LEAVE:
+            onDragLeave(data.state.input, data.state)
+            break
+
+          case Channel.ON_DRAG_OVER:
+            onDragOver(data.state.input, data.state)
+            break
+
           case Channel.ON_INIT:
             onInit(data.state.input, data.state)
             break
@@ -577,7 +592,21 @@ let onPasteDefault = async (input, state) => {
   if (state.paste) setSelectedText(state.paste, false)
 }
 let onDropDefault = async (input, state) => {
-  if (state.drop) setSelectedText(state.drop, false)
+  log(`onDrop`)
+  if (state.drop && state.ui === UI.arg) {
+    setInput(state.drop)
+  }
+  await focus()
+}
+
+let onDragEnterDefault = async (input, state) => {
+  log(`onDragEnter`)
+}
+let onDragLeaveDefault = async (input, state) => {
+  log(`onDragLeave`)
+}
+let onDragOverDefault = async (input, state) => {
+  log(`onDragOver`)
 }
 
 let onInitDefault = async (input, state) => {}
@@ -769,6 +798,9 @@ global.kitPrompt = async (config: PromptConfig) => {
     onBlur = onBlurDefault,
     onPaste = onPasteDefault,
     onDrop = onDropDefault,
+    onDragEnter = onDragEnterDefault,
+    onDragLeave = onDragLeaveDefault,
+    onDragOver = onDragOverDefault,
     onInit = onInitDefault,
     onSubmit = onSubmitDefault,
     onValidationFailed = onValidationFailedDefault,
@@ -803,6 +835,9 @@ global.kitPrompt = async (config: PromptConfig) => {
     onBlur,
     onPaste,
     onDrop,
+    onDragEnter,
+    onDragLeave,
+    onDragOver,
     onInit,
     onSubmit,
     onValidationFailed,

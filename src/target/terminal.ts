@@ -95,6 +95,12 @@ global.kitPrompt = async (config: any) => {
 }
 
 global.arg = async (messageOrConfig = "Input", choices) => {
+  if (Array.isArray(choices)) {
+    choices = (choices as any[]).filter(
+      c => !(c?.info || c?.disableSubmit)
+    )
+  }
+
   let firstArg = global.args.length
     ? global.args.shift()
     : null

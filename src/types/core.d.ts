@@ -286,6 +286,9 @@ export type PromptConfig = {
   onMessageFocus?: ChannelHandler
   onPaste?: ChannelHandler
   onDrop?: ChannelHandler
+  onDragEnter?: ChannelHandler
+  onDragLeave?: ChannelHandler
+  onDragOver?: ChannelHandler
   onInit?: ChannelHandler
   onSubmit?: ChannelHandler
   onValidationFailed?: ChannelHandler
