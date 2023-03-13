@@ -28,6 +28,7 @@ let newCommand = await arg(
   {
     placeholder: `Enter the new script name:`,
     validate: exists,
+    strict: false,
   },
   [
     {
