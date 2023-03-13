@@ -169,7 +169,7 @@ Please go to [${sponsorUrl}](${sponsorUrl}) to become a sponsor to unlock all fe
     `
 <div class="flex flex-col">
 ${topPane}
-<div class="flex flex-row -mt-5">  
+<div class="flex flex-row">  
   <div class="px-4">${middlePane}</div>
   <div class="px-4 flex-1 border-l border-white dark:border-dark dark:border border-opacity-25 dark:border-opacity-25">${md(
     proPane()
