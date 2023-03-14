@@ -48,6 +48,4 @@ await term({
   cwd,
 })
 
-await mainScript()
-
 export {}

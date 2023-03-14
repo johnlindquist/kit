@@ -198,7 +198,7 @@ let term = async (
         key: `${cmd}+enter`,
         bar: "right",
         onPress: () => {
-          submit("")
+          send(Channel.TERM_EXIT, "")
         },
       },
     ],

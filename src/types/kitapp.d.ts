@@ -320,7 +320,6 @@ export type SendNoOptions =
   | Channel.FOCUS
   | Channel.SHOW_EMOJI_PANEL
   | Channel.BEEP
-  | Channel.TERM_EXIT
 export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined
@@ -414,6 +413,7 @@ export interface ChannelMap {
   [Channel.ADD_CHOICE]: Choice
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
+  [Channel.TERM_EXIT]: string
   [Channel.SET_TRAY]: { label: string; scripts: string[] }
   [Channel.KIT_LOG]: string
   [Channel.KIT_WARN]: string
