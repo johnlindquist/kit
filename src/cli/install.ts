@@ -25,14 +25,6 @@ let install = async packageNames => {
       `${PATH}${tool} ${command} -D ${packageNames.join(
         " "
       )}`.trim(),
-    enter: "",
-    shortcuts: [
-      {
-        name: "Continue Script",
-        key: `ctrl+c`,
-        bar: "right",
-      },
-    ],
     env: {
       ...global.env,
       PATH: KIT_FIRST_PATH,

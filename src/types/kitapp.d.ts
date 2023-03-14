@@ -320,7 +320,7 @@ export type SendNoOptions =
   | Channel.FOCUS
   | Channel.SHOW_EMOJI_PANEL
   | Channel.BEEP
-
+  | Channel.TERM_EXIT
 export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined

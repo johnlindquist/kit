@@ -77,7 +77,7 @@ export interface TerminalOptions extends PromptConfig {
   closeOnExit?: boolean
 }
 
-export interface Terminal {
+export type Terminal = {
   (command?: string): Promise<string>
   (options?: TerminalOptions): Promise<string>
 }

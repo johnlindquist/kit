@@ -14,7 +14,7 @@ let packages = (await arg(
   [
     ...Object.keys(file?.dependencies || []),
     ...Object.keys(file?.devDependencies || []),
-  ]
+  ].filter(k => !k.startsWith("@johnlindquist"))
 )) as string[]
 
 //grab all the args you used `kit un jquery react`
@@ -41,13 +41,6 @@ await term({
   command: `${PATH}${tool} ${command} ${packages.join(
     " "
   )}`.trim(),
-  shortcuts: [
-    {
-      name: "Continue",
-      key: `ctrl+c`,
-      bar: "right",
-    },
-  ],
   env: {
     ...global.env,
     PATH: KIT_FIRST_PATH,

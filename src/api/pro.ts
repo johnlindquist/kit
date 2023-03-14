@@ -194,9 +194,12 @@ let term = async (
     enter: "",
     shortcuts: [
       {
-        name: "Continue Script",
-        key: `ctrl+c`,
+        name: "Continue",
+        key: `${cmd}+enter`,
         bar: "right",
+        onPress: () => {
+          submit("")
+        },
       },
     ],
     env: {
