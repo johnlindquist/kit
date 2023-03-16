@@ -42,23 +42,57 @@ let findAppsAndPrefs = async () => {
   }
 }
 let createChoices = async () => {
-  let { extractIcon } = await npm("get-app-icon")
+  let extractIcon =
+    process.platform === "win32"
+      ? (await npm("get-app-icon")).extractIcon
+      : () => Promise.resolve(undefined)
   setLoading(true)
   let { apps, prefs } = await findAppsAndPrefs()
   let allApps = _.uniq(apps.concat(prefs))
+
+  let assetsPath = kitPath(
+    "assets",
+    "app-launcher",
+    "icons"
+  )
+  if (process.platform === "darwin") {
+    let { fileIconToFile } = await npm("file-icon")
+    await ensureDir(assetsPath)
+    let allApps = _.uniq(apps.concat(prefs))
+
+    let destination = allApps.map(appPath => {
+      let { base: appName } = path.parse(appPath)
+      return path.resolve(assetsPath, `${appName}.png`)
+    })
+
+    log(`Creating icons for ${allApps.length} apps`)
+    await fileIconToFile(allApps, {
+      size: 48,
+      destination,
+    })
+
+    log(`Done creating icons`)
+  }
 
   let choices = _.sortBy(
     await Promise.all(
       allApps.map(async appPath => {
         let { base: appName } = path.parse(appPath)
+        let destination = path.resolve(
+          assetsPath,
+          `${appName}.png`
+        )
 
         return {
           name: appName.replace(/\.(app|lnk|url)\s*$/i, ""),
           value: appPath.replace(/\r?\n?$/i, ""),
           description: appPath.replace(/\r?\n?$/i, ""),
-          img: await extractIcon(appPath.trim()).catch(
-            () => undefined
-          ),
+          img:
+            process.platform === "darwin"
+              ? destination
+              : await extractIcon(appPath.trim()).catch(
+                  () => undefined
+                ),
           enter: `Open`,
         }
       })
