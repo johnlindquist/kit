@@ -54,8 +54,8 @@ let createChoices = async () => {
 
         return {
           name: appName.replace(/\.(app|lnk|url)\s*$/i, ""),
-          value: appPath,
-          description: appPath,
+          value: appPath.replace(/\r?\n?$/i, ""),
+          description: appPath.replace(/\r?\n?$/i, ""),
           img: await extractIcon(appPath.trim()).catch(
             () => undefined
           ),

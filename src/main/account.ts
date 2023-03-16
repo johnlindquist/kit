@@ -41,11 +41,13 @@ if (userDb.login) {
       placeholder: "Account",
       shortcuts: [backToMainShortcut],
       onNoChoices: async input => {
-        setPanel(
-          md(`# Expected ${input} in the Account Tab?
-Share your idea 💡 [Request on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/ideas)
-  `)
-        )
+        if (input) {
+          setPanel(
+            md(`# Expected ${input} in the Account Tab?
+  Share your idea 💡 [Request on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/ideas)
+    `)
+          )
+        }
       },
     },
     [
