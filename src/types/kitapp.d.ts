@@ -453,6 +453,7 @@ export interface ChannelMap {
   [Channel.SET_IGNORE_BLUR]: boolean
   [Channel.SET_KIT_STATE]: any
   [Channel.SET_INPUT]: string
+  [Channel.APPEND_INPUT]: string
   [Channel.SET_FILTER_INPUT]: string
   [Channel.SET_FOCUSED]: string
   [Channel.SET_FOOTER]: string
@@ -554,6 +555,10 @@ export interface SetDescription {
 
 export interface SetInput {
   (input: string): Promise<void>
+}
+
+export interface ScrollTo {
+  (location: "top" | "bottom" | "center"): Promise<void>
 }
 
 export interface SetTextareaValue {
@@ -891,6 +896,8 @@ declare global {
   var setName: SetName
   var setDescription: SetDescription
   var setInput: SetInput
+  var appendInput: SetInput
+  var scrollTo: ScrollTo
   var setFilterInput: SetInput
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur

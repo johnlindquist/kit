@@ -1436,6 +1436,14 @@ global.setInput = async input => {
   return await global.sendWait(Channel.SET_INPUT, input)
 }
 
+global.appendInput = async text => {
+  return await global.sendWait(Channel.APPEND_INPUT, text)
+}
+
+global.scrollTo = async location => {
+  return await global.sendWait(Channel.SCROLL_TO, location)
+}
+
 global.setFilterInput = async inputFilter => {
   global.send(Channel.SET_FILTER_INPUT, inputFilter)
 }
