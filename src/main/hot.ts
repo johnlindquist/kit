@@ -4,11 +4,10 @@ let noChoices = false
 let onNoChoices = async input => {
   noChoices = true
   setPanel(
-    md(`
+    md(`# No Examples Found for "${input}"
 
-# No Examples Found for "${input}"
-
-Share one! ❤️ [Share on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/share)
+- Share one! ❤️ [Share on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/share)
+- Request one 💡 [Request on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/ideas)
 `)
   )
 }

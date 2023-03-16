@@ -237,6 +237,7 @@ export enum Channel {
   ON_VALIDATION_FAILED = "ON_VALIDATION_FAILED",
   APPEND_CHOICES = "APPEND_CHOICES",
   TERM_EXIT = "TERM_EXIT",
+  TERM_KILL = "TERM_KILL",
 }
 
 export enum ProcessType {

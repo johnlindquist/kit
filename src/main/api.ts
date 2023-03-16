@@ -10,6 +10,13 @@ let selectedDoc = await docs(
     input: arg?.input || "",
     placeholder: "Browse API",
     enter: `Suggest Edit`,
+    onNoChoices: async input => {
+      setPanel(
+        md(`# Expected ${input} in the Docs?
+This api docs are constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/blob/main/API.md) to the api docs or open an issue on GitHub.
+`)
+      )
+    },
   })
 )
 

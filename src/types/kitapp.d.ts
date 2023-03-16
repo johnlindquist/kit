@@ -414,6 +414,7 @@ export interface ChannelMap {
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
   [Channel.TERM_EXIT]: string
+  [Channel.TERM_KILL]: string
   [Channel.SET_TRAY]: { label: string; scripts: string[] }
   [Channel.KIT_LOG]: string
   [Channel.KIT_WARN]: string

@@ -40,6 +40,13 @@ if (userDb.login) {
     {
       placeholder: "Account",
       shortcuts: [backToMainShortcut],
+      onNoChoices: async input => {
+        setPanel(
+          md(`# Expected ${input} in the Account Tab?
+Share your idea 💡 [Request on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/ideas)
+  `)
+        )
+      },
     },
     [
       ...(appState?.isSponsor
@@ -63,7 +70,14 @@ if (userDb.login) {
           ]),
       {
         name: "Join Script Kit Discord",
-        preview: md(`# Join Us on the Script Kit Discord`),
+        preview: md(`# Join Us on the Script Kit Discord
+
+We're a friendly bunch, sharing scripts and discussing ideas in a relaxed atmosphere. 
+If you ever run into any issues, we're here to help troubleshoot and learn together. 
+Come join our awesome community and let's grow as scripters together!
+
+[Join Discord Server](submit:discord)
+                    `),
         value: "discord",
         enter: "Join Discord Server",
       },
@@ -71,6 +85,12 @@ if (userDb.login) {
         name: "Logout",
         value: "logout",
         enter: "Logout",
+        preview: md(`# Log Out of Your GitHub Account
+
+This will remove your GitHub token from your local machine and Script Kit will no longer be able to access your GitHub account.
+
+You can always log back in again later.
+`),
       },
     ]
   )

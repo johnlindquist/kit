@@ -682,6 +682,7 @@ let prepPrompt = async (config: PromptConfig) => {
         : (preview as string),
     env: config?.env || global.env,
     choicesType: determineChoicesType(choices),
+    hasOnNoChoices: Boolean(config?.onNoChoices),
   })
 }
 
@@ -1180,6 +1181,10 @@ global.arg = async (
   placeholderOrConfig = "Type a value:",
   choices = ``
 ) => {
+  if (!choices) {
+    setChoices([])
+    setPanel(``)
+  }
   let firstArg = global.args.length
     ? global.args.shift()
     : null
@@ -1216,7 +1221,11 @@ global.arg = async (
     choices,
   }
 
-  if (Array.isArray(choices) || choices === ``) {
+  if (
+    (Array.isArray(choices) &&
+      !(choices as Choice[]).find(c => c?.preview)) ||
+    choices === ``
+  ) {
     promptConfig.resize ??= true
   }
 
@@ -1943,6 +1952,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       onNoChoices,
       onEscape,
       enter: "Select",
+      // TODO: If I want resize, I need to create choices first?
       resize: false,
       shortcuts: [
         {

@@ -194,6 +194,14 @@ let term = async (
     enter: "",
     shortcuts: [
       {
+        name: "Exit",
+        key: `${cmd}+w`,
+        bar: "right",
+        onPress: () => {
+          exit()
+        },
+      },
+      {
         name: "Continue",
         key: `${cmd}+enter`,
         bar: "right",

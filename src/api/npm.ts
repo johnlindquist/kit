@@ -51,8 +51,12 @@ let findMain = async (
     }
     if (exports) {
       if (exports?.["."]) {
+        if (exports?.["."]?.import?.default)
+          return kPath(exports?.["."]?.import?.default)
         if (exports?.["."]?.import)
           return kPath(exports?.["."]?.import)
+        if (exports?.["."]?.require?.default)
+          return kPath(exports?.["."]?.require?.default)
         if (exports?.["."]?.require)
           return kPath(exports?.["."]?.require)
         if (typeof exports?.["."] == "string")

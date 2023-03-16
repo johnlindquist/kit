@@ -194,6 +194,7 @@ export interface PromptData {
   theme?: any
   alwaysOnTop?: boolean
   cwd?: string
+  hasOnNoChoices?: boolean
 }
 
 export interface GenerateChoices {

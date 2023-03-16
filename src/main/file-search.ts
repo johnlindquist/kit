@@ -7,23 +7,26 @@ import {
   isWin,
 } from "../core/utils.js"
 
-let atLeast = `Type at least 3 characters`
+let atLeast = [
+  {
+    name: `Type at least 3 characters`,
+    info: true,
+  },
+]
 let selectedFile = await arg(
   {
     placeholder: "Search Files",
     enter: "Open Action Menu",
     shortcuts: [backToMainShortcut],
+    resize: true,
   },
   async input => {
     if (!input || input === "undefined") {
-      setHint(atLeast)
-      return []
+      return atLeast
     }
     if (input?.length < 3) {
-      setHint(atLeast)
-      return []
+      return atLeast
     }
-    setHint(``)
     let files = await fileSearch(input)
     return files.map(p => {
       return {
