@@ -454,6 +454,7 @@ export interface ChannelMap {
   [Channel.SET_KIT_STATE]: any
   [Channel.SET_INPUT]: string
   [Channel.APPEND_INPUT]: string
+  [Channel.SCROLL_TO]: "top" | "bottom" | "center" | null
   [Channel.SET_FILTER_INPUT]: string
   [Channel.SET_FOCUSED]: string
   [Channel.SET_FOOTER]: string

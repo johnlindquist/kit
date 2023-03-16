@@ -683,6 +683,7 @@ let prepPrompt = async (config: PromptConfig) => {
     env: config?.env || global.env,
     choicesType: determineChoicesType(choices),
     hasOnNoChoices: Boolean(config?.onNoChoices),
+    inputCommandChars: config?.inputCommandChars || [],
   })
 }
 
@@ -1952,6 +1953,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   let selectedPath = await arg(
     {
       ...(config as PromptConfig),
+      inputCommandChars: ["/", "."],
       input: startPath,
       onInput,
       onTab,

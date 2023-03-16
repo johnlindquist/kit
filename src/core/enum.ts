@@ -239,6 +239,7 @@ export enum Channel {
   TERM_EXIT = "TERM_EXIT",
   TERM_KILL = "TERM_KILL",
   APPEND_INPUT = "APPEND_INPUT",
+  SCROLL_TO = "SCROLL_TO",
 }
 
 export enum ProcessType {
