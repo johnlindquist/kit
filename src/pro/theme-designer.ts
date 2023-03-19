@@ -25,16 +25,16 @@ const { foreground, accent, ui, background, opacity } =
 let w = await widget(
   `
     <div class="flex flex-col w-full h-full p-8">
-    foreground:
+    Foreground:
     <input type="color" label="foreground" data-label="foreground" value="${foreground}" />
-    background:
+    Background:
     <input type="color" label="background" data-label="background" value="${background}" />
-    accent:
+    Accent:
     <input type="color" label="accent" data-label="accent" value="${accent}"/>
-    ui:
+    UI:
     <input type="color" label="ui" data-label="ui" value="${ui}"/>
 
-    opacity:
+    Opacity:
     <input type="range" min="0" max="1" step="0.01" label="opacity" data-label="opacity" value="${opacity}"/>
 
 </div>`,

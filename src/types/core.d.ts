@@ -294,6 +294,7 @@ export type PromptConfig = {
   onInit?: ChannelHandler
   onSubmit?: ChannelHandler
   onValidationFailed?: ChannelHandler
+  onAudioData?: ChannelHandler
   debounceInput?: number
   debounceChoiceFocus?: number
   onInputSubmit?: {

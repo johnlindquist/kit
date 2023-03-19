@@ -299,6 +299,7 @@ let waitForPromptValue = ({
   onInit,
   onSubmit,
   onValidationFailed,
+  onAudioData,
   state,
   shortcuts,
 }: WaitForPromptValueProps) => {
@@ -523,6 +524,26 @@ let waitForPromptValue = ({
           case Channel.ON_VALIDATION_FAILED:
             onValidationFailed(data.state.input, data.state)
             break
+
+          case Channel.ON_AUDIO_DATA:
+            if (
+              typeof data?.state?.value === "string" &&
+              data?.state?.value?.startsWith("data:")
+            ) {
+              log(`Found data.state.value`)
+              const [header, content] =
+                data.state.value.split(",")
+              const [type, encoding] = header.split(";")
+              log(`decoding ${encoding} ${type}`)
+              if (encoding === "base64") {
+                data.state.value = Buffer.from(
+                  content,
+                  "base64"
+                )
+              }
+            }
+            onAudioData(data.state.input, data.state)
+            break
         }
       },
       // TODO: Add a kit log
@@ -536,6 +557,23 @@ let waitForPromptValue = ({
 
     value$.subscribe({
       next: value => {
+        if (value?.data) {
+          console.log(`Found value.data`)
+          value = value.data
+        }
+        if (
+          typeof value === "string" &&
+          value.startsWith("data:")
+        ) {
+          const [header, content] = value.split(",")
+          const [type, encoding] = header.split(";")
+
+          log(`decoding ${encoding} ${type}`)
+
+          if (encoding === "base64") {
+            value = Buffer.from(content, "base64")
+          }
+        }
         resolve(value)
       },
       complete: () => {
@@ -612,6 +650,7 @@ let onDragOverDefault = async (input, state) => {
 let onInitDefault = async (input, state) => {}
 let onSubmitDefault = async (input, state) => {}
 let onValidationFailedDefault = async (input, state) => {}
+let onAudioDataDefault = async (input, state) => {}
 
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
@@ -749,7 +788,7 @@ global.kitPrompt = async (config: PromptConfig) => {
   await new Promise(r => setTimeout(r, 0))
 
   config.shortcuts ||= []
-  config.height ||= PROMPT.HEIGHT.MAIN_DEFAULT
+  config.width ||= PROMPT.WIDTH.DEFAULT
 
   // if (!config.shortcuts.find(s => s.key === `escape`)) {
   //   config.shortcuts.push({
@@ -806,6 +845,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onInit = onInitDefault,
     onSubmit = onSubmitDefault,
     onValidationFailed = onValidationFailedDefault,
+    onAudioData = onAudioDataDefault,
   } = config
 
   global.__currentPromptConfig = config
@@ -843,6 +883,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onInit,
     onSubmit,
     onValidationFailed,
+    onAudioData,
     shortcuts: config.shortcuts,
     state: { input },
   })
@@ -1223,9 +1264,8 @@ global.arg = async (
   }
 
   if (
-    (Array.isArray(choices) &&
-      !(choices as Choice[]).find(c => c?.preview)) ||
-    choices === ``
+    Array.isArray(choices) &&
+    !(choices as Choice[]).find(c => c?.preview)
   ) {
     promptConfig.resize ??= true
   }
@@ -2523,6 +2563,39 @@ global.toast = async (text: string, options: any = {}) => {
     text,
     options,
   })
+}
+
+global.mic = async () => {
+  return await global.kitPrompt({
+    ui: UI.mic,
+    enter: "Stop Recording",
+    shortcuts: [backToMainShortcut, closeShortcut],
+    ignoreBlur: true,
+  })
+}
+
+global.webcam = async () => {
+  return await global.kitPrompt({
+    ui: UI.webcam,
+    enter: "Stop Recording",
+    shortcuts: [backToMainShortcut, closeShortcut],
+    ignoreBlur: true,
+  })
+}
+
+global.speech = async () => {
+  return await global.kitPrompt({
+    ui: UI.speech,
+    enter: "Stop Recording",
+    shortcuts: [backToMainShortcut, closeShortcut],
+    ignoreBlur: true,
+  })
+}
+
+global.getDevices = async () => {
+  let appMessage = await sendWait(Channel.GET_DEVICES)
+
+  return appMessage?.state?.value
 }
 
 global.PROMPT = PROMPT

@@ -14,12 +14,20 @@ while (true) {
     [
       { name: "Install an npm package", value: "install" },
       {
+        name: "Update an npm package",
+        value: "update-package",
+      },
+      {
         name: "Uninstall an npm package",
         value: "uninstall",
       },
       {
         name: "Get more info about an npm packaage",
         value: "more-info",
+      },
+      {
+        name: "Open a Terminal to Manually Install/Uninstall",
+        value: "manual-npm",
       },
     ]
   )

@@ -19,7 +19,7 @@ let action = await arg(
   {
     placeholder: "Selected Path Action:",
     enter: "Select",
-    resize: false,
+    resize: true,
     shortcuts: [
       backToMainShortcut,
       {

@@ -22,30 +22,24 @@ let stripName = (name: string) =>
   path.parse(name.trim().replace(/\s/g, "-").toLowerCase())
     .name
 
-let onInput = async input => {
-  if (input) {
-    let scriptName = stripName(input)
-    setPanel(
-      md(`# Create <code>${scriptName}</code>
-  
-  Type <kbd>${returnOrEnter}</kd> to create a script named <code>${scriptName}</code>
-      `)
-    )
-  }
-}
-
 let name = await arg(
   {
     placeholder:
       arg?.placeholder || "Enter a name for your script:",
-    hint: `e.g., ${examples}`,
     validate: input => {
       return exists(input.replace(/\s/g, "-").toLowerCase())
     },
     shortcuts: [],
     enter: `Create script and open in editor`,
+    strict: false,
   },
-  onInput
+  [
+    {
+      info: true,
+      name: `Requirements: lowercase, dashed, no extension`,
+      description: `Examples: ${examples}`,
+    },
+  ]
 )
 
 let { dirPath: selectedKenvPath } = await selectKenv({

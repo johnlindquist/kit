@@ -11,6 +11,7 @@ export enum Channel {
   APP_CONFIG = "APP_CONFIG",
   APP_DB = "APP_DB",
   AUDIO_ENDED = "AUDIO_ENDED",
+  AUDIO_DATA = "AUDIO_DATA",
   CHOICE_FOCUSED = "CHOICE_FOCUSED",
   CLEAR_CACHE = "CLEAR_CACHE",
   CLEAR_PROMPT_CACHE = "CLEAR_PROMPT_CACHE",
@@ -240,6 +241,9 @@ export enum Channel {
   TERM_KILL = "TERM_KILL",
   APPEND_INPUT = "APPEND_INPUT",
   SCROLL_TO = "SCROLL_TO",
+  GET_MICROPHONE = "GET_MICROPHONE",
+  ON_AUDIO_DATA = "ON_AUDIO_DATA",
+  GET_DEVICES = "GET_DEVICES",
 }
 
 export enum ProcessType {
@@ -281,6 +285,9 @@ export enum UI {
   emoji = "emoji",
   debugger = "debugger",
   chat = "chat",
+  mic = "mic",
+  webcam = "webcam",
+  speech = "speech",
 }
 
 export enum Bin {
@@ -494,18 +501,18 @@ export enum Trigger {
 
 export const PROMPT = {
   WIDTH: {
-    MAIN_DEFAULT: 768,
+    DEFAULT: 768,
     MINI: 300,
   },
   HEIGHT: {
-    MAIN_DEFAULT: 480,
+    DEFAULT: 480,
     CHOICE_DEFAULT: 56,
     TOP_FRAME: 24,
     BOTTOM_FRAME: 28,
     INPUT_INFO: 26,
     INPUT: 56,
-    get CONDENSED() {
-      return this.INPUT + this.INPUT_INFO
+    get MINI() {
+      return this.TOP_FRAME + this.INPUT + this.BOTTOM_FRAME
     },
   },
 }

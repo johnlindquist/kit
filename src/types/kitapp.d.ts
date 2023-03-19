@@ -88,6 +88,18 @@ export type Toast = {
   (toast: string, options?: any): void
 }
 
+export type Mic = {
+  (config?: PromptConfig): Promise<string>
+}
+
+export type WebCam = {
+  (config?: PromptConfig): Promise<string>
+}
+
+export type Speech = {
+  (config?: PromptConfig): Promise<string>
+}
+
 export type Find = {
   (config?: PromptConfig): Promise<string>
 }
@@ -960,5 +972,8 @@ declare global {
   var chat: Chat
   var toast: Toast
   var find: Find
+  var mic: Mic
+  var webcam: WebCam
+  var speech: Speech
   var PROMPT: typeof PROMPT_OBJECT
 }
