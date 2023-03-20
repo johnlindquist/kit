@@ -1,0 +1,8 @@
+@echo off
+set NODE_NO_WARNINGS=1
+set KENV=%~dp0..
+set KNODE={{KNODE}}
+set KIT={{KIT}}
+set TARGET_PATH={{TARGET_PATH}}
+
+%KNODE%\bin\node.exe %KIT%\run\terminal.js %TARGET_PATH% %*

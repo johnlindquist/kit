@@ -33,6 +33,13 @@ export let createBinFromScript = async (
 ) => {
   let template = jsh ? "stackblitz" : "terminal"
 
+  let useCmd =
+    process.platform === "win32" && !process.env?.KIT_WSL
+
+  if (useCmd) {
+    template = "cmd"
+  }
+
   let binTemplate = await readFile(
     kitPath("templates", "bin", template),
     "utf8"
@@ -55,6 +62,11 @@ export let createBinFromScript = async (
     ...(jsh ? ["node_modules", ".bin"] : ["bin"])
   )
   let binFilePath = path.resolve(binDirPath, command)
+
+  // if windows, add .cmd extension
+  if (useCmd) {
+    binFilePath += ".cmd"
+  }
 
   await global.ensureDir(path.dirname(binFilePath))
   await global.writeFile(binFilePath, compiledBinTemplate)
