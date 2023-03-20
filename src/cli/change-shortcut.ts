@@ -31,10 +31,8 @@ let { filePath, command, menu, name } = await selectScript(
       })
 )
 
-let { shortcut } = await hotkey({
-  placeholder: `Enter a key combo:`,
-  panel: md(`Change shortcut for "${name}"`),
-})
+setDescription(`Changing shortcut for ${name}`)
+let { shortcut } = await hotkey(`Enter a key combo:`)
 
 let fileContents = await readFile(filePath, "utf-8")
 let reg = /(?<=^\/\/\s*Shortcut:\s).*(?=$)/gim
@@ -50,14 +48,13 @@ if (
     `// Shortcut: ${shortcut}\n${fileContents}`
   )
 }
-div(
-  md(
-    `${menu || command} assigned <code>${shortcut}</code>`
-  ),
-  `flex justify-center items-center`
-)
 
-await wait(2000, null)
+arg(`Shortcut Changed`, [
+  { name: `Shortcut changed to ${shortcut}`, info: true },
+])
+
+await wait(1500)
+submit("")
 
 if (process.env.KIT_CONTEXT === "app") {
   await run(mainScriptPath)

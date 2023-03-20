@@ -1,16 +1,20 @@
-// Name: Change Kit.app Shortcut
+// Name: Change Shortcut
 
 let shortcut = ""
 let confirm = false
 
 import { mainScriptPath } from "../core/utils.js"
 
+setDescription(`Changing shortcut for main menu`)
 while (!confirm) {
   ;({ shortcut } = await hotkey({
     placeholder: `Enter a key combo:`,
-    panel: md(`## Change main shortcut`),
   }))
-  confirm = await arg(`Accept: "${shortcut}"`, [
+  confirm = await arg(`Accept`, [
+    {
+      name: `Accept: "${shortcut}"`,
+      info: true,
+    },
     {
       name: `[Y]es`,
       value: true,
@@ -27,7 +31,12 @@ let kitDb = await db(kitPath("db", "shortcuts.json"))
 kitDb.data.shortcuts[kitPath("main", "index.js")] = shortcut
 await kitDb.write()
 
-await div(md(`## ${shortcut} assigned to main`))
+arg(`Shortcut Changed`, [
+  { name: `Shortcut changed to ${shortcut}`, info: true },
+])
+
+await wait(1500)
+submit("")
 
 if (process.env.KIT_CONTEXT === "app") {
   await run(mainScriptPath)

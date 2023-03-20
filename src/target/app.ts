@@ -1212,10 +1212,10 @@ global.hotkey = async (
       : placeholder
 
   return await global.kitPrompt({
-    ...config,
     shortcuts: [backToMainShortcut],
     enter: "",
     ui: UI.hotkey,
+    ...config,
   })
 }
 
