@@ -1212,6 +1212,7 @@ global.hotkey = async (
       : placeholder
 
   return await global.kitPrompt({
+    resize: true,
     shortcuts: [backToMainShortcut],
     enter: "",
     ui: UI.hotkey,
@@ -1942,14 +1943,14 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     if (hasExtension) {
       setEnter("Create File")
       setPanel(
-        md(`# Create and Select This File
+        md(`# Create and Select File
 
 > <code>${input}</code>`)
       )
     } else {
       setEnter("Create Folder")
       setPanel(
-        md(`# Create and Select This Folder
+        md(`# Create and Select Folder
 
 > <code>${input}</code>`)
       )
