@@ -92,17 +92,51 @@ let buildTSScript = async (scriptPath, outPath = "") => {
 
   let writeErrorFile = async errorBody => {
     let name = path.basename(scriptPath)
-    let errorScript = `
-await div(md(\`# Failed to Compile ${name}
+
+    // if errorBody contains "Could not resolve", then we can
+    // assume that the user is trying to import a package that
+    // doesn't exist. We can then provide a helpful error message
+
+    let errorScript = ``
+    let mustInstall = ``
+
+    let regex = /Could not resolve "([^"]+)"/
+    let match = errorBody?.match(regex)
+
+    if (match?.[1]) {
+      mustInstall = match[1]
+    }
+
+    if (mustInstall) {
+      errorScript = `
+import "@johnlindquist/kit"      
+await npm("${mustInstall}")
+log("${mustInstall}")
+let contents = "${kitPath("build", "ts.js")} ${scriptPath}"
+
+log({contents})
+let runTxt = "${kitPath("run.txt")}"
+await writeFile(runText, contents)
+
+await wait(500)
+
+await writeFile(runTxt, "${scriptPath}")
+
+`
+    } else {
+      errorScript = `
+      await div(md(\`# Failed to Compile ${name}
 ## Please fix the following errors and try again
+      
+      ${errorBody}
+      
+      ## Found npm packages:
+      ${external.join("\n* ")}
+      
+      \`))
+`
+    }
 
-${errorBody}
-
-## Found npm packages:
-${external.join("\n* ")}
-
-\`))
-    `
     await writeFile(outfile, errorScript)
   }
   try {

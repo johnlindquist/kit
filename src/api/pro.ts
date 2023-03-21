@@ -214,6 +214,7 @@ let term = async (
       ...global.env,
       PATH: KIT_FIRST_PATH,
     },
+    height: PROMPT.HEIGHT.DEFAULT,
     ...config,
   })
 }
