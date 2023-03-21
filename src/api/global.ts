@@ -13,7 +13,7 @@ import {
 } from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
-import { PromptConfig } from "../types/core"
+import { EnvConfig } from "../types/kit.js"
 
 global.getScripts = getScripts
 
@@ -27,43 +27,49 @@ await import("./packages/open.js")
 
 global.env = async (envKey, promptConfig) => {
   if (!envKey) throw new Error(`Environment Key Required`)
-  let ignoreBlur =
-    (promptConfig as PromptConfig)?.ignoreBlur === false
-      ? false
-      : true
+
+  let pc = (
+    typeof promptConfig === "function"
+      ? await promptConfig()
+      : typeof promptConfig === "string"
+      ? { placeholder: `Set ${envKey}:` }
+      : promptConfig
+  ) as EnvConfig
+
+  let ignoreBlur = pc?.ignoreBlur === false ? false : true
   let secret =
-    typeof (promptConfig as PromptConfig)?.secret ===
-    "boolean"
-      ? (promptConfig as PromptConfig).secret
-      : envKey.includes("KEY") ||
-        envKey.includes("SECRET") ||
-        envKey.includes("TOKEN")
-      ? true
-      : false
-  if ((promptConfig as any)?.reset !== true) {
+    pc?.secret ??
+    (envKey.includes("KEY") ||
+      envKey.includes("SECRET") ||
+      envKey.includes("TOKEN"))
+
+  let placeholder = pc?.placeholder ?? `Set ${envKey}:`
+
+  if (pc?.reset !== true) {
     let envVal = global.env[envKey] || process.env[envKey]
     if (envVal) return envVal
   }
 
-  let input =
-    typeof promptConfig === "function"
-      ? await promptConfig()
-      : typeof promptConfig === "string"
-      ? await global.kitPrompt({
-          enter: "Write to .env",
-          shortcuts: [],
-          placeholder: promptConfig,
-          ignoreBlur,
-          secret,
-        })
-      : await global.kitPrompt({
-          enter: "Write to .env",
-          shortcuts: [],
-          placeholder: `Set ${envKey}:`,
-          ignoreBlur,
-          ...promptConfig,
-          secret,
-        })
+  let choices = [
+    {
+      name: `Enter a value for ${envKey} in ~/.kenv/.env`,
+      info: true,
+    },
+  ]
+
+  let promptOptions = {
+    enter: "Write to .env",
+    placeholder,
+    shortcuts: [],
+    ignoreBlur,
+    secret,
+    choices,
+    strict: false,
+    resize: true,
+    ...pc,
+  }
+
+  let input = await global.kitPrompt(promptOptions)
 
   if (input?.startsWith("~"))
     input = input.replace(/^~/, home())
