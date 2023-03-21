@@ -22,7 +22,7 @@ if (errorMessage.includes("Cannot find package")) {
     /(?<=Cannot find package ').*(?=' imported)/g
   )[0]
 
-  await npm(pkg)
+  await npmInstall(pkg)
   await writeFile(kitPath("run.txt"), errorFile)
 } else {
   let errorLog = `${path

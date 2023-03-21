@@ -110,7 +110,7 @@ let buildTSScript = async (scriptPath, outPath = "") => {
     if (mustInstall) {
       errorScript = `
 import "@johnlindquist/kit"      
-await npm("${mustInstall}")
+await npmInstall("${mustInstall}")
 log("${mustInstall}")
 let contents = "${kitPath("build", "ts.js")} ${scriptPath}"
 

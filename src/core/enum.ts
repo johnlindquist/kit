@@ -500,19 +500,69 @@ export enum Trigger {
 }
 
 export const PROMPT = {
+  RATIO: 1.6,
   WIDTH: {
+    XXS: 360,
+    XS: 480,
+    SM: 512,
+    MD: 640,
     DEFAULT: 768,
-    MINI: 300,
+    LG: 896,
+    XL: 1024,
+    "2XL": 1152,
+    "3XL": 1280,
+    "4XL": 1408,
+    "5XL": 1536,
+    "6XL": 1664,
   },
   HEIGHT: {
-    DEFAULT: 480,
+    get XXS() {
+      return Math.round(PROMPT.WIDTH.XXS / PROMPT.RATIO)
+    },
+    get XS() {
+      return Math.round(PROMPT.WIDTH.XS / PROMPT.RATIO)
+    },
+    get SM() {
+      return Math.round(PROMPT.WIDTH.SM / PROMPT.RATIO)
+    },
+    get MD() {
+      return Math.round(PROMPT.WIDTH.MD / PROMPT.RATIO)
+    },
+    get DEFAULT() {
+      return Math.round(PROMPT.WIDTH.DEFAULT / PROMPT.RATIO)
+    },
+    get LG() {
+      return Math.round(PROMPT.WIDTH.LG / PROMPT.RATIO)
+    },
+    get XL() {
+      return Math.round(PROMPT.WIDTH.XL / PROMPT.RATIO)
+    },
+    get "2XL"() {
+      return Math.round(PROMPT.WIDTH["2XL"] / PROMPT.RATIO)
+    },
+    get "3XL"() {
+      return Math.round(PROMPT.WIDTH["3XL"] / PROMPT.RATIO)
+    },
+    get "4XL"() {
+      return Math.round(PROMPT.WIDTH["4XL"] / PROMPT.RATIO)
+    },
+    get "5XL"() {
+      return Math.round(PROMPT.WIDTH["5XL"] / PROMPT.RATIO)
+    },
+    get "6XL"() {
+      return Math.round(PROMPT.WIDTH["6XL"] / PROMPT.RATIO)
+    },
     CHOICE_DEFAULT: 56,
     TOP_FRAME: 24,
     BOTTOM_FRAME: 28,
     INPUT_INFO: 26,
     INPUT: 56,
-    get MINI() {
-      return this.TOP_FRAME + this.INPUT + this.BOTTOM_FRAME
+    get INPUT_ONLY() {
+      return (
+        PROMPT.HEIGHT.TOP_FRAME +
+        PROMPT.HEIGHT.INPUT +
+        PROMPT.HEIGHT.BOTTOM_FRAME
+      )
     },
   },
 }

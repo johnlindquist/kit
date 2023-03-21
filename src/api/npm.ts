@@ -134,7 +134,8 @@ let kenvImport = async (packageName: string) => {
 }
 
 export let createNpm =
-  npmInstall => async packageNameWithVersion => {
+  (npmInstall, attemptImport = true) =>
+  async packageNameWithVersion => {
     // remove any version numbers
     let packageName = packageNameWithVersion.replace(
       /(?<=.)(@|\^|~).*/g,
@@ -180,5 +181,7 @@ export let createNpm =
       return kenvImport(packageName)
     }
     await npmInstall(packageNameWithVersion)
-    return await kenvImport(packageName)
+    if (attemptImport) {
+      return await kenvImport(packageName)
+    }
   }

@@ -193,7 +193,11 @@ global.selectKitEditor = async (reset = false) => {
     return filteredMacEditors
   }
   return await global.env("KIT_EDITOR", {
+    description: `Select a code editor for Script Kit`,
+    name: " ",
     reset,
+    resize: false,
+    height: 882,
     placeholder: "Which code editor do you use?",
     preview: md(`
 > You can change your editor later in .env

@@ -1290,6 +1290,7 @@ global.chat = async (options = {}) => {
     placeholder: "",
     ignoreBlur: true,
     ui: UI.chat,
+    height: PROMPT.HEIGHT.DEFAULT,
     enter: "",
     shortcuts: [
       {
@@ -1393,9 +1394,11 @@ global.updateArgs = arrayOfArgs => {
 
 global.updateArgs(process.argv.slice(2))
 
-let appInstall = async packageName => {
+export let appInstall = async packageName => {
   if (!global.arg?.trust) {
     let placeholder = `${packageName} is required for this script`
+    setDescription(placeholder)
+    setName(" ")
 
     let stripVersion = packageName.replace(
       /(?<=.)(@|\^|~).*/g,
@@ -1449,6 +1452,7 @@ let appInstall = async packageName => {
 
 let { createNpm } = await import("../api/npm.js")
 global.npm = createNpm(appInstall)
+global.npmInstall = createNpm(appInstall, false)
 
 global.setPanel = (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
