@@ -29,10 +29,8 @@ let action = await arg(
         onPress: async () => {
           await run(
             kitPath("main", "browse.js"),
-            selectedPath.replace(
-              new RegExp(`${path.sep}$`),
-              ""
-            )
+            path.dirname(selectedPath),
+            ""
           )
         },
       },

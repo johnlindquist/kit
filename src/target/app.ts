@@ -2004,6 +2004,10 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       enter: "Select",
       // TODO: If I want resize, I need to create choices first?
       resize: false,
+      onInit: async () => {
+        await wait(250)
+        setResize(true)
+      },
       shortcuts: [
         {
           name: "Out",
@@ -2568,8 +2572,21 @@ global.toast = async (text: string, options: any = {}) => {
 global.mic = async () => {
   return await global.kitPrompt({
     ui: UI.mic,
-    enter: "Stop Recording",
-    shortcuts: [backToMainShortcut, closeShortcut],
+    enter: "Stop",
+    shortcuts: [
+      backToMainShortcut,
+      {
+        key: `${cmd}+i`,
+        name: `Select Webcam`,
+        onPress: async () => {
+          await run(kitPath("cli", "select-mic.js"))
+          await mainScript()
+        },
+        bar: "right",
+      },
+
+      closeShortcut,
+    ],
     ignoreBlur: true,
   })
 }
@@ -2577,8 +2594,20 @@ global.mic = async () => {
 global.webcam = async () => {
   return await global.kitPrompt({
     ui: UI.webcam,
-    enter: "Stop Recording",
-    shortcuts: [backToMainShortcut, closeShortcut],
+    enter: "Capture",
+    shortcuts: [
+      backToMainShortcut,
+      {
+        key: `${cmd}+i`,
+        name: `Select Webcam`,
+        onPress: async () => {
+          await run(kitPath("cli", "select-webcam.js"))
+          await mainScript()
+        },
+        bar: "right",
+      },
+      closeShortcut,
+    ],
     ignoreBlur: true,
   })
 }
@@ -2592,7 +2621,7 @@ global.speech = async () => {
   })
 }
 
-global.getDevices = async () => {
+global.getMediaDevices = async () => {
   let appMessage = await sendWait(Channel.GET_DEVICES)
 
   return appMessage?.state?.value

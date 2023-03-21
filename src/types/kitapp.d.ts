@@ -100,6 +100,10 @@ export type Speech = {
   (config?: PromptConfig): Promise<string>
 }
 
+export type GetMediaDevices = {
+  (): Promise<MediaDeviceInfo[]>
+}
+
 export type Find = {
   (config?: PromptConfig): Promise<string>
 }
@@ -975,5 +979,6 @@ declare global {
   var mic: Mic
   var webcam: WebCam
   var speech: Speech
+  var getMediaDevices: GetMediaDevices
   var PROMPT: typeof PROMPT_OBJECT
 }
