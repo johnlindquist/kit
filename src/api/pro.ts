@@ -192,6 +192,7 @@ let term = async (
     input: command,
     ui: UI.term,
     enter: "",
+    ignoreBlur: true,
     shortcuts: [
       {
         name: "Exit",
