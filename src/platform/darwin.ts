@@ -197,7 +197,7 @@ global.selectKitEditor = async (reset = false) => {
     name: " ",
     reset,
     resize: false,
-    height: 882,
+    height: PROMPT.HEIGHT.XL,
     placeholder: "Which code editor do you use?",
     preview: md(`
 > You can change your editor later in .env
