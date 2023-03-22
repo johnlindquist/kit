@@ -1290,7 +1290,7 @@ global.chat = async (options = {}) => {
     placeholder: "",
     ignoreBlur: true,
     ui: UI.chat,
-    height: PROMPT.HEIGHT.DEFAULT,
+    height: PROMPT.HEIGHT.XL,
     enter: "",
     shortcuts: [
       {
