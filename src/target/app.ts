@@ -2582,7 +2582,7 @@ global.mic = async () => {
       backToMainShortcut,
       {
         key: `${cmd}+i`,
-        name: `Select Webcam`,
+        name: `Select Mic`,
         onPress: async () => {
           await run(kitPath("cli", "select-mic.js"))
           await mainScript()

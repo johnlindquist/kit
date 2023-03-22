@@ -3,7 +3,7 @@
 let devices = await getMediaDevices()
 
 let webcamId = await arg(
-  "Select Webcam",
+  "Select Mic",
   devices
     .filter(d => d.kind === "audioinput")
     .map(d => {

@@ -4,19 +4,25 @@ import "@johnlindquist/kit"
 let themes = {
   ["Script Kit"]: {
     foreground: "white",
-    background: "6, 6, 6",
+    background: "16, 16, 16",
     accent: "251, 191, 36",
     ui: "64, 64, 64",
-    opacity: "0.75",
+    opacity: "0.8",
   },
-  ["VS Code Light"]: {
+  ["Script Kit Light"]: {
     foreground: "2C2C2C",
     accent: "2F86D3",
     background: "white",
     opacity: "0.85",
     ui: "CCCCF0",
   },
-
+  ["Mac"]: {
+    foreground: "236, 236, 236",
+    background: "282C34",
+    accent: "251, 191, 36",
+    ui: "3D4349",
+    opacity: "0.6",
+  },
   ["One Dark Pro"]: {
     foreground: "ABB2BF",
     background: "282C34",
