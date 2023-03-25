@@ -22,7 +22,7 @@ let newCommand = await arg(
   },
   [
     {
-      info: true,
+      info: "always",
       name: `Requirements: lowercase, dashed, no extension`,
       description: `Examples: ${examples}`,
     },

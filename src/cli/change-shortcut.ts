@@ -50,7 +50,10 @@ if (
 }
 
 arg(`Shortcut Changed`, [
-  { name: `Shortcut changed to ${shortcut}`, info: true },
+  {
+    name: `Shortcut changed to ${shortcut}`,
+    info: "always",
+  },
 ])
 
 await wait(1500)

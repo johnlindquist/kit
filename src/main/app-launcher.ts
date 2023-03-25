@@ -105,11 +105,12 @@ let createChoices = async () => {
 let appsDb = await db(
   kitPath("db", "apps.json"),
   async () => {
+    setResize(true)
     setChoices([
       {
         name: `First Run: Indexing Apps and Caching Icons...`,
         description: `Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.`,
-        info: true,
+        info: "always",
       },
     ])
 

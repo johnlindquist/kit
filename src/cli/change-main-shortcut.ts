@@ -13,7 +13,7 @@ while (!confirm) {
   confirm = await arg(`Accept`, [
     {
       name: `Accept: "${shortcut}"`,
-      info: true,
+      info: "always",
     },
     {
       name: `[Y]es`,
@@ -32,7 +32,10 @@ kitDb.data.shortcuts[kitPath("main", "index.js")] = shortcut
 await kitDb.write()
 
 arg(`Shortcut Changed`, [
-  { name: `Shortcut changed to ${shortcut}`, info: true },
+  {
+    name: `Shortcut changed to ${shortcut}`,
+    info: "always",
+  },
 ])
 
 await wait(1500)

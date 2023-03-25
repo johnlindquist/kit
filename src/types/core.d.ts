@@ -32,7 +32,7 @@ export interface Choice<Value = any> {
   onSubmit?: (choice: Choice) => Promise<void>
   enter?: string
   disableSubmit?: boolean
-  info?: boolean
+  info?: undefined | "always" | "onNoChoices"
 }
 
 export interface ScriptPathInfo {
@@ -203,7 +203,7 @@ export interface GenerateChoices {
 }
 
 export type Choices<Value> =
-  | string[]
+  | (string | Choice)[]
   | Choice<Value>[]
   | (() => Choice<Value>[])
   | (() => Promise<Choice<Value>[]>)
