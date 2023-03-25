@@ -174,14 +174,7 @@ export interface TextArea {
 }
 
 export interface Drop {
-  (
-    placeholder?:
-      | string
-      | {
-          placeholder?: string
-          hint?: string
-        }
-  ): Promise<any>
+  (placeholder?: string | PromptConfig): Promise<any>
 }
 export interface Template {
   (template: string, config?: EditorConfig): Promise<string>
@@ -225,8 +218,16 @@ export type AudioOptions = {
   playbackRate?: number
 }
 
+type EmojiObject = {
+  activeSkinTone: string
+  emoji: string
+  names: string[]
+  unified: string
+  unifiedWithoutSkinTone: string
+}
+
 export interface Emoji {
-  (config?: PromptConfig): Promise<string>
+  (config?: PromptConfig): Promise<EmojiObject>
 }
 
 export interface DivConfig extends PromptConfig {

@@ -904,6 +904,8 @@ global.drop = async (
   return await global.kitPrompt({
     ui: UI.drop,
     enter: "",
+    width: PROMPT.WIDTH.XXS,
+    height: PROMPT.WIDTH.XXS,
     shortcuts: [backToMainShortcut, closeShortcut],
     ...config,
     ignoreBlur: true,
@@ -1170,6 +1172,7 @@ global.editor = async (options?: EditorOptions) => {
     input: editorOptions.value,
     flags: {},
     shortcuts: defaultShortcuts,
+    height: PROMPT.HEIGHT.XL,
     ...editorOptions,
     enter: "",
   })
@@ -1368,6 +1371,7 @@ global.textarea = async (options = "") => {
     ignoreBlur: true,
     enter: "",
     shortcuts: defaultShortcuts,
+    height: PROMPT.HEIGHT.XL,
     ...config,
     input: config?.value || config?.input || "",
   })
