@@ -1292,8 +1292,9 @@ global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
     placeholder: "",
     ignoreBlur: true,
-    resize: false,
+    resize: true,
     ui: UI.chat,
+    width: PROMPT.WIDTH.DEFAULT,
     height: PROMPT.HEIGHT.XL,
     enter: "",
     shortcuts: [
@@ -2583,8 +2584,8 @@ global.mic = async () => {
   return await global.kitPrompt({
     ui: UI.mic,
     enter: "Stop",
-    width: PROMPT.WIDTH.XS,
-    height: PROMPT.HEIGHT.XS,
+    width: PROMPT.WIDTH.DEFAULT,
+    height: PROMPT.HEIGHT.DEFAULT,
     resize: true,
     shortcuts: [
       backToMainShortcut,
