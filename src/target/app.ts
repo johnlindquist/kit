@@ -1292,6 +1292,7 @@ global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
     placeholder: "",
     ignoreBlur: true,
+    resize: false,
     ui: UI.chat,
     height: PROMPT.HEIGHT.XL,
     enter: "",
@@ -2582,6 +2583,9 @@ global.mic = async () => {
   return await global.kitPrompt({
     ui: UI.mic,
     enter: "Stop",
+    width: PROMPT.WIDTH.XS,
+    height: PROMPT.HEIGHT.XS,
+    resize: true,
     shortcuts: [
       backToMainShortcut,
       {
@@ -2604,6 +2608,9 @@ global.webcam = async () => {
   return await global.kitPrompt({
     ui: UI.webcam,
     enter: "Capture",
+    resize: true,
+    width: PROMPT.WIDTH.DEFAULT,
+    height: PROMPT.HEIGHT.DEFAULT,
     shortcuts: [
       backToMainShortcut,
       {
