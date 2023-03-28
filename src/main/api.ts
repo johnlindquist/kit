@@ -6,7 +6,7 @@ let selectedDoc = await docs(
   kitPath("API.md"),
   createGuideConfig({
     name: "API",
-    itemHeight: 48,
+    itemHeight: PROMPT.ITEM.HEIGHT.MD,
     input: arg?.input || "",
     placeholder: "Browse API",
     enter: `Suggest Edit`,

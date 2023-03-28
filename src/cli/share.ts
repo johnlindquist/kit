@@ -8,7 +8,7 @@ let { filePath } = await selectScript(`Share which script?`)
 let how: keyof CLI = await arg(
   {
     placeholder: "Share",
-    resize: false,
+    resize: true,
   },
   [
     {

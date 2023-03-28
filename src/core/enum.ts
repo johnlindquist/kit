@@ -501,6 +501,16 @@ export enum Trigger {
 
 export const PROMPT = {
   RATIO: 1.6,
+  ITEM: {
+    HEIGHT: {
+      XS: 24,
+      SM: 32,
+      MD: 48,
+      DEFAULT: 56,
+      LG: 64,
+      XL: 72,
+    },
+  },
   WIDTH: {
     XXS: 360,
     XS: 480,

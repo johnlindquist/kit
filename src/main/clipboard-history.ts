@@ -6,11 +6,33 @@ import { cmd, returnOrEnter } from "../core/utils.js"
 
 let historyWithPreviews = async () => {
   let history = await getClipboardHistory()
-  return history.map(item => {
-    ;(item as Choice).preview = () =>
-      `<div class="text-xs p-5 font-mono">${item.value}</div>`
-    return item
-  })
+
+  return input => {
+    return history
+      .filter(item => {
+        return (
+          input.length < 2 ||
+          item.value
+            .toLowerCase()
+            .includes(input.toLowerCase())
+        )
+      })
+      .map(item => {
+        let previewContent =
+          input < 2
+            ? item.value
+            : item.value.replaceAll(
+                new RegExp(input, "gi"),
+                `<span class="text-primary">${input}</span>`
+              )
+
+        return {
+          name: item.name,
+          value: item.value,
+          preview: `<div class="p-4">${previewContent}</div>`,
+        }
+      })
+  }
 }
 // setFlags({
 //   ["remove"]: {
@@ -29,6 +51,7 @@ let value = await arg(
   {
     placeholder: "Hit enter to paste",
     enter: `Paste item`,
+    itemHeight: PROMPT.ITEM.HEIGHT.MD,
     shortcuts: [
       {
         name: "Remove",
@@ -38,7 +61,8 @@ let value = await arg(
           if (focused?.id) {
             await removeClipboardItem(focused?.id)
           }
-          setChoices(await historyWithPreviews())
+          let history = await historyWithPreviews()
+          setChoices(history(""))
         },
       },
       {
@@ -46,7 +70,8 @@ let value = await arg(
         key: `${cmd}+shift+backspace`,
         onPress: async () => {
           await clearClipboardHistory()
-          setChoices(await historyWithPreviews())
+          let history = await historyWithPreviews()
+          setChoices(history(""))
         },
       },
     ],
