@@ -83,9 +83,11 @@ let createChoices = async () => {
           `${appName}.png`
         )
 
+        let value = appPath.replace(/\r?\n?$/i, "")
         return {
+          id: value,
           name: appName.replace(/\.(app|lnk|url)\s*$/i, ""),
-          value: appPath.replace(/\r?\n?$/i, ""),
+          value,
           description: appPath.replace(/\r?\n?$/i, ""),
           img:
             process.platform === "darwin"
@@ -126,6 +128,7 @@ let appsDb = await db(
 )
 let app = await arg(
   {
+    key: "app-launcher",
     input: (flag?.input as string) || "",
     resize: true,
     placeholder: "Select an app to launch",

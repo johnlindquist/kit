@@ -146,6 +146,7 @@ export type Shortcut = {
 
 export interface PromptData {
   id: string
+  key: string
   scriptPath: string
   description: string
   flags: FlagsOptions
