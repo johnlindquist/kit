@@ -3,7 +3,7 @@
 // Log: false
 
 import { setScriptTimestamp } from "../core/db.js"
-import { Value } from "../core/enum.js"
+import { Channel, Value } from "../core/enum.js"
 import {
   toggleBackground,
   run,
@@ -415,20 +415,7 @@ if (typeof script === "boolean" && !script) {
 }
 
 if ((script as Script)?.shebang) {
-  let { shebang, filePath } = script as Script
-  // split shebang into command and args
-  let [command, ...shebangArgs] = shebang.split(/\s+/)
-  let child = spawn(command, [...shebangArgs, filePath], {
-    stdio: "inherit",
-    detached: true,
-  })
-
-  if (child.stdout && child.stderr) {
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
-  }
-
-  child.unref()
+  await sendWait(Channel.SHEBANG, script)
 } else if (
   script === Value.NoValue ||
   typeof script === "undefined"

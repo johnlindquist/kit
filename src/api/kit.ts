@@ -725,6 +725,67 @@ ${html.trim()}
 </pre>`
 }
 
+let getLanguage = (language: string) => {
+  if (language.includes("python")) return "python"
+  if (language.includes("ruby")) return "ruby"
+  if (language.includes("php")) return "php"
+  if (language.includes("perl")) return "perl"
+
+  switch (language) {
+    case "node":
+      language = "javascript"
+      break
+
+    case "sh":
+    case "zsh":
+      language = "bash"
+      break
+
+    case "irb":
+      language = "ruby"
+      break
+
+    case "raku":
+    case "perl6":
+      language = "perl"
+      break
+
+    case "ps1":
+    case "pwsh":
+      language = "powershell"
+      break
+
+    case "tclsh":
+      language = "tcl"
+      break
+
+    case "erl":
+    case "escript":
+      language = "erlang"
+      break
+
+    case "iex":
+      language = "elixir"
+      break
+
+    case "rscript":
+    case "r":
+      language = "r"
+      break
+
+    case "ghci":
+    case "hugs":
+      language = "haskell"
+      break
+
+    default:
+      // If the language is not recognized or already has the correct syntax, leave it as is.
+      break
+  }
+
+  return language
+}
+
 export let highlightJavaScript = async (
   filePath: string,
   shebang = ""
@@ -742,9 +803,12 @@ export let highlightJavaScript = async (
   if (shebang) {
     // split shebang into command and args
     let [command, ...shebangArgs] = shebang.split(" ")
+
     let language = command.endsWith("env")
       ? shebangArgs?.[0]
       : command.split("/").pop() || "bash"
+
+    language = getLanguage(language)
     highlightedContents = highlight.highlight(contents, {
       language,
     }).value
