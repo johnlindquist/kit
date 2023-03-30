@@ -275,7 +275,7 @@ interface AddChoice {
 
 interface SetChoices {
   (
-    choices: Choice[],
+    choices: (Choice | string)[],
     className?: string,
     scripts?: boolean
   ): Promise<void>

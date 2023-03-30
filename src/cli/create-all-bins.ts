@@ -25,6 +25,12 @@ for await (let kenv of kenvs) {
 
 let jsh = process.env?.SHELL?.includes("jsh")
 let template = jsh ? "stackblitz" : "terminal"
+let useCmd =
+  process.platform === "win32" && !process.env?.KIT_WSL
+
+if (useCmd) {
+  template = "cmd"
+}
 let binTemplate = await readFile(
   kitPath("templates", "bin", template),
   "utf8"
@@ -49,6 +55,9 @@ for await (let { command, filePath } of scripts) {
     ...(jsh ? ["node_modules", ".bin"] : ["bin"])
   )
   let binFilePath = path.resolve(binDirPath, command)
+  if (useCmd) {
+    binFilePath += ".cmd"
+  }
   await global.writeFile(binFilePath, compiledBinTemplate)
   global.chmod(755, binFilePath)
 }
