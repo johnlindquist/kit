@@ -343,18 +343,6 @@ global.attemptImport = async (scriptPath, ..._args) => {
   return importResult
 }
 
-// process.on("uncaughtException", async err => {
-//   await errorPrompt(err)
-// })
-
-// process.on("rejectionHandled", async code => {
-//   console.log({ code })
-// })
-
-// process.on("warning", async warning => {
-//   console.log({ warning })
-// })
-
 global.send = async (channel: Channel, value?: any) => {
   if (process?.send) {
     try {
