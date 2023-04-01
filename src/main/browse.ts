@@ -12,7 +12,6 @@ if (initialPath === "~") initialPath = home()
 let selectedPath = await path({
   startPath: initialPath,
   resize: true,
-  shortcuts: [backToMainShortcut],
 })
 setDescription(selectedPath)
 let action = await arg(

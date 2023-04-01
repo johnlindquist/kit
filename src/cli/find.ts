@@ -45,10 +45,12 @@ let filePath = await arg(
   async input => {
     try {
       if (!input || input?.length < 3) {
-        setChoices([])
-        setPanel(
-          md(`## Please type more than 2 characters:`)
-        )
+        setChoices([
+          {
+            info: "onNoChoices",
+            name: "Please type more than 2 characters",
+          },
+        ])
         return
       }
 

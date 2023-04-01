@@ -1746,13 +1746,13 @@ let verifyFullDiskAccess = async () => {
   return global.sendWait(Channel.VERIFY_FULL_DISK_ACCESS)
 }
 
+type PathConfig = PromptConfig & {
+  startPath?: string
+  onlyDirs?: boolean
+}
+
 let __pathSelector = async (
-  config:
-    | string
-    | {
-        startPath?: string
-        onlyDirs?: boolean
-      } = home(),
+  config: string | PathConfig = home(),
   { showHidden } = { showHidden: false }
 ) => {
   await setIgnoreBlur(true)
@@ -2002,6 +2002,9 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       setChoices(choices)
     }
   }
+  let bar = (config as PromptConfig)?.shortcuts?.length
+    ? ""
+    : ("right" as PromptConfig["shortcuts"][0]["bar"])
   let selectedPath = await arg(
     {
       ...(config as PromptConfig),
@@ -2024,53 +2027,40 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
         {
           name: "Out",
           key: "left",
-          bar: "right",
+          bar,
           onPress: onLeft,
         },
         {
           name: "In",
           key: "right",
-          bar: "right",
+          bar,
           onPress: onRight,
         },
         {
           name: "Name",
           key: `${cmd}+,`,
           onPress: createSorter("name"),
-          bar: "right",
+          bar,
         },
         {
           name: "Size",
           key: `${cmd}+.`,
           onPress: createSorter("size"),
-          bar: "right",
+          bar,
         },
         {
           name: "Date",
           key: `${cmd}+/`,
           onPress: createSorter("date"),
-          bar: "right",
+          bar,
         },
+        ...((config as PromptConfig).shortcuts || []),
       ],
-
-      // onShortcut: {
-      //   [`${cmd}+,`]: {
-      //     name: "Sort by name",
-      //     handler: createSorter(`name`),
-      //   },
-      //   [`${cmd}+.`]: {
-      //     name: "Sort by size",
-      //     handler: createSorter(`size`),
-      //   },
-      //   [`${cmd}+/`]: {
-      //     name: "Sort by date",
-      //     handler: createSorter(`date`),
-      //   },
-      // },
     },
     []
   )
 
+  if (!selectedPath) return ""
   let doesPathExist = await pathExists(selectedPath)
   if (!doesPathExist) {
     if (path.extname(selectedPath)) {
