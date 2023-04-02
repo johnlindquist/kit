@@ -1261,6 +1261,7 @@ global.arg = async (
     ui: UI.arg,
     enter: "Submit",
     hint,
+    resize: !choices ? true : undefined,
     height: !choices ? PROMPT.HEIGHT.INPUT_ONLY : undefined,
     shortcuts: (placeholderOrConfig as PromptConfig)?.resize
       ? smallShortcuts
