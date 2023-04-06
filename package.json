@@ -53,7 +53,7 @@
     "@types/node-notifier": "8.0.2",
     "@types/shelljs": "0.8.11",
     "advanced-calculator": "1.1.0",
-    "esbuild": "0.17.14",
+    "esbuild": "0.17.15",
     "file-icon": "5.1.1",
     "filesize": "10.0.7",
     "googlethis": "*",
@@ -74,7 +74,7 @@
     "@types/node-ipc": "9.2.0",
     "ava": "4.3.3",
     "debug": "4.3.4",
-    "semantic-release": "21.0.0",
+    "semantic-release": "21.0.1",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
     "tsc-watch": "6.0.0",
     "typedoc": "0.23.28",
@@ -126,6 +126,6 @@
     ]
   },
   "volta": {
-    "node": "18.12.1"
+    "node": "18.14.0"
   }
 }

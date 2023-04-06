@@ -120,7 +120,6 @@ if (errorMessage.includes("Cannot find package")) {
 ${logFile
   .split("\n")
   .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
-  .reverse()
   .join("\n")}
 ~~~`,
             "",
