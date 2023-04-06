@@ -16,7 +16,7 @@ let site = await arg(
   }))
 )
 
-console.log(`Opening ${site}`)
+// console.log(`Opening ${site}`)
 
 await browse(site)
 
