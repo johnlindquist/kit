@@ -1326,6 +1326,32 @@ global.arg = async (
   return await global.kitPrompt(promptConfig)
 }
 
+global.mini = async (
+  placeholderOrConfig = "Type a value:",
+  choices = ``
+) => {
+  let miniConfig = {
+    headerClassName: "hidden",
+    footerClassName: "hidden",
+    inputHeight: PROMPT.INPUT.HEIGHT.SM,
+    itemHeight: PROMPT.INPUT.HEIGHT.SM,
+    placeholder: "",
+  }
+
+  if (typeof placeholderOrConfig === "string") {
+    miniConfig.placeholder = placeholderOrConfig
+  }
+
+  if (typeof placeholderOrConfig === "object") {
+    miniConfig = {
+      ...miniConfig,
+      ...(placeholderOrConfig as PromptConfig),
+    }
+  }
+
+  return await global.arg(miniConfig, choices)
+}
+
 global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
     placeholder: "",

@@ -217,6 +217,7 @@ export interface KitApi {
    * ```
    */
   arg: Arg
+  mini: Arg
   /**
    * @example
    * ```
@@ -320,6 +321,7 @@ declare global {
 
   var env: Env
   var arg: Arg
+  var mini: Arg
   var onTab: OnTab
   var onExit: OnExit
   var args: Args
