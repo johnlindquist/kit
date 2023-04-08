@@ -652,11 +652,16 @@ let onSubmitDefault = async (input, state) => {}
 let onValidationFailedDefault = async (input, state) => {}
 let onAudioDataDefault = async (input, state) => {}
 
+let currentPromptId = ""
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
   if (tabs) global.onTabs = tabs
+  if (data.id) {
+    currentPromptId = data.id
+  }
 
   global.send(Channel.SET_PROMPT_DATA, {
+    id: currentPromptId,
     scriptPath: global.kitScript,
     flags: prepFlags(data?.flags),
     hint: "",
@@ -788,7 +793,7 @@ global.kitPrompt = async (config: PromptConfig) => {
   await new Promise(r => setTimeout(r, 0))
 
   config.shortcuts ||= []
-  config.width ||= PROMPT.WIDTH.DEFAULT
+  config.width ||= PROMPT.WIDTH.BASE
 
   // if (!config.shortcuts.find(s => s.key === `escape`)) {
   //   config.shortcuts.push({
@@ -1113,6 +1118,7 @@ global.docs = async (filePath: string, options = {}) => {
   let choices = sections.map(section => {
     return {
       name: section.name,
+      className: "text-base",
       preview: async () =>
         highlight(section.raw, containerClasses),
       value: section?.comments?.value || section?.name,
@@ -1257,12 +1263,42 @@ global.arg = async (
     }
   }
 
+  let height = PROMPT.HEIGHT.BASE
+  if (typeof placeholderOrConfig === "object") {
+    if (!choices) height = undefined
+    let {
+      headerClassName = "",
+      footerClassName = "",
+      inputHeight,
+    } = placeholderOrConfig as PromptConfig
+    if (inputHeight) {
+      height = inputHeight
+    } else if (
+      headerClassName.includes("hidden") &&
+      footerClassName.includes("hidden")
+    ) {
+      height = PROMPT.INPUT.HEIGHT.BASE
+    } else if (
+      headerClassName.includes("hidden") &&
+      !footerClassName.includes("hidden")
+    ) {
+      height =
+        PROMPT.INPUT.HEIGHT.BASE + PROMPT.HEIGHT.HEADER
+    } else if (
+      !headerClassName.includes("hidden") &&
+      footerClassName.includes("hidden")
+    ) {
+      height =
+        PROMPT.INPUT.HEIGHT.BASE + PROMPT.HEIGHT.FOOTER
+    }
+  }
+
   let promptConfig: PromptConfig = {
     ui: UI.arg,
     enter: "Submit",
     hint,
+    height,
     resize: !choices ? true : undefined,
-    height: !choices ? PROMPT.HEIGHT.INPUT_ONLY : undefined,
     shortcuts: (placeholderOrConfig as PromptConfig)?.resize
       ? smallShortcuts
       : argShortcuts,
@@ -1296,7 +1332,7 @@ global.chat = async (options = {}) => {
     ignoreBlur: true,
     resize: true,
     ui: UI.chat,
-    width: PROMPT.WIDTH.DEFAULT,
+    width: PROMPT.WIDTH.BASE,
     height: PROMPT.HEIGHT.XL,
     enter: "",
     shortcuts: [
@@ -2576,8 +2612,8 @@ global.mic = async () => {
   return await global.kitPrompt({
     ui: UI.mic,
     enter: "Stop",
-    width: PROMPT.WIDTH.DEFAULT,
-    height: PROMPT.HEIGHT.DEFAULT,
+    width: PROMPT.WIDTH.BASE,
+    height: PROMPT.HEIGHT.BASE,
     resize: true,
     shortcuts: [
       backToMainShortcut,
@@ -2602,8 +2638,8 @@ global.webcam = async () => {
     ui: UI.webcam,
     enter: "Capture",
     resize: true,
-    width: PROMPT.WIDTH.DEFAULT,
-    height: PROMPT.HEIGHT.DEFAULT,
+    width: PROMPT.WIDTH.BASE,
+    height: PROMPT.HEIGHT.BASE,
     shortcuts: [
       backToMainShortcut,
       {

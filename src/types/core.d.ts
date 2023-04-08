@@ -189,6 +189,7 @@ export interface PromptData {
   width: number
   height: number
   itemHeight: number
+  inputHeight: number
   defaultValue: string
   formData?: any
   html?: string
@@ -197,6 +198,9 @@ export interface PromptData {
   cwd?: string
   hasOnNoChoices?: boolean
   inputCommandChars?: string[]
+  inputClassName?: string
+  headerClassName?: string
+  footerClassName?: string
 }
 
 export interface GenerateChoices {

@@ -51,7 +51,7 @@ let value = await arg(
   {
     placeholder: "Hit enter to paste",
     enter: `Paste item`,
-    itemHeight: PROMPT.ITEM.HEIGHT.MD,
+    itemHeight: PROMPT.ITEM.HEIGHT.SM,
     shortcuts: [
       {
         name: "Remove",

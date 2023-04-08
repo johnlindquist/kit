@@ -502,22 +502,30 @@ export enum Trigger {
 
 export const PROMPT = {
   RATIO: 1.6,
+  INPUT: {
+    HEIGHT: {
+      XS: 40,
+      SM: 48,
+      BASE: 56,
+      LG: 64,
+      XL: 72,
+    },
+  },
   ITEM: {
     HEIGHT: {
-      XS: 24,
-      SM: 32,
-      MD: 48,
-      DEFAULT: 56,
+      XS: 40,
+      SM: 48,
+      BASE: 56,
       LG: 64,
       XL: 72,
     },
   },
   WIDTH: {
-    XXS: 360,
-    XS: 480,
-    SM: 512,
-    MD: 640,
-    DEFAULT: 768,
+    XXXS: 360,
+    XXS: 480,
+    XS: 512,
+    SM: 640,
+    BASE: 768,
     LG: 896,
     XL: 1024,
     "2XL": 1152,
@@ -536,11 +544,8 @@ export const PROMPT = {
     get SM() {
       return Math.round(PROMPT.WIDTH.SM / PROMPT.RATIO)
     },
-    get MD() {
-      return Math.round(PROMPT.WIDTH.MD / PROMPT.RATIO)
-    },
-    get DEFAULT() {
-      return Math.round(PROMPT.WIDTH.DEFAULT / PROMPT.RATIO)
+    get BASE() {
+      return Math.round(PROMPT.WIDTH.BASE / PROMPT.RATIO)
     },
     get LG() {
       return Math.round(PROMPT.WIDTH.LG / PROMPT.RATIO)
@@ -563,16 +568,14 @@ export const PROMPT = {
     get "6XL"() {
       return Math.round(PROMPT.WIDTH["6XL"] / PROMPT.RATIO)
     },
-    CHOICE_DEFAULT: 56,
-    TOP_FRAME: 24,
-    BOTTOM_FRAME: 28,
+    HEADER: 24,
+    FOOTER: 28,
     INPUT_INFO: 26,
-    INPUT: 56,
     get INPUT_ONLY() {
       return (
-        PROMPT.HEIGHT.TOP_FRAME +
-        PROMPT.HEIGHT.INPUT +
-        PROMPT.HEIGHT.BOTTOM_FRAME
+        PROMPT.HEIGHT.HEADER +
+        PROMPT.INPUT.HEIGHT.BASE +
+        PROMPT.HEIGHT.FOOTER
       )
     },
   },
