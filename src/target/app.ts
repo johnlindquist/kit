@@ -1352,6 +1352,32 @@ global.mini = async (
   return await global.arg(miniConfig, choices)
 }
 
+global.micro = async (
+  placeholderOrConfig = "Type a value:",
+  choices = ``
+) => {
+  let miniConfig = {
+    headerClassName: "hidden",
+    footerClassName: "hidden",
+    inputHeight: PROMPT.INPUT.HEIGHT.XS,
+    itemHeight: PROMPT.INPUT.HEIGHT.XS,
+    placeholder: "",
+  }
+
+  if (typeof placeholderOrConfig === "string") {
+    miniConfig.placeholder = placeholderOrConfig
+  }
+
+  if (typeof placeholderOrConfig === "object") {
+    miniConfig = {
+      ...miniConfig,
+      ...(placeholderOrConfig as PromptConfig),
+    }
+  }
+
+  return await global.arg(miniConfig, choices)
+}
+
 global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
     placeholder: "",
@@ -1686,6 +1712,10 @@ global.appKeystroke = (data: KeyData) => {
 
 global.setLoading = (loading: boolean) => {
   global.send(Channel.SET_LOADING, loading)
+}
+
+global.setRunning = (running: boolean) => {
+  global.send(Channel.SET_RUNNING, running)
 }
 
 let loadingList = [

@@ -480,6 +480,7 @@ export interface ChannelMap {
   [Channel.SET_FOCUSED]: string
   [Channel.SET_FOOTER]: string
   [Channel.SET_LOADING]: boolean
+  [Channel.SET_RUNNING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGO]: string
   [Channel.SET_LOGIN]: boolean
@@ -925,6 +926,7 @@ declare global {
   var setIgnoreBlur: SetIgnoreBlur
   var setResize: SetResize
   var setLoading: SetLoading
+  var setRunning: SetLoading
   var setStatus: SetStatus
   var setTheme: SetTheme
   var setScriptTheme: SetTheme

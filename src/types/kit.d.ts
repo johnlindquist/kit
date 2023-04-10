@@ -189,7 +189,6 @@ export interface CreateGist {
 export interface SetShortcuts {
   (shortcuts: Shortcut[]): void
 }
-
 export interface KitApi {
   path: PathSelector
   db: DB
@@ -218,6 +217,7 @@ export interface KitApi {
    */
   arg: Arg
   mini: Arg
+  micro: Arg
   /**
    * @example
    * ```
@@ -322,6 +322,7 @@ declare global {
   var env: Env
   var arg: Arg
   var mini: Arg
+  var micro: Arg
   var onTab: OnTab
   var onExit: OnExit
   var args: Args

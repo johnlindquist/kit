@@ -147,6 +147,9 @@ global.arg = async (messageOrConfig = "Input", choices) => {
   return input
 }
 
+global.mini = global.arg
+global.micro = global.arg
+
 global.textarea = global.arg
 
 global.args = []
@@ -345,6 +348,7 @@ global.setConfig = (value: any) => {
 }
 
 global.setLoading = (loading: boolean) => {}
+global.setRunning = (running: boolean) => {}
 
 global.copy = async text => {
   let c = await npm("clipboardy")
