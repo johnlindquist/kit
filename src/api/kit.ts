@@ -92,7 +92,7 @@ export let errorPrompt = async (error: Error) => {
       global.warn(error)
     }
   } else {
-    console.log(error)
+    global.console.log(error)
   }
 }
 
@@ -367,9 +367,11 @@ global.send = limiter.wrap(
   }
 )
 
-let _consoleLog = console.log.bind(console)
-let _consoleWarn = console.warn.bind(console)
-let _consoleClear = console.clear.bind(console)
+let _consoleLog = global.console.log.bind(global.console)
+let _consoleWarn = global.console.warn.bind(global.console)
+let _consoleClear = global.console.clear.bind(
+  global.console
+)
 global.log = (...args) => {
   if (process?.send) {
     global.send(
@@ -407,7 +409,7 @@ global.clear = () => {
 }
 
 if (process?.send) {
-  console.log = (...args) => {
+  global.console.log ||= (...args) => {
     let log = args
       .map(a =>
         typeof a != "string" ? JSON.stringify(a) : a
@@ -418,7 +420,7 @@ if (process?.send) {
     global.send(Channel.CONSOLE_LOG, log)
   }
 
-  console.warn = (...args) => {
+  global.console.warn = (...args) => {
     let warn = args
       .map(a =>
         typeof a != "string" ? JSON.stringify(a) : a
@@ -428,7 +430,7 @@ if (process?.send) {
     global.send(Channel.CONSOLE_WARN, warn)
   }
 
-  console.clear = () => {
+  global.console.clear = () => {
     global.send(Channel.CONSOLE_CLEAR)
   }
 }
