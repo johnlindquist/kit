@@ -719,7 +719,7 @@ export let run = async (
     ...commandArgs
   )
 
-  flag.tab = ""
+  global.flag.tab = ""
   return result
 }
 

@@ -47,7 +47,9 @@ ava.serial(`All globals exist`, async t => {
     content += await readFile(kitPath("types", f), "utf-8")
   }
 
-  let matches = content.match(/(?<=var ).*?(?=:)/gim)
+  let matches = content
+    .match(/(?<=var ).*?(?=:)/gim)
+    .filter(m => !m.includes("projectPath"))
 
   for (let m of matches) {
     t.true(

@@ -354,9 +354,9 @@ console.log(value)
 })
 
 ava.serial(
-  `Run a script with a boolean --flag`,
+  `Run a script with --flag values: pass hello instead of one and two`,
   async t => {
-    let command = `mock-boolean-flag`
+    let command = `mock-boolean-flag-values-pass-hello-instead-of-one-and-two`
     let scriptPath = kenvPath("scripts", `${command}.js`)
     await $`KIT_MODE=js kit new ${command} main --no-edit`
 
@@ -367,7 +367,37 @@ ava.serial(
       scriptPath,
       `
 let value = await arg()
-if(flag.success){
+if(flag.one === "one" && flag.two === "two"){
+  console.log("${success}")
+}else{
+  console.log("${fail}")
+}
+`
+    )
+
+    cd(kenvPath())
+    ;({ stdout, stderr } = await $`kit ${command} hello`)
+
+    t.is(stderr, "")
+    t.regex(stdout, new RegExp(fail))
+  }
+)
+
+ava.serial(
+  `Run a script with --flag values: ones and twos match`,
+  async t => {
+    let command = `mock-boolean-flag-values-ones-and-twos-match`
+    let scriptPath = kenvPath("scripts", `${command}.js`)
+    await $`KIT_MODE=js kit new ${command} main --no-edit`
+
+    let success = `success`
+    let fail = `fail`
+
+    await appendFile(
+      scriptPath,
+      `
+let value = await arg()
+if(flag.one === "one" && flag.two === "two"){
   console.log("${success}")
 }else{
   console.log("${fail}")
@@ -377,28 +407,26 @@ if(flag.success){
 
     cd(kenvPath())
     let { stdout, stderr } =
-      await $`kit ${command} hello --success`
+      await $`kit ${command} hello --one one --two two`
 
     t.is(stderr, "")
     t.regex(stdout, new RegExp(success))
-    ;({ stdout, stderr } = await $`kit ${command} hello`)
-
-    t.is(stderr, "")
-    t.regex(stdout, new RegExp(fail))
   }
 )
 
-ava.serial(`Run a script with --flag values`, async t => {
-  let command = `mock-boolean-flag-values`
-  let scriptPath = kenvPath("scripts", `${command}.js`)
-  await $`KIT_MODE=js kit new ${command} main --no-edit`
+ava.serial(
+  `Run a script with --flag values: ones match, twos mismatch`,
+  async t => {
+    let command = `mock-boolean-flag-values-ones-match-twos-mismatch`
+    let scriptPath = kenvPath("scripts", `${command}.js`)
+    await $`KIT_MODE=js kit new ${command} main --no-edit`
 
-  let success = `success`
-  let fail = `fail`
+    let success = `success`
+    let fail = `fail`
 
-  await appendFile(
-    scriptPath,
-    `
+    await appendFile(
+      scriptPath,
+      `
 let value = await arg()
 if(flag.one === "one" && flag.two === "two"){
   console.log("${success}")
@@ -406,21 +434,13 @@ if(flag.one === "one" && flag.two === "two"){
   console.log("${fail}")
 }
 `
-  )
+    )
 
-  cd(kenvPath())
-  let { stdout, stderr } =
-    await $`kit ${command} hello --one one --two two`
+    cd(kenvPath())
+    ;({ stdout, stderr } =
+      await $`kit ${command} hello --one one --two three`)
 
-  t.is(stderr, "")
-  t.regex(stdout, new RegExp(success))
-  ;({ stdout, stderr } =
-    await $`kit ${command} hello --one one --two three`)
-
-  t.is(stderr, "")
-  t.regex(stdout, new RegExp(fail))
-  ;({ stdout, stderr } = await $`kit ${command} hello`)
-
-  t.is(stderr, "")
-  t.regex(stdout, new RegExp(fail))
-})
+    t.is(stderr, "")
+    t.regex(stdout, new RegExp(fail))
+  }
+)

@@ -657,7 +657,7 @@ global.setChoices = async (choices, className = "") => {
   return p
 }
 
-global.flag = {}
+global.flag ||= {}
 global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
   for (let key of Object.keys(global?.flag)) {
     delete global?.flag?.[key]
@@ -1056,11 +1056,11 @@ global.execLog = (command: string, logger = global.log) => {
   return child
 }
 
-global.projectPath = (...args) => {
-  throw new Error(
-    `Script not loaded. Can't use projectPath() until a script is imported`
-  )
-}
+// global.projectPath = (...args) => {
+//   throw new Error(
+//     `Script not loaded. Can't use projectPath() until a script is imported`
+//   )
+// }
 
 global.clearTabs = () => {
   global.send(Channel.CLEAR_TABS)

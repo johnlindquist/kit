@@ -152,7 +152,8 @@ global.micro = global.arg
 
 global.textarea = global.arg
 
-global.args = []
+global.args ||= []
+
 global.updateArgs = arrayOfArgs => {
   let argv = minimist(arrayOfArgs)
 

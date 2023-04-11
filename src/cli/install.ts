@@ -75,7 +75,7 @@ let packages = await arg(
 )
 
 let installNames = [...packages.split(" ")]
-global.setChoices([])
+if (process?.send) global.setChoices([])
 await install([...installNames, ...argOpts])
 
 export { packages }
