@@ -2062,7 +2062,6 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   }
 
   let onEscape = async () => {
-    setInput(``)
     await mainScript()
   }
 

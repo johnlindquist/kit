@@ -1,6 +1,5 @@
 import * as os from "os"
 import { pathToFileURL } from "url"
-import Bottleneck from "bottleneck"
 import {
   AppState,
   Choice,
@@ -32,11 +31,6 @@ global.isWin = os.platform().startsWith("win")
 global.isMac = os.platform().startsWith("darwin")
 global.isLinux = os.platform().startsWith("linux")
 global.cmd = global.isMac ? "cmd" : "ctrl"
-
-let limiter = new Bottleneck({
-  maxConcurrent: 1,
-  minTime: 1,
-})
 
 export let errorPrompt = async (error: Error) => {
   if (process.env.KIT_CONTEXT === "app") {
@@ -348,24 +342,22 @@ global.attemptImport = async (scriptPath, ..._args) => {
   return importResult
 }
 
-global.send = limiter.wrap(
-  async (channel: Channel, value?: any) => {
-    if (process?.send) {
-      try {
-        process.send({
-          pid: process.pid,
-          kitScript: global.kitScript,
-          channel,
-          value,
-        })
-      } catch (e) {
-        global.warn(e)
-      }
-    } else {
-      // console.log(from, ...args)
+global.send = (channel: Channel, value?: any) => {
+  if (process?.send) {
+    try {
+      process.send({
+        pid: process.pid,
+        kitScript: global.kitScript,
+        channel,
+        value,
+      })
+    } catch (e) {
+      global.warn(e)
     }
+  } else {
+    // console.log(from, ...args)
   }
-)
+}
 
 let _consoleLog = global.console.log.bind(global.console)
 let _consoleWarn = global.console.warn.bind(global.console)
