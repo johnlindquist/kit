@@ -20,6 +20,8 @@ export interface Choice<Value = any> {
   id?: string
   shortcode?: string[]
   className?: string
+  nameClassName?: string
+  descriptionClassName?: string
   tag?: string
   shortcut?: string
   drag?:
