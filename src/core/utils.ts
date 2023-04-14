@@ -358,8 +358,7 @@ export let getMetadata = (contents: string): Metadata => {
 
     let v = value.trim()
     if (v.length) {
-      let k = key.trim()
-      k = k[0].toLowerCase() + k.slice(1)
+      let k = key.trim().toLowerCase()
       if (!metadata[k]) metadata[k] = v
     }
   }

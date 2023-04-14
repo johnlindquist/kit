@@ -58,6 +58,9 @@ export interface ScriptMetadata {
   alias?: string
   author?: string
   twitter?: string
+  github?: string
+  social?: string
+  social_url?: string
   exclude?: boolean
   schedule?: string
   system?: string
@@ -76,7 +79,7 @@ export interface ScriptMetadata {
   hasPreview?: boolean
   logo?: string
   snippet?: string
-  snippetDelay?: number
+  snippetdelay?: number
   index?: string
   template?: boolean
   ["color-text"]?: string
