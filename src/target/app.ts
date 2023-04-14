@@ -1264,8 +1264,12 @@ global.arg = async (
   }
 
   let height = PROMPT.HEIGHT.BASE
+  if (!choices)
+    height =
+      PROMPT.HEIGHT.HEADER +
+      PROMPT.INPUT.HEIGHT.BASE +
+      PROMPT.HEIGHT.FOOTER
   if (typeof placeholderOrConfig === "object") {
-    if (!choices) height = undefined
     let {
       headerClassName = "",
       footerClassName = "",
@@ -1273,23 +1277,13 @@ global.arg = async (
     } = placeholderOrConfig as PromptConfig
     if (inputHeight) {
       height = inputHeight
-    } else if (
-      headerClassName.includes("hidden") &&
-      footerClassName.includes("hidden")
-    ) {
-      height = PROMPT.INPUT.HEIGHT.BASE
-    } else if (
-      headerClassName.includes("hidden") &&
-      !footerClassName.includes("hidden")
-    ) {
-      height =
-        PROMPT.INPUT.HEIGHT.BASE + PROMPT.HEIGHT.HEADER
-    } else if (
-      !headerClassName.includes("hidden") &&
-      footerClassName.includes("hidden")
-    ) {
-      height =
-        PROMPT.INPUT.HEIGHT.BASE + PROMPT.HEIGHT.FOOTER
+    }
+    if (headerClassName.includes("hidden")) {
+      height -= PROMPT.HEIGHT.HEADER
+    }
+
+    if (footerClassName.includes("hidden")) {
+      height -= PROMPT.HEIGHT.FOOTER
     }
   }
 
