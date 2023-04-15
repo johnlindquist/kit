@@ -818,7 +818,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   let {
     input = "",
-    choices = ``,
+    choices = null,
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
@@ -1235,7 +1235,9 @@ global.arg = async (
 ) => {
   if (!choices) {
     setChoices([])
-    setPanel(``)
+    if (!(placeholderOrConfig as PromptConfig)?.panel) {
+      setPanel(``)
+    }
   }
   let firstArg = global.args.length
     ? global.args.shift()
