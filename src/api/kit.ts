@@ -897,8 +897,7 @@ export let selectScript = async (
         }
       : message
   scriptsConfig.scripts = true
-  scriptsConfig.resize = true
-  scriptsConfig.height = PROMPT.HEIGHT.BASE
+  scriptsConfig.resize = false
   scriptsConfig.enter ||= "Select"
   let script = await global.arg(scriptsConfig, scripts)
   if (
