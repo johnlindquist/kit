@@ -1330,7 +1330,8 @@ global.mini = async (
     headerClassName: "hidden",
     footerClassName: "hidden",
     inputHeight: PROMPT.INPUT.HEIGHT.SM,
-    itemHeight: PROMPT.INPUT.HEIGHT.SM,
+    itemHeight: PROMPT.ITEM.HEIGHT.SM,
+    height: PROMPT.INPUT.HEIGHT.SM,
     placeholder: "",
   }
 
@@ -1356,7 +1357,9 @@ global.micro = async (
     headerClassName: "hidden",
     footerClassName: "hidden",
     inputHeight: PROMPT.INPUT.HEIGHT.XS,
-    itemHeight: PROMPT.INPUT.HEIGHT.XS,
+    itemHeight: PROMPT.ITEM.HEIGHT.XS,
+    height: PROMPT.INPUT.HEIGHT.XS,
+    width: PROMPT.WIDTH.XS,
     placeholder: "",
   }
 

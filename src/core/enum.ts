@@ -505,6 +505,7 @@ export const PROMPT = {
   RATIO: 1.6,
   INPUT: {
     HEIGHT: {
+      XXS: 32,
       XS: 40,
       SM: 48,
       BASE: 56,
@@ -514,8 +515,9 @@ export const PROMPT = {
   },
   ITEM: {
     HEIGHT: {
-      XS: 40,
-      SM: 48,
+      XXS: 30,
+      XS: 38,
+      SM: 46,
       BASE: 56,
       LG: 64,
       XL: 72,
