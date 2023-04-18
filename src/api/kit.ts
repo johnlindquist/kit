@@ -401,7 +401,7 @@ global.clear = () => {
 }
 
 if (process?.send) {
-  global.console.log ||= (...args) => {
+  global.console.log = (...args) => {
     let log = args
       .map(a =>
         typeof a != "string" ? JSON.stringify(a) : a
@@ -897,7 +897,8 @@ export let selectScript = async (
         }
       : message
   scriptsConfig.scripts = true
-  scriptsConfig.resize = false
+  scriptsConfig.resize = true
+  scriptsConfig.height = PROMPT.HEIGHT.BASE
   scriptsConfig.enter ||= "Select"
   let script = await global.arg(scriptsConfig, scripts)
   if (
