@@ -104,6 +104,10 @@ export type GetMediaDevices = {
   (): Promise<MediaDeviceInfo[]>
 }
 
+export type GetTypedText = {
+  (): Promise<string>
+}
+
 export type Find = {
   (config?: PromptConfig): Promise<string>
 }
@@ -341,6 +345,7 @@ export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined
   [Channel.GET_COLOR]: undefined
+  [Channel.GET_TYPED_TEXT]: undefined
   [Channel.GET_MOUSE]: undefined
   [Channel.GET_EDITOR_HISTORY]: undefined
   [Channel.GET_SCHEDULE]: undefined
@@ -987,5 +992,6 @@ declare global {
   var webcam: WebCam
   var speech: Speech
   var getMediaDevices: GetMediaDevices
+  var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
 }

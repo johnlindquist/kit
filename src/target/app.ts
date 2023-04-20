@@ -2651,6 +2651,10 @@ global.eyeDropper = async () => {
   return await sendWait(Channel.GET_COLOR)
 }
 
+global.getTypedText = async () => {
+  return await sendWait(Channel.GET_TYPED_TEXT)
+}
+
 /**
  * @experimental - API, types, etc TBD
  *

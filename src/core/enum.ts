@@ -246,6 +246,7 @@ export enum Channel {
   ON_AUDIO_DATA = "ON_AUDIO_DATA",
   GET_DEVICES = "GET_DEVICES",
   SET_RUNNING = "SET_RUNNING",
+  GET_TYPED_TEXT = "GET_TYPED_TEXT",
 }
 
 export enum ProcessType {
