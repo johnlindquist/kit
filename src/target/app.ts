@@ -1748,6 +1748,8 @@ global.mainScript = async (
   input: string = "",
   tab: string
 ) => {
+  global.args = []
+  global.flags = {}
   if (process.env.KIT_CONTEXT === "app") {
     clearAllTimeouts()
     clearAllIntervals()
