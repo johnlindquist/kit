@@ -22,6 +22,9 @@ ava.serial("kit setup", async t => {
 ava.serial(`TypeScript support`, async t => {
   let tsScript = `mock-typescript-script`
   await $`kit set-env-var KIT_MODE ts`
+  await $`kit new ${tsScript} main --no-edit`
+
+  let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
 
   let envContents = await readFile(
     kenvPath(".env"),
@@ -36,10 +39,6 @@ ava.serial(`TypeScript support`, async t => {
     envContents.includes(`KIT_MODE=ts`),
     `Should set KIT_MODE=ts ${envContents}`
   )
-
-  await $`kit new ${tsScript} main --no-edit`
-
-  let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
 
   t.true(
     await pathExists(tsScriptPath),
