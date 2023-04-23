@@ -2,8 +2,8 @@ import os from "os"
 import {
   configEnv,
   run,
-  kitPath,
   kenvPath,
+  createPathResolver,
 } from "../core/utils.js"
 import { Channel } from "../core/enum.js"
 
@@ -15,24 +15,23 @@ import { Channel } from "../core/enum.js"
 - These imports are only here if you don't want to use import "@johnlindquist/kit", but if you do, they load twice if not loaded from the same dir
 */
 
-process.env.KIT = kenvPath(
-  "node_modules",
-  "@johnlindquist",
-  "kit"
+let kenvKitPath = createPathResolver(
+  kenvPath("node_modules", "@johnlindquist", "kit")
 )
-await import(kitPath("api", "global.js"))
-await import(kitPath("api", "kit.js"))
-await import(kitPath("api", "pro.js"))
-await import(kitPath("api", "lib.js"))
+
+await import(kenvKitPath("api", "global.js"))
+await import(kenvKitPath("api", "kit.js"))
+await import(kenvKitPath("api", "pro.js"))
+await import(kenvKitPath("api", "lib.js"))
 
 let platform = os.platform()
 try {
-  await import(kitPath("platform", `${platform}.js`))
+  await import(kenvKitPath("platform", `${platform}.js`))
 } catch (error) {
   // console.log(`No ./platform/${platform}.js`)
 }
 
-await import(kitPath("target", "app.js"))
+await import(kenvKitPath("target", "app.js"))
 
 let script = ""
 let trigger = ""
