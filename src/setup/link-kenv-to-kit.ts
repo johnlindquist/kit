@@ -8,12 +8,16 @@ let copyIfNotExists = async (p: string, dest: string) => {
   if (!exists) await copyFile(p, dest)
 }
 
-console.log(`Linking kenv to kit...`)
-await copyIfNotExists(kitPath(".npmrc"), kenvPath(".npmrc"))
+let writeIfNotExists = async (p: string, dest: string) => {
+  if (!(await isFile(p))) await writeFile(p, dest)
+}
 
-console.log(
-  `Adding install-links=false to kenv's .npmrc...`
-)
+let npmRc = `
+registry=https://registry.npmjs.org
+install-links=false
+`.trim()
+
+await writeIfNotExists(kenvPath(".npmrc"), npmRc)
 
 // add install-links=false to kenv's .npmrc if it doesn't exist
 let npmrcContent = await readFile(

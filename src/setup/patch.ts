@@ -4,14 +4,20 @@ let copyIfNotExists = async (p: string, dest: string) => {
   if (!(await isFile(p))) await copyFile(p, dest)
 }
 
+let writeIfNotExists = async (p: string, dest: string) => {
+  if (!(await isFile(p))) await writeFile(p, dest)
+}
+
+let npmRc = `
+registry=https://registry.npmjs.org
+install-links=false
+`.trim()
+
 try {
   let kenvPkgPath = kenvPath("package.json")
   let kenvPkg = await readJson(kenvPkgPath)
 
-  await copyIfNotExists(
-    kitPath(".npmrc"),
-    kenvPath(".npmrc")
-  )
+  await writeIfNotExists(kenvPath(".npmrc"), npmRc)
 
   // add install-links=false to kenv's .npmrc if it doesn't exist
   let npmrcContent = await readFile(
@@ -47,10 +53,6 @@ try {
     kitPath("templates", "scripts", "default.ts"),
     kenvPath("templates", "default.ts")
   )
-
-  if (kenvPkg?.devDependencies?.kit) {
-    await cli("uninstall", "kit")
-  }
 
   let kenvIgnore = kenvPath(".gitignore")
   if (await pathExists(kenvIgnore)) {
