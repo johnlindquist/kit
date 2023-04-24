@@ -20,6 +20,7 @@ try {
   await writeIfNotExists(kenvPath(".npmrc"), npmRc)
 
   // add install-links=false to kenv's .npmrc if it doesn't exist
+  // this is due in a change of behavior from npm v8 to v9
   let npmrcContent = await readFile(
     kenvPath(".npmrc"),
     "utf-8"
