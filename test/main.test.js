@@ -22,21 +22,7 @@ ava.serial("kit setup", async t => {
 ava.serial(`TypeScript support`, async t => {
   let tsScript = `mock-typescript-script`
   await $`kit set-env-var KIT_MODE ts`
-  await wait(500)
-
-  let envContents = await readFile(
-    kenvPath(".env"),
-    "utf-8"
-  )
-
-  t.log({
-    envContents,
-  })
-
-  t.true(
-    envContents.includes(`KIT_MODE=ts`),
-    `Should set KIT_MODE=ts ${envContents}`
-  )
+  await wait(100)
 
   await $`kit new ${tsScript} main --no-edit`
 
@@ -79,6 +65,20 @@ console.log(await arg())`
   )
 
   t.false(JSofTSExists, `Should remove generated JS file`)
+
+  let envContents = await readFile(
+    kenvPath(".env"),
+    "utf-8"
+  )
+
+  t.log({
+    envContents,
+  })
+
+  t.true(
+    envContents.includes(`KIT_MODE=ts`),
+    `Should set KIT_MODE=ts ${envContents}`
+  )
 })
 
 ava.serial(`TypeScript import from lib`, async t => {

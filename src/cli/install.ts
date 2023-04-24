@@ -43,8 +43,8 @@ let packages = await arg(
     if (!input || input?.length < 3)
       return [
         {
+          info: "onNoChoices",
           name: `Search for npm packages`,
-          disableSubmit: true,
         },
       ]
     type pkgs = {
