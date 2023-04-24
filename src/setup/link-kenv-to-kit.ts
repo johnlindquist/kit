@@ -1,13 +1,35 @@
-import { pathToFileURL } from "url"
+let copyIfNotExists = async (p: string, dest: string) => {
+  let exists = await isFile(dest)
+  console.log({
+    p,
+    dest,
+    exists: exists ? "true" : "false",
+  })
+  if (!exists) await copyFile(p, dest)
+}
 
-// Installing ~/.kit to ~/.kenv _copies_ the files to ~/.kenv/node_modules/@johnlindquist/kit
-// But we need to use a symlink to make sure we're always using the latest version of @johnlindquist/kit
-// And to make sure it's loading the same files or they might be loaded twice
-// (once from the ~/.kit and one from the ~/.kenv/node_modules/@johnlindquist/kit)
-// The app will attempt to keep the symlink in place
-await cli(
-  "install",
-  pathToFileURL(process.env.KIT || home(".kit")).toString()
+console.log(`Linking kenv to kit...`)
+await copyIfNotExists(kitPath(".npmrc"), kenvPath(".npmrc"))
+
+console.log(
+  `Adding install-links=false to kenv's .npmrc...`
 )
+
+// add install-links=false to kenv's .npmrc if it doesn't exist
+let npmrcContent = await readFile(
+  kenvPath(".npmrc"),
+  "utf-8"
+)
+if (!npmrcContent.match(/^install-links=false$/gm)) {
+  if (npmrcContent.split("\n").at(-1) !== "") {
+    await appendFile(kenvPath(".npmrc"), "\n")
+  }
+  await appendFile(
+    kenvPath(".npmrc"),
+    `install-links=false`
+  )
+}
+
+await cli("install", kitPath())
 
 export {}

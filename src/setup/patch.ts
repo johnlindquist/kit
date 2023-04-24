@@ -8,6 +8,27 @@ try {
   let kenvPkgPath = kenvPath("package.json")
   let kenvPkg = await readJson(kenvPkgPath)
 
+  await copyIfNotExists(
+    kitPath(".npmrc"),
+    kenvPath(".npmrc")
+  )
+
+  // add install-links=false to kenv's .npmrc if it doesn't exist
+  let npmrcContent = await readFile(
+    kenvPath(".npmrc"),
+    "utf-8"
+  )
+
+  if (!npmrcContent.match(/^install-links=false$/gm)) {
+    if (npmrcContent.split("\n").at(-1) !== "") {
+      await appendFile(kenvPath(".npmrc"), "\n")
+    }
+    await appendFile(
+      kenvPath(".npmrc"),
+      `install-links=false`
+    )
+  }
+
   if (!kenvPkg?.devDependencies?.["@johnlindquist/kit"]) {
     await cli("install", kitPath())
   }
