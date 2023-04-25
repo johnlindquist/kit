@@ -205,6 +205,13 @@ export let buildTSScript = async (
 
   let outfile = outPath || determineOutFile(scriptPath)
   let { build } = await import("esbuild")
+
+  let kenvTSConfig = kenvPath("tsconfig.json")
+  let kitTSConfig = kitPath("tsconfig.json")
+  let hasKenvTSConfig = await isFile(kenvTSConfig)
+  let tsconfig = hasKenvTSConfig
+    ? kenvTSConfig
+    : kitTSConfig
   await build({
     entryPoints: [scriptPath],
     outfile,
@@ -213,11 +220,7 @@ export let buildTSScript = async (
     format: "esm",
     external,
     charset: "utf8",
-    tsconfig: kitPath(
-      "templates",
-      "config",
-      "tsconfig.json"
-    ),
+    tsconfig,
   })
 }
 

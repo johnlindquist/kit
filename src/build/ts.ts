@@ -8,6 +8,17 @@ import {
 import os from "os"
 import * as path from "path"
 
+export let isFile = async (
+  file: string
+): Promise<boolean> => {
+  try {
+    let stats = await lstat(file)
+    return stats.isFile()
+  } catch {
+    return false
+  }
+}
+
 export let home = (...pathParts: string[]) => {
   return path.resolve(os.homedir(), ...pathParts)
 }
@@ -140,6 +151,12 @@ await writeFile(runTxt, "${scriptPath}")
     await writeFile(outfile, errorScript)
   }
   try {
+    let kenvTSConfig = kenvPath("tsconfig.json")
+    let kitTSConfig = kitPath("tsconfig.json")
+    let hasKenvTSConfig = await isFile(kenvTSConfig)
+    let tsconfig = hasKenvTSConfig
+      ? kenvTSConfig
+      : kitTSConfig
     let result = await build({
       entryPoints: [scriptPath],
       outfile,
@@ -148,11 +165,7 @@ await writeFile(runTxt, "${scriptPath}")
       format: "esm",
       external,
       charset: "utf8",
-      tsconfig: kitPath(
-        "templates",
-        "config",
-        "tsconfig.json"
-      ),
+      tsconfig,
     })
     if (result?.errors?.length) {
       await writeErrorFile(
