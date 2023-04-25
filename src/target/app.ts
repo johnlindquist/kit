@@ -1246,7 +1246,10 @@ global.arg = async (
   let hint =
     (placeholderOrConfig as PromptConfig)?.hint || ""
 
-  if (firstArg) {
+  if (
+    typeof firstArg !== "undefined" &&
+    firstArg !== null
+  ) {
     let validate = (placeholderOrConfig as PromptConfig)
       ?.validate
 
