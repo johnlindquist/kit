@@ -127,7 +127,7 @@ let contents = "${kitPath("build", "ts.js")} ${scriptPath}"
 
 log({contents})
 let runTxt = "${kitPath("run.txt")}"
-await writeFile(runText, contents)
+await writeFile(runTxt, contents)
 
 await wait(500)
 
