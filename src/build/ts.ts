@@ -121,7 +121,7 @@ let buildTSScript = async (scriptPath, outPath = "") => {
     if (mustInstall) {
       errorScript = `
 import "@johnlindquist/kit"      
-await npmInstall("${mustInstall}")
+await installMissingPackage("${mustInstall}")
 log("${mustInstall}")
 let contents = "${kitPath("build", "ts.js")} ${scriptPath}"
 
@@ -152,7 +152,11 @@ await writeFile(runTxt, "${scriptPath}")
   }
   try {
     let kenvTSConfig = kenvPath("tsconfig.json")
-    let kitTSConfig = kitPath("tsconfig.json")
+    let kitTSConfig = kitPath(
+      "templates",
+      "config",
+      "tsconfig.json"
+    )
     let hasKenvTSConfig = await isFile(kenvTSConfig)
     let tsconfig = hasKenvTSConfig
       ? kenvTSConfig

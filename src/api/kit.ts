@@ -207,7 +207,7 @@ export let buildTSScript = async (
   let { build } = await import("esbuild")
 
   let kenvTSConfig = kenvPath("tsconfig.json")
-  let kitTSConfig = kitPath("tsconfig.json")
+  let kitTSConfig = kitPath("templates", "config", "tsconfig.json")
   let hasKenvTSConfig = await isFile(kenvTSConfig)
   let tsconfig = hasKenvTSConfig
     ? kenvTSConfig

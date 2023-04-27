@@ -316,6 +316,9 @@ declare global {
   var attemptImport: KitModuleLoader
   var npm: KitModuleLoader
   var npmInstall: (packageName: string) => Promise<void>
+  var installMissingPackage: (
+    packageName: string
+  ) => Promise<void>
   var run: Run
   var setup: KitModuleLoader
 

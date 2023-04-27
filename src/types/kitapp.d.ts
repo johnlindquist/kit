@@ -32,7 +32,7 @@ import { Trash } from "./packages"
 import { marked } from "@johnlindquist/globals/types/marked"
 import { ChildProcess } from "child_process"
 
-export type Status = typeof statuses[number]
+export type Status = (typeof statuses)[number]
 
 export interface AppMessage {
   channel: Channel
@@ -89,7 +89,7 @@ export type Toast = {
 }
 
 export type Mic = {
-  (config?: PromptConfig): Promise<string>
+  (config?: MicConfig): Promise<Buffer>
 }
 
 export type WebCam = {
@@ -149,6 +149,11 @@ export type EditorOptions =
 export type EditorConfig =
   | string
   | (PromptConfig & EditorOptions)
+
+export type MicConfig = PromptConfig & {
+  timeSlice?: number
+  format?: string
+}
 
 export interface TextareaConfig extends PromptConfig {
   value?: string

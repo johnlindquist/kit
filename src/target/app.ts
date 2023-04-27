@@ -20,6 +20,7 @@ import {
   Field,
   GuideSection,
   KitTheme,
+  MicConfig,
 } from "../types/kitapp"
 
 import {
@@ -61,9 +62,6 @@ import {
   argShortcuts,
   smallShortcuts,
   isMac,
-  shortcutNormalizer,
-  friendlyShortcut,
-  appDbPath,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
@@ -1548,9 +1546,12 @@ export let appInstall = async packageName => {
   console.clear()
 }
 
-let { createNpm } = await import("../api/npm.js")
+let { createNpm, createKenvPackageMissingInstall } =
+  await import("../api/npm.js")
 global.npm = createNpm(appInstall)
 global.npmInstall = createNpm(appInstall, false)
+global.installMissingPackage =
+  createKenvPackageMissingInstall(appInstall, false)
 
 global.setPanel = (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
@@ -2671,7 +2672,7 @@ global.toast = async (text: string, options: any = {}) => {
   })
 }
 
-global.mic = async () => {
+global.mic = async (config: MicConfig = {}) => {
   return await global.kitPrompt({
     ui: UI.mic,
     enter: "Stop",
@@ -2693,6 +2694,9 @@ global.mic = async () => {
       closeShortcut,
     ],
     ignoreBlur: true,
+    timeSlice: 200,
+    format: "webm",
+    ...config,
   })
 }
 

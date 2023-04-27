@@ -141,6 +141,59 @@ export let createNpm =
       /(?<=.)(@|\^|~).*/g,
       ""
     )
+    let {
+      dependencies: kitDeps = {},
+      devDependencies: devDeps = {},
+    } = JSON.parse(
+      await global.readFile(
+        global.kitPath("package.json"),
+        "utf-8"
+      )
+    )
+    let isKitDep =
+      kitDeps[packageName] || devDeps[packageName]
+    if (isKitDep) {
+      return defaultImport(packageName)
+    }
+
+    let pkgPath = global.kenvPath(
+      process.env.SCRIPTS_DIR || "",
+      "package.json"
+    )
+
+    if (!(await global.isFile(pkgPath))) {
+      throw new Error(
+        `Could not find package.json at ${pkgPath}`
+      )
+    }
+
+    //fix missing kenv dep
+    let {
+      dependencies: kenvDeps = {},
+      devDependencies: kenvDevDeps = {},
+    } = JSON.parse(await global.readFile(pkgPath, "utf-8"))
+
+    let isKenvDep =
+      kenvDeps?.[packageName] || kenvDevDeps?.[packageName]
+
+    if (isKenvDep) {
+      global.log(`Found ${packageName} in ${pkgPath}`)
+      return kenvImport(packageName)
+    }
+    await npmInstall(packageNameWithVersion)
+    if (attemptImport) {
+      return await kenvImport(packageName)
+    }
+  }
+
+export let createKenvPackageMissingInstall =
+  (npmInstall, attemptImport = true) =>
+  async packageNameWithVersion => {
+    // remove any version numbers
+    let packageName = packageNameWithVersion.replace(
+      /(?<=.)(@|\^|~).*/g,
+      ""
+    )
 
     let pkgPath = global.kenvPath(
       process.env.SCRIPTS_DIR || "",
