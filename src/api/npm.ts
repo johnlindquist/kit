@@ -141,20 +141,6 @@ export let createNpm =
       /(?<=.)(@|\^|~).*/g,
       ""
     )
-    let {
-      dependencies: kitDeps = {},
-      devDependencies: devDeps = {},
-    } = JSON.parse(
-      await global.readFile(
-        global.kitPath("package.json"),
-        "utf-8"
-      )
-    )
-    let isKitDep =
-      kitDeps[packageName] || devDeps[packageName]
-    if (isKitDep) {
-      return defaultImport(packageName)
-    }
 
     let pkgPath = global.kenvPath(
       process.env.SCRIPTS_DIR || "",
