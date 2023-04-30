@@ -788,8 +788,9 @@ global.kitPrompt = async (config: PromptConfig) => {
   kitPrompt$.next(true)
 
   //need to let onTabs() gather tab names. See Word API
-
-  await new Promise(r => setTimeout(r, 0))
+  if (global?.onTabs?.length) {
+    await new Promise(r => setTimeout(r, 0))
+  }
 
   config.shortcuts ||= []
   config.width ||= PROMPT.WIDTH.BASE
