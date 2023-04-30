@@ -328,6 +328,7 @@ export type GetAppData =
   | Channel.GET_CLIPBOARD_HISTORY
 
 export type SendNoOptions =
+  | Channel.DISABLE_BACKGROUND_THROTTLING
   | Channel.CLEAR_CACHE
   | Channel.CLEAR_CLIPBOARD_HISTORY
   | Channel.CLEAR_PREVIEW
