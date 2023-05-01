@@ -316,6 +316,15 @@ export interface KitStatus {
 
 export type Appearance = "light" | "dark"
 
+type DisabledThottlingConfig = Pick<
+  PromptConfig,
+  | "headerClassName"
+  | "footerClassName"
+  | "ui"
+  | "inputHeight"
+  | "itemHeight"
+>
+
 export type GetAppData =
   | Channel.GET_ACTIVE_APP
   | Channel.GET_BACKGROUND
@@ -328,7 +337,6 @@ export type GetAppData =
   | Channel.GET_CLIPBOARD_HISTORY
 
 export type SendNoOptions =
-  | Channel.DISABLE_BACKGROUND_THROTTLING
   | Channel.CLEAR_CACHE
   | Channel.CLEAR_CLIPBOARD_HISTORY
   | Channel.CLEAR_PREVIEW
@@ -557,6 +565,7 @@ export interface ChannelMap {
   [Channel.VERIFY_FULL_DISK_ACCESS]: undefined
   [Channel.SET_ALWAYS_ON_TOP]: boolean
   [Channel.SET_APPEARANCE]: Appearance
+  [Channel.DISABLE_BACKGROUND_THROTTLING]: DisabledThottlingConfig
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void

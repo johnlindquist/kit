@@ -781,7 +781,20 @@ let determineChoicesType = choices => {
 global.__currentPromptSecret = false
 global.__currentPromptConfig = {}
 global.kitPrompt = async (config: PromptConfig) => {
-  send(Channel.DISABLE_BACKGROUND_THROTTLING)
+  let {
+    headerClassName = "",
+    footerClassName = "",
+    ui = UI.arg,
+    inputHeight = PROMPT.INPUT.HEIGHT.BASE,
+    itemHeight = PROMPT.ITEM.HEIGHT.BASE,
+  } = config
+  send(Channel.DISABLE_BACKGROUND_THROTTLING, {
+    headerClassName,
+    footerClassName,
+    ui,
+    inputHeight,
+    itemHeight,
+  })
   promptId++
   global.__currentPromptSecret = config.secret || false
   global.currentUI = config?.ui || UI.arg
