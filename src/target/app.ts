@@ -787,6 +787,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     ui = UI.arg,
     inputHeight = PROMPT.INPUT.HEIGHT.BASE,
     itemHeight = PROMPT.ITEM.HEIGHT.BASE,
+    placeholder = "",
+    scriptPath = "",
   } = config
   send(Channel.DISABLE_BACKGROUND_THROTTLING, {
     headerClassName,
@@ -794,6 +796,8 @@ global.kitPrompt = async (config: PromptConfig) => {
     ui,
     inputHeight,
     itemHeight,
+    placeholder,
+    scriptPath,
   })
   promptId++
   global.__currentPromptSecret = config.secret || false

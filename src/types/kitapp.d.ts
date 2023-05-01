@@ -323,6 +323,8 @@ type DisabledThottlingConfig = Pick<
   | "ui"
   | "inputHeight"
   | "itemHeight"
+  | "placeholder"
+  | "scriptPath"
 >
 
 export type GetAppData =
