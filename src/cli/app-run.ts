@@ -8,6 +8,7 @@ import {
   toggleBackground,
   run,
   cmd,
+  isMac
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
 
