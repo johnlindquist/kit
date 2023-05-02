@@ -102,7 +102,7 @@ let scriptFlags: FlagsOptions = {
   },
   ["reveal-script"]: {
     name: "Reveal",
-    description: "Reveal the selected script in Finder",
+    description: `Reveal the selected script in ${isMac ? "Finder" : "Explorer"}`,
     shortcut: `${cmd}+shift+f`,
   },
   // ["share"]: {
