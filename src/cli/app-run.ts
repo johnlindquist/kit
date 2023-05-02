@@ -8,6 +8,7 @@ import {
   toggleBackground,
   run,
   cmd,
+  isMac
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
 
@@ -102,7 +103,7 @@ let scriptFlags: FlagsOptions = {
   },
   ["reveal-script"]: {
     name: "Reveal",
-    description: "Reveal the selected script in Finder",
+    description: `Reveal the selected script in ${isMac ? "Finder" : "Explorer"}`,
     shortcut: `${cmd}+shift+f`,
   },
   // ["share"]: {
