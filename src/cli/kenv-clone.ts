@@ -3,6 +3,7 @@ let kenvsDir = kenvPath("kenvs")
 if (!(await isDir(kenvsDir))) {
   await ensureDir(kenvsDir)
 }
+
 // TODO: Better example kenvs
 let panel = md(
   `
@@ -54,6 +55,42 @@ let kenvName = await arg({
   validate,
   onInput,
 })
+
+let message = await arg(
+  {
+    placeholder: `Type "ok" and hit enter to continue...`,
+    strict: true,
+    shortcuts: [
+      {
+        name: "Abort",
+        key: "escape",
+        bar: "right",
+        onPress: () => process.exit(),
+      },
+    ],
+    enter: `Clone to ${kenvName}`,
+  },
+  md(`
+## Attention: This Action Will Install Remote Scripts
+
+> Review the scripts first: [${repo}](${repo})
+
+Running scripts from the internet carries significant risks. These scripts have the potential to:
+
+- Erase your files
+- Transfer your files to an external server
+- Gain control over your computer
+- Execute various harmful actions
+
+If you are aware of and accept the risks of these scripts, type "ok" and press "Enter" 
+to proceed with installation. Any other input will cancel the installation.
+  `)
+)
+
+if (message !== "ok") {
+  process.exit()
+}
+
 let kenvDir = kenvPath("kenvs", kenvName)
 await exec(`git clone ${repo} ${kenvDir}`)
 await cli("create-all-bins")
