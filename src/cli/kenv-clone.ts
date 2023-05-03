@@ -61,9 +61,11 @@ if (process?.env?.KIT_TRUST_KENVS !== "true") {
     {
       placeholder: `Type "ok" and hit enter to continue...`,
       strict: true,
+      name: "",
+      description: `Clone ${kenvName}`,
       shortcuts: [
         {
-          name: "Abort",
+          name: "Cancel",
           key: "escape",
           bar: "right",
           onPress: () => process.exit(),
@@ -71,20 +73,32 @@ if (process?.env?.KIT_TRUST_KENVS !== "true") {
       ],
       enter: `Clone to ${kenvName}`,
     },
-    md(`
-## Attention: This Action Will Install Remote Scripts
+    md(
+      `
+## Caution: This Action Will Download Scripts from the Internet
 
-> Review the scripts folder here: [${repo}](${repo})
+> Before proceeding, please review the scripts folder here: [${repo}](${repo})
 
-Running scripts from the internet carries significant risks. These scripts have the potential to:
+Running scripts from the internet poses significant risks. Scripts have the ability to:
 
-- Erase your files
-- Transfer your files to an external server
-- Execute other various harmful actions
+- Delete your files
+- Transmit your files to a remote server
+- Carry out a wide variety of malicious actions
 
-If you are aware of and accept the risks of these scripts, type "ok" and press "Enter" 
-to proceed with installation. Any other input will cancel the installation.
-  `)
+## Any Doubts? Ask for Help!
+
+If you are unsure about the safety of this script, please ask the community for help before proceeding:
+
+> [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
+>
+> [Get Help on Discord](https://discord.gg/8nRPzK9t)
+
+## Acknowledge Risks and Proceed with Download
+
+If you understand and accept the risks associated with downloading these scripts, type "ok" and press "Enter" to continue with the download. 
+Hit "escape" to cancel.
+  `.trim()
+    )
   )
 
   if (message !== "ok") {

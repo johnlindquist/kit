@@ -43,33 +43,46 @@ let name = await arg(
 )
 
 if (process?.env?.KIT_TRUST_SCRIPTS !== "true") {
+  setName(``)
   let message = await arg(
     {
       placeholder: `Type "ok" and hit enter to continue...`,
       strict: true,
+      height: PROMPT.HEIGHT["2XL"],
+      description: `Download ${name}`,
       shortcuts: [
         {
-          name: "Abort",
+          name: "Cancel",
           key: "escape",
           bar: "right",
           onPress: () => process.exit(),
         },
       ],
-      enter: `Install ${name}`,
+      enter: `Download ${name}`,
     },
     md(`
-## Attention: This Action Will Download a Remote Script
+## Caution: This Action Will Download a Script from the Internet
 
-> Review the script first: [${arg?.url}](${arg?.url})
+> Before proceeding, please review the script here: [${arg?.url}](${arg?.url})
 
-Running scripts from the internet carries significant risks. These scripts have the potential to:
+Running scripts from the internet poses significant risks. Scripts have the ability to:
 
-- Erase your files
-- Transfer your files to an external server
-- Execute other various harmful actions
+- Delete your files
+- Transmit your files to a remote server
+- Carry out a wide variety of malicious actions
 
-If you are aware of and accept the risks of this script, type "ok" and press "Enter" 
-to proceed with download. Any other input will cancel the installation.
+## Any Doubts? Ask for Help!
+
+If you are unsure about the safety of this script, please ask the community for help before proceeding:
+
+> [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
+>
+> [Get Help on Discord](https://discord.gg/8nRPzK9t)
+
+## Acknowledge Risks and Proceed with Download
+
+If you understand and accept the risks associated with downloading this script, type "ok" and press "Enter" to continue with the download. 
+Hit "escape" to cancel.
   `)
   )
 
