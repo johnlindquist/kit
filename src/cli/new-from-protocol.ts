@@ -42,21 +42,22 @@ let name = await arg(
   ]
 )
 
-let message = await arg(
-  {
-    placeholder: `Type "ok" and hit enter to continue...`,
-    strict: true,
-    shortcuts: [
-      {
-        name: "Abort",
-        key: "escape",
-        bar: "right",
-        onPress: () => process.exit(),
-      },
-    ],
-    enter: `Install ${name}`,
-  },
-  md(`
+if (process?.env?.KIT_TRUST_SCRIPTS !== "true") {
+  let message = await arg(
+    {
+      placeholder: `Type "ok" and hit enter to continue...`,
+      strict: true,
+      shortcuts: [
+        {
+          name: "Abort",
+          key: "escape",
+          bar: "right",
+          onPress: () => process.exit(),
+        },
+      ],
+      enter: `Install ${name}`,
+    },
+    md(`
 ## Attention: This Action Will Download a Remote Script
 
 > Review the script first: [${arg?.url}](${arg?.url})
@@ -65,16 +66,16 @@ Running scripts from the internet carries significant risks. These scripts have 
 
 - Erase your files
 - Transfer your files to an external server
-- Gain control over your computer
-- Execute various harmful actions
+- Execute other various harmful actions
 
 If you are aware of and accept the risks of this script, type "ok" and press "Enter" 
 to proceed with download. Any other input will cancel the installation.
   `)
-)
+  )
 
-if (message !== "ok") {
-  process.exit()
+  if (message !== "ok") {
+    process.exit()
+  }
 }
 
 let { dirPath: selectedKenvPath } = await selectKenv({
