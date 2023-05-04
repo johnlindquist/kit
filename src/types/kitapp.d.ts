@@ -516,6 +516,7 @@ export interface ChannelMap {
   [Channel.SET_PROMPT_PROP]: any
   [Channel.SET_READY]: boolean
   [Channel.SET_RESIZE]: boolean
+  [Channel.SET_PAUSE_RESIZE]: boolean
   [Channel.SET_RESIZING]: boolean
   [Channel.SET_SCRIPT]: Script
   [Channel.SET_SHORTCUTS]: Shortcut[]
@@ -947,6 +948,7 @@ declare global {
   var setTextareaValue: SetTextareaValue
   var setIgnoreBlur: SetIgnoreBlur
   var setResize: SetResize
+  var setPauseResize: SetResize
   var setLoading: SetLoading
   var setRunning: SetLoading
   var setStatus: SetStatus

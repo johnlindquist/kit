@@ -1,24 +1,42 @@
 // Description: Git Push Kenv Repo
 
-import {
-  getLastSlashSeparated,
-  getKenvs,
-} from "../core/utils.js"
+import { getKenvs } from "../core/utils.js"
 
-let dir = await arg(
-  "Push which kenv",
-  (
-    await getKenvs()
-  ).map(value => ({
-    name: getLastSlashSeparated(value, 1),
-    value,
-  }))
-)
+let kenvs = (await getKenvs()).map(value => ({
+  name: path.basename(value),
+  value,
+}))
+
+kenvs.unshift({
+  name: "main",
+  value: kenvPath(),
+})
+
+let dir = await arg("Push which kenv", kenvs)
 
 cd(dir)
-await exec(`git add .`)
-await exec(`git commit -m "pushed from Script Kit"`)
-await exec(`git push`)
+
+await term({
+  command: `git status`,
+  cwd: dir,
+})
+
+await term({
+  command: `git add .`,
+  cwd: dir,
+  enter: "Commit",
+})
+
+await term({
+  command: `git commit -m "pushed from Script Kit"`,
+  cwd: dir,
+  enter: "Push",
+})
+
+await term({
+  command: `git push`,
+  cwd: dir,
+})
 
 await getScripts(false)
 

@@ -46,6 +46,7 @@ export interface WidgetAPI {
   setSize: (width: number, height: number) => void
   setPosition: (x: number, y: number) => void
   call: (name: string, ...args: any[]) => void
+  onCustom: (handler: WidgetHandler) => void
   onClick: (handler: WidgetHandler) => void
   onDrop: (handler: WidgetHandler) => void
   onMouseDown: (handler: WidgetHandler) => void

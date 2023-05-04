@@ -60,6 +60,7 @@
     "highlight.js": "11.7.0",
     "node-notifier": "10.0.1",
     "open": "9.1.0",
+    "rimraf": "5.0.0",
     "shelljs": "0.8.5",
     "slugify": "1.6.6",
     "suggestion": "2.1.2",

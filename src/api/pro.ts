@@ -27,6 +27,7 @@ let widget: Widget = async (html, options = {}) => {
 
   type WidgetHandler = (message: WidgetMessage) => void
 
+  let customHandler: WidgetHandler = () => {}
   let clickHandler: WidgetHandler = () => {}
   let dropHandler: WidgetHandler = () => {}
   let mouseDownHandler: WidgetHandler = () => {}
@@ -86,6 +87,9 @@ let widget: Widget = async (html, options = {}) => {
         args,
       })
     },
+    onCustom: (handler: WidgetHandler) => {
+      customHandler = handler
+    },
     onClick: (handler: WidgetHandler) => {
       clickHandler = handler
     },
@@ -110,6 +114,13 @@ let widget: Widget = async (html, options = {}) => {
   }
 
   let messageHandler = (data: WidgetMessage) => {
+    if (
+      data.channel == Channel.WIDGET_CUSTOM &&
+      data.widgetId == widgetId
+    ) {
+      customHandler(data)
+    }
+
     if (
       data.channel == Channel.WIDGET_CLICK &&
       data.widgetId == widgetId
@@ -186,6 +197,17 @@ let term = async (
   } else {
     command = commandOrConfig?.command || ""
     config = commandOrConfig
+  }
+
+  if (global.currentUI === UI.term) {
+    // Hack to clear the terminal when it's already open
+    await div({
+      html: ``,
+      onInit: async () => {
+        await wait(100)
+        submit("")
+      },
+    })
   }
 
   return await global.kitPrompt({

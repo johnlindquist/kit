@@ -1620,6 +1620,10 @@ global.setResize = async ignore => {
   global.send(Channel.SET_RESIZE, ignore)
 }
 
+global.setPauseResize = async pause => {
+  global.send(Channel.SET_PAUSE_RESIZE, pause)
+}
+
 global.setValue = async value => {
   global.send(Channel.SET_VALUE, value)
 }
@@ -1921,6 +1925,7 @@ let __pathSelector = async (
           onlyDirs,
         })
         await setChoices(choices)
+        setPauseResize(false)
         if (focusOn) setFocused(focusOn)
         focusOn = ``
       } catch {
@@ -2116,11 +2121,13 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       })
 
       setChoices(choices)
+      setPauseResize(false)
     }
   }
   let bar = (config as PromptConfig)?.shortcuts?.length
     ? ""
     : ("right" as PromptConfig["shortcuts"][0]["bar"])
+  setPauseResize(true)
   let selectedPath = await arg(
     {
       ...(config as PromptConfig),
@@ -2134,7 +2141,6 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       onEscape,
       enter: "Select",
       // TODO: If I want resize, I need to create choices first?
-      resize: false,
       onInit: async () => {
         await wait(250)
         setResize(true)

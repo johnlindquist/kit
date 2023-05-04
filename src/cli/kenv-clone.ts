@@ -81,9 +81,9 @@ if (process?.env?.KIT_TRUST_KENVS !== "true") {
 
 Running scripts from the internet poses significant risks. Scripts have the ability to:
 
-- Delete your files
-- Transmit your files to a remote server
-- Carry out a wide variety of malicious actions
+- Delete, modify, or steal your files
+- Watch keystrokes and register key commands
+- Start background processes and much more...
 
 ## Any Doubts? Ask for Help!
 
@@ -93,7 +93,7 @@ If you are unsure about the safety of this script, please ask the community for 
 >
 > [Get Help on Discord](https://discord.gg/8nRPzK9t)
 
-## Acknowledge Risks and Proceed with Download
+## Accept Risks and Proceed with Download
 
 If you understand and accept the risks associated with downloading these scripts, type "ok" and press "Enter" to continue with the download. 
 Hit "escape" to cancel.
