@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Kit
         run: |
-          PATH="./.knode/bin:$PATH" npm i
+          PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
           PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
 
       - name: Set env vars

@@ -8,7 +8,7 @@ Have an idea on how to support it? Please share on our [GitHub Discussions](http
 
 `)
   )
-global.edit = async (path, dir, line, col) => {
+global.edit = async (p, dir, line, col) => {
   let e = async () => {
     if (env?.KIT_EDITOR) {
       let isPath = await isFile(env.KIT_EDITOR)
@@ -21,7 +21,9 @@ global.edit = async (path, dir, line, col) => {
     return ""
   }
   try {
-    await global.exec(`${await e()} ${path} ${dir}`, {
+    let command = `${await e()} ${p}`
+    if (typeof dir === "string") command += ` "${dir}"`
+    await global.exec(command, {
       shell: true,
       env: {
         HOME: home(),

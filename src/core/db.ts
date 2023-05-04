@@ -73,7 +73,7 @@ export let db = async <T = any>(
     }
   }
 
-  let _db = new Low(new JSONFile(dbPath))
+  let _db = new Low(new JSONFile(dbPath), null)
 
   await _db.read()
 
