@@ -9,7 +9,7 @@ let { default: suggest } = await import("suggestion")
 
 let input = await arg(
   {
-    placeholder: "Google search:",
+    placeholder: "Google suggest:",
     enter: `Paste`,
     shortcuts: [backToMainShortcut],
     resize: true,
