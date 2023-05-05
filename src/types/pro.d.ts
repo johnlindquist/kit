@@ -81,6 +81,8 @@ export interface TerminalOptions extends PromptConfig {
 export type Terminal = {
   (command?: string): Promise<string>
   (options?: TerminalOptions): Promise<string>
+} & {
+  write?: (text: string) => Promise<void>
 }
 
 export interface ProAPI {

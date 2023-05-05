@@ -1,3 +1,5 @@
+import { rimraf } from "rimraf"
+
 //Description: Clone a Kenv repo
 let kenvsDir = kenvPath("kenvs")
 if (!(await isDir(kenvsDir))) {
@@ -91,7 +93,7 @@ If you are unsure about the safety of this script, please ask the community for 
 
 > [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
 >
-> [Get Help on Discord](https://discord.gg/8nRPzK9t)
+> [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
 
 ## Accept Risks and Proceed with Download
 
@@ -106,8 +108,28 @@ Hit "escape" to cancel.
   }
 }
 let kenvDir = kenvPath("kenvs", kenvName)
-await exec(`git clone ${repo} ${kenvDir}`)
-await cli("create-all-bins")
-await run(kitPath("setup", "build-ts-scripts.js"))
+await term({
+  command: `git clone ${repo} ${kenvDir} && cd ${kenvDir}`,
+  cwd: kenvsDir,
+  shortcuts: [
+    {
+      name: "Exit",
+      key: `${cmd}+w`,
+      bar: "right",
+      onPress: async () => {
+        await mainScript()
+      },
+    },
+    {
+      name: "Back to Main Menu",
+      key: `${cmd}+enter`,
+      bar: "right",
+      onPress: async () => {
+        submit("")
+      },
+    },
+  ],
+})
+
 await mainScript()
 export {}

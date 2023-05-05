@@ -543,6 +543,7 @@ export interface ChannelMap {
   }
   [Channel.SWITCH_KENV]: string
   [Channel.TERMINAL]: string
+  [Channel.TERM_WRITE]: string
   [Channel.TOAST]: {
     text: string
     options: any

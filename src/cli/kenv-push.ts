@@ -19,26 +19,51 @@ cd(dir)
 await term({
   command: `git status`,
   cwd: dir,
+  shortcuts: [
+    {
+      name: "Add, Commit, Push",
+      key: `${cmd}+p`,
+      bar: "left",
+      onPress: async () => {
+        term.write(
+          "git add . && git commit -m 'pushed from Script Kit' && git push"
+        )
+      },
+    },
+    {
+      name: "Add All",
+      key: `${cmd}+g`,
+      bar: "right",
+      onPress: async () => {
+        term.write("git add .")
+      },
+    },
+    {
+      name: "Commit",
+      key: `${cmd}+i`,
+      bar: "right",
+      onPress: async () => {
+        term.write(`git commit -m "pushed from Script Kit"`)
+      },
+    },
+    {
+      name: "Push",
+      key: `${cmd}+t`,
+      bar: "right",
+      onPress: async () => {
+        term.write(`git push`)
+      },
+    },
+    {
+      name: "Exit",
+      key: `${cmd}+w`,
+      bar: "right",
+      onPress: async () => {
+        submit("")
+      },
+    },
+  ],
 })
-
-await term({
-  command: `git add .`,
-  cwd: dir,
-  enter: "Commit",
-})
-
-await term({
-  command: `git commit -m "pushed from Script Kit"`,
-  cwd: dir,
-  enter: "Push",
-})
-
-await term({
-  command: `git push`,
-  cwd: dir,
-})
-
-await getScripts(false)
 
 await mainScript()
 

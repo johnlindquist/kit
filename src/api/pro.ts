@@ -186,7 +186,7 @@ let menu = async (
   })
 }
 
-let term = async (
+global.term = async (
   commandOrConfig: string | TerminalConfig = ""
 ) => {
   let command = ""
@@ -242,78 +242,12 @@ let term = async (
   })
 }
 
-let oldTerm = async (
-  commandOrConfig: string | TerminalConfig = "",
-  forkOptions = {}
-) => {
-  let command = ""
-  let config: TerminalConfig = {}
-
-  if (typeof commandOrConfig === "string") {
-    command = commandOrConfig
-  } else {
-    command = commandOrConfig?.command || ""
-    config = commandOrConfig
-  }
-
-  let child
-  let p = await new Promise<string>((res, rej) => {
-    let out = ``
-    let end = () => {
-      child?.removeAllListeners()
-      child?.kill()
-
-      res(stripAnsi(out).trim().replace(/%$/, ""))
-    }
-    child = fork(kitPath("run", "pty.js"), [command], {
-      cwd: process.cwd(),
-      env: process.env,
-      ...forkOptions,
-    })
-
-    type PtyMessage = {
-      socketURL: string
-      port: number
-      data: string
-    }
-
-    child.once("message", async (data: PtyMessage) => {
-      let maybe = data.data
-      if (maybe && !maybe.match(/^\s/)) out += maybe
-      if (stripAnsi(maybe).endsWith(`\u0007`)) out = ``
-
-      log(`🔌 Terminal socket: ${data.socketURL}`)
-
-      send(Channel.TERMINAL, data.socketURL)
-
-      await global.kitPrompt({
-        input: command,
-        ui: UI.term,
-        ...config,
-      })
-
-      send(Channel.TERMINAL, ``)
-
-      end()
-    })
-
-    child.on("error", err => {
-      rej(err)
-    })
-
-    child.on("exit", end)
-    child.on("close", end)
-  })
-
-  child?.removeAllListeners()
-  child?.kill()
-
-  return p
+global.term.write = async (text: string) => {
+  await sendWait(Channel.TERM_WRITE, text)
 }
 
 global.widget = widget
 global.menu = menu
-global.term = term
 
 global.showLogWindow = async (scriptPath = "") => {
   await sendWait(Channel.SHOW_LOG_WINDOW, scriptPath)

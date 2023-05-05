@@ -77,7 +77,7 @@ If you are unsure about the safety of this script, please ask the community for 
 
 > [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
 >
-> [Get Help on Discord](https://discord.gg/8nRPzK9t)
+> [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
 
 ## Accept Risks and Proceed with Download
 
