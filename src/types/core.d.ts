@@ -139,7 +139,8 @@ export type InputType =
 
 export type Shortcut = {
   key: string
-  name: string
+  name?: string
+  value?: any
   onPress?: (
     input: string,
     state: AppState

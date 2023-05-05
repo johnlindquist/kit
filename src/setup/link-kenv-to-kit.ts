@@ -34,6 +34,6 @@ if (!npmrcContent.match(/^install-links=false$/gm)) {
   )
 }
 
-await cli("install", kitPath())
+await cli("install", `"${kitPath()}"`)
 
 export {}

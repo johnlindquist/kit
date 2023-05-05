@@ -482,11 +482,8 @@ let waitForPromptValue = ({
                 data.state.input,
                 data.state
               )
-            } else {
-              submit(
-                data.state?.focused?.value ||
-                  data?.state?.input
-              )
+            } else if (shortcut) {
+              submit(shortcut.value || shortcut.name)
             }
 
             break

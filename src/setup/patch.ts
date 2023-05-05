@@ -37,7 +37,7 @@ try {
   }
 
   if (!kenvPkg?.devDependencies?.["@johnlindquist/kit"]) {
-    await cli("install", kitPath())
+    await cli("install", `"${kitPath()}"`)
   }
 
   await copyIfNotExists(
