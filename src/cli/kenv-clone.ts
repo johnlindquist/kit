@@ -132,5 +132,7 @@ await term({
   ],
 })
 
+await getScripts(false)
+
 await mainScript()
 export {}
