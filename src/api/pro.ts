@@ -203,6 +203,7 @@ global.term = async (
     // Hack to clear the terminal when it's already open
     await div({
       html: ``,
+      height: PROMPT.HEIGHT.BASE,
       onInit: async () => {
         await wait(100)
         submit("")

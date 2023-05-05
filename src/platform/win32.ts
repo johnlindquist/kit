@@ -21,7 +21,7 @@ global.edit = async (p, dir, line, col) => {
     return ""
   }
   try {
-    let command = `${await e()} ${p}`
+    let command = `${await e()} "${p}"`
     if (typeof dir === "string") command += ` "${dir}"`
     await global.exec(command, {
       shell: true,
