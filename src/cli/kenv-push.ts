@@ -1,6 +1,9 @@
 // Description: Git Push Kenv Repo
 
-import { getKenvs } from "../core/utils.js"
+import {
+  getKenvs,
+  getShellSeparator,
+} from "../core/utils.js"
 
 let kenvs = (await getKenvs()).map(value => ({
   name: path.basename(value),
@@ -16,6 +19,8 @@ let dir = await arg("Push which kenv", kenvs)
 
 cd(dir)
 
+let shellSep = getShellSeparator()
+
 await term({
   command: `git status`,
   cwd: dir,
@@ -26,7 +31,7 @@ await term({
       bar: "left",
       onPress: async () => {
         term.write(
-          "git add . && git commit -m 'pushed from Script Kit' && git push"
+          `git add . ${shellSep} git commit -m "pushed from Script Kit" ${shellSep} git push`
         )
       },
     },

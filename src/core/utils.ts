@@ -1039,3 +1039,30 @@ export let proPane = () =>
 </div>
 </div>
 `
+
+export const getShellSeparator = () => {
+  let separator = "&&"
+  if (process.platform === "win32") {
+    separator = "&"
+  }
+  // if powershell
+  if (
+    process.env.KIT_SHELL?.includes("pwsh") ||
+    process.env.KIT_SHELL?.includes("powershell") ||
+    process.env.SHELL?.includes("pwsh") ||
+    process.env.SHELL?.includes("powershell") ||
+    process.env.ComSpec?.includes("powershell") ||
+    process.env.ComSpec?.includes("pwsh")
+  ) {
+    separator = ";"
+  }
+
+  if (
+    process.env.KIT_SHELL?.includes("fish") ||
+    process.env.SHELL?.includes("fish")
+  ) {
+    separator = ";"
+  }
+
+  return separator
+}

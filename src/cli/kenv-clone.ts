@@ -1,4 +1,4 @@
-import { rimraf } from "rimraf"
+import { getShellSeparator } from "../core/utils.js"
 
 //Description: Clone a Kenv repo
 let kenvsDir = kenvPath("kenvs")
@@ -108,8 +108,9 @@ Hit "escape" to cancel.
   }
 }
 let kenvDir = kenvPath("kenvs", kenvName)
+let shellSep = getShellSeparator()
 await term({
-  command: `git clone ${repo} ${kenvDir} && cd ${kenvDir}`,
+  command: `git clone ${repo} ${kenvDir} ${shellSep} cd ${kenvDir}`,
   cwd: kenvsDir,
   shortcuts: [
     {
