@@ -23,6 +23,7 @@ if (!dir.includes(path.sep)) {
 }
 
 // If dir is a symlink, delete the symlink, not the target
+setDescription(`Are you sure?`)
 try {
   const stats = await lstat(dir)
   if (stats.isSymbolicLink()) {
