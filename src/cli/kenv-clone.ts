@@ -46,6 +46,7 @@ ${
 
 let prevRepoName = ""
 let [repo, kenvName, removeGit, ok] = await fields({
+  ignoreBlur: true,
   preview: buildPreview(),
   onInit: async () => {
     if (args?.[0]) {
