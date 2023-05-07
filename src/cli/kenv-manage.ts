@@ -31,6 +31,21 @@ let kenvManagementChoices: Choice<keyof CLI>[] = [
     description: "Link local kenv from your hard drive",
     value: "kenv-add",
   },
+  {
+    name: `Push kenv`,
+    description: `Runs git push on kenv repo`,
+    value: "kenv-push",
+  },
+  {
+    name: `Pull kenv`,
+    description: `Runs git pull on kenv repo`,
+    value: "kenv-pull",
+  },
+  {
+    name: `Open Kenv Directory in a Terminal`,
+    description: `Open the directory of the kenv in a terminal`,
+    value: "kenv-term",
+  },
   ...insertIfKenvsExist([
     {
       name: "View kenv",
@@ -41,21 +56,6 @@ let kenvManagementChoices: Choice<keyof CLI>[] = [
       name: `Remove kenv`,
       description: `Remove a kenv`,
       value: "kenv-rm",
-    },
-    {
-      name: `Push kenv`,
-      description: `Runs git push on kenv repo`,
-      value: "kenv-push",
-    },
-    {
-      name: `Pull kenv`,
-      description: `Runs git pull on kenv repo`,
-      value: "kenv-pull",
-    },
-    {
-      name: `Open Kenv Directory in a Terminal`,
-      description: `Open the directory of the kenv in a terminal`,
-      value: "kenv-term",
     },
   ]),
 ]
