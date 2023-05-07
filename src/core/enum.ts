@@ -251,6 +251,7 @@ export enum Channel {
   WIDGET_CUSTOM = "WIDGET_CUSTOM",
   SET_PAUSE_RESIZE = "SET_PAUSE_RESIZE",
   TERM_WRITE = "TERM_WRITE",
+  SET_FORM_DATA = "SET_FORM_DATA",
 }
 
 export enum ProcessType {

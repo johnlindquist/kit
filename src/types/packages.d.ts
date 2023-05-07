@@ -1,7 +1,27 @@
 export {}
 import * as shelljs from "shelljs"
+import {
+  add,
+  clone,
+  commit,
+  pull,
+  push,
+} from "isomorphic-git"
 
 export type Trash = typeof import("trash").default
+export type Git = {
+  clone: (
+    repo: string,
+    dir: string
+  ) => ReturnType<typeof clone>
+  pull: (dir: string) => ReturnType<typeof pull>
+  push: (dir: string) => ReturnType<typeof push>
+  add: (dir: string, glob: string) => ReturnType<typeof add>
+  commit: (
+    dir: string,
+    message: string
+  ) => ReturnType<typeof commit>
+}
 export type Open = typeof import("open")
 
 type NodeNotify = typeof import("node-notifier").notify
@@ -61,6 +81,7 @@ declare global {
   var trash: Trash
   var open: Open
   var rm: Trash
+  var git: Git
 
   var notify: Notify
 

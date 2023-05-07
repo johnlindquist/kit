@@ -76,6 +76,7 @@ export interface TerminalOptions extends PromptConfig {
     [key: string]: string
   }
   closeOnExit?: boolean
+  cleanPath?: boolean
 }
 
 export type Terminal = {

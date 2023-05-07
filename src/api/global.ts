@@ -24,6 +24,7 @@ await import("./packages/node-notifier.js")
 await import("./packages/shelljs.js")
 await import("./packages/trash.js")
 await import("./packages/open.js")
+await import("./packages/git.js")
 
 global.env = async (envKey, promptConfig) => {
   if (!envKey) throw new Error(`Environment Key Required`)

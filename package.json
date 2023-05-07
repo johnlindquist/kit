@@ -58,6 +58,7 @@
     "filesize": "10.0.7",
     "googlethis": "*",
     "highlight.js": "11.7.0",
+    "isomorphic-git": "1.23.0",
     "node-notifier": "10.0.1",
     "open": "9.1.0",
     "rimraf": "5.0.0",

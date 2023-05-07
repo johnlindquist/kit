@@ -213,13 +213,15 @@ type Field =
       placeholder?: string
       value?: string
       type?: string
-      [key: string]: string
+      required?: boolean
+      [key: string]: string | boolean
     }
   | string
 
 export interface Fields {
-  (fields: Field[]): Promise<any>
-  (config: PromptConfig & { fields: Field[] }): Promise<any>
+  (
+    fields: Field[] | (PromptConfig & { fields: Field[] })
+  ): Promise<string[]>
 }
 
 export type AudioOptions = {
@@ -288,6 +290,10 @@ interface SetChoices {
     className?: string,
     scripts?: boolean
   ): Promise<void>
+}
+
+interface SetFormData {
+  (formData: any): Promise<void>
 }
 
 interface AppendChoices {
@@ -480,6 +486,9 @@ export interface ChannelMap {
   [Channel.SET_CONFIG]: Partial<Config>
   [Channel.SET_BOUNDS]: Partial<Rectangle>
   [Channel.SET_CHOICES]: Choice[]
+  [Channel.SET_FORM_DATA]: {
+    [key: string]: string
+  }
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
   [Channel.SET_DARK]: boolean
   [Channel.SET_DESCRIPTION]: string
@@ -932,6 +941,7 @@ declare global {
   var addChoice: AddChoice
   var appendChoices: AppendChoices
   var setChoices: SetChoices
+  var setFormData: SetFormData
   var clearTabs: () => void
   var setDiv: SetPanel
   var setPreview: SetPreview

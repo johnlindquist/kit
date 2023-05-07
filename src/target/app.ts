@@ -21,6 +21,7 @@ import {
   GuideSection,
   KitTheme,
   MicConfig,
+  Fields,
 } from "../types/kitapp"
 
 import {
@@ -948,13 +949,16 @@ global.showEmojiPanel = () => {
 }
 
 global.fields = async formFields => {
-  let config: PromptConfig & { fields?: Field[] } = {}
+  let config: Parameters<Fields>[0] = []
   let f = []
-  if (Array.isArray(formFields) && !formFields[0]?.fields) {
+  if (
+    Array.isArray(formFields) &&
+    !(formFields as any)[0]?.fields // not sure if I can safely deprecate this
+  ) {
     f = formFields
   } else {
     config = formFields
-    f = config?.fields
+    f = (config as any)?.fields
   }
 
   let inputs = f
@@ -963,7 +967,8 @@ global.fields = async formFields => {
         element: "input",
         label: "Label",
       }
-      if (typeof field === "string") {
+      let fieldString = typeof field === "string"
+      if (fieldString) {
         defaultElement.label = field
         defaultElement.placeholder = field
       } else {
@@ -985,6 +990,9 @@ global.fields = async formFields => {
               <${element}
                   id="${id || i}"
                   name="${name || i}"
+                  data-name="${
+                    name ? name : fieldString ? field : i
+                  }"
                   ${
                     i === 0 ? `autofocus` : ``
                   }                  
@@ -1001,7 +1009,10 @@ global.fields = async formFields => {
       `
     })
     .join("")
-  config.html = `<div class="flex flex-col items-center min-h-full flex-1 w-full">
+
+  ;(
+    config as PromptConfig
+  ).html = `<div class="flex flex-col items-center min-h-full flex-1 w-full">
 
 ${inputs}
 
@@ -1010,11 +1021,16 @@ ${inputs}
 <input type="submit" name="submit-form" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-contrast-dark dark:text-contrast-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-text-base dark:focus:text-primary-light hover:text-text-base dark:hover:text-primary-light hover:underline dark:hover:underline bg-opacity-75 dark:bg-opacity-75"/>
 </div>
 </div>`
-  config.shortcuts = formShortcuts
+  ;(config as PromptConfig).shortcuts = formShortcuts
+  ;(config as PromptConfig).enter ||= "Submit"
+  let formResponse = await global.form(
+    config as PromptConfig
+  )
+  return formResponse.orderedValues
+}
 
-  config.enter ||= "Submit"
-  let formResponse = await global.form(config)
-  return Object.values(formResponse)
+global.setFormData = async (formData = {}) => {
+  await sendWait(Channel.SET_FORM_DATA, formData)
 }
 
 global.form = async (html = "", formData = {}) => {

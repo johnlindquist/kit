@@ -52,6 +52,11 @@ let kenvManagementChoices: Choice<keyof CLI>[] = [
       description: `Runs git pull on kenv repo`,
       value: "kenv-pull",
     },
+    {
+      name: `Open Kenv Directory in a Terminal`,
+      description: `Open the directory of the kenv in a terminal`,
+      value: "kenv-term",
+    },
   ]),
 ]
 

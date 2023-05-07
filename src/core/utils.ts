@@ -150,10 +150,7 @@ const UNIX_DEFAULT_PATH = combinePath([
   "/sbin",
 ])
 
-const WIN_DEFAULT_PATH = combinePath([
-  "C:\\Windows\\System32",
-  "C:\\Windows",
-])
+const WIN_DEFAULT_PATH = combinePath([])
 
 export const KIT_DEFAULT_PATH = isWin
   ? WIN_DEFAULT_PATH
