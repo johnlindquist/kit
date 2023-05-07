@@ -12,14 +12,26 @@ export type Trash = typeof import("trash").default
 export type Git = {
   clone: (
     repo: string,
-    dir: string
+    dir: string,
+    options?: Parameters<typeof clone>[0]
   ) => ReturnType<typeof clone>
-  pull: (dir: string) => ReturnType<typeof pull>
-  push: (dir: string) => ReturnType<typeof push>
-  add: (dir: string, glob: string) => ReturnType<typeof add>
+  pull: (
+    dir: string,
+    options?: Parameters<typeof pull>[0]
+  ) => ReturnType<typeof pull>
+  push: (
+    dir: string,
+    options?: Parameters<typeof push>[0]
+  ) => ReturnType<typeof push>
+  add: (
+    dir: string,
+    glob: string,
+    options?: Parameters<typeof add>[0]
+  ) => ReturnType<typeof add>
   commit: (
     dir: string,
-    message: string
+    message: string,
+    options?: Parameters<typeof commit>[0]
   ) => ReturnType<typeof commit>
 }
 export type Open = typeof import("open")
