@@ -5,6 +5,8 @@ import {
   getKenvs,
 } from "../core/utils.js"
 
+import { lstat, unlink } from "fs/promises"
+
 import { rimraf } from "rimraf"
 
 let dir = await arg(
@@ -20,7 +22,28 @@ if (!dir.includes(path.sep)) {
   dir = kenvPath("kenvs", dir)
 }
 
-await rimraf(dir)
+// If dir is a symlink, delete the symlink, not the target
+try {
+  const stats = await lstat(dir)
+  if (stats.isSymbolicLink()) {
+    await div(
+      md(`# Are you sure?
+
+Press "enter" to remove the symlink at ${dir}
+    `)
+    )
+    await unlink(dir)
+  } else {
+    await div(
+      md(`# Are you sure?
+    
+Press "enter" to permanently delete ${dir}`)
+    )
+    await rimraf(dir)
+  }
+} catch (error) {
+  console.error(`Error while removing kenv: ${error}`)
+}
 
 await getScripts(false)
 
