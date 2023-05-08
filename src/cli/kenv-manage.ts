@@ -57,6 +57,11 @@ let kenvManagementChoices: Choice<keyof CLI>[] = [
       description: `Remove a kenv`,
       value: "kenv-rm",
     },
+    {
+      name: `Visit kenv repo`,
+      description: `Open the repo of the kenv in your browser`,
+      value: "kenv-visit",
+    },
   ]),
 ]
 

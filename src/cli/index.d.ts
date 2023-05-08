@@ -79,11 +79,13 @@ export interface CLI {
   "kenv-switch": Promise<typeof import("./kenv-switch")>
   "kenv-clone": Promise<typeof import("./kenv-clone")>
   "kenv-term": Promise<typeof import("./kenv-term")>
+  "kenv-trust": Promise<typeof import("./kenv-trust")>
   "kenv-view": Promise<typeof import("./kenv-view")>
   "kit-log": Promise<typeof import("./kit-log")>
   "kenv-rm": Promise<typeof import("./kenv-rm")>
   "kenv-pull": Promise<typeof import("./kenv-pull")>
   "kenv-push": Promise<typeof import("./kenv-push")>
+  "kenv-visit": Promise<typeof import("./kenv-visit")>
   settings: Promise<typeof import("./settings")>
   "switch-to-js": Promise<typeof import("./switch-to-js")>
   "switch-to-ts": Promise<typeof import("./switch-to-ts")>

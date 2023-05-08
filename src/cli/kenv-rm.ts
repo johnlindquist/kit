@@ -1,52 +1,69 @@
 // Description: Delete a Kenv Repo
 
-import {
-  getLastSlashSeparated,
-  getKenvs,
-} from "../core/utils.js"
+import { getKenvs } from "../core/utils.js"
 
 import { lstat, unlink } from "fs/promises"
 
 import { rimraf } from "rimraf"
 
-let dir = await arg(
+let selectedKenvPath = await arg(
   "Remove which kenv",
   (
     await getKenvs()
   ).map(value => ({
-    name: getLastSlashSeparated(value, 1),
+    name: path.basename(value),
     value,
   }))
 )
-if (!dir.includes(path.sep)) {
-  dir = kenvPath("kenvs", dir)
+if (!selectedKenvPath.includes(path.sep)) {
+  selectedKenvPath = kenvPath("kenvs", selectedKenvPath)
 }
 
 // If dir is a symlink, delete the symlink, not the target
 setDescription(`Are you sure?`)
 try {
-  const stats = await lstat(dir)
+  const stats = await lstat(selectedKenvPath)
   if (stats.isSymbolicLink()) {
     await div(
       md(`# Are you sure?
 
-Press "enter" to remove the symlink at ${dir}
+Press "enter" to remove the symlink at ${selectedKenvPath}
     `)
     )
-    await unlink(dir)
+    await unlink(selectedKenvPath)
   } else {
     await div(
       md(`# Are you sure?
     
-Press "enter" to permanently delete ${dir}`)
+Press "enter" to permanently delete ${selectedKenvPath}`)
     )
-    await rimraf(dir)
+    await rimraf(selectedKenvPath)
   }
 } catch (error) {
   console.error(`Error while removing kenv: ${error}`)
 }
 
 await getScripts(false)
+
+let kenv = path.basename(selectedKenvPath)
+
+let trustedKenvKey = `KIT_${
+  process.env?.USER ||
+  process.env?.USERNAME ||
+  "NO_USER_ENV_FOUND"
+}_DANGEROUSLY_TRUST_KENVS`
+
+if (process?.env?.[trustedKenvKey]) {
+  let newValue = process.env[trustedKenvKey]
+    .split(",")
+    .filter(k => k == kenv)
+    .join(",")
+  await replace({
+    files: kenvPath(".env"),
+    from: new RegExp(`${trustedKenvKey}=.*`),
+    to: `${trustedKenvKey}=${newValue}`,
+  })
+}
 
 if (process.env.KIT_CONTEXT === "app") {
   await mainScript()

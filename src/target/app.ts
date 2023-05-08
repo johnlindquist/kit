@@ -487,6 +487,13 @@ let waitForPromptValue = ({
               submit(shortcut.value || shortcut.name)
             }
 
+            if (data.state.shortcut === "enter") {
+              submit(
+                data?.state?.focused?.value ||
+                  data?.state?.input
+              )
+            }
+
             break
 
           case Channel.ON_PASTE:
@@ -1022,11 +1029,19 @@ ${inputs}
 </div>
 </div>`
   ;(config as PromptConfig).shortcuts = formShortcuts
-  ;(config as PromptConfig).enter ||= "Submit"
+
+  if (typeof (config as PromptConfig).enter !== "string") {
+    ;(config as PromptConfig).enter = "Submit"
+  }
+
   let formResponse = await global.form(
     config as PromptConfig
   )
   return formResponse.orderedValues
+}
+
+global.setDisableSubmit = async (disable = true) => {
+  await sendWait(Channel.SET_DISABLE_SUBMIT, disable)
 }
 
 global.setFormData = async (formData = {}) => {
@@ -1046,7 +1061,9 @@ global.form = async (html = "", formData = {}) => {
   }
 
   config.ui = UI.form
-  config.enter ||= "Submit"
+  if (typeof config.enter !== "string") {
+    config.enter = "Submit"
+  }
   config.shortcuts ||= formShortcuts
 
   return await global.kitPrompt(config)
@@ -1734,8 +1751,8 @@ global.setDescription = (description: string) => {
   global.send(Channel.SET_DESCRIPTION, description)
 }
 
-global.setName = (name: string) => {
-  global.send(Channel.SET_NAME, name)
+global.setName = async (name: string) => {
+  await global.sendWait(Channel.SET_NAME, name)
 }
 
 global.setTextareaValue = (value: string) => {

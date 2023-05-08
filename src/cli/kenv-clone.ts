@@ -45,9 +45,15 @@ ${
 }
 
 let prevRepoName = ""
+setPauseResize(true)
+setBounds({
+  height: PROMPT.HEIGHT["2XL"],
+})
 let [repo, kenvName, removeGit, ok] = await fields({
+  height: PROMPT.HEIGHT["2XL"],
   ignoreBlur: true,
   preview: buildPreview(),
+  enter: "",
   onInit: async () => {
     if (args?.[0]) {
       let repo = args?.[0]
@@ -60,7 +66,14 @@ let [repo, kenvName, removeGit, ok] = await fields({
     }
   },
   onChange: async (i, s) => {
-    let [repo, kenvName] = s?.value
+    let [repo, kenvName, removeGit, ok] = s?.value
+    if (ok === "ok" && kenvName) {
+      if (removeGit === "y") {
+        setEnter(`Clone ${kenvName} and Remove .git`)
+      } else {
+        setEnter(`Clone ${kenvName}`)
+      }
+    }
 
     if (repo === prevRepoName) return
     let valid = isValidRepoOrUrl(repo)
@@ -124,6 +137,7 @@ if (repo.split("/").length === 2) {
 
 let result = await div({
   html: md(`Cloning ${repo} to ${kenvDir}`),
+  enter: "",
   onInit: async () => {
     await wait(1000)
     try {
@@ -154,6 +168,8 @@ if (result === "error") {
 }
 
 await getScripts(false)
+
+await cli("kenv-trust", kenvName)
 
 await mainScript()
 export {}

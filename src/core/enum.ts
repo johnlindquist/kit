@@ -252,6 +252,7 @@ export enum Channel {
   SET_PAUSE_RESIZE = "SET_PAUSE_RESIZE",
   TERM_WRITE = "TERM_WRITE",
   SET_FORM_DATA = "SET_FORM_DATA",
+  SET_DISABLE_SUBMIT = "SET_DISABLE_SUBMIT",
 }
 
 export enum ProcessType {

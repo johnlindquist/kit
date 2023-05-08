@@ -484,6 +484,7 @@ export interface ChannelMap {
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
   [Channel.SEND_KEYSTROKE]: Partial<KeyData>
   [Channel.SET_CONFIG]: Partial<Config>
+  [Channel.SET_DISABLE_SUBMIT]: boolean
   [Channel.SET_BOUNDS]: Partial<Rectangle>
   [Channel.SET_CHOICES]: Choice[]
   [Channel.SET_FORM_DATA]: {
