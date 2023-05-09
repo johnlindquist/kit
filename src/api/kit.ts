@@ -466,8 +466,8 @@ global.setPlaceholder = text => {
   global.send(Channel.SET_PLACEHOLDER, stripAnsi(text))
 }
 
-global.setEnter = text => {
-  global.send(Channel.SET_ENTER, text)
+global.setEnter = async text => {
+  await global.sendWait(Channel.SET_ENTER, text)
 }
 
 global.main = async (scriptPath: string, ..._args) => {

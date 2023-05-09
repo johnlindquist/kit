@@ -36,7 +36,9 @@ if (autoScripts.length > 0) {
 
 ## This Kenv contains scripts which run _AUTOMATICALLY_.
 
-Scripts can run automatically when they use the following features:
+Do you trust this kenv to run scripts automatically?
+
+Scripts with the following features can run automatically:
 - Shortcuts (registers global keyboard shortcuts)
 - Snippets (listens for user text input)
 - File Watchers (watches for file changes)
@@ -179,12 +181,30 @@ If you are unsure about the safety of these scripts, please ask the community fo
         trustedKenvKey,
         newValue
       )
+      await div({
+        enter: "Back to Main Menu",
+        html: md(`# Trusting Kenv "${kenv}"
+
+Scripts located in the following directory are now trusted to run automatically:
+~~~bash
+${kenvPath("kenvs", kenv, "scripts")}
+~~~
+
+## How to "Distrust" a "${kenv}"
+
+Locate your .env, and remove the following line:
+~~~bash
+# Location of .env: ${kenvPath(".env")}
+${trustedKenvKey}=${newValue}
+~~~`),
+      })
     } else {
       await appendFile(
         kenvPath(".env"),
         `\n${trustedKenvKey}=${kenv}\n`
       )
     }
+    await mainScript()
   } else {
     await div({
       html: md(

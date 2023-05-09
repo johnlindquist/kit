@@ -1602,9 +1602,9 @@ global.npmInstall = createNpm(appInstall, false)
 global.installMissingPackage =
   createKenvPackageMissingInstall(appInstall, false)
 
-global.setPanel = (h, containerClasses = "") => {
+global.setPanel = async (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
-  global.send(Channel.SET_PANEL, html)
+  await global.sendWait(Channel.SET_PANEL, html)
 }
 
 global.setFooter = (footer: string) => {
@@ -1651,7 +1651,7 @@ global.setResize = async ignore => {
 }
 
 global.setPauseResize = async pause => {
-  global.send(Channel.SET_PAUSE_RESIZE, pause)
+  await global.sendWait(Channel.SET_PAUSE_RESIZE, pause)
 }
 
 global.setValue = async value => {
@@ -1747,8 +1747,11 @@ global.wait = async (time: number) => {
   )
 }
 
-global.setDescription = (description: string) => {
-  global.send(Channel.SET_DESCRIPTION, description)
+global.setDescription = async (description: string) => {
+  await global.sendWait(
+    Channel.SET_DESCRIPTION,
+    description
+  )
 }
 
 global.setName = async (name: string) => {
