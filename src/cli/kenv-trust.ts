@@ -159,14 +159,18 @@ if (autoScripts.length > 0) {
       let newValue = [
         ...process.env[trustedKenvKey]
           .split(",")
+          .filter(Boolean)
           .filter(k => k !== kenv),
         kenv,
       ].join(",")
+
       await replace({
         files: kenvPath(".env"),
         from: new RegExp(`${trustedKenvKey}=.*`),
         to: `${trustedKenvKey}=${newValue}`,
       })
+      env[trustedKenvKey] = newValue
+      process.env[trustedKenvKey] = newValue
     } else {
       await appendFile(
         kenvPath(".env"),

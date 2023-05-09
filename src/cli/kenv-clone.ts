@@ -57,9 +57,14 @@ let [repo, kenvName, removeGit, ok] = await fields({
   onInit: async () => {
     if (args?.[0]) {
       let repo = args?.[0]
+      let kenvName = path.basename(repo)
+      if (kenvName === ".kenv" || kenvName === "kenv") {
+        kenvName =
+          path.basename(path.dirname(repo)) + "-kenv"
+      }
       setFormData({
         repo,
-        kenvName: path.basename(repo),
+        kenvName,
       })
 
       setPreview(buildPreview(repo))
@@ -85,8 +90,10 @@ let [repo, kenvName, removeGit, ok] = await fields({
     if (!repo.split("/").at(-1)) return
     prevRepoName = repo
     let newName = path.basename(repo)
+    if (newName === ".kenv" || newName === "kenv") {
+      newName = path.basename(path.dirname(repo)) + "-kenv"
+    }
     if (!newName) return
-
     setFormData({
       kenvName: newName,
     })
@@ -136,7 +143,10 @@ if (repo.split("/").length === 2) {
 }
 
 let result = await div({
-  html: md(`Cloning ${repo} to ${kenvDir}`),
+  html: md(`# Cloning Kenv Repo
+
+> ${repo} -> ${kenvDir}
+`),
   enter: "",
   onInit: async () => {
     await wait(1000)

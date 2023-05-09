@@ -53,16 +53,20 @@ let trustedKenvKey = `KIT_${
   "NO_USER_ENV_FOUND"
 }_DANGEROUSLY_TRUST_KENVS`
 
-if (process?.env?.[trustedKenvKey]) {
+if (typeof process?.env?.[trustedKenvKey] === "string") {
   let newValue = process.env[trustedKenvKey]
     .split(",")
-    .filter(k => k == kenv)
+    .filter(Boolean)
+    .filter(k => k !== kenv)
     .join(",")
+
   await replace({
     files: kenvPath(".env"),
     from: new RegExp(`${trustedKenvKey}=.*`),
     to: `${trustedKenvKey}=${newValue}`,
   })
+  env[trustedKenvKey] = newValue
+  process.env[trustedKenvKey] = newValue
 }
 
 if (process.env.KIT_CONTEXT === "app") {
