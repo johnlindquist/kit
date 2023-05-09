@@ -116,13 +116,13 @@ If you are unsure about the safety of these scripts, please ask the community fo
   setDescription(`Danger Zone`)
   setName(`Danger Zone`)
 
-  setBounds({ height: PROMPT.HEIGHT["XL"] })
+  setBounds({ height: PROMPT.HEIGHT["2XL"] })
   setPauseResize(true)
 
   let matchKenv = await arg(
     {
       enter: "",
-      height: PROMPT.HEIGHT["XL"],
+      height: PROMPT.HEIGHT["4XL"],
       ignoreBlur: true,
       shortcuts: [],
       placeholder: kenv,
@@ -134,25 +134,24 @@ If you are unsure about the safety of these scripts, please ask the community fo
           setEnter(`Dangerously Trust ${kenv}`)
           setPanel(
             md(`# <span class="text-red-500 text-3xl animate-pulse">Danger Zone - Last Chance</span>
-  > <span class="text-primary">Caution</span>: These scripts may run as soon as you hit "enter"
-  >
-  > <span class="text-red-500">Extreme Caution</span>: Pulling updates from this kenv is _EXTREMELY RISKY_
+> <span class="text-primary">Caution</span>: These scripts may run as soon as you hit "enter"
+>
+> <span class="text-red-500">Extreme Caution</span>: Pulling updates from this kenv is _EXTREMELY RISKY_
             
+## Hit "enter" to accept the risks
 
-  ## Hit "enter" to accept the risks
+Hitting "enter" now will enable automatic features for the scripts in ${kenv} 
 
-  Hitting "enter" now will enable automatic features for the scripts in ${kenv} 
-  
-  ## How to Remove the Kenv
-  
-  From the main menu: Kit tab -> Manage Kenvs -> Remove Kenv
-  
-  ## How to "Distrust" the Kenv
-  To "distrust" this kenv, you will need to remove it from the your ~/.kenv/.env:
-  
-  ~~~bash
-  ${trustedKenvKey}=${kenv}
-  ~~~
+## How to Remove the Kenv
+
+From the main menu: Kit tab -> Manage Kenvs -> Remove Kenv
+
+## How to "Distrust" the Kenv
+To "distrust" this kenv, you will need to remove it from the your ~/.kenv/.env:
+
+~~~bash
+${trustedKenvKey}=${kenv}
+~~~
   
           `)
           )
@@ -183,16 +182,18 @@ If you are unsure about the safety of these scripts, please ask the community fo
       )
       await div({
         enter: "Back to Main Menu",
-        html: md(`# Trusting Kenv "${kenv}"
+        html: md(`# "${kenv}" is now Trusted
 
 Scripts located in the following directory are now trusted to run automatically:
+
 ~~~bash
 ${kenvPath("kenvs", kenv, "scripts")}
 ~~~
 
-## How to "Distrust" a "${kenv}"
+## How to Distrust "${kenv}"
 
 Locate your .env, and remove the following line:
+
 ~~~bash
 # Location of .env: ${kenvPath(".env")}
 ${trustedKenvKey}=${newValue}

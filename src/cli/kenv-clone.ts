@@ -1,4 +1,7 @@
 //Description: Clone a Kenv repo
+
+let initRepo = args?.[0]
+
 let kenvsDir = kenvPath("kenvs")
 if (!(await isDir(kenvsDir))) {
   await ensureDir(kenvsDir)
@@ -51,16 +54,16 @@ ${
 let prevRepoName = ""
 setPauseResize(true)
 setBounds({
-  height: PROMPT.HEIGHT["3XL"],
+  height: PROMPT.HEIGHT["4XL"],
 })
 let [repo, kenvName, removeGit, ok] = await fields({
-  height: PROMPT.HEIGHT["3XL"],
+  height: PROMPT.HEIGHT["4XL"],
   ignoreBlur: true,
   preview: buildPreview(),
   enter: "",
   onInit: async () => {
-    if (args?.[0]) {
-      let repo = args?.[0]
+    if (initRepo) {
+      let repo = initRepo
       let kenvName = path.basename(repo)
       if (kenvName === ".kenv" || kenvName === "kenv") {
         kenvName =
@@ -147,9 +150,12 @@ if (repo.split("/").length === 2) {
 }
 
 let result = await div({
-  html: md(`# Cloning Kenv Repo
+  html: md(`# Cloning ${repo}
+
+## Please wait while this repo is cloned:
 
 > ${repo} -> ${kenvDir}
+
 `),
   enter: "",
   onInit: async () => {

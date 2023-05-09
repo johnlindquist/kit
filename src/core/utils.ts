@@ -574,8 +574,16 @@ export let stripMetadata = (
   fileContents: string,
   exclude: string[] = []
 ) => {
+  let excludeWithCommon = [
+    `http`,
+    `https`,
+    `TODO`,
+    `FIXME`,
+    `NOTE`,
+  ].concat(exclude)
+
   let negBehind = exclude.length
-    ? `(?<!(${exclude.join("|")}))`
+    ? `(?<!(${excludeWithCommon.join("|")}))`
     : ``
 
   return fileContents.replace(

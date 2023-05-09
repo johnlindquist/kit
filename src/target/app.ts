@@ -983,6 +983,9 @@ global.fields = async formFields => {
           defaultElement[key] = value
         })
       }
+      if (global.args.length) {
+        defaultElement.value = global.args.shift()
+      }
       let { element, label, id, name, ...attrs } =
         defaultElement
       let attributes = Object.entries(attrs)

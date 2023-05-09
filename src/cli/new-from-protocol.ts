@@ -5,7 +5,6 @@
 import {
   exists,
   kitMode,
-  returnOrEnter,
   stripMetadata,
 } from "../core/utils.js"
 import {
@@ -49,7 +48,7 @@ if (process?.env?.KIT_TRUST_SCRIPTS !== "true") {
       ignoreBlur: true,
       placeholder: `Type "ok" and hit enter to continue...`,
       strict: true,
-      height: PROMPT.HEIGHT["2XL"],
+      height: PROMPT.HEIGHT["4XL"],
       description: `Download ${name}`,
       shortcuts: [
         {
@@ -71,6 +70,10 @@ Running scripts from the internet poses significant risks. Scripts have the abil
 - Delete, modify, or steal your files
 - Watch keystrokes and register key commands
 - Start background processes and much more...
+
+## Stripping Metadata
+
+This script will be stripped of metadata before being added to your scripts folder to prevent scripts from running automatically. You will need to manually add back Shortcuts, Snippets, Schedule, etc if you want to re-enable them.
 
 ## Any Doubts? Ask for Help!
 
