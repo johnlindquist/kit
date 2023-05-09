@@ -80,6 +80,7 @@ export interface CLI {
   "kenv-clone": Promise<typeof import("./kenv-clone")>
   "kenv-term": Promise<typeof import("./kenv-term")>
   "kenv-trust": Promise<typeof import("./kenv-trust")>
+  "kenv-distrust": Promise<typeof import("./kenv-distrust")>
   "kenv-view": Promise<typeof import("./kenv-view")>
   "kit-log": Promise<typeof import("./kit-log")>
   "kenv-rm": Promise<typeof import("./kenv-rm")>

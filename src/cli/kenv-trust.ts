@@ -33,20 +33,30 @@ if (autoScripts.length > 0) {
 
   let preview =
     md(`# <span class="text-red-500 text-3xl animate-pulse">Danger Zone<span>
+
+## This Kenv contains scripts which run _AUTOMATICALLY_.
+
+Scripts can run automatically when they use the following features:
+- Shortcuts (registers global keyboard shortcuts)
+- Snippets (listens for user text input)
+- File Watchers (watches for file changes)
+- Background Scripts (runs in the background)
+- Scheduled Scripts (runs on a schedule)
+- System Scripts (runs system events)
+
+We have detected these features in the scripts below. Please review them carefully.
+
+## Any Doubts? Ask for Help!
+
+If you are unsure about the safety of these scripts, please ask the community for help before proceeding:
+
+> [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
+>
+> [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
+
+## Accept Risks and Allow Scripts to Run Automatically
   
-  ## This Kenv contains scripts which run _AUTOMATICALLY_.
-  
-  Scripts can run automatically when they use the following features:
-  - Shortcuts (registers global keyboard shortcuts)
-  - Snippets (listens for user text input)
-  - File Watchers (watches for file changes)
-  - Background Scripts (runs in the background)
-  - Scheduled Scripts (runs on a schedule)
-  - System Scripts (runs system events)
-  
-  We have detected these features in the scripts below. Please review them carefully.
-  
-  > To accept the risks and allow these scripts to run automatically, type "${kenv}" and hit "Enter".
+> To accept the risks and allow these scripts to run automatically, type "${kenv}" and hit "Enter".
   `)
 
   let addPreview = async s => {
@@ -164,13 +174,11 @@ if (autoScripts.length > 0) {
         kenv,
       ].join(",")
 
-      await replace({
-        files: kenvPath(".env"),
-        from: new RegExp(`${trustedKenvKey}=.*`),
-        to: `${trustedKenvKey}=${newValue}`,
-      })
-      env[trustedKenvKey] = newValue
-      process.env[trustedKenvKey] = newValue
+      await global.cli(
+        "set-env-var",
+        trustedKenvKey,
+        newValue
+      )
     } else {
       await appendFile(
         kenvPath(".env"),

@@ -35,6 +35,10 @@ ${
   > [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
   >
   > [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
+
+  ## Remove .git Folder
+
+  Type "y" if you want to clear the .git information from this repo so you can freely make changes or prevent accidental pulls/pushes.
   
   ## Accept Risks and Proceed with Download
   
@@ -47,10 +51,10 @@ ${
 let prevRepoName = ""
 setPauseResize(true)
 setBounds({
-  height: PROMPT.HEIGHT["2XL"],
+  height: PROMPT.HEIGHT["3XL"],
 })
 let [repo, kenvName, removeGit, ok] = await fields({
-  height: PROMPT.HEIGHT["2XL"],
+  height: PROMPT.HEIGHT["3XL"],
   ignoreBlur: true,
   preview: buildPreview(),
   enter: "",

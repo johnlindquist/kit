@@ -60,13 +60,7 @@ if (typeof process?.env?.[trustedKenvKey] === "string") {
     .filter(k => k !== kenv)
     .join(",")
 
-  await replace({
-    files: kenvPath(".env"),
-    from: new RegExp(`${trustedKenvKey}=.*`),
-    to: `${trustedKenvKey}=${newValue}`,
-  })
-  env[trustedKenvKey] = newValue
-  process.env[trustedKenvKey] = newValue
+  await global.cli("set-env-var", trustedKenvKey, newValue)
 }
 
 if (process.env.KIT_CONTEXT === "app") {

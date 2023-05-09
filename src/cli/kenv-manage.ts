@@ -62,6 +62,16 @@ let kenvManagementChoices: Choice<keyof CLI>[] = [
       description: `Open the repo of the kenv in your browser`,
       value: "kenv-visit",
     },
+    {
+      name: `Trust kenv`,
+      description: `Trust the scripts in a kenv to run automatically`,
+      value: "kenv-trust",
+    },
+    {
+      name: `Distrust kenv`,
+      description: `Don't allow the scripts in a kenv to run automatically`,
+      value: "kenv-distrust",
+    },
   ]),
 ]
 

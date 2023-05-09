@@ -133,6 +133,7 @@ Please go to [${sponsorUrl}](${sponsorUrl}) to become a sponsor to unlock all fe
       })
       process.env.GITHUB_SCRIPTKIT_TOKEN =
         env.GITHUB_SCRIPTKIT_TOKEN = ``
+
       await mainScript()
       break
   }
