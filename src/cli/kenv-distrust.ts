@@ -28,6 +28,7 @@ let trustedKenvs: any[] = [
   ...currentTrustedKenvs,
 ]
 
+// Removes the kenv from the .env
 let kenv = await arg(
   {
     placeholder: "Distrust which kenv",
