@@ -21,6 +21,7 @@ if (await isDir(examplesDir)) {
       destination,
       {
         extract: true,
+        rejectUnauthorized: false,
       }
     )
 

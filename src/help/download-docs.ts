@@ -3,7 +3,10 @@
 try {
   await download(
     `https://www.scriptkit.com/api/docs`,
-    kitPath("data")
+    kitPath("data"),
+    {
+      rejectUnauthorized: false,
+    }
   )
 
   global.log(`📝 Docs updated`)

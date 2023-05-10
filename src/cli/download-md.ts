@@ -1,7 +1,11 @@
 let downloadMarkdown = async (fileName: string) => {
   try {
     let buffer = await download(
-      `https://raw.githubusercontent.com/johnlindquist/kit/main/${fileName}`
+      `https://raw.githubusercontent.com/johnlindquist/kit/main/${fileName}`,
+      undefined,
+      {
+        rejectUnauthorized: false,
+      }
     )
     await writeFile(kitPath(fileName), buffer)
   } catch (error) {

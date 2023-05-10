@@ -3,7 +3,10 @@
 try {
   await download(
     `https://www.scriptkit.com/api/emoji`,
-    kitPath("data")
+    kitPath("data"),
+    {
+      rejectUnauthorized: false,
+    }
   )
   global.log(`😘 Emoji updated`)
 } catch {
