@@ -1,6 +1,9 @@
 // Description: Delete a Kenv Repo
 
-import { getKenvs } from "../core/utils.js"
+import {
+  getKenvs,
+  getTrustedKenvsKey,
+} from "../core/utils.js"
 
 import { lstat, unlink } from "fs/promises"
 
@@ -47,11 +50,7 @@ await getScripts(false)
 
 let kenv = path.basename(selectedKenvPath)
 
-let trustedKenvKey = `KIT_${
-  process.env?.USER ||
-  process.env?.USERNAME ||
-  "NO_USER_ENV_FOUND"
-}_DANGEROUSLY_TRUST_KENVS`
+let trustedKenvKey = getTrustedKenvsKey()
 
 if (typeof process?.env?.[trustedKenvKey] === "string") {
   let newValue = process.env[trustedKenvKey]

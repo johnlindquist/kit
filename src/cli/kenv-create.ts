@@ -18,20 +18,22 @@ let onInput = async input => {
   setPanel(panel)
 }
 
-let newKenvName = await arg({
-  input: "",
-  placeholder: "Name of new kenv:",
-  validate: async input => {
-    let attemptPath = kenvPath("kenvs", input)
-    let exists = await isDir(attemptPath)
-    if (exists) {
-      return `${attemptPath} already exists...`
-    }
+let newKenvName = await arg(
+  {
+    input: "",
+    placeholder: "Name of new kenv:",
+    validate: async input => {
+      let attemptPath = kenvPath("kenvs", input)
+      let exists = await isDir(attemptPath)
+      if (exists) {
+        return `${attemptPath} already exists...`
+      }
 
-    return true
+      return true
+    },
   },
-  onInput,
-})
+  onInput
+)
 
 let newKenvPath = kenvPath("kenvs", newKenvName)
 

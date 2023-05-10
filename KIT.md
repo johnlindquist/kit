@@ -1,3 +1,19 @@
+## Script Kit Pro Tutorials
+
+<!-- description: Watch and read official tutorials -->
+<!-- value: cli/tutorials.js -->
+<!-- enter: Open scriptkit.com -->
+
+<div class="flex flex-row w-full items-start">
+<div class="flex-1">
+<p>Visit <a href="https://scriptkit.com/tutorials">https://scriptkit.com/tutorials</a> to view the
+official Script Kit tutorials created by John Lindquist.</p>
+
+<p>These lessons will take your scripting skills to the next level. Unlocking countless possibilities with scripts, AI, and more! 🚀</p>
+</div>
+<img class="my-0 p-0 object-contain w-1/3" src="https://www.scriptkit.com/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fbadass-courses%2Fimage%2Fupload%2Fv1683624377%2Fplaceholder-tutorial-illustration-sk_2x_thb8g3.png&w=256&q=100">
+<div>
+
 ## Get Help on Github Discussions
 
 <!-- description: Post a question to Script Kit GitHub discussions -->

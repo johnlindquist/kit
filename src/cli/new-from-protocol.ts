@@ -2,6 +2,8 @@
 // Description: Create a new script
 // Log: false
 
+import { highlightJavaScript } from "../api/kit.js"
+
 import {
   exists,
   kitMode,
@@ -41,29 +43,39 @@ let name = await arg(
   ]
 )
 
+let response = await get(arg?.url)
+let content = await response.data
+
+let preview = await highlightJavaScript(content)
+
 if (process?.env?.KIT_TRUST_SCRIPTS !== "true") {
   setName(``)
   let message = await arg(
     {
+      enter: "",
       ignoreBlur: true,
       placeholder: `Type "ok" and hit enter to continue...`,
       strict: true,
       height: PROMPT.HEIGHT["4XL"],
       description: `Download ${name}`,
+      onInput: async input => {
+        if (input === "ok") {
+          setEnter(`Download ${name}`)
+        } else {
+          setEnter(``)
+        }
+      },
       shortcuts: [
         {
           name: "Cancel",
           key: "escape",
-          bar: "right",
+          bar: "left",
           onPress: () => process.exit(),
         },
       ],
-      enter: `Download ${name}`,
     },
     md(`
 ## Caution: This Action Will Download a Script from the Internet
-
-> Before proceeding, please review the script here: [${arg?.url}](${arg?.url})
 
 Running scripts from the internet poses significant risks. Scripts have the ability to:
 
@@ -74,6 +86,10 @@ Running scripts from the internet poses significant risks. Scripts have the abil
 ## Stripping Metadata
 
 This script will be stripped of metadata before being added to your scripts folder to prevent scripts from running automatically. You will need to manually add back Shortcuts, Snippets, Schedule, etc if you want to re-enable them.
+
+## Review the Script Below
+
+${preview}
 
 ## Any Doubts? Ask for Help!
 

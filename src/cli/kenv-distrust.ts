@@ -1,15 +1,10 @@
 // Name: Testing Extreme Caution
 
-import { highlightJavaScript } from "../api/kit.js"
-import { getKenvs } from "../core/utils.js"
+import { getTrustedKenvsKey } from "../core/utils.js"
 
-let trustedKenvKey = `KIT_${
-  process.env?.USER ||
-  process.env?.USERNAME ||
-  "NO_USER_ENV_FOUND"
-}_DANGEROUSLY_TRUST_KENVS`
+let trustedKenvsKey = getTrustedKenvsKey()
 
-let currentTrustedKenvs = process.env[trustedKenvKey]
+let currentTrustedKenvs = process.env[trustedKenvsKey]
   ?.split(",")
   .filter(Boolean)
 
@@ -36,14 +31,14 @@ let kenv = await arg(
   trustedKenvs
 )
 
-if (typeof process?.env?.[trustedKenvKey] === "string") {
-  let newValue = process.env[trustedKenvKey]
+if (typeof process?.env?.[trustedKenvsKey] === "string") {
+  let newValue = process.env[trustedKenvsKey]
     .split(",")
     .filter(Boolean)
     .filter(k => k !== kenv)
     .join(",")
 
-  await global.cli("set-env-var", trustedKenvKey, newValue)
+  await global.cli("set-env-var", trustedKenvsKey, newValue)
 }
 
 if (process.env.KIT_CONTEXT === "app") {

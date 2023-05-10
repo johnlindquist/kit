@@ -1,7 +1,10 @@
 // Name: Testing Extreme Caution
 
 import { highlightJavaScript } from "../api/kit.js"
-import { getKenvs } from "../core/utils.js"
+import {
+  getKenvs,
+  getTrustedKenvsKey,
+} from "../core/utils.js"
 
 let kenv = await arg(
   "Trust which kenv",
@@ -25,11 +28,7 @@ let autoScripts = [
 ]
 
 if (autoScripts.length > 0) {
-  let trustedKenvKey = `KIT_${
-    process.env?.USER ||
-    process.env?.USERNAME ||
-    "NO_USER_ENV_FOUND"
-  }_DANGEROUSLY_TRUST_KENVS`
+  let trustedKenvsKey = getTrustedKenvsKey()
 
   let preview =
     md(`# <span class="text-red-500 text-3xl animate-pulse">Danger Zone<span>
@@ -150,7 +149,7 @@ From the main menu: Kit tab -> Manage Kenvs -> Remove Kenv
 To "distrust" this kenv, you will need to remove it from the your ~/.kenv/.env:
 
 ~~~bash
-${trustedKenvKey}=${kenv}
+${trustedKenvsKey}=${kenv}
 ~~~
   
           `)
@@ -165,10 +164,10 @@ ${trustedKenvKey}=${kenv}
 
   if (typeof matchKenv === "string" && matchKenv === kenv) {
     if (
-      typeof process?.env?.[trustedKenvKey] === "string"
+      typeof process?.env?.[trustedKenvsKey] === "string"
     ) {
       let newValue = [
-        ...process.env[trustedKenvKey]
+        ...process.env[trustedKenvsKey]
           .split(",")
           .filter(Boolean)
           .filter(k => k !== kenv),
@@ -177,7 +176,7 @@ ${trustedKenvKey}=${kenv}
 
       await global.cli(
         "set-env-var",
-        trustedKenvKey,
+        trustedKenvsKey,
         newValue
       )
       await div({
@@ -196,13 +195,13 @@ Locate your .env, and remove the following line:
 
 ~~~bash
 # Location of .env: ${kenvPath(".env")}
-${trustedKenvKey}=${newValue}
+${trustedKenvsKey}=${newValue}
 ~~~`),
       })
     } else {
       await appendFile(
         kenvPath(".env"),
-        `\n${trustedKenvKey}=${kenv}\n`
+        `\n${trustedKenvsKey}=${kenv}\n`
       )
     }
     await mainScript()

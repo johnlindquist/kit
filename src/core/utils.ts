@@ -1071,3 +1071,18 @@ export const getShellSeparator = () => {
 
   return separator
 }
+
+export let getTrustedKenvsKey = () => {
+  let username =
+    process.env?.USER ||
+    process.env?.USERNAME ||
+    "NO_USER_ENV_FOUND"
+
+  let formattedUsername = username
+    .replace(/[^a-zA-Z0-9]/g, "_")
+    .toUpperCase()
+
+  let trustedKenvKey = `KIT_${formattedUsername}_DANGEROUSLY_TRUST_KENVS`
+
+  return trustedKenvKey
+}
