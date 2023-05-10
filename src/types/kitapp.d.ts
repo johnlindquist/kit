@@ -390,6 +390,10 @@ export interface ChannelMap {
     html: string
     options?: ShowOptions
   }
+  [Channel.WIDGET_EXECUTE_JAVASCRIPT]: {
+    widgetId: number
+    js: string
+  }
   [Channel.WIDGET_SET_STATE]: {
     state: any
   }

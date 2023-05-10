@@ -5,7 +5,7 @@ import http from "isomorphic-git/http/node/index.js"
 let gitClone = async (
   repo: string,
   dir: string,
-  options?: Parameters<typeof _git.clone>[0]
+  options?: Partial<Parameters<typeof _git.clone>[0]>
 ) => {
   return await _git.clone({
     fs,
@@ -20,7 +20,7 @@ let gitClone = async (
 
 let gitPull = async (
   dir: string,
-  options?: Parameters<typeof _git.pull>[0]
+  options?: Partial<Parameters<typeof _git.pull>[0]>
 ) => {
   return await _git.pull({
     fs,
@@ -33,7 +33,7 @@ let gitPull = async (
 
 let gitPush = async (
   dir: string,
-  options?: Parameters<typeof _git.push>[0]
+  options?: Partial<Parameters<typeof _git.push>[0]>
 ) => {
   return await _git.push({
     fs,
@@ -46,7 +46,7 @@ let gitPush = async (
 let gitAdd = async (
   dir: string,
   filepath: string,
-  options?: Parameters<typeof _git.add>[0]
+  options?: Partial<Parameters<typeof _git.add>[0]>
 ) => {
   return await _git.add({
     fs,
@@ -59,12 +59,38 @@ let gitAdd = async (
 let gitCommit = async (
   dir: string,
   message: string,
-  options?: Parameters<typeof _git.commit>[0]
+  options?: Partial<Parameters<typeof _git.commit>[0]>
 ) => {
   return await _git.commit({
     fs,
     dir,
     message,
+    ...(options ? options : {}),
+  })
+}
+
+let gitInit = async (
+  dir: string,
+  options?: Partial<Parameters<typeof _git.init>[0]>
+) => {
+  return await _git.init({
+    fs,
+    dir,
+    ...(options ? options : {}),
+  })
+}
+
+let gitAddRemote = async (
+  dir: string,
+  remote: string,
+  url: string,
+  options?: Partial<Parameters<typeof _git.addRemote>[0]>
+) => {
+  return await _git.addRemote({
+    fs,
+    dir,
+    remote,
+    url,
     ...(options ? options : {}),
   })
 }
@@ -75,4 +101,6 @@ global.git = {
   push: gitPush,
   add: gitAdd,
   commit: gitCommit,
+  init: gitInit,
+  addRemote: gitAddRemote,
 }

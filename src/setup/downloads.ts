@@ -2,6 +2,7 @@
 // This is run by the app.
 
 try {
+  await ensureDir(kitPath("data"))
   await run(kitPath("hot", "download-hot.js"))
   await run(kitPath("emoji", "download-emoji.js"))
   if (!arg.dev) await run(kitPath("cli", "download-md.js"))

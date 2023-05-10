@@ -13,26 +13,36 @@ export type Git = {
   clone: (
     repo: string,
     dir: string,
-    options?: Parameters<typeof clone>[0]
+    options?: Partial<Parameters<typeof clone>[0]>
   ) => ReturnType<typeof clone>
   pull: (
     dir: string,
-    options?: Parameters<typeof pull>[0]
+    options?: Partial<Parameters<typeof pull>[0]>
   ) => ReturnType<typeof pull>
   push: (
     dir: string,
-    options?: Parameters<typeof push>[0]
+    options?: Partial<Parameters<typeof push>[0]>
   ) => ReturnType<typeof push>
   add: (
     dir: string,
     glob: string,
-    options?: Parameters<typeof add>[0]
+    options?: Partial<Parameters<typeof add>[0]>
   ) => ReturnType<typeof add>
   commit: (
     dir: string,
     message: string,
-    options?: Parameters<typeof commit>[0]
+    options?: Partial<Parameters<typeof commit>[0]>
   ) => ReturnType<typeof commit>
+  init: (
+    dir: string,
+    options?: Partial<Parameters<typeof init>[0]>
+  ) => ReturnType<typeof init>
+  addRemote: (
+    dir: string,
+    remote: string,
+    url: string,
+    options?: Partial<Parameters<typeof addRemote>[0]>
+  ) => ReturnType<typeof addRemote>
 }
 export type Open = typeof import("open")
 

@@ -438,3 +438,5 @@ global.term = async commandOrConfig => {
   let result = await task
   return result?.stdout || result?.stderr || ""
 }
+
+global.mainScript = async () => {}

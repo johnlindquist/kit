@@ -17,6 +17,7 @@ export type WidgetOptions =
     ttl?: number
     center?: boolean
     containerClass?: string
+    preventEscape?: boolean
   }
 
 export interface WidgetMessage {
@@ -54,6 +55,7 @@ export interface WidgetAPI {
   onClose: (handler: WidgetHandler) => void
   onResized: (handler: WidgetHandler) => void
   onMoved: (handler: WidgetHandler) => void
+  executeJavaScript: (js: string) => Promise<any>
 }
 
 export interface Widget {

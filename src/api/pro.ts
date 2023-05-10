@@ -112,6 +112,15 @@ let widget: Widget = async (html, options = {}) => {
     onMoved: (handler: WidgetHandler) => {
       movedHandler = handler
     },
+    executeJavaScript: async js => {
+      return await global.sendWait(
+        Channel.WIDGET_EXECUTE_JAVASCRIPT,
+        {
+          widgetId,
+          value: js,
+        }
+      )
+    },
   }
 
   let messageHandler = (data: WidgetMessage) => {
