@@ -19,7 +19,7 @@ ava.serial("kit setup", async t => {
   t.true(contents.includes(`KIT_TEMPLATE=default`))
 })
 
-ava.serial(`TypeScript support`, async t => {
+ava(`TypeScript support`, async t => {
   let tsScript = `mock-typescript-script`
   await $`kit set-env-var KIT_MODE ts`
   await wait(100)
@@ -81,7 +81,7 @@ console.log(await arg())`
   )
 })
 
-ava.serial(`TypeScript import from lib`, async t => {
+ava(`TypeScript import from lib`, async t => {
   let tsScript = `mock-typescript-script-load-lib`
   await $`kit set-env-var KIT_MODE ts`
   await $`kit new ${tsScript} main --no-edit`
