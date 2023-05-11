@@ -63,5 +63,5 @@ if (typeof process?.env?.[trustedKenvKey] === "string") {
 }
 
 if (process.env.KIT_CONTEXT === "app") {
-  await mainScript()
+  await cli("kenv-rm")
 }

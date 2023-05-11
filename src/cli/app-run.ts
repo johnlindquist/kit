@@ -8,7 +8,7 @@ import {
   toggleBackground,
   run,
   cmd,
-  isMac
+  isMac,
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
 
@@ -49,6 +49,14 @@ let scriptFlags: FlagsOptions = {
   ["edit-script"]: {
     name: "Edit",
     description: "Open the selected script in your editor",
+  },
+  ["push-script"]: {
+    name: "Push to Git Repo",
+    description: "Push the selected script to a git repo",
+  },
+  ["pull-script"]: {
+    name: "Pull from Git Repo",
+    description: "Pull the selected script from a git repo",
   },
 
   ["edit-doc"]: {
@@ -103,7 +111,9 @@ let scriptFlags: FlagsOptions = {
   },
   ["reveal-script"]: {
     name: "Reveal",
-    description: `Reveal the selected script in ${isMac ? "Finder" : "Explorer"}`,
+    description: `Reveal the selected script in ${
+      isMac ? "Finder" : "Explorer"
+    }`,
     shortcut: `${cmd}+shift+f`,
   },
   // ["share"]: {
