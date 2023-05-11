@@ -2,9 +2,6 @@
 
 import "@johnlindquist/kit"
 
-import { getTrustedKenvsKey } from "../core/utils.js"
-let trustedKenvsKey = getTrustedKenvsKey()
-
 let buildPreview = async (kenv = "") => {
   let exists =
     kenv && (await isDir(kenvPath("kenvs", kenv)))
@@ -139,7 +136,7 @@ if (yesClone) {
   </div>`
 
   let xxs = {
-    width: PROMPT.WIDTH.XXS,
+    width: PROMPT.WIDTH.XS,
     height: PROMPT.HEIGHT.XS,
   }
 
@@ -158,6 +155,19 @@ if (yesClone) {
         },
         bar: "right",
       },
+      {
+        key: `${cmd}+t`,
+        name: "Manaully Clone in Terminal",
+        onPress: async () => {
+          setTimeout(() => {
+            term.write(
+              `git clone https://github.com/johnlindquist/kenv-template ${kenv}`
+            )
+          }, 2000)
+          await cli("kenv-term", kenvPath("kenvs"))
+        },
+        bar: "left",
+      },
     ],
     ignoreBlur: true,
     html,
@@ -175,6 +185,7 @@ if (yesClone) {
         attempt++
       }
 
+      await wait(2000)
       submit("done")
     },
   })
@@ -215,8 +226,19 @@ You can push/pull your kenv from the Kit tab -> Manage Kenvs`
 
 let exists = await isDir(newKenvPath)
 if (exists) {
+  await cli("kenv-trust", kenv, kenv)
   await div({
-    enter: "Continue to Main Menu",
+    enter: "Main Menu",
+    shortcuts: [
+      {
+        name: `Open in Terminal`,
+        key: `${cmd}+t`,
+        onPress: async () => {
+          await cli("kenv-term", newKenvPath)
+        },
+        bar: "right",
+      },
+    ],
     html: md(`# "${kenv}" kenv created
   
 The next time you create a script, you'll be prompted to select a kenv.
@@ -227,21 +249,18 @@ ${body}
 } else {
   await div({
     enter: "Continue to Main Menu",
-    html: md(`# "${kenv}" kenv not created
+    html: md(`# "${kenv}" kenv Failed to Create
 
-    Please ask for help:
-    
-    > [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
-    >
-    > [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
+Please ask for help:
+
+> [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
+>
+> [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
       `),
   })
 }
-
-await cli("kenv-trust", kenv)
 
 if (process.env.KIT_CONTEXT === "app") {
   await mainScript()
 }
 export {}
-//# sourceMappingURL=kenv-create.js.map

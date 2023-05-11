@@ -15,6 +15,9 @@ let kenv = await arg(
     value: path.basename(value),
   }))
 )
+
+let isCli = global.args.length > 0
+
 let scripts = await getScripts()
 let kenvScripts = scripts.filter(s => s?.kenv === kenv)
 
@@ -27,7 +30,7 @@ let autoScripts = [
   ...kenvScripts.filter(s => s.system),
 ]
 
-if (autoScripts.length > 0) {
+if (autoScripts.length > 0 || isCli) {
   let trustedKenvsKey = getTrustedKenvsKey()
 
   let preview =
@@ -179,9 +182,10 @@ ${trustedKenvsKey}=${kenv}
         trustedKenvsKey,
         newValue
       )
-      await div({
-        enter: "Back to Main Menu",
-        html: md(`# "${kenv}" is now Trusted
+      if (!isCli) {
+        await div({
+          enter: "Back to Main Menu",
+          html: md(`# "${kenv}" is now Trusted
 
 Scripts located in the following directory are now trusted to run automatically:
 
@@ -197,14 +201,15 @@ Locate your .env, and remove the following line:
 # Location of .env: ${kenvPath(".env")}
 ${trustedKenvsKey}=${newValue}
 ~~~`),
-      })
+        })
+      }
     } else {
       await appendFile(
         kenvPath(".env"),
         `\n${trustedKenvsKey}=${kenv}\n`
       )
     }
-    await mainScript()
+    if (!isCli) await mainScript()
   } else {
     await div({
       html: md(
