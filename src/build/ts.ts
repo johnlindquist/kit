@@ -67,7 +67,25 @@ let determineOutFile = (scriptPath: string) => {
   return outfile
 }
 
-let buildTSScript = async (scriptPath, outPath = "") => {
+let buildTSScript = async (
+  scriptPath: string,
+  outPath = ""
+) => {
+  if (!scriptPath) {
+    console.warn(
+      "No script path provided... Ignoring build..."
+    )
+    return
+  }
+
+  let isScriptAFile = await isFile(scriptPath)
+  if (!isScriptAFile) {
+    console.warn(
+      "Script path provided is not a file... Ignoring build..."
+    )
+    return
+  }
+
   let external = []
   let mainKenvNodeModulesPath = home(
     ".kenv",

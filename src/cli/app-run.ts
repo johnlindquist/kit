@@ -116,6 +116,19 @@ let scriptFlags: FlagsOptions = {
     }`,
     shortcut: `${cmd}+shift+f`,
   },
+  ["kenv-term"]: {
+    name: "Open Script Kenv in a  Terminal",
+    description:
+      "Open the selected script's kenv in a terminal",
+  },
+  ["kenv-trust"]: {
+    name: "Trust Script Kenv",
+    description: "Trust the selected script's kenv",
+  },
+  ["kenv-view"]: {
+    name: "View Script Kenv",
+    description: "View the selected script's kenv",
+  },
   // ["share"]: {
   //   name: "Share",
   //   description: "Share the selected script",
@@ -460,6 +473,16 @@ if ((script as Script)?.shebang) {
     )
   } else if (selectedFlag && selectedFlag === "settings") {
     await run(kitPath("main", "kit.js"))
+  } else if (
+    selectedFlag &&
+    selectedFlag?.startsWith("kenv")
+  ) {
+    let k = script.kenv || "main"
+    if (selectedFlag === "kenv-term") {
+      k = path.dirname(path.dirname(script.filePath))
+    }
+
+    await run(`${kitPath("cli", selectedFlag)}.js`, k)
   } else if (
     selectedFlag &&
     selectedFlag?.endsWith("menu")
