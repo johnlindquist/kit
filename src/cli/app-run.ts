@@ -347,8 +347,9 @@ let script = await selectScript(
         name: "Edit",
         key: `${cmd}+o`,
         onPress: async (input, { focused }) => {
-          if (process?.env?.KIT_EDITOR !== "kit")
+          if (process?.env?.KIT_EDITOR !== "kit") {
             await hide()
+          }
           await run(
             kitPath("cli", "edit-script.js"),
             focused.value.filePath
