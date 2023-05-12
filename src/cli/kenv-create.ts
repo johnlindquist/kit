@@ -123,19 +123,39 @@ Additional kenvs are located:
 
     open(createUrl)
 
-    let html = `
-  <style>.draggable {-webkit-app-region: drag;}</style>
-  <div class="-mt-10 draggable h-screen w-screen flex flex-col justify-center items-center text-text-base">
-  <h1 class="text-3xl animate-pulse text-center pt-4">Waiting for user to create...</h1>
-  <p>Note: Private repos require the Terminal to clone</p>
-  <p class="font-mono text-center p-4 my-2">${url}</p>
-  <p class="text-center">Polling every 2 seconds.</p> 
-  <p class="text-center">Timeout after 1 minute.</p>
-  </div>`
+    let body = md(
+      `
+> Note: Built-in clone uses the https Web URL.
+>
+> Private repos or SSH require the Terminal to clone
 
+Once you've created the repo, the app will automatically run the following in the \`~/.kenv/kenvs\` folder:
+~~~bash
+git clone ${url} ${kenv}
+~~~
+
+## What's happening?
+
+- The app is polling if the url exists every 2 seconds
+- The process will timeout after 1 minute if the repo isn't created
+    `.trim()
+    )
+
+    let html = `
+    <style>.draggable {-webkit-app-region: drag;}</style>
+    <div class="draggable h-screen w-screen flex flex-col pt-8 items-center text-text-base">
+    <h1 class="text-3xl animate-pulse text-center -my-1">Checking if repo is ready...</h1>
+    
+    ${body}
+    </div>`
+
+    let { workArea } = await getActiveScreen()
+    let { x, y, width } = workArea
     let xxs = {
       width: PROMPT.WIDTH.XS,
-      height: PROMPT.HEIGHT.XS,
+      height: PROMPT.HEIGHT.LG,
+      x: width,
+      y,
     }
 
     let attempt = 0

@@ -923,6 +923,7 @@ global.drop = async (
     placeholder?: string
     hint?: string
     footer?: string
+    preview?: string
   } =
     typeof placeholder === "string"
       ? { placeholder }
@@ -931,7 +932,9 @@ global.drop = async (
   return await global.kitPrompt({
     ui: UI.drop,
     enter: "",
-    width: PROMPT.WIDTH.XXS,
+    width: config?.preview
+      ? PROMPT.WIDTH.BASE
+      : PROMPT.WIDTH.XXS,
     height: PROMPT.WIDTH.XXS,
     shortcuts: [backToMainShortcut, closeShortcut],
     ...config,

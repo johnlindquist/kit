@@ -83,7 +83,7 @@ Running scripts from the internet poses significant risks. Scripts have the abil
 - Watch keystrokes and register key commands
 - Start background processes and much more...
 
-## Stripping Metadata
+## Stripping Metadata Comments
 
 This script will be stripped of metadata before being added to your scripts folder to prevent scripts from running automatically. You will need to manually add back Shortcuts, Snippets, Schedule, etc if you want to re-enable them.
 

@@ -24,29 +24,29 @@ ${
     ? `> Before proceeding, please review the scripts folder here: [${repo}](${repo})`
     : `> Enter a valid repo URL`
 }
-    
-  Running scripts from the internet poses significant risks. Scripts have the ability to:
   
-  - Delete, modify, or steal your files
-  - Watch keystrokes and register key commands
-  - Start background processes and much more...
-  
-  ## Any Doubts? Ask for Help!
-  
-  If you are unsure about the safety of these scripts, please ask the community for help before proceeding:
-  
-  > [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
-  >
-  > [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
+Running scripts from the internet poses significant risks. Scripts have the ability to:
 
-  ## Remove .git Folder
+- Delete, modify, or steal your files
+- Watch keystrokes and register key commands
+- Start background processes and much more...
 
-  Type "y" if you want to clear the .git information from this repo so you can freely make changes or prevent accidental pulls/pushes.
-  
-  ## Accept Risks and Proceed with Download
-  
-  If you understand and accept the risks associated with downloading these scripts, type "ok" and press "Enter" to continue with the download. 
-  Hit "escape" to cancel.`
+## Any Doubts? Ask for Help!
+
+If you are unsure about the safety of these scripts, please ask the community for help before proceeding:
+
+> [Get Help on GitHub](https://github.com/johnlindquist/kit/discussions/categories/q-a)
+>
+> [Get Help on Discord](https://discord.gg/qnUX4XqJQd)
+
+## Remove .git Folder
+
+Type "y" if you want to clear the .git information from this repo so you can freely make changes or prevent accidental pulls/pushes.
+
+## Accept Risks and Proceed with Download
+
+If you understand and accept the risks associated with downloading these scripts, type "ok" and press "Enter" to continue with the download. 
+Hit "escape" to cancel.`
 
   return md(html)
 }
@@ -124,7 +124,7 @@ let [repo, kenvName, removeGit, ok] = await fields({
       placeholder: `y/n`,
     },
     {
-      label: "Trust these scripts?",
+      label: "Accept Risks and Proceed with Download",
       placeholder: "ok",
       required: true,
     },

@@ -47,6 +47,7 @@ let { dirPath: selectedKenvPath } = await selectKenv({
   enter: "Create Script in Selected Kenv",
 })
 
+if (process?.env?.KIT_EDITOR !== "kit") await hide()
 let command = stripName(name)
 
 let scriptPath = path.join(

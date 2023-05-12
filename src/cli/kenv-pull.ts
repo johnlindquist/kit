@@ -18,6 +18,13 @@ cd(dir)
 
 await term({
   command: `git fetch`,
+  preview: md(`# Pulling a Kenv
+
+> The terminal only ran "git fetch" to show you what changes are available.
+
+You still need to run "get merge" to apply the changes.
+  
+  `),
   cwd: dir,
   shortcuts: [
     {
@@ -29,11 +36,11 @@ await term({
       },
     },
     {
-      name: "Pull",
-      key: `${cmd}+p`,
+      name: "Merge",
+      key: `${cmd}+m`,
       bar: "right",
       onPress: async () => {
-        term.write(`git pull`)
+        term.write(`git merge`)
       },
     },
     {

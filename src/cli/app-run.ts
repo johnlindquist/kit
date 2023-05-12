@@ -129,6 +129,11 @@ let scriptFlags: FlagsOptions = {
     name: "View Script Kenv",
     description: "View the selected script's kenv",
   },
+  ["kenv-visit"]: {
+    name: "Open Script Repo",
+    description:
+      "Visit the selected script's kenv in your browser",
+  },
   // ["share"]: {
   //   name: "Share",
   //   description: "Share the selected script",
@@ -342,6 +347,8 @@ let script = await selectScript(
         name: "Edit",
         key: `${cmd}+o`,
         onPress: async (input, { focused }) => {
+          if (process?.env?.KIT_EDITOR !== "kit")
+            await hide()
           await run(
             kitPath("cli", "edit-script.js"),
             focused.value.filePath

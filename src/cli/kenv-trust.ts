@@ -121,25 +121,24 @@ If you are unsure about the safety of these scripts, please ask the community fo
   setBounds({ height: PROMPT.HEIGHT["2XL"] })
   setPauseResize(true)
 
-  let matchKenv = await arg(
-    {
-      enter: "",
-      height: PROMPT.HEIGHT["4XL"],
-      ignoreBlur: true,
-      shortcuts: [],
-      placeholder: kenv,
-      // onInit: async () => {
-      //   setPauseResize(true)
-      // },
-      onInput: async input => {
-        if (input === kenv) {
-          setEnter(`Dangerously Trust ${kenv}`)
-          setPanel(
-            md(`# <span class="text-red-500 text-3xl animate-pulse">Danger Zone - Last Chance</span>
+  let matchKenvConfig = {
+    enter: "",
+    height: PROMPT.HEIGHT["4XL"],
+    ignoreBlur: true,
+    shortcuts: [],
+    placeholder: `Type "${kenv}" to trust this kenv`,
+    // onInit: async () => {
+    //   setPauseResize(true)
+    // },
+    onInput: async input => {
+      if (input === kenv) {
+        setEnter(`Dangerously Trust ${kenv}`)
+        setPanel(
+          md(`# <span class="text-red-500 text-3xl animate-pulse">Danger Zone - Last Chance</span>
 > <span class="text-primary">Caution</span>: These scripts may run as soon as you hit "enter"
 >
 > <span class="text-red-500">Extreme Caution</span>: Pulling updates from this kenv is _EXTREMELY RISKY_
-            
+          
 ## Hit "enter" to accept the risks
 
 Hitting "enter" now will enable automatic features for the scripts in ${kenv} 
@@ -154,15 +153,17 @@ To "distrust" this kenv, you will need to remove it from the your ~/.kenv/.env:
 ~~~bash
 ${trustedKenvsKey}=${kenv}
 ~~~
-  
-          `)
-          )
-        } else {
-          setEnter("")
-        }
-      },
+
+        `)
+        )
+      } else {
+        setEnter("")
+      }
     },
-    choices
+  }
+  let matchKenv = await arg(
+    matchKenvConfig,
+    async input => choices
   )
 
   if (typeof matchKenv === "string" && matchKenv === kenv) {
