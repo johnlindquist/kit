@@ -2802,5 +2802,3 @@ global.getMediaDevices = async () => {
 
   return appMessage?.state?.value
 }
-
-global.PROMPT = PROMPT

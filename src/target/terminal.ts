@@ -319,6 +319,9 @@ global.setName = (name: string) => {
   // console.log({ name })
 }
 
+global.setBounds = (bounds: Partial<Rectangle>) => {}
+global.setPauseResize = (pause: boolean) => {}
+
 global.getScriptsState = () => {
   notSupported("getScriptsState")
 }

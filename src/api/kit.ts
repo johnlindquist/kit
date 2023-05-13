@@ -7,7 +7,7 @@ import {
   PromptConfig,
   Script,
 } from "../types/core"
-import { Channel } from "../core/enum.js"
+import { Channel, PROMPT } from "../core/enum.js"
 
 import {
   kitPath,
@@ -1115,3 +1115,5 @@ global.createGist = async (
 global.browse = (url: string) => {
   return (global as any).open(url)
 }
+
+global.PROMPT = PROMPT
