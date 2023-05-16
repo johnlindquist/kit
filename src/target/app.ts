@@ -474,7 +474,9 @@ let waitForPromptValue = ({
             if (data?.state?.flag) {
               global.flag[data.state.flag] = true
             }
-            const shortcut = shortcuts.find(({ key }) => {
+            const shortcut = (
+              global.__currentPromptConfig?.shortcuts || []
+            )?.find(({ key }) => {
               return key === data?.state?.shortcut
             })
 
@@ -2638,6 +2640,9 @@ global.setAppearance = async appearance => {
 }
 
 global.setShortcuts = async shortcuts => {
+  if (global.__currentPromptConfig) {
+    global.__currentPromptConfig.shortcuts = shortcuts
+  }
   await sendWait(Channel.SET_SHORTCUTS, shortcuts)
 }
 
