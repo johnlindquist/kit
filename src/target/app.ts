@@ -699,6 +699,7 @@ let prepPrompt = async (config: PromptConfig) => {
     placeholder,
     footer,
     preview,
+    previewWidthPercent,
     panel,
     onInputSubmit = {},
     ...restConfig
@@ -729,6 +730,7 @@ let prepPrompt = async (config: PromptConfig) => {
       preview && typeof preview === "function"
         ? await (preview as Function)()
         : (preview as string),
+    previewWidthPercent: previewWidthPercent || 60,
     env: config?.env || global.env,
     choicesType: determineChoicesType(choices),
     hasOnNoChoices: Boolean(config?.onNoChoices),

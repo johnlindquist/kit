@@ -167,6 +167,7 @@ export interface PromptData {
   name: string
   placeholder: string
   preview: string
+  previewWidthPercent: number
   panel: string
   secret: boolean
   selected: string

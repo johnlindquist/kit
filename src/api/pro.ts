@@ -249,6 +249,7 @@ global.term = async (
       PATH: KIT_FIRST_PATH,
     },
     height: PROMPT.HEIGHT.BASE,
+    previewWidthPercent: 40,
     ...config,
   })
 }
