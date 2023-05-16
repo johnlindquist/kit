@@ -153,6 +153,7 @@ export type EditorConfig =
 export type MicConfig = PromptConfig & {
   timeSlice?: number
   format?: string
+  stream?: boolean
 }
 
 export interface TextareaConfig extends PromptConfig {

@@ -535,11 +535,11 @@ let waitForPromptValue = ({
               typeof data?.state?.value === "string" &&
               data?.state?.value?.startsWith("data:")
             ) {
-              log(`Found data.state.value`)
+              // log(`Found data.state.value`)
               const [header, content] =
                 data.state.value.split(",")
               const [type, encoding] = header.split(";")
-              log(`decoding ${encoding} ${type}`)
+              // log(`decoding ${encoding} ${type}`)
               if (encoding === "base64") {
                 data.state.value = Buffer.from(
                   content,
@@ -573,7 +573,7 @@ let waitForPromptValue = ({
           const [header, content] = value.split(",")
           const [type, encoding] = header.split(";")
 
-          log(`decoding ${encoding} ${type}`)
+          // log(`decoding ${encoding} ${type}`)
 
           if (encoding === "base64") {
             value = Buffer.from(content, "base64")
@@ -2765,6 +2765,7 @@ global.mic = async (config: MicConfig = {}) => {
     ignoreBlur: true,
     timeSlice: 200,
     format: "webm",
+    stream: false,
     ...config,
   })
 }
