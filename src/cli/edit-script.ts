@@ -8,6 +8,14 @@ import {
   closeShortcut,
   cmd,
 } from "../core/utils.js"
+
+let isApp = process.env.KIT_CONTEXT === "app"
+let isKitEditor = process.env.KIT_EDITOR === "kit"
+
+if (isApp && !isKitEditor) {
+  await hide()
+}
+
 let scriptPath = await arg()
 // TODO: centralize .ts/.js finding logic
 if (scriptPath.endsWith(".mjs")) {
@@ -19,10 +27,8 @@ if (scriptPath.endsWith(".mjs")) {
     name + ".ts"
   )
 }
-if (
-  process.env.KIT_EDITOR === "kit" &&
-  process.env.KIT_CONTEXT === "app"
-) {
+
+if (isApp && isKitEditor) {
   setScriptTimestamp(scriptPath)
   let value = await readFile(scriptPath, "utf-8")
   await editor({
