@@ -252,6 +252,7 @@ export interface AppState {
   flaggedValue?: any
   flag?: string
   tab?: string
+  tabIndex?: number
   value?: any
   index?: number
   focused?: Choice
