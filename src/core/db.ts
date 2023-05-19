@@ -17,7 +17,7 @@ import {
   timestampsPath,
   userDbPath,
 } from "./utils.js"
-import { _ } from "@johnlindquist/globals"
+
 import { Choice, Script, PromptDb } from "../types/core"
 import {
   Low,
@@ -145,42 +145,41 @@ export let getScriptsDb = async (
   )
 }
 
-export let setScriptTimestamp = _.debounce(
-  async (filePath: string): Promise<Script[]> => {
-    let timestampsDb = await getTimestamps()
-    let stamp = timestampsDb.stamps.find(
-      stamp => stamp.filePath === filePath
-    )
-    if (stamp) {
-      stamp.timestamp = Date.now()
-    } else {
-      timestampsDb.stamps.push({
-        filePath,
-        timestamp: Date.now(),
-      })
-    }
-
-    let scriptsDb = await getScriptsDb(false)
-    let script = scriptsDb.scripts.find(
-      s => s.filePath === filePath
-    )
-
-    if (script) {
-      scriptsDb.scripts = scriptsDb.scripts.sort(
-        scriptsSort(timestampsDb.stamps)
-      )
-      await scriptsDb.write()
-      await timestampsDb.write()
-    }
-
-    return scriptsDb.scripts
-  },
-  250,
-  {
-    leading: true,
-    trailing: true,
+export let setScriptTimestamp = async (
+  filePath: string
+): Promise<Script[]> => {
+  let timestampsDb = await getTimestamps()
+  let stamp = timestampsDb.stamps.find(
+    stamp => stamp.filePath === filePath
+  )
+  if (stamp) {
+    stamp.timestamp = Date.now()
+  } else {
+    timestampsDb.stamps.push({
+      filePath,
+      timestamp: Date.now(),
+    })
   }
-)
+
+  let scriptsDb = await getScriptsDb(false)
+  let script = scriptsDb.scripts.find(
+    s => s.filePath === filePath
+  )
+
+  if (script) {
+    scriptsDb.scripts = scriptsDb.scripts.sort(
+      scriptsSort(timestampsDb.stamps)
+    )
+    try {
+      await scriptsDb.write()
+    } catch (error) {}
+    try {
+      await timestampsDb.write()
+    } catch (error) {}
+  }
+
+  return scriptsDb.scripts
+}
 
 // export let removeScriptFromDb = async (
 //   filePath: string
