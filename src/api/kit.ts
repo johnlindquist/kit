@@ -645,7 +645,7 @@ global.setChoices = async (choices, className = "") => {
         }
       )
 
-    if (setShortcuts) setShortcuts(shortcuts)
+      await global.sendWait(Channel.SET_SHORTCUTS, shortcuts)
   }
 
   let p = global.sendWait(Channel.SET_CHOICES, choices)
