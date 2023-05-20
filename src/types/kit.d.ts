@@ -187,7 +187,7 @@ export interface CreateGist {
 }
 
 export interface SetShortcuts {
-  (shortcuts: Shortcut[]): void
+  (shortcuts: Shortcut[]): Promise<void>
 }
 export interface KitApi {
   path: PathSelector

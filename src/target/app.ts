@@ -2744,32 +2744,51 @@ global.toast = async (text: string, options: any = {}) => {
 }
 
 global.mic = async (config: MicConfig = {}) => {
-  return await global.kitPrompt({
-    ui: UI.mic,
-    enter: "Stop",
-    width: PROMPT.WIDTH.BASE,
-    height: PROMPT.HEIGHT.BASE,
-    resize: true,
-    shortcuts: [
-      backToMainShortcut,
-      {
-        key: `${cmd}+i`,
-        name: `Select Mic`,
-        onPress: async () => {
-          await run(kitPath("cli", "select-mic.js"))
-          await mainScript()
-        },
-        bar: "right",
-      },
+  if (config?.dot) {
+    let data = await global.sendWait(
+      Channel.START_MIC,
+      config
+    )
 
-      closeShortcut,
-    ],
-    ignoreBlur: true,
-    timeSlice: 200,
-    format: "webm",
-    stream: false,
-    ...config,
-  })
+    const [header, content] = data.state.value.split(",")
+    const [type, encoding] = header.split(";")
+    // log(`decoding ${encoding} ${type}`)
+    if (encoding === "base64") {
+      data.state.value = Buffer.from(content, "base64")
+    }
+    return Buffer.from(data?.state?.value, "base64")
+  } else {
+    return await global.kitPrompt({
+      ui: UI.mic,
+      enter: "Stop",
+      width: PROMPT.WIDTH.BASE,
+      height: PROMPT.HEIGHT.BASE,
+      resize: true,
+      shortcuts: [
+        backToMainShortcut,
+        {
+          key: `${cmd}+i`,
+          name: `Select Mic`,
+          onPress: async () => {
+            await run(kitPath("cli", "select-mic.js"))
+            await mainScript()
+          },
+          bar: "right",
+        },
+
+        closeShortcut,
+      ],
+      ignoreBlur: true,
+      timeSlice: 200,
+      format: "webm",
+      stream: false,
+      ...config,
+    })
+  }
+}
+
+global.mic.stop = async () => {
+  return await sendWait(Channel.STOP_MIC)
 }
 
 global.webcam = async () => {

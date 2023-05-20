@@ -90,6 +90,8 @@ export type Toast = {
 
 export type Mic = {
   (config?: MicConfig): Promise<Buffer>
+} & {
+  stop?: () => Promise<void>
 }
 
 export type WebCam = {
@@ -154,6 +156,7 @@ export type MicConfig = PromptConfig & {
   timeSlice?: number
   format?: string
   stream?: boolean
+  dot?: boolean
 }
 
 export interface TextareaConfig extends PromptConfig {
@@ -1025,6 +1028,7 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
+  var stopMic: () => Promise<void>
   var webcam: WebCam
   var speech: Speech
   var getMediaDevices: GetMediaDevices
