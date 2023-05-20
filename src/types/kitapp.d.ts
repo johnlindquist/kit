@@ -1028,7 +1028,6 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
-  var stopMic: () => Promise<void>
   var webcam: WebCam
   var speech: Speech
   var getMediaDevices: GetMediaDevices
