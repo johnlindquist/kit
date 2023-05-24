@@ -187,6 +187,55 @@ if (result === "error") {
   await wait(2000)
 }
 
+// check if package.json exists
+let packageJsonPath = kenvPath(
+  "kenvs",
+  kenvName,
+  "package.json"
+)
+
+if (await isFile(packageJsonPath)) {
+  const json = await readJson(packageJsonPath)
+
+  let install = await editor({
+    value: JSON.stringify(json, null, 2),
+    name: "Dependencies Detected",
+    description: `package.json`,
+    previewWidthPercent: 25,
+    preview: md(`# Dependencies Detected
+This kenv wants you to install dependencies. You can skip this step, but some scripts may not work.
+
+## Trust Dependencies?
+If you trust these dependencies, press ${cmd}+i to install them all now. Otherwise, press ${cmd}+w to skip this step.
+`),
+    shortcuts: [
+      {
+        key: `${cmd}+w`,
+        name: "Skip Install",
+        onPress: async () => {
+          submit("close")
+        },
+        bar: "left",
+      },
+      {
+        key: `${cmd}+i`,
+        name: "Install Dependencies",
+        onPress: async () => {
+          submit("install")
+        },
+        bar: "right",
+      },
+    ],
+  })
+
+  if (install === "install") {
+    await term({
+      command: "npm install",
+      cwd: kenvDir,
+    })
+  }
+}
+
 await getScripts(false)
 
 await cli("kenv-trust", kenvName)
