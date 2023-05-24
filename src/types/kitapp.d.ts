@@ -122,6 +122,8 @@ export type Editor = {
   setSuggestions?: (suggestions: string[]) => Promise<void>
   setConfig?: (config: EditorConfig) => Promise<void>
   append?: (text: string) => Promise<void>
+  getSelectedText?: () => Promise<string>
+  // setCodeHint?: (hint: string) => Promise<void>
 }
 
 export interface EditorProps {
@@ -1028,6 +1030,7 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
+  var micdot: Mic
   var webcam: WebCam
   var speech: Speech
   var getMediaDevices: GetMediaDevices

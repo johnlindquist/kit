@@ -645,7 +645,7 @@ global.setChoices = async (choices, className = "") => {
         }
       )
 
-      await global.sendWait(Channel.SET_SHORTCUTS, shortcuts)
+    await global.sendWait(Channel.SET_SHORTCUTS, shortcuts)
   }
 
   let p = global.sendWait(Channel.SET_CHOICES, choices)
@@ -829,35 +829,32 @@ export let selectScript = async (
   )
   scripts = await Promise.all(
     scripts.map(async s => {
-      if (typeof s?.preview === "string") {
+      let previewPath = path.resolve(
+        path.dirname(path.dirname(s.filePath)),
+        "docs",
+        path.parse(s.filePath).name + ".md"
+      )
+
+      if (await isFile(previewPath)) {
+        try {
+          let preview = await readFile(previewPath, "utf8")
+          let content = await highlightJavaScript(
+            s.filePath,
+            s.shebang
+          )
+          s.preview = md(preview) + content
+        } catch (error) {
+          s.preview = md(
+            `Could not find doc file ${previewPath} for ${s.name}`
+          )
+          warn(
+            `Could not find doc file ${previewPath} for ${s.name}`
+          )
+        }
+      } else if (typeof s?.preview === "string") {
         if (s?.preview === "false") {
           s.preview = `<div/>`
           return s
-        }
-        if (s?.preview === "docs") {
-          let previewPath = path.resolve(
-            path.dirname(path.dirname(s.filePath)),
-            "docs",
-            path.parse(s.filePath).name + ".md"
-          )
-          try {
-            let preview = await readFile(
-              previewPath,
-              "utf8"
-            )
-            let content = await highlightJavaScript(
-              s.filePath,
-              s.shebang
-            )
-            s.preview = md(preview) + content
-          } catch (error) {
-            s.preview = md(
-              `Could not find doc file ${previewPath} for ${s.name}`
-            )
-            warn(
-              `Could not find doc file ${previewPath} for ${s.name}`
-            )
-          }
         } else {
           try {
             let content = await readFile(

@@ -1258,6 +1258,17 @@ global.editor.append = async (value: string) => {
   await sendWait(Channel.APPEND_EDITOR_VALUE, value)
 }
 
+global.editor.getSelectedText = async () => {
+  let message = await sendWait(
+    Channel.EDITOR_GET_SELECTED_TEXT
+  )
+  return message?.state?.value
+}
+
+// global.editor.setCodeHint = async (value: string) => {
+//   await sendWait(Channel.EDITOR_SET_CODE_HINT, value)
+// }
+
 global.template = async (
   template: string = "",
   options: EditorOptions = { language: "plaintext" }
@@ -1638,6 +1649,11 @@ global.setHint = async hint => {
 
 global.setInput = async input => {
   return await global.sendWait(Channel.SET_INPUT, input)
+}
+
+global.getInput = async () => {
+  let message = await global.sendWait(Channel.GET_INPUT)
+  return message?.state?.input
 }
 
 global.appendInput = async text => {
@@ -2785,6 +2801,10 @@ global.mic = async (config: MicConfig = {}) => {
       ...config,
     })
   }
+}
+
+global.micdot = async (config: MicConfig = {}) => {
+  return await mic({ ...config, dot: true })
 }
 
 global.mic.stop = async () => {

@@ -26,13 +26,6 @@ let docPath = path.resolve(
 
 await ensureFile(docPath)
 
-let contents = await readFile(scriptPath, "utf-8")
-let metadata = await setMetadata(contents, {
-  preview: "docs",
-})
-
-await writeFile(scriptPath, metadata)
-
 if (
   process.env.KIT_EDITOR === "kit" &&
   process.env.KIT_CONTEXT === "app"
