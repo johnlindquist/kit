@@ -38,6 +38,21 @@ export const resolveKenv = (...parts: string[]) => {
   return kenvPath(...parts)
 }
 
+export let store = async (
+  name: string
+): Promise<InstanceType<typeof import("keyv")>> => {
+  let { default: Keyv } = await import("keyv")
+  let { KeyvFile } = await import("keyv-file")
+
+  let keyv = new Keyv({
+    store: new KeyvFile({
+      filename: kenvPath("db", `${name}.json`),
+    }),
+  })
+
+  return keyv
+}
+
 export let db = async <T = any>(
   dataOrKeyOrPath?: string | T | (() => Promise<T>),
   data?: T | (() => Promise<T>),
@@ -126,6 +141,7 @@ export let db = async <T = any>(
 }
 
 global.db = db
+global.store = store
 
 export let getScriptsDb = async (
   fromCache = true,

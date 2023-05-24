@@ -50,6 +50,12 @@ export interface Inspect {
   (data: any, extension?: string): Promise<void>
 }
 
+export interface Store {
+  (key: string): Promise<
+    InstanceType<typeof import("keyv")>
+  >
+}
+
 export type DB = <T = any>(
   dataOrKeyOrPath?: string | T | (() => Promise<T>),
   data?: T | (() => Promise<T>),
@@ -344,6 +350,7 @@ declare global {
   var inspect: Inspect
 
   var db: DB
+  var store: Store
 
   var memoryMap: Map<string, any>
 
