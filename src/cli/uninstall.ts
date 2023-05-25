@@ -29,16 +29,16 @@ let [tool, command] = (
     : `npm${global.isWin ? `.cmd` : ``} un`
 ).split(" ")
 
+let toolPath = isYarn ? tool : `${knodePath("bin", tool)}`
+
 let cwd = kenvPath()
 
 if (process.env.SCRIPTS_DIR) {
   cwd = kenvPath(process.env.SCRIPTS_DIR)
 }
 
-let PATH = isWin ? "" : `PATH=${knodePath("bin")}:$PATH `
-
 await term({
-  command: `${PATH}${tool} ${command} ${packages.join(
+  command: `${toolPath} ${command} ${packages.join(
     " "
   )}`.trim(),
   env: {

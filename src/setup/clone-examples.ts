@@ -1,4 +1,5 @@
 import fs from "fs/promises"
+import { KIT_FIRST_PATH } from "../core/utils.js"
 
 let examplesDir = kenvPath("kenvs", "examples")
 if (await isDir(examplesDir)) {
@@ -9,10 +10,12 @@ if (await isDir(examplesDir)) {
     await exec(`git pull`)
   }
 } else {
-  cd(kenvPath("kenvs"))
   if (await isBin("git")) {
     await exec(
-      `git clone https://github.com/johnlindquist/kit-examples examples`
+      `git clone https://github.com/johnlindquist/kit-examples examples`,
+      {
+        cwd: kenvPath("kenvs"),
+      }
     )
   } else {
     let destination = kenvPath("tmp")
@@ -45,6 +48,15 @@ if (await isDir(examplesDir)) {
       await fs.utimes(firstFile, new Date(), new Date())
     }
   }
+  try {
+    await exec(`npm i`, {
+      cwd: kenvPath("kenvs", "examples"),
+      env: {
+        ...global.env,
+        PATH: KIT_FIRST_PATH,
+      },
+    })
+  } catch (error) {}
 }
 
 export {}

@@ -259,6 +259,8 @@ export enum Channel {
   STOP_MIC = "STOP_MIC",
   EDITOR_GET_SELECTED_TEXT = "EDITOR_GET_SELECTED_TEXT",
   EDITOR_SET_CODE_HINT = "EDITOR_SET_CODE_HINT",
+  PING = "PING",
+  PONG = "PONG",
 }
 
 export enum ProcessType {

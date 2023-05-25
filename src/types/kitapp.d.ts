@@ -369,6 +369,8 @@ export type SendNoOptions =
   | Channel.FOCUS
   | Channel.SHOW_EMOJI_PANEL
   | Channel.BEEP
+  | Channel.PING
+  | Channel.PONG
 export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined
@@ -444,6 +446,7 @@ export interface ChannelMap {
   }
 
   //
+
   [Channel.CLEAR_CACHE]: undefined
   [Channel.CLEAR_SCRIPTS_MEMORY]: undefined
   [Channel.CLEAR_TABS]: string[]

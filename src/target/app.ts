@@ -409,6 +409,10 @@ let waitForPromptValue = ({
         }
 
         switch (data.channel) {
+          case Channel.PING:
+            send(Channel.PONG)
+            break
+
           case Channel.INPUT:
             onInput(data.state.input, data.state)
             break

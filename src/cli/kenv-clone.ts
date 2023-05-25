@@ -1,5 +1,7 @@
 //Description: Clone a Kenv repo
 
+import { KIT_FIRST_PATH } from "../core/utils.js"
+
 let initRepo = args?.[0]
 
 let kenvsDir = kenvPath("kenvs")
@@ -56,80 +58,91 @@ setPauseResize(true)
 setBounds({
   height: PROMPT.HEIGHT["4XL"],
 })
-let [repo, kenvName, removeGit, ok] = await fields({
-  height: PROMPT.HEIGHT["4XL"],
-  ignoreBlur: true,
-  preview: buildPreview(),
-  enter: "",
-  onInit: async () => {
-    if (initRepo) {
-      let repo = initRepo
-      let kenvName = path.basename(repo)
-      if (kenvName === ".kenv" || kenvName === "kenv") {
-        kenvName =
+let [repo, kenvName, removeGit, install, ok] = await fields(
+  {
+    height: PROMPT.HEIGHT["4XL"],
+    ignoreBlur: true,
+    preview: buildPreview(),
+    enter: "",
+    onInit: async () => {
+      if (initRepo) {
+        let repo = initRepo
+        let kenvName = path.basename(repo)
+        if (kenvName === ".kenv" || kenvName === "kenv") {
+          kenvName =
+            path.basename(path.dirname(repo)) + "-kenv"
+        }
+        setFormData({
+          repo,
+          kenvName,
+        })
+
+        setPreview(buildPreview(repo))
+      }
+    },
+    onChange: async (i, s) => {
+      let [repo, kenvName, removeGit, install, ok] =
+        s?.value
+      if (ok === "ok" && kenvName) {
+        if (removeGit === "y") {
+          setEnter(`Clone ${kenvName} and Remove .git`)
+        } else {
+          setEnter(`Clone ${kenvName}`)
+        }
+      }
+
+      if (repo === prevRepoName) return
+      let valid = isValidRepoOrUrl(repo)
+      if (valid) {
+        setPreview(buildPreview(repo))
+      } else {
+        setPreview(buildPreview())
+      }
+      if (!repo.split("/").at(-1)) return
+      prevRepoName = repo
+      let newName = path.basename(repo)
+      if (newName === ".kenv" || newName === "kenv") {
+        newName =
           path.basename(path.dirname(repo)) + "-kenv"
       }
+      if (!newName) return
       setFormData({
-        repo,
-        kenvName,
+        kenvName: newName,
       })
-
-      setPreview(buildPreview(repo))
-    }
-  },
-  onChange: async (i, s) => {
-    let [repo, kenvName, removeGit, ok] = s?.value
-    if (ok === "ok" && kenvName) {
-      if (removeGit === "y") {
-        setEnter(`Clone ${kenvName} and Remove .git`)
-      } else {
-        setEnter(`Clone ${kenvName}`)
-      }
-    }
-
-    if (repo === prevRepoName) return
-    let valid = isValidRepoOrUrl(repo)
-    if (valid) {
-      setPreview(buildPreview(repo))
-    } else {
-      setPreview(buildPreview())
-    }
-    if (!repo.split("/").at(-1)) return
-    prevRepoName = repo
-    let newName = path.basename(repo)
-    if (newName === ".kenv" || newName === "kenv") {
-      newName = path.basename(path.dirname(repo)) + "-kenv"
-    }
-    if (!newName) return
-    setFormData({
-      kenvName: newName,
-    })
-  },
-  fields: [
-    {
-      name: "repo",
-      label: "Repo URL",
-      placeholder: "johnlindquist/kenv-template",
-      required: true,
     },
-    {
-      name: "kenvName",
-      label: "Kenv Name",
-      placeholder: "my-kenv",
-      required: true,
-    },
-    {
-      label: "Remove .git folder",
-      name: "Remove git ",
-      placeholder: `y/n`,
-    },
-    {
-      label: "Accept Risks and Proceed with Download",
-      placeholder: "ok",
-      required: true,
-    },
-  ],
-})
+    fields: [
+      {
+        name: "repo",
+        label: "Repo URL",
+        placeholder: "johnlindquist/kenv-template",
+        required: true,
+      },
+      {
+        name: "kenvName",
+        label: "Kenv Name",
+        placeholder: "my-kenv",
+        required: true,
+      },
+      {
+        label: "Remove .git folder y/n",
+        name: "Remove git ",
+        placeholder: `y/n`,
+        value: "n",
+      },
+      {
+        label: "Install Dependencies from package.json y/n",
+        name: "Install Dependencies",
+        placeholder: `y/n`,
+        value: "y",
+      },
+      {
+        label: "Accept Risks and Proceed with Download",
+        placeholder: "ok",
+        required: true,
+      },
+    ],
+  }
+)
 
 let kenvDir = kenvPath("kenvs", kenvName)
 
@@ -196,43 +209,21 @@ let packageJsonPath = kenvPath(
 
 if (await isFile(packageJsonPath)) {
   const json = await readJson(packageJsonPath)
+  if (json?.dependencies || json?.devDependencies) {
+    if (install === "y") {
+      let tool = `npm${global.isWin ? `.cmd` : ``}`
+      let command = "install"
+      let toolPath = `${knodePath("bin", tool)}`
 
-  let install = await editor({
-    value: JSON.stringify(json, null, 2),
-    name: "Dependencies Detected",
-    description: `package.json`,
-    previewWidthPercent: 25,
-    preview: md(`# Dependencies Detected
-This kenv wants you to install dependencies. You can skip this step, but some scripts may not work.
-
-## Trust Dependencies?
-If you trust these dependencies, press ${cmd}+i to install them all now. Otherwise, press ${cmd}+w to skip this step.
-`),
-    shortcuts: [
-      {
-        key: `${cmd}+w`,
-        name: "Skip Install",
-        onPress: async () => {
-          submit("close")
+      await term({
+        command: `${toolPath} ${command}`,
+        env: {
+          ...global.env,
+          PATH: KIT_FIRST_PATH,
         },
-        bar: "left",
-      },
-      {
-        key: `${cmd}+i`,
-        name: "Install Dependencies",
-        onPress: async () => {
-          submit("install")
-        },
-        bar: "right",
-      },
-    ],
-  })
-
-  if (install === "install") {
-    await term({
-      command: "npm install",
-      cwd: kenvDir,
-    })
+        cwd: kenvDir,
+      })
+    }
   }
 }
 

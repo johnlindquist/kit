@@ -18,13 +18,12 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
-  let PATH = isWin ? "" : `PATH=${knodePath("bin")}:$PATH `
+  let toolPath = isYarn ? tool : `${knodePath("bin", tool)}`
 
   return await term({
-    command:
-      `${PATH}${tool} ${command} -D ${packageNames.join(
-        " "
-      )}`.trim(),
+    command: `${toolPath} ${command} -D ${packageNames.join(
+      " "
+    )}`.trim(),
     env: {
       ...global.env,
       PATH: KIT_FIRST_PATH,
