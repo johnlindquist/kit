@@ -122,7 +122,12 @@ export type Editor = {
   setSuggestions?: (suggestions: string[]) => Promise<void>
   setConfig?: (config: EditorConfig) => Promise<void>
   append?: (text: string) => Promise<void>
-  getSelectedText?: () => Promise<string>
+  getSelection?: () => Promise<{
+    text: string
+    start: number
+    end: number
+  }>
+  getCursorOffset?: () => Promise<number>
   // setCodeHint?: (hint: string) => Promise<void>
 }
 

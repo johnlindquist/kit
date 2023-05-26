@@ -1262,9 +1262,14 @@ global.editor.append = async (value: string) => {
   await sendWait(Channel.APPEND_EDITOR_VALUE, value)
 }
 
-global.editor.getSelectedText = async () => {
+global.editor.getSelection = async () => {
+  let message = await sendWait(Channel.EDITOR_GET_SELECTION)
+  return message?.state?.value
+}
+
+global.editor.getCursorOffset = async () => {
   let message = await sendWait(
-    Channel.EDITOR_GET_SELECTED_TEXT
+    Channel.EDITOR_GET_CURSOR_OFFSET
   )
   return message?.state?.value
 }

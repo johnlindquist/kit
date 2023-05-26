@@ -19,6 +19,8 @@ let modifiers = {
   ctrl: "ctrl",
 }
 
+console.clear()
+
 let scriptFlags: FlagsOptions = {
   // open: {
   //   name: "Edit",
