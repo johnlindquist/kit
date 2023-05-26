@@ -1,7 +1,7 @@
 // Exclude: true
 
 import { cmd, kitMode } from "../core/utils.js"
-import { PromptConfig } from "../types/core.js"
+import { PromptConfig, Shortcut } from "../types/core.js"
 import { GuideSection } from "../types/kitapp.js"
 
 export let createGuideConfig =
@@ -22,11 +22,16 @@ export let createGuideConfig =
       return codeBlocks
     }
 
-    let shortcuts = [
+    let shortcuts: Shortcut[] = [
       {
         name: `Try It!`,
         key: `${cmd}+n`,
         bar: "right",
+        condition: focused => {
+          let codeblocks = getCodeblocks(focused?.name)
+          return codeblocks.trim().length > 0
+        },
+
         onPress: async (input, { focused }) => {
           let contents = getCodeblocks(focused?.name)
           // replace any non-alphanumeric characters in focused?.name with a dash
@@ -73,6 +78,10 @@ ${contents}`
         name: `Copy Examples`,
         key: `${cmd}+c`,
         bar: "right",
+        condition: focused => {
+          let codeblocks = getCodeblocks(focused?.name)
+          return codeblocks.trim().length > 0
+        },
         onPress: async (input, { focused }) => {
           let codeBlocks = getCodeblocks(focused?.name)
           copy(codeBlocks)
