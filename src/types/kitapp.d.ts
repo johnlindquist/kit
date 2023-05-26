@@ -128,6 +128,8 @@ export type Editor = {
     end: number
   }>
   getCursorOffset?: () => Promise<number>
+  moveCursor?: (offset: number) => Promise<void>
+  insertText?: (text: string) => Promise<void>
   // setCodeHint?: (hint: string) => Promise<void>
 }
 

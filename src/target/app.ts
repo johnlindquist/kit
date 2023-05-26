@@ -1274,6 +1274,22 @@ global.editor.getCursorOffset = async () => {
   return message?.state?.value
 }
 
+global.editor.moveCursor = async (offset: number) => {
+  let message = await sendWait(
+    Channel.EDITOR_MOVE_CURSOR,
+    offset
+  )
+  return message?.state?.value
+}
+
+global.editor.insertText = async (text: string) => {
+  let message = await sendWait(
+    Channel.EDITOR_INSERT_TEXT,
+    text
+  )
+  return message?.state?.value
+}
+
 // global.editor.setCodeHint = async (value: string) => {
 //   await sendWait(Channel.EDITOR_SET_CODE_HINT, value)
 // }
