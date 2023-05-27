@@ -23,6 +23,7 @@ if (errorMessage.includes("Cannot find package")) {
   )[0]
 
   await installMissingPackage(pkg)
+  await wait(500)
   await writeFile(kitPath("run.txt"), errorFile)
 } else {
   let errorLog = `${path
