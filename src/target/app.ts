@@ -846,6 +846,13 @@ global.kitPrompt = async (config: PromptConfig) => {
     })
   }
 
+  if (config?.ignoreBlur && !config?.onBlur) {
+    config.onBlur = () => {}
+  }
+  if (config?.onBlur) {
+    config.ignoreBlur = true
+  }
+
   let {
     input = "",
     choices = null,
