@@ -1,3 +1,5 @@
+process.env.KIT_TARGET = "app-prompt"
+
 import os from "os"
 import { configEnv, run } from "../core/utils.js"
 import { Channel } from "../core/enum.js"

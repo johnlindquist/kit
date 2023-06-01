@@ -19,6 +19,10 @@ let install = async packageNames => {
   ).split(" ")
 
   let toolPath = isYarn ? tool : `${knodePath("bin", tool)}`
+  let toolExists = await isBin(toolPath)
+  if (!toolExists) {
+    toolPath = tool
+  }
 
   return await term({
     command: `${toolPath} ${command} -D ${packageNames.join(

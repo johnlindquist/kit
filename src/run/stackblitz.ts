@@ -1,3 +1,5 @@
+process.env.KIT_TARGET = "stackblitz"
+
 import path from "path"
 
 process.env.KIT = path.resolve(

@@ -3,7 +3,7 @@ import path from "path"
 import { URL, fileURLToPath } from "url"
 
 let kitRun = async (
-  command: string,
+  command?: string,
   ..._args: string[]
 ) => {
   process.env.KIT =
@@ -21,6 +21,10 @@ let kitRun = async (
   if (command) {
     return await global.run(command, ..._args)
   }
+}
+
+if (!process?.env?.KIT_TARGET) {
+  await kitRun()
 }
 
 export * from "./api/kit.js"
@@ -57,4 +61,5 @@ let kitDefault = new Proxy(kitRun, {
 })
 
 global.kit = kitDefault
+
 export default kitDefault

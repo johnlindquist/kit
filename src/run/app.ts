@@ -1,3 +1,5 @@
+process.env.KIT_TARGET = "app"
+
 import { configEnv, run } from "../core/utils.js"
 import os from "os"
 

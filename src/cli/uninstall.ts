@@ -31,6 +31,11 @@ let [tool, command] = (
 
 let toolPath = isYarn ? tool : `${knodePath("bin", tool)}`
 
+let toolExists = await isBin(toolPath)
+if (!toolExists) {
+  toolPath = tool
+}
+
 let cwd = kenvPath()
 
 if (process.env.SCRIPTS_DIR) {

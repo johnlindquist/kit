@@ -21,7 +21,7 @@ selectedKenvDir = await arg(
   },
   [
     {
-      name: "home",
+      name: "main",
       description: `Your main kenv: ${kenvPath()}`,
       value: kenvPath(),
     },

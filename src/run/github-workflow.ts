@@ -1,3 +1,5 @@
+process.env.KIT_TARGET = "github-workflow"
+
 import os from "os"
 import { randomUUID } from "crypto"
 import { pathToFileURL } from "url"

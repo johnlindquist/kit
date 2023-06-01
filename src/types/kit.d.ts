@@ -306,7 +306,7 @@ interface KeyValue {
 }
 
 export interface Run {
-  (command: string, ...args: string[]): Promise<any>
+  (command?: string, ...args: string[]): Promise<any>
 }
 
 declare global {
