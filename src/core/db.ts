@@ -359,6 +359,7 @@ export const appDefaults: AppDb = {
   mini: false,
   disableGpu: false,
   disableBlurEffect: false,
+  backgroundMaterial: "auto",
 }
 
 export let getAppDb = async (): Promise<
