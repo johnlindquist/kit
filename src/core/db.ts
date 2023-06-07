@@ -333,6 +333,12 @@ export type AppDb = {
   mini?: boolean
   disableGpu?: boolean
   disableBlurEffect?: boolean
+  backgroundMaterial?:
+    | "auto"
+    | "none"
+    | "mica"
+    | "acrylic"
+    | "tabbed"
 }
 
 export type UserDb = Partial<
