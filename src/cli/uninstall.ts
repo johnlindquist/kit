@@ -6,7 +6,7 @@ let file = JSON.parse(
   })
 )
 
-let packages = (await arg(
+let packageNames = (await arg(
   {
     placeholder: chalk`Which packages do you want to {red uninstall}`,
     enter: "Uninstall",
@@ -18,34 +18,33 @@ let packages = (await arg(
 )) as string[]
 
 //grab all the args you used `kit un jquery react`
-if (typeof packages == "string") {
-  packages = [packages, ...args]
+if (typeof packageNames == "string") {
+  packageNames = [packageNames, ...args]
 }
-
-let isYarn = await isFile(kenvPath("yarn.lock"))
-let [tool, command] = (
-  isYarn
-    ? `yarn${global.isWin ? `.cmd` : ``} remove`
-    : `npm${global.isWin ? `.cmd` : ``} un`
-).split(" ")
-
-let toolPath = isYarn ? tool : `${knodePath("bin", tool)}`
-
-let toolExists = await isBin(toolPath)
-if (!toolExists) {
-  toolPath = tool
-}
-
 let cwd = kenvPath()
 
 if (process.env.SCRIPTS_DIR) {
   cwd = kenvPath(process.env.SCRIPTS_DIR)
 }
 
-await term({
-  command: `${toolPath} ${command} ${packages.join(
+let isYarn = await isFile(kenvPath("yarn.lock"))
+let [tool, toolArgs] = (
+  isYarn
+    ? `yarn${global.isWin ? `.cmd` : ``} remove`
+    : `npm${global.isWin ? `.cmd` : ``} un`
+).split(" ")
+
+let adjustPath = global.isWin
+  ? knodePath("bin")
+  : `PATH=${knodePath("bin")}:$PATH `
+
+let command =
+  `${adjustPath}${tool} ${toolArgs} -D ${packageNames.join(
     " "
-  )}`.trim(),
+  )}`.trim()
+
+await term({
+  command,
   env: {
     ...global.env,
     PATH: KIT_FIRST_PATH,

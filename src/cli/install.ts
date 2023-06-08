@@ -12,22 +12,23 @@ let install = async packageNames => {
   }
 
   let isYarn = await isFile(kenvPath("yarn.lock"))
-  let [tool, command] = (
+  let [tool, toolArgs] = (
     isYarn
       ? `yarn${global.isWin ? `.cmd` : ``} add`
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
-  let toolPath = isYarn ? tool : `${knodePath("bin", tool)}`
-  let toolExists = await isBin(toolPath)
-  if (!toolExists) {
-    toolPath = tool
-  }
+  let adjustPath = global.isWin
+    ? knodePath("bin")
+    : `PATH=${knodePath("bin")}:$PATH `
+
+  let command =
+    `${adjustPath}${tool} ${toolArgs} -D ${packageNames.join(
+      " "
+    )}`.trim()
 
   return await term({
-    command: `${toolPath} ${command} -D ${packageNames.join(
-      " "
-    )}`.trim(),
+    command,
     env: {
       ...global.env,
       PATH: KIT_FIRST_PATH,

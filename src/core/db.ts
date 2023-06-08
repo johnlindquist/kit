@@ -333,12 +333,6 @@ export type AppDb = {
   mini?: boolean
   disableGpu?: boolean
   disableBlurEffect?: boolean
-  backgroundMaterial?:
-    | "auto"
-    | "none"
-    | "mica"
-    | "acrylic"
-    | "tabbed"
 }
 
 export type UserDb = Partial<
@@ -359,7 +353,6 @@ export const appDefaults: AppDb = {
   mini: false,
   disableGpu: false,
   disableBlurEffect: false,
-  backgroundMaterial: "auto",
 }
 
 export let getAppDb = async (): Promise<
