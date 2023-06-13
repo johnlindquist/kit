@@ -1,6 +1,10 @@
 import * as os from "os"
 import { pathToFileURL } from "url"
 import {
+  formatDistanceToNow,
+  parseISO,
+} from "@johnlindquist/kit-internal/date-fns"
+import {
   AppState,
   Choice,
   FlagsOptions,
@@ -20,6 +24,8 @@ import {
   getScripts,
   getScriptFromString,
   getUserDb,
+  getTimestamps,
+  Stamp,
 } from "../core/db.js"
 import { Octokit } from "../share/auth-scriptkit.js"
 
@@ -666,15 +672,29 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
     return false
 
   let validFlags = {}
-  for (let [key, value] of Object.entries(flags)) {
+  let currentFlags = Object.entries(flags)
+  for (let [key, value] of currentFlags) {
     validFlags[key] = {
       name: value?.name || key,
       shortcut: value?.shortcut || "",
       description: value?.description || "",
       value: key,
       bar: value?.bar || "",
+      preview: value?.preview || "",
     }
   }
+
+  global.kitFlagsAsChoices = currentFlags.map(
+    ([key, value]) => {
+      return {
+        id: key,
+        name: value?.name || key,
+        value: key,
+        description: value?.description || "",
+        preview: value?.preview || `<div></div>`,
+      }
+    }
+  )
 
   return validFlags
 }
@@ -818,6 +838,34 @@ export let highlightJavaScript = async (
   return wrapped
 }
 
+function buildScriptConfig(
+  message: string | PromptConfig
+): PromptConfig {
+  let scriptsConfig =
+    typeof message === "string"
+      ? { placeholder: message }
+      : message
+  scriptsConfig.scripts = true
+  scriptsConfig.resize = false
+  scriptsConfig.enter ||= "Select"
+  return scriptsConfig
+}
+
+async function getScriptResult(
+  script: Script | string,
+  message: string | PromptConfig
+): Promise<Script> {
+  if (
+    typeof script === "string" &&
+    (typeof message === "string" ||
+      message?.strict === true)
+  ) {
+    return await getScriptFromString(script)
+  } else {
+    return script as Script //hmm...
+  }
+}
+
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
   fromCache = true,
@@ -827,92 +875,134 @@ export let selectScript = async (
   let scripts: Script[] = xf(
     await getScripts(fromCache, ignoreKenvPattern)
   )
+  let timestampsDb = await getTimestamps(fromCache)
   scripts = await Promise.all(
-    scripts.map(async s => {
-      let previewPath = path.resolve(
-        path.dirname(path.dirname(s.filePath)),
-        "docs",
-        path.parse(s.filePath).name + ".md"
-      )
-
-      if (await isFile(previewPath)) {
-        try {
-          let preview = await readFile(previewPath, "utf8")
-          let content = await highlightJavaScript(
-            s.filePath,
-            s.shebang
-          )
-          s.preview = md(preview) + content
-        } catch (error) {
-          s.preview = md(
-            `Could not find doc file ${previewPath} for ${s.name}`
-          )
-          warn(
-            `Could not find doc file ${previewPath} for ${s.name}`
-          )
-        }
-      } else if (typeof s?.preview === "string") {
-        if (s?.preview === "false") {
-          s.preview = `<div/>`
-          return s
-        } else {
-          try {
-            let content = await readFile(
-              path.resolve(
-                path.dirname(s.filePath),
-                s?.preview
-              ),
-              "utf-8"
-            )
-            s.preview = await highlight(content)
-          } catch (error) {
-            s.preview = `Error: ${error.message}`
-          }
-        }
-      } else {
-        s.preview = async () => {
-          let preview = await readFile(s.filePath, "utf8")
-          if (
-            preview.startsWith("/*") &&
-            preview.includes("*/")
-          ) {
-            let index = preview.indexOf("*/")
-            let content = preview.slice(2, index).trim()
-            let markdown = md(content)
-            let js = await highlightJavaScript(
-              preview.slice(index + 2).trim()
-            )
-            return markdown + js
-          }
-          return highlightJavaScript(
-            preview,
-            s?.shebang || ""
-          )
-        }
-      }
-
-      return s
-    })
+    scripts.map(processScript(timestampsDb.stamps))
   )
-  let scriptsConfig =
-    typeof message === "string"
-      ? {
-          placeholder: message,
-        }
-      : message
-  scriptsConfig.scripts = true
-  scriptsConfig.resize = false
-  scriptsConfig.enter ||= "Select"
+  let scriptsConfig = buildScriptConfig(message)
   let script = await global.arg(scriptsConfig, scripts)
-  if (
-    typeof script === "string" &&
-    (typeof message === "string" ||
-      message?.strict === true)
-  ) {
-    return await getScriptFromString(script)
-  } else {
-    return script //hmm...
+  return await getScriptResult(script, message)
+}
+
+export let processScript =
+  (timestamps: Stamp[]) =>
+  async (s: Script): Promise<Script> => {
+    let stamp = timestamps.find(
+      t => t.filePath === s.filePath
+    )
+
+    let infoBlock = ``
+    if (stamp) {
+      s.compileStamp = stamp.compileStamp
+      s.compileMessage = stamp.compileMessage
+
+      if (stamp.compileMessage && stamp.compileStamp) {
+        infoBlock = `~~~
+⚠️ Last compiled ${formatDistanceToNow(
+          new Date(stamp.compileStamp)
+        )} ago
+
+${stamp.compileMessage}
+~~~
+
+<p/>
+
+`
+      }
+    }
+
+    let previewPath = getPreviewPath(s)
+
+    if (await isFile(previewPath)) {
+      await processWithPreviewFile(
+        s,
+        previewPath,
+        infoBlock
+      )
+    } else if (typeof s?.preview === "string") {
+      await processWithStringPreview(s, infoBlock)
+    } else {
+      s.preview = await processWithNoPreview(s, infoBlock)
+    }
+
+    return s
   }
+
+export let getPreviewPath = (s: Script): string => {
+  return path.resolve(
+    path.dirname(path.dirname(s.filePath)),
+    "docs",
+    path.parse(s.filePath).name + ".md"
+  )
+}
+
+export let processWithPreviewFile = async (
+  s: Script,
+  previewPath: string,
+  infoBlock: string
+) => {
+  try {
+    let preview = await readFile(previewPath, "utf8")
+    let content = await highlightJavaScript(
+      s.filePath,
+      s.shebang
+    )
+    s.preview = md(infoBlock + preview) + content
+  } catch (error) {
+    s.preview = md(
+      `Could not find doc file ${previewPath} for ${s.name}`
+    )
+    warn(
+      `Could not find doc file ${previewPath} for ${s.name}`
+    )
+  }
+}
+
+export let processWithStringPreview = async (
+  s: Script,
+  infoBlock: string
+) => {
+  if (s?.preview === "false") {
+    s.preview = `<div/>`
+  } else {
+    try {
+      let content = await readFile(
+        path.resolve(
+          path.dirname(s.filePath),
+          s?.preview as string
+        ),
+        "utf-8"
+      )
+      s.preview = infoBlock
+        ? md(infoBlock)
+        : `` + (await highlight(content))
+    } catch (error) {
+      s.preview = `Error: ${error.message}`
+    }
+  }
+}
+
+export let processWithNoPreview = async (
+  s: Script,
+  infoBlock: string
+) => {
+  let preview = await readFile(s.filePath, "utf8")
+
+  if (preview.startsWith("/*") && preview.includes("*/")) {
+    let index = preview.indexOf("*/")
+    let content = preview.slice(2, index).trim()
+    let markdown = md(infoBlock + content)
+    let js = await highlightJavaScript(
+      preview.slice(index + 2).trim()
+    )
+    return markdown + js
+  }
+
+  let content = await highlightJavaScript(
+    preview,
+    s?.shebang || ""
+  )
+  return infoBlock ? md(infoBlock) : `` + content
 }
 
 global.selectScript = selectScript

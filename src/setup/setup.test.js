@@ -1,6 +1,7 @@
 import ava from "ava"
 import os from "os"
 import "../../test/config.js"
+import { isUndefined } from "../core/utils"
 
 /** @type {import("../core/utils")} */
 let { isFile, KIT_FIRST_PATH } = await import(
@@ -87,7 +88,7 @@ ava.serial("chmod", async t => {
     let binPath = kitPath(...b.split(" "))
     t.log(binPath)
     let result = await access(binPath, constants.X_OK)
-    t.true(_.isUndefined(result), `bins can be executed`)
+    t.true(isUndefined(result), `bins can be executed`)
   }
 })
 

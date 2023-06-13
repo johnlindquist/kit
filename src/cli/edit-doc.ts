@@ -30,7 +30,7 @@ if (
   process.env.KIT_EDITOR === "kit" &&
   process.env.KIT_CONTEXT === "app"
 ) {
-  setScriptTimestamp(scriptPath)
+  setScriptTimestamp({ filePath: scriptPath })
   let value = await readFile(docPath, "utf-8")
   await editor({
     value,

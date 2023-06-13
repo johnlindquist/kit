@@ -16,6 +16,7 @@ import {
   scriptsDbPath,
   timestampsPath,
   userDbPath,
+  Timestamp,
 } from "./utils.js"
 
 import { Choice, Script, PromptDb } from "../types/core"
@@ -91,7 +92,17 @@ export let db = async <T = any>(
 
   let _db = new Low(new JSONFile(dbPath), null)
 
-  await _db.read()
+  try {
+    await _db.read()
+  } catch (error) {
+    // if dbPath dir is kitPath("db"), then delete the dbPath file and try again
+    warn(error)
+    if (path.dirname(dbPath) === kitPath("db")) {
+      await rm(dbPath)
+      _db = new Low(new JSONFile(dbPath), null)
+      await _db.read()
+    }
+  }
 
   if (!_db.data || !fromCache) {
     let getData = async () => {
@@ -162,29 +173,38 @@ export let getScriptsDb = async (
 }
 
 export let setScriptTimestamp = async (
-  filePath: string
+  stamp: Stamp
 ): Promise<Script[]> => {
   let timestampsDb = await getTimestamps()
-  let stamp = timestampsDb.stamps.find(
-    stamp => stamp.filePath === filePath
+  let index = timestampsDb.stamps.findIndex(
+    s => s.filePath === stamp.filePath
   )
-  if (stamp) {
-    stamp.timestamp = Date.now()
+
+  let oldStamp = timestampsDb.stamps[index]
+
+  stamp.timestamp = Date.now()
+  if (stamp.runCount) {
+    stamp.runCount = oldStamp?.runCount
+      ? oldStamp.runCount + 1
+      : 1
+  }
+  if (oldStamp) {
+    timestampsDb.stamps[index] = {
+      ...oldStamp,
+      ...stamp,
+    }
   } else {
-    timestampsDb.stamps.push({
-      filePath,
-      timestamp: Date.now(),
-    })
+    timestampsDb.stamps.push(stamp)
   }
 
   let scriptsDb = await getScriptsDb(false)
   let script = scriptsDb.scripts.find(
-    s => s.filePath === filePath
+    s => s.filePath === stamp.filePath
   )
 
   if (script) {
     scriptsDb.scripts = scriptsDb.scripts.sort(
-      scriptsSort(timestampsDb.stamps)
+      scriptsSort(timestampsDb.stamps as Timestamp[])
     )
     try {
       await scriptsDb.write()
@@ -223,11 +243,20 @@ export let getPrefs = async () => {
   return await db(kitPath("db", "prefs.json"))
 }
 
+export type Stamp = {
+  filePath: string
+  timestamp?: number
+  compileStamp?: number
+  compileMessage?: string
+  executionTime?: number
+  runCount?: number
+}
+
 export let getTimestamps = async (
   fromCache = true
 ): Promise<
   Low & {
-    stamps: { filePath: string; timestamp: number }[]
+    stamps: Stamp[]
   }
 > => {
   return await db(

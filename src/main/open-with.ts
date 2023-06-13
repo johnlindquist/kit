@@ -1,6 +1,8 @@
 // Exclude: true
 // Description: Open with...
 
+import { sortBy, uniq } from "../core/utils.js"
+
 let filePath = await path()
 setName(``)
 let findApps = async () => {
@@ -14,7 +16,7 @@ let findApps = async () => {
       .filter(app => app.endsWith(".app"))
       .map(app => `/Applications/${app}`)
   )
-  apps = _.uniq(apps.filter(a => !a.includes("Users")))
+  apps = uniq(apps.filter(a => !a.includes("Users")))
 
   return {
     apps,
@@ -44,7 +46,7 @@ let createChoices = async () => {
 
   log(`Done creating icons`)
 
-  let choices = _.sortBy(
+  let choices = sortBy(
     apps.map(appPath => {
       let { base: appName } = path.parse(appPath)
       let destination = path.resolve(

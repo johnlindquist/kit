@@ -20,7 +20,10 @@ let { getScripts } = await import(
 let testingParseScript = `testing-parse-script`
 
 ava.serial("kitPath", async t => {
-  t.true(_.isString(kitPath()), "kitPath is a string")
+  t.true(
+    typeof kitPath() === "string",
+    "kitPath is a string"
+  )
   t.true(
     kitPath().includes(path.sep),
     "kitPath has a path separator"

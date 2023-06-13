@@ -140,17 +140,6 @@ let buildTSScript = async (
       errorScript = `
 import "@johnlindquist/kit"      
 await installMissingPackage("${mustInstall}")
-log("${mustInstall}")
-let contents = "${kitPath("build", "ts.js")} ${scriptPath}"
-
-log({contents})
-let runTxt = "${kitPath("run.txt")}"
-await writeFile(runTxt, contents)
-
-await wait(500)
-
-await writeFile(runTxt, "${scriptPath}")
-
 `
     } else {
       errorScript = `

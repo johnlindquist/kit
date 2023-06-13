@@ -309,6 +309,8 @@ export interface Run {
   (command?: string, ...args: string[]): Promise<any>
 }
 
+type Utils = typeof import("../core/utils")
+
 declare global {
   var path: PathSelector
   var edit: Edit
@@ -382,4 +384,9 @@ declare global {
   var cmd: "cmd" | "ctrl"
   var formatDate: typeof format
   var formatDateToNow: typeof formatDistanceToNow
+
+  var debounce: Utils["debounce"]
+  var sortBy: Utils["sortBy"]
+  var isUndefined: Utils["isUndefined"]
+  var isString: Utils["isString"]
 }

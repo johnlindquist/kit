@@ -1,7 +1,12 @@
 import { enquirer } from "@johnlindquist/kit-internal/enquirer"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { PromptConfig } from "../types/core"
-import { assignPropsTo } from "../core/utils.js"
+import {
+  assignPropsTo,
+  debounce,
+  isString,
+  isUndefined,
+} from "../core/utils.js"
 import { Rectangle } from "../types/electron"
 import { EditorOptions } from "../types/kitapp"
 
@@ -59,10 +64,10 @@ global.kitPrompt = async (config: any) => {
         choices,
       }
     } else {
-      let suggest = _.debounce(async function (input) {
+      let suggest = debounce(async function (input) {
         let results = await f(input)
 
-        if (_.isUndefined(results) || _.isString(results))
+        if (isUndefined(results) || isString(results))
           results = [input]
 
         this.choices = await this.toChoices(

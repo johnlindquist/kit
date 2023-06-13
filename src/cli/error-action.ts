@@ -14,7 +14,48 @@ let stack = await readFile(stackFile, "utf-8")
 
 stack = stack.replace(/\?uuid.*/g, "")
 
+// if errorFile a ".mjs" file, convert the path to the .ts file
+if (errorFile.endsWith(".mjs")) {
+  errorFile = errorFile
+    .replace(".scripts", "scripts")
+    .replace(/\.mjs$/, ".ts")
+}
+
 let errorMessage = stack.split("\n")[0]
+
+// if errorMessage contains "_ is not defined"
+// Tell user that lodash is no longer global, they need to import it
+if (errorMessage.includes("_ is not defined")) {
+  await div({
+    enter: "Add Lodash to Script",
+    html: md(`# ⚠️ Global Lodash is No Longer Supported
+
+To save on Kit SDK filesize, Lodash is no longer global. 
+
+Press enter to add \`import _ from "lodash"\` to the top of your script.
+
+~~~js
+import _ from "lodash"
+~~~
+`),
+  })
+
+  // insert import _ from "lodash" under the import "@johnlindquist/kit" line
+  let contents = await readFile(errorFile, "utf-8")
+  let lines = contents.split("\n")
+  let kitImportLine = lines.findIndex(line =>
+    line.match(/import.*['"]@johnlindquist\/kit['"]/)
+  )
+  lines.splice(
+    kitImportLine + 1,
+    0,
+    `import _ from "lodash"`
+  )
+  await writeFile(errorFile, lines.join("\n"))
+
+  await edit(errorFile, kenvPath(), line, col)
+  exit()
+}
 
 // if errorMessage contains "Cannot find package"
 if (errorMessage.includes("Cannot find package")) {

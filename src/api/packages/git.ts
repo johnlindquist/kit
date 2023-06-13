@@ -94,6 +94,59 @@ let gitAddRemote = async (
     ...(options ? options : {}),
   })
 }
+interface DegitOptions {
+  force?: boolean
+}
+
+class Degit {
+  repo: string
+  ref: string | undefined
+  options: DegitOptions
+
+  constructor(repo: string, options?: DegitOptions) {
+    const [repoPath, ref] = repo.split("#")
+    // Check if the repoPath already starts with 'http', then don't prepend 'https://github.com/'
+    this.repo = repoPath.startsWith("http")
+      ? repoPath
+      : `https://github.com/${repoPath}`
+    this.ref = ref
+    this.options = options || {}
+  }
+
+  async clone(dest: string) {
+    const exists = await access(dest)
+      .then(() => true)
+      .catch(() => false)
+
+    if (exists && this.options.force) {
+      await rmdir(dest, { recursive: true })
+    } else if (exists && !this.options.force) {
+      throw new Error(
+        `Destination directory "${dest}" already exists. Use "force: true" to override.`
+      )
+    }
+
+    await _git.clone({
+      fs,
+      http,
+      dir: dest,
+      url: this.repo,
+      ref: this.ref, // Here we make sure to clone the specific branch if provided.
+      singleBranch: true,
+      depth: 1,
+    })
+
+    // Remove .git directory
+    await rmdir(path.join(dest, ".git"), {
+      recursive: true,
+    })
+  }
+}
+
+export let degit = (repo: string, options?: DegitOptions) =>
+  new Degit(repo, options)
+
+global.degit = degit
 
 global.git = {
   clone: gitClone,

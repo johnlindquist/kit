@@ -1,4 +1,9 @@
-import { backToMainShortcut, cmd } from "../core/utils.js"
+import {
+  backToMainShortcut,
+  cmd,
+  sortBy,
+  uniq,
+} from "../core/utils.js"
 // Name: App Launcher
 // Description: Select an App to Launch
 
@@ -15,7 +20,7 @@ let findAppsAndPrefs = async () => {
         .filter(app => app.endsWith(".app"))
         .map(app => `/Applications/${app}`)
     )
-    // apps = _.uniq(apps.filter(a => !a.includes("Users")))
+    // apps = uniq(apps.filter(a => !a.includes("Users")))
     let prefs = await fileSearch("", {
       onlyin: "/",
       kind: "preferences",
@@ -48,7 +53,7 @@ let createChoices = async () => {
       : () => Promise.resolve(undefined)
   setLoading(true)
   let { apps, prefs } = await findAppsAndPrefs()
-  let allApps = _.uniq(apps.concat(prefs))
+  let allApps = uniq(apps.concat(prefs))
 
   let assetsPath = kitPath(
     "assets",
@@ -58,7 +63,7 @@ let createChoices = async () => {
   if (process.platform === "darwin") {
     let { fileIconToFile } = await npm("file-icon")
     await ensureDir(assetsPath)
-    let allApps = _.uniq(apps.concat(prefs))
+    let allApps = uniq(apps.concat(prefs))
 
     let destination = allApps.map(appPath => {
       let { base: appName } = path.parse(appPath)
@@ -74,7 +79,7 @@ let createChoices = async () => {
     log(`Done creating icons`)
   }
 
-  let choices = _.sortBy(
+  let choices = sortBy(
     await Promise.all(
       allApps.map(async appPath => {
         let { base: appName } = path.parse(appPath)

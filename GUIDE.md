@@ -619,7 +619,7 @@ let content = await ensureReadFile(filePath, "Hello world")
 
 await editor({
   value: content,
-  onInput: _.debounce(async input => {
+  onInput: debounce(async input => {
     await writeFile(filePath, input)
   }, 200),
 })

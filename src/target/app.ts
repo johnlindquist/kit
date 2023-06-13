@@ -63,6 +63,7 @@ import {
   argShortcuts,
   smallShortcuts,
   isMac,
+  debounce,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { Rectangle } from "../types/electron"
@@ -198,7 +199,7 @@ let createOnChoiceFocusDefault = (
   onUserChoiceFocus?: ChannelHandler
 ) => {
   let _promptId = promptId
-  let debouncedChoiceFocus = _.debounce(
+  let debouncedChoiceFocus = debounce(
     async (input: string, state: AppState = {}) => {
       if (_promptId !== promptId) return
       let preview = ``
@@ -206,7 +207,10 @@ let createOnChoiceFocusDefault = (
       let { index, focused } = state
       let { id } = focused
 
-      let choice = (global.kitPrevChoices || []).find(
+      let currentChoices = (
+        global?.kitPrevChoices || []
+      ).concat(global?.kitFlagsAsChoices || [])
+      let choice = currentChoices.find(
         (c: Choice) => c?.id === id
       )
 
@@ -220,14 +224,14 @@ let createOnChoiceFocusDefault = (
 
         if (choice?.onFocus) {
           try {
-            choice?.onFocus(choice)
+            choice?.onFocus(input, state)
           } catch (error) {
             throw new Error(error)
           }
         }
 
         try {
-          preview = await choice?.preview(choice)
+          preview = await choice?.preview(input, state)
         } catch {
           preview = md(`# Failed to render preview... 🤔`)
         }
@@ -365,7 +369,10 @@ let waitForPromptValue = ({
           (c: Choice) => c.id === focused?.id
         )
         if (choice?.onSubmit) {
-          await choice?.onSubmit(choice)
+          await choice?.onSubmit(
+            data?.state?.input,
+            data?.state
+          )
         }
 
         // TODO: Refactor out an invalid$ stream
@@ -757,7 +764,7 @@ let createOnInputDefault = (
   if (mode !== Mode.GENERATE) return async () => {}
   // "input" is on the state, so this is only provided as a convenience for the user
   let _promptId = promptId
-  return _.debounce(async (input, state) => {
+  return debounce(async (input, state) => {
     if (_promptId !== promptId) return
     return invokeChoices({
       promptId,
@@ -934,12 +941,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 global.drop = async (
   placeholder = "Drop something here..."
 ) => {
-  let config: {
-    placeholder?: string
-    hint?: string
-    footer?: string
-    preview?: string
-  } =
+  let config: Partial<PromptConfig> =
     typeof placeholder === "string"
       ? { placeholder }
       : placeholder
@@ -2539,40 +2541,6 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
 
     // let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
     let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
-
-    extraLibs.push({
-      content,
-      filePath,
-    })
-  }
-
-  let lodashCommonDir = kitPath(
-    "node_modules",
-    "@johnlindquist",
-    "globals",
-    "types",
-    "lodash",
-    "common"
-  )
-
-  let lodashCommon = await readdir(lodashCommonDir)
-
-  for await (let name of lodashCommon) {
-    let content = await readFile(
-      kitPath(
-        "node_modules",
-        "@johnlindquist",
-        "globals",
-        "types",
-        "lodash",
-        "common",
-        name
-      ),
-      "utf8"
-    )
-
-    // let filePath = `file:///node_modules/@johnlindquist/globals/${lib}/index.d.ts`
-    let filePath = `file:///node_modules/@johnlindquist/globals/lodash/common/${name}`
 
     extraLibs.push({
       content,

@@ -14,7 +14,8 @@ export interface Choice<Value = any> {
   preview?:
     | string
     | ((
-        choice: Choice & { input: string; index: number }
+        input: string,
+        state: AppState
       ) => string | Promise<string>)
   previewLang?: string
   id?: string
@@ -30,11 +31,18 @@ export interface Choice<Value = any> {
         data?: string
       }
     | string
-  onFocus?: (choice: Choice) => Promise<void>
-  onSubmit?: (choice: Choice) => Promise<void>
+  onFocus?: (
+    input: string,
+    state: AppState
+  ) => string | Promise<string>
+  onSubmit?: (
+    input: string,
+    state: AppState
+  ) => string | Promise<string>
   enter?: string
   disableSubmit?: boolean
   info?: undefined | "always" | "onNoChoices"
+  height?: number
 }
 
 export interface ScriptPathInfo {
@@ -45,6 +53,8 @@ export interface ScriptPathInfo {
   icon?: string
   timestamp?: number
   needsDebugger?: boolean
+  compileStamp?: number
+  compileMessage?: string
 }
 
 export interface ScriptMetadata {
@@ -242,6 +252,7 @@ export type FlagsOptions =
         description?: string
         bar?: "left" | "right"
         flag?: string
+        preview?: Choice["preview"]
       }
     }
   | boolean
@@ -282,7 +293,12 @@ export type PromptConfig = {
   formData?: any
   className?: string
   flags?: FlagsOptions
-  preview?: string | (() => string | Promise<string>)
+  preview?:
+    | string
+    | ((
+        input: string,
+        state: AppState
+      ) => string | Promise<string> | void | Promise<void>)
   panel?: string | (() => string | Promise<string>)
   onNoChoices?: ChannelHandler
   onEscape?: ChannelHandler
@@ -315,7 +331,9 @@ export type PromptConfig = {
   }
   env?: any
   shortcuts?: Shortcut[]
-} & Partial<Omit<PromptData, "choices" | "id" | "script">>
+} & Partial<
+  Omit<PromptData, "choices" | "id" | "script" | "preview">
+>
 
 export interface Metadata {
   [key: string]: string

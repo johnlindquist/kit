@@ -2,7 +2,15 @@
 // Description: Script Kit
 // Log: false
 
-import { setScriptTimestamp } from "../core/db.js"
+import {
+  formatDistanceToNow,
+  parseISO,
+} from "@johnlindquist/kit-internal/date-fns"
+import {
+  Stamp,
+  getTimestamps,
+  setScriptTimestamp,
+} from "../core/db.js"
 import { Channel, Value } from "../core/enum.js"
 import {
   toggleBackground,
@@ -34,6 +42,93 @@ let scriptFlags: FlagsOptions = {
   //   shortcut: `${cmd}+n`,
   //   action: "left",
   // },
+  ["edit-script"]: {
+    name: "Edit",
+    description: "Open the selected script in your editor",
+    preview: async (input, state) => {
+      let flaggedFilePath = state?.flaggedValue?.filePath
+      if (!flaggedFilePath) return
+
+      // Get last modified time
+      let { size, mtime, mtimeMs } = await stat(
+        flaggedFilePath
+      )
+      let lastModified = new Date(mtimeMs)
+
+      let stamps = await getTimestamps()
+      let stamp = stamps.stamps.find(
+        s => s.filePath === flaggedFilePath
+      )
+
+      let composeBlock = (...lines) =>
+        lines.filter(Boolean).join("\n")
+
+      let compileMessage =
+        stamp?.compileMessage?.trim() || ""
+      let compileStamp = stamp?.compileStamp
+        ? `Last compiled: ${formatDistanceToNow(
+            new Date(stamp?.compileStamp),
+            { includeSeconds: true }
+          )} ago`
+        : ""
+      let executionTime = stamp?.executionTime
+        ? `Last run duration: ${stamp?.executionTime}ms`
+        : ""
+      let runCount = stamp?.runCount
+        ? `Run count: ${stamp?.runCount}`
+        : ""
+
+      let compileBlock = composeBlock(
+        compileMessage && `* ${compileMessage}`,
+        compileStamp && `* ${compileStamp}`
+      )
+
+      if (compileBlock) {
+        compileBlock =
+          `### Compile Info\n${compileBlock}`.trim()
+      }
+
+      let executionBlock = composeBlock(
+        runCount && `* ${runCount}`,
+        executionTime && `* ${executionTime}`
+      )
+
+      if (executionBlock) {
+        executionBlock =
+          `### Execution Info\n${executionBlock}`.trim()
+      }
+
+      let lastRunBlock = ""
+      if (stamp) {
+        let lastRunDate = new Date(stamp.timestamp)
+        lastRunBlock = `### Last Run
+  - ${lastRunDate.toLocaleString()}
+  - ${formatDistanceToNow(lastRunDate)} ago
+  `.trim()
+      }
+
+      let modifiedBlock = `### Last Modified 
+- ${lastModified.toLocaleString()}      
+- ${formatDistanceToNow(lastModified)} ago`
+
+      let info = md(
+        `# Stats
+
+#### ${flaggedFilePath}
+
+${compileBlock}
+  
+${executionBlock}
+  
+${modifiedBlock}
+  
+${lastRunBlock}
+  
+`.trim()
+      )
+      return info
+    },
+  },
   [cmd]: {
     name: "Debug Script",
     description:
@@ -43,14 +138,9 @@ let scriptFlags: FlagsOptions = {
   },
   [modifiers.opt]: {
     name: "Open Log Window",
-    description: "Open a log windowlt for selected script",
+    description: "Open a log window for selected script",
     shortcut: `alt+enter`,
     flag: modifiers.opt,
-  },
-
-  ["edit-script"]: {
-    name: "Edit",
-    description: "Open the selected script in your editor",
   },
   ["push-script"]: {
     name: "Push to Git Repo",
@@ -516,7 +606,7 @@ if ((script as Script)?.shebang) {
       ...Object.keys(flag).map(f => `--${f}`)
     )
 
-    setScriptTimestamp(script.filePath)
+    setScriptTimestamp({ filePath: script.filePath })
 
     await runP
   }

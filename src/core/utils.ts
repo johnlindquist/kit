@@ -835,7 +835,10 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
     .map(file => path.join(scriptsPath, file))
 }
 
-type Timestamp = { filePath: string; timestamp: number }
+export type Timestamp = {
+  filePath: string
+  timestamp: number
+}
 export let scriptsSort =
   (timestamps: Timestamp[]) => (a: Script, b: Script) => {
     let aTimestamp = timestamps.find(
@@ -1085,4 +1088,93 @@ export let getTrustedKenvsKey = () => {
   let trustedKenvKey = `KIT_${formattedUsername}_DANGEROUSLY_TRUST_KENVS`
 
   return trustedKenvKey
+}
+
+export const uniq = (array: any[]): any[] => {
+  if (!Array.isArray(array)) {
+    throw new Error("Input should be an array")
+  }
+  return [...new Set(array)]
+}
+
+interface DebounceSettings {
+  leading?: boolean
+  trailing?: boolean
+}
+
+type Procedure = (...args: any[]) => void
+
+type DebouncedFunc<T extends Procedure> = (
+  ...args: Parameters<T>
+) => void
+
+export const debounce = <T extends Procedure>(
+  func: T,
+  waitMilliseconds = 0,
+  options: DebounceSettings = {}
+): DebouncedFunc<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  return (...args: Parameters<T>) => {
+    const doLater = () => {
+      timeoutId = undefined
+      // If trailing is enabled, we invoke the function only if the function was invoked during the wait period
+      if (options.trailing !== false) {
+        func(...args)
+      }
+    }
+
+    const shouldCallNow =
+      options.leading && timeoutId === undefined
+
+    // Always clear the timeout
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId)
+    }
+
+    timeoutId = setTimeout(doLater, waitMilliseconds)
+
+    // If leading is enabled and no function call has been scheduled, we call the function immediately
+    if (shouldCallNow) {
+      func(...args)
+    }
+  }
+}
+
+type Iteratee<T> = ((item: T) => any) | keyof T
+
+export let sortBy = <T>(
+  collection: T[],
+  iteratees: Iteratee<T>[]
+): T[] => {
+  const iterateeFuncs = iteratees.map(iteratee =>
+    typeof iteratee === "function"
+      ? iteratee
+      : (item: T) => item[iteratee as keyof T]
+  )
+
+  return [...collection].sort((a, b) => {
+    for (const iteratee of iterateeFuncs) {
+      const valueA = iteratee(a)
+      const valueB = iteratee(b)
+
+      if (valueA < valueB) {
+        return -1
+      } else if (valueA > valueB) {
+        return 1
+      }
+    }
+
+    return 0
+  })
+}
+
+export let isUndefined = (
+  value: any
+): value is undefined => {
+  return value === undefined
+}
+
+export let isString = (value: any): value is string => {
+  return typeof value === "string"
 }

@@ -1,14 +1,17 @@
 export {}
-import * as shelljs from "shelljs"
+import * as shelljs from "shelljs/index"
 import {
   add,
   clone,
   commit,
+  init,
   pull,
   push,
+  addRemote,
 } from "isomorphic-git"
 
-export type Trash = typeof import("trash").default
+export type Trash =
+  typeof import("../api/packages/trash")["default"]
 export type Git = {
   clone: (
     repo: string,
@@ -44,9 +47,10 @@ export type Git = {
     options?: Partial<Parameters<typeof addRemote>[0]>
   ) => ReturnType<typeof addRemote>
 }
-export type Open = typeof import("open")
+export type Open = typeof import("open/index")
 
-type NodeNotify = typeof import("node-notifier").notify
+type NodeNotify =
+  typeof import("node-notifier/index").notify
 export interface Notify {
   (...args: Parameters<NodeNotify>): ReturnType<NodeNotify>
 }
@@ -55,8 +59,10 @@ export interface OnTab {
   (name: string, fn: () => void): void
 }
 
+type Zx = typeof import("zx/build/index")
+
 export interface PackagesApi {
-  cd: typeof import("zx").cd
+  cd: Zx["cd"]
   cp: typeof shelljs.cp
   chmod: typeof shelljs.chmod
   echo: typeof shelljs.echo
@@ -77,11 +83,13 @@ export interface PackagesApi {
   rm: Trash
   notify: Notify
 
-  $: typeof import("zx").$
+  $: Zx["$"]
 }
 
+type GitImport = typeof import("../api/packages/git")
+
 declare global {
-  var cd: typeof import("zx").cd
+  var cd: Zx["cd"]
   var cp: typeof shelljs.cp
   var chmod: typeof shelljs.chmod
   var echo: typeof shelljs.echo
@@ -104,6 +112,7 @@ declare global {
   var open: Open
   var rm: Trash
   var git: Git
+  var degit: GitImport["degit"]
 
   var notify: Notify
 
@@ -111,5 +120,5 @@ declare global {
 
   var onTabIndex: number
 
-  var $: typeof import("zx").$
+  var $: Zx["$"]
 }

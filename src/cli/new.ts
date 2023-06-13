@@ -7,6 +7,7 @@ import {
   kitMode,
   returnOrEnter,
   stripMetadata,
+  uniq,
 } from "../core/utils.js"
 import {
   ensureTemplates,
@@ -77,7 +78,7 @@ let ext = `.${kitMode()}`
 let template =
   arg?.template ||
   (await env("KIT_TEMPLATE", {
-    choices: _.uniq(
+    choices: uniq(
       (
         await readdir(kenvPath("templates"))
       ).map(stripExtension)

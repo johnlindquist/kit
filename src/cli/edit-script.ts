@@ -29,7 +29,7 @@ if (scriptPath.endsWith(".mjs")) {
 }
 
 if (isApp && isKitEditor) {
-  setScriptTimestamp(scriptPath)
+  setScriptTimestamp({ filePath: scriptPath })
   let value = await readFile(scriptPath, "utf-8")
   await editor({
     value,

@@ -37,12 +37,13 @@
     "posttest": "node ./scripts/test-post.js",
     "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\" && node ./scripts/cjs-fix.js",
     "build-editor-types": " kit ./build/build-editor-types.ts",
-    "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast"
+    "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
+    "lazy-install": "npm i esbuild@0.17.15 --save-exact --production --prefer-dedupe --loglevel=verbose"
   },
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
   "dependencies": {
-    "@johnlindquist/globals": "^1.14.19",
+    "@johnlindquist/globals": "^1.14.22",
     "@johnlindquist/kit-internal": "^1.13.3",
     "@octokit/auth-oauth-device": "4.0.4",
     "@octokit/core": "4.2.0",
@@ -56,9 +57,10 @@
     "esbuild": "^0.17.15",
     "file-icon": "5.1.1",
     "filesize": "10.0.7",
+    "globby": "^13.1.4",
     "googlethis": "*",
-    "highlight.js": "11.7.0",
-    "isomorphic-git": "1.23.0",
+    "highlight.js": "11.8.0",
+    "isomorphic-git": "1.24.0",
     "keyv": "^4.5.2",
     "keyv-file": "^0.2.0",
     "node-notifier": "10.0.1",
@@ -67,8 +69,7 @@
     "shelljs": "0.8.5",
     "slugify": "1.6.6",
     "suggestion": "2.1.2",
-    "trash": "8.1.1",
-    "zx": "7.2.1"
+    "zx": "7.2.2"
   },
   "devDependencies": {
     "@types/debug": "4.1.7",
