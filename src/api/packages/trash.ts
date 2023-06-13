@@ -1,5 +1,6 @@
 import { globby } from "globby"
 import { Channel } from "../../core/enum.js"
+import fs from "fs"
 
 export interface Options {
   readonly glob?: boolean
@@ -32,10 +33,10 @@ export default async function trash(
     // Check if the path is a directory or a file
     if (stats.isDirectory()) {
       // Delete directory and its content
-      await rmdir(item, { recursive: true })
+      await fs.promises.rmdir(item, { recursive: true })
     } else {
       // Delete file
-      await unlink(item)
+      await fs.promises.unlink(item)
     }
   }
 }

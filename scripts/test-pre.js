@@ -25,11 +25,18 @@ let { stdout: branch, stderr } =
 
 if (stderr || !branch.match(/main|beta|alpha/)) exit(1)
 
-await degit(`johnlindquist/kenv#${branch}`, {
+branch = branch.trim()
+let repo = `johnlindquist/kenv#${branch}`
+
+console.log(`Cloning ${repo} to ${kenvTestPath}`)
+
+await degit(repo, {
   force: true,
 }).clone(kenvTestPath)
 
-await degit(`johnlindquist/kenv#${branch}`, {
+console.log(`Cloning ${repo} to ${kenvSetupPath}`)
+
+await degit(repo, {
   force: true,
 }).clone(kenvSetupPath)
 

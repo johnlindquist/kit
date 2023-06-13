@@ -5,5 +5,6 @@ await import("../lib/file.js")
 await import("../lib/keyboard.js")
 await import("../lib/system.js")
 await import("../lib/text.js")
+await import("../lib/utils.js")
 
 export {}

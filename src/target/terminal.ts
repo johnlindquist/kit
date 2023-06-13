@@ -369,18 +369,6 @@ global.paste = async () => {
   return c.read()
 }
 
-global.trash = async (...args) => {
-  global.flag.trust = true
-  let t = await npm("trash")
-  t(...args)
-}
-
-global.rm = async (...args) => {
-  global.flag.trust = true
-  let t = await npm("trash")
-  t(...args)
-}
-
 type pathConfig = { startPath?: string; hint?: string }
 let __pathSelector = async (
   config: string | pathConfig = home()

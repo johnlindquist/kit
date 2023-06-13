@@ -10,8 +10,13 @@ import {
   addRemote,
 } from "isomorphic-git"
 
-export type Trash =
-  typeof import("../api/packages/trash")["default"]
+export type Trash = (
+  input: string | readonly string[],
+  option?: {
+    glob?: boolean
+  }
+) => Promise<void>
+
 export type Git = {
   clone: (
     repo: string,
@@ -86,7 +91,22 @@ export interface PackagesApi {
   $: Zx["$"]
 }
 
-type GitImport = typeof import("../api/packages/git")
+export interface DegitOptions {
+  force?: boolean
+}
+
+export interface IDegit {
+  repo: string
+  subdirectory: string | undefined
+  ref: string | undefined
+  options: DegitOptions
+
+  clone(dest: string): Promise<void>
+}
+type Degit = (
+  repo: string,
+  options?: DegitOptions
+) => IDegit
 
 declare global {
   var cd: Zx["cd"]
@@ -112,7 +132,7 @@ declare global {
   var open: Open
   var rm: Trash
   var git: Git
-  var degit: GitImport["degit"]
+  var degit: Degit
 
   var notify: Notify
 

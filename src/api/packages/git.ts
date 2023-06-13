@@ -1,6 +1,8 @@
 import _git from "isomorphic-git"
 import fs from "fs"
+import os from "os"
 import http from "isomorphic-git/http/node/index.js"
+import { DegitOptions } from "../../types/packages"
 
 let gitClone = async (
   repo: string,
@@ -94,23 +96,34 @@ let gitAddRemote = async (
     ...(options ? options : {}),
   })
 }
-interface DegitOptions {
-  force?: boolean
-}
 
 class Degit {
   repo: string
+  subdirectory: string | undefined
   ref: string | undefined
   options: DegitOptions
 
   constructor(repo: string, options?: DegitOptions) {
     const [repoPath, ref] = repo.split("#")
-    // Check if the repoPath already starts with 'http', then don't prepend 'https://github.com/'
-    this.repo = repoPath.startsWith("http")
-      ? repoPath
-      : `https://github.com/${repoPath}`
     this.ref = ref
     this.options = options || {}
+
+    // Check if the repoPath already starts with 'http', then don't prepend 'https://github.com/'
+    let fullPath = repoPath.startsWith("http")
+      ? repoPath
+      : `https://github.com/${repoPath}`
+
+    // Separate the path into segments
+    const segments = fullPath.split("/")
+
+    // The first two segments will always be either ['username', 'repo'] or ['https:', '', 'github.com', 'username', 'repo']
+    // So we can take those as the repository, and everything else is the subdirectory
+    const repoSegments = segments.splice(
+      0,
+      fullPath.startsWith("http") ? 5 : 2
+    )
+    this.repo = repoSegments.join("/")
+    this.subdirectory = segments.join("/")
   }
 
   async clone(dest: string) {
@@ -126,20 +139,44 @@ class Degit {
       )
     }
 
+    const tempDest = path.join(
+      os.tmpdir(),
+      `degit-${Date.now()}`
+    )
+    await fs.promises.mkdir(tempDest, { recursive: true })
+
+    console.log(`📦 Cloning ${this.repo}`)
+    if (this.ref) console.log(`📦 Ref: ${this.ref}`)
     await _git.clone({
       fs,
       http,
-      dir: dest,
+      dir: tempDest,
       url: this.repo,
-      ref: this.ref, // Here we make sure to clone the specific branch if provided.
+      ref: this.ref,
       singleBranch: true,
       depth: 1,
     })
 
-    // Remove .git directory
-    await rmdir(path.join(dest, ".git"), {
-      recursive: true,
-    })
+    await ensureDir(path.dirname(dest))
+
+    await fs.promises.rename(
+      this.subdirectory
+        ? path.join(tempDest, this.subdirectory)
+        : tempDest,
+      dest
+    )
+
+    // Remove .git directory if it exists
+    const dotGitExists = await access(
+      path.join(dest, ".git")
+    )
+      .then(() => true)
+      .catch(() => false)
+    if (dotGitExists) {
+      await rmdir(path.join(dest, ".git"), {
+        recursive: true,
+      })
+    }
   }
 }
 
