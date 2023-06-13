@@ -145,8 +145,6 @@ class Degit {
     )
     await fs.promises.mkdir(tempDest, { recursive: true })
 
-    console.log(`📦 Cloning ${this.repo}`)
-    if (this.ref) console.log(`📦 Ref: ${this.ref}`)
     await _git.clone({
       fs,
       http,

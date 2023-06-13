@@ -1,7 +1,6 @@
 import ava from "ava"
 import os from "os"
 import "../../test/config.js"
-import { isUndefined } from "../core/utils"
 
 /** @type {import("../core/utils")} */
 let { isFile, KIT_FIRST_PATH } = await import(
