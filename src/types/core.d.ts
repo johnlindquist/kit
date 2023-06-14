@@ -43,6 +43,9 @@ export interface Choice<Value = any> {
   disableSubmit?: boolean
   info?: undefined | "always" | "onNoChoices"
   height?: number
+  skip?: boolean
+  group?: string
+  choices?: Omit<Choice<any>, "choices">[]
 }
 
 export interface ScriptPathInfo {

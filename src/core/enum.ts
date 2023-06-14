@@ -533,6 +533,7 @@ export const PROMPT = {
   },
   ITEM: {
     HEIGHT: {
+      XXXS: 28,
       XXS: 30,
       XS: 38,
       SM: 46,

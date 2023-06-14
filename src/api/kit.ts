@@ -603,37 +603,73 @@ global.appendChoices = async (
 global.setChoices = async (choices, className = "") => {
   if (typeof choices === "object") {
     if (choices !== null) {
-      choices = (choices as Choice<any>[]).map(choice => {
-        if (typeof choice === "string") {
-          return {
-            name: choice,
-            value: choice,
-            className,
-            id: global.uuid(),
-          }
-        }
+      choices = (choices as Choice<any>[]).flatMap(
+        choice => {
+          let newChoices = []
 
-        if (typeof choice === "object") {
-          if (Boolean(choice?.preview))
-            choice.hasPreview = true
-
-          if (!choice?.id) {
-            choice.id = global.uuid()
-          }
-          if (typeof choice?.name === "undefined") {
-            choice.name = ""
-          }
-          if (typeof choice.value === "undefined") {
-            return {
-              className,
-              ...choice,
+          if (typeof choice === "string") {
+            newChoices.push({
+              name: choice,
               value: choice,
+              className,
+              id: global.uuid(),
+            })
+          }
+
+          if (typeof choice === "object") {
+            if (Boolean(choice?.preview))
+              choice.hasPreview = true
+
+            if (!choice?.id) {
+              choice.id = global.uuid()
+            }
+            if (typeof choice?.name === "undefined") {
+              choice.name = ""
+            }
+
+            if (Array.isArray(choice?.choices)) {
+              choice.className ||= `pt-1 border-b-1 border-b-ui-border`
+              choice.nameClassName ||= `font-mono text-xs text-text-base/60 uppercase`
+              choice.height ||= PROMPT.ITEM.HEIGHT.XXXS
+              choice.skip = true
+            }
+
+            if (typeof choice.value === "undefined") {
+              newChoices.push({
+                className,
+                ...choice,
+                value: choice,
+              })
+            }
+
+            // If choice object has '.choices', create new choice for each
+            if (Array.isArray(choice.choices)) {
+              choice.choices.forEach(subChoice => {
+                newChoices.push({
+                  name: subChoice,
+                  value: subChoice,
+                  group: choice.name,
+                  className,
+                  id: global.uuid(),
+                  ...(typeof subChoice === "object"
+                    ? subChoice
+                    : {}),
+                })
+              })
+
+              choice.className = `text-4xl red-500 italic`
+
+              delete choice.choices
             }
           }
-        }
 
-        return choice
-      })
+          if (newChoices.length === 0) {
+            newChoices.push(choice)
+          }
+
+          return newChoices
+        }
+      )
     }
   }
 
