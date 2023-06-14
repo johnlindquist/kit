@@ -45,7 +45,7 @@ export interface Choice<Value = any> {
   height?: number
   skip?: boolean
   group?: string
-  choices?: Omit<Choice<any>, "choices">[]
+  choices?: (Omit<Choice<any>, "choices"> | string)[]
 }
 
 export interface ScriptPathInfo {
