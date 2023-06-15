@@ -601,91 +601,89 @@ global.appendChoices = async (
 }
 
 global.setChoices = async (choices, className = "") => {
-  if (typeof choices === "object") {
-    if (choices !== null) {
-      choices = (choices as Choice<any>[]).flatMap(
-        choice => {
-          let newChoices = []
+  if (typeof choices === "object" && choices !== null) {
+    choices = (choices as Choice<any>[]).flatMap(choice => {
+      const isChoiceObject = typeof choice === "object"
 
-          if (typeof choice === "string") {
-            newChoices.push({
-              name: choice,
-              value: choice,
-              className,
-              id: global.uuid(),
-            })
-          }
-
-          if (typeof choice === "object") {
-            if (Boolean(choice?.preview))
-              choice.hasPreview = true
-
-            if (!choice?.id) {
-              choice.id = global.uuid()
-            }
-            if (typeof choice?.name === "undefined") {
-              choice.name = ""
-            }
-
-            if (Array.isArray(choice?.choices)) {
-              choice.className ||= `pt-1 border-b-1 border-b-ui-border`
-              choice.nameClassName ||= `font-mono text-xs text-text-base/60 uppercase`
-              choice.height ||= PROMPT.ITEM.HEIGHT.XXXS
-              choice.skip = true
-            }
-
-            if (typeof choice.value === "undefined") {
-              newChoices.push({
-                className,
-                ...choice,
-                value: choice,
-              })
-            }
-
-            // If choice object has '.choices', create new choice for each
-            if (Array.isArray(choice.choices)) {
-              choice.choices.forEach(subChoice => {
-                newChoices.push({
-                  name: subChoice,
-                  value: subChoice,
-                  group: choice.name,
-                  className,
-                  id: global.uuid(),
-                  ...(typeof subChoice === "object"
-                    ? subChoice
-                    : {}),
-                })
-              })
-
-              choice.className = `text-4xl red-500 italic`
-
-              delete choice.choices
-            }
-          }
-
-          if (newChoices.length === 0) {
-            newChoices.push(choice)
-          }
-
-          return newChoices
+      if (!isChoiceObject) {
+        return {
+          name: choice,
+          value: choice,
+          id: global.uuid(),
+          className,
         }
-      )
-    }
+      }
+
+      let properChoice = {
+        hasPreview: Boolean(choice?.preview),
+        id: choice?.id || global.uuid(),
+        name: choice?.name || "",
+        value: choice?.value || choice,
+        className:
+          choice?.className || choice?.choices
+            ? ""
+            : className,
+
+        ...choice,
+      }
+
+      const choiceChoices = properChoice?.choices
+      if (!choiceChoices) {
+        return properChoice
+      }
+
+      const isArray = Array.isArray(choiceChoices)
+      if (!isArray) {
+        throw new Error(
+          `Group choices must be an array. Received ${typeof choiceChoices}`
+        )
+      }
+
+      const groupChoices = []
+
+      properChoice.group = properChoice.name
+      properChoice.skip =
+        typeof choice?.skip === "undefined"
+          ? true
+          : choice.skip
+      properChoice.className ||= `border-t-1 border-t-ui-border`
+      properChoice.nameClassName ||= `font-mono text-xxs text-text-base/60 uppercase`
+      properChoice.height ||= PROMPT.ITEM.HEIGHT.XXS
+
+      groupChoices.push({
+        ...properChoice,
+        choices: undefined,
+      })
+
+      choiceChoices.forEach(subChoice => {
+        groupChoices.push({
+          name: subChoice,
+          value: subChoice,
+          group: choice?.name,
+          className,
+          id: global.uuid(),
+          ...(typeof subChoice === "object"
+            ? subChoice
+            : {}),
+          choices: undefined,
+        })
+      })
+
+      return groupChoices
+    })
   }
 
-  if (
-    global?.__currentPromptConfig?.shortcuts &&
-    choices?.[0]
-  ) {
-    const shortcuts =
-      global?.__currentPromptConfig?.shortcuts?.filter(
-        shortcut => {
-          if (shortcut?.condition) {
-            return shortcut.condition(choices?.[0])
-          }
-          return true
-        }
-      )
+  const { __currentPromptConfig } = global as any
+  const { shortcuts: globalShortcuts } =
+    __currentPromptConfig || {}
+
+  if (globalShortcuts && choices?.[0]) {
+    const shortcuts = globalShortcuts.filter(shortcut => {
+      if (shortcut?.condition) {
+        return shortcut.condition(choices?.[0])
+      }
+      return true
+    })
 
     await global.sendWait(Channel.SET_SHORTCUTS, shortcuts)
   }
