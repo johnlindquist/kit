@@ -39,17 +39,40 @@ export const resolveKenv = (...parts: string[]) => {
   return kenvPath(...parts)
 }
 
-export let store = async (
-  name: string
+let store = async (
+  nameOrPath: string,
+  initialData: any = {}
 ): Promise<InstanceType<typeof import("keyv")>> => {
+  let isPath =
+    nameOrPath.includes("/") || nameOrPath.includes("\\")
   let { default: Keyv } = await import("keyv")
   let { KeyvFile } = await import("keyv-file")
 
   let keyv = new Keyv({
     store: new KeyvFile({
-      filename: kenvPath("db", `${name}.json`),
+      filename: isPath
+        ? nameOrPath
+        : kenvPath("db", `${nameOrPath}.json`),
     }),
   })
+
+  let isInited = false
+  for await (let [key, value] of Object.entries(
+    initialData
+  )) {
+    if (await keyv.has(key)) {
+      isInited = true
+      break
+    }
+  }
+
+  if (!isInited) {
+    for await (let [key, value] of Object.entries(
+      initialData
+    )) {
+      await keyv.set(key, value)
+    }
+  }
 
   return keyv
 }

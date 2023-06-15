@@ -49,6 +49,15 @@ export interface Choice<Value = any> {
   choices?: (Omit<Choice<any>, "choices"> | string)[]
 }
 
+export interface ScoredChoice {
+  item: Choice<{ id: string; name: string; value: any }>
+  score: number
+  matches: {
+    [key: string]: [number, number][]
+  }
+  _: string
+}
+
 export interface ScriptPathInfo {
   command: string
   filePath: string

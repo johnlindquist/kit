@@ -6,13 +6,16 @@ import {
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 import {
   ChannelHandler,
+  Choice,
   Choices,
   FlagsOptions,
   Panel,
   PromptConfig,
+  ScoredChoice,
   Script,
   Shortcut,
 } from "./core"
+import { ConfigOptions, Options } from "quick-score"
 
 export interface Arg {
   [key: string]: any
@@ -389,4 +392,13 @@ declare global {
   var sortBy: Utils["sortBy"]
   var isUndefined: Utils["isUndefined"]
   var isString: Utils["isString"]
+
+  var createChoiceSearch: (
+    choices: Choice[],
+    config: Partial<Options & ConfigOptions>
+  ) => Promise<(query: string) => ScoredChoice[]>
+
+  var setScoredChoices: (
+    scoredChoices: ScoredChoice[]
+  ) => Promise<void>
 }

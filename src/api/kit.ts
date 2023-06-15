@@ -1,14 +1,19 @@
 import * as os from "os"
 import { pathToFileURL } from "url"
 import {
-  formatDistanceToNow,
-  parseISO,
-} from "@johnlindquist/kit-internal/date-fns"
+  QuickScore,
+  quickScore,
+  createConfig,
+  Options,
+  Config,
+  ConfigOptions,
+} from "quick-score"
+import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import {
-  AppState,
   Choice,
   FlagsOptions,
   PromptConfig,
+  ScoredChoice,
   Script,
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
@@ -600,14 +605,128 @@ global.appendChoices = async (
   )
 }
 
-global.setChoices = async (choices, className = "") => {
+global.createChoiceSearch = async (
+  choices: Choice[],
+  config: Partial<Options & ConfigOptions> = {
+    minimumScore: 0.3,
+    maxIterations: 3,
+  }
+) => {
+  if (!config?.minimumScore) config.minimumScore = 0.3
+  if (!config?.maxIterations) config.maxIterations = 3
+  if (config?.keys && Array.isArray(config.keys)) {
+    config.keys = config.keys.map(key => {
+      if (key === "name") return "slicedName"
+      if (key === "description") return "slicedDescription"
+      return key
+    })
+  }
+
+  let formattedChoices = await global.___kitFormatChoices(
+    choices
+  )
+  function scorer(
+    string: string,
+    query: string,
+    matches: number[][]
+  ) {
+    return quickScore(
+      string,
+      query,
+      matches as any,
+      undefined,
+      undefined,
+      createConfig(config)
+    )
+  }
+
+  const keys = [
+    "slicedName",
+    "slicedDescription",
+    "kenv",
+    "command",
+    "friendlyShortcut",
+    "tag",
+    "group",
+  ].map(name => ({ name, scorer }))
+
+  let qs = new QuickScore<Choice>(formattedChoices, {
+    keys,
+    ...config,
+  })
+
+  return (query: string) => {
+    let result = qs.search(query) as ScoredChoice[]
+    if (result.find(c => c?.item?.group)) {
+      let createScoredChoice = (
+        item: Choice
+      ): ScoredChoice => {
+        return {
+          item,
+          score: 0,
+          matches: {},
+          _: "",
+        }
+      }
+      const groups: Set<string> = new Set()
+      const keepGroups: Set<string> = new Set()
+      const filteredBySearch: ScoredChoice[] = []
+
+      // Build a map for constant time access
+      const resultMap = new Map(
+        result.map(r => [r.item.id, r])
+      )
+
+      for (const choice of formattedChoices) {
+        if (choice?.skip) {
+          const scoredSkip = createScoredChoice(choice)
+          filteredBySearch.push(scoredSkip)
+          if (choice?.group) groups.add(choice.group)
+        } else {
+          const scored = resultMap.get(choice?.id)
+          if (scored) {
+            filteredBySearch.push(scored)
+            if (choice?.group && groups.has(choice.group)) {
+              keepGroups.add(choice.group)
+            }
+          }
+        }
+      }
+
+      result = filteredBySearch.filter(sc => {
+        if (sc?.item?.skip) {
+          if (!keepGroups.has(sc?.item?.group)) return false
+        }
+
+        return true
+      })
+    }
+
+    return result
+  }
+}
+
+global.setScoredChoices = async (
+  choices: ScoredChoice[]
+) => {
+  return await global.sendWait(
+    Channel.SET_SCORED_CHOICES,
+    choices
+  )
+}
+
+global.___kitFormatChoices = async (
+  choices,
+  className = ""
+) => {
   if (typeof choices === "object" && choices !== null) {
     choices = (choices as Choice<any>[]).flatMap(choice => {
       const isChoiceObject = typeof choice === "object"
 
       if (!isChoiceObject) {
         return {
-          name: choice,
+          name: String(choice),
+          slicedName: (choice as string).slice(0, 63),
           value: choice,
           id: global.uuid(),
           className,
@@ -618,6 +737,9 @@ global.setChoices = async (choices, className = "") => {
         hasPreview: Boolean(choice?.preview),
         id: choice?.id || global.uuid(),
         name: choice?.name || "",
+        slicedName: choice?.name?.slice(0, 63) || "",
+        slicedDescription:
+          choice?.description?.slice(0, 63) || "",
         value: choice?.value || choice,
         className:
           choice?.className || choice?.choices
@@ -656,17 +778,38 @@ global.setChoices = async (choices, className = "") => {
       })
 
       choiceChoices.forEach(subChoice => {
-        groupChoices.push({
-          name: subChoice,
-          value: subChoice,
-          group: choice?.name,
-          className,
-          id: global.uuid(),
-          ...(typeof subChoice === "object"
-            ? subChoice
-            : {}),
-          choices: undefined,
-        })
+        if (typeof subChoice === "undefined") {
+          throw new Error(
+            `Undefined choice in ${properChoice.name}`
+          )
+        }
+
+        if (typeof subChoice === "object") {
+          groupChoices.push({
+            name: subChoice?.name,
+            slicedName: subChoice?.name?.slice(0, 63) || "",
+            slicedDescription:
+              subChoice?.description?.slice(0, 63) || "",
+            value: subChoice?.value || subChoice,
+            id: subChoice?.id || global.uuid(),
+            group: choice?.name,
+            className,
+            ...subChoice,
+            choices: undefined,
+          })
+        } else {
+          groupChoices.push({
+            name: String(subChoice),
+            value: String(subChoice),
+            slicedName:
+              String(subChoice)?.slice(0, 63) || "",
+            slicedDescription: "",
+            group: choice?.name,
+            className,
+            id: global.uuid(),
+            choices: undefined,
+          })
+        }
       })
 
       return groupChoices
@@ -687,13 +830,21 @@ global.setChoices = async (choices, className = "") => {
 
     await global.sendWait(Channel.SET_SHORTCUTS, shortcuts)
   }
-
-  let p = global.sendWait(Channel.SET_CHOICES, choices)
   global.kitPrevChoices = choices
 
   global.setLoading(false)
+  return choices
+}
 
-  return p
+global.setChoices = async (choices, className = "") => {
+  let formattedChoices = await global.___kitFormatChoices(
+    choices,
+    className
+  )
+  return global.sendWait(
+    Channel.SET_CHOICES,
+    formattedChoices
+  )
 }
 
 global.flag ||= {}
