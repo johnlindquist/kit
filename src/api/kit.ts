@@ -615,7 +615,10 @@ global.groupChoices = (choices: Choice[], options = {}) => {
   }
 
   let putIntoGroups = choice => {
-    if (!Boolean(choice?.[groupKey])) {
+    if (
+      !Boolean(choice?.group) &&
+      !Boolean(choice?.[groupKey])
+    ) {
       choice.group = missingGroupName
       if (missingGroup) {
         missingGroup.choices.push(choice)
@@ -630,16 +633,20 @@ global.groupChoices = (choices: Choice[], options = {}) => {
       }
     } else {
       const groupParent = groups.find(
-        g => g.name === choice[groupKey]
+        g =>
+          g?.group === choice?.group ||
+          g?.group === choice[groupKey]
       )
-      choice.group = choice[groupKey]
+      let userGrouped = choice?.group ? true : false
+      choice.group ||= choice[groupKey]
       if (groupParent) {
         groupParent.choices.push(choice)
       } else {
         groups.push({
           skip: true,
-          group: choice[groupKey],
-          name: choice[groupKey],
+          userGrouped,
+          group: choice?.group || choice[groupKey],
+          name: choice?.group || choice[groupKey],
           choices: [choice],
         })
       }
@@ -682,9 +689,13 @@ global.groupChoices = (choices: Choice[], options = {}) => {
     putIntoGroups(choice)
   }
 
-  groups.sort((a, b) => {
-    let aOrder = order.indexOf(a.name)
-    let bOrder = order.indexOf(b.name)
+  groups.sort((a: Choice, b: Choice) => {
+    // sort "userGrouped" "true" before "false"
+    if (a.userGrouped && !b.userGrouped) return -1
+    if (!a.userGrouped && b.userGrouped) return 1
+
+    let aOrder = order.indexOf(a.group)
+    let bOrder = order.indexOf(b.group)
 
     // If both elements are in the order array, sort them as per the order array
     if (aOrder !== -1 && bOrder !== -1)
@@ -697,7 +708,7 @@ global.groupChoices = (choices: Choice[], options = {}) => {
     if (bOrder !== -1) return 1
 
     // If neither are in the order array, sort them alphabetically
-    return a.name.localeCompare(b.name)
+    return a.group.localeCompare(b.group)
   })
 
   // if missingGroupName === "No Group", then move it to the end
@@ -1230,9 +1241,11 @@ export let selectScript = async (
     groupChoices(scripts, {
       groupKey: "kenv",
       missingGroupName: "Main",
-      order: ["Main"],
+      order: ["Favorite", "Main"],
       recentKey: "timestamp",
-      recentLimit: 3,
+      recentLimit: process?.env?.KIT_RECENT_LIMIT
+        ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
+        : 3,
     })
   )
   return await getScriptResult(script, message)
