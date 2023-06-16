@@ -401,4 +401,16 @@ declare global {
   var setScoredChoices: (
     scoredChoices: ScoredChoice[]
   ) => Promise<void>
+
+  var groupChoices: (
+    choices: Choice[],
+    options: {
+      groupKey?: string
+      missingGroupName?: string
+      order?: string[]
+      sortChoicesKey?: string[]
+      recentKey?: string
+      recentLimit?: number
+    }
+  ) => Choice[]
 }

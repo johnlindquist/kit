@@ -584,6 +584,159 @@ global.onTab = (name, fn) => {
 
 global.kitPrevChoices = []
 
+global.groupChoices = (choices: Choice[], options = {}) => {
+  let {
+    groupKey,
+    missingGroupName,
+    order,
+    sortChoicesKey,
+    recentKey,
+    recentLimit,
+  } = {
+    groupKey: "group",
+    missingGroupName: "No Group",
+    order: [],
+    sortChoicesKey: [],
+    recentKey: "",
+    recentLimit: 3,
+    ...options,
+  }
+
+  // A group is a choice with a group key and "choices" array
+  let groups = []
+  let missingGroup
+
+  let recentGroup = {
+    // Initialize the Recent group
+    skip: true,
+    group: "Recent",
+    name: "Recent",
+    choices: [],
+  }
+
+  let putIntoGroups = choice => {
+    if (!Boolean(choice?.[groupKey])) {
+      choice.group = missingGroupName
+      if (missingGroup) {
+        missingGroup.choices.push(choice)
+      } else {
+        missingGroup = {
+          skip: true,
+          group: missingGroupName,
+          name: missingGroupName,
+          choices: [choice],
+        }
+        groups.push(missingGroup)
+      }
+    } else {
+      const groupParent = groups.find(
+        g => g.name === choice[groupKey]
+      )
+      choice.group = choice[groupKey]
+      if (groupParent) {
+        groupParent.choices.push(choice)
+      } else {
+        groups.push({
+          skip: true,
+          group: choice[groupKey],
+          name: choice[groupKey],
+          choices: [choice],
+        })
+      }
+    }
+  }
+
+  for (let choice of choices) {
+    // TODO: Implement "recentLimit" number to the most recent choices
+    if (choice[recentKey]) {
+      // If choice is recent, add to the Recent group
+      recentGroup.choices.push(choice)
+      continue // Skip to next iteration of loop
+    }
+
+    // sort recentGroup.choices by recentKey
+    recentGroup.choices = recentGroup.choices.sort(
+      (a, b) => {
+        if (a?.[recentKey] < b?.[recentKey]) return 1
+        if (a?.[recentKey] > b?.[recentKey]) return -1
+        return 0
+      }
+    )
+
+    let unrecentGroup
+    if (recentGroup.choices.length > recentLimit) {
+      // If recentGroup.choices is longer than recentLimit
+      // split into recentGroup and unrecentGroup
+      unrecentGroup = recentGroup.choices.splice(
+        recentLimit,
+        recentGroup.choices.length - recentLimit
+      )
+    }
+
+    if (unrecentGroup) {
+      for (let unrecentChoice of unrecentGroup) {
+        putIntoGroups(unrecentChoice)
+      }
+    }
+
+    putIntoGroups(choice)
+  }
+
+  groups.sort((a, b) => {
+    let aOrder = order.indexOf(a.name)
+    let bOrder = order.indexOf(b.name)
+
+    // If both elements are in the order array, sort them as per the order array
+    if (aOrder !== -1 && bOrder !== -1)
+      return aOrder - bOrder
+
+    // If only a is in the order array, a comes first
+    if (aOrder !== -1) return -1
+
+    // If only b is in the order array, b comes first
+    if (bOrder !== -1) return 1
+
+    // If neither are in the order array, sort them alphabetically
+    return a.name.localeCompare(b.name)
+  })
+
+  // if missingGroupName === "No Group", then move it to the end
+  if (missingGroupName === "No Group") {
+    let noGroupIndex = groups.findIndex(
+      g => g.name === missingGroupName
+    )
+    if (noGroupIndex > -1) {
+      let noGroup = groups.splice(noGroupIndex, 1)
+      groups.push(noGroup[0])
+    }
+  }
+
+  groups = groups.map((g, i) => {
+    const sortKey = sortChoicesKey?.[i] || "name"
+    g.choices = g.choices.sort((a, b) => {
+      if (a?.[sortKey] < b?.[sortKey]) return -1
+      if (a?.[sortKey] > b?.[sortKey]) return 1
+
+      return 0
+    })
+
+    return g
+  })
+
+  if (recentGroup.choices.length > 0) {
+    recentGroup.choices = recentGroup.choices.sort(
+      (a, b) => {
+        if (a?.[recentKey] < b?.[recentKey]) return 1
+        if (a?.[recentKey] > b?.[recentKey]) return -1
+        return 0
+      }
+    )
+    groups.unshift(recentGroup)
+  }
+
+  return groups
+}
+
 global.addChoice = async (choice: string | Choice) => {
   if (typeof choice !== "object") {
     choice = {
@@ -607,9 +760,13 @@ global.appendChoices = async (
 
 global.createChoiceSearch = async (
   choices: Choice[],
-  config: Partial<Options & ConfigOptions> = {
+  config: Partial<
+    Omit<Options, "keys"> &
+      ConfigOptions & { keys: string[] }
+  > = {
     minimumScore: 0.3,
     maxIterations: 3,
+    keys: ["name"],
   }
 ) => {
   if (!config?.minimumScore) config.minimumScore = 0.3
@@ -640,15 +797,12 @@ global.createChoiceSearch = async (
     )
   }
 
-  const keys = [
-    "slicedName",
-    "slicedDescription",
-    "kenv",
-    "command",
-    "friendlyShortcut",
-    "tag",
-    "group",
-  ].map(name => ({ name, scorer }))
+  const keys = (config?.keys || ["slicedName"]).map(
+    name => ({
+      name,
+      scorer,
+    })
+  )
 
   let qs = new QuickScore<Choice>(formattedChoices, {
     keys,
@@ -729,12 +883,14 @@ global.___kitFormatChoices = async (
           slicedName: (choice as string).slice(0, 63),
           value: choice,
           id: global.uuid(),
+          hasPreview: false,
           className,
         }
       }
 
+      let hasPreview = Boolean(choice?.preview)
       let properChoice = {
-        hasPreview: Boolean(choice?.preview),
+        hasPreview,
         id: choice?.id || global.uuid(),
         name: choice?.name || "",
         slicedName: choice?.name?.slice(0, 63) || "",
@@ -754,25 +910,27 @@ global.___kitFormatChoices = async (
         return properChoice
       }
 
-      const isArray = Array.isArray(choiceChoices)
+      let isArray = Array.isArray(choiceChoices)
       if (!isArray) {
         throw new Error(
           `Group choices must be an array. Received ${typeof choiceChoices}`
         )
       }
 
-      const groupChoices = []
+      let groupedChoices = []
+
+      let defaultGroupClassName = `border-t-1 border-t-ui-border`
 
       properChoice.group = properChoice.name
       properChoice.skip =
         typeof choice?.skip === "undefined"
           ? true
           : choice.skip
-      properChoice.className ||= `border-t-1 border-t-ui-border`
+      properChoice.className ||= defaultGroupClassName
       properChoice.nameClassName ||= `font-mono text-xxs text-text-base/60 uppercase`
       properChoice.height ||= PROMPT.ITEM.HEIGHT.XXS
 
-      groupChoices.push({
+      groupedChoices.push({
         ...properChoice,
         choices: undefined,
       })
@@ -785,7 +943,7 @@ global.___kitFormatChoices = async (
         }
 
         if (typeof subChoice === "object") {
-          groupChoices.push({
+          groupedChoices.push({
             name: subChoice?.name,
             slicedName: subChoice?.name?.slice(0, 63) || "",
             slicedDescription:
@@ -794,11 +952,12 @@ global.___kitFormatChoices = async (
             id: subChoice?.id || global.uuid(),
             group: choice?.name,
             className,
+            hasPreview: Boolean(subChoice?.preview),
             ...subChoice,
             choices: undefined,
           })
         } else {
-          groupChoices.push({
+          groupedChoices.push({
             name: String(subChoice),
             value: String(subChoice),
             slicedName:
@@ -812,7 +971,7 @@ global.___kitFormatChoices = async (
         }
       })
 
-      return groupChoices
+      return groupedChoices
     })
   }
 
@@ -1065,7 +1224,17 @@ export let selectScript = async (
     scripts.map(processScript(timestampsDb.stamps))
   )
   let scriptsConfig = buildScriptConfig(message)
-  let script = await global.arg(scriptsConfig, scripts)
+  let script = await global.arg(
+    scriptsConfig,
+    // TODO: Maybe group?
+    groupChoices(scripts, {
+      groupKey: "kenv",
+      missingGroupName: "Main",
+      order: ["Main"],
+      recentKey: "timestamp",
+      recentLimit: 3,
+    })
+  )
   return await getScriptResult(script, message)
 }
 
@@ -1080,6 +1249,7 @@ export let processScript =
     if (stamp) {
       s.compileStamp = stamp.compileStamp
       s.compileMessage = stamp.compileMessage
+      s.timestamp = stamp.timestamp
 
       if (stamp.compileMessage && stamp.compileStamp) {
         infoBlock = `~~~
