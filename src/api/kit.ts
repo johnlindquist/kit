@@ -731,6 +731,11 @@ global.groupChoices = (choices: Choice[], options = {}) => {
       return 0
     })
 
+    if (Boolean(g?.choices?.[0]?.preview)) {
+      g.preview = g.choices[0].preview
+      g.hasPreview = true
+    }
+
     return g
   })
 
@@ -1235,18 +1240,20 @@ export let selectScript = async (
     scripts.map(processScript(timestampsDb.stamps))
   )
   let scriptsConfig = buildScriptConfig(message)
+  let groupedScripts = groupChoices(scripts, {
+    groupKey: "kenv",
+    missingGroupName: "Main",
+    order: ["Favorite", "Main"],
+    recentKey: "timestamp",
+    recentLimit: process?.env?.KIT_RECENT_LIMIT
+      ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
+      : 3,
+  })
+
+  scriptsConfig.keepPreview = true
   let script = await global.arg(
     scriptsConfig,
-    // TODO: Maybe group?
-    groupChoices(scripts, {
-      groupKey: "kenv",
-      missingGroupName: "Main",
-      order: ["Favorite", "Main"],
-      recentKey: "timestamp",
-      recentLimit: process?.env?.KIT_RECENT_LIMIT
-        ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
-        : 3,
-    })
+    groupedScripts
   )
   return await getScriptResult(script, message)
 }

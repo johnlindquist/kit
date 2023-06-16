@@ -181,6 +181,7 @@ export interface PromptData {
   description: string
   flags: FlagsOptions
   hasPreview: boolean
+  keepPreview?: boolean
   hint: string
   ignoreBlur: boolean
 
