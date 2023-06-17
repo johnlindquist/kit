@@ -12,6 +12,7 @@ import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import {
   Choice,
   FlagsOptions,
+  FlagsWithKeys,
   PromptConfig,
   ScoredChoice,
   Script,
@@ -24,6 +25,8 @@ import {
   resolveScriptToCommand,
   run,
   getKenvs,
+  groupChoices,
+  formatChoices,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -584,174 +587,7 @@ global.onTab = (name, fn) => {
 
 global.kitPrevChoices = []
 
-global.groupChoices = (choices: Choice[], options = {}) => {
-  let {
-    groupKey,
-    missingGroupName,
-    order,
-    sortChoicesKey,
-    recentKey,
-    recentLimit,
-  } = {
-    groupKey: "group",
-    missingGroupName: "No Group",
-    order: [],
-    sortChoicesKey: [],
-    recentKey: "",
-    recentLimit: 3,
-    ...options,
-  }
-
-  // A group is a choice with a group key and "choices" array
-  let groups = []
-  let missingGroup
-
-  let recentGroup = {
-    // Initialize the Recent group
-    skip: true,
-    group: "Recent",
-    name: "Recent",
-    choices: [],
-  }
-
-  let putIntoGroups = choice => {
-    if (
-      !Boolean(choice?.group) &&
-      !Boolean(choice?.[groupKey])
-    ) {
-      choice.group = missingGroupName
-      if (missingGroup) {
-        missingGroup.choices.push(choice)
-      } else {
-        missingGroup = {
-          skip: true,
-          group: missingGroupName,
-          name: missingGroupName,
-          choices: [choice],
-        }
-        groups.push(missingGroup)
-      }
-    } else {
-      const groupParent = groups.find(
-        g =>
-          g?.group === choice?.group ||
-          g?.group === choice[groupKey]
-      )
-      let userGrouped = choice?.group ? true : false
-      choice.group ||= choice[groupKey]
-      if (groupParent) {
-        groupParent.choices.push(choice)
-      } else {
-        groups.push({
-          skip: true,
-          userGrouped,
-          group: choice?.group || choice[groupKey],
-          name: choice?.group || choice[groupKey],
-          choices: [choice],
-        })
-      }
-    }
-  }
-
-  for (let choice of choices) {
-    // TODO: Implement "recentLimit" number to the most recent choices
-    if (choice[recentKey]) {
-      // If choice is recent, add to the Recent group
-      recentGroup.choices.push(choice)
-      continue // Skip to next iteration of loop
-    }
-
-    // sort recentGroup.choices by recentKey
-    recentGroup.choices = recentGroup.choices.sort(
-      (a, b) => {
-        if (a?.[recentKey] < b?.[recentKey]) return 1
-        if (a?.[recentKey] > b?.[recentKey]) return -1
-        return 0
-      }
-    )
-
-    let unrecentGroup
-    if (recentGroup.choices.length > recentLimit) {
-      // If recentGroup.choices is longer than recentLimit
-      // split into recentGroup and unrecentGroup
-      unrecentGroup = recentGroup.choices.splice(
-        recentLimit,
-        recentGroup.choices.length - recentLimit
-      )
-    }
-
-    if (unrecentGroup) {
-      for (let unrecentChoice of unrecentGroup) {
-        putIntoGroups(unrecentChoice)
-      }
-    }
-
-    putIntoGroups(choice)
-  }
-
-  groups.sort((a: Choice, b: Choice) => {
-    // sort "userGrouped" "true" before "false"
-    if (a.userGrouped && !b.userGrouped) return -1
-    if (!a.userGrouped && b.userGrouped) return 1
-
-    let aOrder = order.indexOf(a.group)
-    let bOrder = order.indexOf(b.group)
-
-    // If both elements are in the order array, sort them as per the order array
-    if (aOrder !== -1 && bOrder !== -1)
-      return aOrder - bOrder
-
-    // If only a is in the order array, a comes first
-    if (aOrder !== -1) return -1
-
-    // If only b is in the order array, b comes first
-    if (bOrder !== -1) return 1
-
-    // If neither are in the order array, sort them alphabetically
-    return a.group.localeCompare(b.group)
-  })
-
-  // if missingGroupName === "No Group", then move it to the end
-  if (missingGroupName === "No Group") {
-    let noGroupIndex = groups.findIndex(
-      g => g.name === missingGroupName
-    )
-    if (noGroupIndex > -1) {
-      let noGroup = groups.splice(noGroupIndex, 1)
-      groups.push(noGroup[0])
-    }
-  }
-
-  groups = groups.map((g, i) => {
-    const sortKey = sortChoicesKey?.[i] || "name"
-    g.choices = g.choices.sort((a, b) => {
-      if (a?.[sortKey] < b?.[sortKey]) return -1
-      if (a?.[sortKey] > b?.[sortKey]) return 1
-
-      return 0
-    })
-
-    if (Boolean(g?.choices?.[0]?.preview)) {
-      g.preview = g.choices[0].preview
-      g.hasPreview = true
-    }
-
-    return g
-  })
-
-  if (recentGroup.choices.length > 0) {
-    recentGroup.choices = recentGroup.choices.sort(
-      (a, b) => {
-        if (a?.[recentKey] < b?.[recentKey]) return 1
-        if (a?.[recentKey] > b?.[recentKey]) return -1
-        return 0
-      }
-    )
-    groups.unshift(recentGroup)
-  }
-
-  return groups
-}
+global.groupChoices = groupChoices
 
 global.addChoice = async (choice: string | Choice) => {
   if (typeof choice !== "object") {
@@ -889,114 +725,13 @@ global.___kitFormatChoices = async (
   choices,
   className = ""
 ) => {
-  if (typeof choices === "object" && choices !== null) {
-    choices = (choices as Choice<any>[]).flatMap(choice => {
-      const isChoiceObject = typeof choice === "object"
-
-      if (!isChoiceObject) {
-        return {
-          name: String(choice),
-          slicedName: (choice as string).slice(0, 63),
-          value: choice,
-          id: global.uuid(),
-          hasPreview: false,
-          className,
-        }
-      }
-
-      let hasPreview = Boolean(choice?.preview)
-      let properChoice = {
-        hasPreview,
-        id: choice?.id || global.uuid(),
-        name: choice?.name || "",
-        slicedName: choice?.name?.slice(0, 63) || "",
-        slicedDescription:
-          choice?.description?.slice(0, 63) || "",
-        value: choice?.value || choice,
-        className:
-          choice?.className || choice?.choices
-            ? ""
-            : className,
-
-        ...choice,
-      }
-
-      const choiceChoices = properChoice?.choices
-      if (!choiceChoices) {
-        return properChoice
-      }
-
-      let isArray = Array.isArray(choiceChoices)
-      if (!isArray) {
-        throw new Error(
-          `Group choices must be an array. Received ${typeof choiceChoices}`
-        )
-      }
-
-      let groupedChoices = []
-
-      let defaultGroupClassName = `border-t-1 border-t-ui-border`
-
-      properChoice.group = properChoice.name
-      properChoice.skip =
-        typeof choice?.skip === "undefined"
-          ? true
-          : choice.skip
-      properChoice.className ||= defaultGroupClassName
-      properChoice.nameClassName ||= `font-mono text-xxs text-text-base/60 uppercase`
-      properChoice.height ||= PROMPT.ITEM.HEIGHT.XXS
-
-      groupedChoices.push({
-        ...properChoice,
-        choices: undefined,
-      })
-
-      choiceChoices.forEach(subChoice => {
-        if (typeof subChoice === "undefined") {
-          throw new Error(
-            `Undefined choice in ${properChoice.name}`
-          )
-        }
-
-        if (typeof subChoice === "object") {
-          groupedChoices.push({
-            name: subChoice?.name,
-            slicedName: subChoice?.name?.slice(0, 63) || "",
-            slicedDescription:
-              subChoice?.description?.slice(0, 63) || "",
-            value: subChoice?.value || subChoice,
-            id: subChoice?.id || global.uuid(),
-            group: choice?.name,
-            className,
-            hasPreview: Boolean(subChoice?.preview),
-            ...subChoice,
-            choices: undefined,
-          })
-        } else {
-          groupedChoices.push({
-            name: String(subChoice),
-            value: String(subChoice),
-            slicedName:
-              String(subChoice)?.slice(0, 63) || "",
-            slicedDescription: "",
-            group: choice?.name,
-            className,
-            id: global.uuid(),
-            choices: undefined,
-          })
-        }
-      })
-
-      return groupedChoices
-    })
-  }
-
-  const { __currentPromptConfig } = global as any
-  const { shortcuts: globalShortcuts } =
+  let formattedChoices = formatChoices(choices, className)
+  let { __currentPromptConfig } = global as any
+  let { shortcuts: globalShortcuts } =
     __currentPromptConfig || {}
 
   if (globalShortcuts && choices?.[0]) {
-    const shortcuts = globalShortcuts.filter(shortcut => {
+    let shortcuts = globalShortcuts.filter(shortcut => {
       if (shortcut?.condition) {
         return shortcut.condition(choices?.[0])
       }
@@ -1005,10 +740,10 @@ global.___kitFormatChoices = async (
 
     await global.sendWait(Channel.SET_SHORTCUTS, shortcuts)
   }
-  global.kitPrevChoices = choices
+  global.kitPrevChoices = formattedChoices
 
   global.setLoading(false)
-  return choices
+  return formattedChoices
 }
 
 global.setChoices = async (choices, className = "") => {
@@ -1031,11 +766,18 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
   if (!flags || Object.entries(flags)?.length === 0)
     return false
 
-  let validFlags = {}
+  let validFlags = {
+    sortChoicesKey:
+      (flags as FlagsWithKeys)?.sortChoicesKey || [],
+    order: (flags as FlagsWithKeys)?.order || [],
+  }
   let currentFlags = Object.entries(flags)
   for (let [key, value] of currentFlags) {
+    if (key === "order") continue
+    if (key === "sortChoicesKey") continue
     validFlags[key] = {
       name: value?.name || key,
+      group: value?.group || "",
       shortcut: value?.shortcut || "",
       description: value?.description || "",
       value: key,
@@ -1048,6 +790,7 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
     ([key, value]) => {
       return {
         id: key,
+        group: value?.group || "",
         name: value?.name || key,
         value: key,
         description: value?.description || "",

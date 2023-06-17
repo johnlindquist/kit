@@ -29,7 +29,20 @@ let modifiers = {
 
 console.clear()
 
+let order = [
+  "Edit",
+  "Copy",
+  "Debug",
+  "Kenv",
+  "Git",
+  "Share",
+  "Export",
+  "DB",
+  "Run",
+]
 let scriptFlags: FlagsOptions = {
+  order,
+  sortChoicesKey: order.map(o => ""),
   // open: {
   //   name: "Edit",
   //   description: "Open the selected script in your editor",
@@ -44,6 +57,7 @@ let scriptFlags: FlagsOptions = {
   // },
   ["edit-script"]: {
     name: "Edit",
+    group: "Edit",
     description: "Open the selected script in your editor",
     preview: async (input, state) => {
       let flaggedFilePath = state?.flaggedValue?.filePath
@@ -130,6 +144,7 @@ ${lastRunBlock}
     },
   },
   [cmd]: {
+    group: "Debug",
     name: "Debug Script",
     description:
       "Open inspector. Pause on debugger statements.",
@@ -137,71 +152,85 @@ ${lastRunBlock}
     flag: cmd,
   },
   [modifiers.opt]: {
+    group: "Debug",
     name: "Open Log Window",
     description: "Open a log window for selected script",
     shortcut: `alt+enter`,
     flag: modifiers.opt,
   },
   ["push-script"]: {
+    group: "Git",
     name: "Push to Git Repo",
     description: "Push the selected script to a git repo",
   },
   ["pull-script"]: {
+    group: "Git",
     name: "Pull from Git Repo",
     description: "Pull the selected script from a git repo",
   },
 
   ["edit-doc"]: {
+    group: "Edit",
     name: "Create/Edit Doc",
     description:
       "Open the selected script's markdown in your editor",
   },
   ["share"]: {
+    group: "Share",
     name: "Share",
     description: "Share the selected script",
   },
 
   ["share-copy"]: {
+    group: "Copy",
     name: "Copy",
-    description: "Copy script content to clipboard",
+    description: "Copy script contents to clipboard",
     shortcut: `${cmd}+c`,
   },
   ["copy-path"]: {
+    group: "Copy",
     name: "Copy Path",
     description: "Copy full path of script to clipboard",
   },
   ["paste-as-markdown"]: {
+    group: "Copy",
     name: "Paste as Markdown",
     description:
       "Paste the contents of the script as Markdown",
     shortcut: `${cmd}+shift+p`,
   },
   duplicate: {
+    group: "Edit",
     name: "Duplicate",
     description: "Duplicate the selected script",
     shortcut: `${cmd}+d`,
   },
   rename: {
+    group: "Edit",
     name: "Rename",
     description: "Rename the selected script",
     shortcut: `${cmd}+shift+r`,
   },
   remove: {
+    group: "Edit",
     name: "Remove",
     description: "Delete the selected script",
     shortcut: `${cmd}+shift+backspace`,
   },
   ["open-script-database"]: {
+    group: "DB",
     name: "Open Database",
     description: "Open the db file for the selected script",
     shortcut: `${cmd}+b`,
   },
   ["clear-script-database"]: {
+    group: "DB",
     name: "Delete Database",
     description:
       "Delete the db file for the selected script",
   },
   ["reveal-script"]: {
+    group: "Edit",
     name: "Reveal",
     description: `Reveal the selected script in ${
       isMac ? "Finder" : "Explorer"
@@ -209,19 +238,23 @@ ${lastRunBlock}
     shortcut: `${cmd}+shift+f`,
   },
   ["kenv-term"]: {
+    group: "Kenv",
     name: "Open Script Kenv in a  Terminal",
     description:
       "Open the selected script's kenv in a terminal",
   },
   ["kenv-trust"]: {
+    group: "Kenv",
     name: "Trust Script Kenv",
     description: "Trust the selected script's kenv",
   },
   ["kenv-view"]: {
+    group: "Kenv",
     name: "View Script Kenv",
     description: "View the selected script's kenv",
   },
   ["kenv-visit"]: {
+    group: "Kenv",
     name: "Open Script Repo",
     description:
       "Visit the selected script's kenv in your browser",
@@ -261,35 +294,42 @@ ${lastRunBlock}
   //   shortcut: `${cmd}+m`,
   // },
   ["change-shortcut"]: {
+    group: "Edit",
     name: "Change Shortcut",
     description:
       "Prompts to pick a new shortcut for the script",
   },
   move: {
+    group: "Kenv",
     name: "Move Script to Kenv",
     description: "Move the script between Kit Environments",
   },
   ["stream-deck"]: {
+    group: "Export",
     name: "Prepare Script for Stream Deck",
     description:
       "Create a .sh file around the script for Stream Decks",
   },
   ["open-script-log"]: {
+    group: "Debug",
     name: "Open Log File",
     description:
       "Open the log file for the selected script",
   },
   [modifiers.shift]: {
+    group: "Run",
     name: "Run script w/ shift flag",
     shortcut: "shift+enter",
     flag: "shift",
   },
   [modifiers.ctrl]: {
+    group: "Run",
     name: "Run script w/ ctrl flag",
     shortcut: "ctrl+enter",
     flag: "ctrl",
   },
   ["settings"]: {
+    group: "Run",
     name: "Settings",
     description: "Open the settings menu",
     shortcut: `${cmd}+,`,
@@ -298,6 +338,7 @@ ${lastRunBlock}
 
 if (env.KIT_EDITOR !== "code") {
   scriptFlags["code"] = {
+    group: "Edit",
     name: "Open Kenv in VS Code",
     description: "Open the script's kenv in VS Code",
     shortcut: `${cmd}+shift+o`,

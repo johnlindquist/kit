@@ -1,3 +1,4 @@
+import { randomUUID as uuid } from "crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import * as path from "path"
 import {
@@ -6,6 +7,7 @@ import {
   ScriptMetadata,
   Metadata,
   Shortcut,
+  Choice,
 } from "../types/core"
 import { platform, homedir } from "os"
 import { lstatSync, PathLike, realpathSync } from "fs"
@@ -13,7 +15,7 @@ import { lstat, readdir, readFile } from "fs/promises"
 
 import { execSync } from "child_process"
 
-import { ProcessType, Channel } from "./enum.js"
+import { ProcessType, Channel, PROMPT } from "./enum.js"
 
 export let isWin = platform().startsWith("win")
 export let isMac = platform().startsWith("darwin")
@@ -623,17 +625,17 @@ export let toggleBackground = async (script: Script) => {
             script.command
           }`,
           value: `toggle`,
-          id: global.uuid(),
+          id: uuid(),
         },
         {
           name: `Edit ${script.command}`,
           value: `edit`,
-          id: global.uuid(),
+          id: uuid(),
         },
         {
           name: `View ${script.command}.log`,
           value: `log`,
-          id: global.uuid(),
+          id: uuid(),
         },
       ]
     )
@@ -1177,4 +1179,291 @@ export let isUndefined = (
 
 export let isString = (value: any): value is string => {
   return typeof value === "string"
+}
+
+export let groupChoices = (
+  choices: Choice[],
+  options = {}
+) => {
+  let {
+    groupKey,
+    missingGroupName,
+    order,
+    sortChoicesKey,
+    recentKey,
+    recentLimit,
+  } = {
+    groupKey: "group",
+    missingGroupName: "No Group",
+    order: [],
+    sortChoicesKey: [],
+    recentKey: "",
+    recentLimit: 3,
+    ...options,
+  }
+
+  // A group is a choice with a group key and "choices" array
+  let groups = []
+  let missingGroup
+
+  let recentGroup = {
+    // Initialize the Recent group
+    skip: true,
+    group: "Recent",
+    name: "Recent",
+    choices: [],
+  }
+
+  let putIntoGroups = choice => {
+    if (
+      !Boolean(choice?.group) &&
+      !Boolean(choice?.[groupKey])
+    ) {
+      choice.group = missingGroupName
+      if (missingGroup) {
+        missingGroup.choices.push(choice)
+      } else {
+        missingGroup = {
+          skip: true,
+          group: missingGroupName,
+          name: missingGroupName,
+          choices: [choice],
+        }
+        groups.push(missingGroup)
+      }
+    } else {
+      const groupParent = groups.find(
+        g =>
+          g?.group === choice?.group ||
+          g?.group === choice[groupKey]
+      )
+      let userGrouped = choice?.group ? true : false
+      choice.group ||= choice[groupKey]
+      if (groupParent) {
+        groupParent.choices.push(choice)
+      } else {
+        groups.push({
+          skip: true,
+          userGrouped,
+          group: choice?.group || choice[groupKey],
+          name: choice?.group || choice[groupKey],
+          choices: [choice],
+        })
+      }
+    }
+  }
+
+  for (let choice of choices) {
+    // TODO: Implement "recentLimit" number to the most recent choices
+    if (choice[recentKey]) {
+      // If choice is recent, add to the Recent group
+      recentGroup.choices.push(choice)
+      continue // Skip to next iteration of loop
+    }
+
+    // sort recentGroup.choices by recentKey
+    recentGroup.choices = recentGroup.choices.sort(
+      (a, b) => {
+        if (a?.[recentKey] < b?.[recentKey]) return 1
+        if (a?.[recentKey] > b?.[recentKey]) return -1
+        return 0
+      }
+    )
+
+    let unrecentGroup
+    if (recentGroup.choices.length > recentLimit) {
+      // If recentGroup.choices is longer than recentLimit
+      // split into recentGroup and unrecentGroup
+      unrecentGroup = recentGroup.choices.splice(
+        recentLimit,
+        recentGroup.choices.length - recentLimit
+      )
+    }
+
+    if (unrecentGroup) {
+      for (let unrecentChoice of unrecentGroup) {
+        putIntoGroups(unrecentChoice)
+      }
+    }
+
+    putIntoGroups(choice)
+  }
+
+  groups.sort((a: Choice, b: Choice) => {
+    // sort "userGrouped" "true" before "false"
+    if (a.userGrouped && !b.userGrouped) return -1
+    if (!a.userGrouped && b.userGrouped) return 1
+
+    let aOrder = order.indexOf(a.group)
+    let bOrder = order.indexOf(b.group)
+
+    // If both elements are in the order array, sort them as per the order array
+    if (aOrder !== -1 && bOrder !== -1)
+      return aOrder - bOrder
+
+    // If only a is in the order array, a comes first
+    if (aOrder !== -1) return -1
+
+    // If only b is in the order array, b comes first
+    if (bOrder !== -1) return 1
+
+    // If neither are in the order array, sort them alphabetically
+    return a.group.localeCompare(b.group)
+  })
+
+  // if missingGroupName === "No Group", then move it to the end
+  if (missingGroupName === "No Group") {
+    let noGroupIndex = groups.findIndex(
+      g => g.name === missingGroupName
+    )
+    if (noGroupIndex > -1) {
+      let noGroup = groups.splice(noGroupIndex, 1)
+      groups.push(noGroup[0])
+    }
+  }
+
+  groups = groups.map((g, i) => {
+    const maybeKey = sortChoicesKey?.[i]
+    const sortKey =
+      typeof maybeKey === "string" ? maybeKey : "name"
+    if (sortKey) {
+      g.choices = g.choices.sort((a, b) => {
+        if (a?.[sortKey] < b?.[sortKey]) return -1
+        if (a?.[sortKey] > b?.[sortKey]) return 1
+
+        return 0
+      })
+    }
+
+    if (Boolean(g?.choices?.[0]?.preview)) {
+      g.preview = g.choices[0].preview
+      g.hasPreview = true
+    }
+
+    return g
+  })
+
+  if (recentGroup.choices.length > 0) {
+    recentGroup.choices = recentGroup.choices.sort(
+      (a, b) => {
+        if (a?.[recentKey] < b?.[recentKey]) return 1
+        if (a?.[recentKey] > b?.[recentKey]) return -1
+        return 0
+      }
+    )
+    groups.unshift(recentGroup)
+  }
+
+  return groups
+}
+
+export let formatChoices = (
+  choices: Choice[],
+  className = ""
+) => {
+  if (Array.isArray(choices)) {
+    return (choices as Choice<any>[]).flatMap(choice => {
+      const isChoiceObject = typeof choice === "object"
+
+      if (!isChoiceObject) {
+        return {
+          name: String(choice),
+          slicedName: (choice as string).slice(0, 63),
+          value: choice,
+          id: uuid(),
+          hasPreview: false,
+          className,
+        }
+      }
+
+      let hasPreview = Boolean(choice?.preview)
+      let properChoice = {
+        hasPreview,
+        id: choice?.id || uuid(),
+        name: choice?.name || "",
+        slicedName: choice?.name?.slice(0, 63) || "",
+        slicedDescription:
+          choice?.description?.slice(0, 63) || "",
+        value: choice?.value || choice,
+        className:
+          choice?.className || choice?.choices
+            ? ""
+            : className,
+
+        ...choice,
+      }
+
+      const choiceChoices = properChoice?.choices
+      if (!choiceChoices) {
+        return properChoice
+      }
+
+      let isArray = Array.isArray(choiceChoices)
+      if (!isArray) {
+        throw new Error(
+          `Group choices must be an array. Received ${typeof choiceChoices}`
+        )
+      }
+
+      let groupedChoices = []
+
+      let defaultGroupClassName = `border-t-1 border-t-ui-border`
+
+      properChoice.group = properChoice.name
+      properChoice.skip =
+        typeof choice?.skip === "undefined"
+          ? true
+          : choice.skip
+      properChoice.className ||= defaultGroupClassName
+      properChoice.nameClassName ||= `font-mono text-xxs text-text-base/60 uppercase`
+      properChoice.height ||= PROMPT.ITEM.HEIGHT.XXS
+
+      groupedChoices.push({
+        ...properChoice,
+        choices: undefined,
+      })
+
+      choiceChoices.forEach(subChoice => {
+        if (typeof subChoice === "undefined") {
+          throw new Error(
+            `Undefined choice in ${properChoice.name}`
+          )
+        }
+
+        if (typeof subChoice === "object") {
+          groupedChoices.push({
+            name: subChoice?.name,
+            slicedName: subChoice?.name?.slice(0, 63) || "",
+            slicedDescription:
+              subChoice?.description?.slice(0, 63) || "",
+            value: subChoice?.value || subChoice,
+            id: subChoice?.id || uuid(),
+            group: choice?.name,
+            className,
+            hasPreview: Boolean(subChoice?.preview),
+            ...subChoice,
+            choices: undefined,
+          })
+        } else {
+          groupedChoices.push({
+            name: String(subChoice),
+            value: String(subChoice),
+            slicedName:
+              String(subChoice)?.slice(0, 63) || "",
+            slicedDescription: "",
+            group: choice?.name,
+            className,
+            id: uuid(),
+            choices: undefined,
+          })
+        }
+      })
+
+      return groupedChoices
+    })
+  } else {
+    throw new Error(
+      `Choices must be an array. Received ${typeof choices}`
+    )
+  }
 }
