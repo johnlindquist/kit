@@ -233,19 +233,23 @@ export interface PromptData {
   inputClassName?: string
   headerClassName?: string
   footerClassName?: string
+  preload?: boolean
 }
 
 export interface GenerateChoices {
   (input: string): Choice<any>[] | Promise<Choice<any>[]>
 }
 
-export type Choices<Value> =
+export type Choices<Value> = (
   | (string | Choice)[]
   | Choice<Value>[]
   | (() => Choice<Value>[])
   | (() => Promise<Choice<Value>[]>)
   | Promise<Choice<any>[]>
   | GenerateChoices
+) & {
+  preload?: boolean
+}
 
 export type Panel =
   | string
