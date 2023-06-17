@@ -18,12 +18,19 @@ let install = async packageNames => {
       : `npm${global.isWin ? `.cmd` : ``} i`
   ).split(" ")
 
-  let adjustPath = global.isWin
-    ? knodePath("bin")
-    : `PATH=${knodePath("bin")}:$PATH `
+  let toolPath = global.isWin
+    ? isYarn
+      ? `yarn`
+      : knodePath("bin", "npm.cmd")
+    : `PATH=${knodePath("bin")}:$PATH ${tool}`
+
+  let toolExists = await isBin(toolPath)
+  if (!toolExists) {
+    toolPath = `npm`
+  }
 
   let command =
-    `${adjustPath}${tool} ${toolArgs} -D ${packageNames.join(
+    `${toolPath} ${toolArgs} -D ${packageNames.join(
       " "
     )}`.trim()
 
