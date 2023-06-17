@@ -66,6 +66,7 @@ import {
   debounce,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
+import { errorPrompt } from "../api/kit.js"
 import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
 import { EventEmitter } from "events"
@@ -2672,13 +2673,11 @@ global.formatDate = format
 global.formatDateToNow = formatDistanceToNow
 
 process.addListener("unhandledRejection", async error => {
-  if (global.errorPrompt)
-    await global.errorPrompt(error as Error)
+  await errorPrompt(error as Error)
 })
 
 process.addListener("uncaughtException", async error => {
-  if (global.errorPrompt)
-    await global.errorPrompt(error as Error)
+  await errorPrompt(error as Error)
 })
 
 let __kit__registeredShortcuts = new Map()
