@@ -1461,7 +1461,7 @@ export let formatChoices = (
 
       return groupedChoices
     })
-  } else {
+  } else if (Boolean(choices)) {
     throw new Error(
       `Choices must be an array. Received ${typeof choices}`
     )

@@ -404,7 +404,7 @@ declare global {
 
   var groupChoices: (
     choices: Choice[],
-    options: {
+    options?: {
       groupKey?: string
       missingGroupName?: string
       order?: string[]
@@ -412,5 +412,10 @@ declare global {
       recentKey?: string
       recentLimit?: number
     }
+  ) => Choice[]
+
+  var formatChoices: (
+    choices: Choice[],
+    className?: string
   ) => Choice[]
 }

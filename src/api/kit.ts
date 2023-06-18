@@ -588,6 +588,7 @@ global.onTab = (name, fn) => {
 global.kitPrevChoices = []
 
 global.groupChoices = groupChoices
+global.formatChoices = formatChoices
 
 global.addChoice = async (choice: string | Choice) => {
   if (typeof choice !== "object") {
@@ -725,6 +726,7 @@ global.___kitFormatChoices = async (
   choices,
   className = ""
 ) => {
+  if (!choices) return choices
   let formattedChoices = formatChoices(choices, className)
   let { __currentPromptConfig } = global as any
   let { shortcuts: globalShortcuts } =
