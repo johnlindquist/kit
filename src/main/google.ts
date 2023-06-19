@@ -1,5 +1,6 @@
 // Name: Google
 // Description: Search Google for Information
+// Pass: true
 
 import { cmd } from "../core/utils.js"
 let { default: google } = await import("googlethis")
@@ -39,9 +40,13 @@ let pasteOptions = async () => {
   )
   setSelectedText(result)
 }
+
 await arg(
   {
-    input: (flag?.input as string) || "",
+    input:
+      (flag?.input as string) ||
+      (arg?.pass as string) ||
+      "",
     placeholder: "Search Google",
     enter: `Open in Browser`,
     resize: true,

@@ -1,5 +1,6 @@
 // Name: Google Suggest
 // Description: Start typing to see Google Suggest results
+// Pass: true
 
 import "@johnlindquist/kit"
 import { backToMainShortcut } from "../core/utils.js"
@@ -9,6 +10,7 @@ let { default: suggest } = await import("suggestion")
 
 let input = await arg(
   {
+    input: (arg?.pass as string) || "",
     placeholder: "Google suggest:",
     enter: `Paste`,
     shortcuts: [backToMainShortcut],

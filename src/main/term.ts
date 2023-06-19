@@ -1,7 +1,10 @@
-// Description: Kit Terminal
+// Name: Kit Terminal
+// Description: Built-in Terminal
+// Pass: true
 
 setName(``)
 await term({
+  command: (arg?.pass as string) || "",
   env: process.env,
   ignoreBlur: true,
   shortcuts: [

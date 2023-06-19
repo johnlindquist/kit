@@ -13,8 +13,10 @@ import {
   run,
   cmd,
   isMac,
+  parseScript,
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
+import { mainMenu } from "../api/kit.js"
 
 let modifiers = {
   cmd: "cmd",
@@ -400,15 +402,42 @@ let excludeKenvs =
   []
 
 let isApp = false
-let script = await selectScript(
+let isPass = false
+let input = ""
+
+let passGroup = await Promise.all(
+  [
+    kitPath("main", "google.js"),
+    kitPath("main", "suggest.js"),
+    kitPath("main", "sticky.js"),
+    kitPath("main", "term.js"),
+  ].map(parseScript)
+)
+
+let xf = scripts =>
+  scripts
+    .filter(
+      script =>
+        !(
+          script?.exclude ||
+          excludeKenvs.includes(script?.kenv)
+        )
+    )
+    .concat(passGroup)
+
+let script = await mainMenu(
   {
     name: "Main",
     placeholder: "Run Script",
     enter: "Run",
     strict: false,
+    onSubmit: i => {
+      input = i.trim()
+    },
     onNoChoices,
     onChoiceFocus: async (input, state) => {
       isApp = state?.focused?.group === "Apps"
+      isPass = state?.focused?.group === "Pass"
     },
     // footer: `Script Options: ${cmd}+k`,
     onInputSubmit: {
@@ -566,23 +595,19 @@ let script = await selectScript(
     input: arg?.input || "",
   },
   true,
-  scripts =>
-    scripts.filter(
-      script =>
-        !(
-          script?.exclude ||
-          excludeKenvs.includes(script?.kenv)
-        )
-    )
+  xf
 )
 
 if (typeof script === "boolean" && !script) {
   exit()
 }
 
+// TODO: Help me clean up all these conditionals
 if (isApp) {
   hide()
   open(script as string)
+} else if (isPass) {
+  await run((script as Script)?.filePath, `--pass`, input)
 } else if ((script as Script)?.shebang) {
   await sendWait(Channel.SHEBANG, script)
 } else if (
@@ -591,15 +616,16 @@ if (isApp) {
 ) {
   console.warn(`🤔 No script selected`, script)
 } else if (typeof script === "string") {
-  let [maybeScript, numarg] = script.split(/\s(?=\d)/)
+  let scriptPath = script as string
+  let [maybeScript, numarg] = scriptPath.split(/\s(?=\d)/)
   if (await isFile(maybeScript)) {
     await run(maybeScript, numarg)
   } else {
     await run(
       `${kitPath("cli", "new")}.js`,
-      script.trim().replace(/\s/g, "-").toLowerCase(),
+      scriptPath.trim().replace(/\s/g, "-").toLowerCase(),
       `--scriptName`,
-      script.trim()
+      scriptPath.trim()
     )
   }
 } else {

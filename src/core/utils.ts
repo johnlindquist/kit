@@ -515,13 +515,14 @@ export let parseScript = async (
 
   let contents = await readFile(filePath, "utf8")
   let metadata = parseMetadata(contents)
+
   let shebang = getShebangFromContents(contents)
 
   let needsDebugger = Boolean(
     contents.match(/^\s*debugger/gim)
   )
 
-  return {
+  let result = {
     shebang,
     ...metadata,
     ...parsedFilePath,
@@ -536,6 +537,8 @@ export let parseScript = async (
       ? parsedFilePath.command
       : "",
   }
+
+  return result
 }
 
 export let getLastSlashSeparated = (
@@ -1214,8 +1217,19 @@ export let groupChoices = (
     choices: [],
   }
 
+  let passGroup = {
+    skip: true,
+    pass: true,
+    group: "Pass",
+    name: 'Pass "{input}" to...',
+    choices: [],
+  }
+
   let putIntoGroups = choice => {
-    if (
+    if (choice?.pass) {
+      choice.group = "Pass"
+      passGroup.choices.push(choice)
+    } else if (
       !Boolean(choice?.group) &&
       !Boolean(choice?.[groupKey])
     ) {
@@ -1254,8 +1268,8 @@ export let groupChoices = (
   }
 
   for (let choice of choices) {
-    // TODO: Implement "recentLimit" number to the most recent choices
-    if (choice[recentKey]) {
+    if (choice[recentKey] && !choice.pass) {
+      // TODO: Implement "recentLimit" number to the most recent choices
       // If choice is recent, add to the Recent group
       recentGroup.choices.push(choice)
       continue // Skip to next iteration of loop
@@ -1352,6 +1366,10 @@ export let groupChoices = (
       }
     )
     groups.unshift(recentGroup)
+  }
+
+  if (passGroup.choices.length > 0) {
+    groups.push(passGroup)
   }
 
   return groups

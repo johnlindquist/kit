@@ -996,6 +996,49 @@ export let getApps = async () => {
   return groupedApps
 }
 
+let groupScripts = scripts => {
+  return groupChoices(scripts, {
+    groupKey: "kenv",
+    missingGroupName: "Main",
+    order: ["Favorite", "Main"],
+    recentKey: "timestamp",
+    recentLimit: process?.env?.KIT_RECENT_LIMIT
+      ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
+      : 3,
+  })
+}
+
+export let mainMenu = async (
+  message: string | PromptConfig = "Select a script",
+  fromCache = true,
+  xf = (x: Script[]) => x,
+  ignoreKenvPattern = /^ignore$/
+): Promise<Script | string> => {
+  let scripts: Script[] = xf(
+    await getScripts(fromCache, ignoreKenvPattern)
+  )
+  let timestampsDb = await getTimestamps(fromCache)
+  scripts = await Promise.all(
+    scripts.map(processScript(timestampsDb.stamps))
+  )
+
+  let groupedScripts = groupScripts(scripts)
+
+  let apps = await getApps()
+  if (apps.length) {
+    groupedScripts = groupedScripts.concat(apps)
+  }
+
+  let scriptsConfig = buildScriptConfig(message)
+  scriptsConfig.keepPreview = true
+
+  let script = await global.arg(
+    scriptsConfig,
+    groupedScripts
+  )
+  return await getScriptResult(script, message)
+}
+
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
   fromCache = true,
@@ -1005,28 +1048,12 @@ export let selectScript = async (
   let scripts: Script[] = xf(
     await getScripts(fromCache, ignoreKenvPattern)
   )
-  let timestampsDb = await getTimestamps(fromCache)
-  scripts = await Promise.all(
-    scripts.map(processScript(timestampsDb.stamps))
-  )
+
+  let groupedScripts = groupScripts(scripts)
+
   let scriptsConfig = buildScriptConfig(message)
-
-  let groupedScripts = groupChoices(scripts, {
-    groupKey: "kenv",
-    missingGroupName: "Main",
-    order: ["Favorite", "Main"],
-    recentKey: "timestamp",
-    recentLimit: process?.env?.KIT_RECENT_LIMIT
-      ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
-      : 3,
-  })
-
-  let apps = await getApps()
-  if (apps.length) {
-    groupedScripts = groupedScripts.concat(apps)
-  }
-
   scriptsConfig.keepPreview = true
+
   let script = await global.arg(
     scriptsConfig,
     groupedScripts

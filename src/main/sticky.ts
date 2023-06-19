@@ -1,5 +1,6 @@
 // Name: Sticky Pad
 // Description: Take Quick Notes
+// Pass: true
 
 let stickyPath = kenvPath("sticky.md")
 let contents = await ensureReadFile(
@@ -10,6 +11,12 @@ let contents = await ensureReadFile(
 )
 
 let changed = false
+
+if (arg?.pass) {
+  contents = `${contents}
+  
+${arg?.pass}`
+}
 
 contents = await editor({
   value: contents,

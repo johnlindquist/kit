@@ -45,6 +45,7 @@ export interface Choice<Value = any> {
   info?: undefined | "always" | "onNoChoices"
   height?: number
   skip?: boolean
+  pass?: boolean
   group?: string
   userGrouped?: boolean
   choices?: (Omit<Choice<any>, "choices"> | string)[]
