@@ -1192,6 +1192,7 @@ export let groupChoices = (
     groupKey,
     missingGroupName,
     order,
+    endOrder,
     sortChoicesKey,
     recentKey,
     recentLimit,
@@ -1199,6 +1200,7 @@ export let groupChoices = (
     groupKey: "group",
     missingGroupName: "No Group",
     order: [],
+    endOrder: [],
     sortChoicesKey: [],
     recentKey: "",
     recentLimit: 3,
@@ -1322,6 +1324,26 @@ export let groupChoices = (
     if (bOrder !== -1) return 1
 
     // If neither are in the order array, sort them alphabetically
+    return a.group.localeCompare(b.group)
+  })
+
+  // Use endOrder to sort groups at the end
+  groups.sort((a: Choice, b: Choice) => {
+    let aOrder = endOrder.indexOf(a.group)
+    let bOrder = endOrder.indexOf(b.group)
+
+    // If both elements are in the endOrder array, sort them as per the endOrder array
+    if (aOrder !== -1 && bOrder !== -1)
+      return aOrder - bOrder
+
+    // If only a is in the endOrder array, a comes last
+    if (aOrder !== -1) return 1
+
+    // If only b is in the endOrder array, b comes last
+    if (bOrder !== -1) return -1
+
+    // If neither are in the endOrder array, sort them alphabetically
+
     return a.group.localeCompare(b.group)
   })
 

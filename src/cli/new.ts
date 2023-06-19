@@ -1,6 +1,12 @@
-// Name: New
+/*
+
+# Create a New Script
+*/
+
+// Name: New Script
 // Description: Create a new script
 // Log: false
+// Pass: true
 
 import {
   exists,
@@ -23,25 +29,30 @@ let stripName = (name: string) =>
   path.parse(name.trim().replace(/\s/g, "-").toLowerCase())
     .name
 
-let name = await arg(
-  {
-    placeholder:
-      arg?.placeholder || "Enter a name for your script:",
-    validate: input => {
-      return exists(input.replace(/\s/g, "-").toLowerCase())
-    },
-    shortcuts: [],
-    enter: `Create script and open in editor`,
-    strict: false,
-  },
-  [
-    {
-      info: "always",
-      name: `Requirements: lowercase, dashed, no extension`,
-      description: `Examples: ${examples}`,
-    },
-  ]
-)
+let name = arg?.pass
+  ? stripName(arg?.pass)
+  : await arg(
+      {
+        placeholder:
+          arg?.placeholder ||
+          "Enter a name for your script:",
+        validate: input => {
+          return exists(
+            input.replace(/\s/g, "-").toLowerCase()
+          )
+        },
+        shortcuts: [],
+        enter: `Create script and open in editor`,
+        strict: false,
+      },
+      [
+        {
+          info: "always",
+          name: `Requirements: lowercase, dashed, no extension`,
+          description: `Examples: ${examples}`,
+        },
+      ]
+    )
 
 let { dirPath: selectedKenvPath } = await selectKenv({
   placeholder: `Select Where to Create Script`,
@@ -105,16 +116,17 @@ if (!templateExists) {
 let templateContent = await readFile(templatePath, "utf8")
 
 let templateCompiler = compile(templateContent)
+let scriptName = arg?.pass || arg?.scriptName
 contents += templateCompiler({
   ...env,
   ...Object.fromEntries(memoryMap),
-  name: arg?.scriptName || name,
+  name: scriptName,
 })
 if (
-  (arg?.scriptName || command !== name) &&
+  (scriptName || command !== name) &&
   !contents.includes(`Name:`)
 ) {
-  contents = `// Name: ${arg?.scriptName || name || ""}
+  contents = `// Name: ${scriptName || name || ""}
 ${contents.startsWith("/") ? contents : "\n" + contents}
 `
 }

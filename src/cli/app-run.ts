@@ -405,25 +405,14 @@ let isApp = false
 let isPass = false
 let input = ""
 
-let passGroup = await Promise.all(
-  [
-    kitPath("main", "google.js"),
-    kitPath("main", "suggest.js"),
-    kitPath("main", "sticky.js"),
-    kitPath("main", "term.js"),
-  ].map(parseScript)
-)
-
 let xf = scripts =>
-  scripts
-    .filter(
-      script =>
-        !(
-          script?.exclude ||
-          excludeKenvs.includes(script?.kenv)
-        )
-    )
-    .concat(passGroup)
+  scripts.filter(
+    script =>
+      !(
+        script?.exclude ||
+        excludeKenvs.includes(script?.kenv)
+      ) || script?.pass
+  )
 
 let script = await mainMenu(
   {

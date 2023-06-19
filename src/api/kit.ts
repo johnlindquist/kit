@@ -29,6 +29,7 @@ import {
   formatChoices,
   defaultGroupClassName,
   defaultGroupNameClassName,
+  parseScript,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -979,18 +980,12 @@ export let getApps = async () => {
   ).catch(error => ({
     choices: [],
   }))
+
+  if (choices.length === 0) return []
+
   let groupedApps = choices.map(c => {
     c.group = "Apps"
     return c
-  })
-
-  groupedApps.unshift({
-    name: "Apps",
-    group: "Apps",
-    className: defaultGroupClassName,
-    nameClassName: defaultGroupNameClassName,
-    height: PROMPT.ITEM.HEIGHT.XXS,
-    skip: true,
   })
 
   return groupedApps
@@ -1001,6 +996,7 @@ let groupScripts = scripts => {
     groupKey: "kenv",
     missingGroupName: "Main",
     order: ["Favorite", "Main"],
+    endOrder: ["Apps", "Pass"],
     recentKey: "timestamp",
     recentLimit: process?.env?.KIT_RECENT_LIMIT
       ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
@@ -1022,12 +1018,24 @@ export let mainMenu = async (
     scripts.map(processScript(timestampsDb.stamps))
   )
 
-  let groupedScripts = groupScripts(scripts)
-
   let apps = await getApps()
   if (apps.length) {
-    groupedScripts = groupedScripts.concat(apps)
+    scripts = scripts.concat(apps)
   }
+
+  let passScripts = await Promise.all(
+    [
+      kitPath("cli", "new.js"),
+      kitPath("main", "google.js"),
+      kitPath("main", "suggest.js"),
+      kitPath("main", "sticky.js"),
+      kitPath("main", "term.js"),
+    ].map(parseScript)
+  )
+
+  scripts = scripts.concat(passScripts)
+
+  let groupedScripts = groupScripts(scripts)
 
   let scriptsConfig = buildScriptConfig(message)
   scriptsConfig.keepPreview = true
