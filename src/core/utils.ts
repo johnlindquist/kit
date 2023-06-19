@@ -1357,6 +1357,9 @@ export let groupChoices = (
   return groups
 }
 
+export let defaultGroupClassName = `border-t-1 border-t-ui-border`
+export let defaultGroupNameClassName = `font-mono text-xxs text-text-base/60 uppercase`
+
 export let formatChoices = (
   choices: Choice[],
   className = ""
@@ -1407,15 +1410,14 @@ export let formatChoices = (
 
       let groupedChoices = []
 
-      let defaultGroupClassName = `border-t-1 border-t-ui-border`
-
       properChoice.group = properChoice.name
       properChoice.skip =
         typeof choice?.skip === "undefined"
           ? true
           : choice.skip
       properChoice.className ||= defaultGroupClassName
-      properChoice.nameClassName ||= `font-mono text-xxs text-text-base/60 uppercase`
+      properChoice.nameClassName ||=
+        defaultGroupNameClassName
       properChoice.height ||= PROMPT.ITEM.HEIGHT.XXS
 
       groupedChoices.push({

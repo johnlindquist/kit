@@ -27,6 +27,8 @@ import {
   getKenvs,
   groupChoices,
   formatChoices,
+  defaultGroupClassName,
+  defaultGroupNameClassName,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -971,6 +973,29 @@ async function getScriptResult(
   }
 }
 
+export let getApps = async () => {
+  let { choices } = await readJson(
+    kitPath("db", "apps.json")
+  ).catch(error => ({
+    choices: [],
+  }))
+  let groupedApps = choices.map(c => {
+    c.group = "Apps"
+    return c
+  })
+
+  groupedApps.unshift({
+    name: "Apps",
+    group: "Apps",
+    className: defaultGroupClassName,
+    nameClassName: defaultGroupNameClassName,
+    height: PROMPT.ITEM.HEIGHT.XXS,
+    skip: true,
+  })
+
+  return groupedApps
+}
+
 export let selectScript = async (
   message: string | PromptConfig = "Select a script",
   fromCache = true,
@@ -985,6 +1010,7 @@ export let selectScript = async (
     scripts.map(processScript(timestampsDb.stamps))
   )
   let scriptsConfig = buildScriptConfig(message)
+
   let groupedScripts = groupChoices(scripts, {
     groupKey: "kenv",
     missingGroupName: "Main",
@@ -994,6 +1020,11 @@ export let selectScript = async (
       ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
       : 3,
   })
+
+  let apps = await getApps()
+  if (apps.length) {
+    groupedScripts = groupedScripts.concat(apps)
+  }
 
   scriptsConfig.keepPreview = true
   let script = await global.arg(

@@ -2,12 +2,8 @@
 // Description: Script Kit
 // Log: false
 
+import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import {
-  formatDistanceToNow,
-  parseISO,
-} from "@johnlindquist/kit-internal/date-fns"
-import {
-  Stamp,
   getTimestamps,
   setScriptTimestamp,
 } from "../core/db.js"
@@ -402,6 +398,8 @@ Create a script named <code>${scriptName}</code>
 let excludeKenvs =
   env?.KIT_EXCLUDE_KENVS?.split(",").map(k => k.trim()) ||
   []
+
+let isApp = false
 let script = await selectScript(
   {
     name: "Main",
@@ -409,6 +407,9 @@ let script = await selectScript(
     enter: "Run",
     strict: false,
     onNoChoices,
+    onChoiceFocus: async (input, state) => {
+      isApp = state?.focused?.group === "Apps"
+    },
     // footer: `Script Options: ${cmd}+k`,
     onInputSubmit: {
       "=": kitPath("handler", "equals-handler.js"),
@@ -579,7 +580,10 @@ if (typeof script === "boolean" && !script) {
   exit()
 }
 
-if ((script as Script)?.shebang) {
+if (isApp) {
+  hide()
+  open(script as string)
+} else if ((script as Script)?.shebang) {
   await sendWait(Channel.SHEBANG, script)
 } else if (
   script === Value.NoValue ||
