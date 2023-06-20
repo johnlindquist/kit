@@ -35,7 +35,7 @@ let order = [
   "Git",
   "Share",
   "Export",
-  "DB",
+  // "DB",
   "Run",
 ]
 let scriptFlags: FlagsOptions = {
@@ -215,18 +215,18 @@ ${lastRunBlock}
     description: "Delete the selected script",
     shortcut: `${cmd}+shift+backspace`,
   },
-  ["open-script-database"]: {
-    group: "DB",
-    name: "Open Database",
-    description: "Open the db file for the selected script",
-    shortcut: `${cmd}+b`,
-  },
-  ["clear-script-database"]: {
-    group: "DB",
-    name: "Delete Database",
-    description:
-      "Delete the db file for the selected script",
-  },
+  // ["open-script-database"]: {
+  //   group: "DB",
+  //   name: "Open Database",
+  //   description: "Open the db file for the selected script",
+  //   shortcut: `${cmd}+b`,
+  // },
+  // ["clear-script-database"]: {
+  //   group: "DB",
+  //   name: "Delete Database",
+  //   description:
+  //     "Delete the db file for the selected script",
+  // },
   ["reveal-script"]: {
     group: "Edit",
     name: "Reveal",
