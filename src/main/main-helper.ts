@@ -10,7 +10,8 @@ export let createGuideConfig =
     let getCodeblocks = (name: string): string => {
       let fileMarkdown = sections.find(
         s => s.name === name
-      ).raw
+      )?.raw
+      if (!fileMarkdown) return ""
       let lexer = new marked.Lexer()
       let nodes = lexer.lex(fileMarkdown)
       // Grab all of the code blocks

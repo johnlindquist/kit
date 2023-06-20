@@ -1,9 +1,10 @@
 /*
+# New Script
 
-# Create a New Script
+Create a new script based on the current input
 */
 
-// Name: New Script
+// Name: New Script "{input}"
 // Description: Create a new script
 // Log: false
 // Pass: true

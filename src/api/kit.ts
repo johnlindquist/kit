@@ -1023,14 +1023,21 @@ export let mainMenu = async (
     scripts = scripts.concat(apps)
   }
 
+  let processor = processScript([])
   let passScripts = await Promise.all(
     [
       kitPath("cli", "new.js"),
+      kitPath("cli", "find.js"),
       kitPath("main", "google.js"),
-      kitPath("main", "suggest.js"),
+      kitPath("main", "datamuse.js"),
+      kitPath("main", "giphy.js"),
       kitPath("main", "sticky.js"),
       kitPath("main", "term.js"),
-    ].map(parseScript)
+    ].map(async scriptPath => {
+      let script = processor(await parseScript(scriptPath))
+
+      return script
+    })
   )
 
   scripts = scripts.concat(passScripts)
@@ -1070,7 +1077,7 @@ export let selectScript = async (
 }
 
 export let processScript =
-  (timestamps: Stamp[]) =>
+  (timestamps: Stamp[] = []) =>
   async (s: Script): Promise<Script> => {
     let stamp = timestamps.find(
       t => t.filePath === s.filePath

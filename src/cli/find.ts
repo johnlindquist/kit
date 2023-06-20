@@ -1,4 +1,12 @@
-// Name: Search Scripts and Logs
+/*
+# Find a Script
+
+Search and select scripts by contents
+*/
+
+// Name: Find Script
+// Description: Search the Contents of Scripts
+// Pass: true
 import "@johnlindquist/kit"
 import {
   backToMainShortcut,
@@ -20,6 +28,7 @@ for await (let dir of searchDirs) {
 }
 let filePath = await arg(
   {
+    input: (flag?.pass as string) || "",
     placeholder: "Search Scripts",
     debounceInput: 400,
     enter: "Run",

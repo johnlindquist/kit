@@ -1,3 +1,11 @@
+/* 
+# Sticky Notes
+
+Opens a quick editor for taking notes. 
+
+Notes are saved to `~/.kenv/sticky.md`.
+*/
+
 // Name: Sticky Pad
 // Description: Take Quick Notes
 // Pass: true
@@ -14,7 +22,6 @@ let changed = false
 
 if (arg?.pass) {
   contents = `${contents}
-  
 ${arg?.pass}`
 }
 

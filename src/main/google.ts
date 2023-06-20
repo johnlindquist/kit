@@ -1,3 +1,9 @@
+/*
+# Google Search
+
+Perform a basic Google search
+*/
+
 // Name: Google
 // Description: Search Google for Information
 // Pass: true

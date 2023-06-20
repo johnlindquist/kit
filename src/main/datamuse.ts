@@ -1,5 +1,12 @@
+/*
+# DataMuse API
+
+Find Similar Words, Rhymes, Sounds Like, etc.
+*/
+
 // Name: Word API
 // Description: Find Word Alternatives
+// Pass: true
 
 let queryWords = (api, type) => async input => {
   if (!input || input?.length < 3)
@@ -70,7 +77,7 @@ let wordApi = async (api, type, input = "") => {
 }
 
 onTab("Spell", async input => {
-  await wordApi("sug", "s", input)
+  await wordApi("sug", "s", (flag?.pass as string) || input)
 })
 
 onTab("Synonym", async input => {

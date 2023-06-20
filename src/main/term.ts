@@ -1,3 +1,9 @@
+/*
+# Terminal
+
+Run a command in the built-in terminal.
+*/
+
 // Name: Kit Terminal
 // Description: Built-in Terminal
 // Pass: true
