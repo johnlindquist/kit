@@ -115,6 +115,7 @@ export interface ScriptMetadata {
   preview?: Choice["preview"]
   debug?: boolean
   verbose?: boolean
+  cache?: boolean
 }
 
 export type Script = ScriptMetadata &

@@ -4,6 +4,7 @@
 // UI: arg
 // Log: false
 // Exclude: true
+// Cache: true
 
 setDescription(`Script Kit`)
 export interface Main {
