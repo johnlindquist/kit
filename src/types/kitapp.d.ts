@@ -379,6 +379,7 @@ export type SendNoOptions =
   | Channel.BEEP
   | Channel.PING
   | Channel.PONG
+  | Channel.PRELOAD_MAIN_SCRIPT
 export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined

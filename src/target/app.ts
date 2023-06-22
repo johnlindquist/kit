@@ -1860,6 +1860,7 @@ global.mainScript = async (
   input: string = "",
   tab: string
 ) => {
+  send(Channel.PRELOAD_MAIN_SCRIPT)
   global.args = []
   global.flags = {}
   if (process.env.KIT_CONTEXT === "app") {
