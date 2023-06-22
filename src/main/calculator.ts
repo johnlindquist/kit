@@ -3,7 +3,6 @@
 
 import { backToMainShortcut } from "../core/utils.js"
 
-setChoices([])
 let { default: calc } = await import("advanced-calculator")
 let input = args?.shift() || ""
 
@@ -39,7 +38,7 @@ let result = await arg(
       return [
         {
           name: `Waiting for input...`,
-          disableSubmit: true,
+          info: "onNoChoices",
         },
       ]
     }
@@ -54,7 +53,17 @@ let result = await arg(
           },
         ]
       }
-      let html = format(String(calc.evaluate(input)))
+      let result = String(calc.evaluate(input))
+
+      if (result === "Invalid input") {
+        return [
+          {
+            name: `Invalid Input 🤔`,
+            info: "onNoChoices",
+          },
+        ]
+      }
+      let html = format(result)
       return [
         {
           html,
@@ -65,7 +74,7 @@ let result = await arg(
       return [
         {
           name: `Failed to parse: ${input}`,
-          disableSubmit: true,
+          info: "onNoChoices",
         },
       ]
     }

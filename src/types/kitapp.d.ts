@@ -601,7 +601,6 @@ export interface ChannelMap {
   [Channel.VERIFY_FULL_DISK_ACCESS]: undefined
   [Channel.SET_ALWAYS_ON_TOP]: boolean
   [Channel.SET_APPEARANCE]: Appearance
-  [Channel.DISABLE_BACKGROUND_THROTTLING]: DisabledThottlingConfig
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void

@@ -811,15 +811,6 @@ global.kitPrompt = async (config: PromptConfig) => {
     placeholder = "",
     scriptPath = "",
   } = config
-  send(Channel.DISABLE_BACKGROUND_THROTTLING, {
-    headerClassName,
-    footerClassName,
-    ui,
-    inputHeight,
-    itemHeight,
-    placeholder,
-    scriptPath,
-  })
   promptId++
   global.__currentPromptSecret = config.secret || false
   global.currentUI = config?.ui || UI.arg
@@ -2236,8 +2227,8 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       enter: "Select",
       // TODO: If I want resize, I need to create choices first?
       onInit: async () => {
-        await wait(250)
         setResize(true)
+        lsCurrentDir(startPath)
       },
       shortcuts: [
         {
