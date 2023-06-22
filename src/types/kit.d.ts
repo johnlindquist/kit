@@ -418,4 +418,6 @@ declare global {
     choices: Choice[],
     className?: string
   ) => Choice[]
+
+  var preload: () => void
 }

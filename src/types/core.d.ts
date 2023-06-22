@@ -45,6 +45,7 @@ export interface Choice<Value = any> {
   info?: undefined | "always" | "onNoChoices"
   height?: number
   skip?: boolean
+  miss?: boolean
   pass?: boolean
   group?: string
   userGrouped?: boolean
@@ -117,6 +118,8 @@ export interface ScriptMetadata {
   debug?: boolean
   verbose?: boolean
   cache?: boolean
+  note?: string
+  group?: string
 }
 
 export type Script = ScriptMetadata &

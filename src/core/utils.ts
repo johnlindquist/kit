@@ -425,6 +425,11 @@ export let formatScriptMetadata = (
       Boolean(metadata?.exclude === "true")
   }
 
+  if (metadata?.group) {
+    ;(metadata as unknown as ScriptMetadata).group =
+      metadata?.group
+  }
+
   metadata.type = metadata?.schedule
     ? ProcessType.Schedule
     : metadata?.watch
@@ -1214,6 +1219,7 @@ export let groupChoices = (
     skip: true,
     group: "Recent",
     name: "Recent",
+    value: "Recent",
     choices: [],
   }
 
@@ -1221,6 +1227,7 @@ export let groupChoices = (
     skip: true,
     pass: true,
     group: "Pass",
+    value: "Pass",
     name: 'Pass "{input}" to...',
     choices: [],
   }
@@ -1242,16 +1249,22 @@ export let groupChoices = (
           skip: true,
           group: missingGroupName,
           name: missingGroupName,
+          value: missingGroupName,
           choices: [choice],
         }
         groups.push(missingGroup)
       }
     } else {
-      const groupParent = groups.find(
-        g =>
-          g?.group === choice?.group ||
-          g?.group === choice[groupKey]
-      )
+      let groupParent: { choices: Choice[] }
+      if (choice?.group) {
+        groupParent = groups.find(
+          g => g?.group === choice?.group
+        )
+      } else {
+        groupParent = groups.find(
+          g => g?.group === choice?.[groupKey]
+        )
+      }
       let userGrouped = choice?.group ? true : false
       choice.group ||= choice[groupKey]
       choice.hideWithoutInput ||= hideWithoutInput.includes(
@@ -1265,6 +1278,7 @@ export let groupChoices = (
           userGrouped,
           group: choice?.group || choice[groupKey],
           name: choice?.group || choice[groupKey],
+          value: choice?.group || choice[groupKey],
           choices: [choice],
           hideWithoutInput: hideWithoutInput.includes(
             choice?.group || choice[groupKey]
@@ -1446,6 +1460,8 @@ export let formatChoices = (
         return properChoice
       }
 
+      delete properChoice.choices
+
       let isArray = Array.isArray(choiceChoices)
       if (!isArray) {
         throw new Error(
@@ -1465,10 +1481,7 @@ export let formatChoices = (
         defaultGroupNameClassName
       properChoice.height ||= PROMPT.ITEM.HEIGHT.XXXS
 
-      groupedChoices.push({
-        ...properChoice,
-        choices: undefined,
-      })
+      groupedChoices.push(properChoice)
 
       choiceChoices.forEach(subChoice => {
         if (typeof subChoice === "undefined") {
@@ -1489,7 +1502,6 @@ export let formatChoices = (
             className,
             hasPreview: Boolean(subChoice?.preview),
             ...subChoice,
-            choices: undefined,
           })
         } else {
           groupedChoices.push({
@@ -1501,7 +1513,6 @@ export let formatChoices = (
             group: choice?.name,
             className,
             id: uuid(),
-            choices: undefined,
           })
         }
       })

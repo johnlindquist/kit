@@ -1192,11 +1192,18 @@ export let processWithNoPreview = async (
     return markdown + js
   }
 
+  let markdown = md(`# ${s.name}
+${s?.description ? s.description : ""}
+${s?.note ? `> ${s.note}` : ""}
+`)
+
   let content = await highlightJavaScript(
     preview,
     s?.shebang || ""
   )
-  return infoBlock ? md(infoBlock) : `` + content
+  return (
+    markdown + (infoBlock ? md(infoBlock) : `` + content)
+  )
 }
 
 global.selectScript = selectScript
@@ -1398,3 +1405,7 @@ global.browse = (url: string) => {
 }
 
 global.PROMPT = PROMPT
+
+global.preload = () => {
+  send(Channel.PRELOAD, global.kitScript)
+}

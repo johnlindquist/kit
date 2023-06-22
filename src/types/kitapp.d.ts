@@ -379,7 +379,6 @@ export type SendNoOptions =
   | Channel.BEEP
   | Channel.PING
   | Channel.PONG
-  | Channel.PRELOAD_MAIN_SCRIPT
 export interface ChannelMap {
   // Figure these undefined out later
   [Channel.GET_BACKGROUND]: undefined
@@ -602,6 +601,7 @@ export interface ChannelMap {
   [Channel.VERIFY_FULL_DISK_ACCESS]: undefined
   [Channel.SET_ALWAYS_ON_TOP]: boolean
   [Channel.SET_APPEARANCE]: Appearance
+  [Channel.PRELOAD]: string
 }
 export interface Send {
   (channel: GetAppData | SendNoOptions): void

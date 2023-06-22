@@ -4,7 +4,7 @@
 Create a new script based on the current input
 */
 
-// Name: New Script "{input}"
+// Name: New Script
 // Description: Create a new script
 // Log: false
 // Pass: true

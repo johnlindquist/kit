@@ -469,6 +469,13 @@ let script = await mainMenu(
         },
       },
       {
+        name: "Quick New",
+        key: `${cmd}+shift+n`,
+        onPress: async () => {
+          await run(kitPath("cli", "new.js"))
+        },
+      },
+      {
         name: "List Processes",
         key: `${cmd}+p`,
         onPress: async () => {

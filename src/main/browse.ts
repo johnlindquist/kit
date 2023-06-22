@@ -1,5 +1,8 @@
 // Name: Path Browser
 // Description: Select a Path
+// Cache: true
+
+preload()
 
 import {
   backToMainShortcut,

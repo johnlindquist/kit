@@ -6,6 +6,9 @@ import {
 } from "../core/utils.js"
 // Name: App Launcher
 // Description: Select an App to Launch
+// Cache: true
+
+preload()
 
 let findAppsAndPrefs = async () => {
   log(`findAppsAndPrefs`)
@@ -125,38 +128,40 @@ let appsDb = await db(
     setPlaceholder(`One sec...`)
 
     let choices = await createChoices()
-    setFooter(``)
     return {
       choices,
     }
   }
 )
-let app = await arg(
-  {
-    key: "app-launcher",
-    input: (flag?.input as string) || "",
-    resize: true,
-    placeholder: "Select an app to launch",
-    shortcuts: [
-      backToMainShortcut,
-      {
-        name: "Refresh Apps",
-        key: `${cmd}+enter`,
-        bar: "right",
-        onPress: async input => {
-          setPlaceholder(`Refreshing apps...`)
-          await remove(kitPath("db", "apps.json"))
-          await run(
-            kitPath("main", "app-launcher.js"),
-            "--input",
-            input
-          )
+
+if (!flag?.prep) {
+  let app = await arg(
+    {
+      key: "app-launcher",
+      input: (flag?.input as string) || "",
+      resize: true,
+      placeholder: "Select an app to launch",
+      shortcuts: [
+        backToMainShortcut,
+        {
+          name: "Refresh Apps",
+          key: `${cmd}+enter`,
+          bar: "right",
+          onPress: async input => {
+            setPlaceholder(`Refreshing apps...`)
+            await remove(kitPath("db", "apps.json"))
+            await run(
+              kitPath("main", "app-launcher.js"),
+              "--input",
+              input
+            )
+          },
         },
-      },
-    ],
-  },
-  appsDb.choices as any
-)
-if (app) {
-  open(app)
+      ],
+    },
+    appsDb.choices as any
+  )
+  if (app) {
+    open(app)
+  }
 }

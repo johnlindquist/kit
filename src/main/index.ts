@@ -2,7 +2,6 @@
 // Description: Script Kit
 // Placeholder: Run script
 // UI: arg
-// Log: false
 // Exclude: true
 // Cache: true
 

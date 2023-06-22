@@ -802,15 +802,6 @@ let determineChoicesType = choices => {
 global.__currentPromptSecret = false
 global.__currentPromptConfig = {}
 global.kitPrompt = async (config: PromptConfig) => {
-  let {
-    headerClassName = "",
-    footerClassName = "",
-    ui = UI.arg,
-    inputHeight = PROMPT.INPUT.HEIGHT.BASE,
-    itemHeight = PROMPT.ITEM.HEIGHT.BASE,
-    placeholder = "",
-    scriptPath = "",
-  } = config
   promptId++
   global.__currentPromptSecret = config.secret || false
   global.currentUI = config?.ui || UI.arg
@@ -1862,7 +1853,8 @@ global.mainScript = async (
   input: string = "",
   tab: string
 ) => {
-  send(Channel.PRELOAD_MAIN_SCRIPT)
+  send(Channel.PRELOAD, mainScriptPath)
+  setPlaceholder("Run Script")
   global.args = []
   global.flags = {}
   if (process.env.KIT_CONTEXT === "app") {
@@ -2012,6 +2004,21 @@ let __pathSelector = async (
           dirFilter,
           onlyDirs,
         })
+
+        choices.push({
+          name: `Create File "{base}"`,
+          miss: true,
+          value: "create-file",
+          enter: "Create File",
+        })
+
+        choices.push({
+          name: `Create Folder "{base}"`,
+          miss: true,
+          value: "create-folder",
+          enter: "Create Folder",
+        })
+
         await setChoices(choices)
         setPauseResize(false)
         if (focusOn) setFocused(focusOn)
@@ -2084,7 +2091,9 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
+  let currentInput = ``
   let onInput = async (input, state) => {
+    currentInput = input
     setEnter("Select")
     if (onInputHook) onInputHook(input, state)
     // if (input.endsWith(">")) {
@@ -2157,27 +2166,6 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     upDir(state.focused.value)
   }
 
-  let onNoChoices = async input => {
-    let isCurrentDir = await isDir(path.resolve(input))
-    if (isCurrentDir) return
-    let hasExtension = path.extname(input) !== ""
-    if (hasExtension) {
-      setEnter("Create File")
-      setPanel(
-        md(`# Create and Select File
-
-> <code>${input}</code>`)
-      )
-    } else {
-      setEnter("Create Folder")
-      setPanel(
-        md(`# Create and Select Folder
-
-> <code>${input}</code>`)
-      )
-    }
-  }
-
   let onEscape = async () => {
     await mainScript()
   }
@@ -2225,7 +2213,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       onTab,
       // onRight,
       // onLeft,
-      onNoChoices,
+      // onNoChoices,
       onEscape,
       enter: "Select",
       // TODO: If I want resize, I need to create choices first?
@@ -2271,11 +2259,18 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   )
 
   if (!selectedPath) return ""
-  let doesPathExist = await pathExists(selectedPath)
-  if (!doesPathExist) {
-    if (path.extname(selectedPath)) {
+  if (selectedPath === "create-file") {
+    selectedPath = currentInput
+    let doesPathExist = await pathExists(selectedPath)
+    if (!doesPathExist) {
       await ensureFile(selectedPath)
-    } else {
+    }
+  }
+
+  if (selectedPath === "create-folder") {
+    selectedPath = currentInput
+    let doesPathExist = await pathExists(selectedPath)
+    if (!doesPathExist) {
       await ensureDir(selectedPath)
     }
   }
