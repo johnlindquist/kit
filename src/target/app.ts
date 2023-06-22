@@ -1366,7 +1366,7 @@ global.arg = async (
   if (!choices)
     height =
       PROMPT.HEIGHT.HEADER +
-      PROMPT.INPUT.HEIGHT.BASE +
+      PROMPT.INPUT.HEIGHT.SM +
       PROMPT.HEIGHT.FOOTER
   if (typeof placeholderOrConfig === "object") {
     let {
@@ -1389,6 +1389,8 @@ global.arg = async (
   let promptConfig: PromptConfig = {
     ui: UI.arg,
     enter: "Submit",
+    inputHeight: PROMPT.INPUT.HEIGHT.SM,
+    itemHeight: PROMPT.ITEM.HEIGHT.SM,
     hint,
     height,
     resize: !choices ? true : undefined,

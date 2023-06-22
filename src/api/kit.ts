@@ -1001,6 +1001,7 @@ let groupScripts = scripts => {
     recentLimit: process?.env?.KIT_RECENT_LIMIT
       ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
       : 3,
+    hideWithoutInput: ["Apps"],
   })
 }
 

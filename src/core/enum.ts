@@ -526,7 +526,7 @@ export const PROMPT = {
     HEIGHT: {
       XXS: 32,
       XS: 40,
-      SM: 48,
+      SM: 46,
       BASE: 56,
       LG: 64,
       XL: 72,

@@ -531,11 +531,7 @@ export let parseScript = async (
       metadata.name ||
       metadata.menu ||
       parsedFilePath.command,
-    description: metadata.description
-      ? metadata.description
-      : metadata.name || metadata.menu
-      ? parsedFilePath.command
-      : "",
+    description: metadata.description || "",
   }
 
   return result
@@ -1196,12 +1192,14 @@ export let groupChoices = (
     sortChoicesKey,
     recentKey,
     recentLimit,
+    hideWithoutInput,
   } = {
     groupKey: "group",
     missingGroupName: "No Group",
     order: [],
     endOrder: [],
     sortChoicesKey: [],
+    hideWithoutInput: [],
     recentKey: "",
     recentLimit: 3,
     ...options,
@@ -1230,6 +1228,7 @@ export let groupChoices = (
   let putIntoGroups = choice => {
     if (choice?.pass) {
       choice.group = "Pass"
+      choice.preview = `<div></div>`
       passGroup.choices.push(choice)
     } else if (
       !Boolean(choice?.group) &&
@@ -1255,6 +1254,9 @@ export let groupChoices = (
       )
       let userGrouped = choice?.group ? true : false
       choice.group ||= choice[groupKey]
+      choice.hideWithoutInput ||= hideWithoutInput.includes(
+        choice?.group || choice[groupKey]
+      )
       if (groupParent) {
         groupParent.choices.push(choice)
       } else {
@@ -1264,6 +1266,9 @@ export let groupChoices = (
           group: choice?.group || choice[groupKey],
           name: choice?.group || choice[groupKey],
           choices: [choice],
+          hideWithoutInput: hideWithoutInput.includes(
+            choice?.group || choice[groupKey]
+          ),
         })
       }
     }
@@ -1458,7 +1463,7 @@ export let formatChoices = (
       properChoice.className ||= defaultGroupClassName
       properChoice.nameClassName ||=
         defaultGroupNameClassName
-      properChoice.height ||= PROMPT.ITEM.HEIGHT.XXS
+      properChoice.height ||= PROMPT.ITEM.HEIGHT.XXXS
 
       groupedChoices.push({
         ...properChoice,
