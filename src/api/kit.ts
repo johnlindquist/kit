@@ -1441,7 +1441,9 @@ global.browse = (url: string) => {
 global.PROMPT = PROMPT
 
 global.preload = (scriptPath?: string) => {
-  process.off("message", global.__kitMessageHandler)
-  process.off("error", global.__kitErrorHandler)
-  send(Channel.PRELOAD, scriptPath || global.kitScript)
+  if (process.send) {
+    process.off("message", global.__kitMessageHandler)
+    process.off("error", global.__kitErrorHandler)
+    send(Channel.PRELOAD, scriptPath || global.kitScript)
+  }
 }
