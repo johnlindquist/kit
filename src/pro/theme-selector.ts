@@ -6,7 +6,7 @@ let themes = {
     foreground: "white",
     background: "17, 17, 17",
     accent: "251, 191, 36",
-    opacity: isMac ? "0.5" : "1",
+    opacity: isMac ? "0.4" : "1",
     ui: "255, 255, 255",
     "ui-bg-opacity": "0.05",
     "ui-border-opacity": "0.15",
