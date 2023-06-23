@@ -47,7 +47,7 @@ global.fileSearch = async (
     stdout = `No results for ${name}`
   }
 
-  return stdout.split("\n").filter(Boolean)
+  return stdout.split("\r\n").filter(Boolean)
 }
 
 global.selectKitEditor = async () => {

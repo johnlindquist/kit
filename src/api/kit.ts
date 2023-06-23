@@ -63,15 +63,30 @@ export let errorPrompt = async (error: Error) => {
 
     let secondLine = stackWithoutId.split("\n")?.[1] || ""
 
+    // TODO: This is broken on Windows...
     if (secondLine?.match("at file://")) {
-      errorFile = secondLine
-        .replace("at file://", "")
-        .replace(/:.*/, "")
-        .trim()
-      ;[, line, col] = secondLine
-        .replace("at file://", "")
-        .split(":")
+      if (isWin) {
+        errorFile = path.normalize(
+          secondLine
+            .replace("at file:///", "")
+            .replace(/:\d+/g, "")
+            .trim()
+        )
+        ;[, , line, col] = secondLine
+          .replace("at file:///", "")
+          .split(":")
+      } else {
+        errorFile = secondLine
+          .replace("at file://", "")
+          .replace(/:.*/, "")
+          .trim()
+        ;[, line, col] = secondLine
+          .replace("at file://", "")
+          .split(":")
+      }
     }
+
+    // END TODO
 
     let script = global.kitScript.replace(/.*\//, "")
     let errorToCopy = `${error.message}\n${error.stack}`

@@ -98,23 +98,29 @@ let createChoices = async () => {
     await Promise.all(
       allApps.map(async appPath => {
         let { base: appName } = path.parse(appPath)
-        let destination = path.resolve(
-          assetsPath,
-          `${appName}.png`
-        )
-
+        let img = path.resolve(assetsPath, `${appName}.png`)
         let value = appPath.replace(/\r?\n?$/i, "")
+
+        if (isWin) {
+          try {
+            let data = await extractIcon(
+              appPath.trim()
+            ).catch(() => undefined)
+            let buff = Buffer.from(
+              data.replace(/^data:image\/png;base64,/, ""),
+              "base64"
+            )
+            await ensureDir(path.dirname(img))
+            await writeFile(img, buff)
+          } catch (error) {}
+        }
+
         return {
           id: value,
           name: appName.replace(/\.(app|lnk|url)\s*$/i, ""),
           value,
           description: appPath.replace(/\r?\n?$/i, ""),
-          img:
-            process.platform === "darwin"
-              ? destination
-              : await extractIcon(appPath.trim()).catch(
-                  () => undefined
-                ),
+          img,
           enter: `Open`,
         }
       })
