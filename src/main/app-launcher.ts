@@ -8,6 +8,8 @@ import {
 // Description: Select an App to Launch
 // Cache: true
 
+if (isLinux) exit()
+
 preload()
 
 let findAppsAndPrefs = async () => {

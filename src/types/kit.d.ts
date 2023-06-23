@@ -419,5 +419,5 @@ declare global {
     className?: string
   ) => Choice[]
 
-  var preload: () => void
+  var preload: (scriptPath?: string) => void
 }

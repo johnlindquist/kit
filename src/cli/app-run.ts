@@ -461,16 +461,16 @@ let script = await mainMenu(
 
     shortcuts: [
       {
-        name: "New",
-        key: `${cmd}+n`,
-        bar: "left",
+        name: "New Menu",
+        key: `${cmd}+shift+n`,
         onPress: async () => {
           await run(kitPath("cli", "new-menu.js"))
         },
       },
       {
-        name: "Quick New",
-        key: `${cmd}+shift+n`,
+        name: "New",
+        key: `${cmd}+n`,
+        bar: "left",
         onPress: async () => {
           await run(kitPath("cli", "new.js"))
         },
@@ -539,8 +539,8 @@ let script = await mainMenu(
         },
       },
       {
-        name: "Export",
-        key: `${cmd}+e`,
+        name: "Share",
+        key: `${cmd}+s`,
         condition: c => !c.needsDebugger,
         onPress: async (input, { focused }) => {
           await run(
@@ -560,16 +560,16 @@ let script = await mainMenu(
         },
         bar: "right",
       },
-      {
-        name: "Share",
-        key: `${cmd}+s`,
-        onPress: async (input, { focused }) => {
-          await run(
-            kitPath("cli", "share-script-as-discussion.js"),
-            focused?.value?.filePath
-          )
-        },
-      },
+      // {
+      //   name: "Share",
+      //   key: `${cmd}+s`,
+      //   onPress: async (input, { focused }) => {
+      //     await run(
+      //       kitPath("cli", "share-script-as-discussion.js"),
+      //       focused?.value?.filePath
+      //     )
+      //   },
+      // },
     ],
     //     onInput: async (input, { count }) => {
     //       if (count === 0) {

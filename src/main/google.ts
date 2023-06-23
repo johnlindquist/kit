@@ -89,22 +89,47 @@ await arg(
         },
       ]
     currentInput = input
-    let response = await google.search(input, options)
+    try {
+      let response = await google.search(input, options)
 
-    return response.results.map(r => {
-      let url = new URL(r.url)
-      let img = `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`
-      return {
-        name: r.title,
-        description: r.url,
-        value: r.url,
-        img: r?.favicons?.high_res || img,
-        preview: md(`# ${r.title}
-${r.description}
+      const results = response.results.map(r => {
+        let url = new URL(r.url)
+        let img = `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`
+        return {
+          name: r.title,
+          description: r.url,
+          value: r.url,
+          img: r?.favicons?.high_res || img,
+          preview: md(`# ${r.title}
+  ${r.description}
+  
+  ${r.url}`),
+        }
+      })
 
-${r.url}`),
+      if (results.length) {
+        return results
+      } else {
+        return [
+          {
+            name: `🤔 No Results... Open google.com?`,
+            miss: true,
+            enter: "Open Google",
+            value: `https://google.com/search?q=${encodeURIComponent(
+              input
+            )}`,
+          } as any,
+        ]
       }
-    })
+    } catch (e) {
+      return [
+        {
+          name: `Error: ${e.message}`,
+          description: `Try again later...`,
+          value: `Try again`,
+        },
+      ]
+    }
   }
 )
 open(url)

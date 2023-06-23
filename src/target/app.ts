@@ -318,19 +318,25 @@ let waitForPromptValue = ({
     })
 
     let process$ = new Observable<AppMessage>(observer => {
-      let m = (data: AppMessage) => {
+      global.__kitMessageHandler = (data: AppMessage) => {
         observer.next(data)
       }
-      let e = (error: Error) => {
+      global.__kitErrorHandler = (error: Error) => {
         observer.error(error)
       }
-      process.on("message", m)
-      process.on("error", e)
-      global.__emitter__.on("message", m)
+      process.on("message", global.__kitMessageHandler)
+      process.on("error", global.__kitErrorHandler)
+      global.__emitter__.on(
+        "message",
+        global.__kitMessageHandler
+      )
       return () => {
-        process.off("message", m)
-        process.off("error", e)
-        global.__emitter__.off("message", m)
+        process.off("message", global.__kitMessageHandler)
+        process.off("error", global.__kitErrorHandler)
+        global.__emitter__.off(
+          "message",
+          global.__kitMessageHandler
+        )
       }
     }).pipe(takeUntil(kitPrompt$), share())
 
@@ -1853,7 +1859,7 @@ global.mainScript = async (
   input: string = "",
   tab: string
 ) => {
-  send(Channel.PRELOAD, mainScriptPath)
+  preload(mainScriptPath)
   setPlaceholder("Run Script")
   global.args = []
   global.flags = {}

@@ -23,6 +23,7 @@ let trigger = ""
 let args = []
 let result = null
 process.title = `Kit Idle - App Prompt`
+
 try {
   result = await new Promise<{
     script: string
