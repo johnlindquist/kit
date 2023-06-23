@@ -51,6 +51,7 @@ export interface Choice<Value = any> {
   userGrouped?: boolean
   choices?: (Omit<Choice<any>, "choices"> | string)[]
   hideWithoutInput?: boolean
+  ignoreFlags?: boolean
 }
 
 export interface ScoredChoice {

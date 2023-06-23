@@ -1019,12 +1019,15 @@ export let mainMenu = async (
     scripts.map(processScript(timestampsDb.stamps))
   )
 
-  let apps = await getApps()
+  let apps = (await getApps()).map(a => {
+    a.ignoreFlags = true
+    a.description = a.filePath
+    return a
+  })
   if (apps.length) {
     scripts = scripts.concat(apps)
   }
 
-  let processor = processScript([])
   let passScripts = await Promise.all(
     [
       kitPath("cli", "new.js"),
@@ -1035,7 +1038,8 @@ export let mainMenu = async (
       kitPath("main", "sticky.js"),
       kitPath("main", "term.js"),
     ].map(async scriptPath => {
-      let script = processor(await parseScript(scriptPath))
+      let script = await parseScript(scriptPath)
+      script.ignoreFlags = true
 
       return script
     })
@@ -1047,6 +1051,14 @@ export let mainMenu = async (
 
   let scriptsConfig = buildScriptConfig(message)
   scriptsConfig.keepPreview = true
+
+  groupedScripts = groupedScripts.map(s => {
+    if (s.group === "Pass") {
+      s.ignoreFlags = true
+    }
+
+    return s
+  })
 
   let script = await global.arg(
     scriptsConfig,
