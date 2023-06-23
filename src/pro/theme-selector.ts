@@ -4,11 +4,11 @@ import "@johnlindquist/kit"
 let themes = {
   ["Script Kit"]: {
     foreground: "white",
-    background: "0, 0, 0",
+    background: "17, 17, 17",
     accent: "251, 191, 36",
     opacity: isMac ? "0.5" : "1",
     ui: "255, 255, 255",
-    "ui-bg-opacity": "0.07",
+    "ui-bg-opacity": "0.05",
     "ui-border-opacity": "0.15",
   },
   ["Script Kit Light"]: {
