@@ -3,20 +3,26 @@
 import "@johnlindquist/kit"
 let themes = {
   ["Script Kit"]: {
-    foreground: "white",
-    background: "17, 17, 17",
+    foreground: "255, 255, 255",
+    background: "22, 22, 22",
     accent: "251, 191, 36",
-    opacity: isMac ? "0.4" : "1",
+    opacity: kitState.isMac ? "0.5" : "0.95",
     ui: "255, 255, 255",
     "ui-bg-opacity": "0.05",
     "ui-border-opacity": "0.15",
+    vibrancy: "popover",
+    appearance: "dark",
   },
   ["Script Kit Light"]: {
     foreground: "2C2C2C",
     accent: "2F86D3",
     background: "white",
-    opacity: isMac ? "0.5" : "1",
+    opacity: kitState.isMac ? "0.75" : "1",
     ui: "204, 204, 204",
+    "ui-bg-opacity": kitState.isMac ? "0.25" : "0.5",
+    "ui-border-opacity": "0.5",
+    vibrancy: "popover",
+    appearance: "light",
   },
   ["One Dark Pro"]: {
     foreground: "ABB2BF",

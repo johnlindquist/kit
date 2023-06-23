@@ -1205,6 +1205,13 @@ export let processWithNoPreview = async (
   }
 
   let markdown = md(`# ${s.name}
+
+~~~
+${path.basename(s?.filePath)}
+~~~
+
+<div class="pb-2.5"></div>
+
 ${s?.description ? s.description : ""}
 ${s?.note ? `> ${s.note}` : ""}
 `)

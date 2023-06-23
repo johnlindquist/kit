@@ -58,7 +58,17 @@ let createChoices = async () => {
       : () => Promise.resolve(undefined)
   setLoading(true)
   let { apps, prefs } = await findAppsAndPrefs()
-  let allApps = uniq(apps.concat(prefs))
+  let allApps = uniq(apps.concat(prefs)).filter(appPath => {
+    if (appPath.includes("/opt/")) return false
+    if (appPath.includes("/Updater.app")) return false
+    if (appPath.includes("(Parallels)")) return false
+    if (appPath.includes("/Contents/")) return false
+    if (appPath.includes("/Uninstall")) return false
+    if (appPath.includes("/PrivateFrameworks")) return false
+    if (appPath.includes("/CoreServices")) return false
+
+    return true
+  })
 
   let assetsPath = kitPath(
     "assets",
