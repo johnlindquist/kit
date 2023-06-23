@@ -14,7 +14,9 @@ setAlwaysOnTop(true)
 await div(
   await highlight(`## ${message}
 
+~~~js
 ${content}
+~~~
 `)
 )
 
