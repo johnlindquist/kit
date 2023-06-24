@@ -512,7 +512,9 @@ export interface ChannelMap {
     [key: string]: string
   }
   [Channel.SET_UNFILTERED_CHOICES]: Choice[]
+  [Channel.SET_CHOICES_CONFIG]: { preload: boolean }
   [Channel.SET_SCORED_CHOICES]: ScoredChoice[]
+  [Channel.SET_SCORED_FLAGS]: ScoredChoice[]
   [Channel.SET_DARK]: boolean
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_EDITOR_CONFIG]: EditorConfig

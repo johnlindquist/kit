@@ -1447,6 +1447,8 @@ export let formatChoices = (
         slicedDescription:
           choice?.description?.slice(0, 63) || "",
         value: choice?.value || choice,
+        nameClassName: choice?.info ? "text-primary" : "",
+        skip: choice?.info ? true : false,
         className:
           choice?.className || choice?.choices
             ? ""
