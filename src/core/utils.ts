@@ -395,9 +395,7 @@ export let formatScriptMetadata = (
   // A shortcode allows you to run the script using "spacebar"
   if (metadata?.shortcode) {
     ;(metadata as unknown as ScriptMetadata).shortcode =
-      metadata?.shortcode
-        ?.split(" ")
-        .map(sc => sc.trim().toLowerCase())
+      metadata?.shortcode?.trim()?.toLowerCase()
   }
 
   // An alias brings the script to the top of the list

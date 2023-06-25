@@ -19,7 +19,7 @@ export interface Choice<Value = any> {
       ) => string | Promise<string>)
   previewLang?: string
   id?: string
-  shortcode?: string[]
+  shortcode?: string
   className?: string
   nameClassName?: string
   tagClassName?: string
@@ -81,7 +81,7 @@ export interface ScriptMetadata {
   menu?: string
   description?: string
   shortcut?: string
-  shortcode?: string[]
+  shortcode?: string
   friendlyShortcut?: string
   alias?: string
   author?: string
