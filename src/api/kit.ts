@@ -50,6 +50,17 @@ global.isLinux = os.platform().startsWith("linux")
 global.cmd = global.isMac ? "cmd" : "ctrl"
 
 export let errorPrompt = async (error: Error) => {
+  if (global.__kitAbandoned) {
+    let { name } = path.parse(global.kitScript)
+    let errorLog = path.resolve(
+      path.dirname(path.dirname(global.kitScript)),
+      "logs",
+      `${name}.log`
+    )
+
+    await appendFile(errorLog, `\nAbandonned. Exiting...`)
+    exit()
+  }
   if (process.env.KIT_CONTEXT === "app") {
     global.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
     let stackWithoutId =
@@ -381,7 +392,9 @@ global.attemptImport = async (scriptPath, ..._args) => {
   return importResult
 }
 
+global.__kitAbandoned = false
 global.send = (channel: Channel, value?: any) => {
+  if (global.__kitAbandoned) return null
   if (process?.send) {
     try {
       process.send({
@@ -1475,8 +1488,10 @@ global.PROMPT = PROMPT
 
 global.preload = (scriptPath?: string) => {
   if (process.send) {
-    process.off("message", global.__kitMessageHandler)
-    process.off("error", global.__kitErrorHandler)
+    if (global.__kitDetachFromApp) {
+      global.__kitDetachFromApp()
+    }
+
     send(Channel.PRELOAD, scriptPath || global.kitScript)
   }
 }

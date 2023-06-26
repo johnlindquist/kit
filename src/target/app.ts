@@ -308,6 +308,7 @@ let waitForPromptValue = ({
   shortcuts,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
+    global.__kitPromptResolve = resolve
     getInitialChoices({
       promptId,
       tabIndex: global.onTabIndex,
@@ -326,18 +327,12 @@ let waitForPromptValue = ({
       }
       process.on("message", global.__kitMessageHandler)
       process.on("error", global.__kitErrorHandler)
-      global.__emitter__.on(
-        "message",
-        global.__kitMessageHandler
-      )
-      return () => {
+
+      global.__kitDetachFromApp = () => {
         process.off("message", global.__kitMessageHandler)
         process.off("error", global.__kitErrorHandler)
-        global.__emitter__.off(
-          "message",
-          global.__kitMessageHandler
-        )
       }
+      return global.__kitDetachFromApp
     }).pipe(takeUntil(kitPrompt$), share())
 
     let tab$ = process$.pipe(
@@ -485,6 +480,7 @@ let waitForPromptValue = ({
             break
 
           case Channel.ABANDON:
+            global.__kitAbandoned = true
             onAbandon(data.state.input, data.state)
             break
 
@@ -600,10 +596,6 @@ let waitForPromptValue = ({
         resolve(value)
         process.off("message", global.__kitMessageHandler)
         process.off("error", global.__kitErrorHandler)
-        global.__emitter__.off(
-          "message",
-          global.__kitMessageHandler
-        )
       },
       complete: () => {
         // global.log(
@@ -1736,7 +1728,7 @@ global.getDataFromApp = global.sendWait = async (
       send(channel, data)
     })
   } else {
-    return {}
+    return null
   }
 }
 
@@ -1782,18 +1774,10 @@ global.clearClipboardHistory = () => {
   return global.sendWait(Channel.CLEAR_CLIPBOARD_HISTORY)
 }
 
-global.__emitter__ = new EventEmitter()
-
 global.submit = async (value: any) => {
-  await global.sendWait(Channel.SET_SUBMIT_VALUE, value)
-  // let message: AppMessage = {
-  //   channel: Channel.VALUE_SUBMITTED,
-  //   state: {
-  //     value,
-  //   },
-  //   pid: process.pid,
-  // }
-  // global.__emitter__.emit("message", message)
+  if (global.__kitPromptResolve)
+    global.__kitPromptResolve(value)
+  if (global.__kitDetachFromApp) global.__kitDetachFromApp()
 }
 
 global.wait = async (time: number) => {
