@@ -464,6 +464,26 @@ if (process?.send) {
   global.console.clear = () => {
     global.send(Channel.CONSOLE_CLEAR)
   }
+
+  global.console.error = (...args) => {
+    let error = args
+      .map(a =>
+        typeof a != "string" ? JSON.stringify(a) : a
+      )
+      .join(" ")
+
+    global.send(Channel.CONSOLE_ERROR, error)
+  }
+
+  global.console.info = (...args) => {
+    let info = args
+      .map(a =>
+        typeof a != "string" ? JSON.stringify(a) : a
+      )
+      .join(" ")
+
+    global.send(Channel.CONSOLE_INFO, info)
+  }
 }
 
 global.show = async (html, options) => {

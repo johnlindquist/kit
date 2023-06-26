@@ -147,47 +147,53 @@ if (errorMessage.includes("Cannot find package")) {
           ]
         : []),
       {
-        name: `Open ${errorFile}`,
-        value: ErrorAction.Open,
-        enter: "Open Script",
-        preview: async () => {
-          let logFile = await readFile(
-            errorLogPath,
-            "utf-8"
-          )
-
-          return highlight(
-            `## ${errorLog}\n\n    
-~~~bash          
-${logFile
-  .split("\n")
-  .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
-  .join("\n")}
-~~~`,
-            "",
-            `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
-          )
-        },
-      },
-      {
         name: `Open ${errorLog} in editor`,
         value: ErrorAction.Log,
         enter: "Open Log",
         preview: async () => {
-          let logFile = await readFile(
-            errorLogPath,
+          try {
+            let logFile = await readFile(
+              errorLogPath,
+              "utf-8"
+            )
+
+            return highlight(
+              `## ${errorLog}\n\n    
+    ~~~bash          
+    ${logFile
+      .split("\n")
+      .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+      .reverse()
+      .join("\n")}
+    ~~~`,
+              "",
+              `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
+            )
+          } catch (error) {
+            return highlight(
+              `## ${path.basename(errorLogPath)}\n\n
+Your script's log doesn't exist yet. Adding logging to your script with \`log("message")\` or \`console.log("message")\` and the log file will be created automatically.`,
+              "",
+              `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
+            )
+          }
+        },
+      },
+      {
+        name: `Open ${path.basename(errorFile)} in editor`,
+        value: ErrorAction.Open,
+        enter: "Open Script",
+        preview: async () => {
+          let scriptContents = await readFile(
+            errorFile,
             "utf-8"
           )
 
           return highlight(
-            `## ${errorLog}\n\n    
-  ~~~bash          
-  ${logFile
-    .split("\n")
-    .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
-    .reverse()
-    .join("\n")}
-  ~~~`,
+            `## ${path.basename(errorFile)}\n\n    
+~~~bash          
+${scriptContents}
+~~~`,
             "",
             `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
           )
@@ -203,7 +209,7 @@ ${logFile
           )
 
           return highlight(
-            `## ${errorLog}\n\n    
+            `## kit.log\n\n    
   ~~~bash          
   ${logFile
     .split("\n")

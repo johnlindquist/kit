@@ -478,6 +478,8 @@ export interface ChannelMap {
   [Channel.ADD_CHOICE]: Choice
   [Channel.CONSOLE_LOG]: string
   [Channel.CONSOLE_WARN]: string
+  [Channel.CONSOLE_ERROR]: string
+  [Channel.CONSOLE_INFO]: string
   [Channel.TERM_EXIT]: string
   [Channel.TERM_KILL]: string
   [Channel.SET_TRAY]: { label: string; scripts: string[] }
