@@ -778,7 +778,7 @@ global.___kitFormatChoices = async (
       return true
     })
 
-    await global.sendWait(Channel.SET_SHORTCUTS, shortcuts)
+    global.send(Channel.SET_SHORTCUTS, shortcuts)
   }
   global.kitPrevChoices = formattedChoices
 
@@ -1046,6 +1046,19 @@ export let mainMenu = async (
   xf = (x: Script[]) => x,
   ignoreKenvPattern = /^ignore$/
 ): Promise<Script | string> => {
+  setShortcuts([
+    { name: "New Menu", key: `${cmd}+shift+n` },
+    { name: "New", key: `${cmd}+n`, bar: "left" },
+    { name: "List Processes", key: `${cmd}+p` },
+    { name: "Find Script", key: `${cmd}+f` },
+    { name: "Reset Prompt", key: `${cmd}+0` },
+    { name: "Edit", key: "cmd+o", bar: "right" },
+    { name: "Create/Edit Doc", key: `${cmd}+.` },
+    { name: "Log", key: `${cmd}+l` },
+    { name: "Share", key: `${cmd}+s`, bar: "right" },
+    { name: "Exit", key: `${cmd}+w`, bar: "" },
+  ])
+
   let scripts: Script[] = xf(
     await getScripts(fromCache, ignoreKenvPattern)
   )

@@ -343,8 +343,6 @@ if (env.KIT_EDITOR !== "code") {
   }
 }
 
-setFlags(scriptFlags)
-
 let panel = ``
 
 // let submitted = false
@@ -420,6 +418,7 @@ let script = await mainMenu(
     placeholder: "Run Script",
     enter: "Run",
     strict: false,
+    flags: scriptFlags,
     onSubmit: i => {
       input = i.trim()
     },

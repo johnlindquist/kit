@@ -255,7 +255,7 @@ let createOnChoiceFocusDefault = (
             }
           )
 
-        await sendWait(Channel.SET_SHORTCUTS, shortcuts)
+        send(Channel.SET_SHORTCUTS, shortcuts)
       }
 
       if (typeof onUserChoiceFocus === "function")
