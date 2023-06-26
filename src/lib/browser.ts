@@ -64,7 +64,7 @@ get V's JSON
 
     `)
 
-  return JSON.parse(result)
+  return JSON.parse(result.replace(/\\./g, ""))
 }
 
 global.focusTab = async (
