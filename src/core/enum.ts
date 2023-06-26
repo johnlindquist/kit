@@ -543,6 +543,7 @@ export const PROMPT = {
       BASE: 56,
       LG: 64,
       XL: 72,
+      XXL: 80,
     },
   },
   WIDTH: {

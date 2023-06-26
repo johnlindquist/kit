@@ -598,6 +598,12 @@ let waitForPromptValue = ({
           }
         }
         resolve(value)
+        process.off("message", global.__kitMessageHandler)
+        process.off("error", global.__kitErrorHandler)
+        global.__emitter__.off(
+          "message",
+          global.__kitMessageHandler
+        )
       },
       complete: () => {
         // global.log(

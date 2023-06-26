@@ -1455,6 +1455,13 @@ export let formatChoices = (
         ...choice,
       }
 
+      if (properChoice.height > PROMPT.ITEM.HEIGHT.XXL) {
+        properChoice.height = PROMPT.ITEM.HEIGHT.XXL
+      }
+      if (properChoice.height < PROMPT.ITEM.HEIGHT.XXXS) {
+        properChoice.height = PROMPT.ITEM.HEIGHT.XXXS
+      }
+
       const choiceChoices = properChoice?.choices
       if (!choiceChoices) {
         return properChoice

@@ -152,7 +152,9 @@ let appsDb = await db(
   }
 )
 
-if (!flag?.prep) {
+if (flag?.prep) {
+  exit()
+} else {
   let app = await arg(
     {
       key: "app-launcher",
