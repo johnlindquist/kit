@@ -13,7 +13,8 @@ let queryWords = (api, type) => async input => {
     return [
       {
         name: `Type at least 3 characters`,
-        disableSubmit: true,
+        skip: true,
+        info: true,
       },
     ]
 

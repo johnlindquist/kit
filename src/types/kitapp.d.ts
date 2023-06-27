@@ -41,6 +41,7 @@ export interface AppMessage {
   newPid?: number
   state: AppState
   widgetId?: number
+  promptId: string
 }
 
 export interface Config {

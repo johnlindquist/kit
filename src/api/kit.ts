@@ -399,6 +399,7 @@ global.send = (channel: Channel, value?: any) => {
     try {
       process.send({
         pid: process.pid,
+        promptId: global.__kitPromptId,
         kitScript: global.kitScript,
         channel,
         value,

@@ -85,7 +85,8 @@ await arg(
       return [
         {
           name: `Type at least 2 characters`,
-          disableSubmit: true,
+          skip: true,
+          info: true,
         },
       ]
     currentInput = input

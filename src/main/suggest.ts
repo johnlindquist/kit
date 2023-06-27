@@ -21,7 +21,8 @@ let input = await arg(
       return [
         {
           name: `Type at least 4 characters`,
-          disableSubmit: true,
+          skip: true,
+          info: true,
         },
       ]
 

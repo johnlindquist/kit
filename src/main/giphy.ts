@@ -29,7 +29,8 @@ let giphy = async input => {
     return [
       {
         name: "Begin Typing to Search Giphy",
-        disableSubmit: true,
+        skip: true,
+        info: true,
       },
     ]
   }

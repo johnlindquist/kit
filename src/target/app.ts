@@ -79,6 +79,8 @@ interface DisplayChoicesProps
 
 let promptId = 0
 
+global.__kitPromptId = ""
+
 let onExitHandler = () => {}
 global.onExit = handler => {
   onExitHandler = handler
@@ -236,13 +238,9 @@ let createOnChoiceFocusDefault = (
         } catch {
           preview = md(`# Failed to render preview... 🤔`)
         }
-      }
 
-      if (typeof choice?.preview === "string") {
-        preview = choice?.preview
+        setPreview(preview)
       }
-
-      setPreview(preview)
 
       if (global?.__currentPromptConfig?.shortcuts) {
         const shortcuts =
@@ -413,6 +411,12 @@ let waitForPromptValue = ({
 
     message$.pipe(takeUntil(value$), share()).subscribe({
       next: async data => {
+        // if (data?.promptId !== global.__kitPromptId) {
+        //   log(
+        //     `🤔 ${data?.channel} ${data?.promptId} : ${global.__kitPromptId} Received "prompt" message from an unmatched prompt`
+        //   )
+        //   return
+        // }
         if (data?.state?.input === Value.Undefined) {
           data.state.input = ""
         }
@@ -673,16 +677,14 @@ let onSubmitDefault = async (input, state) => {}
 let onValidationFailedDefault = async (input, state) => {}
 let onAudioDataDefault = async (input, state) => {}
 
-let currentPromptId = ""
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
   if (tabs) global.onTabs = tabs
-  if (data.id) {
-    currentPromptId = data.id
-  }
 
+  let id = uuid()
+  global.__kitPromptId = id
   global.send(Channel.SET_PROMPT_DATA, {
-    id: currentPromptId,
+    id,
     scriptPath: global.kitScript,
     flags: prepFlags(data?.flags),
     hint: "",
@@ -727,7 +729,6 @@ let prepPrompt = async (config: PromptConfig) => {
       : Mode.FILTER
 
   global.setPrompt({
-    id: uuid(),
     footer: footer || "",
     strict: Boolean(choices),
     hasPreview: Boolean(preview),
@@ -1714,6 +1715,12 @@ global.getDataFromApp = global.sendWait = async (
   if (process?.send) {
     return await new Promise((res, rej) => {
       let messageHandler = data => {
+        // if (data?.promptId !== global.__kitPromptId) {
+        //   log(
+        //     `🤔 ${data?.channel} ${data?.promptId} : ${global.__kitPromptId} Received "sendWait" from an unmatched prompt`
+        //   )
+        //   return
+        // }
         if (data.channel === channel) {
           res(
             typeof data?.value === "undefined"
