@@ -596,17 +596,36 @@ export let stripMetadata = (
   )
 }
 
+export let stripName = (name: string) => {
+  let strippedName = path.parse(name).name
+  strippedName = strippedName
+    .trim()
+    .replace(/\s+/g, "-")
+    .toLowerCase()
+  strippedName = strippedName.replace(/[^\w-]+/g, "")
+  strippedName = strippedName.replace(/-{2,}/g, "-")
+  return strippedName
+}
+
 //validator
 export let exists = async (input: string) => {
-  return (await isBin(kenvPath("bin", input)))
-    ? global.chalk`{red.bold ${input}} already exists. Try again:`
-    : (await isDir(kenvPath("bin", input)))
-    ? global.chalk`{red.bold ${input}} exists as group. Enter different name:`
-    : (await isBin(input))
-    ? global.chalk`{red.bold ${input}} is a system command. Enter different name:`
-    : !input.match(/^([a-z]|[0-9]|\-|\/)+$/g)
-    ? global.chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
-    : true
+  if (await isBin(kenvPath("bin", input))) {
+    return global.chalk`{red.bold ${input}} already exists. Try again:`
+  }
+
+  if (await isDir(kenvPath("bin", input))) {
+    return global.chalk`{red.bold ${input}} exists as group. Enter different name:`
+  }
+
+  if (await isBin(input)) {
+    return global.chalk`{red.bold ${input}} is a system command. Enter different name:`
+  }
+
+  if (!input.match(/^([a-z]|[0-9]|\-|\/)+$/g)) {
+    return global.chalk`{red.bold ${input}} can only include lowercase, numbers, and -. Enter different name:`
+  }
+
+  return true
 }
 
 export let toggleBackground = async (script: Script) => {
@@ -1196,6 +1215,7 @@ export let groupChoices = (
     recentKey,
     recentLimit,
     hideWithoutInput,
+    excludeGroups,
   } = {
     groupKey: "group",
     missingGroupName: "No Group",
@@ -1205,6 +1225,7 @@ export let groupChoices = (
     hideWithoutInput: [],
     recentKey: "",
     recentLimit: 3,
+    excludeGroups: [],
     ...options,
   }
 
@@ -1231,6 +1252,13 @@ export let groupChoices = (
   }
 
   let putIntoGroups = choice => {
+    if (
+      excludeGroups.find(
+        c => choice?.group === c || choice?.kenv === c
+      )
+    ) {
+      choice.exclude = true
+    }
     if (choice?.pass) {
       choice.group = "Pass"
       choice.preview = `<div></div>`

@@ -42,7 +42,8 @@ export interface Choice<Value = any> {
   ) => string | Promise<string>
   enter?: string
   disableSubmit?: boolean
-  info?: undefined | "always" | "onNoChoices"
+  info?: boolean
+  exclude?: boolean
   height?: number
   skip?: boolean
   miss?: boolean

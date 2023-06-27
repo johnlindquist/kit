@@ -1041,12 +1041,16 @@ export let getApps = async () => {
 }
 
 let groupScripts = scripts => {
+  let excludeGroups =
+    env?.KIT_EXCLUDE_KENVS?.split(",").map(k => k.trim()) ||
+    []
   return groupChoices(scripts, {
     groupKey: "kenv",
     missingGroupName: "Main",
     order: ["Favorite", "Main"],
     endOrder: ["Apps", "Pass"],
     recentKey: "timestamp",
+    excludeGroups,
     recentLimit: process?.env?.KIT_RECENT_LIMIT
       ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
       : 3,

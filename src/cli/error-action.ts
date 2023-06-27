@@ -79,6 +79,10 @@ if (errorMessage.includes("Cannot find package")) {
     [ErrorAction.Open]: async () => {
       edit(errorFile, kenvPath(), line, col)
     },
+    [ErrorAction.Copy]: async () => {
+      copy(stack)
+      exit()
+    },
     [ErrorAction.KitLog]: async () => {
       edit(kitPath("logs", "kit.log"), kenvPath())
     },
@@ -146,6 +150,20 @@ if (errorMessage.includes("Cannot find package")) {
             },
           ]
         : []),
+      {
+        name: `Copy Error to Clipboard`,
+        value: ErrorAction.Copy,
+        enter: "Copy Error",
+        preview: async () => {
+          return highlight(
+            `## ${path.basename(errorFile)}\n\n
+~~~bash
+${stack}
+~~~`,
+            ""
+          )
+        },
+      },
       {
         name: `Open ${errorLog} in editor`,
         value: ErrorAction.Log,

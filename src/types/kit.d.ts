@@ -411,6 +411,7 @@ declare global {
       sortChoicesKey?: string[]
       recentKey?: string
       recentLimit?: number
+      excludeGroups?: string[]
     }
   ) => Choice[]
 

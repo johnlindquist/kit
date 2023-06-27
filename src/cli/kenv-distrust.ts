@@ -12,7 +12,7 @@ let hasTrustedKenvs = currentTrustedKenvs?.length > 0
 
 let trustedKenvs: any[] = [
   {
-    info: "always",
+    info: true,
     name: hasTrustedKenvs
       ? "Select a kenv to distrust"
       : "No trusted kenvs",

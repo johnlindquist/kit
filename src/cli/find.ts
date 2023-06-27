@@ -56,7 +56,8 @@ let filePath = await arg(
       if (!input || input?.length < 3) {
         setChoices([
           {
-            info: "onNoChoices",
+            info: true,
+            miss: true,
             name: "Please type more than 2 characters",
           },
         ])

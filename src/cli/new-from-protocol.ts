@@ -37,7 +37,7 @@ let name = await arg(
   },
   [
     {
-      info: "always",
+      info: true,
       name: `Requirements: lowercase, dashed, no extension`,
       description: `Examples: ${examples}`,
     },

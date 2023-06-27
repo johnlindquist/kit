@@ -11,8 +11,8 @@ Create a new script based on the current input
 
 import {
   exists,
+  stripName,
   kitMode,
-  returnOrEnter,
   stripMetadata,
   uniq,
 } from "../core/utils.js"
@@ -20,37 +20,33 @@ import {
   ensureTemplates,
   prependImport,
 } from "./lib/utils.js"
-import { generate } from "@johnlindquist/kit-internal/project-name-generator"
-
-let examples = Array.from({ length: 3 })
-  .map((_, i) => generate({ words: 2 }).dashed)
-  .join(", ")
-
-let stripName = (name: string) =>
-  path.parse(name.trim().replace(/\s/g, "-").toLowerCase())
-    .name
 
 let name = arg?.pass
   ? stripName(arg?.pass)
   : await arg(
       {
+        debounceInput: 0,
         placeholder:
           arg?.placeholder ||
           "Enter a name for your script:",
         validate: input => {
-          return exists(
-            input.replace(/\s/g, "-").toLowerCase()
-          )
+          return exists(stripName(input))
         },
         shortcuts: [],
         enter: `Create script and open in editor`,
         strict: false,
       },
-      [
+      input => [
         {
-          info: "always",
-          name: `Requirements: lowercase, dashed, no extension`,
-          description: `Examples: ${examples}`,
+          info: true,
+          name: !input
+            ? `Provide a name`
+            : `Filename will be convert to ${stripName(
+                input
+              )}.${kitMode()}`,
+          description: !input
+            ? `The name will be set to // Name: metadata`
+            : `// Name: ${input}`,
         },
       ]
     )

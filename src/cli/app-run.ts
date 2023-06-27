@@ -395,22 +395,10 @@ Create a script named <code>${scriptName}</code>
 0-9 calculator
 ? docs
 */
-let excludeKenvs =
-  env?.KIT_EXCLUDE_KENVS?.split(",").map(k => k.trim()) ||
-  []
 
 let isApp = false
 let isPass = false
 let input = ""
-
-let xf = scripts =>
-  scripts.filter(
-    script =>
-      !(
-        script?.exclude ||
-        excludeKenvs.includes(script?.kenv)
-      ) || script?.pass
-  )
 
 let script = await mainMenu(
   {
@@ -589,8 +577,7 @@ let script = await mainMenu(
     //     },
     input: arg?.input || "",
   },
-  true,
-  xf
+  true
 )
 
 if (typeof script === "boolean" && !script) {

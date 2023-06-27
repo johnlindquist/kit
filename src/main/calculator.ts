@@ -38,7 +38,8 @@ let result = await arg(
       return [
         {
           name: `Waiting for input...`,
-          info: "onNoChoices",
+          info: true,
+          miss: true,
         },
       ]
     }
@@ -59,7 +60,8 @@ let result = await arg(
         return [
           {
             name: `Invalid Input 🤔`,
-            info: "onNoChoices",
+            info: true,
+            miss: true,
           },
         ]
       }

@@ -54,7 +54,8 @@ let packages = await arg(
     if (!input || input?.length < 3)
       return [
         {
-          info: "onNoChoices",
+          info: true,
+          miss: true,
           name: `Search for npm packages`,
         },
       ]

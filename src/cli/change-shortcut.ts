@@ -52,7 +52,7 @@ if (
 arg(`Shortcut Changed`, [
   {
     name: `Shortcut changed to ${shortcut}`,
-    info: "always",
+    info: true,
   },
 ])
 

@@ -285,6 +285,7 @@ export enum ErrorAction {
   KitLog = "KitLog",
   Log = "Log",
   Open = "Open",
+  Copy = "Copy",
   CopySyncPath = "CopySyncPath",
 }
 

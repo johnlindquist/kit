@@ -10,7 +10,9 @@ import {
 
 if (isLinux) exit()
 
-preload()
+if (!flag.prep) {
+  preload()
+}
 
 let findAppsAndPrefs = async () => {
   log(`findAppsAndPrefs`)
@@ -138,7 +140,7 @@ let appsDb = await db(
       {
         name: `First Run: Indexing Apps and Caching Icons...`,
         description: `Please hold a few seconds while Script Kit creates icons for your apps and preferences for future use.`,
-        info: "always",
+        info: true,
       },
     ])
 
