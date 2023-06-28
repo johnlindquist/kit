@@ -1048,6 +1048,7 @@ let groupScripts = scripts => {
   let excludeGroups =
     env?.KIT_EXCLUDE_KENVS?.split(",").map(k => k.trim()) ||
     []
+
   return groupChoices(scripts, {
     groupKey: "kenv",
     missingGroupName: "Main",
@@ -1055,12 +1056,12 @@ let groupScripts = scripts => {
       ? process?.env?.KIT_MAIN_ORDER?.split(",")
           .filter(Boolean)
           .map(s => s.trim())
-      : ["Favorite", "Main"],
+      : ["Favorite", "Main", "Apps"],
     endOrder: process?.env?.KIT_MAIN_END_ORDER
       ? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(
           Boolean
         )
-      : ["Apps", "Pass"],
+      : ["Pass"],
     recentKey: "timestamp",
     excludeGroups,
     recentLimit: process?.env?.KIT_RECENT_LIMIT

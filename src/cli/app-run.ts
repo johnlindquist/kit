@@ -244,6 +244,11 @@ ${lastRunBlock}
     description:
       "Remove the selected script from the recent list",
   },
+  ["clear-recent"]: {
+    group: "Edit",
+    name: "Clear Recent",
+    description: "Clear the recent list of scripts",
+  },
   // ["open-script-database"]: {
   //   group: "DB",
   //   name: "Open Database",
