@@ -1050,7 +1050,6 @@ declare global {
   var mic: Mic
   var micdot: Mic
   var webcam: WebCam
-  var speech: Speech
   var getMediaDevices: GetMediaDevices
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT

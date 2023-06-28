@@ -2833,15 +2833,6 @@ global.webcam = async () => {
   })
 }
 
-global.speech = async () => {
-  return await global.kitPrompt({
-    ui: UI.speech,
-    enter: "Stop Recording",
-    shortcuts: [backToMainShortcut, closeShortcut],
-    ignoreBlur: true,
-  })
-}
-
 global.getMediaDevices = async () => {
   let appMessage = await sendWait(Channel.GET_DEVICES)
 
