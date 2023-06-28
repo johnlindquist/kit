@@ -1051,8 +1051,16 @@ let groupScripts = scripts => {
   return groupChoices(scripts, {
     groupKey: "kenv",
     missingGroupName: "Main",
-    order: ["Favorite", "Main"],
-    endOrder: ["Apps", "Pass"],
+    order: process?.env?.KIT_MAIN_ORDER
+      ? process?.env?.KIT_MAIN_ORDER?.split(",")
+          .filter(Boolean)
+          .map(s => s.trim())
+      : ["Favorite", "Main"],
+    endOrder: process?.env?.KIT_MAIN_END_ORDER
+      ? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(
+          Boolean
+        )
+      : ["Apps", "Pass"],
     recentKey: "timestamp",
     excludeGroups,
     recentLimit: process?.env?.KIT_RECENT_LIMIT

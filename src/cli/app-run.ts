@@ -238,6 +238,12 @@ ${lastRunBlock}
     description: "Delete the selected script",
     shortcut: `${cmd}+shift+backspace`,
   },
+  ["remove-from-recent"]: {
+    group: "Edit",
+    name: "Remove from Recent",
+    description:
+      "Remove the selected script from the recent list",
+  },
   // ["open-script-database"]: {
   //   group: "DB",
   //   name: "Open Database",

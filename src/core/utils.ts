@@ -1350,46 +1350,37 @@ export let groupChoices = (
     putIntoGroups(choice)
   }
 
-  groups.sort((a: Choice, b: Choice) => {
-    // sort "userGrouped" "true" before "false"
-    if (a.userGrouped && !b.userGrouped) return -1
-    if (!a.userGrouped && b.userGrouped) return 1
+  let lowerOrder = order.map(o => o.toLowerCase())
+  let lowerEndOrder = endOrder.map(o => o.toLowerCase())
 
-    let aOrder = order.indexOf(a.group)
-    let bOrder = order.indexOf(b.group)
+  groups.sort((a: Choice, b: Choice) => {
+    let aGroup = a.group.toLowerCase()
+    let bGroup = b.group.toLowerCase()
+    let aOrder = lowerOrder.indexOf(aGroup)
+    let bOrder = lowerOrder.indexOf(bGroup)
+    let endAOrder = lowerEndOrder.indexOf(aGroup)
+    let endBOrder = lowerEndOrder.indexOf(bGroup)
 
     // If both elements are in the order array, sort them as per the order array
     if (aOrder !== -1 && bOrder !== -1)
       return aOrder - bOrder
 
-    // If only a is in the order array, a comes first
-    if (aOrder !== -1) return -1
+    // If a is in the order array, or b is in the endOrder array, a comes first
+    if (aOrder !== -1 || endBOrder !== -1) return -1
 
-    // If only b is in the order array, b comes first
-    if (bOrder !== -1) return 1
-
-    // If neither are in the order array, sort them alphabetically
-    return a.group.localeCompare(b.group)
-  })
-
-  // Use endOrder to sort groups at the end
-  groups.sort((a: Choice, b: Choice) => {
-    let aOrder = endOrder.indexOf(a.group)
-    let bOrder = endOrder.indexOf(b.group)
+    // If b is in the order array, or a is in the endOrder array, b comes first
+    if (bOrder !== -1 || endAOrder !== -1) return 1
 
     // If both elements are in the endOrder array, sort them as per the endOrder array
-    if (aOrder !== -1 && bOrder !== -1)
-      return aOrder - bOrder
+    if (endAOrder !== -1 && endBOrder !== -1)
+      return endAOrder - endBOrder
 
-    // If only a is in the endOrder array, a comes last
-    if (aOrder !== -1) return 1
+    // Sort "userGrouped" "true" before "false"
+    if (a.userGrouped && !b.userGrouped) return -1
+    if (!a.userGrouped && b.userGrouped) return 1
 
-    // If only b is in the endOrder array, b comes last
-    if (bOrder !== -1) return -1
-
-    // If neither are in the endOrder array, sort them alphabetically
-
-    return a.group.localeCompare(b.group)
+    // If neither are in the order or endOrder arrays, and not differentiated by userGrouped, sort them alphabetically
+    return aGroup.localeCompare(bGroup)
   })
 
   // if missingGroupName === "No Group", then move it to the end
