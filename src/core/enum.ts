@@ -306,7 +306,6 @@ export enum UI {
   div = "div",
   log = "log",
   splash = "splash",
-  input = "input",
   term = "term",
   fields = "fields",
   emoji = "emoji",
@@ -314,7 +313,6 @@ export enum UI {
   chat = "chat",
   mic = "mic",
   webcam = "webcam",
-  speech = "speech",
 }
 
 export enum Bin {

@@ -209,7 +209,7 @@ global.term = async (
     config = commandOrConfig
   }
 
-  if (global.currentUI === UI.term) {
+  if (global.__kitCurrentUI === UI.term) {
     // Hack to clear the terminal when it's already open
     await div({
       html: ``,

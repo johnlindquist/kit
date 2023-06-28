@@ -275,6 +275,7 @@ let onTabChanged = (input, state) => {
 }
 
 let waitForPromptValue = ({
+  ui,
   choices,
   validate,
   className,
@@ -307,14 +308,17 @@ let waitForPromptValue = ({
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
     global.__kitPromptResolve = resolve
-    getInitialChoices({
-      promptId,
-      tabIndex: global.onTabIndex,
-      choices,
-      className,
-      onNoChoices,
-      state,
-    })
+
+    if (ui === UI.arg || ui === UI.hotkey) {
+      getInitialChoices({
+        promptId,
+        tabIndex: global.onTabIndex,
+        choices,
+        className,
+        onNoChoices,
+        state,
+      })
+    }
 
     let process$ = new Observable<AppMessage>(observer => {
       global.__kitMessageHandler = (data: AppMessage) => {
@@ -598,8 +602,9 @@ let waitForPromptValue = ({
           }
         }
         resolve(value)
-        process.off("message", global.__kitMessageHandler)
-        process.off("error", global.__kitErrorHandler)
+        if (global.__kitDetachFromApp) {
+          global.__kitDetachFromApp()
+        }
       },
       complete: () => {
         // global.log(
@@ -809,7 +814,8 @@ global.__currentPromptConfig = {}
 global.kitPrompt = async (config: PromptConfig) => {
   promptId++
   global.__currentPromptSecret = config.secret || false
-  global.currentUI = config?.ui || UI.arg
+  let ui = config?.ui || UI.arg
+  global.__kitCurrentUI = ui
   kitPrompt$.next(true)
 
   //need to let onTabs() gather tab names. See Word API
@@ -894,6 +900,7 @@ global.kitPrompt = async (config: PromptConfig) => {
   )
 
   return await waitForPromptValue({
+    ui,
     choices,
     validate,
     className,
