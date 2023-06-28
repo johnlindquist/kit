@@ -119,7 +119,12 @@ export let db = async <T = any>(
     await _db.read()
   } catch (error) {
     // if dbPath dir is kitPath("db"), then delete the dbPath file and try again
-    warn(error)
+    if (global?.warn) {
+      try {
+        global.warn(error)
+      } catch (error) {}
+    }
+
     if (path.dirname(dbPath) === kitPath("db")) {
       await rm(dbPath)
       _db = new Low(new JSONFile(dbPath), null)
