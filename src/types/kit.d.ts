@@ -367,6 +367,7 @@ declare global {
   var blur: () => Promise<void>
   var flag: Flags
   var setFlags: FlagFn
+  var setFlagValue: (value: any) => Promise<void>
   var prepFlags: PrepFlags
 
   var selectScript: SelectScript

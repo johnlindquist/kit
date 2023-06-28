@@ -26,9 +26,7 @@ let name = arg?.pass
   : await arg(
       {
         debounceInput: 0,
-        placeholder:
-          arg?.placeholder ||
-          "Enter a name for your script:",
+        placeholder: arg?.placeholder || "Enter a name",
         validate: input => {
           return exists(stripName(input))
         },
@@ -40,13 +38,13 @@ let name = arg?.pass
         {
           info: true,
           name: !input
-            ? `Provide a name`
+            ? `Enter a name for your script's // Name: metadata`
+            : `// Name: ${input}`,
+          description: !input
+            ? `The filename will be converted automatically.`
             : `Filename will be convert to ${stripName(
                 input
               )}.${kitMode()}`,
-          description: !input
-            ? `The name will be set to // Name: metadata`
-            : `// Name: ${input}`,
         },
       ]
     )

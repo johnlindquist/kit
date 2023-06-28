@@ -173,12 +173,35 @@ ${lastRunBlock}
     description:
       "Open the selected script's markdown in your editor",
   },
-  ["share"]: {
+  ["share-script-as-discussion"]: {
     group: "Share",
-    name: "Share",
-    description: "Share the selected script",
+    name: "Post to Community Scripts",
+    description:
+      "Share the selected script on GitHub Discussions",
   },
-
+  ["share-script-as-link"]: {
+    group: "Share",
+    name: "Create Install URL",
+    description:
+      "Create a link which will install the script",
+  },
+  ["share-script-as-kit-link"]: {
+    group: "Share",
+    name: "Share as private kit:// link",
+    description:
+      "Create a private link which will install the script",
+  },
+  ["share-script"]: {
+    group: "Share",
+    name: "Share as Gist",
+    description: "Share the selected script as a gist",
+  },
+  ["share-script-as-markdown"]: {
+    group: "Share",
+    name: "Share as Markdown",
+    description:
+      "Copies script contents in fenced JS Markdown",
+  },
   ["share-copy"]: {
     group: "Copy",
     name: "Copy",
@@ -530,10 +553,8 @@ let script = await mainMenu(
         key: `${cmd}+s`,
         condition: c => !c.needsDebugger,
         onPress: async (input, { focused }) => {
-          await run(
-            kitPath("cli", "share.js"),
-            focused?.value?.filePath
-          )
+          await setFlagValue(focused?.value)
+          await setInput("Share")
         },
         bar: "right",
       },

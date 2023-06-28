@@ -269,6 +269,7 @@ export enum Channel {
   EDITOR_INSERT_TEXT = "EDITOR_INSERT_TEXT",
   SET_SCORED_CHOICES = "SET_SCORED_CHOICES",
   PRELOAD = "PRELOAD",
+  SET_FLAG_VALUE = "SET_FLAG_VALUE",
 }
 
 export enum ProcessType {

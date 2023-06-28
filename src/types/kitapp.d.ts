@@ -526,6 +526,7 @@ export interface ChannelMap {
   [Channel.SET_ENTER]: string
   [Channel.SET_FIELDS]: Field[]
   [Channel.SET_FLAGS]: FlagsOptions
+  [Channel.SET_FLAG_VALUE]: any
   [Channel.SET_FORM_HTML]: { html: string; formData: any }
   [Channel.SET_FORM]: PromptConfig[]
   [Channel.SET_HINT]: string

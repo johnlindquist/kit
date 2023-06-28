@@ -860,6 +860,10 @@ global.setFlags = (flags: FlagsOptions) => {
   global.send(Channel.SET_FLAGS, global.prepFlags(flags))
 }
 
+global.setFlagValue = (value: any) => {
+  return global.sendWait(Channel.SET_FLAG_VALUE, value)
+}
+
 global.hide = async () => {
   await global.sendWait(Channel.HIDE_APP, {})
   if (process.env.KIT_HIDE_DELAY) {
