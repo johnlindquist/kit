@@ -1,6 +1,12 @@
 // Description: Duplicate the selected script
 
-import { exists, stripMetadata } from "../core/utils.js"
+import {
+  exists,
+  stripName,
+  kitMode,
+  stripMetadata,
+  uniq,
+} from "../core/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
 
 let examples = Array.from({ length: 3 })
@@ -14,17 +20,26 @@ let { filePath } = await selectScript(
 // TODO: Consider Using the "info" approach
 
 setDescription(`Duplicate ${filePath}`)
-let newCommand = await arg(
+let name = await arg(
   {
+    debounceInput: 0,
     placeholder: `Enter name for new script`,
-    validate: exists,
+    validate: input => {
+      return exists(stripName(input))
+    },
     strict: false,
   },
-  [
+  input => [
     {
       info: true,
-      name: `Requirements: lowercase, dashed, no extension`,
-      description: `Examples: ${examples}`,
+      name: !input
+        ? `Enter a name for your script's // Name: metadata`
+        : `// Name: ${input}`,
+      description: !input
+        ? `The filename will be converted automatically.`
+        : `Filename will be convert to ${stripName(
+            input
+          )}.${kitMode()}`,
     },
   ]
 )
@@ -34,12 +49,17 @@ if (!(await isFile(filePath))) {
   exit()
 }
 
-let { dirPath: selectedKenvDir } = await selectKenv()
+let { dirPath: selectedKenvPath } = await selectKenv({
+  placeholder: `Select Where to Create Script`,
+  enter: "Create Script in Selected Kenv",
+})
 
-let newFilePath = path.join(
-  selectedKenvDir,
+let command = stripName(name)
+
+let scriptPath = path.join(
+  selectedKenvPath,
   "scripts",
-  newCommand + path.extname(filePath)
+  `${command}.${kitMode()}`
 )
 let oldContent = await readFile(filePath, "utf-8")
 
@@ -49,10 +69,10 @@ let newContent = stripMetadata(oldContent, [
   "Alias",
   "Description",
 ])
-await writeFile(newFilePath, newContent)
+await writeFile(scriptPath, newContent)
 
-await cli("create-bin", "scripts", newFilePath)
+await cli("create-bin", "scripts", scriptPath)
 
-await run(kitPath("cli", "edit-script.js"), newFilePath)
+await run(kitPath("cli", "edit-script.js"), scriptPath)
 
 export {}

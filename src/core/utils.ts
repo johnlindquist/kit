@@ -894,28 +894,6 @@ export let scriptsSort =
     return aName > bName ? 1 : aName < bName ? -1 : 0
   }
 
-export let parseScripts = async (
-  ignoreKenvPattern = /^ignore$/
-) => {
-  let scriptFiles = await getScriptFiles()
-  let kenvDirs = await getKenvs(ignoreKenvPattern)
-
-  for await (let kenvDir of kenvDirs) {
-    let scripts = await getScriptFiles(kenvDir)
-    scriptFiles = [...scriptFiles, ...scripts]
-  }
-
-  let scriptInfo = await Promise.all(
-    scriptFiles.map(parseScript)
-  )
-  let timestamps = []
-  try {
-    let json = await global.readJson(timestampsPath)
-    timestamps = json.stamps
-  } catch {}
-  return scriptInfo.sort(scriptsSort(timestamps))
-}
-
 export let isParentOfDir = (
   parent: string,
   dir: string

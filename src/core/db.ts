@@ -10,13 +10,15 @@ import {
   isDir,
   extensionRegex,
   resolveScriptToCommand,
-  parseScripts,
   isMac,
   scriptsSort,
   scriptsDbPath,
   timestampsPath,
   userDbPath,
   Timestamp,
+  getScriptFiles,
+  getKenvs,
+  parseScript,
 } from "./utils.js"
 
 import { Choice, Script, PromptDb } from "../types/core"
@@ -126,7 +128,7 @@ export let db = async <T = any>(
     }
 
     if (path.dirname(dbPath) === kitPath("db")) {
-      await rm(dbPath)
+      // await rm(dbPath)
       _db = new Low(new JSONFile(dbPath), null)
       await _db.read()
     }
@@ -182,6 +184,28 @@ export let db = async <T = any>(
 global.db = db
 global.store = store
 
+export let parseScripts = async (
+  ignoreKenvPattern = /^ignore$/
+) => {
+  let scriptFiles = await getScriptFiles()
+  let kenvDirs = await getKenvs(ignoreKenvPattern)
+
+  for await (let kenvDir of kenvDirs) {
+    let scripts = await getScriptFiles(kenvDir)
+    scriptFiles = [...scriptFiles, ...scripts]
+  }
+
+  let scriptInfo = await Promise.all(
+    scriptFiles.map(parseScript)
+  )
+  let timestamps = []
+  try {
+    let timestampsDb = await getTimestamps()
+    timestamps = timestampsDb.stamps
+  } catch {}
+  return scriptInfo.sort(scriptsSort(timestamps))
+}
+
 export let getScriptsDb = async (
   fromCache = true,
   ignoreKenvPattern = /^ignore$/
@@ -200,49 +224,97 @@ export let getScriptsDb = async (
   )
 }
 
-export let setScriptTimestamp = async (
+type QueueItem = {
   stamp: Stamp
+  resolve: (value: Script[]) => void
+  reject: (reason?: any) => void
+}
+
+let queue: QueueItem[] = []
+let setTimestampsRunning = false
+
+export let setScriptTimestamp = (
+  incomingStamp: Stamp
 ): Promise<Script[]> => {
-  let timestampsDb = await getTimestamps()
-  let index = timestampsDb.stamps.findIndex(
-    s => s.filePath === stamp.filePath
-  )
-
-  let oldStamp = timestampsDb.stamps[index]
-
-  stamp.timestamp = Date.now()
-  if (stamp.runCount) {
-    stamp.runCount = oldStamp?.runCount
-      ? oldStamp.runCount + 1
-      : 1
+  if (setTimestampsRunning) {
+    return new Promise((resolve, reject) => {
+      queue.push({
+        stamp: incomingStamp,
+        resolve,
+        reject,
+      })
+    })
   }
-  if (oldStamp) {
-    timestampsDb.stamps[index] = {
-      ...oldStamp,
-      ...stamp,
+
+  setTimestampsRunning = true
+
+  const processStamp = async (stamp: Stamp) => {
+    try {
+      let timestampsDb = await getTimestamps()
+      let index = timestampsDb.stamps.findIndex(
+        s => s.filePath === stamp.filePath
+      )
+
+      let oldStamp = timestampsDb.stamps[index]
+
+      stamp.timestamp = Date.now()
+      if (stamp.runCount) {
+        stamp.runCount = oldStamp?.runCount
+          ? oldStamp.runCount + 1
+          : 1
+      }
+      if (oldStamp) {
+        timestampsDb.stamps[index] = {
+          ...oldStamp,
+          ...stamp,
+        }
+      } else {
+        timestampsDb.stamps.push(stamp)
+      }
+
+      let scriptsDb = await getScriptsDb()
+      let script = scriptsDb.scripts.find(
+        s => s.filePath === stamp.filePath
+      )
+
+      if (script) {
+        scriptsDb.scripts = scriptsDb.scripts.sort(
+          scriptsSort(timestampsDb.stamps as Timestamp[])
+        )
+        try {
+          await scriptsDb.write()
+        } catch (error) {}
+        try {
+          await timestampsDb.write()
+        } catch (error) {}
+      }
+
+      if (queue.length === 0) {
+        setTimestampsRunning = false
+        return scriptsDb.scripts
+      } else {
+        setTimeout(() => {
+          let next = queue.shift()!
+          processStamp(next.stamp).then(
+            next.resolve,
+            next.reject
+          )
+        }, 50) // Wait 50ms before processing the next stamp
+      }
+    } catch (error) {
+      if (queue.length === 0) {
+        setTimestampsRunning = false
+        throw error
+      } else {
+        setTimeout(() => {
+          let next = queue.shift()!
+          next.reject(error)
+        }, 50) // Wait 50ms before rejecting with error
+      }
     }
-  } else {
-    timestampsDb.stamps.push(stamp)
   }
 
-  let scriptsDb = await getScriptsDb(false)
-  let script = scriptsDb.scripts.find(
-    s => s.filePath === stamp.filePath
-  )
-
-  if (script) {
-    scriptsDb.scripts = scriptsDb.scripts.sort(
-      scriptsSort(timestampsDb.stamps as Timestamp[])
-    )
-    try {
-      await scriptsDb.write()
-    } catch (error) {}
-    try {
-      await timestampsDb.write()
-    } catch (error) {}
-  }
-
-  return scriptsDb.scripts
+  return processStamp(incomingStamp)
 }
 
 // export let removeScriptFromDb = async (

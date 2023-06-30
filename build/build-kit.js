@@ -92,11 +92,13 @@ await exec(`npm i --production`, options)
 // console.log(`Install app deps`)
 // await exec(`${npm} i @johnlindquist/kitdeps@0.1.1`)
 
+console.log(`Download docs`)
 await exec(
   `node ./run/terminal.js ./help/download-docs.js`,
   options
 )
 
+console.log(`Download hot`)
 await exec(
   `node ./run/terminal.js ./hot/download-hot.js`,
   options

@@ -270,6 +270,7 @@ export enum Channel {
   SET_SCORED_CHOICES = "SET_SCORED_CHOICES",
   PRELOAD = "PRELOAD",
   SET_FLAG_VALUE = "SET_FLAG_VALUE",
+  DB = "DB",
 }
 
 export enum ProcessType {
