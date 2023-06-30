@@ -309,7 +309,11 @@ let waitForPromptValue = ({
   return new Promise((resolve, reject) => {
     global.__kitPromptResolve = resolve
 
-    if (ui === UI.arg || ui === UI.hotkey) {
+    if (
+      ui === UI.arg ||
+      ui === UI.hotkey ||
+      ui === UI.div
+    ) {
       getInitialChoices({
         promptId,
         tabIndex: global.onTabIndex,
@@ -318,6 +322,8 @@ let waitForPromptValue = ({
         onNoChoices,
         state,
       })
+    } else {
+      setChoices([])
     }
 
     let process$ = new Observable<AppMessage>(observer => {
