@@ -30,13 +30,15 @@ import {
   defaultGroupClassName,
   defaultGroupNameClassName,
   parseScript,
+  userDbPath,
 } from "../core/utils.js"
 import {
   getScripts,
   getScriptFromString,
-  getUserDb,
+  getUserJson,
   getTimestamps,
   Stamp,
+  setUserJson,
 } from "../core/db.js"
 import { Octokit } from "../share/auth-scriptkit.js"
 
@@ -1494,9 +1496,11 @@ export let authenticate = async () => {
 
   let user = await octokit.rest.users.getAuthenticated()
 
-  let userDb = await getUserDb()
-  Object.assign(userDb, user.data)
-  await userDb.write()
+  let userJson = await getUserJson()
+  await setUserJson({
+    ...userJson,
+    ...user.data,
+  })
 
   return octokit
 }

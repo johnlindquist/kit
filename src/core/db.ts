@@ -8,6 +8,7 @@ import {
   promptDbPath,
   shortcutsPath,
   isDir,
+  isFile,
   extensionRegex,
   resolveScriptToCommand,
   isMac,
@@ -20,6 +21,9 @@ import {
   getKenvs,
   parseScript,
 } from "./utils.js"
+
+import pkg from "fs-extra"
+const { writeJson, readJson } = pkg
 
 import { Choice, Script, PromptDb } from "../types/core"
 import {
@@ -468,10 +472,23 @@ export let getAppDb = async (): Promise<
   return await db(appDbPath, appDefaults)
 }
 
-export let getUserDb = async (): Promise<
-  Low<any> & UserDb
-> => {
-  return await db(userDbPath, {})
+export let setUserJson = async (user: UserDb) => {
+  await writeJson(userDbPath, user)
+}
+
+export let getUserJson = async (): Promise<UserDb> => {
+  let user = {}
+  let userDbExists = await isFile(userDbPath)
+  if (userDbExists) {
+    try {
+      user = await readJson(userDbPath)
+    } catch (error) {
+      await setUserJson({})
+      user = {}
+    }
+  }
+
+  return user
 }
 
 type ShortcutsDb = {

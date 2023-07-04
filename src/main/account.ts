@@ -2,7 +2,7 @@
 // Description: Authenticate to Enable Features
 // Exclude: true
 import { authenticate } from "../api/kit.js"
-import { getUserDb } from "../core/db.js"
+import { getUserJson, setUserJson } from "../core/db.js"
 import { Channel } from "../core/enum.js"
 import {
   backToMainShortcut,
@@ -33,9 +33,9 @@ try {
 } catch (error) {
   warn(`Failed to read sponsor-url.txt`)
 }
-let userDb = await getUserDb()
+let userJson = await getUserJson()
 let appState = await getAppState()
-if (userDb.login) {
+if (userJson.login) {
   let option = await arg(
     {
       placeholder: "Account",
@@ -103,9 +103,7 @@ You can always log back in again later.
     case "discord":
       let response = await post(
         `https://scriptkit.com/api/discord-invite`,
-        (
-          await getUserDb()
-        ).data
+        await getUserJson()
       )
       open(response.data)
       break
@@ -124,7 +122,7 @@ Please go to [${sponsorUrl}](${sponsorUrl}) to become a sponsor to unlock all fe
 
       break
     case "logout":
-      await rm(userDbPath)
+      await setUserJson({})
       await replace({
         files: kenvPath(".env"),
         from: /GITHUB_SCRIPTKIT_TOKEN=.*/g,
