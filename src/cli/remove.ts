@@ -1,6 +1,6 @@
 // Description: Remove a script
 
-import { refreshScriptsDb } from "../core/db.js"
+import { refreshScripts } from "../core/db.js"
 import { trashScript } from "../core/utils.js"
 
 let script = await selectScript(`Remove a script:`)
@@ -9,20 +9,15 @@ let { command, filePath } = script
 
 let confirm =
   global?.flag?.confirm ||
-  (await arg(
-    {
-      placeholder: `Remove ${command}?`,
-      hint: filePath,
-    },
-    [
-      { name: "[N]o, cancel.", value: false },
-      { name: `[Y]es, remove ${command}`, value: true },
-    ]
-  ))
+  (await arg(`Remove ${command}?`, [
+    { info: true, name: filePath },
+    { name: "[N]o, cancel.", value: false },
+    { name: `[Y]es, remove ${command}`, value: true },
+  ]))
 
 if (confirm) {
   await trashScript(script)
-  await refreshScriptsDb()
+  await refreshScripts()
 }
 
 if (process.env.KIT_CONTEXT === "app") {

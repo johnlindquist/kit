@@ -1,6 +1,6 @@
 // Description: Rename Script
 
-import { refreshScriptsDb } from "../core/db.js"
+import { refreshScripts } from "../core/db.js"
 import {
   exists,
   extensionRegex,
@@ -54,7 +54,7 @@ try {
 
 mv(filePath, newFilePath)
 await cli("create-bin", "scripts", newFilePath)
-await refreshScriptsDb()
+await refreshScripts()
 
 edit(newFilePath, kenvPath())
 

@@ -1,10 +1,10 @@
-import { getScriptsDb, getTimestamps } from "../core/db.js"
+import { getScripts, getTimestamps } from "../core/db.js"
 import { Channel } from "../core/enum.js"
 
 await sendWait(Channel.CLEAR_PROMPT_CACHE)
 setInput(``)
 await getTimestamps(false)
-await getScriptsDb(false)
+await getScripts(false)
 
 await mainScript()
 

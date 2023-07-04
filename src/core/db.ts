@@ -84,6 +84,7 @@ export let db = async <T = any>(
   data?: T | (() => Promise<T>),
   fromCache = true
 ): Promise<Low & any> => {
+  // global.__kitDbMap = global.__kitDbMap || new Map()
   if (
     typeof data === "undefined" &&
     typeof dataOrKeyOrPath !== "string"
@@ -96,6 +97,15 @@ export let db = async <T = any>(
   let dbPath = ""
 
   if (typeof dataOrKeyOrPath === "string") {
+    if (fromCache) {
+      global.__kitDbMap = global.__kitDbMap || new Map()
+    } else {
+      global.__kitDbMap = new Map()
+    }
+    if (global.__kitDbMap.has(dataOrKeyOrPath)) {
+      return global.__kitDbMap.get(dataOrKeyOrPath)
+    }
+
     dbPath = dataOrKeyOrPath
     if (!dataOrKeyOrPath.endsWith(".json")) {
       dbPath = resolveKenv("db", `${dataOrKeyOrPath}.json`)
@@ -159,26 +169,50 @@ export let db = async <T = any>(
     }
   }
 
-  return new Proxy({} as any, {
+  let dbProxy = new Proxy({} as any, {
     get: (_target, k: string) => {
       if (k === "then") return _db
       let d = _db as any
       if (d[k]) {
-        return typeof d[k] === "function"
-          ? d[k].bind(d)
-          : d[k]
+        if (typeof d[k] === "function") {
+          return d[k].bind(d)
+
+          // TODO: If connected to a parent process, send them as actions:
+          if (process.send) {
+            return (...args: any[]) => {
+              return sendWait(`DB_GET_${k}` as any, ...args)
+            }
+          } else {
+          }
+        }
+        return d[k]
       }
       return _db?.data?.[k]
     },
     set: (target: any, key: string, value: any) => {
       try {
         ;(_db as any).data[key] = value
+        // TODO: If connected to a parent process, send the values to the app
+        // if (process.send) {
+        //   send(`DB_SET_${key}` as any, value)
+        // } else {
+        // }
+
         return true
       } catch (error) {
         return false
       }
     },
   })
+
+  if (
+    dataOrKeyOrPath &&
+    typeof dataOrKeyOrPath === "string"
+  ) {
+    global.__kitDbMap.set(dataOrKeyOrPath, dbProxy)
+  }
+
+  return dbProxy
 }
 
 global.db = db
@@ -230,91 +264,49 @@ type QueueItem = {
   reject: (reason?: any) => void
 }
 
-let queue: QueueItem[] = []
-let setTimestampsRunning = false
-
-export let setScriptTimestamp = (
-  incomingStamp: Stamp
+export let setScriptTimestamp = async (
+  stamp: Stamp
 ): Promise<Script[]> => {
-  if (setTimestampsRunning) {
-    return new Promise((resolve, reject) => {
-      queue.push({
-        stamp: incomingStamp,
-        resolve,
-        reject,
-      })
-    })
+  let timestampsDb = await getTimestamps()
+  let index = timestampsDb.stamps.findIndex(
+    s => s.filePath === stamp.filePath
+  )
+
+  let oldStamp = timestampsDb.stamps[index]
+
+  stamp.timestamp = Date.now()
+  if (stamp.runCount) {
+    stamp.runCount = oldStamp?.runCount
+      ? oldStamp.runCount + 1
+      : 1
   }
-
-  setTimestampsRunning = true
-
-  const processStamp = async (stamp: Stamp) => {
-    try {
-      let timestampsDb = await getTimestamps()
-      let index = timestampsDb.stamps.findIndex(
-        s => s.filePath === stamp.filePath
-      )
-
-      let oldStamp = timestampsDb.stamps[index]
-
-      stamp.timestamp = Date.now()
-      if (stamp.runCount) {
-        stamp.runCount = oldStamp?.runCount
-          ? oldStamp.runCount + 1
-          : 1
-      }
-      if (oldStamp) {
-        timestampsDb.stamps[index] = {
-          ...oldStamp,
-          ...stamp,
-        }
-      } else {
-        timestampsDb.stamps.push(stamp)
-      }
-
-      let scriptsDb = await getScriptsDb()
-      let script = scriptsDb.scripts.find(
-        s => s.filePath === stamp.filePath
-      )
-
-      if (script) {
-        scriptsDb.scripts = scriptsDb.scripts.sort(
-          scriptsSort(timestampsDb.stamps as Timestamp[])
-        )
-        try {
-          await scriptsDb.write()
-        } catch (error) {}
-        try {
-          await timestampsDb.write()
-        } catch (error) {}
-      }
-
-      if (queue.length === 0) {
-        setTimestampsRunning = false
-        return scriptsDb.scripts
-      } else {
-        setTimeout(() => {
-          let next = queue.shift()!
-          processStamp(next.stamp).then(
-            next.resolve,
-            next.reject
-          )
-        }, 50) // Wait 50ms before processing the next stamp
-      }
-    } catch (error) {
-      if (queue.length === 0) {
-        setTimestampsRunning = false
-        throw error
-      } else {
-        setTimeout(() => {
-          let next = queue.shift()!
-          next.reject(error)
-        }, 50) // Wait 50ms before rejecting with error
-      }
+  if (oldStamp) {
+    timestampsDb.stamps[index] = {
+      ...oldStamp,
+      ...stamp,
     }
+  } else {
+    timestampsDb.stamps.push(stamp)
   }
 
-  return processStamp(incomingStamp)
+  let scriptsDb = await getScriptsDb(false)
+  let script = scriptsDb.scripts.find(
+    s => s.filePath === stamp.filePath
+  )
+
+  if (script) {
+    scriptsDb.scripts = scriptsDb.scripts.sort(
+      scriptsSort(timestampsDb.stamps as Timestamp[])
+    )
+    try {
+      await scriptsDb.write()
+    } catch (error) {}
+    try {
+      await timestampsDb.write()
+    } catch (error) {}
+  }
+
+  return scriptsDb.scripts
 }
 
 // export let removeScriptFromDb = async (
@@ -335,8 +327,9 @@ export let setScriptTimestamp = (
 //   return scriptsDb.scripts
 // }
 
-export let refreshScriptsDb = async () => {
-  await getScriptsDb(false)
+global.__kitScriptsFromCache = true
+export let refreshScripts = async () => {
+  await getScripts(false)
 }
 
 export let getPrefs = async () => {
@@ -371,7 +364,7 @@ export let getTimestamps = async (
 export let getScriptFromString = async (
   script: string
 ): Promise<Script> => {
-  let { scripts } = await getScriptsDb()
+  let scripts = await getScripts(false)
 
   if (!script.includes(path.sep)) {
     let result = scripts.find(
@@ -412,24 +405,9 @@ export let getScripts = async (
   fromCache = true,
   ignoreKenvPattern = /^ignore$/
 ) => {
+  global.__kitScriptsFromCache = fromCache
   return (await getScriptsDb(fromCache, ignoreKenvPattern))
     .scripts
-}
-
-export let updateScripts = async (
-  changedScriptPath: string
-) => {
-  let scriptsDb = await getScriptsDb(false)
-  let scripts = await parseScripts()
-  let changedScript = scripts.find(
-    s => s.filePath === changedScriptPath
-  )
-  if (!changedScript) return
-  let index = scriptsDb.scripts.findIndex(
-    s => s.filePath === changedScriptPath
-  )
-  scriptsDb.scripts[index] = changedScript
-  scriptsDb.write()
 }
 
 export interface ScriptValue {

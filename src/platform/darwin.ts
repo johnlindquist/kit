@@ -7,7 +7,7 @@ import {
   backToMainShortcut,
 } from "../core/utils.js"
 
-import { refreshScriptsDb } from "../core/db.js"
+import { refreshScripts } from "../core/db.js"
 
 global.applescript = async (
   script,
@@ -328,7 +328,7 @@ global.edit = async (f, dir, line = 0, col = 0) => {
 
     await writeFile(file, contents)
     if (openMain) {
-      await refreshScriptsDb()
+      await refreshScripts()
 
       await mainScript()
     }

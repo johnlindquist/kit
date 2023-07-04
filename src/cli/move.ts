@@ -5,7 +5,7 @@ import { getKenvs, trashScriptBin } from "../core/utils.js"
 import { createBinFromScript } from "./lib/utils.js"
 
 import { Bin } from "../core/enum.js"
-import { refreshScriptsDb } from "../core/db.js"
+import { refreshScripts } from "../core/db.js"
 import { Script } from "../types/core.js"
 
 let script = await selectScript()
@@ -59,7 +59,7 @@ while (true) {
   if (!exists) {
     await trashScriptBin(script)
     mv(script.filePath, targetPath)
-    await refreshScriptsDb()
+    await refreshScripts()
     createBinFromScript(Bin.scripts, script)
   }
 

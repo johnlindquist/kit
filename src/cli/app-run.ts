@@ -3,10 +3,7 @@
 // Log: false
 
 import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
-import {
-  getTimestamps,
-  setScriptTimestamp,
-} from "../core/db.js"
+import { getTimestamps } from "../core/db.js"
 import { Channel, Value } from "../core/enum.js"
 import {
   toggleBackground,
@@ -434,183 +431,180 @@ let isApp = false
 let isPass = false
 let input = ""
 
-let script = await mainMenu(
-  {
-    name: "Main",
-    placeholder: "Run Script",
-    enter: "Run",
-    strict: false,
-    flags: scriptFlags,
-    onSubmit: i => {
-      input = i.trim()
-    },
-    onNoChoices,
-    onChoiceFocus: async (input, state) => {
-      isApp = state?.focused?.group === "Apps"
-      isPass = state?.focused?.group === "Pass"
-    },
-    // footer: `Script Options: ${cmd}+k`,
-    onInputSubmit: {
-      "=": kitPath("handler", "equals-handler.js"),
-      ">": kitPath("handler", "greaterthan-handler.js"),
-      "/": kitPath("handler", "slash-handler.js"),
-      "~": kitPath("handler", "tilde-handler.js"),
-      "'": kitPath("handler", "quote-handler.js"),
-      '"': kitPath("handler", "doublequote-handler.js"),
-      ";": kitPath("handler", "semicolon-handler.js"),
-      ":": kitPath("handler", "colon-handler.js"),
-      ".": kitPath("handler", "period-handler.js"),
-      "\\": kitPath("handler", "backslash-handler.js"),
-      "|": kitPath("handler", "pipe-handler.js"),
-      ",": kitPath("handler", "comma-handler.js"),
-      "`": kitPath("handler", "backtick-handler.js"),
-      "<": kitPath("handler", "lessthan-handler.js"),
-      "-": kitPath("handler", "minus-handler.js"),
-      "[": kitPath("handler", "leftbracket-handler.js"),
-      "1": kitPath("handler", "number-handler.js") + ` 1`,
-      "2": kitPath("handler", "number-handler.js") + ` 2`,
-      "3": kitPath("handler", "number-handler.js") + ` 3`,
-      "4": kitPath("handler", "number-handler.js") + ` 4`,
-      "5": kitPath("handler", "number-handler.js") + ` 5`,
-      "6": kitPath("handler", "number-handler.js") + ` 6`,
-      "7": kitPath("handler", "number-handler.js") + ` 7`,
-      "8": kitPath("handler", "number-handler.js") + ` 8`,
-      "9": kitPath("handler", "number-handler.js") + ` 9`,
-      "0": kitPath("handler", "zero-handler.js"),
-      "?": kitPath("handler", "question-handler.js"),
-    },
-
-    shortcuts: [
-      {
-        name: "New Menu",
-        key: `${cmd}+shift+n`,
-        onPress: async () => {
-          await run(kitPath("cli", "new-menu.js"))
-        },
-      },
-      {
-        name: "New",
-        key: `${cmd}+n`,
-        bar: "left",
-        onPress: async () => {
-          await run(kitPath("cli", "new.js"))
-        },
-      },
-      {
-        name: "List Processes",
-        key: `${cmd}+p`,
-        onPress: async () => {
-          let processes = await getProcesses()
-          if (
-            processes.filter(p => p?.scriptPath)?.length > 1
-          ) {
-            await run(kitPath("cli", "processes.js"))
-          }
-        },
-      },
-      {
-        name: "Find Script",
-        key: `${cmd}+f`,
-        onPress: async () => {
-          global.setFlags({})
-          await run(kitPath("cli", "find.js"))
-        },
-      },
-      {
-        name: "Reset Prompt",
-        key: `${cmd}+0`,
-        onPress: async () => {
-          await run(kitPath("cli", "kit-clear-prompt.js"))
-        },
-      },
-      {
-        name: "Edit",
-        key: `${cmd}+o`,
-        onPress: async (input, { focused }) => {
-          if (process?.env?.KIT_EDITOR !== "kit") {
-            await hide()
-          }
-          await run(
-            kitPath("cli", "edit-script.js"),
-            focused.value.filePath
-          )
-          submit(false)
-        },
-        bar: "right",
-      },
-      {
-        name: "Create/Edit Doc",
-        key: `${cmd}+.`,
-        onPress: async (input, { focused }) => {
-          await run(
-            kitPath("cli", "edit-doc.js"),
-            focused.value.filePath
-          )
-          submit(false)
-        },
-      },
-      {
-        name: "Log",
-        key: `${cmd}+l`,
-        onPress: async (input, { focused }) => {
-          await run(
-            kitPath("cli", "open-script-log.js"),
-            focused?.value?.filePath
-          )
-        },
-      },
-      {
-        name: "Share",
-        key: `${cmd}+s`,
-        condition: c => !c.needsDebugger,
-        onPress: async (input, { focused }) => {
-          await setFlagValue(focused?.value)
-          await setInput("Share")
-        },
-        bar: "right",
-      },
-      {
-        name: "Debug",
-        key: `${cmd}+enter`,
-        condition: c => c.needsDebugger,
-        onPress: async (input, { focused }) => {
-          flag.cmd = true
-          submit(focused)
-        },
-        bar: "right",
-      },
-      // {
-      //   name: "Share",
-      //   key: `${cmd}+s`,
-      //   onPress: async (input, { focused }) => {
-      //     await run(
-      //       kitPath("cli", "share-script-as-discussion.js"),
-      //       focused?.value?.filePath
-      //     )
-      //   },
-      // },
-    ],
-    //     onInput: async (input, { count }) => {
-    //       if (count === 0) {
-    //         let scriptName = input
-    //           .replace(/[^\w\s-]/g, "")
-    //           .replace(/\s/g, "-")
-    //           .toLowerCase()
-
-    //         setPanel(
-    //           md(`# Create \`${scriptName}\`
-
-    // Create a new script named \`"${scriptName}"\`
-    //         `)
-    //         )
-    //       } else {
-    //         setPanel(``)
-    //       }
-    //     },
-    input: arg?.input || "",
+let script = await mainMenu({
+  name: "Main",
+  placeholder: "Run Script",
+  enter: "Run",
+  strict: false,
+  flags: scriptFlags,
+  onSubmit: i => {
+    input = i.trim()
   },
-  true
-)
+  onNoChoices,
+  onChoiceFocus: async (input, state) => {
+    isApp = state?.focused?.group === "Apps"
+    isPass = state?.focused?.group === "Pass"
+  },
+  // footer: `Script Options: ${cmd}+k`,
+  onInputSubmit: {
+    "=": kitPath("handler", "equals-handler.js"),
+    ">": kitPath("handler", "greaterthan-handler.js"),
+    "/": kitPath("handler", "slash-handler.js"),
+    "~": kitPath("handler", "tilde-handler.js"),
+    "'": kitPath("handler", "quote-handler.js"),
+    '"': kitPath("handler", "doublequote-handler.js"),
+    ";": kitPath("handler", "semicolon-handler.js"),
+    ":": kitPath("handler", "colon-handler.js"),
+    ".": kitPath("handler", "period-handler.js"),
+    "\\": kitPath("handler", "backslash-handler.js"),
+    "|": kitPath("handler", "pipe-handler.js"),
+    ",": kitPath("handler", "comma-handler.js"),
+    "`": kitPath("handler", "backtick-handler.js"),
+    "<": kitPath("handler", "lessthan-handler.js"),
+    "-": kitPath("handler", "minus-handler.js"),
+    "[": kitPath("handler", "leftbracket-handler.js"),
+    "1": kitPath("handler", "number-handler.js") + ` 1`,
+    "2": kitPath("handler", "number-handler.js") + ` 2`,
+    "3": kitPath("handler", "number-handler.js") + ` 3`,
+    "4": kitPath("handler", "number-handler.js") + ` 4`,
+    "5": kitPath("handler", "number-handler.js") + ` 5`,
+    "6": kitPath("handler", "number-handler.js") + ` 6`,
+    "7": kitPath("handler", "number-handler.js") + ` 7`,
+    "8": kitPath("handler", "number-handler.js") + ` 8`,
+    "9": kitPath("handler", "number-handler.js") + ` 9`,
+    "0": kitPath("handler", "zero-handler.js"),
+    "?": kitPath("handler", "question-handler.js"),
+  },
+
+  shortcuts: [
+    {
+      name: "New Menu",
+      key: `${cmd}+shift+n`,
+      onPress: async () => {
+        await run(kitPath("cli", "new-menu.js"))
+      },
+    },
+    {
+      name: "New",
+      key: `${cmd}+n`,
+      bar: "left",
+      onPress: async () => {
+        await run(kitPath("cli", "new.js"))
+      },
+    },
+    {
+      name: "List Processes",
+      key: `${cmd}+p`,
+      onPress: async () => {
+        let processes = await getProcesses()
+        if (
+          processes.filter(p => p?.scriptPath)?.length > 1
+        ) {
+          await run(kitPath("cli", "processes.js"))
+        }
+      },
+    },
+    {
+      name: "Find Script",
+      key: `${cmd}+f`,
+      onPress: async () => {
+        global.setFlags({})
+        await run(kitPath("cli", "find.js"))
+      },
+    },
+    {
+      name: "Reset Prompt",
+      key: `${cmd}+0`,
+      onPress: async () => {
+        await run(kitPath("cli", "kit-clear-prompt.js"))
+      },
+    },
+    {
+      name: "Edit",
+      key: `${cmd}+o`,
+      onPress: async (input, { focused }) => {
+        if (process?.env?.KIT_EDITOR !== "kit") {
+          await hide()
+        }
+        await run(
+          kitPath("cli", "edit-script.js"),
+          focused.value.filePath
+        )
+        submit(false)
+      },
+      bar: "right",
+    },
+    {
+      name: "Create/Edit Doc",
+      key: `${cmd}+.`,
+      onPress: async (input, { focused }) => {
+        await run(
+          kitPath("cli", "edit-doc.js"),
+          focused.value.filePath
+        )
+        submit(false)
+      },
+    },
+    {
+      name: "Log",
+      key: `${cmd}+l`,
+      onPress: async (input, { focused }) => {
+        await run(
+          kitPath("cli", "open-script-log.js"),
+          focused?.value?.filePath
+        )
+      },
+    },
+    {
+      name: "Share",
+      key: `${cmd}+s`,
+      condition: c => !c.needsDebugger,
+      onPress: async (input, { focused }) => {
+        await setFlagValue(focused?.value)
+        await setInput("Share")
+      },
+      bar: "right",
+    },
+    {
+      name: "Debug",
+      key: `${cmd}+enter`,
+      condition: c => c.needsDebugger,
+      onPress: async (input, { focused }) => {
+        flag.cmd = true
+        submit(focused)
+      },
+      bar: "right",
+    },
+    // {
+    //   name: "Share",
+    //   key: `${cmd}+s`,
+    //   onPress: async (input, { focused }) => {
+    //     await run(
+    //       kitPath("cli", "share-script-as-discussion.js"),
+    //       focused?.value?.filePath
+    //     )
+    //   },
+    // },
+  ],
+  //     onInput: async (input, { count }) => {
+  //       if (count === 0) {
+  //         let scriptName = input
+  //           .replace(/[^\w\s-]/g, "")
+  //           .replace(/\s/g, "-")
+  //           .toLowerCase()
+
+  //         setPanel(
+  //           md(`# Create \`${scriptName}\`
+
+  // Create a new script named \`"${scriptName}"\`
+  //         `)
+  //         )
+  //       } else {
+  //         setPanel(``)
+  //       }
+  //     },
+  input: arg?.input || "",
+})
 
 if (typeof script === "boolean" && !script) {
   exit()
@@ -690,8 +684,6 @@ if (isApp) {
       script.filePath,
       ...Object.keys(flag).map(f => `--${f}`)
     )
-
-    setScriptTimestamp({ filePath: script.filePath })
 
     await runP
   }

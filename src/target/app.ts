@@ -577,6 +577,10 @@ let waitForPromptValue = ({
             }
             onAudioData(data.state.input, data.state)
             break
+
+          case Channel.SCRIPTS_CHANGED:
+            global.__kitScriptsFromCache = false
+            break
         }
       },
       // TODO: Add a kit log

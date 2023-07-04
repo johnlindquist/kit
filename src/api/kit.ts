@@ -1071,11 +1071,31 @@ let groupScripts = scripts => {
   })
 }
 
+let processedScripts = []
+export let getProcessedScripts = async () => {
+  if (
+    global.__kitScriptsFromCache &&
+    processedScripts.length
+  )
+    return processedScripts
+
+  let scripts: Script[] = await getScripts(
+    global.__kitScriptsFromCache
+  )
+
+  let timestampsDb = await getTimestamps()
+
+  global.__kitScriptsFromCache = true
+
+  processedScripts = await Promise.all(
+    scripts.map(processScript(timestampsDb.stamps))
+  )
+
+  return processedScripts
+}
+
 export let mainMenu = async (
-  message: string | PromptConfig = "Select a script",
-  fromCache = true,
-  xf = (x: Script[]) => x,
-  ignoreKenvPattern = /^ignore$/
+  message: string | PromptConfig = "Select a script"
 ): Promise<Script | string> => {
   setShortcuts([
     { name: "New Menu", key: `${cmd}+shift+n` },
@@ -1090,13 +1110,7 @@ export let mainMenu = async (
     { name: "Exit", key: `${cmd}+w`, bar: "" },
   ])
 
-  let scripts: Script[] = xf(
-    await getScripts(fromCache, ignoreKenvPattern)
-  )
-  let timestampsDb = await getTimestamps(fromCache)
-  scripts = await Promise.all(
-    scripts.map(processScript(timestampsDb.stamps))
-  )
+  let processedscripts = await getProcessedScripts()
 
   let apps = (await getApps()).map(a => {
     a.ignoreFlags = true
@@ -1104,7 +1118,7 @@ export let mainMenu = async (
     return a
   })
   if (apps.length) {
-    scripts = scripts.concat(apps)
+    processedscripts = processedscripts.concat(apps)
   }
 
   let passScripts = await Promise.all(
@@ -1124,9 +1138,9 @@ export let mainMenu = async (
     })
   )
 
-  scripts = scripts.concat(passScripts)
+  processedscripts = processedscripts.concat(passScripts)
 
-  let groupedScripts = groupScripts(scripts)
+  let groupedScripts = groupScripts(processedscripts)
 
   let scriptsConfig = buildScriptConfig(message)
   scriptsConfig.keepPreview = true
@@ -1197,18 +1211,21 @@ ${stamp.compileMessage}
     }
 
     let previewPath = getPreviewPath(s)
+    let preview = ``
 
     if (await isFile(previewPath)) {
-      await processWithPreviewFile(
+      preview = await processWithPreviewFile(
         s,
         previewPath,
         infoBlock
       )
     } else if (typeof s?.preview === "string") {
-      await processWithStringPreview(s, infoBlock)
+      preview = await processWithStringPreview(s, infoBlock)
     } else {
-      s.preview = await processWithNoPreview(s, infoBlock)
+      preview = await processWithNoPreview(s, infoBlock)
     }
+
+    s.preview = preview
 
     return s
   }
@@ -1225,30 +1242,34 @@ export let processWithPreviewFile = async (
   s: Script,
   previewPath: string,
   infoBlock: string
-) => {
+): Promise<string> => {
+  let processedPreview = ``
   try {
     let preview = await readFile(previewPath, "utf8")
     let content = await highlightJavaScript(
       s.filePath,
       s.shebang
     )
-    s.preview = md(infoBlock + preview) + content
+    processedPreview = md(infoBlock + preview) + content
   } catch (error) {
-    s.preview = md(
+    processedPreview = md(
       `Could not find doc file ${previewPath} for ${s.name}`
     )
     warn(
       `Could not find doc file ${previewPath} for ${s.name}`
     )
   }
+
+  return processedPreview
 }
 
 export let processWithStringPreview = async (
   s: Script,
   infoBlock: string
 ) => {
+  let processedPreview = ``
   if (s?.preview === "false") {
-    s.preview = `<div/>`
+    processedPreview = `<div/>`
   } else {
     try {
       let content = await readFile(
@@ -1258,19 +1279,22 @@ export let processWithStringPreview = async (
         ),
         "utf-8"
       )
-      s.preview = infoBlock
+      processedPreview = infoBlock
         ? md(infoBlock)
         : `` + (await highlight(content))
     } catch (error) {
-      s.preview = `Error: ${error.message}`
+      processedPreview = `Error: ${error.message}`
     }
   }
+
+  return processedPreview
 }
 
 export let processWithNoPreview = async (
   s: Script,
   infoBlock: string
-) => {
+): Promise<string> => {
+  let processedPreview = ``
   let preview = await readFile(s.filePath, "utf8")
 
   if (preview.startsWith("/*") && preview.includes("*/")) {
@@ -1299,9 +1323,10 @@ ${s?.note ? `> ${s.note}` : ""}
     preview,
     s?.shebang || ""
   )
-  return (
+
+  processedPreview =
     markdown + (infoBlock ? md(infoBlock) : `` + content)
-  )
+  return processedPreview
 }
 
 global.selectScript = selectScript
