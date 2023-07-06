@@ -67,7 +67,6 @@ let createChoices = async () => {
     if (appPath.includes("/Contents/")) return false
     if (appPath.includes("/Uninstall")) return false
     if (appPath.includes("/PrivateFrameworks")) return false
-    if (appPath.includes("/CoreServices")) return false
 
     return true
   })
@@ -151,7 +150,8 @@ let appsDb = await db(
     return {
       choices,
     }
-  }
+  },
+  !flag?.refresh
 )
 
 if (flag?.prep) {
@@ -171,11 +171,11 @@ if (flag?.prep) {
           bar: "right",
           onPress: async input => {
             setPlaceholder(`Refreshing apps...`)
-            await remove(kitPath("db", "apps.json"))
             await run(
               kitPath("main", "app-launcher.js"),
               "--input",
-              input
+              input,
+              "--refresh"
             )
           },
         },
