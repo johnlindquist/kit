@@ -175,6 +175,9 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
 let getInitialChoices = async (
   props: InvokeChoicesProps
 ) => {
+  if (typeof props?.choices === "string") {
+    setChoices([])
+  }
   if (typeof props?.choices === "function") {
     return await invokeChoices({ ...props })
   } else {
