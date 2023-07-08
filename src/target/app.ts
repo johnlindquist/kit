@@ -39,6 +39,7 @@ import {
   takeUntil,
   tap,
   Subject,
+  merge,
 } from "@johnlindquist/kit-internal/rxjs"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
@@ -175,7 +176,7 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
 let getInitialChoices = async (
   props: InvokeChoicesProps
 ) => {
-  if (typeof props?.choices === "string") {
+  if (!Array.isArray(props.choices)) {
     setChoices([])
   }
   if (typeof props?.choices === "function") {
@@ -310,8 +311,6 @@ let waitForPromptValue = ({
   shortcuts,
 }: WaitForPromptValueProps) => {
   return new Promise((resolve, reject) => {
-    global.__kitPromptResolve = resolve
-
     if (
       ui === UI.arg ||
       ui === UI.hotkey ||
@@ -329,22 +328,38 @@ let waitForPromptValue = ({
       setChoices([])
     }
 
-    let process$ = new Observable<AppMessage>(observer => {
-      global.__kitMessageHandler = (data: AppMessage) => {
-        observer.next(data)
-      }
-      global.__kitErrorHandler = (error: Error) => {
-        observer.error(error)
-      }
-      process.on("message", global.__kitMessageHandler)
-      process.on("error", global.__kitErrorHandler)
+    global.__kitPromptSubject = new Subject()
+    let process$ = merge(
+      global.__kitPromptSubject as Subject<AppMessage>,
+      new Observable<AppMessage>(observer => {
+        let messageHandler = (data: AppMessage) => {
+          observer.next(data)
+        }
+        let errorHandler = (error: Error) => {
+          observer.error(error)
+        }
+        process.on("message", messageHandler)
+        process.on("error", errorHandler)
 
-      global.__kitDetachFromApp = () => {
-        process.off("message", global.__kitMessageHandler)
-        process.off("error", global.__kitErrorHandler)
-      }
-      return global.__kitDetachFromApp
-    }).pipe(takeUntil(kitPrompt$), share())
+        return () => {
+          process.off("message", messageHandler)
+          process.off("error", errorHandler)
+          console.log(`🚨 process off`)
+
+          console.log(
+            `🚨 process listener count: ${process.listenerCount(
+              "message"
+            )}`
+          )
+
+          console.log(
+            `🚨 process listeners: ${process.listeners(
+              "message"
+            )}`
+          )
+        }
+      })
+    ).pipe(share())
 
     let tab$ = process$.pipe(
       filter(data => data.channel === Channel.TAB_CHANGED),
@@ -773,8 +788,6 @@ let prepPrompt = async (config: PromptConfig) => {
   })
 }
 
-let kitPrompt$ = new Subject()
-
 let createOnInputDefault = (
   choices,
   className,
@@ -829,7 +842,6 @@ global.kitPrompt = async (config: PromptConfig) => {
   global.__currentPromptSecret = config.secret || false
   let ui = config?.ui || UI.arg
   global.__kitCurrentUI = ui
-  kitPrompt$.next(true)
 
   //need to let onTabs() gather tab names. See Word API
   if (global?.onTabs?.length) {
@@ -1802,9 +1814,14 @@ global.clearClipboardHistory = () => {
 }
 
 global.submit = async (value: any) => {
-  if (global.__kitPromptResolve)
-    global.__kitPromptResolve(value)
-  if (global.__kitDetachFromApp) global.__kitDetachFromApp()
+  if (global.__kitPromptSubject) {
+    global.__kitPromptSubject.next({
+      channel: Channel.VALUE_SUBMITTED,
+      state: {
+        value,
+      },
+    })
+  }
 }
 
 global.wait = async (time: number) => {
