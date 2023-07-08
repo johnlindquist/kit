@@ -344,19 +344,6 @@ let waitForPromptValue = ({
         return () => {
           process.off("message", messageHandler)
           process.off("error", errorHandler)
-          console.log(`🚨 process off`)
-
-          console.log(
-            `🚨 process listener count: ${process.listenerCount(
-              "message"
-            )}`
-          )
-
-          console.log(
-            `🚨 process listeners: ${process.listeners(
-              "message"
-            )}`
-          )
         }
       })
     ).pipe(share())

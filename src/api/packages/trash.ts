@@ -33,7 +33,7 @@ export default async function trash(
     // Check if the path is a directory or a file
     if (stats.isDirectory()) {
       // Delete directory and its content
-      await fs.promises.rmdir(item, { recursive: true })
+      await fs.promises.rm(item, { recursive: true })
     } else {
       // Delete file
       await fs.promises.unlink(item)
