@@ -1529,3 +1529,28 @@ export let formatChoices = (
     )
   }
 }
+
+export let getCachePath = (
+  filePath: string,
+  type: string
+) => {
+  // Normalize file path
+  const normalizedPath = path.normalize(filePath)
+
+  // Replace all non-alphanumeric characters and path separators with dashes
+  let dashedName = normalizedPath.replace(
+    /[^a-zA-Z0-9]/g,
+    "-"
+  )
+
+  // Remove leading dashes
+  while (dashedName.charAt(0) === "-") {
+    dashedName = dashedName.substr(1)
+  }
+
+  // Replace multiple consecutive dashes with a single dash
+  dashedName = dashedName.replace(/-+/g, "-")
+
+  // Append .json extension
+  return kitPath(`cache`, type, `${dashedName}.json`)
+}

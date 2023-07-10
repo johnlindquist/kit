@@ -1096,22 +1096,7 @@ export let getProcessedScripts = async () => {
   return processedScripts
 }
 
-export let mainMenu = async (
-  message: string | PromptConfig = "Select a script"
-): Promise<Script | string> => {
-  setShortcuts([
-    { name: "New Menu", key: `${cmd}+shift+n` },
-    { name: "New", key: `${cmd}+n`, bar: "left" },
-    { name: "List Processes", key: `${cmd}+p` },
-    { name: "Find Script", key: `${cmd}+f` },
-    { name: "Reset Prompt", key: `${cmd}+0` },
-    { name: "Edit", key: "cmd+o", bar: "right" },
-    { name: "Create/Edit Doc", key: `${cmd}+.` },
-    { name: "Log", key: `${cmd}+l` },
-    { name: "Share", key: `${cmd}+s`, bar: "right" },
-    { name: "Exit", key: `${cmd}+w`, bar: "" },
-  ])
-
+export let getGroupedScripts = async () => {
   let processedscripts = await getProcessedScripts()
 
   let apps = (await getApps()).map(a => {
@@ -1144,9 +1129,6 @@ export let mainMenu = async (
 
   let groupedScripts = groupScripts(processedscripts)
 
-  let scriptsConfig = buildScriptConfig(message)
-  scriptsConfig.keepPreview = true
-
   groupedScripts = groupedScripts.map(s => {
     if (s.group === "Pass") {
       s.ignoreFlags = true
@@ -1154,6 +1136,30 @@ export let mainMenu = async (
 
     return s
   })
+
+  return groupedScripts
+}
+
+export let mainMenu = async (
+  message: string | PromptConfig = "Select a script"
+): Promise<Script | string> => {
+  setShortcuts([
+    { name: "New Menu", key: `${cmd}+shift+n` },
+    { name: "New", key: `${cmd}+n`, bar: "left" },
+    { name: "List Processes", key: `${cmd}+p` },
+    { name: "Find Script", key: `${cmd}+f` },
+    { name: "Reset Prompt", key: `${cmd}+0` },
+    { name: "Edit", key: "cmd+o", bar: "right" },
+    { name: "Create/Edit Doc", key: `${cmd}+.` },
+    { name: "Log", key: `${cmd}+l` },
+    { name: "Share", key: `${cmd}+s`, bar: "right" },
+    { name: "Exit", key: `${cmd}+w`, bar: "" },
+  ])
+
+  let scriptsConfig = buildScriptConfig(message)
+  scriptsConfig.keepPreview = true
+
+  let groupedScripts = await getGroupedScripts()
 
   let script = await global.arg(
     scriptsConfig,
