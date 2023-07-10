@@ -278,6 +278,10 @@ let onTabChanged = (input, state) => {
   global.currentOnTab = global.onTabs?.[tabIndex]?.fn(input)
 }
 
+// If you call a prompt while a prompt is already running, end the stream
+// This is especially important when switching tabs
+global.__kitEndPrevPromptSubject = new Subject()
+
 let waitForPromptValue = ({
   ui,
   choices,
@@ -310,6 +314,7 @@ let waitForPromptValue = ({
   state,
   shortcuts,
 }: WaitForPromptValueProps) => {
+  global.__kitEndPrevPromptSubject.next()
   return new Promise((resolve, reject) => {
     if (
       ui === UI.arg ||
@@ -346,7 +351,10 @@ let waitForPromptValue = ({
           process.off("error", errorHandler)
         }
       })
-    ).pipe(share())
+    ).pipe(
+      takeUntil(global.__kitEndPrevPromptSubject),
+      share()
+    )
 
     let tab$ = process$.pipe(
       filter(data => data.channel === Channel.TAB_CHANGED),
