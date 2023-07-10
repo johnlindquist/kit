@@ -1,23 +1,9 @@
-// Description: Remove a script
-
-import {
-  getTimestamps,
-  refreshScripts,
-} from "../core/db.js"
+// Description: Remove a script timestamp
 
 let script = await selectScript(`Remove a script:`)
 
 let { filePath } = script
-
-let stampDb = await getTimestamps()
-let stamp = stampDb.stamps.findIndex(
-  s => s.filePath === filePath
-)
-
-stampDb.stamps.splice(stamp, 1)
-await stampDb.write()
-
-await refreshScripts()
+await global.removeTimestamp(filePath)
 await mainScript()
 
 export {}

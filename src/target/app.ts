@@ -2855,3 +2855,11 @@ global.getMediaDevices = async () => {
 
   return appMessage?.state?.value
 }
+
+global.clearTimestamps = async () => {
+  return await sendWait(Channel.CLEAR_TIMESTAMPS)
+}
+
+global.removeTimestamp = async (id: string) => {
+  return await sendWait(Channel.REMOVE_TIMESTAMP, id)
+}

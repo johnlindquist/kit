@@ -272,6 +272,8 @@ export enum Channel {
   PRELOAD = "PRELOAD",
   SET_FLAG_VALUE = "SET_FLAG_VALUE",
   DB = "DB",
+  CLEAR_TIMESTAMPS = "CLEAR_TIMESTAMPS",
+  REMOVE_TIMESTAMP = "REMOVE_TIMESTAMP",
 }
 
 export enum ProcessType {

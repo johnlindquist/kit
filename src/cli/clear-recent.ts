@@ -1,11 +1,10 @@
-// Description: Remove a script
+// Description: Clear Timestamps
 
 import { getTimestamps } from "../core/db.js"
 
 let script = await selectScript(`Remove a script:`)
-let stampDb = await getTimestamps()
-stampDb.stamps = []
-await stampDb.write()
+
+await global.clearTimestamps()
 
 await mainScript()
 

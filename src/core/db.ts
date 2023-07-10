@@ -268,7 +268,43 @@ type QueueItem = {
   reject: (reason?: any) => void
 }
 
-export let setScriptTimestamp = async (
+// Higher-order function for adding "one-shot" behavior
+function singleInvocationWithinDelay<T extends any[], U>(
+  func: (...args: T) => Promise<U>,
+  delay: number
+): (...funcArgs: T) => Promise<U | undefined> {
+  let debounceTimer: NodeJS.Timeout | null = null
+  let invocationTimer: NodeJS.Timeout | null = null
+
+  return (...args: T): Promise<U | undefined> => {
+    return new Promise<U | undefined>((resolve, reject) => {
+      // If a debounce timer is already running, clear the invocation timer and reset the debounce timer
+      if (debounceTimer !== null) {
+        clearTimeout(invocationTimer!)
+        clearTimeout(debounceTimer)
+        invocationTimer = null
+        debounceTimer = setTimeout(() => {
+          debounceTimer = null
+        }, delay)
+        resolve(undefined)
+        return
+      }
+
+      // If no debounce timer is running, start one
+      debounceTimer = setTimeout(() => {
+        debounceTimer = null
+        invocationTimer = setTimeout(() => {
+          invocationTimer = null
+          func(...args)
+            .then(resolve)
+            .catch(reject)
+        }, 1)
+      }, delay)
+    })
+  }
+}
+
+export let forceSetScriptTimestamp = async (
   stamp: Stamp
 ): Promise<Script[]> => {
   let timestampsDb = await getTimestamps()
@@ -312,6 +348,11 @@ export let setScriptTimestamp = async (
 
   return scriptsDb.scripts
 }
+
+export let setScriptTimestamp = singleInvocationWithinDelay(
+  forceSetScriptTimestamp,
+  500
+)
 
 // export let removeScriptFromDb = async (
 //   filePath: string
