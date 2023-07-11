@@ -9,7 +9,11 @@ import {
 
 let cachePath = getCachePath(mainScriptPath, "choices")
 let groupedScripts = await getGroupedScripts()
-let scripts = formatChoices(groupedScripts)
+let scripts = formatChoices(groupedScripts).map(choice => {
+  choice.description = ""
+  return choice
+})
+
 await ensureDir(path.dirname(cachePath))
 await writeJson(cachePath, scripts)
 

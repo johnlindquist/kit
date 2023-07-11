@@ -15,7 +15,7 @@ cp -r src/types $KIT
 
 cp *.md package*.json LICENSE $KIT
 
-./build/install-node.sh v18.16.0 --prefix $KNODE
+./build/install-node.sh v18.15.0 --prefix $KNODE
 
 node --version
 npm --version
