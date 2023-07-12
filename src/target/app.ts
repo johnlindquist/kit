@@ -1615,6 +1615,18 @@ global.updateArgs = arrayOfArgs => {
 global.updateArgs(process.argv.slice(2))
 
 export let appInstall = async packageName => {
+  // if it detects an import like "langchain/models", we need to adjust the package name
+  // allow a slash for scoped packages like "@johnlindquist/kit"
+  let adjustedPackageName = ""
+  if (packageName.startsWith("@")) {
+    let parts = packageName.split("/")
+    adjustedPackageName = `${parts[0]}/${parts[1]}`
+  } else {
+    adjustedPackageName = packageName.split("/")[0]
+  }
+
+  packageName = adjustedPackageName
+
   if (!global.arg?.trust) {
     let placeholder = `${packageName} is required for this script`
     setDescription(placeholder)

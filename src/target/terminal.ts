@@ -180,6 +180,17 @@ global.updateArgs = arrayOfArgs => {
 global.updateArgs(process.argv.slice(2))
 
 let terminalInstall = async packageName => {
+  let adjustedPackageName = ""
+
+  if (packageName.startsWith("@")) {
+    let parts = packageName.split("/")
+    adjustedPackageName = `${parts[0]}/${parts[1]}`
+  } else {
+    adjustedPackageName = packageName.split("/")[0]
+  }
+
+  packageName = adjustedPackageName
+
   if (!global.flag?.trust) {
     let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`
     let response = await global.get<any>(

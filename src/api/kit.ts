@@ -345,6 +345,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
 
     if (scriptPath.match(/\.(ts|(t|j)sx)$/)) {
       try {
+        // Attempt to load the .mjs version first
         let outfile = determineOutFile(scriptPath)
         if (process.env.KIT_CONTEXT !== "app") {
           await buildTSScript(scriptPath, outfile)
@@ -355,7 +356,25 @@ global.attemptImport = async (scriptPath, ..._args) => {
             global.uuid()
         )
       } catch (error) {
-        await errorPrompt(error)
+        let e = error.toString()
+        // if loading fails, try to build the .mjs version, then load
+        try {
+          if (
+            e.startsWith("Error [ERR_MODULE_NOT_FOUND]")
+          ) {
+            let outfile = determineOutFile(scriptPath)
+            await buildTSScript(scriptPath, outfile)
+            importResult = await import(
+              pathToFileURL(outfile).href +
+                "?uuid=" +
+                global.uuid()
+            )
+          } else {
+            await errorPrompt(error)
+          }
+        } catch (error) {
+          await errorPrompt(error)
+        }
       }
     } else {
       importResult = await import(
