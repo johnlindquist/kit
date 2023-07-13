@@ -238,6 +238,18 @@ export let buildTSScript = async (
     )
   }
 
+  let relativeScriptNodeModulesPath = path.resolve(
+    scriptPath,
+    "..",
+    "..",
+    "node_modules"
+  )
+  if (await isDir(relativeScriptNodeModulesPath)) {
+    external = external.concat(
+      await global.readdir(relativeScriptNodeModulesPath)
+    )
+  }
+
   let contents = await readFile(scriptPath, "utf-8")
   // find all imports inside of the npm() function
   let imports = contents.match(
@@ -261,6 +273,7 @@ export let buildTSScript = async (
   let tsconfig = hasKenvTSConfig
     ? kenvTSConfig
     : kitTSConfig
+
   await build({
     entryPoints: [scriptPath],
     outfile,
