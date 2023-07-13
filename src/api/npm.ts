@@ -1,4 +1,5 @@
 import { pathToFileURL } from "url"
+import { adjustPackageName } from "../core/utils.js"
 
 let defaultImport = async (modulePath: string) => {
   let pkg = await import(modulePath)
@@ -105,6 +106,8 @@ let findPackageJson =
   }
 
 let kenvImport = async (packageName: string) => {
+  packageName = adjustPackageName(packageName)
+
   try {
     let findMainFromPackageJson =
       findPackageJson(packageName)
@@ -194,6 +197,8 @@ export let createKenvPackageMissingInstall =
       /(?<=.)(@|\^|~).*/g,
       ""
     )
+
+    packageName = adjustPackageName(packageName)
 
     let pkgPath = global.kenvPath(
       process.env.SCRIPTS_DIR || "",

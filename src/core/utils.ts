@@ -1554,3 +1554,15 @@ export let getCachePath = (
   // Append .json extension
   return kitPath(`cache`, type, `${dashedName}.json`)
 }
+
+export let adjustPackageName = (packageName: string) => {
+  let adjustedPackageName = ""
+  if (packageName.startsWith("@")) {
+    let parts = packageName.split("/")
+    adjustedPackageName = `${parts[0]}/${parts[1]}`
+  } else {
+    adjustedPackageName = packageName.split("/")[0]
+  }
+
+  return adjustedPackageName
+}

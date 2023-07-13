@@ -2,6 +2,7 @@ import { enquirer } from "@johnlindquist/kit-internal/enquirer"
 import { minimist } from "@johnlindquist/kit-internal/minimist"
 import { PromptConfig } from "../types/core"
 import {
+  adjustPackageName,
   assignPropsTo,
   debounce,
   isString,
@@ -180,16 +181,7 @@ global.updateArgs = arrayOfArgs => {
 global.updateArgs(process.argv.slice(2))
 
 let terminalInstall = async packageName => {
-  let adjustedPackageName = ""
-
-  if (packageName.startsWith("@")) {
-    let parts = packageName.split("/")
-    adjustedPackageName = `${parts[0]}/${parts[1]}`
-  } else {
-    adjustedPackageName = packageName.split("/")[0]
-  }
-
-  packageName = adjustedPackageName
+  packageName = adjustPackageName(packageName)
 
   if (!global.flag?.trust) {
     let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`

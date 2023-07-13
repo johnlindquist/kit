@@ -136,6 +136,7 @@ let matchKenvConfig = {
   onInput: async input => {
     matchKenv = input === kenv
     if (matchKenv) {
+      setPreview(`<div></div>`)
       setEnter(`Dangerously Trust ${kenv}`)
       setPanel(
         md(`# <span class="text-red-500 text-3xl animate-pulse">Danger Zone - Last Chance</span>
@@ -161,6 +162,7 @@ ${trustedKenvsKey}=${kenv}
         `)
       )
     } else {
+      setPreview(preview)
       setEnter("")
     }
   },

@@ -338,15 +338,36 @@ export let buildWidget = async (
   await writeFile(outfile, result)
 }
 
+let getMissingPackages = (e: string): string[] => {
+  let missingPackage = []
+  if (e.includes("Cannot find package")) {
+    missingPackage = e.match(
+      /(?<=Cannot find package ['"]).*(?=['"])/g
+    )
+  } else if (e.includes("Could not resolve")) {
+    missingPackage = e.match(
+      /(?<=Could not resolve ['"]).*(?=['"])/g
+    )
+  } else if (e.includes("Cannot find module")) {
+    missingPackage = e.match(
+      /(?<=Cannot find module ['"]).*(?=['"])/g
+    )
+  }
+
+  return (missingPackage || [])
+    .map(s => s.trim())
+    .filter(Boolean)
+}
+
 global.attemptImport = async (scriptPath, ..._args) => {
   let importResult = undefined
   try {
     global.updateArgs(_args)
 
     if (scriptPath.match(/\.(ts|(t|j)sx)$/)) {
+      // Attempt to load the .mjs version first
+      let outfile = determineOutFile(scriptPath)
       try {
-        // Attempt to load the .mjs version first
-        let outfile = determineOutFile(scriptPath)
         if (process.env.KIT_CONTEXT !== "app") {
           await buildTSScript(scriptPath, outfile)
         }
@@ -357,17 +378,35 @@ global.attemptImport = async (scriptPath, ..._args) => {
         )
       } catch (error) {
         let e = error.toString()
+        log({ e })
+        let missingPackages = getMissingPackages(e)
         // if loading fails, try to build the .mjs version, then load
         try {
-          if (
-            e.startsWith("Error [ERR_MODULE_NOT_FOUND]")
-          ) {
-            let outfile = determineOutFile(scriptPath)
-            await buildTSScript(scriptPath, outfile)
-            importResult = await import(
-              pathToFileURL(outfile).href +
-                "?uuid=" +
-                global.uuid()
+          if (missingPackages.length) {
+            log({ missingPackages, outfile })
+
+            if (missingPackages[0] === outfile) {
+              try {
+                await buildTSScript(scriptPath, outfile)
+              } catch (err) {
+                e = err.toString()
+                log({ e })
+                missingPackages = getMissingPackages(e)
+              }
+            }
+
+            for await (let missingPackage of missingPackages) {
+              log({ missingPackage })
+              if (missingPackage === outfile) continue
+              if (!missingPackage) continue
+              await global.installMissingPackage(
+                missingPackage
+              )
+            }
+
+            await global.writeFile(
+              kitPath("run.txt"),
+              scriptPath
             )
           } else {
             await errorPrompt(error)
