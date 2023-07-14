@@ -190,6 +190,7 @@ if (matchKenv || (isCli && cliKenv === kenv)) {
       newValue
     )
     if (!isCli) {
+      setPauseResize(false)
       await div({
         enter: "Back to Main Menu",
         html: md(`# "${kenv}" is now Trusted

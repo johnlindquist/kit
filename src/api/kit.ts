@@ -1143,6 +1143,7 @@ export let mainMenu = async (
   let scriptsConfig = buildScriptConfig(message)
   scriptsConfig.keepPreview = true
 
+  global.__kitScriptsFromCache = false
   let groupedScripts = await getGroupedScripts()
 
   let script = await global.arg(

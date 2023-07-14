@@ -162,6 +162,7 @@ if (repo.split("/").length === 2) {
   repo = `https://github.com/${repo}`
 }
 
+setPauseResize(false)
 let result = await div({
   html: md(`# Cloning ${repo}
 
@@ -216,6 +217,7 @@ if (await isFile(packageJsonPath)) {
       let toolPath = `${knodePath("bin", tool)}`
 
       await term({
+        height: PROMPT.HEIGHT["BASE"],
         command: `${toolPath} ${command}`,
         env: {
           ...global.env,
