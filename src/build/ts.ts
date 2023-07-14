@@ -86,27 +86,6 @@ let buildTSScript = async (
     return
   }
 
-  let external = []
-  let mainKenvNodeModulesPath = home(
-    ".kenv",
-    "node_modules"
-  )
-  let subKenvNodeModulesPath = kenvPath("node_modules")
-  if (await isDir(mainKenvNodeModulesPath)) {
-    external = external.concat(
-      await readdir(mainKenvNodeModulesPath)
-    )
-  }
-
-  if (
-    subKenvNodeModulesPath !== mainKenvNodeModulesPath &&
-    (await isDir(subKenvNodeModulesPath))
-  ) {
-    external = external.concat(
-      await readdir(subKenvNodeModulesPath)
-    )
-  }
-
   let outfile = outPath || determineOutFile(scriptPath)
 
   let contents = await readFile(scriptPath, "utf-8")
@@ -114,10 +93,6 @@ let buildTSScript = async (
   let imports = contents.match(
     /(?<=\s(npm|import)\(('|"))(.*)(?=('|")\))/g
   )
-
-  if (Array.isArray(imports)) {
-    external = external.concat(imports)
-  }
 
   let writeErrorFile = async errorBody => {
     let name = path.basename(scriptPath)
@@ -149,7 +124,7 @@ await installMissingPackage("${mustInstall}")
       ${errorBody}
       
       ## Found npm packages:
-      ${external.join("\n* ")}
+      ${imports.join("\n* ")}
       
       \`))
 `
@@ -174,7 +149,7 @@ await installMissingPackage("${mustInstall}")
       bundle: true,
       platform: "node",
       format: "esm",
-      external,
+      packages: "external",
       charset: "utf8",
       tsconfig,
     })

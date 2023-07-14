@@ -188,78 +188,6 @@ export let buildTSScript = async (
   scriptPath,
   outPath = ""
 ) => {
-  let external = []
-
-  let localKenvNodeModulesPath = path.resolve(
-    process.cwd(),
-    "node_modules"
-  )
-  if (await isDir(localKenvNodeModulesPath)) {
-    external = external.concat(
-      await global.readdir(localKenvNodeModulesPath)
-    )
-  }
-
-  let scriptsNodeModulesPath = path.resolve(
-    process.cwd(),
-    "scripts",
-    "node_modules"
-  )
-  if (await isDir(scriptsNodeModulesPath)) {
-    external = external.concat(
-      await global.readdir(scriptsNodeModulesPath)
-    )
-  }
-
-  let kitNodeModulesPath = kitPath("node_modules")
-  if (await isDir(kitNodeModulesPath)) {
-    external = external.concat(
-      await global.readdir(kitNodeModulesPath)
-    )
-  }
-
-  let mainKenvNodeModulesPath = home(
-    ".kenv",
-    "node_modules"
-  )
-  let subKenvNodeModulesPath = kenvPath("node_modules")
-  if (await isDir(mainKenvNodeModulesPath)) {
-    external = external.concat(
-      await global.readdir(mainKenvNodeModulesPath)
-    )
-  }
-
-  if (
-    subKenvNodeModulesPath !== mainKenvNodeModulesPath &&
-    (await isDir(subKenvNodeModulesPath))
-  ) {
-    external = external.concat(
-      await global.readdir(subKenvNodeModulesPath)
-    )
-  }
-
-  let relativeScriptNodeModulesPath = path.resolve(
-    scriptPath,
-    "..",
-    "..",
-    "node_modules"
-  )
-  if (await isDir(relativeScriptNodeModulesPath)) {
-    external = external.concat(
-      await global.readdir(relativeScriptNodeModulesPath)
-    )
-  }
-
-  let contents = await readFile(scriptPath, "utf-8")
-  // find all imports inside of the npm() function
-  let imports = contents.match(
-    /(?<=\s(npm|import)\(('|"))(.*)(?=('|")\))/g
-  )
-
-  if (Array.isArray(imports)) {
-    external = external.concat(imports)
-  }
-
   let outfile = outPath || determineOutFile(scriptPath)
   let { build } = await import("esbuild")
 
@@ -280,7 +208,7 @@ export let buildTSScript = async (
     bundle: true,
     platform: "node",
     format: "esm",
-    external,
+    packages: "external",
     charset: "utf8",
     tsconfig,
   })
@@ -291,26 +219,6 @@ export let buildWidget = async (
   outPath = ""
 ) => {
   let outfile = outPath || determineOutFile(scriptPath)
-
-  // let { build } = await import("esbuild")
-
-  // await build({
-  //   jsx: "transform",
-  //   jsxFactory: "__renderToString",
-  //   entryPoints: [scriptPath],
-  //   outfile,
-  //   bundle: true,
-  //   platform: "node",
-  //   format: "esm",
-  //   external: [
-  //     ...(await global.readdir(kenvPath("node_modules"))),
-  //   ],
-  //   tsconfig: kitPath(
-  //     "templates",
-  //     "config",
-  //     "tsconfig.json"
-  //   ),
-  // })
 
   let templateContent = await readFile(
     kenvPath("templates", `widget.html`),
@@ -373,6 +281,7 @@ let getMissingPackages = (e: string): string[] => {
 }
 
 global.attemptImport = async (scriptPath, ..._args) => {
+  let cachedArgs = args.slice(0)
   let importResult = undefined
   try {
     global.updateArgs(_args)
@@ -417,9 +326,13 @@ global.attemptImport = async (scriptPath, ..._args) => {
               )
             }
 
+            let runContents =
+              scriptPath + " " + cachedArgs.join(" ").trim()
+            log({ runContents })
+
             await global.writeFile(
               kitPath("run.txt"),
-              scriptPath
+              runContents
             )
           } else {
             await errorPrompt(error)

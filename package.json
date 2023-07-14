@@ -38,7 +38,7 @@
     "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\" && node ./scripts/cjs-fix.js",
     "build-editor-types": " kit ./build/build-editor-types.ts",
     "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
-    "lazy-install": "npm i esbuild@0.17.19 --save-exact --production --prefer-dedupe --loglevel=verbose"
+    "lazy-install": "npm i esbuild@0.18.12 --save-exact --production --prefer-dedupe --loglevel=verbose"
   },
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
@@ -54,7 +54,7 @@
     "@types/node-notifier": "8.0.2",
     "@types/shelljs": "0.8.12",
     "advanced-calculator": "1.1.0",
-    "esbuild": "0.18.11",
+    "esbuild": "^0.18.12",
     "file-icon": "5.1.1",
     "filesize": "10.0.7",
     "globby": "^13.2.2",
