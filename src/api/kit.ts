@@ -1143,6 +1143,7 @@ export let mainMenu = async (
   let scriptsConfig = buildScriptConfig(message)
   scriptsConfig.keepPreview = true
 
+  // We preload from an in-memory cache, then replace with the actual scripts
   global.__kitScriptsFromCache = false
   let groupedScripts = await getGroupedScripts()
 
