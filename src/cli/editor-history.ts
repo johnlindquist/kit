@@ -23,8 +23,13 @@ Open a file in the editor to add to the history.`)
         .replace(/:/g, "-")
         .split(".")[0],
       preview: async () => {
-        let { default: hljs } = await import("highlight.js")
-        let result = hljs.highlightAuto(content).value
+        let { default: highlight } =
+          global.__kitHighlight ||
+          (await import("highlight.js"))
+        if (!global.__kitHighlight)
+          global.__kitHighlight = { default: highlight }
+
+        let result = highlight.highlightAuto(content).value
 
         return `<style>
         code{

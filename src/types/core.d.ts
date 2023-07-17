@@ -306,8 +306,8 @@ export interface AppState {
   submitted?: boolean
   shortcut?: string
   paste?: string
-  isPasteImage?: boolean
   cursor?: number
+  preview?: string
 }
 
 export interface ChannelHandler {

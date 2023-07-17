@@ -274,6 +274,7 @@ export enum Channel {
   DB = "DB",
   CLEAR_TIMESTAMPS = "CLEAR_TIMESTAMPS",
   REMOVE_TIMESTAMP = "REMOVE_TIMESTAMP",
+  CACHE_SCRIPTS = "CACHE_SCRIPTS",
 }
 
 export enum ProcessType {

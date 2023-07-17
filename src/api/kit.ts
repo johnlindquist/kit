@@ -189,7 +189,9 @@ export let buildTSScript = async (
   outPath = ""
 ) => {
   let outfile = outPath || determineOutFile(scriptPath)
-  let { build } = await import("esbuild")
+  let { build } =
+    global?.__kitEsbuild || (await import("esbuild"))
+  if (!global?.__kitEsbuild) global.__kitEsbuild = { build }
 
   let kenvTSConfig = kenvPath("tsconfig.json")
   let kitTSConfig = kitPath(
@@ -961,7 +963,10 @@ export let highlightJavaScript = async (
     contents = filePath.trim()
   }
 
-  let { default: highlight } = await import("highlight.js")
+  let { default: highlight } =
+    global.__kitHighlight || (await import("highlight.js"))
+  if (!global.__kitHighlight)
+    global.__kitHighlight = { default: highlight }
   let highlightedContents = ``
   if (shebang) {
     // split shebang into command and args
@@ -1077,7 +1082,7 @@ export let getProcessedScripts = async () => {
     scripts.map(processScript(timestampsDb.stamps))
   )
 
-  return processedScripts
+  return scripts
 }
 
 export let getGroupedScripts = async () => {
@@ -1203,23 +1208,27 @@ ${stamp.compileMessage}
 `
       }
     }
+    s.preview = async () => {
+      let previewPath = getPreviewPath(s)
+      let preview = ``
 
-    let previewPath = getPreviewPath(s)
-    let preview = ``
+      if (await isFile(previewPath)) {
+        preview = await processWithPreviewFile(
+          s,
+          previewPath,
+          infoBlock
+        )
+      } else if (typeof s?.preview === "string") {
+        preview = await processWithStringPreview(
+          s,
+          infoBlock
+        )
+      } else {
+        preview = await processWithNoPreview(s, infoBlock)
+      }
 
-    if (await isFile(previewPath)) {
-      preview = await processWithPreviewFile(
-        s,
-        previewPath,
-        infoBlock
-      )
-    } else if (typeof s?.preview === "string") {
-      preview = await processWithStringPreview(s, infoBlock)
-    } else {
-      preview = await processWithNoPreview(s, infoBlock)
+      return preview
     }
-
-    s.preview = preview
 
     return s
   }
@@ -1381,7 +1390,10 @@ global.highlight = async (
   containerClass: string = "p-5 leading-loose",
   injectStyles: string = ``
 ) => {
-  let { default: hljs } = await import("highlight.js")
+  let { default: highlight } =
+    global.__kitHighlight || (await import("highlight.js"))
+  if (!global.__kitHighlight)
+    global.__kitHighlight = { default: highlight }
 
   let renderer = new marked.Renderer()
   renderer.paragraph = p => {
@@ -1400,10 +1412,10 @@ global.highlight = async (
   global.marked.setOptions({
     renderer,
     highlight: function (code, lang) {
-      const language = hljs.getLanguage(lang)
+      const language = highlight.getLanguage(lang)
         ? lang
         : "plaintext"
-      return hljs.highlight(code, { language }).value
+      return highlight.highlight(code, { language }).value
     },
     langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
     pedantic: false,
