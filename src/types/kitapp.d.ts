@@ -302,8 +302,10 @@ interface AddChoice {
 interface SetChoices {
   (
     choices: (Choice | string)[],
-    className?: string,
-    scripts?: boolean
+    config?: {
+      className?: string
+      ignoreInput?: boolean
+    }
   ): Promise<void>
 }
 

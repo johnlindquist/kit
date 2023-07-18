@@ -31,8 +31,10 @@ let { filePath, command, menu, name } = await selectScript(
       })
 )
 
-setDescription(`Changing shortcut for ${name}`)
-let { shortcut } = await hotkey(`Enter a key combo:`)
+let { shortcut } = await hotkey({
+  placeholder: `Enter a key combo:`,
+  description: `Changing shortcut for ${name}`,
+})
 
 let fileContents = await readFile(filePath, "utf-8")
 let reg = /(?<=^\/\/\s*Shortcut:\s).*(?=$)/gim

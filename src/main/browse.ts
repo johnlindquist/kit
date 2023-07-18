@@ -2,8 +2,6 @@
 // Description: Select a Path
 // Cache: true
 
-preload()
-
 import {
   backToMainShortcut,
   isMac,
@@ -16,10 +14,11 @@ let selectedPath = await path({
   startPath: initialPath,
   resize: true,
 })
-setDescription(selectedPath)
+
 let action = await arg(
   {
     placeholder: "Selected Path Action:",
+    description: selectedPath,
     enter: "Select",
     resize: true,
     shortcuts: [

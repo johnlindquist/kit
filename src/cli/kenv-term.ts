@@ -14,8 +14,8 @@ let dir = await arg("Open which kenv", kenvs)
 
 cd(dir)
 
-setDescription(`Kenv: ${path.basename(dir)}`)
 await term({
+  description: `Kenv: ${path.basename(dir)}`,
   cwd: dir,
 })
 

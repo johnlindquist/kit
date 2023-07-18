@@ -117,7 +117,7 @@ let displayChoices = async ({
         global.setChoices(null)
       } else {
         let resultChoices = checkResultInfo(choices)
-        global.setChoices(resultChoices, className, scripts)
+        global.setChoices(resultChoices, { className })
       }
 
       break
@@ -1897,7 +1897,6 @@ global.mainScript = async (
   input: string = "",
   tab: string
 ) => {
-  preload(mainScriptPath)
   setPlaceholder("Run Script")
   global.args = []
   global.flags = {}
@@ -2063,7 +2062,9 @@ let __pathSelector = async (
           enter: "Create Folder",
         })
 
-        await setChoices(choices)
+        await setChoices(choices, {
+          ignoreInput: true,
+        })
         setPauseResize(false)
         if (focusOn) setFocused(focusOn)
         focusOn = ``

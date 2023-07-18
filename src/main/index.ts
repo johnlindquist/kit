@@ -5,7 +5,6 @@
 // Exclude: true
 // Cache: true
 
-setDescription(`Script Kit`)
 export interface Main {
   api: Promise<typeof import("./api")>
   edit: Promise<typeof import("./edit")>

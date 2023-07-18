@@ -788,15 +788,15 @@ global.___kitFormatChoices = async (
   return formattedChoices
 }
 
-global.setChoices = async (choices, className = "") => {
+global.setChoices = async (choices, config) => {
   let formattedChoices = await global.___kitFormatChoices(
     choices,
-    className
+    config?.className || ""
   )
-  return global.sendWait(
-    Channel.SET_CHOICES,
-    formattedChoices
-  )
+  return global.sendWait(Channel.SET_CHOICES, {
+    choices: formattedChoices,
+    ignoreInput: config?.ignoreInput || false,
+  })
 }
 
 global.flag ||= {}

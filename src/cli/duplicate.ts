@@ -19,9 +19,9 @@ let { filePath } = await selectScript(
 
 // TODO: Consider Using the "info" approach
 
-setDescription(`Duplicate ${filePath}`)
 let name = await arg(
   {
+    description: `Duplicate ${filePath}`,
     debounceInput: 0,
     placeholder: `Enter name for new script`,
     validate: input => {

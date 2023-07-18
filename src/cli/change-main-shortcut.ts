@@ -5,9 +5,9 @@ let confirm = false
 
 import { mainScriptPath } from "../core/utils.js"
 
-setDescription(`Changing shortcut for main menu`)
 while (!confirm) {
   ;({ shortcut } = await hotkey({
+    description: `Change shortcut for main menu`,
     placeholder: `Enter a key combo:`,
   }))
   confirm = await arg(`Accept`, [

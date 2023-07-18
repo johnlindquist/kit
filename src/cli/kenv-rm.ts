@@ -23,23 +23,24 @@ if (!selectedKenvPath.includes(path.sep)) {
 }
 
 // If dir is a symlink, delete the symlink, not the target
-setDescription(`Are you sure?`)
 try {
   const stats = await lstat(selectedKenvPath)
   if (stats.isSymbolicLink()) {
-    await div(
-      md(`# Are you sure?
+    await div({
+      description: `Are you sure?`,
+      html: md(`# Are you sure?
 
 Press "enter" to remove the symlink at ${selectedKenvPath}
-    `)
-    )
+            `),
+    })
     await unlink(selectedKenvPath)
   } else {
-    await div(
-      md(`# Are you sure?
+    await div({
+      description: `Are you sure?`,
+      html: md(`# Are you sure?
     
-Press "enter" to permanently delete ${selectedKenvPath}`)
-    )
+Press "enter" to permanently delete ${selectedKenvPath}`),
+    })
     await rimraf(selectedKenvPath)
   }
 } catch (error) {

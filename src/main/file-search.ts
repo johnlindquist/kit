@@ -38,10 +38,11 @@ let selectedFile = await arg(
     })
   }
 )
-setDescription(selectedFile)
+
 let action = await arg(
   {
     placeholder: "Selected Path Action:",
+    description: selectedFile,
     shortcuts: [
       backToMainShortcut,
       {

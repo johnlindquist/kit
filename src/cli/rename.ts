@@ -23,9 +23,9 @@ let { filePath } = script
 
 let scriptExtension = path.extname(filePath)
 
-setDescription(`Rename ${filePath}`)
 let newCommand = await arg(
   {
+    description: `Rename ${filePath}`,
     placeholder: `Enter the new script name:`,
     validate: exists,
     strict: false,
