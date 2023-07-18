@@ -576,16 +576,6 @@ let script = await mainMenu({
       },
       bar: "right",
     },
-    // {
-    //   name: "Share",
-    //   key: `${cmd}+s`,
-    //   onPress: async (input, { focused }) => {
-    //     await run(
-    //       kitPath("cli", "share-script-as-discussion.js"),
-    //       focused?.value?.filePath
-    //     )
-    //   },
-    // },
   ],
   //     onInput: async (input, { count }) => {
   //       if (count === 0) {
