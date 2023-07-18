@@ -242,6 +242,7 @@ export interface PromptData {
   headerClassName?: string
   footerClassName?: string
   preload?: boolean
+  css?: string
 }
 
 export interface GenerateChoices {

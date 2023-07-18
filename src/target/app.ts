@@ -764,6 +764,7 @@ let prepPrompt = async (config: PromptConfig) => {
     headerClassName: "",
     footerClassName: "",
     inputClassName: "",
+    css: "",
     ...restConfig,
     onInputSubmit,
     tabIndex: global.onTabs?.findIndex(
