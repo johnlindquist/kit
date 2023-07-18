@@ -433,6 +433,7 @@ let input = ""
 
 let script = await mainMenu({
   name: "Main",
+  description: "Script Kit",
   placeholder: "Run Script",
   enter: "Run",
   strict: false,
