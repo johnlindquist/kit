@@ -78,6 +78,7 @@ interface DisplayChoicesProps
   extends Partial<PromptConfig> {
   className: string
   generated?: boolean
+  inputRegex?: string
   state: AppState
 }
 
@@ -109,6 +110,7 @@ let displayChoices = async ({
   className,
   scripts,
   generated,
+  inputRegex,
 }: DisplayChoicesProps) => {
   switch (typeof choices) {
     case "string":
@@ -123,6 +125,7 @@ let displayChoices = async ({
         global.setChoices(resultChoices, {
           className,
           generated: Boolean(generated),
+          inputRegex: inputRegex || ``,
         })
       }
 
@@ -325,12 +328,14 @@ let waitForPromptValue = ({
   onDragEnter,
   onDragLeave,
   onDragOver,
+  onMenuToggle,
   onInit,
   onSubmit,
   onValidationFailed,
   onAudioData,
   state,
   shortcuts,
+  inputRegex,
 }: WaitForPromptValueProps) => {
   global.__kitPromptState = {}
   global.__kitEndPrevPromptSubject.next()
@@ -347,6 +352,7 @@ let waitForPromptValue = ({
         className,
         onNoChoices,
         state,
+        inputRegex,
       })
     } else {
       setChoices([])
@@ -598,6 +604,10 @@ let waitForPromptValue = ({
             onDragOver(data.state.input, data.state)
             break
 
+          case Channel.ON_MENU_TOGGLE:
+            onMenuToggle(data.state.input, data.state)
+            break
+
           case Channel.ON_INIT:
             onInit(data.state.input, data.state)
             break
@@ -703,6 +713,7 @@ let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 let onMessageFocusDefault = async () => {}
 let onKeywordDefault = async () => {}
+let onMenuToggleDefault = async () => {}
 let onPasteDefault = async (input, state) => {
   if (state.paste) setSelectedText(state.paste, false)
 }
@@ -780,6 +791,18 @@ let prepPrompt = async (config: PromptConfig) => {
       ? Mode.GENERATE
       : Mode.FILTER
 
+  let escapeDefault = Boolean(
+    !config?.onEscape ||
+      config?.onEscape === onEscapeDefault
+  )
+  let hasEscapeShortcut = Boolean(
+    (config?.shortcuts || []).find(s => s.key === `escape`)
+  )
+
+  let hideOnEscape = Boolean(
+    escapeDefault && !hasEscapeShortcut
+  )
+
   global.setPrompt({
     footer: footer || "",
     strict: Boolean(choices),
@@ -808,12 +831,7 @@ let prepPrompt = async (config: PromptConfig) => {
     choicesType: determineChoicesType(choices),
     hasOnNoChoices: Boolean(config?.onNoChoices),
     inputCommandChars: config?.inputCommandChars || [],
-    hideOnEscape: Boolean(
-      config?.onEscape === onEscapeDefault &&
-        (config?.shortcuts || []).find(
-          s => s.key === `escape`
-        )
-    ),
+    hideOnEscape,
   })
 }
 
@@ -910,6 +928,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   let {
     input = "",
+    inputRegex = "",
     choices = null,
     className = "",
     validate = null,
@@ -937,6 +956,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onBlur = onBlurDefault,
     onPaste = onPasteDefault,
     onDrop = onDropDefault,
+    onMenuToggle = onMenuToggleDefault,
     onDragEnter = onDragEnterDefault,
     onDragLeave = onDragLeaveDefault,
     onDragOver = onDragOverDefault,
@@ -980,12 +1000,14 @@ global.kitPrompt = async (config: PromptConfig) => {
     onDragEnter,
     onDragLeave,
     onDragOver,
+    onMenuToggle,
     onInit,
     onSubmit,
     onValidationFailed,
     onAudioData,
     shortcuts: config.shortcuts,
     state: { input },
+    inputRegex,
   })
 }
 
@@ -1961,7 +1983,7 @@ let getFileInfo = async (filePath: string) => {
   `)
 }
 
-let createPathChoices = async (
+export let createPathChoices = async (
   startPath: string,
   {
     dirFilter = (dirent: Dirent) => true,
@@ -2040,9 +2062,6 @@ let __pathSelector = async (
   config: string | PathConfig = home(),
   { showHidden } = { showHidden: false }
 ) => {
-  await setIgnoreBlur(true)
-  await setAlwaysOnTop(true)
-
   let startPath = ``
   let focusOn = ``
   let onInputHook = null
@@ -2052,6 +2071,20 @@ let __pathSelector = async (
     startPath = config?.startPath || home()
     onlyDirs = config?.onlyDirs || false
   }
+
+  let initialChoices = await createPathChoices(startPath, {
+    onlyDirs,
+    dirFilter: dirent => {
+      if (dirent.name.startsWith(".")) {
+        return showHidden
+      }
+
+      return true
+    },
+  })
+
+  let inputRegex = `[^\\${path.sep}]+$`
+  setFilterInput(inputRegex)
 
   if (
     !startPath.endsWith(path.sep) &&
@@ -2294,11 +2327,15 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   setPauseResize(true)
   let selectedPath = await arg(
     {
+      placeholder: "Browse",
       ...(config as PromptConfig),
       inputCommandChars: ["/", "."],
       input: startPath,
+      inputRegex: `[^\\${path.sep}]+$`,
       onInput,
       onTab,
+      ignoreBlur: true,
+      alwaysOnTop: true,
       // onRight,
       // onLeft,
       // onNoChoices,
@@ -2343,7 +2380,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
         ...((config as PromptConfig).shortcuts || []),
       ],
     },
-    []
+    initialChoices
   )
 
   if (!selectedPath) return ""

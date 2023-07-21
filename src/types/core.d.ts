@@ -195,6 +195,7 @@ export interface PromptData {
   ignoreBlur: boolean
 
   input: string
+  inputRegex: string
   kitArgs: string[]
   kitScript: string
   mode: Mode
@@ -363,6 +364,7 @@ export type PromptConfig = {
   onDragEnter?: ChannelHandler
   onDragLeave?: ChannelHandler
   onDragOver?: ChannelHandler
+  onMenuToggle?: ChannelHandler
   onInit?: ChannelHandler
   onSubmit?: SubmitHandler
   onValidationFailed?: ChannelHandler

@@ -306,6 +306,14 @@ Kit.app will check for updates each time your machine wakes from sleep. But if y
 
 This will open the `kit.log` file in your editor. This is where Script Kit logs errors and other information.
 
+## Select Default Display
+
+<!-- description: Always open Kit on a specific display -->
+<!-- value: config/set-default-display.js -->
+<!-- enter: Select Default Display -->
+
+Force the prompt to always open on a specific display.
+
 ## Edit .env
 
 <!-- description: Open the .env file -->

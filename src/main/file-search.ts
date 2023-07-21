@@ -132,6 +132,15 @@ let selectedFile = await arg(
       : arg?.keyword
       ? `${arg.keyword} `
       : "",
+    onMenuToggle: async (input, state) => {
+      if (state.flag) {
+        setPlaceholder("Select Action")
+        setEnter("Submit")
+      } else {
+        setPlaceholder("Search Files")
+        setEnter("Open Action Menu")
+      }
+    },
     onKeyword: async (input, state) => {
       if (!state.keyword) {
         await mainScript(state?.input)
@@ -147,7 +156,11 @@ let selectedFile = await arg(
     },
     placeholder: "Search Files",
     enter: "Open Action Menu",
-    shortcuts: [],
+    shortcuts: [
+      {
+        key: "right",
+      },
+    ],
     resize: true,
     flags,
   },

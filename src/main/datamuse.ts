@@ -4,7 +4,7 @@
 Find Similar Words, Rhymes, Sounds Like, etc.
 */
 
-// Name: Word API
+// Name: word
 // Description: Find Word Alternatives
 // Keyword: word
 
@@ -72,10 +72,6 @@ let wordApi = async (api, type, input = "") => {
     {
       placeholder: "Type a word:",
       input,
-      onEscape: async () => {
-        submit(false)
-        await mainScript()
-      },
       onKeyword: async (input, state) => {
         if (!state.keyword) {
           await mainScript(state.input)

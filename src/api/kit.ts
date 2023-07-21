@@ -1114,6 +1114,8 @@ export let getGroupedScripts = async () => {
       kitPath("main", "rhyme.js"),
     ].map(async scriptPath => {
       let script = await parseScript(scriptPath)
+
+      script.group = "Kit"
       script.ignoreFlags = true
 
       return script
