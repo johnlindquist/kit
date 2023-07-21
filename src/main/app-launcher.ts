@@ -1,5 +1,5 @@
 import {
-  backToMainShortcut,
+  escapeShortcut,
   cmd,
   sortBy,
   uniq,
@@ -164,7 +164,7 @@ if (flag?.prep) {
       resize: true,
       placeholder: "Select an app to launch",
       shortcuts: [
-        backToMainShortcut,
+        escapeShortcut,
         {
           name: "Refresh Apps",
           key: `${cmd}+enter`,

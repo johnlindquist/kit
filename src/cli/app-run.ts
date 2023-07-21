@@ -438,6 +438,15 @@ let script = await mainMenu({
   enter: "Run",
   strict: false,
   flags: scriptFlags,
+  onKeyword: async (input, state) => {
+    let { keyword, value } = state
+    if (keyword) {
+      if (value?.filePath) {
+        await run(value.filePath, `--keyword`, keyword)
+      }
+    }
+  },
+
   onSubmit: i => {
     input = i.trim()
   },

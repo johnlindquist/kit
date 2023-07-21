@@ -3,17 +3,17 @@
 // Pass: true
 
 import "@johnlindquist/kit"
-import { backToMainShortcut } from "../core/utils.js"
+import { escapeShortcut } from "../core/utils.js"
 
-setName(``)
 let { default: suggest } = await import("suggestion")
 
 let input = await arg(
   {
+    name: "Google Suggest",
     input: (arg?.pass as string) || "",
     placeholder: "Google suggest:",
     enter: `Paste`,
-    shortcuts: [backToMainShortcut],
+    // shortcuts: [escapeShortcut],
     resize: true,
   },
   async input => {

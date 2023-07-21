@@ -1,10 +1,7 @@
 // Name: Sponsors Only
 // Description: Requires a GitHub Sponsorship
 
-import {
-  backToMainShortcut,
-  proPane,
-} from "../core/utils.js"
+import { escapeShortcut, proPane } from "../core/utils.js"
 
 let sponsorUrl = `https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205`
 try {
@@ -24,7 +21,7 @@ let content = `# ${featureName} Requires Pro Account`
 await div({
   html: md(content + proPane()),
   enter: "Continue to Sponsorship Page",
-  shortcuts: [backToMainShortcut],
+  shortcuts: [escapeShortcut],
 })
 
 open(sponsorUrl)

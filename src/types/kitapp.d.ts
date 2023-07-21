@@ -304,7 +304,9 @@ interface SetChoices {
     choices: (Choice | string)[],
     config?: {
       className?: string
-      ignoreInput?: boolean
+      skipInitialSearch?: boolean
+      inputRegex?: string
+      generated?: boolean
     }
   ): Promise<void>
 }
@@ -384,6 +386,7 @@ export type SendNoOptions =
   | Channel.PONG
 export interface ChannelMap {
   // Figure these undefined out later
+  [Channel.VALUE_SUBMITTED]: any
   [Channel.GET_BACKGROUND]: undefined
   [Channel.GET_COLOR]: undefined
   [Channel.GET_TYPED_TEXT]: undefined
@@ -612,7 +615,7 @@ export interface ChannelMap {
   [Channel.PRELOAD]: string
 }
 export interface Send {
-  (channel: GetAppData | SendNoOptions): void
+  (channel: Channel | GetAppData | SendNoOptions): void
   <C extends keyof ChannelMap, T extends ChannelMap[C]>(
     channel: C,
     data: T

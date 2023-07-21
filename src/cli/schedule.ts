@@ -3,7 +3,7 @@
 
 import { Schedule } from "../types/kitapp"
 import {
-  backToMainShortcut,
+  escapeShortcut,
   cliShortcuts,
   closeShortcut,
   parseScript,

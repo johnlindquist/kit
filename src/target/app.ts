@@ -57,7 +57,7 @@ import {
   mainScriptPath,
   cmd,
   defaultShortcuts,
-  backToMainShortcut,
+  escapeShortcut,
   closeShortcut,
   editScriptShortcut,
   formShortcuts,
@@ -66,6 +66,7 @@ import {
   isMac,
   debounce,
   adjustPackageName,
+  editorShortcuts,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { errorPrompt } from "../api/kit.js"
@@ -76,6 +77,7 @@ import { EventEmitter } from "events"
 interface DisplayChoicesProps
   extends Partial<PromptConfig> {
   className: string
+  generated?: boolean
   state: AppState
 }
 
@@ -106,6 +108,7 @@ let displayChoices = async ({
   choices,
   className,
   scripts,
+  generated,
 }: DisplayChoicesProps) => {
   switch (typeof choices) {
     case "string":
@@ -117,7 +120,10 @@ let displayChoices = async ({
         global.setChoices(null)
       } else {
         let resultChoices = checkResultInfo(choices)
-        global.setChoices(resultChoices, { className })
+        global.setChoices(resultChoices, {
+          className,
+          generated: Boolean(generated),
+        })
       }
 
       break
@@ -165,11 +171,19 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
       props.promptId === promptId &&
       props.tabIndex === global.onTabIndex
     ) {
-      displayChoices({ ...props, choices: result })
+      displayChoices({
+        ...props,
+        choices: result,
+        generated: true,
+      })
       return result
     }
   } else {
-    displayChoices({ ...props, choices: resultOrPromise })
+    displayChoices({
+      ...props,
+      choices: resultOrPromise,
+      generated: true,
+    })
     return resultOrPromise
   }
 }
@@ -194,6 +208,7 @@ interface WaitForPromptValueProps
 }
 
 let invalid = Symbol("invalid")
+let prevent = Symbol("prevent")
 
 let truncate = (str: string, length: number) => {
   if (str.length > length) {
@@ -282,6 +297,7 @@ let onTabChanged = (input, state) => {
 // If you call a prompt while a prompt is already running, end the stream
 // This is especially important when switching tabs
 global.__kitEndPrevPromptSubject = new Subject()
+global.__kitPromptState = {}
 
 let waitForPromptValue = ({
   ui,
@@ -298,6 +314,7 @@ let waitForPromptValue = ({
   onUp,
   onDown,
   onTab,
+  onKeyword,
   onChoiceFocus,
   onMessageFocus,
   onBlur,
@@ -315,6 +332,7 @@ let waitForPromptValue = ({
   state,
   shortcuts,
 }: WaitForPromptValueProps) => {
+  global.__kitPromptState = {}
   global.__kitEndPrevPromptSubject.next()
   return new Promise((resolve, reject) => {
     if (
@@ -392,11 +410,23 @@ let waitForPromptValue = ({
         let choice = (global.kitPrevChoices || []).find(
           (c: Choice) => c.id === focused?.id
         )
+
+        let preventSubmit: boolean | string | void = false
+        preventSubmit = await onSubmit(
+          data?.state?.input,
+          data.state
+        )
+
         if (choice?.onSubmit) {
-          await choice?.onSubmit(
+          preventSubmit = await choice?.onSubmit(
             data?.state?.input,
             data?.state
           )
+        }
+
+        if (preventSubmit) {
+          send(Channel.PREVENT_SUBMIT)
+          return prevent
         }
 
         // TODO: Refactor out an invalid$ stream
@@ -424,7 +454,9 @@ let waitForPromptValue = ({
           return value
         }
       }),
-      filter(value => value !== invalid),
+      filter(
+        value => value !== invalid && value !== prevent
+      ),
       take(1),
       share()
     )
@@ -444,6 +476,8 @@ let waitForPromptValue = ({
         if (data?.state?.input === Value.Undefined) {
           data.state.input = ""
         }
+
+        global.__kitPromptState = data.state
 
         switch (data.channel) {
           case Channel.PING:
@@ -493,6 +527,10 @@ let waitForPromptValue = ({
 
           case Channel.TAB:
             onTab(data.state.input, data.state)
+            break
+
+          case Channel.KEYWORD_TRIGGERED:
+            onKeyword(data.state.input, data.state)
             break
 
           case Channel.CHOICE_FOCUSED:
@@ -562,10 +600,6 @@ let waitForPromptValue = ({
 
           case Channel.ON_INIT:
             onInit(data.state.input, data.state)
-            break
-
-          case Channel.ON_SUBMIT:
-            onSubmit(data.state.input, data.state)
             break
 
           case Channel.ON_VALIDATION_FAILED:
@@ -650,19 +684,7 @@ let onEscapeDefault: ChannelHandler = async (
   input: string,
   state: AppState
 ) => {
-  let { history, script } = state
-  let previousScript = history?.[history.length - 2]
-
-  if (
-    script.filePath !== mainScriptPath &&
-    (previousScript?.filePath === mainScriptPath ||
-      script.filePath.includes(".kit")) &&
-    !state?.inputChanged
-  ) {
-    await mainScript()
-  } else {
-    process.exit()
-  }
+  process.exit()
 }
 
 let onAbandonDefault = () => {
@@ -680,6 +702,7 @@ let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 let onMessageFocusDefault = async () => {}
+let onKeywordDefault = async () => {}
 let onPasteDefault = async (input, state) => {
   if (state.paste) setSelectedText(state.paste, false)
 }
@@ -785,6 +808,12 @@ let prepPrompt = async (config: PromptConfig) => {
     choicesType: determineChoicesType(choices),
     hasOnNoChoices: Boolean(config?.onNoChoices),
     inputCommandChars: config?.inputCommandChars || [],
+    hideOnEscape: Boolean(
+      config?.onEscape === onEscapeDefault &&
+        (config?.shortcuts || []).find(
+          s => s.key === `escape`
+        )
+    ),
   })
 }
 
@@ -894,6 +923,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onLeft = onLeftDefault,
     onRight = onRightDefault,
     onTab = onTabDefault,
+    onKeyword = onKeywordDefault,
     debounceChoiceFocus = 0,
     onChoiceFocus,
     onMessageFocus = onMessageFocusDefault,
@@ -940,6 +970,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onDown,
     onLeft,
     onRight,
+    onKeyword,
     onTab,
     onChoiceFocus: choiceFocus,
     onMessageFocus,
@@ -973,7 +1004,7 @@ global.drop = async (
       ? PROMPT.WIDTH.BASE
       : PROMPT.WIDTH.XXS,
     height: PROMPT.WIDTH.XXS,
-    shortcuts: [backToMainShortcut, closeShortcut],
+    shortcuts: [escapeShortcut, closeShortcut],
     ...config,
     ignoreBlur: true,
   })
@@ -983,7 +1014,7 @@ global.emoji = async (config?: PromptConfig) => {
   return await global.kitPrompt({
     ui: UI.emoji,
     enter: "Select",
-    shortcuts: [backToMainShortcut],
+    shortcuts: [escapeShortcut],
     ignoreBlur: true,
     width: 350,
     height: 510,
@@ -1150,7 +1181,7 @@ global.div = async (
     htmlOrConfig = md("⚠️ html string was empty")
   return await global.kitPrompt({
     enter: `Continue`,
-    shortcuts: [backToMainShortcut],
+    shortcuts: [escapeShortcut],
     ...config,
     choices: maybeWrapHtml(config?.html, containerClasses),
     ui: UI.div,
@@ -1248,7 +1279,7 @@ global.editor = async (options?: EditorOptions) => {
     language: "markdown",
     scrollTo: "top",
     onInput: () => {},
-    onEscape: onEscapeDefault,
+    onEscape: () => {},
     onAbandon: onAbandonDefault,
     onPaste: onPasteDefault,
     onDrop: onDropDefault,
@@ -1267,7 +1298,7 @@ global.editor = async (options?: EditorOptions) => {
     ui: UI.editor,
     input: editorOptions.value,
     flags: {},
-    shortcuts: defaultShortcuts,
+    shortcuts: editorShortcuts,
     height: PROMPT.HEIGHT.XL,
     ...editorOptions,
     enter: "",
@@ -1344,7 +1375,7 @@ global.hotkey = async (
 
   return await global.kitPrompt({
     resize: true,
-    shortcuts: [backToMainShortcut],
+    shortcuts: [escapeShortcut],
     enter: "",
     ui: UI.hotkey,
     ...config,
@@ -1818,10 +1849,14 @@ global.clearClipboardHistory = () => {
 }
 
 global.submit = async (value: any) => {
+  global.send(Channel.VALUE_SUBMITTED, value)
   if (global.__kitPromptSubject) {
     global.__kitPromptSubject.next({
       channel: Channel.VALUE_SUBMITTED,
       state: {
+        ...(global.__kitPromptState || {
+          input: "",
+        }),
         value,
       },
     })
@@ -1897,14 +1932,20 @@ global.mainScript = async (
   input: string = "",
   tab: string
 ) => {
+  if (arg?.keyword) delete arg.keyword
+  if (arg?.fn) delete arg.fn
+  preload(mainScriptPath)
   setPlaceholder("Run Script")
   global.args = []
   global.flags = {}
   if (process.env.KIT_CONTEXT === "app") {
     clearAllTimeouts()
     clearAllIntervals()
-    setInput(input)
-    let m = run(mainScriptPath)
+    console.log({
+      mainScriptPath,
+      input,
+    })
+    let m = run(mainScriptPath, `--input`, input)
     if (tab) {
       await wait(200)
       setTab(tab)
@@ -2020,9 +2061,9 @@ let __pathSelector = async (
   let slashCount = -1
 
   let lsCurrentDir = async input => {
-    if (!input) {
-      await mainScript()
-    }
+    // if (!input) {
+    //   await mainScript()
+    // }
     let dirFilter = dirent => {
       if (dirent.name.startsWith(".")) {
         return input?.includes(path.sep + ".") || showHidden
@@ -2041,8 +2082,6 @@ let __pathSelector = async (
     let isCurrentDir = await isDir(startPath)
     if (isCurrentDir) {
       try {
-        let filterInput = `[^\\${path.sep}]+$`
-        setFilterInput(filterInput)
         let choices = await createPathChoices(startPath, {
           dirFilter,
           onlyDirs,
@@ -2063,7 +2102,8 @@ let __pathSelector = async (
         })
 
         await setChoices(choices, {
-          ignoreInput: true,
+          skipInitialSearch: true,
+          inputRegex: `[^\\${path.sep}]+$`,
         })
         setPauseResize(false)
         if (focusOn) setFocused(focusOn)
@@ -2181,7 +2221,10 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
         dirFilter: () => true,
         onlyDirs,
       })
-      setChoices(choices)
+      setChoices(choices, {
+        skipInitialSearch: true,
+        inputRegex: `[^\\${path.sep}]+$`,
+      })
       if (focusOn) setFocused(focusOn)
       focusOn = ``
       return
@@ -2259,7 +2302,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       // onRight,
       // onLeft,
       // onNoChoices,
-      onEscape,
+      // onEscape,
       enter: "Select",
       // TODO: If I want resize, I need to create choices first?
       onInit: async () => {
@@ -2814,7 +2857,7 @@ global.mic = async (config: MicConfig = {}) => {
       height: PROMPT.HEIGHT.BASE,
       resize: true,
       shortcuts: [
-        backToMainShortcut,
+        escapeShortcut,
         {
           key: `${cmd}+i`,
           name: `Select Mic`,
@@ -2852,7 +2895,7 @@ global.webcam = async () => {
     width: PROMPT.WIDTH.BASE,
     height: PROMPT.HEIGHT.BASE,
     shortcuts: [
-      backToMainShortcut,
+      escapeShortcut,
       {
         key: `${cmd}+i`,
         name: `Select Webcam`,

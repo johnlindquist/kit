@@ -1,5 +1,5 @@
 import {
-  backToMainShortcut,
+  escapeShortcut,
   closeShortcut,
   cmd,
   setMetadata,
@@ -36,7 +36,7 @@ if (
     language: "md",
     shortcuts: [
       {
-        ...backToMainShortcut,
+        ...escapeShortcut,
         onPress: async input => {
           await writeFile(docPath, input)
           await mainScript()

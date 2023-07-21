@@ -34,7 +34,7 @@ declare global {
 global.onTabs = []
 
 onTab("Script", async (input = "") => {
-  await cli("app-run", "--input", input)
+  await cli("app-run", "--input", arg?.input || input)
 })
 
 // onTab("New", async (input = "") => {

@@ -2,7 +2,7 @@
 
 import {
   appDbPath,
-  backToMainShortcut,
+  escapeShortcut,
   closeShortcut,
   cmd,
 } from "../core/utils.js"
@@ -11,7 +11,7 @@ await editor({
   value: await readFile(appDbPath, "utf-8"),
   language: "json",
   shortcuts: [
-    backToMainShortcut,
+    escapeShortcut,
     closeShortcut,
     {
       name: "Save",

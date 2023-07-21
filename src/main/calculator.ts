@@ -1,7 +1,7 @@
 // Name: Calculator
 // Description: Evaluate a mathematical expression
 
-import { backToMainShortcut } from "../core/utils.js"
+import { escapeShortcut } from "../core/utils.js"
 
 let { default: calc } = await import("advanced-calculator")
 let input = args?.shift() || ""
@@ -14,7 +14,7 @@ let result = await arg(
     placeholder: "Calculator",
     enter: "Paste Result",
     shortcuts: [
-      backToMainShortcut,
+      escapeShortcut,
       {
         name: "Copy Result",
         key: `${cmd}+c`,

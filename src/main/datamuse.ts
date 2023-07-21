@@ -6,18 +6,24 @@ Find Similar Words, Rhymes, Sounds Like, etc.
 
 // Name: Word API
 // Description: Find Word Alternatives
-// Pass: true
+// Keyword: word
 
 let queryWords = (api, type) => async input => {
-  if (!input || input?.length < 3)
+  if (arg?.keyword) {
+    input =
+      input.match(
+        new RegExp(`(?<=${arg?.keyword}\\s)(.*)`, "gi")
+      )?.[0] || ""
+  }
+
+  if (!input || input?.length < 3) {
     return [
       {
         name: `Type at least 3 characters`,
-        skip: true,
         info: true,
       },
     ]
-
+  }
   let url = `https://api.datamuse.com/${api}?${type}=${input}&md=d`
 
   let response = await get<{ word: string; defs: any[] }[]>(
@@ -30,7 +36,7 @@ let queryWords = (api, type) => async input => {
       description = `(${type}): ${meaning}`
     }
     return {
-      name: `${word}`,
+      name: word,
       value: word,
       description,
       preview:
@@ -70,6 +76,11 @@ let wordApi = async (api, type, input = "") => {
         submit(false)
         await mainScript()
       },
+      onKeyword: async (input, state) => {
+        if (!state.keyword) {
+          await mainScript(state.input)
+        }
+      },
     },
     queryWords(api, type)
   )
@@ -77,30 +88,60 @@ let wordApi = async (api, type, input = "") => {
   if (word) setSelectedText(word.replace(/ /g, "+"))
 }
 
-onTab("Spell", async input => {
-  await wordApi("sug", "s", (flag?.pass as string) || input)
-})
+let spell = async input => {
+  await wordApi("sug", "s", input)
+}
 
-onTab("Synonym", async input => {
+let syn = async input => {
   await wordApi("words", "ml", input)
-})
+}
 
-onTab("Nouns", async input => {
+let noun = async input => {
   await wordApi("words", "rel_jja", input)
-})
+}
 
-onTab("Adjectives", async input => {
+let adj = async input => {
   await wordApi("words", "rel_jjb", input)
-})
+}
 
-onTab("Sounds Like", async input => {
+let sounds = async input => {
   await wordApi("words", "sl", input)
-})
+}
 
-onTab("Rhyme", async input => {
+let rhyme = async input => {
   await wordApi("words", "rel_rhy", input)
-})
+}
 
-onTab("Consonant", async input => {
+let consonant = async input => {
   await wordApi("words", "rel_cns", input)
-})
+}
+
+if (arg?.fn) {
+  let fns = {
+    spell,
+    syn,
+    noun,
+    adj,
+    sounds,
+    rhyme,
+    consonant,
+  }
+
+  await fns[arg.fn]("")
+} else {
+  onTab("Spell", spell)
+
+  onTab("Synonym", syn)
+
+  onTab("Nouns", noun)
+
+  onTab("Adjectives", adj)
+
+  onTab("Sounds Like", sounds)
+
+  onTab("Rhyme", rhyme)
+
+  onTab("Consonant", consonant)
+}
+
+export {}

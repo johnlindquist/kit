@@ -4,7 +4,7 @@ import {
   mainScriptPath,
   isInDir,
   cmd,
-  backToMainShortcut,
+  escapeShortcut,
 } from "../core/utils.js"
 
 import { refreshScripts } from "../core/db.js"
@@ -288,7 +288,6 @@ global.edit = async (f, dir, line = 0, col = 0) => {
   let KIT_EDITOR = await global.selectKitEditor(false)
 
   if (KIT_EDITOR === "kit") {
-    setDescription(file)
     let language = global.extname(file).replace(/^\./, "")
     let contents = (await readFile(file, "utf8")) || ""
     let extraLibs = await global.getExtraLibs()
@@ -305,6 +304,7 @@ global.edit = async (f, dir, line = 0, col = 0) => {
 
     contents = await editor({
       value: contents,
+      description: file,
       language,
       extraLibs,
       onAbandon,
@@ -339,7 +339,16 @@ global.edit = async (f, dir, line = 0, col = 0) => {
       let editCommand = `"${KIT_EDITOR}" "${file}"`
 
       let config = execConfig()
-      exec(editCommand, config)
+      let child = exec(editCommand, config)
+
+      let timeout = setTimeout(() => {
+        child.kill()
+      }, 1000)
+      if (child) {
+        child.on("exit", () => {
+          clearTimeout(timeout)
+        })
+      }
     }
     let editorFn =
       fullySupportedEditors[path.basename(KIT_EDITOR)] ||
@@ -367,7 +376,7 @@ global.find = async config => {
   let defaultConfig = {
     placeholder: "Search Files",
     enter: "Select File",
-    shortcuts: [backToMainShortcut],
+    shortcuts: [escapeShortcut],
   }
 
   let disabled = [

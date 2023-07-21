@@ -795,7 +795,9 @@ global.setChoices = async (choices, config) => {
   )
   return global.sendWait(Channel.SET_CHOICES, {
     choices: formattedChoices,
-    ignoreInput: config?.ignoreInput || false,
+    skipInitialSearch: config?.skipInitialSearch || false,
+    inputRegex: config?.inputRegex || "",
+    generated: Boolean(config?.generated),
   })
 }
 
@@ -819,7 +821,7 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
     if (key === "sortChoicesKey") continue
     validFlags[key] = {
       name: value?.name || key,
-      group: value?.group || "",
+      group: value?.group || "Actions",
       shortcut: value?.shortcut || "",
       description: value?.description || "",
       value: key,
@@ -832,7 +834,7 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
     ([key, value]) => {
       return {
         id: key,
-        group: value?.group || "",
+        group: value?.group || "Actions",
         name: value?.name || key,
         value: key,
         description: value?.description || "",
@@ -1106,6 +1108,10 @@ export let getGroupedScripts = async () => {
       kitPath("main", "giphy.js"),
       kitPath("main", "sticky.js"),
       kitPath("main", "term.js"),
+      kitPath("main", "file-search.js"),
+      kitPath("main", "spell.js"),
+      kitPath("main", "define.js"),
+      kitPath("main", "rhyme.js"),
     ].map(async scriptPath => {
       let script = await parseScript(scriptPath)
       script.ignoreFlags = true

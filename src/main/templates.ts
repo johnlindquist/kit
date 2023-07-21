@@ -2,7 +2,7 @@
 // Exclude: true
 
 import {
-  backToMainShortcut,
+  escapeShortcut,
   closeShortcut,
 } from "../core/utils.js"
 setName(``)
@@ -10,7 +10,7 @@ setName(``)
 await arg({
   placeholder: "Reserved for future use",
   enter: "Exit",
-  shortcuts: [backToMainShortcut, closeShortcut],
+  shortcuts: [escapeShortcut, closeShortcut],
 })
 
 export {}

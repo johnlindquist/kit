@@ -2,7 +2,7 @@
 // Description: List and focus open windows
 
 import "@johnlindquist/kit"
-import { backToMainShortcut } from "../core/utils.js"
+import { escapeShortcut } from "../core/utils.js"
 
 let { getWindows } = await npm("mac-windows")
 
@@ -29,7 +29,7 @@ let selectedWindow = await arg<{
   {
     placeholder: "Focus Window",
     enter: "Focus",
-    shortcuts: [backToMainShortcut],
+    shortcuts: [escapeShortcut],
     resize: true,
   },
   windows

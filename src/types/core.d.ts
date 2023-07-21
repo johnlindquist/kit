@@ -20,6 +20,7 @@ export interface Choice<Value = any> {
   previewLang?: string
   id?: string
   shortcode?: string
+  keyword?: string
   className?: string
   nameClassName?: string
   tagClassName?: string
@@ -243,6 +244,7 @@ export interface PromptData {
   footerClassName?: string
   preload?: boolean
   css?: string
+  hideOnEscape?: boolean
 }
 
 export interface GenerateChoices {
@@ -309,10 +311,19 @@ export interface AppState {
   paste?: string
   cursor?: number
   preview?: string
+  keyword?: string
 }
 
 export interface ChannelHandler {
   (input?: string, state?: AppState): void | Promise<void>
+}
+
+export interface SubmitHandler {
+  (input?: string, state?: AppState):
+    | void
+    | boolean
+    | string
+    | Promise<boolean | void | string>
 }
 
 export type PromptConfig = {
@@ -341,6 +352,7 @@ export type PromptConfig = {
   onLeft?: ChannelHandler
   onRight?: ChannelHandler
   onTab?: ChannelHandler
+  onKeyword?: ChannelHandler
   onInput?: ChannelHandler
   onChange?: ChannelHandler
   onBlur?: ChannelHandler
@@ -352,7 +364,7 @@ export type PromptConfig = {
   onDragLeave?: ChannelHandler
   onDragOver?: ChannelHandler
   onInit?: ChannelHandler
-  onSubmit?: ChannelHandler
+  onSubmit?: SubmitHandler
   onValidationFailed?: ChannelHandler
   onAudioData?: ChannelHandler
   debounceInput?: number

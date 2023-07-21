@@ -3,7 +3,7 @@
 // Cache: true
 
 import {
-  backToMainShortcut,
+  escapeShortcut,
   isMac,
   isWin,
 } from "../core/utils.js"
@@ -22,7 +22,7 @@ let action = await arg(
     enter: "Select",
     resize: true,
     shortcuts: [
-      backToMainShortcut,
+      escapeShortcut,
       {
         name: "Back",
         key: "left",
@@ -152,7 +152,7 @@ tell application "Finder" to open information window of aFile
       hint: "Select destination",
       startPath: home(),
       onlyDirs: true,
-      shortcuts: [backToMainShortcut],
+      shortcuts: [escapeShortcut],
     })
     await copyFile(
       selectedPath,

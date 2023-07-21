@@ -4,7 +4,7 @@ import {
 } from "../api/kit.js"
 
 import {
-  backToMainShortcut,
+  escapeShortcut,
   closeShortcut,
   cmd,
 } from "../core/utils.js"
@@ -37,7 +37,7 @@ if (isApp && isKitEditor) {
     language: path.extname(scriptPath).slice(1),
     shortcuts: [
       {
-        ...backToMainShortcut,
+        ...escapeShortcut,
         onPress: async input => {
           await writeFile(scriptPath, input)
           await wait(200)

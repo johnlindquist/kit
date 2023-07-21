@@ -916,12 +916,14 @@ export let isInDir =
     )
   }
 
-export let backToMainShortcut: Shortcut = {
+export let escapeShortcut: Shortcut = {
   name: `Back`,
   key: `escape`,
   bar: "left",
   onPress: async () => {
-    await mainScript()
+    setInput("")
+    // preload(mainScriptPath)
+    process.exit()
   },
 }
 
@@ -968,25 +970,31 @@ export let viewLogShortcut: Shortcut = {
 }
 
 export let smallShortcuts: Shortcut[] = [
-  backToMainShortcut,
+  // escapeShortcut,
   closeShortcut,
 ]
 
 export let argShortcuts: Shortcut[] = [
-  backToMainShortcut,
+  // escapeShortcut,
   closeShortcut,
   editScriptShortcut,
 ]
 
+export let editorShortcuts: Shortcut[] = [
+  closeShortcut,
+  editScriptShortcut,
+  submitShortcut,
+]
+
 export let defaultShortcuts: Shortcut[] = [
-  backToMainShortcut,
+  // escapeShortcut,
   closeShortcut,
   editScriptShortcut,
   submitShortcut,
 ]
 
 export let divShortcuts: Shortcut[] = [
-  backToMainShortcut,
+  // escapeShortcut,
   closeShortcut,
   {
     ...editScriptShortcut,
@@ -995,7 +1003,7 @@ export let divShortcuts: Shortcut[] = [
 ]
 
 export let formShortcuts: Shortcut[] = [
-  backToMainShortcut,
+  // escapeShortcut,
   {
     ...editScriptShortcut,
     bar: "",
@@ -1009,7 +1017,7 @@ export let formShortcuts: Shortcut[] = [
 ]
 
 export let cliShortcuts: Shortcut[] = [
-  backToMainShortcut,
+  // escapeShortcut,
   closeShortcut,
 ]
 

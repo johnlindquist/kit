@@ -5,7 +5,7 @@ import { authenticate } from "../api/kit.js"
 import { getUserJson, setUserJson } from "../core/db.js"
 import { Channel } from "../core/enum.js"
 import {
-  backToMainShortcut,
+  escapeShortcut,
   cmd,
   userDbPath,
   proPane,
@@ -39,7 +39,7 @@ if (userJson.login) {
   let option = await arg(
     {
       placeholder: "Account",
-      shortcuts: [backToMainShortcut],
+      shortcuts: [escapeShortcut],
       onNoChoices: async input => {
         if (input) {
           setPanel(

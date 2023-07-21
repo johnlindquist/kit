@@ -1,8 +1,10 @@
 // Name: File Search
 // Description: Search For Files then Take Actions
+// Keyword: find
+// Pass: true
 
 import {
-  backToMainShortcut,
+  escapeShortcut,
   isMac,
   isWin,
 } from "../core/utils.js"
@@ -13,19 +15,157 @@ let atLeast = [
     info: true,
   },
 ]
+
+let actionFlags: {
+  name: string
+  description?: string
+  value: string
+  action?: (selectedFile: string) => Promise<void>
+}[] = [
+  {
+    name: "Open in Default App",
+    value: "open",
+    action: async selectedFile => {
+      await open(path.dirname(selectedFile))
+    },
+  },
+  {
+    name: "Open with...",
+    description:
+      "Select from a list of apps to open the file with",
+    value: "open-with",
+    action: async selectedFile => {
+      setFilterInput(``)
+      setInput(``)
+      if (flag?.input) delete flag?.input
+      await run(
+        kitPath("main", "open-with.js"),
+        selectedFile
+      )
+    },
+  },
+  {
+    name: `Show in ${isMac ? "Finder" : "Explorer"}`,
+    value: "finder",
+    action: async selectedFile => {
+      await revealFile(selectedFile)
+    },
+  },
+  ...[
+    isMac && {
+      name: "Show Info",
+      value: "info",
+      action: async selectedFile => {
+        await applescript(`
+      set aFile to (POSIX file "${selectedFile}") as alias
+      tell application "Finder" to open information window of aFile
+      `)
+      },
+    },
+  ],
+
+  {
+    name: "Open File Path in Terminal",
+    value: "terminal",
+    action: async selectedFile => {
+      let selectedDir = (await isDir(selectedFile))
+        ? selectedFile
+        : path.dirname(selectedFile)
+      terminal(`cd '${selectedDir}'`)
+    },
+  },
+  {
+    name: "Open in VS Code",
+    value: "vscode",
+    action: async selectedFile => {
+      if (isMac) {
+        await exec(
+          `open -a 'Visual Studio Code' '${selectedFile}'`
+        )
+      } else {
+        await exec(`code ${selectedFile}`)
+      }
+    },
+  },
+  {
+    name: "Copy Path",
+    value: "copy",
+    action: async selectedFile => {
+      await copy(selectedFile)
+    },
+  },
+  {
+    name: "Move",
+    value: "move",
+    action: async selectedFile => {
+      let destFolder = await path({
+        startPath: path.dirname(selectedFile),
+        description: `Select Destination Folder`,
+      })
+      mv(selectedFile, destFolder)
+    },
+  },
+  {
+    name: "Trash",
+    value: "trash",
+    action: async selectedFile => {
+      let yn = await arg({
+        placeholder: "Are you sure?",
+        hint: "[y]/[n]",
+      })
+      if (yn === "y") {
+        await trash(selectedFile)
+      }
+    },
+  },
+]
+
+let flags = {}
+for (let flag of actionFlags) {
+  flags[flag.name] = flag
+}
+
 let selectedFile = await arg(
   {
+    input: arg?.pass
+      ? arg.pass
+      : arg?.keyword
+      ? `${arg.keyword} `
+      : "",
+    onKeyword: async (input, state) => {
+      if (!state.keyword) {
+        await mainScript(state?.input)
+      }
+    },
+    onSubmit: async (input, state) => {
+      if (!Boolean(state?.flag)) {
+        await setFlagValue(state?.focused)
+        return true
+      }
+
+      return false
+    },
     placeholder: "Search Files",
     enter: "Open Action Menu",
-    shortcuts: [backToMainShortcut],
+    shortcuts: [],
     resize: true,
+    flags,
   },
   async input => {
-    if (!input || input === "undefined") {
-      return atLeast
+    if (arg?.keyword) {
+      input =
+        input.match(
+          new RegExp(`(?<=${arg?.keyword}\\s)(.*)`, "gi")
+        )?.[0] || ""
     }
-    if (input?.length < 3) {
-      return atLeast
+
+    if (!input || input?.length < 3) {
+      return [
+        {
+          name: `Type at least 3 characters`,
+          info: true,
+        },
+      ]
     }
     let files = await fileSearch(input)
     return files.map(p => {
@@ -39,110 +179,6 @@ let selectedFile = await arg(
   }
 )
 
-let action = await arg(
-  {
-    placeholder: "Selected Path Action:",
-    description: selectedFile,
-    shortcuts: [
-      backToMainShortcut,
-      {
-        name: "Return to Search",
-        key: "left",
-        bar: "right",
-      },
-    ],
-    onBack: async () => {
-      await run(kitPath("main", "file-search.js"))
-    },
-  },
-  [
-    {
-      name: "Open in Default App",
-      value: "open",
-    },
-    {
-      name: "Open with...",
-      description:
-        "Select from a list of apps to open the file with",
-      value: "open-with",
-    },
-    {
-      name: `Show in ${isMac ? "Finder" : "Explorer"}`,
-      value: "finder",
-    },
-    {
-      name: "Show Info",
-      value: "info",
-    },
-    {
-      name: "Open File Path in Terminal",
-      value: "terminal",
-    },
-    {
-      name: "Open in VS Code",
-      value: "vscode",
-    },
-    {
-      name: "Copy Path",
-      value: "copy",
-    },
-    {
-      name: "Move",
-      value: "move",
-    },
-    {
-      name: "Trash",
-      value: "trash",
-    },
-  ]
-)
-switch (action) {
-  case "open":
-    await open(path.dirname(selectedFile))
-    break
-  case "open-with":
-    await run(kitPath("main", "open-with.js"), selectedFile)
-    break
-  case "finder":
-    await revealFile(selectedFile)
-    break
-  case "info":
-    await applescript(`
-set aFile to (POSIX file "${selectedFile}") as alias
-tell application "Finder" to open information window of aFile
-`)
-    break
-  case "terminal":
-    let selectedDir = (await isDir(selectedFile))
-      ? selectedFile
-      : path.dirname(selectedFile)
-    terminal(`cd '${selectedDir}'`)
-    break
-  case "vscode":
-    if (isMac) {
-      await exec(
-        `open -a 'Visual Studio Code' '${selectedFile}'`
-      )
-    } else {
-      await exec(`code ${selectedFile}`)
-    }
-
-    break
-  case "copy":
-    await copy(selectedFile)
-    break
-  case "move":
-    setDescription("Select destination folder")
-    let destFolder = await path(path.dirname(selectedFile))
-    mv(selectedFile, destFolder)
-    break
-  case "trash":
-    let yn = await arg({
-      placeholder: "Are you sure?",
-      hint: "[y]/[n]",
-    })
-    if (yn === "y") {
-      await trash(selectedFile)
-    }
-    break
-}
+actionFlags
+  .find(f => flag?.[f.name])
+  ?.action?.(selectedFile)

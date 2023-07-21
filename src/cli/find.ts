@@ -9,7 +9,7 @@ Search and select scripts by contents
 // Pass: true
 import "@johnlindquist/kit"
 import {
-  backToMainShortcut,
+  escapeShortcut,
   cmd,
   getKenvs,
 } from "../core/utils.js"
@@ -37,7 +37,7 @@ let filePath = await arg(
       await mainScript()
     },
     shortcuts: [
-      backToMainShortcut,
+      escapeShortcut,
       {
         name: `Edit`,
         key: `${cmd}+o`,

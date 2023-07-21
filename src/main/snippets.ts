@@ -2,7 +2,7 @@
 // Description: Browse and edit snippets
 
 import {
-  backToMainShortcut,
+  escapeShortcut,
   closeShortcut,
   cmd,
 } from "../core/utils.js"
@@ -22,7 +22,7 @@ let snippetScript = await selectScript(
           let script = await arg({
             placeholder: "Enter a Snippet Script Name",
             enter: "Submit",
-            shortcuts: [backToMainShortcut, closeShortcut],
+            shortcuts: [escapeShortcut, closeShortcut],
           })
           await run(
             `${kitPath("cli", "new")}.js`,

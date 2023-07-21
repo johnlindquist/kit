@@ -3,7 +3,7 @@
 
 import { Channel } from "../core/enum.js"
 import {
-  backToMainShortcut,
+  escapeShortcut,
   cmd,
   viewLogShortcut,
 } from "../core/utils.js"
@@ -28,7 +28,7 @@ let argPromise = arg(
   {
     placeholder: "Select Process",
     enter: "Terminate",
-    shortcuts: [backToMainShortcut, viewLogShortcut],
+    shortcuts: [escapeShortcut, viewLogShortcut],
     onAbandon: async () => {
       clearTimeout(id)
       await mainScript()
