@@ -1,9 +1,4 @@
 import {
-  buildTSScript,
-  determineOutFile,
-} from "../api/kit.js"
-
-import {
   escapeShortcut,
   closeShortcut,
   cmd,
@@ -71,9 +66,6 @@ if (isApp && isKitEditor) {
         key: `${cmd}+o`,
         onPress: async input => {
           await writeFile(scriptPath, input)
-          if (scriptPath.match(/\.ts$/)) {
-            await buildTSScript(scriptPath)
-          }
           await run(scriptPath)
         },
         bar: "right",

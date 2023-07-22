@@ -157,70 +157,11 @@ export let copyTmpFile = async (
     await global.readFile(fromFile, "utf-8")
   )
 
-export let determineOutFile = scriptPath => {
-  if (process.env.KIT_CONTEXT === "workflow") {
-    // replace .ts with .mjs
-    return scriptPath.replace(/\.ts$/, ".mjs")
-  }
-
-  let tmpScriptName = global.path
-    .basename(scriptPath)
-    .replace(/\.(ts|jsx|tsx)$/, ".mjs")
-
-  let dirName = global.path.dirname(scriptPath)
-  let inScriptsDir = dirName.endsWith(
-    global.path.sep + "scripts"
-  )
-    ? ["..", ".scripts"]
-    : []
-
-  let outfile = global.path.join(
-    scriptPath,
-    "..",
-    ...inScriptsDir,
-    tmpScriptName
-  )
-
-  return outfile
-}
-
-export let buildTSScript = async (
-  scriptPath,
-  outPath = ""
-) => {
-  let outfile = outPath || determineOutFile(scriptPath)
-  let { build } =
-    global?.__kitEsbuild || (await import("esbuild"))
-  if (!global?.__kitEsbuild) global.__kitEsbuild = { build }
-
-  let kenvTSConfig = kenvPath("tsconfig.json")
-  let kitTSConfig = kitPath(
-    "templates",
-    "config",
-    "tsconfig.json"
-  )
-  let hasKenvTSConfig = await isFile(kenvTSConfig)
-  let tsconfig = hasKenvTSConfig
-    ? kenvTSConfig
-    : kitTSConfig
-
-  await build({
-    entryPoints: [scriptPath],
-    outfile,
-    bundle: true,
-    platform: "node",
-    format: "esm",
-    packages: "external",
-    charset: "utf8",
-    tsconfig,
-  })
-}
-
 export let buildWidget = async (
   scriptPath,
   outPath = ""
 ) => {
-  let outfile = outPath || determineOutFile(scriptPath)
+  let outfile = outPath || scriptPath
 
   let templateContent = await readFile(
     kenvPath("templates", `widget.html`),
@@ -288,68 +229,10 @@ global.attemptImport = async (scriptPath, ..._args) => {
   try {
     global.updateArgs(_args)
 
-    if (scriptPath.match(/\.(ts|(t|j)sx)$/)) {
-      // Attempt to load the .mjs version first
-      let outfile = determineOutFile(scriptPath)
-      try {
-        if (process.env.KIT_CONTEXT !== "app") {
-          await buildTSScript(scriptPath, outfile)
-        }
-        importResult = await import(
-          pathToFileURL(outfile).href +
-            "?uuid=" +
-            global.uuid()
-        )
-      } catch (error) {
-        let e = error.toString()
-        log({ e })
-        let missingPackages = getMissingPackages(e)
-        // if loading fails, try to build the .mjs version, then load
-        try {
-          if (missingPackages.length) {
-            log({ missingPackages, outfile })
-
-            if (missingPackages[0] === outfile) {
-              try {
-                await buildTSScript(scriptPath, outfile)
-              } catch (err) {
-                e = err.toString()
-                log({ e })
-                missingPackages = getMissingPackages(e)
-              }
-            }
-
-            for await (let missingPackage of missingPackages) {
-              log({ missingPackage })
-              if (missingPackage === outfile) continue
-              if (!missingPackage) continue
-              await global.installMissingPackage(
-                missingPackage
-              )
-            }
-
-            let runContents =
-              scriptPath + " " + cachedArgs.join(" ").trim()
-            log({ runContents })
-
-            await global.writeFile(
-              kitPath("run.txt"),
-              runContents
-            )
-          } else {
-            await errorPrompt(error)
-          }
-        } catch (error) {
-          await errorPrompt(error)
-        }
-      }
-    } else {
-      importResult = await import(
-        pathToFileURL(scriptPath).href +
-          "?uuid=" +
-          global.uuid()
-      )
-    }
+    let href = pathToFileURL(scriptPath).href
+    importResult = await import(
+      `${href}?uuid=${global.uuid()}.kit`
+    )
   } catch (error) {
     let e = error.toString()
     if (

@@ -5,4 +5,4 @@ set KNODE={{KNODE}}
 set KIT={{KIT}}
 set TARGET_PATH={{TARGET_PATH}}
 
-%KNODE%\bin\node.exe %KIT%\run\terminal.js %TARGET_PATH% %*
+%KNODE%\bin\node.exe --experimental-loader %KIT%\build\loader.js  %KIT%\run\terminal.js %TARGET_PATH% %*
