@@ -3,6 +3,7 @@
 NODE_NO_WARNINGS=1 \
 KENV=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd) \
 {{KNODE}}/bin/node \
+--experimental-loader {{KIT}}/build/loader.js \
 {{KIT}}/run/terminal.js \
 {{TARGET_PATH}} \
 "$@"

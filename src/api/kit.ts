@@ -230,9 +230,8 @@ global.attemptImport = async (scriptPath, ..._args) => {
     global.updateArgs(_args)
 
     let href = pathToFileURL(scriptPath).href
-    importResult = await import(
-      `${href}?uuid=${global.uuid()}.kit`
-    )
+    let kitImport = `${href}?uuid=${global.uuid()}.kit`
+    importResult = await import(kitImport)
   } catch (error) {
     let e = error.toString()
     if (
