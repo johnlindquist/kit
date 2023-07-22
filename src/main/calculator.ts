@@ -34,6 +34,13 @@ let result = await arg(
   },
   async input => {
     input = String(input).trim() || ""
+
+    if (input.endsWith("=")) {
+      input = input.slice(0, -1)
+      setInput(String(calc.evaluate(input)))
+      return
+    }
+
     if (!input || input === "undefined") {
       return [
         {

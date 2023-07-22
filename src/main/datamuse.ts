@@ -4,7 +4,7 @@
 Find Similar Words, Rhymes, Sounds Like, etc.
 */
 
-// Name: word
+// Name: Word
 // Description: Find Word Alternatives
 // Keyword: word
 
