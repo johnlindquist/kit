@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KIT=$(cd "$(dirname ${BASH_SOURCE[0]})/.." &>/dev/null && pwd)
+KIT=$(cd "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/.." &>/dev/null && pwd)
 # Check if "kit" is in node_modules/.bin
 [ -L $BASH_SOURCE ] &&
     [[ $BASH_SOURCE =~ "node_modules" ]] &&
