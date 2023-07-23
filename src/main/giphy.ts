@@ -10,6 +10,7 @@
 // Author: John Lindquist
 // Twitter: @johnlindquist
 // Pass: true
+// keyword: gif
 
 import "@johnlindquist/kit"
 

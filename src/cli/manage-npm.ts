@@ -1,5 +1,6 @@
 // Name: Manage npm
 // Description: Add/remove npm packages
+// Keyword: npm
 
 import { CLI } from "../cli"
 import { cliShortcuts } from "../core/utils.js"

@@ -7,6 +7,7 @@ Perform a basic Google search
 // Name: Google
 // Description: Search Google for Information
 // Pass: true
+// Keyword: google
 
 import { cmd } from "../core/utils.js"
 let { default: google } = await import("googlethis")

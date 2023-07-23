@@ -994,6 +994,8 @@ export let getGroupedScripts = async () => {
       kitPath("main", "spell.js"),
       kitPath("main", "define.js"),
       kitPath("main", "rhyme.js"),
+      // TODO: Figure out filterInput when hard-coded choices
+      // kitPath("cli", "manage-npm.js"),
     ].map(async scriptPath => {
       let script = await parseScript(scriptPath)
 

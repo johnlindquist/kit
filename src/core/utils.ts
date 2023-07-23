@@ -526,6 +526,7 @@ export let parseScript = async (
   )
 
   let result = {
+    contents,
     shebang,
     ...metadata,
     ...parsedFilePath,
