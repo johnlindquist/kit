@@ -17,6 +17,12 @@ KIT_NODE="${KIT_NODE:=$KIT/../.knode/bin/node}"
 # Default to system node if KIT_NODE doesn't exist
 [ ! -f $KIT_NODE ] && KIT_NODE=$(which node)
 
+if [[ $KIT =~ ^/[a-zA-Z]/ ]]; then
+    drive_letter=${KIT:1:1}
+    KIT="${KIT/\/$drive_letter\//\/$drive_letter:/}"
+fi
+
+
 KIT="$KIT" \
     KENV="$KENV" \
     NODE_NO_WARNINGS=1 \
