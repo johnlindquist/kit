@@ -712,7 +712,11 @@ let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 let onMessageFocusDefault = async () => {}
-let onKeywordDefault = async () => {}
+let onKeywordDefault = async (input, state) => {
+  if (!state.keyword) {
+    await mainScript(state.input)
+  }
+}
 let onMenuToggleDefault = async () => {}
 let onPasteDefault = async (input, state) => {
   if (state.paste) setSelectedText(state.paste, false)

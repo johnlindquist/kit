@@ -465,7 +465,7 @@ let script = await mainMenu({
     '"': kitPath("handler", "doublequote-handler.js"),
     ";": kitPath("handler", "semicolon-handler.js"),
     ":": kitPath("handler", "colon-handler.js"),
-    ".": kitPath("handler", "file-search.js"),
+    ".": kitPath("handler", "period-handler.js"),
     "\\": kitPath("handler", "backslash-handler.js"),
     "|": kitPath("handler", "pipe-handler.js"),
     ",": kitPath("handler", "comma-handler.js"),

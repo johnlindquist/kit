@@ -1,4 +1,4 @@
-// Name: Manage npm
+// Name: npm
 // Description: Add/remove npm packages
 // Keyword: npm
 
@@ -8,6 +8,9 @@ import { cliShortcuts } from "../core/utils.js"
 while (true) {
   let script = await arg(
     {
+      inputRegex: arg?.keyword
+        ? `(?<=${arg?.keyword}\\s)(.*)`
+        : "",
       placeholder: "What would you like to do?",
       shortcuts: cliShortcuts,
       enter: "Select",
@@ -32,6 +35,9 @@ while (true) {
       },
     ]
   )
+
+  setInput("")
+  setFilterInput("")
 
   await cli(script as keyof CLI)
 }

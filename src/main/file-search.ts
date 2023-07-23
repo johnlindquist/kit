@@ -141,11 +141,6 @@ let selectedFile = await arg(
         setEnter("Open Action Menu")
       }
     },
-    onKeyword: async (input, state) => {
-      if (!state.keyword) {
-        await mainScript(state?.input)
-      }
-    },
     onSubmit: async (input, state) => {
       if (!Boolean(state?.flag)) {
         await setFlagValue(state?.focused)

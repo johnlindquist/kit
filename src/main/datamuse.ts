@@ -72,11 +72,6 @@ let wordApi = async (api, type, input = "") => {
     {
       placeholder: "Type a word:",
       input,
-      onKeyword: async (input, state) => {
-        if (!state.keyword) {
-          await mainScript(state.input)
-        }
-      },
     },
     queryWords(api, type)
   )
