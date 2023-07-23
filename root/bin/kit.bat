@@ -36,4 +36,4 @@ REM Set the NODE_NO_WARNINGS environment variable
 set "NODE_NO_WARNINGS=1"
 
 REM Run the terminal.js file with the determined Node.js binary and pass all arguments
-"%KIT_NODE%" --experimental-loader "%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*
+"%KIT_NODE%" --experimental-loader file:///"%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*
