@@ -939,7 +939,9 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   let {
     input = "",
-    inputRegex = "",
+    inputRegex = arg?.keyword
+      ? `(?<=${arg?.keyword}\\s)(.*)`
+      : "",
     choices = null,
     className = "",
     validate = null,
