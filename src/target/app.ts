@@ -786,22 +786,6 @@ global.setPrompt = (data: Partial<PromptData>) => {
 }
 
 let prepPrompt = async (config: PromptConfig) => {
-  let {
-    choices,
-    placeholder,
-    footer,
-    preview,
-    previewWidthPercent,
-    panel,
-    onInputSubmit = {},
-    ...restConfig
-  } = config
-
-  let mode =
-    typeof choices === "function" && choices?.length > 0
-      ? Mode.GENERATE
-      : Mode.FILTER
-
   let escapeDefault = Boolean(
     !config?.onEscape ||
       config?.onEscape === onEscapeDefault
@@ -810,9 +794,28 @@ let prepPrompt = async (config: PromptConfig) => {
     (config?.shortcuts || []).find(s => s.key === `escape`)
   )
 
-  let hideOnEscape = Boolean(
-    escapeDefault && !hasEscapeShortcut
-  )
+  let {
+    choices,
+    placeholder,
+    footer,
+    preview,
+    previewWidthPercent,
+    panel,
+    onInputSubmit = {},
+    hideOnEscape,
+    ...restConfig
+  } = config
+
+  if (typeof hideOnEscape === "undefined") {
+    hideOnEscape = Boolean(
+      escapeDefault && !hasEscapeShortcut
+    )
+  }
+
+  let mode =
+    typeof choices === "function" && choices?.length > 0
+      ? Mode.GENERATE
+      : Mode.FILTER
 
   global.setPrompt({
     footer: footer || "",
@@ -1337,6 +1340,8 @@ global.editor = async (options?: EditorOptions) => {
     height: PROMPT.HEIGHT.XL,
     ...editorOptions,
     enter: "",
+    choices: [],
+    hideOnEscape: false,
   })
 }
 

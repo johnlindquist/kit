@@ -988,6 +988,7 @@ export let getGroupedScripts = async () => {
       kitPath("main", "google.js"),
       kitPath("main", "datamuse.js"),
       kitPath("main", "giphy.js"),
+      kitPath("main", "snippets.js"),
       kitPath("main", "sticky.js"),
       kitPath("main", "term.js"),
       kitPath("main", "file-search.js"),
