@@ -417,22 +417,25 @@ let waitForPromptValue = ({
           (c: Choice) => c.id === focused?.id
         )
 
-        let preventSubmit: boolean | string | void = false
-        preventSubmit = await onSubmit(
-          data?.state?.input,
-          data.state
-        )
-
-        if (choice?.onSubmit) {
-          preventSubmit = await choice?.onSubmit(
+        // TODO: Dont use onSubmit for chat component? onUserMessage maybe?
+        if (global.__kitPromptState?.ui !== UI.chat) {
+          let preventSubmit: boolean | string | void = false
+          preventSubmit = await onSubmit(
             data?.state?.input,
-            data?.state
+            data.state
           )
-        }
 
-        if (preventSubmit) {
-          send(Channel.PREVENT_SUBMIT)
-          return prevent
+          if (choice?.onSubmit) {
+            preventSubmit = await choice?.onSubmit(
+              data?.state?.input,
+              data?.state
+            )
+          }
+
+          if (preventSubmit) {
+            send(Channel.PREVENT_SUBMIT)
+            return prevent
+          }
         }
 
         // TODO: Refactor out an invalid$ stream
@@ -488,6 +491,10 @@ let waitForPromptValue = ({
         switch (data.channel) {
           case Channel.PING:
             send(Channel.PONG)
+            break
+
+          case Channel.ON_SUBMIT:
+            await onSubmit(data.state.input, data.state)
             break
 
           case Channel.INPUT:

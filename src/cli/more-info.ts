@@ -20,4 +20,6 @@ let site = await arg(
 
 await browse(site)
 
+exit()
+
 export {}
