@@ -11,6 +11,9 @@ let snippetPaths = await globby([
   kenvPath("kenvs", "*", "snippets", "**", "*.txt"),
 ])
 
+let defaultSnippetTemplate = `// Name: \${1:Required}
+\${0}`
+
 let getSnippet = (
   contents: string
 ): {
@@ -62,7 +65,7 @@ if (arg?.filePath) {
   let contents = await readFile(arg.filePath, "utf8")
   let { metadata, snippet: snippetFromFile } =
     getSnippet(contents)
-  snippet = snippetFromFile
+  snippet = snippetFromFile.trim()
 } else {
   snippet = await arg(
     {
@@ -84,9 +87,10 @@ if (arg?.filePath) {
 
           name: "New Snippet",
           onPress: async () => {
+            setInput(``) // clearing keyword
+
             let contents = await template(
-              `// Name: \${1:Required}
-  \${0}`,
+              defaultSnippetTemplate,
               {
                 shortcuts: [
                   closeShortcut,
