@@ -4,17 +4,9 @@
 // Pass: true
 
 import {
-  escapeShortcut,
+  keywordInputTransformer,
   isMac,
-  isWin,
 } from "../core/utils.js"
-
-let atLeast = [
-  {
-    name: `Type at least 3 characters`,
-    info: true,
-  },
-]
 
 let actionFlags: {
   name: string
@@ -125,6 +117,7 @@ for (let flag of actionFlags) {
   flags[flag.name] = flag
 }
 
+let transformer = keywordInputTransformer(arg?.keyword)
 let selectedFile = await arg(
   {
     input: arg?.pass
@@ -160,12 +153,7 @@ let selectedFile = await arg(
     flags,
   },
   async input => {
-    if (arg?.keyword) {
-      input =
-        input.match(
-          new RegExp(`(?<=${arg?.keyword}\\s)(.*)`, "gi")
-        )?.[0] || ""
-    }
+    input = transformer(input)
 
     if (!input || input?.length < 3) {
       return [

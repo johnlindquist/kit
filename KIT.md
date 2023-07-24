@@ -314,6 +314,12 @@ This will open the `kit.log` file in your editor. This is where Script Kit logs 
 
 Force the prompt to always open on a specific display.
 
+## Toggle Clipboard/Snippet Watcher
+
+<!-- description: Toggle the clipboard/snippet watcher -->
+<!-- value: app/toggle-watcher.js -->
+<!-- enter: Toggle -->
+
 ## Edit .env
 
 <!-- description: Open the .env file -->

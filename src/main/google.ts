@@ -9,7 +9,10 @@ Perform a basic Google search
 // Pass: true
 // Keyword: google
 
-import { cmd } from "../core/utils.js"
+import {
+  cmd,
+  keywordInputTransformer,
+} from "../core/utils.js"
 let { default: google } = await import("googlethis")
 const options = {
   page: 0,
@@ -22,6 +25,7 @@ const options = {
 let currentInput = ``
 let title = ``
 let url = ``
+let transformer = keywordInputTransformer(arg?.keyword)
 let pasteOptions = async () => {
   let asMarkdown = `[${title}](${url})`
   let asInputMarkdown = `[${currentInput}](${url})`
@@ -82,6 +86,7 @@ await arg(
     },
   },
   async input => {
+    input = transformer(input)
     if (!input || input?.length < 2)
       return [
         {

@@ -1,5 +1,6 @@
 // Name: Emoji Picker
 // Description: Select an Emoji to Paste
+// Keyword: em
 
 let emojiJSON = await readJson(
   kitPath("data", "emoji.json")
@@ -14,11 +15,6 @@ let emojiChoices = emojiJSON.map(emoji => {
 let emoji = await arg(
   {
     placeholder: "Select emoji to paste",
-
-    onEscape: async () => {
-      submit(false)
-      await mainScript()
-    },
   },
   emojiChoices
 )

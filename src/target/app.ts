@@ -240,6 +240,14 @@ let createOnChoiceFocusDefault = (
         (c: Choice) => c?.id === id
       )
 
+      if (choice?.onFocus) {
+        try {
+          choice?.onFocus(input, state)
+        } catch (error) {
+          throw new Error(error)
+        }
+      }
+
       if (
         choice &&
         choice?.preview &&
@@ -247,14 +255,6 @@ let createOnChoiceFocusDefault = (
       ) {
         ;(choice as any).index = index
         ;(choice as any).input = input
-
-        if (choice?.onFocus) {
-          try {
-            choice?.onFocus(input, state)
-          } catch (error) {
-            throw new Error(error)
-          }
-        }
 
         try {
           preview = await choice?.preview(input, state)

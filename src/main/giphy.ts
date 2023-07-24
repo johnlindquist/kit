@@ -13,6 +13,9 @@
 // keyword: gif
 
 import "@johnlindquist/kit"
+import { keywordInputTransformer } from "../core/utils.js"
+
+let transformer = keywordInputTransformer(arg?.keyword)
 
 let GIPHY_API_KEY = await env("GIPHY_API_KEY", {
   panel: md(
@@ -26,6 +29,7 @@ let search = q =>
   `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${q}&limit=10&offset=0&rating=g&lang=en`
 
 let giphy = async input => {
+  input = transformer(input)
   if (!input) {
     return [
       {

@@ -8,14 +8,11 @@ Find Similar Words, Rhymes, Sounds Like, etc.
 // Description: Find Word Alternatives
 // Keyword: word
 
-let queryWords = (api, type) => async input => {
-  if (arg?.keyword) {
-    input =
-      input.match(
-        new RegExp(`(?<=${arg?.keyword}\\s)(.*)`, "gi")
-      )?.[0] || ""
-  }
+import { keywordInputTransformer } from "../core/utils.js"
+let transformer = keywordInputTransformer(arg?.keyword)
 
+let queryWords = (api, type) => async input => {
+  input = transformer(input)
   if (!input || input?.length < 3) {
     return [
       {

@@ -45,7 +45,7 @@ export const resolveKenv = (...parts: string[]) => {
   return kenvPath(...parts)
 }
 
-let store = async (
+export let store = async (
   nameOrPath: string,
   initialData: any = {}
 ): Promise<InstanceType<typeof import("keyv")>> => {

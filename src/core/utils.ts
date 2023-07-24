@@ -1575,3 +1575,16 @@ export let adjustPackageName = (packageName: string) => {
 
   return adjustedPackageName
 }
+
+export let keywordInputTransformer = (keyword: string) => {
+  if (!keyword) return (input: string) => input
+
+  let keywordRegex = new RegExp(
+    `(?<=${global.arg.keyword}\\s)(.*)`,
+    "gi"
+  )
+
+  return (input: string) => {
+    return input.match(keywordRegex)?.[0] || ""
+  }
+}
