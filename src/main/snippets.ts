@@ -5,6 +5,7 @@
 
 import "@johnlindquist/kit"
 import { globby } from "globby"
+import slugify from "slugify"
 import { closeShortcut } from "../core/utils.js"
 let snippetPaths = await globby([
   kenvPath("snippets", "**", "*.txt"),
@@ -108,7 +109,13 @@ if (arg?.filePath) {
             let { metadata } = getSnippet(contents)
             await ensureDir(kenvPath("snippets"))
             await writeFile(
-              kenvPath("snippets", `${metadata.name}.txt`),
+              kenvPath(
+                "snippets",
+                `${slugify(metadata.name, {
+                  lower: true,
+                  trim: true,
+                })}.txt`
+              ),
               contents
             )
           },

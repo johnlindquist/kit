@@ -217,6 +217,8 @@ if (await isFile(packageJsonPath)) {
       let toolPath = `${knodePath("bin", tool)}`
 
       await term({
+        name: ``,
+        description: `Cloning ${repo}`,
         height: PROMPT.HEIGHT["BASE"],
         command: `${toolPath} ${command}`,
         env: {

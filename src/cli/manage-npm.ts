@@ -35,6 +35,7 @@ while (true) {
 
   setInput("")
   setFilterInput("")
+  delete arg.keyword
 
   await cli(script as keyof CLI)
 }

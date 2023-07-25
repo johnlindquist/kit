@@ -946,6 +946,10 @@ global.kitPrompt = async (config: PromptConfig) => {
     config.ignoreBlur = true
   }
 
+  if (typeof config?.keyword === "string") {
+    delete arg?.keyword
+  }
+
   let {
     input = "",
     inputRegex = arg?.keyword
@@ -1988,10 +1992,6 @@ global.mainScript = async (
     process.removeAllListeners("message")
     clearAllTimeouts()
     clearAllIntervals()
-    console.log({
-      mainScriptPath,
-      input,
-    })
     let m = run(mainScriptPath, `--input`, input)
     if (tab) {
       await wait(200)

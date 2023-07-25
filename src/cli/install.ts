@@ -35,6 +35,7 @@ let install = async packageNames => {
     )}`.trim()
 
   return await term({
+    name: `npm install`,
     command,
     env: {
       ...global.env,
