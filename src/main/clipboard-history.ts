@@ -11,7 +11,7 @@ import {
 let transformer = keywordInputTransformer(arg?.keyword)
 
 function escapeHTML(text) {
-  var map = {
+  const map = {
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",

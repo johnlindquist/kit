@@ -56,6 +56,7 @@ global.env = async (envKey, promptConfig) => {
           placeholder: promptConfig,
           ignoreBlur,
           secret,
+          keyword: "",
         })
       : await global.kitPrompt({
           enter: "Write to .env",
@@ -64,6 +65,7 @@ global.env = async (envKey, promptConfig) => {
           ignoreBlur,
           ...promptConfig,
           secret,
+          keyword: "",
         })
 
   if (input?.startsWith("~"))

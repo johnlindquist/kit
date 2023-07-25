@@ -193,7 +193,6 @@ export interface PromptData {
   keepPreview?: boolean
   hint: string
   ignoreBlur: boolean
-
   input: string
   inputRegex: string
   kitArgs: string[]
@@ -246,6 +245,7 @@ export interface PromptData {
   preload?: boolean
   css?: string
   hideOnEscape?: boolean
+  keyword?: string
 }
 
 export interface GenerateChoices {
@@ -371,6 +371,7 @@ export type PromptConfig = {
   onAudioData?: ChannelHandler
   debounceInput?: number
   debounceChoiceFocus?: number
+  keyword?: string
   onInputSubmit?: {
     [key: string]: any
   }

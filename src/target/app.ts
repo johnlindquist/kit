@@ -803,6 +803,7 @@ let prepPrompt = async (config: PromptConfig) => {
     panel,
     onInputSubmit = {},
     hideOnEscape,
+    keyword = config?.ui !== UI.arg ? "" : undefined,
     ...restConfig
   } = config
 
@@ -846,6 +847,7 @@ let prepPrompt = async (config: PromptConfig) => {
     hasOnNoChoices: Boolean(config?.onNoChoices),
     inputCommandChars: config?.inputCommandChars || [],
     hideOnEscape,
+    keyword,
   })
 }
 
@@ -1979,6 +1981,7 @@ global.mainScript = async (
   global.args = []
   global.flags = {}
   if (process.env.KIT_CONTEXT === "app") {
+    process.removeAllListeners("message")
     clearAllTimeouts()
     clearAllIntervals()
     console.log({
