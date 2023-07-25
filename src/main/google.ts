@@ -61,6 +61,10 @@ await arg(
     placeholder: "Search Google",
     enter: `Open in Browser`,
     resize: true,
+    alwaysOnTop: true,
+    onBlur: async () => {
+      focus()
+    },
     shortcuts: [
       {
         name: `Paste Options`,
@@ -73,10 +77,7 @@ await arg(
         key: `${cmd}+enter`,
         bar: `right`,
         onPress: async () => {
-          setAlwaysOnTop(true)
-          setIgnoreBlur(true)
           open(url)
-          setTimeout(focus, 100)
         },
       },
     ],

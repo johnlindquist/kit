@@ -68,6 +68,7 @@ let wordApi = async (api, type, input = "") => {
   let word = await arg(
     {
       placeholder: "Type a word:",
+      enter: "Paste",
       input,
     },
     queryWords(api, type)
