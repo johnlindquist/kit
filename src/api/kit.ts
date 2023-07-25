@@ -1003,6 +1003,7 @@ export let getGroupedScripts = async () => {
 
       script.group = "Kit"
       script.ignoreFlags = true
+      script.preview = `<div></div>`
 
       return script
     })
