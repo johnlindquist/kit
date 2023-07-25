@@ -807,6 +807,10 @@ let prepPrompt = async (config: PromptConfig) => {
     ...restConfig
   } = config
 
+  if (typeof keyword === "string") {
+    delete arg?.keyword
+  }
+
   if (typeof hideOnEscape === "undefined") {
     hideOnEscape = Boolean(
       escapeDefault && !hasEscapeShortcut
