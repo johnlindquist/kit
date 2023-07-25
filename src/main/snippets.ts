@@ -55,7 +55,7 @@ for await (let s of snippetPaths) {
     tag: metadata?.snippet || "",
     description: s,
     value: snippet.trim(),
-    preview: snippet,
+    preview: `<div class="p-4">${snippet}</div>`,
   })
 }
 
