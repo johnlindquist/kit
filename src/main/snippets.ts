@@ -115,7 +115,11 @@ let snippet = await arg(
       },
     ],
   },
-  snippetChoices
+  snippetChoices.concat({
+    name: "No snippets found...",
+    miss: true,
+    info: true,
+  })
 )
 
 if (snippet.match(/\${(.+)?}/)) {

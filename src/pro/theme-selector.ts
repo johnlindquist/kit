@@ -1,5 +1,8 @@
 // Name: Theme Selector
 // Description: Preview and Apply Themes
+// Keyword: theme
+// Cache: true
+
 import "@johnlindquist/kit"
 import { globby } from "globby"
 
@@ -54,5 +57,6 @@ if (themePath === "theme-designer") {
   if (appearance === "Dark" || appearance === "Both") {
     await cli("set-env-var", "KIT_THEME_DARK", themePath)
   }
+  await setInput("")
   await mainScript()
 }

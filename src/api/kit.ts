@@ -998,6 +998,7 @@ export let getGroupedScripts = async () => {
       kitPath("cli", "manage-npm.js"),
       kitPath("main", "clipboard-history.js"),
       kitPath("main", "emoji.js"),
+      kitPath("pro", "theme-selector.js"),
     ].map(async scriptPath => {
       let script = await parseScript(scriptPath)
 
