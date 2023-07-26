@@ -1,6 +1,5 @@
 // Name: Snippets
 // Description: Quickly insert snippets of text
-// Cache: true
 // Keyword: snip
 
 import "@johnlindquist/kit"
@@ -60,63 +59,72 @@ for await (let s of snippetPaths) {
   })
 }
 
-let snippet = await arg(
-  {
-    placeholder: "Choose a snippet",
-    enter: `Paste Snippet`,
-    shortcuts: [
-      {
-        key: `${cmd}+o`,
-        name: "Edit Snippet",
-        onPress: async (input, state) => {
-          console.log(state.focused?.description)
-          await edit(state?.focused?.description)
-          exit()
+let snippet = ""
+
+if (arg?.filePath) {
+  let contents = await readFile(arg.filePath, "utf8")
+  let { metadata, snippet: snippetFromFile } =
+    getSnippet(contents)
+  snippet = snippetFromFile.trim()
+} else {
+  snippet = await arg(
+    {
+      placeholder: "Choose a snippet",
+      enter: `Paste Snippet`,
+      shortcuts: [
+        {
+          key: `${cmd}+o`,
+          name: "Edit Snippet",
+          onPress: async (input, state) => {
+            console.log(state.focused?.description)
+            await edit(state?.focused?.description)
+            exit()
+          },
+          bar: "right",
         },
-        bar: "right",
-      },
-      {
-        key: `${cmd}+n`,
+        {
+          key: `${cmd}+n`,
 
-        name: "New Snippet",
-        onPress: async () => {
-          setInput(``) // clearing keyword
+          name: "New Snippet",
+          onPress: async () => {
+            setInput(``) // clearing keyword
 
-          let contents = await template(
-            defaultSnippetTemplate,
-            {
-              shortcuts: [
-                closeShortcut,
-                {
-                  key: `${cmd}+s`,
-                  name: "Save Snippet",
-                  onPress: async input => {
-                    submit(input)
+            let contents = await template(
+              defaultSnippetTemplate,
+              {
+                shortcuts: [
+                  closeShortcut,
+                  {
+                    key: `${cmd}+s`,
+                    name: "Save Snippet",
+                    onPress: async input => {
+                      submit(input)
+                    },
+                    bar: "right",
                   },
-                  bar: "right",
-                },
-              ],
-            }
-          )
-          let { metadata } = getSnippet(contents)
-          await ensureDir(kenvPath("snippets"))
-          await writeFile(
-            kenvPath(
-              "snippets",
-              `${slugify(metadata.name, {
-                lower: true,
-                trim: true,
-              })}.txt`
-            ),
-            contents
-          )
+                ],
+              }
+            )
+            let { metadata } = getSnippet(contents)
+            await ensureDir(kenvPath("snippets"))
+            await writeFile(
+              kenvPath(
+                "snippets",
+                `${slugify(metadata.name, {
+                  lower: true,
+                  trim: true,
+                })}.txt`
+              ),
+              contents
+            )
+          },
+          bar: "right",
         },
-        bar: "right",
-      },
-    ],
-  },
-  snippetChoices
-)
+      ],
+    },
+    snippetChoices
+  )
+}
 
 if (snippet.match(/\${(.+)?}/)) {
   setInput(``) // clearing keyword

@@ -684,6 +684,12 @@ export interface KitTheme {
   "--color-background-dark": string
   "--opacity-themelight": string
   "--opacity-themedark": string
+  name: string
+  foreground: string
+  background: string
+  accent: string
+  ui: string
+  opacity: string
 }
 export interface SetTheme {
   (theme: Partial<KitTheme>): Promise<void>
