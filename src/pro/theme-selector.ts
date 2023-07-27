@@ -14,7 +14,7 @@ let guide = await readFile(kitPath("GUIDE.md"), "utf-8")
 
 let themes = []
 
-// Sort script-kit-dark and script-kit-light
+// Sort script-kit-dark and script-kit-light to the top
 themePaths.sort((a, b) => {
   if (a.includes("script-kit")) {
     return -1
