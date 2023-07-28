@@ -68,13 +68,25 @@ let wordApi = async (api, type, input = "") => {
   let word = await arg(
     {
       placeholder: "Type a word:",
-      enter: "Paste",
+      enter: "Copy to Clipboard",
       input,
+      shortcuts: [
+        {
+          name: "Paste",
+          key: `${cmd}+enter`,
+          onPress: async (input, state) => {
+            await setSelectedText(state?.focused?.value)
+            exit()
+          },
+          bar: "right",
+        },
+      ],
     },
+
     queryWords(api, type)
   )
 
-  if (word) setSelectedText(word.replace(/ /g, "+"))
+  if (word) copy(word.replace(/ /g, "+"))
 }
 
 let spell = async input => {

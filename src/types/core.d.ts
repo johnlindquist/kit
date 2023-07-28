@@ -332,6 +332,7 @@ export type PromptConfig = {
     choice: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
+  initialChoices?: Choices<any> | Panel
   html?: string
   formData?: any
   className?: string

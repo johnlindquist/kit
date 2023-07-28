@@ -194,6 +194,10 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
 let getInitialChoices = async (
   props: InvokeChoicesProps
 ) => {
+  if (Array.isArray(props.initialChoices)) {
+    setChoices(props.initialChoices)
+    return
+  }
   if (!Array.isArray(props.choices)) {
     setChoices([])
   }
@@ -305,6 +309,7 @@ global.__kitPromptState = {}
 let waitForPromptValue = ({
   ui,
   choices,
+  initialChoices,
   validate,
   className,
   onNoChoices,
@@ -349,6 +354,7 @@ let waitForPromptValue = ({
         promptId,
         tabIndex: global.onTabIndex,
         choices,
+        initialChoices,
         className,
         onNoChoices,
         state,
@@ -956,6 +962,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       ? `(?<=${arg?.keyword}\\s)(.*)`
       : "",
     choices = null,
+    initialChoices = null,
     className = "",
     validate = null,
     onNoChoices = onNoChoicesDefault,
@@ -1034,6 +1041,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     shortcuts: config.shortcuts,
     state: { input },
     inputRegex,
+    initialChoices,
   })
 }
 

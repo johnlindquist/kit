@@ -94,6 +94,7 @@ let actionFlags: {
     name: "Open in VS Code",
     value: "vscode",
     action: async selectedFile => {
+      hide()
       if (isMac) {
         await exec(
           `open -a 'Visual Studio Code' '${selectedFile}'`
