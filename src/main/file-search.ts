@@ -117,6 +117,13 @@ for (let flag of actionFlags) {
   flags[flag.name] = flag
 }
 
+let pleaseType = [
+  {
+    name: `Type at least 3 characters`,
+    info: true,
+  },
+]
+
 let transformer = keywordInputTransformer(arg?.keyword)
 let selectedFile = await arg(
   {
@@ -125,6 +132,7 @@ let selectedFile = await arg(
       : arg?.keyword
       ? `${arg.keyword} `
       : "",
+    initialChoices: pleaseType,
     onMenuToggle: async (input, state) => {
       if (state.flag) {
         setPlaceholder("Select Action")
@@ -156,12 +164,7 @@ let selectedFile = await arg(
     input = transformer(input)
 
     if (!input || input?.length < 3) {
-      return [
-        {
-          name: `Type at least 3 characters`,
-          info: true,
-        },
-      ]
+      return pleaseType
     }
     let files = await fileSearch(input)
     return files.map(p => {

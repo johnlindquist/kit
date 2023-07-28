@@ -1839,6 +1839,7 @@ global.getDataFromApp = global.sendWait = async (
 ) => {
   if (process?.send) {
     return await new Promise((res, rej) => {
+      let timeout
       let messageHandler = data => {
         // if (data?.promptId !== global.__kitPromptId) {
         //   log(
@@ -1852,10 +1853,15 @@ global.getDataFromApp = global.sendWait = async (
               ? data
               : data?.value
           )
+          if (timeout) clearTimeout(timeout)
           process.off("message", messageHandler)
         }
       }
       process.on("message", messageHandler)
+      timeout = setTimeout(() => {
+        log(`${channel} timed out...`)
+        process.off("message", messageHandler)
+      }, 100)
 
       send(channel, data)
     })

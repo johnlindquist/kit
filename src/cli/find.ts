@@ -26,9 +26,19 @@ for await (let dir of searchDirs) {
     searchExistingDirs.push(dir + path.sep + "*")
   }
 }
+
+let pleaseType = [
+  {
+    info: true,
+    miss: true,
+    name: "Please type more than 2 characters",
+  },
+]
+
 let filePath = await arg(
   {
     input: (flag?.pass as string) || "",
+    initialChoices: pleaseType,
     placeholder: "Search Scripts",
     debounceInput: 400,
     enter: "Run",
@@ -54,13 +64,7 @@ let filePath = await arg(
   async input => {
     try {
       if (!input || input?.length < 3) {
-        setChoices([
-          {
-            info: true,
-            miss: true,
-            name: "Please type more than 2 characters",
-          },
-        ])
+        setChoices(pleaseType)
         return
       }
 

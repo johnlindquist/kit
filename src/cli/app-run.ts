@@ -589,6 +589,8 @@ let script = await mainMenu({
   input: arg?.input || "",
 })
 
+process.removeAllListeners("message")
+
 if (typeof script === "boolean" && !script) {
   exit()
 }
