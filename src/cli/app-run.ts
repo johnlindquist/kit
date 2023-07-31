@@ -438,6 +438,11 @@ let script = await mainMenu({
   enter: "Run",
   strict: false,
   flags: scriptFlags,
+  onMenuToggle: async (input, state) => {
+    if (!state?.flag) {
+      setFlags(scriptFlags)
+    }
+  },
   onKeyword: async (input, state) => {
     let { keyword, value } = state
     if (keyword) {
@@ -570,8 +575,15 @@ let script = await mainMenu({
       key: `${cmd}+s`,
       condition: c => !c.needsDebugger,
       onPress: async (input, { focused }) => {
+        let shareFlags = {}
+        for (let [k, v] of Object.entries(scriptFlags)) {
+          if (k.startsWith("share")) {
+            shareFlags[k] = v
+            delete shareFlags[k].group
+          }
+        }
+        await setFlags(shareFlags)
         await setFlagValue(focused?.value)
-        await setInput("Share")
       },
       bar: "right",
     },
@@ -588,8 +600,6 @@ let script = await mainMenu({
   ],
   input: arg?.input || "",
 })
-
-process.removeAllListeners("message")
 
 if (typeof script === "boolean" && !script) {
   exit()

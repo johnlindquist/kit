@@ -515,7 +515,12 @@ export interface ChannelMap {
   [Channel.SET_CONFIG]: Partial<Config>
   [Channel.SET_DISABLE_SUBMIT]: boolean
   [Channel.SET_BOUNDS]: Partial<Rectangle>
-  [Channel.SET_CHOICES]: Choice[]
+  [Channel.SET_CHOICES]: {
+    choices: Choice[]
+    skipInitialSearch?: boolean
+    inputRegex?: string
+    generated?: boolean
+  }
   [Channel.SET_FORM_DATA]: {
     [key: string]: string
   }

@@ -91,10 +91,6 @@ global.onExit = handler => {
   onExitHandler = handler
 }
 
-process.on("beforeExit", () => {
-  onExitHandler()
-})
-
 let _exec = global.exec
 global.exec = (
   command: string,
@@ -682,10 +678,25 @@ let waitForPromptValue = ({
             value = Buffer.from(content, "base64")
           }
         }
+
+        process.removeAllListeners("message")
+        process.removeAllListeners("uncaughtException")
+        process.removeAllListeners("unhandledRejection")
+        process.removeAllListeners("error")
+
+        // for (let eventName of process.eventNames()) {
+        //   let count = process.listenerCount(eventName)
+
+        //   console.log(
+        //     `${process.pid}: ✅  ${String(
+        //       eventName
+        //     )} ${count} listeners left.`
+        //   )
+        // }
+
         resolve(value)
-        if (global.__kitDetachFromApp) {
-          global.__kitDetachFromApp()
-        }
+
+        global.__kitAddErrorListeners()
       },
       complete: () => {
         // global.log(
@@ -1774,7 +1785,7 @@ global.installMissingPackage =
 
 global.setPanel = async (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
-  await global.sendWait(Channel.SET_PANEL, html)
+  global.send(Channel.SET_PANEL, html)
 }
 
 global.setFooter = (footer: string) => {
@@ -1839,7 +1850,6 @@ global.getDataFromApp = global.sendWait = async (
 ) => {
   if (process?.send) {
     return await new Promise((res, rej) => {
-      let timeout
       let messageHandler = data => {
         // if (data?.promptId !== global.__kitPromptId) {
         //   log(
@@ -1853,16 +1863,10 @@ global.getDataFromApp = global.sendWait = async (
               ? data
               : data?.value
           )
-          if (timeout) clearTimeout(timeout)
           process.off("message", messageHandler)
         }
       }
       process.on("message", messageHandler)
-      timeout = setTimeout(() => {
-        log(`${channel} timed out...`)
-        process.off("message", messageHandler)
-      }, 100)
-
       send(channel, data)
     })
   } else {
@@ -2825,13 +2829,33 @@ global.getAppState = async () => {
 global.formatDate = format
 global.formatDateToNow = formatDistanceToNow
 
-process.addListener("unhandledRejection", async error => {
-  await errorPrompt(error as Error)
-})
+global.__kitAddErrorListeners = () => {
+  if (process.listenerCount("unhandledRejection") === 0) {
+    process.prependOnceListener(
+      "unhandledRejection",
+      async error => {
+        await errorPrompt(error as Error)
+      }
+    )
+  }
 
-process.addListener("uncaughtException", async error => {
-  await errorPrompt(error as Error)
-})
+  if (process.listenerCount("uncaughtException") === 0) {
+    process.prependOnceListener(
+      "uncaughtException",
+      async error => {
+        await errorPrompt(error as Error)
+      }
+    )
+  }
+
+  if (process.listenerCount("beforeExit") === 0) {
+    process.on("beforeExit", () => {
+      onExitHandler()
+    })
+  }
+}
+
+global.__kitAddErrorListeners()
 
 let __kit__registeredShortcuts = new Map()
 global.__kit__onShortcutPressed = async (

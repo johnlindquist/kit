@@ -403,7 +403,7 @@ global.setPlaceholder = text => {
 }
 
 global.setEnter = async text => {
-  await global.sendWait(Channel.SET_ENTER, text)
+  global.send(Channel.SET_ENTER, text)
 }
 
 global.main = async (scriptPath: string, ..._args) => {
@@ -675,7 +675,7 @@ global.setChoices = async (choices, config) => {
     choices,
     config?.className || ""
   )
-  return global.sendWait(Channel.SET_CHOICES, {
+  global.send(Channel.SET_CHOICES, {
     choices: formattedChoices,
     skipInitialSearch: config?.skipInitialSearch || false,
     inputRegex: config?.inputRegex || "",
@@ -1435,10 +1435,6 @@ global.PROMPT = PROMPT
 
 global.preload = (scriptPath?: string) => {
   if (process.send) {
-    if (global.__kitDetachFromApp) {
-      global.__kitDetachFromApp()
-    }
-
     send(Channel.PRELOAD, scriptPath || global.kitScript)
   }
 }
