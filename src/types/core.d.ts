@@ -54,6 +54,7 @@ export interface Choice<Value = any> {
   choices?: (Omit<Choice<any>, "choices"> | string)[]
   hideWithoutInput?: boolean
   ignoreFlags?: boolean
+  selected?: boolean
 }
 
 export interface ScoredChoice {
@@ -246,6 +247,7 @@ export interface PromptData {
   css?: string
   hideOnEscape?: boolean
   keyword?: string
+  multiple?: boolean
 }
 
 export interface GenerateChoices {
@@ -315,6 +317,8 @@ export interface AppState {
   keyword?: string
   mode?: Mode
   ui?: UI
+  multiple?: boolean
+  selected?: any[]
 }
 
 export interface ChannelHandler {

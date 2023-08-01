@@ -153,6 +153,21 @@ global.arg = async (messageOrConfig = "Input", choices) => {
   return input
 }
 
+global.select = async (messageOrConfig, choices) => {
+  let config: PromptConfig = {
+    multiple: true,
+  }
+  if (typeof messageOrConfig === "string") {
+    config.placeholder = messageOrConfig
+  } else {
+    config = {
+      ...config,
+      ...messageOrConfig,
+    }
+  }
+  return await global.arg(messageOrConfig, choices)
+}
+
 global.mini = global.arg
 global.micro = global.arg
 

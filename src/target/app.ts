@@ -585,10 +585,14 @@ let waitForPromptValue = ({
             }
 
             if (data.state.shortcut === "enter") {
-              submit(
-                data?.state?.focused?.value ||
-                  data?.state?.input
-              )
+              if (data?.state?.multiple) {
+                submit(data?.state?.selected)
+              } else {
+                submit(
+                  data?.state?.focused?.value ||
+                    data?.state?.input
+                )
+              }
             }
 
             break
@@ -1548,6 +1552,37 @@ global.arg = async (
   }
 
   return await global.kitPrompt(promptConfig)
+}
+
+global.select = async (
+  placeholderOrConfig = "Type a value:",
+  choices = ``
+) => {
+  let config: PromptConfig = {
+    multiple: true,
+    enter: "Select",
+    shortcuts: [
+      {
+        name: "Submit",
+        key: `${cmd}+enter`,
+        onPress: async (input, state) => {
+          submit(state.selected)
+        },
+        bar: "right",
+      },
+    ],
+  }
+
+  if (typeof placeholderOrConfig === "string") {
+    config.placeholder = placeholderOrConfig
+  } else {
+    config = {
+      ...config,
+      ...(placeholderOrConfig as PromptConfig),
+    }
+  }
+
+  return await arg(config, choices)
 }
 
 global.mini = async (
