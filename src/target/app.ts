@@ -772,7 +772,8 @@ global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
   if (tabs) global.onTabs = tabs
 
-  let id = uuid()
+  // let id = uuid()
+  let id = `${global.kitScript}-${promptId}`
   global.__kitPromptId = id
   global.send(Channel.SET_PROMPT_DATA, {
     id,

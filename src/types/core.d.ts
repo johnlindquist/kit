@@ -313,6 +313,8 @@ export interface AppState {
   cursor?: number
   preview?: string
   keyword?: string
+  mode?: Mode
+  ui?: UI
 }
 
 export interface ChannelHandler {

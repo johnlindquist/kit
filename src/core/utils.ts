@@ -1259,6 +1259,7 @@ export let groupChoices = (
       } else {
         missingGroup = {
           skip: true,
+          id: `group-${missingGroupName}-${choice.id}`,
           group: missingGroupName,
           name: missingGroupName,
           value: missingGroupName,
@@ -1279,22 +1280,23 @@ export let groupChoices = (
       }
       let userGrouped = choice?.group ? true : false
       choice.group ||= choice[groupKey]
-      choice.hideWithoutInput ||= hideWithoutInput.includes(
-        choice?.group || choice[groupKey]
-      )
+      let group = choice.group
+
+      choice.hideWithoutInput ||=
+        hideWithoutInput.includes(group)
       if (groupParent) {
         groupParent.choices.push(choice)
       } else {
         groups.push({
           skip: true,
           userGrouped,
-          group: choice?.group || choice[groupKey],
-          name: choice?.group || choice[groupKey],
-          value: choice?.group || choice[groupKey],
+          id: `group-${group}-${choice.id}`,
+          group,
+          name: group,
+          value: group,
           choices: [choice],
-          hideWithoutInput: hideWithoutInput.includes(
-            choice?.group || choice[groupKey]
-          ),
+          hideWithoutInput:
+            hideWithoutInput.includes(group),
         })
       }
     }
@@ -1427,110 +1429,116 @@ export let formatChoices = (
   className = ""
 ) => {
   if (Array.isArray(choices)) {
-    return (choices as Choice<any>[]).flatMap(choice => {
-      const isChoiceObject = typeof choice === "object"
+    return (choices as Choice<any>[]).flatMap(
+      (choice, index) => {
+        const isChoiceObject = typeof choice === "object"
 
-      if (!isChoiceObject) {
-        return {
-          name: String(choice),
-          slicedName: (choice as string).slice(0, 63),
-          value: choice,
-          id: uuid(),
-          hasPreview: false,
-          className,
+        if (!isChoiceObject) {
+          let name = String(choice)
+          let slicedName = (choice as string).slice(0, 63)
+          return {
+            name,
+            slicedName,
+            value: choice,
+            id: `${index}-${slicedName}`,
+            hasPreview: false,
+            className,
+          }
         }
-      }
 
-      let hasPreview = Boolean(choice?.preview)
-      let properChoice = {
-        hasPreview,
-        id: choice?.id || uuid(),
-        name: choice?.name || "",
-        slicedName: choice?.name?.slice(0, 63) || "",
-        slicedDescription:
-          choice?.description?.slice(0, 63) || "",
-        value: choice?.value || choice,
-        nameClassName: choice?.info ? "text-primary" : "",
-        skip: choice?.info ? true : false,
-        className:
-          choice?.className || choice?.choices
-            ? ""
-            : className,
+        let hasPreview = Boolean(choice?.preview)
+        let slicedName = choice?.name?.slice(0, 63) || ""
+        let properChoice = {
+          hasPreview,
+          id: choice?.id || `${index}-${slicedName || ""}`,
+          name: choice?.name || "",
+          slicedName,
+          slicedDescription:
+            choice?.description?.slice(0, 63) || "",
+          value: choice?.value || choice,
+          nameClassName: choice?.info ? "text-primary" : "",
+          skip: choice?.info ? true : false,
+          className:
+            choice?.className || choice?.choices
+              ? ""
+              : className,
 
-        ...choice,
-      }
+          ...choice,
+        }
 
-      if (properChoice.height > PROMPT.ITEM.HEIGHT.XXL) {
-        properChoice.height = PROMPT.ITEM.HEIGHT.XXL
-      }
-      if (properChoice.height < PROMPT.ITEM.HEIGHT.XXXS) {
-        properChoice.height = PROMPT.ITEM.HEIGHT.XXXS
-      }
+        if (properChoice.height > PROMPT.ITEM.HEIGHT.XXL) {
+          properChoice.height = PROMPT.ITEM.HEIGHT.XXL
+        }
+        if (properChoice.height < PROMPT.ITEM.HEIGHT.XXXS) {
+          properChoice.height = PROMPT.ITEM.HEIGHT.XXXS
+        }
 
-      const choiceChoices = properChoice?.choices
-      if (!choiceChoices) {
-        return properChoice
-      }
+        const choiceChoices = properChoice?.choices
+        if (!choiceChoices) {
+          return properChoice
+        }
 
-      delete properChoice.choices
+        delete properChoice.choices
 
-      let isArray = Array.isArray(choiceChoices)
-      if (!isArray) {
-        throw new Error(
-          `Group choices must be an array. Received ${typeof choiceChoices}`
-        )
-      }
-
-      let groupedChoices = []
-
-      properChoice.group = properChoice.name
-      properChoice.skip =
-        typeof choice?.skip === "undefined"
-          ? true
-          : choice.skip
-      properChoice.className ||= defaultGroupClassName
-      properChoice.nameClassName ||=
-        defaultGroupNameClassName
-      properChoice.height ||= PROMPT.ITEM.HEIGHT.XXXS
-
-      groupedChoices.push(properChoice)
-
-      choiceChoices.forEach(subChoice => {
-        if (typeof subChoice === "undefined") {
+        let isArray = Array.isArray(choiceChoices)
+        if (!isArray) {
           throw new Error(
-            `Undefined choice in ${properChoice.name}`
+            `Group choices must be an array. Received ${typeof choiceChoices}`
           )
         }
 
-        if (typeof subChoice === "object") {
-          groupedChoices.push({
-            name: subChoice?.name,
-            slicedName: subChoice?.name?.slice(0, 63) || "",
-            slicedDescription:
-              subChoice?.description?.slice(0, 63) || "",
-            value: subChoice?.value || subChoice,
-            id: subChoice?.id || uuid(),
-            group: choice?.name,
-            className,
-            hasPreview: Boolean(subChoice?.preview),
-            ...subChoice,
-          })
-        } else {
-          groupedChoices.push({
-            name: String(subChoice),
-            value: String(subChoice),
-            slicedName:
-              String(subChoice)?.slice(0, 63) || "",
-            slicedDescription: "",
-            group: choice?.name,
-            className,
-            id: uuid(),
-          })
-        }
-      })
+        let groupedChoices = []
 
-      return groupedChoices
-    })
+        properChoice.group = properChoice.name
+        properChoice.skip =
+          typeof choice?.skip === "undefined"
+            ? true
+            : choice.skip
+        properChoice.className ||= defaultGroupClassName
+        properChoice.nameClassName ||=
+          defaultGroupNameClassName
+        properChoice.height ||= PROMPT.ITEM.HEIGHT.XXXS
+
+        groupedChoices.push(properChoice)
+
+        choiceChoices.forEach(subChoice => {
+          if (typeof subChoice === "undefined") {
+            throw new Error(
+              `Undefined choice in ${properChoice.name}`
+            )
+          }
+
+          if (typeof subChoice === "object") {
+            groupedChoices.push({
+              name: subChoice?.name,
+              slicedName:
+                subChoice?.name?.slice(0, 63) || "",
+              slicedDescription:
+                subChoice?.description?.slice(0, 63) || "",
+              value: subChoice?.value || subChoice,
+              id: subChoice?.id || uuid(),
+              group: choice?.name,
+              className,
+              hasPreview: Boolean(subChoice?.preview),
+              ...subChoice,
+            })
+          } else {
+            groupedChoices.push({
+              name: String(subChoice),
+              value: String(subChoice),
+              slicedName:
+                String(subChoice)?.slice(0, 63) || "",
+              slicedDescription: "",
+              group: choice?.name,
+              className,
+              id: uuid(),
+            })
+          }
+        })
+
+        return groupedChoices
+      }
+    )
   } else if (Boolean(choices)) {
     throw new Error(
       `Choices must be an array. Received ${typeof choices}`
