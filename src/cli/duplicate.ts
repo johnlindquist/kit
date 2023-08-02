@@ -69,6 +69,13 @@ let newContent = stripMetadata(oldContent, [
   "Alias",
   "Description",
 ])
+
+// Replace // Name: with // Name: ${name}
+newContent = newContent.replace(
+  /(\/\/\s+Name:).*/,
+  `$1 ${name}`
+)
+
 await writeFile(scriptPath, newContent)
 
 await cli("create-bin", "scripts", scriptPath)
