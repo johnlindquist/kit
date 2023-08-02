@@ -362,6 +362,7 @@ export type PromptConfig = {
   onTab?: ChannelHandler
   onKeyword?: ChannelHandler
   onInput?: ChannelHandler
+  onFlagInput?: ChannelHandler
   onChange?: ChannelHandler
   onBlur?: ChannelHandler
   onChoiceFocus?: ChannelHandler

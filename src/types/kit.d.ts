@@ -25,6 +25,12 @@ export interface Arg {
   ): Promise<T>
 }
 
+export interface Select {
+  <T = any[]>(
+    placeholderOrConfig?: string | PromptConfig,
+    choices: Choices<T>
+  )
+}
 export interface EnvConfig extends PromptConfig {
   reset?: boolean
 }
@@ -225,6 +231,7 @@ export interface KitApi {
    * ```
    */
   arg: Arg
+  select: Select
   mini: Arg
   micro: Arg
   /**
@@ -335,6 +342,7 @@ declare global {
 
   var env: Env
   var arg: Arg
+  var select: Select
   var mini: Arg
   var micro: Arg
   var onTab: OnTab
@@ -422,4 +430,8 @@ declare global {
   ) => Choice[]
 
   var preload: (scriptPath?: string) => void
+  var setSelectedChoices: (
+    choices: Choice[]
+  ) => Promise<void>
+  var toggleAllSelectedChoices: () => Promise<void>
 }

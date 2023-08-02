@@ -86,9 +86,8 @@ let promptId = 0
 
 global.__kitPromptId = ""
 
-let onExitHandler = () => {}
 global.onExit = handler => {
-  onExitHandler = handler
+  process.on("beforeExit", handler)
 }
 
 let _exec = global.exec
@@ -310,6 +309,7 @@ let waitForPromptValue = ({
   className,
   onNoChoices,
   onInput,
+  onFlagInput,
   onChange,
   onEscape,
   onAbandon,
@@ -501,6 +501,10 @@ let waitForPromptValue = ({
 
           case Channel.INPUT:
             onInput(data.state.input, data.state)
+            break
+
+          case Channel.FLAG_INPUT:
+            onFlagInput(data.state.input, data.state)
             break
 
           case Channel.CHANGE:
@@ -740,6 +744,7 @@ let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 let onMessageFocusDefault = async () => {}
+let onFlagInputDefault = async () => {}
 let onKeywordDefault = async (input, state) => {
   if (!state.keyword) {
     await mainScript(state.input)
@@ -1001,6 +1006,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       className,
       debounceInput
     ),
+    onFlagInput = onFlagInputDefault,
     onChange = onChangeDefault,
     onBlur = onBlurDefault,
     onPaste = onPasteDefault,
@@ -1029,6 +1035,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     validate,
     className,
     onInput,
+    onFlagInput,
     onChange,
     onNoChoices,
     onEscape,
@@ -1556,12 +1563,20 @@ global.arg = async (
 
 global.select = async (
   placeholderOrConfig = "Type a value:",
-  choices = ``
+  choices = []
 ) => {
   let config: PromptConfig = {
     multiple: true,
     enter: "Select",
     shortcuts: [
+      {
+        name: "Toggle All",
+        key: `${cmd}+a`,
+        onPress: async (input, state) => {
+          toggleAllSelectedChoices()
+        },
+        bar: "right",
+      },
       {
         name: "Submit",
         key: `${cmd}+enter`,
@@ -1616,7 +1631,7 @@ global.micro = async (
   placeholderOrConfig = "Type a value:",
   choices = ``
 ) => {
-  let miniConfig = {
+  let microConfig = {
     headerClassName: "hidden",
     footerClassName: "hidden",
     inputHeight: PROMPT.INPUT.HEIGHT.XS,
@@ -1627,17 +1642,17 @@ global.micro = async (
   }
 
   if (typeof placeholderOrConfig === "string") {
-    miniConfig.placeholder = placeholderOrConfig
+    microConfig.placeholder = placeholderOrConfig
   }
 
   if (typeof placeholderOrConfig === "object") {
-    miniConfig = {
-      ...miniConfig,
+    microConfig = {
+      ...microConfig,
       ...(placeholderOrConfig as PromptConfig),
     }
   }
 
-  return await global.arg(miniConfig, choices)
+  return await global.arg(microConfig, choices)
 }
 
 global.chat = async (options = {}) => {
@@ -2883,12 +2898,6 @@ global.__kitAddErrorListeners = () => {
       }
     )
   }
-
-  if (process.listenerCount("beforeExit") === 0) {
-    process.on("beforeExit", () => {
-      onExitHandler()
-    })
-  }
 }
 
 global.__kitAddErrorListeners()
@@ -3059,4 +3068,15 @@ global.clearTimestamps = async () => {
 
 global.removeTimestamp = async (id: string) => {
   return await sendWait(Channel.REMOVE_TIMESTAMP, id)
+}
+
+global.toggleAllSelectedChoices = async () => {
+  return await sendWait(Channel.TOGGLE_ALL_SELECTED_CHOICES)
+}
+
+global.setSelectedChoices = async (choices: Choice[]) => {
+  return await sendWait(
+    Channel.SET_SELECTED_CHOICES,
+    choices
+  )
 }

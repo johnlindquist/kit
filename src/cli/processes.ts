@@ -14,6 +14,7 @@ let formatProcesses = async () => {
     .filter(p => !p?.scriptPath?.endsWith("processes.js"))
     .map(p => {
       return {
+        id: String(p.pid),
         name: p?.scriptPath,
         description: `${p.pid}`,
         value: p,
