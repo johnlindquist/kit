@@ -110,7 +110,7 @@ while (!text) {
       debounceInput: 0,
       placeholder: "Hit enter to paste",
       enter: `Paste item`,
-      itemHeight: PROMPT.ITEM.HEIGHT.SM,
+      itemHeight: PROMPT.ITEM.HEIGHT.XS,
       height: PROMPT.HEIGHT.BASE,
       resize: false,
       shortcuts: [
