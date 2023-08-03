@@ -1,3 +1,4 @@
+process.env.KIT_CONTEXT = "terminal"
 process.env.KIT_TARGET = "terminal"
 
 import os from "os"
