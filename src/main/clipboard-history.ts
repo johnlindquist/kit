@@ -32,6 +32,10 @@ let createPreview = (item, input) => {
     return ``
   }
 
+  if (item?.type === "image") {
+    return `<div class="p-4 flex justify-center"><img src="${content}" /></div>`
+  }
+
   let previewContent =
     input.length < 2
       ? content
@@ -83,8 +87,12 @@ let historyWithPreviews = async () => {
         }
 
         return {
+          type: item.type,
           id: item.id,
-          name: item.name,
+          name:
+            item.type === "image"
+              ? path.basename(item.value)
+              : item.name,
           value: item.value,
           preview: createPreview(item, input),
         }
@@ -94,6 +102,7 @@ let historyWithPreviews = async () => {
 
 let id = ``
 let text = ""
+let isImage = false
 while (!text) {
   setResize(false)
   text = await arg(
@@ -126,9 +135,28 @@ while (!text) {
             submit("")
           },
         },
+        {
+          name: `Copy to Clipboard`,
+          key: `${cmd}+c`,
+          bar: "right",
+          onPress: async (input, { focused }: any) => {
+            if (focused?.id) {
+              await removeClipboardItem(focused?.id)
+            }
+            if (focused?.type === "image") {
+              await clipboard.writeImage(
+                await readFile(focused.value)
+              )
+            } else {
+              await clipboard.writeText(focused?.value)
+            }
+            exit()
+          },
+        },
       ],
       onChoiceFocus: async (input, state) => {
         id = state?.focused?.id
+        isImage = (state?.focused as any)?.type === "image"
         input = transformer(input)
 
         setPreview(createPreview(state?.focused, input))
@@ -161,7 +189,21 @@ if (text) {
   } else if (text === "__authorize-clipboard__") {
     exit()
   } else {
-    await setSelectedText(text)
+    await removeClipboardItem(id)
+    if (isImage) {
+      await clipboard.writeImage(await readFile(text))
+      await hide()
+
+      let pasteKeys = [
+        isMac ? Key.LeftSuper : Key.LeftControl,
+        Key.V,
+      ]
+
+      await keyboard.pressKey(...pasteKeys)
+      await keyboard.releaseKey(...pasteKeys)
+    } else {
+      await setSelectedText(text)
+    }
   }
 }
 

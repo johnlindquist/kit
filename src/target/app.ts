@@ -310,6 +310,7 @@ let waitForPromptValue = ({
   onNoChoices,
   onInput,
   onFlagInput,
+  onSelected,
   onChange,
   onEscape,
   onAbandon,
@@ -505,6 +506,10 @@ let waitForPromptValue = ({
 
           case Channel.FLAG_INPUT:
             onFlagInput(data.state.input, data.state)
+            break
+
+          case Channel.SELECTED:
+            onSelected(data.state.input, data.state)
             break
 
           case Channel.CHANGE:
@@ -745,6 +750,8 @@ let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 let onMessageFocusDefault = async () => {}
 let onFlagInputDefault = async () => {}
+let onSelectedDefault = async () => {}
+
 let onKeywordDefault = async (input, state) => {
   if (!state.keyword) {
     await mainScript(state.input)
@@ -1007,6 +1014,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       debounceInput
     ),
     onFlagInput = onFlagInputDefault,
+    onSelected = onSelectedDefault,
     onChange = onChangeDefault,
     onBlur = onBlurDefault,
     onPaste = onPasteDefault,
@@ -1036,6 +1044,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     className,
     onInput,
     onFlagInput,
+    onSelected,
     onChange,
     onNoChoices,
     onEscape,
