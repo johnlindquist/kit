@@ -10,6 +10,7 @@ let selectedDoc = await docs(
     input: arg?.input || "",
     placeholder: "Browse API",
     enter: `Suggest Edit`,
+    preventCollapse: true,
     onNoChoices: async input => {
       setPanel(
         md(`# Expected ${input} in the Docs?

@@ -245,6 +245,7 @@ export interface PromptData {
   footerClassName?: string
   preload?: boolean
   css?: string
+  preventCollapse?: boolean
   hideOnEscape?: boolean
   keyword?: string
   multiple?: boolean

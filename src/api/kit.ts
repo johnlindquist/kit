@@ -884,6 +884,7 @@ function buildScriptConfig(
   scriptsConfig.scripts = true
   scriptsConfig.resize = false
   scriptsConfig.enter ||= "Select"
+  scriptsConfig.preventCollapse = true
   return scriptsConfig
 }
 

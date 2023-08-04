@@ -6,7 +6,7 @@
 import "@johnlindquist/kit"
 import { globby } from "globby"
 import slugify from "slugify"
-import { closeShortcut } from "../core/utils.js"
+import { closeShortcut, escapeHTML } from "../core/utils.js"
 let snippetPaths = await globby([
   kenvPath("snippets", "**", "*.txt"),
   kenvPath("kenvs", "*", "snippets", "**", "*.txt"),
@@ -50,13 +50,14 @@ let snippetChoices = []
 for await (let s of snippetPaths) {
   let contents = await readFile(s, "utf8")
   let { metadata, snippet } = getSnippet(contents)
+  let formattedSnippet = escapeHTML(snippet)
 
   snippetChoices.push({
     name: metadata?.name || s,
     tag: metadata?.snippet || "",
     description: s,
     value: snippet.trim(),
-    preview: `<div class="p-4">${snippet}</div>`,
+    preview: `<div class="p-4">${formattedSnippet}</div>`,
   })
 }
 
@@ -69,7 +70,6 @@ let snippet = await arg(
         key: `${cmd}+o`,
         name: "Edit Snippet",
         onPress: async (input, state) => {
-          console.log(state.focused?.description)
           await edit(state?.focused?.description)
           exit()
         },

@@ -6,23 +6,11 @@
 import { Channel } from "../core/enum.js"
 import {
   cmd,
+  escapeHTML,
   keywordInputTransformer,
 } from "../core/utils.js"
 
 let transformer = keywordInputTransformer(arg?.keyword)
-
-function escapeHTML(text) {
-  const map = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
-  }
-  return text.replace(/[&<>"']/g, function (m) {
-    return map[m]
-  })
-}
 
 let createPreview = (item, input) => {
   let content = escapeHTML(item.value)
@@ -44,6 +32,7 @@ let createPreview = (item, input) => {
           new RegExp(input, "gi"),
           m => `<span class="text-primary">${m}</span>`
         )
+
   return `<div class="p-4 text-xs">${previewContent}</div>`
 }
 
@@ -89,7 +78,7 @@ let historyWithPreviews = async () => {
           ? path.basename(item.value)
           : item.name,
       value: item.value,
-      preview: createPreview(item, ""),
+      // preview: createPreview(item, ""),
     }
   })
 }
@@ -165,6 +154,14 @@ while (!text) {
 
         setPreview(createPreview(state?.focused, input))
       },
+      onInput: async (input, state) => {
+        id = state?.focused?.id
+        isImage = (state?.focused as any)?.type === "image"
+        input = transformer(input)
+
+        setPreview(createPreview(state?.focused, input))
+      },
+
       // onInput: async (input, state) => {
       //   let item = state?.focused
       //   input = transformer(input)

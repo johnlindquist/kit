@@ -47,6 +47,7 @@ let url = await arg(
     name: "Community",
     placeholder: `Community Scripts and Announcements`,
     input: arg?.input,
+    preventCollapse: true,
     onNoChoices,
     onChoiceFocus: () => {
       noChoices = false

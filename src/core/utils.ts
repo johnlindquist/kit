@@ -1595,3 +1595,24 @@ export let keywordInputTransformer = (keyword: string) => {
     return input.match(keywordRegex)?.[0] || ""
   }
 }
+
+export let escapeHTML = text => {
+  // Handle null or undefined input
+  if (!text) return ""
+
+  const map = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  }
+
+  // Perform HTML escape on the updated text
+  text = text.replace(/[&<>"']/g, function (m) {
+    return map[m]
+  })
+
+  // Convert newline characters to <br/>
+  return text.replace(/\n/g, "<br/>")
+}

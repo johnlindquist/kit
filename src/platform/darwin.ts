@@ -229,7 +229,7 @@ If you need additional help, we're happy to answer questions:
 
 - [GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/q-a)
     `),
-    choices: () => [
+    choices: [
       ...possibleEditors(),
       {
         name: "None. Always copy path to clipboard",
@@ -280,12 +280,17 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (f, dir, line = 0, col = 0) => {
+  console.log(`📝 Edit ${f}`)
   let file = path.resolve(
     f?.startsWith("~") ? f.replace(/^~/, home()) : f
   )
   if (global.flag?.edit === false) return
 
   let KIT_EDITOR = await global.selectKitEditor(false)
+
+  console.log({
+    KIT_EDITOR,
+  })
 
   if (KIT_EDITOR === "kit") {
     let language = global.extname(file).replace(/^\./, "")

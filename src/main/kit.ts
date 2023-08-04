@@ -10,6 +10,7 @@ let cliScript = await docs(
     name: "Kit",
     input: arg?.input || "",
     placeholder: "Kit Actions",
+    preventCollapse: true,
     onNoChoices: async input => {
       setPanel(
         md(`# Expected ${input} in the Kit Menu?

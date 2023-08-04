@@ -865,6 +865,7 @@ let prepPrompt = async (config: PromptConfig) => {
     footerClassName: "",
     inputClassName: "",
     css: "",
+    preventCollapse: false,
     ...restConfig,
     onInputSubmit,
     tabIndex: global.onTabs?.findIndex(
@@ -2125,6 +2126,18 @@ export let createPathChoices = async (
   let dirFiles = await readdir(startPath, {
     withFileTypes: true,
   })
+
+  // Sort .files and .folders to the bottom
+  dirFiles = dirFiles.sort((a, b) => {
+    if (a.name.startsWith(".") && !b.name.startsWith(".")) {
+      return 1
+    }
+    if (!a.name.startsWith(".") && b.name.startsWith(".")) {
+      return -1
+    }
+    return 0
+  })
+
   let dirents = dirFiles.filter(dirFilter)
 
   let folders = dirents.filter(dirent =>
@@ -2206,9 +2219,9 @@ let __pathSelector = async (
   let initialChoices = await createPathChoices(startPath, {
     onlyDirs,
     dirFilter: dirent => {
-      if (dirent.name.startsWith(".")) {
-        return showHidden
-      }
+      // if (dirent.name.startsWith(".")) {
+      //   return showHidden
+      // }
 
       return true
     },
@@ -2222,16 +2235,16 @@ let __pathSelector = async (
     (await isDir(startPath))
   )
     startPath += path.sep
-  let slashCount = -1
+  let slashCount = startPath.split(path.sep).length
 
   let lsCurrentDir = async input => {
     // if (!input) {
     //   await mainScript()
     // }
     let dirFilter = dirent => {
-      if (dirent.name.startsWith(".")) {
-        return input?.includes(path.sep + ".") || showHidden
-      }
+      // if (dirent.name.startsWith(".")) {
+      //   return input?.includes(path.sep + ".") || showHidden
+      // }
 
       return true
     }
@@ -2380,19 +2393,19 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       return
     }
 
-    if (input?.endsWith(path.sep + ".")) {
-      let choices = await createPathChoices(startPath, {
-        dirFilter: () => true,
-        onlyDirs,
-      })
-      setChoices(choices, {
-        skipInitialSearch: true,
-        inputRegex: `[^\\${path.sep}]+$`,
-      })
-      if (focusOn) setFocused(focusOn)
-      focusOn = ``
-      return
-    }
+    // if (input?.endsWith(path.sep + ".")) {
+    //   let choices = await createPathChoices(startPath, {
+    //     dirFilter: () => true,
+    //     onlyDirs,
+    //   })
+    //   setChoices(choices, {
+    //     skipInitialSearch: true,
+    //     inputRegex: `[^\\${path.sep}]+$`,
+    //   })
+    //   if (focusOn) setFocused(focusOn)
+    //   focusOn = ``
+    //   return
+    // }
     let currentSlashCount = input?.split(path.sep).length
     if (currentSlashCount != slashCount) {
       slashCount = currentSlashCount
@@ -2460,7 +2473,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     {
       placeholder: "Browse",
       ...(config as PromptConfig),
-      inputCommandChars: ["/", "."],
+      inputCommandChars: ["/"],
       input: startPath,
       inputRegex: `[^\\${path.sep}]+$`,
       onInput,
