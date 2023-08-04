@@ -2091,6 +2091,7 @@ global.mainScript = async (
   if (arg?.fn) delete arg.fn
   preload(mainScriptPath)
   setPlaceholder("Run Script")
+  setInput(input || "")
   global.args = []
   global.flags = {}
   if (process.env.KIT_CONTEXT === "app") {
