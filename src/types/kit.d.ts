@@ -60,7 +60,7 @@ export interface Inspect {
 }
 
 export interface Store {
-  (key: string): Promise<
+  (key: string, initialData?: any): Promise<
     InstanceType<typeof import("keyv")>
   >
 }

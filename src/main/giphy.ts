@@ -10,7 +10,7 @@
 // Author: John Lindquist
 // Twitter: @johnlindquist
 // Pass: true
-// keyword: gif
+// keyword: g
 
 import "@johnlindquist/kit"
 import { keywordInputTransformer } from "../core/utils.js"

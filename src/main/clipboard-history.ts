@@ -1,6 +1,7 @@
 // Name: Clipboard History
 // Description: Display and Paste Clipboard History
-// Keyword: clip
+// Keyword: c
+// Cache: true
 
 import { Channel } from "../core/enum.js"
 import {
@@ -69,45 +70,41 @@ let historyWithPreviews = async () => {
       },
     ]
   }
-  return (input: string) => {
-    input = transformer(input)
-
-    return history
-      .filter(item => {
-        return (
-          input.length < 2 ||
-          item.value
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        )
-      })
-      .map((item, index) => {
-        if (index === 0) {
-          setPreview(createPreview(item, input))
-        }
-
-        return {
-          type: item.type,
-          id: item.id,
-          name:
-            item.type === "image"
-              ? path.basename(item.value)
-              : item.name,
-          value: item.value,
-          preview: createPreview(item, input),
-        }
-      })
+  if (history.length === 0) {
+    return [
+      {
+        name: `Clipboard is empty`,
+        description: `Copy something to the clipboard to see it here`,
+        value: "__empty__",
+      },
+    ]
   }
+
+  return history.map((item, index) => {
+    return {
+      type: item.type,
+      id: item.id,
+      name:
+        item.type === "image"
+          ? path.basename(item.value)
+          : item.name,
+      value: item.value,
+      preview: createPreview(item, ""),
+    }
+  })
 }
 
 let id = ``
 let text = ""
 let isImage = false
+let keyword = arg?.keyword || ""
+let defaultChoiceId = ""
 while (!text) {
-  setResize(false)
+  let history = await historyWithPreviews()
   text = await arg(
     {
-      debounceInput: 0,
+      defaultChoiceId,
+      input: keyword + ` `,
       placeholder: "Hit enter to paste",
       enter: `Paste item`,
       itemHeight: PROMPT.ITEM.HEIGHT.XS,
@@ -116,9 +113,16 @@ while (!text) {
       shortcuts: [
         {
           name: "Remove Selected",
-          key: `${cmd}+backspace`,
+          key: `${cmd}+x`,
           bar: "right",
           onPress: async (input, { focused }) => {
+            let prevIndex =
+              history.findIndex(c => c.id === focused?.id) +
+              1
+
+            defaultChoiceId =
+              (history?.[prevIndex || 0] as any)?.id || ""
+
             if (focused?.id) {
               await removeClipboardItem(focused?.id)
             }
@@ -128,7 +132,7 @@ while (!text) {
         },
         {
           name: `Clear History`,
-          key: `${cmd}+shift+backspace`,
+          key: `${cmd}+z`,
           bar: "right",
           onPress: async () => {
             await clearClipboardHistory()
@@ -179,7 +183,7 @@ while (!text) {
       //   )
       // },
     },
-    await historyWithPreviews()
+    history
   )
 }
 

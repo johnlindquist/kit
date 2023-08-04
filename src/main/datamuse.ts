@@ -6,7 +6,7 @@ Find Similar Words, Rhymes, Sounds Like, etc.
 
 // Name: Word
 // Description: Find Word Alternatives
-// Keyword: word
+// Keyword: w
 
 import { keywordInputTransformer } from "../core/utils.js"
 let transformer = keywordInputTransformer(arg?.keyword)

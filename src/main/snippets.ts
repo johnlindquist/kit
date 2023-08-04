@@ -1,7 +1,7 @@
 // Name: Snippets
 // Description: Quickly insert snippets of text
 // Cache: true
-// Keyword: snip
+// Keyword: s
 
 import "@johnlindquist/kit"
 import { globby } from "globby"

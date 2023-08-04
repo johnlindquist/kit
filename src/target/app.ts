@@ -22,6 +22,7 @@ import {
   KitTheme,
   MicConfig,
   Fields,
+  ClipboardItem,
 } from "../types/kitapp"
 
 import {
@@ -1958,22 +1959,48 @@ global.setBounds = async (bounds: Partial<Rectangle>) => {
   await global.sendWait(Channel.SET_BOUNDS, bounds)
 }
 
-global.getClipboardHistory = async () =>
-  (
-    await global.getDataFromApp(
-      Channel.GET_CLIPBOARD_HISTORY
-    )
-  )?.history
-
-global.removeClipboardItem = (id: string) => {
-  return global.sendWait(
-    Channel.REMOVE_CLIPBOARD_HISTORY_ITEM,
-    id
+let clipboardStore
+let getClipboardStore = async () => {
+  if (clipboardStore) return clipboardStore
+  clipboardStore = await store(
+    kitPath("db", "clipboard.json"),
+    {
+      history: [],
+    }
   )
+
+  return clipboardStore
 }
 
-global.clearClipboardHistory = () => {
-  return global.sendWait(Channel.CLEAR_CLIPBOARD_HISTORY)
+global.getClipboardHistory = async () => {
+  let clipboardStore = await getClipboardStore()
+
+  let clipboardHistory = (await clipboardStore.get(
+    "history"
+  )) as ClipboardItem[]
+
+  return clipboardHistory
+}
+
+global.removeClipboardItem = async (itemId: string) => {
+  let clipboardStore = await getClipboardStore()
+  const clipboardHistory = (await clipboardStore.get(
+    "history"
+  )) as ClipboardItem[]
+
+  const index = clipboardHistory.findIndex(
+    ({ id }) => itemId === id
+  )
+  if (index > -1) {
+    clipboardHistory.splice(index, 1)
+  }
+
+  await clipboardStore.set("history", clipboardHistory)
+}
+
+global.clearClipboardHistory = async () => {
+  let clipboardStore = await getClipboardStore()
+  await clipboardStore.set("history", [])
 }
 
 global.submit = async (value: any) => {

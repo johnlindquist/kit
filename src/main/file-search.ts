@@ -1,6 +1,6 @@
 // Name: File Search
 // Description: Search For Files then Take Actions
-// Keyword: find
+// Keyword: f
 // Pass: true
 
 import {
