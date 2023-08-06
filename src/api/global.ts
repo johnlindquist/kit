@@ -15,6 +15,7 @@ import {
 import { getScripts } from "../core/db.js"
 import { PromptConfig } from "../types/core"
 
+global.actionFlag = ""
 global.getScripts = getScripts
 
 await import("@johnlindquist/globals")
