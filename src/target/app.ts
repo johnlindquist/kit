@@ -6,8 +6,10 @@ import {
   AppState,
   ChannelHandler,
   Choice,
+  FlagsOptions,
   PromptConfig,
   PromptData,
+  Shortcut,
 } from "../types/core"
 
 import {
@@ -340,6 +342,7 @@ let waitForPromptValue = ({
   shortcuts,
   inputRegex,
 }: WaitForPromptValueProps) => {
+  global.actionFlag = ""
   global.__kitPromptState = {}
   global.__kitEndPrevPromptSubject.next()
   return new Promise((resolve, reject) => {
@@ -403,6 +406,7 @@ let waitForPromptValue = ({
       tap(data => {
         if (data.state?.flag) {
           global.flag[data.state?.flag] = true
+          global.actionFlag = data.state?.flag || ""
         }
       }),
       switchMap(async (data: AppMessage) => {
@@ -505,6 +509,21 @@ let waitForPromptValue = ({
             onInput(data.state.input, data.state)
             break
 
+          case Channel.ACTION:
+            if (data?.state?.action?.name) {
+              let f = global.kitFlagsAsChoices?.find(
+                f => f?.name === data?.state?.action?.name
+              )
+              if (f?.onAction) {
+                await f?.onAction(
+                  data?.state?.input,
+                  data.state
+                )
+              }
+            }
+
+            break
+
           case Channel.FLAG_INPUT:
             onFlagInput(data.state.input, data.state)
             break
@@ -578,6 +597,7 @@ let waitForPromptValue = ({
           case Channel.SHORTCUT:
             if (data?.state?.flag) {
               global.flag[data.state.flag] = true
+              global.actionFlag = data.state.flag || ""
             }
             const shortcut = (
               global.__currentPromptConfig?.shortcuts || []
@@ -829,6 +849,19 @@ let prepPrompt = async (config: PromptConfig) => {
     (config?.shortcuts || []).find(s => s.key === `escape`)
   )
 
+  if (config?.actions) {
+    let actionsFlags = getFlagsFromActions(config.actions)
+
+    if (typeof config?.flags === "object") {
+      config.flags = {
+        ...config.flags,
+        ...actionsFlags,
+      }
+    } else {
+      config.flags = actionsFlags
+    }
+  }
+
   let {
     choices,
     placeholder,
@@ -940,6 +973,22 @@ let determineChoicesType = choices => {
 
 global.__currentPromptSecret = false
 global.__currentPromptConfig = {}
+
+let getFlagsFromActions = (
+  actions: PromptConfig["actions"]
+) => {
+  let flags: FlagsOptions = {}
+  for (let action of actions) {
+    flags[action.flag || action.name] = {
+      ...action,
+      hasAction: action?.onAction ? true : false,
+      bar: action?.visible ? "right" : "",
+    }
+  }
+
+  return flags
+}
+
 global.kitPrompt = async (config: PromptConfig) => {
   promptId++
   global.__currentPromptSecret = config.secret || false
@@ -1474,10 +1523,16 @@ global.hotkey = async (
   })
 }
 
-global.arg = async (
+global.basePrompt = async (
   placeholderOrConfig = "Type a value:",
   choices = ``
 ) => {
+  if (
+    typeof placeholderOrConfig === "object" &&
+    placeholderOrConfig?.choices
+  ) {
+    choices = placeholderOrConfig.choices
+  }
   if (!choices) {
     setChoices([])
     if (!(placeholderOrConfig as PromptConfig)?.panel) {
@@ -1565,7 +1620,7 @@ global.arg = async (
   if (typeof placeholderOrConfig === "object") {
     promptConfig = {
       ...promptConfig,
-      ...placeholderOrConfig,
+      ...(placeholderOrConfig as any),
     }
   }
 
@@ -1635,7 +1690,7 @@ global.mini = async (
     }
   }
 
-  return await global.arg(miniConfig, choices)
+  return await global.basePrompt(miniConfig, choices)
 }
 
 global.micro = async (
@@ -1663,8 +1718,10 @@ global.micro = async (
     }
   }
 
-  return await global.arg(microConfig, choices)
+  return await global.basePrompt(microConfig, choices)
 }
+
+global.arg = global.mini
 
 global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
@@ -2091,7 +2148,7 @@ global.mainScript = async (
   if (arg?.keyword) delete arg.keyword
   if (arg?.fn) delete arg.fn
   preload(mainScriptPath)
-  setPlaceholder("Run Script")
+  setPlaceholder("Script Kit")
   setInput(input || "")
   global.args = []
   global.flags = {}
@@ -2356,7 +2413,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   let currentInput = ``
   let onInput = async (input, state) => {
     currentInput = input
-    setEnter("Select")
+    setEnter("Actions")
     if (onInputHook) onInputHook(input, state)
     // if (input.endsWith(">")) {
     //   let choices = await createPathChoices(
@@ -2484,7 +2541,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       // onLeft,
       // onNoChoices,
       // onEscape,
-      enter: "Select",
+      enter: "Actions",
       // TODO: If I want resize, I need to create choices first?
       onInit: async () => {
         setResize(true)

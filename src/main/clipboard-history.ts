@@ -78,7 +78,7 @@ let historyWithPreviews = async () => {
           ? path.basename(item.value)
           : item.name,
       value: item.value,
-      // preview: createPreview(item, ""),
+      preview: createPreview(item, ""),
     }
   })
 }

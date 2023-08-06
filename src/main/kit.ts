@@ -1,6 +1,5 @@
-// Name: Manage Kit
-// Description: Options and Helpers
-// Exclude: true
+// Name: Manage Kit and Kenvs
+// Keyword: kit
 
 import { createGuideConfig } from "./main-helper.js"
 

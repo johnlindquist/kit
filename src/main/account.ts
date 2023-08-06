@@ -1,6 +1,7 @@
-// Name: Login to GitHub
+// Name: Account
 // Description: Authenticate to Enable Features
-// Exclude: true
+// Enter: View Account
+
 import { authenticate } from "../api/kit.js"
 import { getUserJson, setUserJson } from "../core/db.js"
 import { Channel } from "../core/enum.js"
@@ -156,6 +157,7 @@ Please go to [${sponsorUrl}](${sponsorUrl}) to become a sponsor to unlock all fe
 
 ## Standard Features
 
+- Share Scripts
 - Create Gists
 - Discord Server Invite
 </div>

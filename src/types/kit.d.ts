@@ -343,6 +343,7 @@ declare global {
   var env: Env
   var arg: Arg
   var select: Select
+  var basePrompt: Arg
   var mini: Arg
   var micro: Arg
   var onTab: OnTab
@@ -374,6 +375,7 @@ declare global {
   var getScripts: GetScripts
   var blur: () => Promise<void>
   var flag: Flags
+  var actionFlag: string
   var setFlags: FlagFn
   var setFlagValue: (value: any) => Promise<void>
   var prepFlags: PrepFlags

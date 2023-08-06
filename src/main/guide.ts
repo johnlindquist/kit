@@ -1,4 +1,5 @@
-// Exclude: true
+// Name: Browse Kit Guide
+// Keyword: guide
 
 import { createGuideConfig } from "./main-helper.js"
 

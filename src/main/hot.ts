@@ -1,4 +1,7 @@
+// Name: Annoucements and Community Scripts
 // Exclude: true
+// Cache: true
+// Keyword: a
 
 let noChoices = false
 let onNoChoices = async input => {

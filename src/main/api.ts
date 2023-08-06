@@ -1,4 +1,5 @@
-// Exclude: true
+// Name: Browse Kit API
+// Keyword: api
 
 import { createGuideConfig } from "./main-helper.js"
 

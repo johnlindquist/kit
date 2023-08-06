@@ -8,6 +8,7 @@ Create a new script based on the current input
 // Description: Create a new script
 // Log: false
 // Pass: true
+// Keyword: n
 
 import {
   exists,
@@ -15,11 +16,30 @@ import {
   kitMode,
   stripMetadata,
   uniq,
+  keywordInputTransformer,
 } from "../core/utils.js"
 import {
   ensureTemplates,
   prependImport,
 } from "./lib/utils.js"
+
+let inputTransformer = keywordInputTransformer(arg?.keyword)
+
+let choices = input => [
+  {
+    info: true,
+    name: !input
+      ? `Enter a name for your script's // Name: metadata`
+      : `// Name: ${inputTransformer(input)}`,
+    description: !input
+      ? `The filename will be converted automatically.`
+      : `Filename will be converted to ${stripName(
+          inputTransformer(input)
+        )}.${kitMode()}`,
+  },
+]
+
+let initialChoices = choices(arg?.keyword)
 
 let name = arg?.pass
   ? stripName(arg?.pass)
@@ -33,20 +53,9 @@ let name = arg?.pass
         shortcuts: [],
         enter: `Create script and open in editor`,
         strict: false,
+        initialChoices,
       },
-      input => [
-        {
-          info: true,
-          name: !input
-            ? `Enter a name for your script's // Name: metadata`
-            : `// Name: ${input}`,
-          description: !input
-            ? `The filename will be converted automatically.`
-            : `Filename will be convert to ${stripName(
-                input
-              )}.${kitMode()}`,
-        },
-      ]
+      choices
     )
 
 let { dirPath: selectedKenvPath } = await selectKenv({
@@ -60,6 +69,7 @@ if (
 ) {
   await hide()
 }
+name = inputTransformer(name)
 let command = stripName(name)
 
 let scriptPath = path.join(

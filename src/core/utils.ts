@@ -1422,7 +1422,7 @@ export let groupChoices = (
 }
 
 export let defaultGroupClassName = `border-t-1 border-t-ui-border`
-export let defaultGroupNameClassName = `font-mono text-xxs text-text-base/60 uppercase`
+export let defaultGroupNameClassName = `font-medium text-xxs text-text-base/60 uppercase`
 
 export let formatChoices = (
   choices: Choice[],

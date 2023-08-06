@@ -2,7 +2,6 @@
 
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
-import { Main } from "./index"
 import {
   kitMode,
   returnOrEnter,
@@ -10,6 +9,20 @@ import {
 } from "../core/utils.js"
 import { addPreview, findDoc } from "../cli/lib/utils.js"
 
+interface Main {
+  api: Promise<typeof import("./api")>
+  edit: Promise<typeof import("./edit")>
+  guide: Promise<typeof import("./guide")>
+  hot: Promise<typeof import("./hot")>
+  index: Promise<typeof import("./index")>
+  account: Promise<typeof import("./account")>
+  kenv: Promise<typeof import("./kenv")>
+  kit: Promise<typeof import("./kit")>
+  new: Promise<typeof import("./new")>
+  showandtell: Promise<typeof import("./showandtell")>
+  snippets: Promise<typeof import("./snippets")>
+  templates: Promise<typeof import("./templates")>
+}
 // setFlags({
 //   discuss: {
 //     name: "Discuss topic on Kit Dicussions",

@@ -1,6 +1,6 @@
 import { ChildProcess } from "child_process"
 import { ProcessType, UI, Mode } from "../core/enum.js"
-import { Field } from "./kitapp.js"
+import { AppMessage, Field } from "./kitapp.js"
 
 export interface Choice<Value = any> {
   name: string
@@ -172,6 +172,7 @@ export type InputType =
   | "week"
 
 export type Shortcut = {
+  id?: string
   key: string
   name?: string
   value?: any
@@ -284,15 +285,29 @@ export type FlagsWithKeys = {
     name?: string
     group?: string
     description?: string
-    bar?: "left" | "right"
+    bar?: "left" | "right" | ""
     flag?: string
     preview?: Choice["preview"]
+    hasAction?: boolean
   }
 } & {
   sortChoicesKey?: string[]
   order?: string[]
 }
 export type FlagsOptions = FlagsWithKeys | boolean
+
+export type Action = {
+  name: string
+  description?: string
+  value?: any
+  shortcut?: string
+  group?: string
+  flag?: string
+  visible?: boolean
+  enter?: string
+  onAction?: ChannelHandler
+  condition?: Shortcut["condition"]
+}
 
 export interface AppState {
   input?: string
@@ -320,6 +335,7 @@ export interface AppState {
   ui?: UI
   multiple?: boolean
   selected?: any[]
+  action?: Action
 }
 
 export interface ChannelHandler {
@@ -344,6 +360,7 @@ export type PromptConfig = {
   formData?: any
   className?: string
   flags?: FlagsOptions
+  actions?: Action[]
   preview?:
     | string
     | ((

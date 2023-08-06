@@ -684,23 +684,29 @@ global.setChoices = async (choices, config) => {
 }
 
 global.flag ||= {}
-global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
+global.prepFlags = (
+  flagsOptions: FlagsOptions
+): FlagsOptions => {
   for (let key of Object.keys(global?.flag)) {
     delete global?.flag?.[key]
   }
 
-  if (!flags || Object.entries(flags)?.length === 0)
+  if (
+    !flagsOptions ||
+    Object.entries(flagsOptions)?.length === 0
+  )
     return false
 
   let validFlags = {
     sortChoicesKey:
-      (flags as FlagsWithKeys)?.sortChoicesKey || [],
-    order: (flags as FlagsWithKeys)?.order || [],
+      (flagsOptions as FlagsWithKeys)?.sortChoicesKey || [],
+    order: (flagsOptions as FlagsWithKeys)?.order || [],
   }
-  let currentFlags = Object.entries(flags)
+  let currentFlags = Object.entries(flagsOptions)
   for (let [key, value] of currentFlags) {
     if (key === "order") continue
     if (key === "sortChoicesKey") continue
+
     validFlags[key] = {
       name: value?.name || key,
       group: value?.group || "Actions",
@@ -709,6 +715,7 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
       value: key,
       bar: value?.bar || "",
       preview: value?.preview || "",
+      hasAction: Boolean(value?.onAction),
     }
   }
 
@@ -721,6 +728,7 @@ global.prepFlags = (flags: FlagsOptions): FlagsOptions => {
         value: key,
         description: value?.description || "",
         preview: value?.preview || `<div></div>`,
+        onAction: value?.onAction || null,
       }
     }
   )
@@ -937,7 +945,7 @@ let groupScripts = scripts => {
       ? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(
           Boolean
         )
-      : ["Pass"],
+      : ["Community", "Pass"],
     recentKey: "timestamp",
     excludeGroups,
     recentLimit: process?.env?.KIT_RECENT_LIMIT
@@ -984,11 +992,17 @@ export let getGroupedScripts = async () => {
 
   let passScripts = await Promise.all(
     [
+      kitPath("main", "kit.js"),
+      kitPath("main", "api.js"),
+      kitPath("main", "guide.js"),
       kitPath("cli", "new.js"),
       kitPath("cli", "find.js"),
+      kitPath("cli", "processes.js"),
       kitPath("main", "google.js"),
       kitPath("main", "datamuse.js"),
       kitPath("main", "giphy.js"),
+      kitPath("main", "account.js"),
+      kitPath("main", "hot.js"),
       kitPath("main", "snippets.js"),
       kitPath("main", "sticky.js"),
       kitPath("main", "term.js"),
@@ -1012,6 +1026,41 @@ export let getGroupedScripts = async () => {
   )
 
   processedscripts = processedscripts.concat(passScripts)
+
+  // let getHot = async () => {
+  //   let hotPath = kitPath("data", "hot.json")
+  //   if (await isFile(hotPath)) {
+  //     return await readJson(hotPath)
+  //   }
+
+  //   return []
+  // }
+
+  // let loadHotChoices = async () => {
+  //   try {
+  //     let hot = await getHot()
+
+  //     return hot.map(choice => {
+  //       choice.preview = async () => {
+  //         if (choice?.body) {
+  //           return await highlight(choice?.body)
+  //         }
+
+  //         return ""
+  //       }
+  //       choice.group = "Community"
+  //       return choice
+  //     })
+  //   } catch (error) {
+  //     return [error.message]
+  //   }
+  // }
+
+  // let communityScripts = await loadHotChoices()
+
+  // processedscripts = processedscripts.concat(
+  //   communityScripts
+  // )
 
   let groupedScripts = groupScripts(processedscripts)
 
@@ -1049,7 +1098,7 @@ export let mainMenu = async (
   global.__kitScriptsFromCache = false
   let groupedScripts = await getGroupedScripts()
 
-  let script = await global.arg(
+  let script = await global.mini(
     scriptsConfig,
     groupedScripts
   )

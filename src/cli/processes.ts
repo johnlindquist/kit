@@ -1,4 +1,7 @@
-// Description: Process List
+// Name: Process List
+// Description: Manage/Terminate Running Processes
+// Enter: View Running Processes
+// Keyword: p
 // Log: false
 
 import { Channel } from "../core/enum.js"
@@ -8,8 +11,8 @@ import {
   viewLogShortcut,
 } from "../core/utils.js"
 let formatProcesses = async () => {
-  let processes = await getProcesses()
-  return processes
+  let processes: any = await getProcesses()
+  processes = processes
     .filter(p => p?.scriptPath)
     .filter(p => !p?.scriptPath?.endsWith("processes.js"))
     .map(p => {
@@ -20,10 +23,20 @@ let formatProcesses = async () => {
         value: p,
       }
     })
+
+  processes.push({
+    info: true,
+    miss: true,
+    name: "No running processes found...",
+  })
+
+  return processes
 }
 let id = setTimeout(async () => {
   setChoices(await formatProcesses())
 }, 1000)
+
+let currentProcesses = await formatProcesses()
 
 let argPromise = arg(
   {
@@ -35,9 +48,9 @@ let argPromise = arg(
       await mainScript()
     },
   },
-  await formatProcesses()
+  currentProcesses
 )
-let { pid, scriptPath } = await argPromise
+let { pid, scriptPath }: any = await argPromise
 clearInterval(id)
 
 setDescription(`${pid}: ${scriptPath}`)
