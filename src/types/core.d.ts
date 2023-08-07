@@ -124,6 +124,8 @@ export interface ScriptMetadata {
   cache?: boolean
   note?: string
   group?: string
+  keyword?: string
+  enter?: string
 }
 
 export type Script = ScriptMetadata &

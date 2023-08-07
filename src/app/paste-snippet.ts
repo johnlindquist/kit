@@ -40,6 +40,12 @@ let { metadata, snippet: snippetFromFile } =
   getSnippet(contents)
 snippet = snippetFromFile.trim()
 
+// Find ${selection} and replace with selected text
+if (snippet.includes("${selection}")) {
+  let selectedText = await getSelectedText()
+  snippet = snippet.replaceAll("${selection}", selectedText)
+}
+
 if (snippet.match(/\${(.+)?}/)) {
   setInput(``) // clearing keyword
   snippet = await template(snippet, {

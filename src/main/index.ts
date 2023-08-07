@@ -545,7 +545,7 @@ let script = await mainMenu({
       },
     },
     {
-      name: "Script Actions",
+      name: "Edit",
       key: `${cmd}+o`,
       onPress: async (input, { focused }) => {
         if (process?.env?.KIT_EDITOR !== "kit") {

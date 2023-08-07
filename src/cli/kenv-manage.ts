@@ -1,4 +1,6 @@
-// Description: Add/Remove/Update/Etc kenvs
+// Name: Manage Kenvs
+// Enter: Add/Remove/Manage kenvs
+// Keyword: kenv
 
 import { Choice } from "../types/core"
 import { CLI } from "../cli"

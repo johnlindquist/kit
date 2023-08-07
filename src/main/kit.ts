@@ -1,4 +1,4 @@
-// Name: Manage Kit and Kenvs
+// Name: Manage Kit
 // Keyword: kit
 
 import { createGuideConfig } from "./main-helper.js"
