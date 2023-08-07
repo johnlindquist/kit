@@ -139,7 +139,7 @@ let selectedFile = await arg(
         setEnter("Submit")
       } else {
         setPlaceholder("Search Files")
-        setEnter("Open Action Menu")
+        setEnter("Actions")
       }
     },
     onSubmit: async (input, state) => {
@@ -151,7 +151,7 @@ let selectedFile = await arg(
       return false
     },
     placeholder: "Search Files",
-    enter: "Open Action Menu",
+    enter: "Actions",
     shortcuts: [
       {
         key: "right",

@@ -25,7 +25,7 @@ let modifiers = {
 console.clear()
 
 let order = [
-  "Edit",
+  "Script Actions",
   "Copy",
   "Debug",
   "Kenv",
@@ -52,7 +52,7 @@ let scriptFlags: FlagsOptions = {
   // },
   ["edit-script"]: {
     name: "Edit",
-    group: "Edit",
+    group: "Script Actions",
     description: "Open the selected script in your editor",
     preview: async (input, state) => {
       let flaggedFilePath = state?.flaggedValue?.filePath
@@ -165,7 +165,7 @@ ${lastRunBlock}
   },
 
   ["edit-doc"]: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Create/Edit Doc",
     description:
       "Open the selected script's markdown in your editor",
@@ -218,31 +218,31 @@ ${lastRunBlock}
     shortcut: `${cmd}+shift+p`,
   },
   duplicate: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Duplicate",
     description: "Duplicate the selected script",
     shortcut: `${cmd}+d`,
   },
   rename: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Rename",
     description: "Rename the selected script",
     shortcut: `${cmd}+shift+r`,
   },
   remove: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Remove",
     description: "Delete the selected script",
     shortcut: `${cmd}+shift+backspace`,
   },
   ["remove-from-recent"]: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Remove from Recent",
     description:
       "Remove the selected script from the recent list",
   },
   ["clear-recent"]: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Clear Recent",
     description: "Clear the recent list of scripts",
   },
@@ -259,7 +259,7 @@ ${lastRunBlock}
   //     "Delete the db file for the selected script",
   // },
   ["reveal-script"]: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Reveal",
     description: `Reveal the selected script in ${
       isMac ? "Finder" : "Explorer"
@@ -323,7 +323,7 @@ ${lastRunBlock}
   //   shortcut: `${cmd}+m`,
   // },
   ["change-shortcut"]: {
-    group: "Edit",
+    group: "Script Actions",
     name: "Change Shortcut",
     description:
       "Prompts to pick a new shortcut for the script",
@@ -367,7 +367,7 @@ ${lastRunBlock}
 
 if (env.KIT_EDITOR !== "code") {
   scriptFlags["code"] = {
-    group: "Edit",
+    group: "Script Actions",
     name: "Open Kenv in VS Code",
     description: "Open the script's kenv in VS Code",
     shortcut: `${cmd}+shift+o`,

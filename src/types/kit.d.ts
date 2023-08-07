@@ -21,7 +21,8 @@ export interface Arg {
   [key: string]: any
   <T = string>(
     placeholderOrConfig?: string | PromptConfig,
-    choicesOrPanel?: Choices<T> | Panel
+    choicesOrPanel?: Choices<T> | Panel,
+    actionsOrPreview?: Action[] | Preview
   ): Promise<T>
 }
 

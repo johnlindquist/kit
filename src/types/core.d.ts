@@ -256,6 +256,10 @@ export interface GenerateChoices {
   (input: string): Choice<any>[] | Promise<Choice<any>[]>
 }
 
+export interface GenerateActions {
+  (input: string): Action[] | Promise<Action[]>
+}
+
 export type Choices<Value> = (
   | (string | Choice)[]
   | Choice<Value>[]
@@ -266,6 +270,25 @@ export type Choices<Value> = (
 ) & {
   preload?: boolean
 }
+
+export type Preview =
+  | string
+  | void
+  | (() => string)
+  | (() => void)
+  | (() => Promise<string>)
+  | (() => Promise<void>)
+  | ((input: string) => string)
+  | ((input: string) => void)
+  | ((input: string) => Promise<any>)
+  | ((input: string) => Promise<void>)
+
+export type Actions =
+  | Action[]
+  | (() => Action[])
+  | (() => Promise<Action[]>)
+  | Promise<Action[]>
+  | GenerateActions
 
 export type Panel =
   | string
@@ -355,6 +378,7 @@ export type PromptConfig = {
     choice: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
+  actions?: Action[] | Panel
   initialChoices?: Choices<any> | Panel
   html?: string
   formData?: any

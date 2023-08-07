@@ -687,6 +687,7 @@ global.flag ||= {}
 global.prepFlags = (
   flagsOptions: FlagsOptions
 ): FlagsOptions => {
+  global.kitFlagsAsChoices = []
   for (let key of Object.keys(global?.flag)) {
     delete global?.flag?.[key]
   }
@@ -694,8 +695,9 @@ global.prepFlags = (
   if (
     !flagsOptions ||
     Object.entries(flagsOptions)?.length === 0
-  )
+  ) {
     return false
+  }
 
   let validFlags = {
     sortChoicesKey:
@@ -728,6 +730,7 @@ global.prepFlags = (
         value: key,
         description: value?.description || "",
         preview: value?.preview || `<div></div>`,
+        shortcut: value?.shortcut || "",
         onAction: value?.onAction || null,
       }
     }

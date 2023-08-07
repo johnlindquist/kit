@@ -70,6 +70,7 @@ import {
   debounce,
   adjustPackageName,
   editorShortcuts,
+  shortcutsShortcut,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { errorPrompt } from "../api/kit.js"
@@ -840,6 +841,8 @@ global.setPrompt = (data: Partial<PromptData>) => {
   })
 }
 
+global.kitShortcutsMap = new Map()
+
 let prepPrompt = async (config: PromptConfig) => {
   let escapeDefault = Boolean(
     !config?.onEscape ||
@@ -859,6 +862,27 @@ let prepPrompt = async (config: PromptConfig) => {
       }
     } else {
       config.flags = actionsFlags
+    }
+  }
+
+  global.kitShortcutsMap.clear()
+  if (Array.isArray(config?.actions)) {
+    for (let action of config?.actions) {
+      if (action?.shortcut) {
+        global.kitShortcutsMap.set(
+          action.shortcut,
+          action.name
+        )
+      }
+    }
+  }
+
+  for (let shortcut of config?.shortcuts || []) {
+    if (shortcut?.key) {
+      global.kitShortcutsMap.set(
+        shortcut.key,
+        shortcut.name
+      )
     }
   }
 
@@ -949,6 +973,26 @@ let createOnInputDefault = (
   }, debounceInput)
 }
 
+let createOnActionInputDefault = (
+  actions,
+  className,
+  debounceInput
+) => {
+  let mode =
+    typeof actions === "function" && actions?.length > 0
+      ? Mode.GENERATE
+      : Mode.FILTER
+
+  if (mode !== Mode.GENERATE) return async () => {}
+  // "input" is on the state, so this is only provided as a convenience for the user
+  let _promptId = promptId
+  return debounce(async (input, state) => {
+    if (_promptId !== promptId) return
+    let result = await actions(input, state)
+    return setFlags(getFlagsFromActions(result))
+  }, debounceInput)
+}
+
 let onBlurDefault = () => {
   global.log(
     `${process.pid}: Blur caused exit. Provide a "onBlur" handler to override.`
@@ -974,15 +1018,17 @@ let determineChoicesType = choices => {
 global.__currentPromptSecret = false
 global.__currentPromptConfig = {}
 
-let getFlagsFromActions = (
+export let getFlagsFromActions = (
   actions: PromptConfig["actions"]
 ) => {
   let flags: FlagsOptions = {}
-  for (let action of actions) {
-    flags[action.flag || action.name] = {
-      ...action,
-      hasAction: action?.onAction ? true : false,
-      bar: action?.visible ? "right" : "",
+  if (Array.isArray(actions)) {
+    for (let action of actions) {
+      flags[action.flag || action.name] = {
+        ...action,
+        hasAction: action?.onAction ? true : false,
+        bar: action?.visible ? "right" : "",
+      }
     }
   }
 
@@ -1020,6 +1066,13 @@ global.kitPrompt = async (config: PromptConfig) => {
   if (!config.shortcuts.find(s => s.key === `${cmd}+w`)) {
     config.shortcuts.push({
       ...closeShortcut,
+      bar: "",
+    })
+  }
+
+  if (!config.shortcuts.find(s => s.key === `${cmd}+/`)) {
+    config.shortcuts.push({
+      ...shortcutsShortcut,
       bar: "",
     })
   }
@@ -1064,7 +1117,11 @@ global.kitPrompt = async (config: PromptConfig) => {
       className,
       debounceInput
     ),
-    onFlagInput = onFlagInputDefault,
+    onFlagInput = createOnActionInputDefault(
+      config?.actions,
+      className,
+      debounceInput
+    ),
     onSelected = onSelectedDefault,
     onChange = onChangeDefault,
     onBlur = onBlurDefault,
@@ -1525,7 +1582,8 @@ global.hotkey = async (
 
 global.basePrompt = async (
   placeholderOrConfig = "Type a value:",
-  choices = ``
+  choices = ``,
+  actions = ``
 ) => {
   if (
     typeof placeholderOrConfig === "object" &&
@@ -1604,6 +1662,9 @@ global.basePrompt = async (
       ? smallShortcuts
       : argShortcuts,
     choices,
+    actions,
+    preview:
+      typeof actions === "string" ? actions : undefined,
   }
 
   if (

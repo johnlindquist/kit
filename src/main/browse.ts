@@ -169,14 +169,14 @@ let selectedPath = await path({
   flags,
   startPath: initialPath,
   resize: true,
-  enter: "Open Action Menu",
+  enter: "Actions",
   onMenuToggle: async (input, state) => {
     if (state.flag) {
       setPlaceholder("Select Action")
       setEnter("Submit")
     } else {
       setPlaceholder("Browse")
-      setEnter("Open Action Menu")
+      setEnter("Actions")
     }
   },
   onSubmit: async (input, state) => {
