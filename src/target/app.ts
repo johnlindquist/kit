@@ -1729,7 +1729,8 @@ global.select = async (
 
 global.mini = async (
   placeholderOrConfig = "Type a value:",
-  choices = ``
+  choices = ``,
+  actions = ``
 ) => {
   let miniConfig = {
     headerClassName: "hidden",
@@ -1751,12 +1752,17 @@ global.mini = async (
     }
   }
 
-  return await global.basePrompt(miniConfig, choices)
+  return await global.basePrompt(
+    miniConfig,
+    choices,
+    actions
+  )
 }
 
 global.micro = async (
   placeholderOrConfig = "Type a value:",
-  choices = ``
+  choices = ``,
+  actions = ``
 ) => {
   let microConfig = {
     headerClassName: "hidden",
@@ -1779,7 +1785,11 @@ global.micro = async (
     }
   }
 
-  return await global.basePrompt(microConfig, choices)
+  return await global.basePrompt(
+    microConfig,
+    choices,
+    actions
+  )
 }
 
 global.arg = global.mini
