@@ -621,8 +621,6 @@ if (isApp) {
   open(script as string)
 } else if (isPass) {
   await run((script as Script)?.filePath, `--pass`, input)
-} else if ((script as Script)?.shebang) {
-  await sendWait(Channel.SHEBANG, script)
 } else if (
   script === Value.NoValue ||
   typeof script === "undefined"
@@ -684,6 +682,8 @@ if (isApp) {
     await mainScript()
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
+  } else if ((script as Script)?.shebang) {
+    await sendWait(Channel.SHEBANG, script)
   } else if (script && script?.filePath) {
     let runP = run(
       script.filePath,

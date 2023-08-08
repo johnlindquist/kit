@@ -955,8 +955,11 @@ export let shortcutsShortcut: Shortcut = {
       
 ${shortcutsList}`),
         {
+          width: 274,
           draggable: true,
-          containerClass: `bg-bg-base/50`,
+          containerClass: `bg-bg-base`,
+          resizable: true,
+          transparent: true,
         }
       )
     }

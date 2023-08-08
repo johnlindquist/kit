@@ -21,6 +21,7 @@ let widget: Widget = async (html, options = {}) => {
         containerClass:
           "overflow-auto flex justify-center items-center v-screen h-screen",
         draggable: true,
+        resizable: true,
         ...options,
       },
     }
