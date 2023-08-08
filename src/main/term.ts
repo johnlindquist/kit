@@ -5,8 +5,9 @@ Run a command in the built-in terminal.
 */
 
 // Name: Kit Terminal
-// Description: Built-in Terminal
-// Pass: true
+// Description: Open the Built-in Terminal
+// Trigger: >
+// Cache: true
 
 setName(``)
 await term({

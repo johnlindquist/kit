@@ -6,20 +6,22 @@ Find Similar Words, Rhymes, Sounds Like, etc.
 
 // Name: Word
 // Description: Find Word Alternatives
-// Keyword: w
+// Keyword: word
 
 import { keywordInputTransformer } from "../core/utils.js"
 let transformer = keywordInputTransformer(arg?.keyword)
 
+let atLeastThree = [
+  {
+    name: `Type at least 3 characters`,
+    info: true,
+  },
+]
+
 let queryWords = (api, type) => async input => {
   input = transformer(input)
   if (!input || input?.length < 3) {
-    return [
-      {
-        name: `Type at least 3 characters`,
-        info: true,
-      },
-    ]
+    return atLeastThree
   }
   let url = `https://api.datamuse.com/${api}?${type}=${input}&md=d`
 
@@ -70,6 +72,7 @@ let wordApi = async (api, type, input = "") => {
       placeholder: "Type a word:",
       enter: "Copy to Clipboard",
       input,
+      preventCollapse: true,
       shortcuts: [
         {
           name: "Paste",

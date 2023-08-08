@@ -948,7 +948,7 @@ let groupScripts = scripts => {
       ? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(
           Boolean
         )
-      : ["Community", "Pass"],
+      : ["Pass", "Community"],
     recentKey: "timestamp",
     excludeGroups,
     recentLimit: process?.env?.KIT_RECENT_LIMIT
@@ -1006,7 +1006,11 @@ export let getGroupedScripts = async () => {
       kitPath("main", "datamuse.js"),
       kitPath("main", "system-commands.js"),
       kitPath("main", "giphy.js"),
+      kitPath("main", "browse.js"),
+      kitPath("main", "app-launcher.js"),
+      kitPath("main", "focus-window.js"),
       kitPath("main", "account.js"),
+      kitPath("main", "dev.js"),
       kitPath("main", "hot.js"),
       kitPath("main", "snippets.js"),
       kitPath("main", "sticky.js"),
@@ -1032,40 +1036,47 @@ export let getGroupedScripts = async () => {
 
   processedscripts = processedscripts.concat(passScripts)
 
-  // let getHot = async () => {
-  //   let hotPath = kitPath("data", "hot.json")
-  //   if (await isFile(hotPath)) {
-  //     return await readJson(hotPath)
-  //   }
+  let getHot = async () => {
+    let hotPath = kitPath("data", "hot.json")
+    if (await isFile(hotPath)) {
+      return await readJson(hotPath)
+    }
 
-  //   return []
-  // }
+    return []
+  }
 
-  // let loadHotChoices = async () => {
-  //   try {
-  //     let hot = await getHot()
+  let loadHotChoices = async () => {
+    try {
+      let hot = await getHot()
 
-  //     return hot.map(choice => {
-  //       choice.preview = async () => {
-  //         if (choice?.body) {
-  //           return await highlight(choice?.body)
-  //         }
+      return hot.map(choice => {
+        choice.preview = async () => {
+          if (choice?.body) {
+            return await highlight(choice?.body)
+          }
 
-  //         return ""
-  //       }
-  //       choice.group = "Community"
-  //       return choice
-  //     })
-  //   } catch (error) {
-  //     return [error.message]
-  //   }
-  // }
+          return ""
+        }
+        choice.onSubmit = async (input, state) => {
+          await open(state.focused.value)
+          return true
+        }
+        choice.group = "Community"
+        choice.enter = "View Discussion"
+        choice.lastGroup = true
 
-  // let communityScripts = await loadHotChoices()
+        return choice
+      })
+    } catch (error) {
+      return [error.message]
+    }
+  }
 
-  // processedscripts = processedscripts.concat(
-  //   communityScripts
-  // )
+  let communityScripts = await loadHotChoices()
+
+  processedscripts = processedscripts.concat(
+    communityScripts
+  )
 
   let groupedScripts = groupScripts(processedscripts)
 

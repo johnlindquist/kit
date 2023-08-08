@@ -429,15 +429,16 @@ let waitForPromptValue = ({
         // TODO: Dont use onSubmit for chat component? onUserMessage maybe?
         if (global.__kitPromptState?.ui !== UI.chat) {
           let preventSubmit: boolean | string | void = false
-          preventSubmit = await onSubmit(
-            data?.state?.input,
-            data.state
-          )
 
           if (choice?.onSubmit) {
             preventSubmit = await choice?.onSubmit(
               data?.state?.input,
               data?.state
+            )
+          } else {
+            preventSubmit = await onSubmit(
+              data?.state?.input,
+              data.state
             )
           }
 
@@ -945,6 +946,13 @@ let prepPrompt = async (config: PromptConfig) => {
     inputCommandChars: config?.inputCommandChars || [],
     hideOnEscape,
     keyword,
+    searchKeys: config?.searchKeys || [
+      "slicedName",
+      "friendlyShortcut",
+      "tag",
+      "group",
+      "command",
+    ],
   })
 }
 

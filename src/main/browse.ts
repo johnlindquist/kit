@@ -1,6 +1,7 @@
-// Name: Path Browser
-// Description: Select a Path
+// Name: Browse Directories
+// Description: Navigate Directories and Take Actions
 // Cache: true
+// Trigger: /
 
 import {
   escapeShortcut,

@@ -1,5 +1,7 @@
 // Name: Focus Window
-// Description: List and focus open windows
+// Description: List and Focus Open Application Windows
+// Keyword: w
+// Cache: true
 
 import "@johnlindquist/kit"
 import { escapeShortcut } from "../core/utils.js"
@@ -31,6 +33,14 @@ let selectedWindow = await arg<{
     enter: "Focus",
     shortcuts: [escapeShortcut],
     resize: true,
+    searchKeys: [
+      "slicedName",
+      "friendlyShortcut",
+      "tag",
+      "group",
+      "command",
+      "description",
+    ],
   },
   windows
     .filter(

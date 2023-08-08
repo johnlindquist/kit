@@ -6,6 +6,7 @@ import {
 } from "../core/utils.js"
 // Name: App Launcher
 // Description: Select an App to Launch
+// Trigger: ;
 // Cache: true
 
 if (isLinux) exit()

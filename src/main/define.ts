@@ -1,6 +1,6 @@
 // Name: Define
 // Description: Lookup the definition of a word
-// Keyword: define
+// Keyword: d
 
 await run(kitPath("main", "datamuse.js"), "--fn", "syn")
 

@@ -20,6 +20,7 @@ export interface Choice<Value = any> {
   previewLang?: string
   id?: string
   shortcode?: string
+  trigger?: string
   keyword?: string
   className?: string
   nameClassName?: string
@@ -85,6 +86,7 @@ export interface ScriptMetadata {
   description?: string
   shortcut?: string
   shortcode?: string
+  trigger?: string
   friendlyShortcut?: string
   alias?: string
   author?: string
@@ -252,6 +254,7 @@ export interface PromptData {
   hideOnEscape?: boolean
   keyword?: string
   multiple?: boolean
+  searchKeys?: string[]
 }
 
 export interface GenerateChoices {

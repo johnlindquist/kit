@@ -398,6 +398,11 @@ export let formatScriptMetadata = (
       metadata?.shortcode?.trim()?.toLowerCase()
   }
 
+  if (metadata?.trigger) {
+    ;(metadata as unknown as ScriptMetadata).shortcode =
+      metadata?.trigger?.trim()?.toLowerCase()
+  }
+
   // An alias brings the script to the top of the list
   if (metadata?.alias) {
     ;(metadata as unknown as ScriptMetadata).alias =
