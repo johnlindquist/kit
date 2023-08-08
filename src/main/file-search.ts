@@ -1,7 +1,6 @@
 // Name: File Search
 // Description: Search For Files then Take Actions
-// Keyword: f
-// Pass: true
+// Keyword: .
 
 import {
   keywordInputTransformer,

@@ -6,12 +6,14 @@ Search and select scripts by contents
 
 // Name: Find Script
 // Description: Search the Contents of Scripts
-// Pass: true
+// Keyword: f
+
 import "@johnlindquist/kit"
 import {
   escapeShortcut,
   cmd,
   getKenvs,
+  keywordInputTransformer,
 } from "../core/utils.js"
 import { highlightJavaScript } from "../api/kit.js"
 let kenvs = await getKenvs()
@@ -34,6 +36,8 @@ let pleaseType = [
     name: "Please type more than 2 characters",
   },
 ]
+
+let inputTransformer = keywordInputTransformer(arg?.keyword)
 
 let filePath = await arg(
   {
@@ -62,6 +66,7 @@ let filePath = await arg(
     ],
   },
   async input => {
+    input = inputTransformer(input)
     try {
       if (!input || input?.length < 3) {
         setChoices(pleaseType)

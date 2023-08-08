@@ -476,7 +476,7 @@ let script = await mainMenu({
     ",": kitPath("handler", "comma-handler.js"),
     "`": kitPath("handler", "backtick-handler.js"),
     "<": kitPath("handler", "lessthan-handler.js"),
-    "-": kitPath("handler", "minus-handler.js"),
+    // "-": kitPath("handler", "minus-handler.js"),
     "[": kitPath("handler", "leftbracket-handler.js"),
     "1": kitPath("handler", "number-handler.js") + ` 1`,
     "2": kitPath("handler", "number-handler.js") + ` 2`,

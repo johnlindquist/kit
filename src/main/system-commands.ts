@@ -1,5 +1,7 @@
 // Name: System Commands
 // Description: Run system commands
+// Keyword: -
+// Cache: true
 
 let command = await arg("Select System Command", [
   {
