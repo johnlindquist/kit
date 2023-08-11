@@ -449,6 +449,7 @@ let script = await mainMenu({
     let { keyword, value } = state
     if (keyword) {
       if (value?.filePath) {
+        preload(value?.filePath)
         await run(value.filePath, `--keyword`, keyword)
       }
     }
@@ -685,6 +686,7 @@ if (isApp) {
   } else if ((script as Script)?.shebang) {
     await sendWait(Channel.SHEBANG, script)
   } else if (script && script?.filePath) {
+    preload(script?.filePath)
     let runP = run(
       script.filePath,
       ...Object.keys(flag).map(f => `--${f}`)

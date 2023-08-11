@@ -204,14 +204,12 @@ let selectedPath = await path({
       setChoices([pathChoice])
       setFlagValue(pathChoice)
 
-      return true
+      return preventSubmit
     }
     if (!Boolean(state?.flag)) {
       await setFlagValue(state?.focused)
-      return true
+      return preventSubmit
     }
-
-    return false
   },
 })
 

@@ -1069,4 +1069,5 @@ declare global {
   var getMediaDevices: GetMediaDevices
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
+  var preventSubmit: Symbol
 }

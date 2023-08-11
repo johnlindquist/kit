@@ -41,7 +41,7 @@ export interface Choice<Value = any> {
   onSubmit?: (
     input: string,
     state: AppState
-  ) => string | Promise<string>
+  ) => void | Symbol | Promise<void | Symbol>
   enter?: string
   disableSubmit?: boolean
   info?: boolean
@@ -186,6 +186,7 @@ export type Shortcut = {
   ) => void | Promise<void>
   bar?: "right" | "left" | ""
   flag?: string
+  visible?: boolean
   condition?: (choice: any) => boolean
 }
 
@@ -373,9 +374,8 @@ export interface ChannelHandler {
 export interface SubmitHandler {
   (input?: string, state?: AppState):
     | void
-    | boolean
-    | string
-    | Promise<boolean | void | string>
+    | Symbol
+    | Promise<void | Symbol>
 }
 
 export type PromptConfig = {

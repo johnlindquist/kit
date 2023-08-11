@@ -1,6 +1,6 @@
 // Name: File Search
 // Description: Search For Files then Take Actions
-// Keyword: .
+// Trigger: .
 
 import {
   keywordInputTransformer,
@@ -144,10 +144,9 @@ let selectedFile = await arg(
     onSubmit: async (input, state) => {
       if (!Boolean(state?.flag)) {
         await setFlagValue(state?.focused)
-        return true
+      } else {
+        return preventSubmit
       }
-
-      return false
     },
     placeholder: "Search Files",
     enter: "Actions",

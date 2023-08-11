@@ -236,6 +236,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
     let e = error.toString()
     if (
       e.startsWith("SyntaxError") &&
+      !e.includes("CommonJS module") &&
       e.match(
         /module|after argument list|await is only valid/
       )
@@ -955,6 +956,34 @@ let groupScripts = scripts => {
       ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
       : 3,
     hideWithoutInput: ["Apps"],
+    tagger: (s: any) => {
+      if (!s.tag) {
+        s.tag = ``
+        if (s?.friendlyShortcut) {
+          s.tag = s.friendlyShortcut
+        }
+
+        if (s?.trigger) {
+          s.tag = `${s?.tag && ` ${s?.tag} `}trigger: ${
+            s.trigger
+          }`
+        }
+
+        if (s?.keyword) {
+          s.tag = `${s?.tag && ` ${s?.tag} `}keyword: ${
+            s.keyword
+          }`
+        }
+
+        if (s.snippet) {
+          s.tag = `${s?.tag && ` ${s?.tag} `}snippet ${
+            s.snippet
+          }`
+        }
+
+        s.tag = s.tag.trim()
+      }
+    },
   })
 }
 
@@ -993,37 +1022,42 @@ export let getGroupedScripts = async () => {
     processedscripts = processedscripts.concat(apps)
   }
 
-  let passScripts = await Promise.all(
-    [
-      kitPath("main", "kit.js"),
-      kitPath("main", "api.js"),
-      kitPath("main", "guide.js"),
-      kitPath("cli", "new.js"),
-      kitPath("cli", "find.js"),
-      kitPath("cli", "processes.js"),
-      kitPath("cli", "kenv-manage.js"),
-      kitPath("main", "google.js"),
-      kitPath("main", "datamuse.js"),
-      kitPath("main", "system-commands.js"),
-      kitPath("main", "giphy.js"),
-      kitPath("main", "browse.js"),
-      kitPath("main", "app-launcher.js"),
-      kitPath("main", "focus-window.js"),
-      kitPath("main", "account.js"),
-      kitPath("main", "dev.js"),
-      kitPath("main", "hot.js"),
-      kitPath("main", "snippets.js"),
-      kitPath("main", "sticky.js"),
-      kitPath("main", "term.js"),
-      kitPath("main", "file-search.js"),
-      kitPath("main", "spell.js"),
-      kitPath("main", "define.js"),
-      kitPath("main", "rhyme.js"),
-      kitPath("cli", "manage-npm.js"),
-      kitPath("main", "clipboard-history.js"),
-      kitPath("main", "emoji.js"),
-      kitPath("pro", "theme-selector.js"),
-    ].map(async scriptPath => {
+  let kitScripts = [
+    kitPath("main", "kit.js"),
+    kitPath("main", "api.js"),
+    kitPath("main", "guide.js"),
+    kitPath("cli", "new.js"),
+    kitPath("cli", "find.js"),
+    kitPath("cli", "processes.js"),
+    kitPath("cli", "kenv-manage.js"),
+    kitPath("main", "google.js"),
+    kitPath("main", "datamuse.js"),
+    kitPath("main", "system-commands.js"),
+    kitPath("main", "giphy.js"),
+    kitPath("main", "browse.js"),
+    kitPath("main", "app-launcher.js"),
+    kitPath("main", "account.js"),
+    kitPath("main", "dev.js"),
+    kitPath("main", "hot.js"),
+    kitPath("main", "snippets.js"),
+    kitPath("main", "sticky.js"),
+    kitPath("main", "term.js"),
+    kitPath("main", "file-search.js"),
+    kitPath("main", "spell.js"),
+    kitPath("main", "define.js"),
+    kitPath("main", "rhyme.js"),
+    kitPath("cli", "manage-npm.js"),
+    kitPath("main", "clipboard-history.js"),
+    kitPath("main", "emoji.js"),
+    kitPath("pro", "theme-selector.js"),
+  ]
+
+  if (isMac) {
+    kitScripts.push(kitPath("main", "focus-window.js"))
+  }
+
+  let parsedKitScripts = await Promise.all(
+    kitScripts.map(async scriptPath => {
       let script = await parseScript(scriptPath)
 
       script.group = "Kit"
@@ -1034,7 +1068,9 @@ export let getGroupedScripts = async () => {
     })
   )
 
-  processedscripts = processedscripts.concat(passScripts)
+  processedscripts = processedscripts.concat(
+    parsedKitScripts
+  )
 
   let getHot = async () => {
     let hotPath = kitPath("data", "hot.json")

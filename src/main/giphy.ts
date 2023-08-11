@@ -57,6 +57,7 @@ let formattedLink = await arg(
     input: (flag?.pass as string) || "",
     placeholder: "Search Giphy",
     enter: "Paste URL",
+    preventCollapse: true,
     shortcuts: [
       {
         name: "Paste Markdown Link",

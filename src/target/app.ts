@@ -214,7 +214,7 @@ interface WaitForPromptValueProps
 }
 
 let invalid = Symbol("invalid")
-let prevent = Symbol("prevent")
+global.preventSubmit = Symbol("preventSubmit")
 
 let truncate = (str: string, length: number) => {
   if (str.length > length) {
@@ -428,23 +428,25 @@ let waitForPromptValue = ({
 
         // TODO: Dont use onSubmit for chat component? onUserMessage maybe?
         if (global.__kitPromptState?.ui !== UI.chat) {
-          let preventSubmit: boolean | string | void = false
+          let checkPreventSubmit: any
 
-          if (choice?.onSubmit) {
-            preventSubmit = await choice?.onSubmit(
-              data?.state?.input,
-              data?.state
-            )
-          } else {
-            preventSubmit = await onSubmit(
-              data?.state?.input,
-              data.state
-            )
+          if (!data?.state?.flag) {
+            if (choice?.onSubmit) {
+              checkPreventSubmit = await choice?.onSubmit(
+                data?.state?.input,
+                data?.state
+              )
+            } else {
+              checkPreventSubmit = await onSubmit(
+                data?.state?.input,
+                data.state
+              )
+            }
           }
 
-          if (preventSubmit) {
+          if (checkPreventSubmit === preventSubmit) {
             send(Channel.PREVENT_SUBMIT)
-            return prevent
+            return preventSubmit
           }
         }
 
@@ -474,7 +476,8 @@ let waitForPromptValue = ({
         }
       }),
       filter(
-        value => value !== invalid && value !== prevent
+        value =>
+          value !== invalid && value !== preventSubmit
       ),
       take(1),
       share()
@@ -1711,6 +1714,7 @@ global.select = async (
           toggleAllSelectedChoices()
         },
         bar: "right",
+        visible: true,
       },
       {
         name: "Submit",
@@ -1719,6 +1723,7 @@ global.select = async (
           submit(state.selected)
         },
         bar: "right",
+        visible: true,
       },
     ],
   }

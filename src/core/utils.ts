@@ -1237,6 +1237,7 @@ export let groupChoices = (
     recentLimit,
     hideWithoutInput,
     excludeGroups,
+    tagger,
   } = {
     groupKey: "group",
     missingGroupName: "No Group",
@@ -1247,6 +1248,7 @@ export let groupChoices = (
     recentKey: "",
     recentLimit: 3,
     excludeGroups: [],
+    tagger: null,
     ...options,
   }
 
@@ -1273,6 +1275,7 @@ export let groupChoices = (
   }
 
   let putIntoGroups = choice => {
+    if (tagger) tagger(choice)
     if (
       excludeGroups.find(
         c => choice?.group === c || choice?.kenv === c
@@ -1647,6 +1650,9 @@ export let escapeHTML = text => {
   text = text.replace(/[&<>"']/g, function (m) {
     return map[m]
   })
+
+  // Convert tabs to spaces
+  text = text.replace(/\t/g, "    ")
 
   // Convert newline characters to <br/>
   return text.replace(/\n/g, "<br/>")
