@@ -1054,6 +1054,10 @@ export let getGroupedScripts = async () => {
 
   if (isMac) {
     kitScripts.push(kitPath("main", "focus-window.js"))
+
+    if (!Boolean(env?.KIT_ACCESSIBILITY)) {
+      kitScripts.push(kitPath("main", "accessibility.js"))
+    }
   }
 
   let parsedKitScripts = await Promise.all(

@@ -7,7 +7,7 @@ Perform a basic Google search
 // Name: Google
 // Description: Search Google for Information
 // Pass: true
-// Keyword: google
+// Keyword: goo
 
 import {
   cmd,
