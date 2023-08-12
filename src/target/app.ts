@@ -73,7 +73,10 @@ import {
   shortcutsShortcut,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
-import { errorPrompt } from "../api/kit.js"
+import {
+  errorPrompt,
+  getFlagsFromActions,
+} from "../api/kit.js"
 import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
 import { EventEmitter } from "events"
@@ -783,7 +786,17 @@ let onKeywordDefault = async (input, state) => {
     await mainScript(state.input)
   }
 }
-let onMenuToggleDefault = async () => {}
+let onMenuToggleDefault = async (input, state) => {
+  if (state.flaggedValue) {
+    let localChoice: Choice = (
+      global.kitPrevChoices || []
+    ).find((c: Choice) => c.id === state?.focused?.id)
+    if (localChoice && localChoice?.actions) {
+      let flags = getFlagsFromActions(localChoice?.actions)
+      setFlags(flags)
+    }
+  }
+}
 let onPasteDefault = async (input, state) => {
   if (state.paste) setSelectedText(state.paste, false)
 }
@@ -1028,23 +1041,6 @@ let determineChoicesType = choices => {
 
 global.__currentPromptSecret = false
 global.__currentPromptConfig = {}
-
-export let getFlagsFromActions = (
-  actions: PromptConfig["actions"]
-) => {
-  let flags: FlagsOptions = {}
-  if (Array.isArray(actions)) {
-    for (let action of actions) {
-      flags[action.flag || action.name] = {
-        ...action,
-        hasAction: action?.onAction ? true : false,
-        bar: action?.visible ? "right" : "",
-      }
-    }
-  }
-
-  return flags
-}
 
 global.kitPrompt = async (config: PromptConfig) => {
   promptId++

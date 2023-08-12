@@ -56,6 +56,7 @@ export interface Choice<Value = any> {
   hideWithoutInput?: boolean
   ignoreFlags?: boolean
   selected?: boolean
+  actions?: Action[]
 }
 
 export interface ScoredChoice {

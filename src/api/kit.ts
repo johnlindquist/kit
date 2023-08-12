@@ -5,11 +5,11 @@ import {
   quickScore,
   createConfig,
   Options,
-  Config,
   ConfigOptions,
 } from "quick-score"
 import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import {
+  Action,
   Choice,
   FlagsOptions,
   FlagsWithKeys,
@@ -27,10 +27,7 @@ import {
   getKenvs,
   groupChoices,
   formatChoices,
-  defaultGroupClassName,
-  defaultGroupNameClassName,
   parseScript,
-  userDbPath,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -742,6 +739,28 @@ global.prepFlags = (
 
 global.setFlags = (flags: FlagsOptions) => {
   global.send(Channel.SET_FLAGS, global.prepFlags(flags))
+}
+
+export let getFlagsFromActions = (
+  actions: PromptConfig["actions"]
+) => {
+  let flags: FlagsOptions = {}
+  if (Array.isArray(actions)) {
+    for (let action of actions) {
+      flags[action.flag || action.name] = {
+        ...action,
+        hasAction: action?.onAction ? true : false,
+        bar: action?.visible ? "right" : "",
+      }
+    }
+  }
+
+  return flags
+}
+
+global.setActions = (actions: Action[]) => {
+  let flags = getFlagsFromActions(actions)
+  setFlags(flags)
 }
 
 global.setFlagValue = (value: any) => {

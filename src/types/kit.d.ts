@@ -132,6 +132,7 @@ export interface GetScripts {
 }
 
 export type FlagFn = (flags: FlagsOptions) => void
+export type ActionsFn = (actions: Action[]) => void
 export type PrepFlags = (
   flags: FlagsOptions
 ) => FlagsOptions
@@ -378,6 +379,7 @@ declare global {
   var flag: Flags
   var actionFlag: string
   var setFlags: FlagFn
+  var setActions: ActionsFn
   var setFlagValue: (value: any) => Promise<void>
   var prepFlags: PrepFlags
 
