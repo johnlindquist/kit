@@ -1,5 +1,6 @@
 // Name: Browse Kit Guide
 // Keyword: guide
+// Pass: true
 
 import { createGuideConfig } from "./main-helper.js"
 

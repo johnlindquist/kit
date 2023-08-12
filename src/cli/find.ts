@@ -8,6 +8,7 @@ Search and select scripts by contents
 // Description: Search the Contents of Scripts
 // Keyword: f
 // Shortcut: cmd+f
+// Pass: true
 
 import "@johnlindquist/kit"
 import {

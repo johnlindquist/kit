@@ -1042,11 +1042,12 @@ export let getGroupedScripts = async () => {
   }
 
   let kitScripts = [
+    kitPath("cli", "new.js"),
+    kitPath("cli", "find.js"),
+    kitPath("main", "file-search.js"),
     kitPath("main", "kit.js"),
     kitPath("main", "api.js"),
     kitPath("main", "guide.js"),
-    kitPath("cli", "new.js"),
-    kitPath("cli", "find.js"),
     kitPath("cli", "processes.js"),
     kitPath("cli", "kenv-manage.js"),
     kitPath("main", "google.js"),
@@ -1061,7 +1062,6 @@ export let getGroupedScripts = async () => {
     kitPath("main", "snippets.js"),
     kitPath("main", "sticky.js"),
     kitPath("main", "term.js"),
-    kitPath("main", "file-search.js"),
     kitPath("main", "spell.js"),
     kitPath("main", "define.js"),
     kitPath("main", "rhyme.js"),
