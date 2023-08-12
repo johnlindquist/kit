@@ -1,6 +1,5 @@
 // Name: Browse Kit API
 // Keyword: api
-// Pass: true
 
 import { createGuideConfig } from "./main-helper.js"
 

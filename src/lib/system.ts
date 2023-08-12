@@ -10,6 +10,12 @@ global.unmute = async () => {
   )
 }
 
+global.logout = async () => {
+  return await applescript(
+    String.raw`tell application "System Events" to log out`
+  )
+}
+
 global.lock = async () => {
   return await applescript(
     String.raw`tell application "System Events" to keystroke "q" using {command down, control down}`

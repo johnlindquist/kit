@@ -314,12 +314,6 @@ This will open the `kit.log` file in your editor. This is where Script Kit logs 
 
 Force the prompt to always open on a specific display.
 
-## Toggle Clipboard/Snippet Watcher
-
-<!-- description: Toggle the clipboard/snippet watcher -->
-<!-- value: app/toggle-watcher.js -->
-<!-- enter: Toggle -->
-
 ## Edit .env
 
 <!-- description: Open the .env file -->
@@ -327,17 +321,6 @@ Force the prompt to always open on a specific display.
 <!-- enter: Edit .env -->
 
 This will open the `.env` file in your editor. This is where Script Kit stores environment variables for your scripts.
-
-## Settings
-
-<!-- description: Manage settings for Kit.app -->
-<!-- value: cli/settings.js -->
-<!-- enter: Open Settings -->
-
-Hit <kbd>Enter</kbd> to modify Kit.app settings:
-- Toggle the menu bar icon
-- Toggle open at login
-- Toggle auto-update
       
 ## Credits
 

@@ -1051,8 +1051,8 @@ export let getGroupedScripts = async () => {
     kitPath("cli", "processes.js"),
     kitPath("cli", "kenv-manage.js"),
     kitPath("main", "google.js"),
+    // kitPath("main", "suggest.js"),
     kitPath("main", "datamuse.js"),
-    kitPath("main", "system-commands.js"),
     kitPath("main", "giphy.js"),
     kitPath("main", "browse.js"),
     kitPath("main", "app-launcher.js"),
@@ -1072,6 +1072,7 @@ export let getGroupedScripts = async () => {
   ]
 
   if (isMac) {
+    kitScripts.push(kitPath("main", "system-commands.js"))
     kitScripts.push(kitPath("main", "focus-window.js"))
 
     if (!Boolean(env?.KIT_ACCESSIBILITY)) {

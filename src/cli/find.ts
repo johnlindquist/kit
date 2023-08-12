@@ -44,10 +44,12 @@ let inputTransformer = keywordInputTransformer(arg?.keyword)
 let filePath = await arg(
   {
     input: (flag?.pass as string) || "",
-    initialChoices: pleaseType,
+    ...(!arg?.pass && { initialChoices: pleaseType }),
     placeholder: "Search Scripts",
     debounceInput: 400,
     enter: "Run",
+    preventCollapse: true,
+
     onEscape: async () => {
       submit(``)
       await mainScript()
@@ -56,6 +58,7 @@ let filePath = await arg(
       escapeShortcut,
       {
         name: `Edit`,
+        visible: true,
         key: `${cmd}+o`,
         onPress: async (input, { focused }) => {
           await run(
@@ -86,7 +89,7 @@ let filePath = await arg(
         })
         .filter(Boolean)
 
-      return filePaths.map(filePath => {
+      let results = filePaths.map(filePath => {
         return {
           name: path.basename(filePath),
           description: filePath.replace(home(), "~"),
@@ -96,6 +99,17 @@ let filePath = await arg(
           },
         }
       })
+
+      if (results.length === 0) {
+        return [
+          {
+            info: true,
+            name: `No Results for ${input}`,
+          },
+        ]
+      } else {
+        return results
+      }
     } catch (error) {
       setChoices([])
       setPanel(

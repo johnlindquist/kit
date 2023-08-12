@@ -1,6 +1,6 @@
-// Name: Manage Kit
+// Name: Kit Settings
+// Description: Manage Kit Settings
 // Keyword: kit
-// Pass: true
 
 import { createGuideConfig } from "./main-helper.js"
 

@@ -8,7 +8,7 @@ Notes are saved to `~/.kenv/sticky.md`.
 
 // Name: Sticky Pad
 // Description: Take Quick Notes
-// Cache: true
+/// Cache: true
 // Trigger: ,
 // Pass: true
 
@@ -52,6 +52,8 @@ contents = await editor({
   },
 })
 
-if (changed) await writeFile(stickyPath, contents + "\n")
+if (changed || arg?.pass) {
+  await writeFile(stickyPath, contents + "\n")
+}
 
 export {}

@@ -314,6 +314,10 @@ interface CutText {
 interface Lock {
   (): Promise<string>
 }
+
+interface Logout {
+  (): Promise<string>
+}
 interface Sleep {
   (): Promise<string>
 }
@@ -423,6 +427,7 @@ declare global {
   var getWindowsBounds: GetWindowsBounds
   var getSelectedDir: GetSelectedDir
   var keystroke: KeyStroke
+  var logout: Logout
   var lock: Lock
   var openLog: () => void
   var organizeWindows: OrganizeWindows
