@@ -168,6 +168,7 @@ if (flag?.prep) {
         escapeShortcut,
         {
           name: "Refresh Apps",
+          visible: true,
           key: `${cmd}+enter`,
           bar: "right",
           onPress: async input => {

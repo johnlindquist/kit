@@ -77,6 +77,7 @@ let wordApi = async (api, type, input = "") => {
         {
           name: "Paste",
           key: `${cmd}+enter`,
+          visible: true,
           onPress: async (input, state) => {
             await setSelectedText(state?.focused?.value)
             exit()
