@@ -1034,7 +1034,6 @@ export let getGroupedScripts = async () => {
 
   let apps = (await getApps()).map(a => {
     a.ignoreFlags = true
-    a.description = a.filePath
     return a
   })
   if (apps.length) {

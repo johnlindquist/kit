@@ -16,18 +16,27 @@ if (!flag.prep) {
 }
 
 let findAppsAndPrefs = async () => {
-  log(`findAppsAndPrefs`)
   if (process.platform === "darwin") {
-    let apps = await fileSearch("", {
+    let foundApps = await fileSearch("", {
       onlyin: "/",
       kMDItemContentType: "com.apple.application-bundle",
     })
+
     let manualAppDir = await readdir("/Applications")
-    apps = apps.concat(
-      manualAppDir
-        .filter(app => app.endsWith(".app"))
-        .map(app => `/Applications/${app}`)
-    )
+    let apps = manualAppDir
+      .filter(app => app.endsWith(".app"))
+      .map(app => `/Applications/${app}`)
+
+    for (let a of foundApps) {
+      let base = path.basename(a)
+      let same = apps.find(
+        app => path.basename(app) === base
+      )
+      if (!same) {
+        apps.push(a)
+      }
+    }
+
     // apps = uniq(apps.filter(a => !a.includes("Users")))
     let prefs = await fileSearch("", {
       onlyin: "/",
