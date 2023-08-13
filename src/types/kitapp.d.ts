@@ -365,7 +365,7 @@ export type GetAppData =
 
 export type SendNoOptions =
   | Channel.CLEAR_CACHE
-  | Channel.CLEAR_CLIPBOARD_HISTORY
+  | Channel.CLIPBOARD_SYNC_HISTORY
   | Channel.CLEAR_PREVIEW
   | Channel.CLEAR_PROMPT_CACHE
   | Channel.CLEAR_TABS
@@ -464,7 +464,7 @@ export interface ChannelMap {
   [Channel.CLEAR_CACHE]: undefined
   [Channel.CLEAR_SCRIPTS_MEMORY]: undefined
   [Channel.CLEAR_TABS]: string[]
-  [Channel.CLEAR_CLIPBOARD_HISTORY]: undefined
+  [Channel.CLIPBOARD_SYNC_HISTORY]: undefined
   [Channel.CLEAR_PROMPT_CACHE]: undefined
   [Channel.CLEAR_PREVIEW]: undefined
   [Channel.CONSOLE_CLEAR]: undefined

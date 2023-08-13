@@ -13,13 +13,8 @@ import {
 let transformer = keywordInputTransformer(arg?.keyword)
 
 let createPreview = (item, input) => {
+  if (item.preview) return item.preview
   let content = escapeHTML(item.value)
-  if (
-    content === "__enable-clipboard__" ||
-    content === "__authorize-clipboard__"
-  ) {
-    return ``
-  }
 
   if (item?.type === "image") {
     return `<div class="p-4 flex justify-center"><img src="${content}" /></div>`
@@ -45,6 +40,7 @@ let historyWithPreviews = async () => {
       {
         name: `Clipboard access is not enabled`,
         description: `Press Enter to Start the Clipboard Watcher`,
+        preview: `<div></div>`,
         value: "__enable-clipboard__",
       },
     ]
@@ -55,6 +51,7 @@ let historyWithPreviews = async () => {
       {
         name: `Clipboard access is not authorized`,
         description: `Please open your system preferences and authorize access to the clipboard`,
+        preview: `<div></div>`,
         value: "__authorize-clipboard__",
       },
     ]
@@ -64,6 +61,7 @@ let historyWithPreviews = async () => {
       {
         name: `Clipboard is empty`,
         description: `Copy something to the clipboard to see it here`,
+        preview: `<div></div>`,
         value: "__empty__",
       },
     ]

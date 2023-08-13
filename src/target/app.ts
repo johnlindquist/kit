@@ -2122,7 +2122,7 @@ global.getClipboardHistory = async () => {
 
 global.removeClipboardItem = async (itemId: string) => {
   let clipboardStore = await getClipboardStore()
-  const clipboardHistory = (await clipboardStore.get(
+  let clipboardHistory = (await clipboardStore.get(
     "history"
   )) as ClipboardItem[]
 
@@ -2134,11 +2134,15 @@ global.removeClipboardItem = async (itemId: string) => {
   }
 
   await clipboardStore.set("history", clipboardHistory)
+
+  send(Channel.CLIPBOARD_SYNC_HISTORY)
 }
 
 global.clearClipboardHistory = async () => {
   let clipboardStore = await getClipboardStore()
   await clipboardStore.set("history", [])
+
+  send(Channel.CLIPBOARD_SYNC_HISTORY)
 }
 
 global.submit = async (value: any) => {
