@@ -122,6 +122,7 @@ export interface ScriptMetadata {
   ["color-background"]?: string
   ["opacity"]?: string
   preview?: Choice["preview"]
+  previewpath?: string
   debug?: boolean
   verbose?: boolean
   cache?: boolean

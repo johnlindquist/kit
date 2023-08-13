@@ -518,7 +518,7 @@ export let setUserJson = async (user: UserDb) => {
 }
 
 export let getUserJson = async (): Promise<UserDb> => {
-  let user = {}
+  let user: any = {}
   let userDbExists = await isFile(userDbPath)
   if (userDbExists) {
     try {

@@ -511,7 +511,7 @@ let script = await mainMenu({
       },
     },
     {
-      name: "Sign-In",
+      name: "Sign In",
       flag: "sign-in-to-script-kit",
       key: `${cmd}+shift+opt+s`,
       onPress: async () => {
@@ -628,17 +628,21 @@ if (isApp) {
 ) {
   console.warn(`🤔 No script selected`, script)
 } else if (typeof script === "string") {
-  let scriptPath = script as string
-  let [maybeScript, numarg] = scriptPath.split(/\s(?=\d)/)
-  if (await isFile(maybeScript)) {
-    await run(maybeScript, numarg)
+  if (script === "kit-sponsor") {
+    await run(kitPath("main", "sponsor.js"))
   } else {
-    await run(
-      `${kitPath("cli", "new")}.js`,
-      scriptPath.trim().replace(/\s/g, "-").toLowerCase(),
-      `--scriptName`,
-      scriptPath.trim()
-    )
+    let scriptPath = script as string
+    let [maybeScript, numarg] = scriptPath.split(/\s(?=\d)/)
+    if (await isFile(maybeScript)) {
+      await run(maybeScript, numarg)
+    } else {
+      await run(
+        `${kitPath("cli", "new")}.js`,
+        scriptPath.trim().replace(/\s/g, "-").toLowerCase(),
+        `--scriptName`,
+        scriptPath.trim()
+      )
+    }
   }
 } else {
   let shouldEdit = flag?.open

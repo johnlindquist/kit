@@ -1055,7 +1055,7 @@ export let getGroupedScripts = async () => {
     kitPath("main", "giphy.js"),
     kitPath("main", "browse.js"),
     kitPath("main", "app-launcher.js"),
-    kitPath("main", "account.js"),
+    // kitPath("main", "account.js"),
     kitPath("main", "dev.js"),
     kitPath("main", "hot.js"),
     kitPath("main", "snippets.js"),
@@ -1069,6 +1069,16 @@ export let getGroupedScripts = async () => {
     kitPath("main", "emoji.js"),
     kitPath("pro", "theme-selector.js"),
   ]
+
+  if (env?.KIT_LOGIN) {
+    kitScripts.push(kitPath("main", "account.js"))
+  } else {
+    kitScripts.push(kitPath("main", "sign-in.js"))
+  }
+
+  if (env?.KIT_PRO !== "true") {
+    kitScripts.push(kitPath("main", "sponsor.js"))
+  }
 
   if (isMac) {
     kitScripts.push(kitPath("main", "system-commands.js"))
@@ -1086,6 +1096,8 @@ export let getGroupedScripts = async () => {
       script.group = "Kit"
       script.ignoreFlags = true
       script.preview = `<div></div>`
+
+      processPreviewPath(script)
 
       return script
     })
@@ -1202,6 +1214,24 @@ export let selectScript = async (
   return await getScriptResult(script, message)
 }
 
+export let processPreviewPath = async (s: Script) => {
+  if (s.previewpath) {
+    s.preview = async () => {
+      let previewPath = getPreviewPath(s)
+
+      let preview = `<div></div>`
+
+      if (await isFile(previewPath)) {
+        preview = await md(
+          await readFile(previewPath, "utf8")
+        )
+      }
+
+      return preview
+    }
+  }
+}
+
 export let processScript =
   (timestamps: Stamp[] = []) =>
   async (s: Script): Promise<Script> => {
@@ -1255,6 +1285,13 @@ ${stamp.compileMessage}
   }
 
 export let getPreviewPath = (s: Script): string => {
+  if (s?.previewpath) {
+    return path.normalize(
+      s.previewpath
+        .replace("~", home())
+        .replace("$KIT", kitPath())
+    )
+  }
   return path.resolve(
     path.dirname(path.dirname(s.filePath)),
     "docs",

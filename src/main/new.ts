@@ -15,7 +15,7 @@ interface Main {
   guide: Promise<typeof import("./guide")>
   hot: Promise<typeof import("./hot")>
   index: Promise<typeof import("./index")>
-  account: Promise<typeof import("./account")>
+  account: Promise<typeof import("./sign-in")>
   kenv: Promise<typeof import("./kenv")>
   kit: Promise<typeof import("./kit")>
   new: Promise<typeof import("./new")>

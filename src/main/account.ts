@@ -1,5 +1,5 @@
 // Name: Account
-// Description: Authenticate to Enable Features
+// Description: Join Discord, View Account, and Sponsor
 // Enter: View Account
 
 import { authenticate } from "../api/kit.js"
