@@ -7,8 +7,8 @@ import "@johnlindquist/kit"
 import { globby } from "globby"
 
 let themePaths = await globby([
-  kitPath("themes", "*.json"),
-  kenvPath("themes", "*.json"),
+  kitPath("themes", "*.json").replaceAll("\\", "/"),
+  kenvPath("themes", "*.json").replaceAll("\\", "/"),
 ])
 let guide = await readFile(kitPath("GUIDE.md"), "utf-8")
 

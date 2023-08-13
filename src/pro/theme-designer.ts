@@ -8,7 +8,7 @@ import { getGroupedScripts } from "../api/kit.js"
 
 await ensureDir(kenvPath("themes"))
 let themePaths = await globby([
-  kenvPath("themes", "*.json"),
+  kenvPath("themes", "*.json").replaceAll("\\", "/"),
 ])
 
 let themeName = ""

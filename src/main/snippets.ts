@@ -8,8 +8,14 @@ import { globby } from "globby"
 import slugify from "slugify"
 import { closeShortcut, escapeHTML } from "../core/utils.js"
 let snippetPaths = await globby([
-  kenvPath("snippets", "**", "*.txt"),
-  kenvPath("kenvs", "*", "snippets", "**", "*.txt"),
+  kenvPath("snippets", "**", "*.txt").replaceAll("\\", "/"),
+  kenvPath(
+    "kenvs",
+    "*",
+    "snippets",
+    "**",
+    "*.txt"
+  ).replaceAll("\\", "/"),
 ])
 
 let defaultSnippetTemplate = `// Name: \${1:Required}
@@ -67,16 +73,8 @@ let snippet = await arg(
     enter: `Paste Snippet`,
     shortcuts: [
       {
-        key: `${cmd}+o`,
-        name: "Edit Snippet",
-        onPress: async (input, state) => {
-          await edit(state?.focused?.description)
-          exit()
-        },
-        bar: "right",
-      },
-      {
         key: `${cmd}+n`,
+        visible: true,
 
         name: "New Snippet",
         onPress: async () => {
@@ -112,6 +110,16 @@ let snippet = await arg(
           )
         },
         bar: "right",
+      },
+      {
+        key: `${cmd}+o`,
+        name: "Edit Snippet",
+        onPress: async (input, state) => {
+          await edit(state?.focused?.description)
+          exit()
+        },
+        bar: "right",
+        visible: true,
       },
     ],
   },

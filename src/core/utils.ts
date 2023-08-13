@@ -1634,9 +1634,9 @@ export let keywordInputTransformer = (keyword: string) => {
   }
 }
 
-export let escapeHTML = text => {
+export let escapeHTML = (text: string) => {
   // Handle null or undefined input
-  if (!text) return ""
+  if (!text || typeof text !== "string") return ""
 
   const map = {
     "&": "&amp;",
