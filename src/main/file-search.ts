@@ -145,7 +145,6 @@ let selectedFile = await arg(
     onSubmit: async (input, state) => {
       if (!Boolean(state?.flag)) {
         await setFlagValue(state?.focused)
-      } else {
         return preventSubmit
       }
     },
