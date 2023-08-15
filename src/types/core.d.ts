@@ -57,6 +57,7 @@ export interface Choice<Value = any> {
   ignoreFlags?: boolean
   selected?: boolean
   actions?: Action[]
+  exact?: boolean
 }
 
 export interface ScoredChoice {

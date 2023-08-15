@@ -127,12 +127,13 @@ let pleaseType = [
 let transformer = keywordInputTransformer(arg?.keyword)
 let selectedFile = await arg(
   {
+    preventCollapse: true,
     input: arg?.pass
       ? arg.pass
       : arg?.keyword
       ? `${arg.keyword} `
       : "",
-    initialChoices: pleaseType,
+    ...(!arg?.pass && { initialChoices: pleaseType }),
     onMenuToggle: async (input, state) => {
       if (state.flag) {
         setPlaceholder("Select Action")

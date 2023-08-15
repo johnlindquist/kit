@@ -461,7 +461,9 @@ let script = await mainMenu({
   onNoChoices,
   onChoiceFocus: async (input, state) => {
     isApp = state?.focused?.group === "Apps"
-    isPass = state?.focused?.group === "Pass"
+    isPass =
+      state?.focused?.group === "Pass" &&
+      !state?.focused?.exact
   },
   // footer: `Script Options: ${cmd}+k`,
   onInputSubmit: {

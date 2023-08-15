@@ -25,6 +25,13 @@ const options = {
 let currentInput = ``
 let title = ``
 let url = ``
+let pleaseType = [
+  {
+    name: `Type at least 2 characters`,
+    skip: true,
+    info: true,
+  },
+]
 let transformer = keywordInputTransformer(arg?.keyword)
 let pasteOptions = async () => {
   let asMarkdown = `[${title}](${url})`
@@ -54,10 +61,13 @@ let pasteOptions = async () => {
 
 await arg(
   {
-    input:
-      (flag?.input as string) ||
-      (arg?.pass as string) ||
-      "",
+    preventCollapse: true,
+    input: arg?.pass
+      ? arg.pass
+      : arg?.keyword
+      ? `${arg.keyword} `
+      : "",
+    ...(!arg?.pass && { initialChoices: pleaseType }),
     placeholder: "Search Google",
     enter: `Open in Browser`,
     resize: true,
@@ -88,14 +98,9 @@ await arg(
   },
   async input => {
     input = transformer(input)
-    if (!input || input?.length < 2)
-      return [
-        {
-          name: `Type at least 2 characters`,
-          skip: true,
-          info: true,
-        },
-      ]
+    if (!input || input?.length < 2) {
+      return pleaseType
+    }
     currentInput = input
     try {
       let response = await google.search(input, options)
