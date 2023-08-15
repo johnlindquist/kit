@@ -16,9 +16,18 @@ global.fileSearch = async (
       : ``
   }`
 
-  let results = await global.exec(command)
+  let results = []
 
-  return results.stdout.split("\n").filter(Boolean)
+  try {
+    results = (await global.exec(command)).stdout
+      .split("\n")
+      .filter(Boolean)
+  } catch (e) {
+    warn(e)
+    results = []
+  }
+
+  return results
 }
 
 global.getSelectedFile = async () => {

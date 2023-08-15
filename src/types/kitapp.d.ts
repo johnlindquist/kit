@@ -470,7 +470,7 @@ export interface ChannelMap {
   [Channel.CONSOLE_CLEAR]: undefined
   [Channel.KIT_CLEAR]: undefined
   [Channel.KIT_PASTE]: undefined
-  [Channel.HIDE_APP]: undefined
+  [Channel.HIDE_APP]: HideOptions
   [Channel.BLUR_APP]: undefined
   [Channel.NEEDS_RESTART]: undefined
   [Channel.TOGGLE_TRAY]: undefined
@@ -914,7 +914,7 @@ export interface AppApi {
 
   memoryMap: Map<string, any>
 
-  hide: () => Promise<void>
+  hide: (hideOptions?: HideOptions) => Promise<void>
   blur: () => Promise<void>
 
   dev: (object: any) => Promise<void>
@@ -959,6 +959,10 @@ export interface Background {
 
 export interface Schedule extends Choice {
   date: Date
+}
+
+export interface HideOptions {
+  preloadScript?: string
 }
 
 declare global {
@@ -1016,7 +1020,7 @@ declare global {
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
-  var hide: () => Promise<void>
+  var hide: (hideOptions?: HideOptions) => Promise<void>
   var blur: () => Promise<void>
 
   var dev: (object?: any) => Promise<void>

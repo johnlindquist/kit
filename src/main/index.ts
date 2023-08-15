@@ -13,6 +13,7 @@ import {
   cmd,
   isMac,
   parseScript,
+  mainScriptPath,
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
 import { mainMenu } from "../api/kit.js"
@@ -620,7 +621,9 @@ if (typeof script === "boolean" && !script) {
 
 // TODO: Help me clean up all these conditionals
 if (isApp) {
-  hide()
+  hide({
+    preloadScript: mainScriptPath,
+  })
   open(script as string)
 } else if (isPass) {
   await run((script as Script)?.filePath, `--pass`, input)

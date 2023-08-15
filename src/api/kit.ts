@@ -767,8 +767,8 @@ global.setFlagValue = (value: any) => {
   return global.sendWait(Channel.SET_FLAG_VALUE, value)
 }
 
-global.hide = async () => {
-  await global.sendWait(Channel.HIDE_APP, {})
+global.hide = async (hideOptions = {}) => {
+  await global.sendWait(Channel.HIDE_APP, hideOptions)
   if (process.env.KIT_HIDE_DELAY) {
     await wait(-process.env.KIT_HIDE_DELAY)
   }
