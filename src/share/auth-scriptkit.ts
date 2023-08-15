@@ -48,7 +48,7 @@ function createScriptKitAuth({
 ## <a class="text-primary ring-0 ring-opacity-0 focus:ring-0 focus:ring-opacity-0 focus:outline-none outline-none"  href="${verification.verification_uri}">${verification.verification_uri}</a>
             
 <p class="pt-2"/>
-Code copied to clipboard: <code class="text-primary font-bold">${verification.user_code}</code>
+Code copied to clipboard: <code class="text-primary font-mono font-bold no-drag">${verification.user_code}</code>
 
 <ol class="text-sm pt-3 ml-4 mb-4">
     <li>Paste the code on https://github.com/login/device</li>
