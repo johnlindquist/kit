@@ -100,8 +100,9 @@ while (!text) {
       shortcuts: [
         {
           name: "Remove Selected",
-          key: `${cmd}+x`,
+          key: `${cmd}+backspace`,
           bar: "right",
+          visible: true,
           onPress: async (input, { focused }) => {
             let prevIndex =
               history.findIndex(c => c.id === focused?.id) +
@@ -120,7 +121,6 @@ while (!text) {
         {
           name: `Clear History`,
           key: `${cmd}+z`,
-          bar: "right",
           onPress: async () => {
             await clearClipboardHistory()
             submit("")
@@ -129,7 +129,6 @@ while (!text) {
         {
           name: `Copy to Clipboard`,
           key: `${cmd}+c`,
-          bar: "right",
           onPress: async (input, { focused }: any) => {
             if (focused?.id) {
               await removeClipboardItem(focused?.id)
