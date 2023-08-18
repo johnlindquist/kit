@@ -287,6 +287,7 @@ export enum Channel {
   ACTION = "ACTION",
   ENABLE_ACCESSIBILITY = "ENABLE_ACCESSIBILITY",
   QUIT_AND_RELAUNCH = "QUIT_AND_RELAUNCH",
+  BEFORE_EXIT = "BEFORE_EXIT",
 }
 
 export enum ProcessType {

@@ -93,6 +93,11 @@ let promptId = 0
 
 global.__kitPromptId = ""
 
+process.on("beforeExit", () => {
+  if (process.send) {
+    send(Channel.BEFORE_EXIT)
+  }
+})
 global.onExit = handler => {
   process.on("beforeExit", handler)
 }
