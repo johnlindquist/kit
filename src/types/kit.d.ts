@@ -435,6 +435,7 @@ declare global {
   ) => Choice[]
 
   var preload: (scriptPath?: string) => void
+  var finishScript: () => void
   var setSelectedChoices: (
     choices: Choice[]
   ) => Promise<void>

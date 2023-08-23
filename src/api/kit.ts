@@ -1600,3 +1600,13 @@ global.preload = (scriptPath?: string) => {
     send(Channel.PRELOAD, scriptPath || global.kitScript)
   }
 }
+
+let done = false
+global.finishScript = () => {
+  if (!done) {
+    log(`🏁 Finish script`)
+    done = true
+    send(Channel.BEFORE_EXIT)
+    process.removeAllListeners()
+  }
+}

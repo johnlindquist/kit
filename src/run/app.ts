@@ -1,5 +1,6 @@
 process.env.KIT_TARGET = "app"
 
+import { Channel } from "../core/enum.js"
 import { configEnv, run } from "../core/utils.js"
 import os from "os"
 
@@ -20,4 +21,15 @@ configEnv()
 process.title = `Kit Idle - App`
 let script = await arg("Path to script:")
 process.title = path.basename(script)
+
+process.on("disconnect", () => {
+  process.exit()
+})
+
+process.on("beforeExit", () => {
+  finishScript()
+})
+
 await run(script)
+
+finishScript()

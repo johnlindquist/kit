@@ -25,7 +25,7 @@ await term({
       key: `${cmd}+w`,
       bar: "right",
       onPress: async () => {
-        process.exit()
+        finishScript()
       },
     },
   ],

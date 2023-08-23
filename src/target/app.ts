@@ -93,11 +93,6 @@ let promptId = 0
 
 global.__kitPromptId = ""
 
-process.on("beforeExit", () => {
-  if (process.send) {
-    send(Channel.BEFORE_EXIT)
-  }
-})
 global.onExit = handler => {
   process.on("beforeExit", handler)
 }
@@ -765,14 +760,14 @@ let onEscapeDefault: ChannelHandler = async (
   input: string,
   state: AppState
 ) => {
-  process.exit()
+  finishScript()
 }
 
 let onAbandonDefault = () => {
   global.log(
     `${process.pid}: Abandon caused exit. Provide a "onAbandon" handler to override.`
   )
-  process.exit()
+  finishScript()
 }
 
 let onBackDefault = async () => {}
@@ -936,7 +931,7 @@ let prepPrompt = async (config: PromptConfig) => {
       ? Mode.GENERATE
       : Mode.FILTER
 
-  global.setPrompt({
+  let promptData = {
     footer: footer || "",
     strict: Boolean(choices),
     hasPreview: Boolean(preview),
@@ -974,7 +969,9 @@ let prepPrompt = async (config: PromptConfig) => {
       "group",
       "command",
     ],
-  })
+  }
+
+  global.setPrompt(promptData as PromptData)
 }
 
 let createOnInputDefault = (
@@ -1026,7 +1023,7 @@ let onBlurDefault = () => {
   global.log(
     `${process.pid}: Blur caused exit. Provide a "onBlur" handler to override.`
   )
-  process.exit()
+  finishScript()
 }
 
 let onChangeDefault = () => {}

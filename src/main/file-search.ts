@@ -166,6 +166,15 @@ let selectedFile = await arg(
       return pleaseType
     }
     let files = await fileSearch(input)
+
+    if (files.length === 0) {
+      return [
+        {
+          name: `No results found for ${input}`,
+          info: true,
+        },
+      ]
+    }
     return files.map(p => {
       return {
         name: path.basename(p),

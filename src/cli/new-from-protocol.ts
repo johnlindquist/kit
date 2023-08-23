@@ -108,7 +108,7 @@ Hit "escape" to cancel.
   )
 
   if (message !== "ok") {
-    process.exit()
+    finishScript()
   }
 }
 

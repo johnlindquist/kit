@@ -50,4 +50,12 @@ process.env.KIT_TRIGGER = trigger
 configEnv()
 process.title = `Kit - ${path.basename(script)}`
 
+process.on("disconnect", () => {
+  process.exit()
+})
+
+process.on("beforeExit", () => {
+  finishScript()
+})
 await run(script, ...args)
+finishScript()
