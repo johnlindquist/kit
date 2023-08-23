@@ -14,7 +14,7 @@ let packages = (await arg(
   [
     ...Object.keys(file?.dependencies || []),
     ...Object.keys(file?.devDependencies || []),
-  ].filter(k => !k.startsWith("@johnlindquist"))
+  ].filter(k => !k.startsWith("@johnlindquist/kit"))
 )) as string[]
 
 //grab all the args you used `kit un jquery react`

@@ -2723,6 +2723,21 @@ global.keyboard = {
   },
 }
 
+global.mouse = {
+  leftClick: async () => {
+    await sendWait(Channel.MOUSE_LEFT_CLICK)
+  },
+  rightClick: async () => {
+    await sendWait(Channel.MOUSE_RIGHT_CLICK)
+  },
+  move: async points => {
+    await sendWait(Channel.MOUSE_LEFT_CLICK, points)
+  },
+  setPosition: async position => {
+    await sendWait(Channel.MOUSE_SET_POSITION, position)
+  },
+}
+
 global.clipboard = {
   readText: async () => {
     return await sendWait(Channel.CLIPBOARD_READ_TEXT)
