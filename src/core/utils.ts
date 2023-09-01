@@ -889,8 +889,7 @@ export let escapeShortcut: Shortcut = {
   bar: "left",
   onPress: async () => {
     setInput("")
-    // preload(mainScriptPath)
-    global.finishScript(true)
+    global.finishScript()
   },
 }
 

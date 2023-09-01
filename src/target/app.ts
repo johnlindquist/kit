@@ -365,7 +365,7 @@ let onTabChanged = (input, state) => {
 // This is especially important when switching tabs
 global.__kitEndPrevPromptSubject = new Subject()
 global.__kitPromptState = {}
-let finishPrompt = () => {}
+global.finishPrompt = () => {}
 let waitForPromptValue = ({
   ui,
   choices,
@@ -404,7 +404,6 @@ let waitForPromptValue = ({
   shortcuts,
   inputRegex,
 }: WaitForPromptValueProps) => {
-  finishPrompt()
   global.actionFlag = ""
   global.__kitPromptState = {}
   global.__kitEndPrevPromptSubject.next()
@@ -438,18 +437,24 @@ let waitForPromptValue = ({
         let errorHandler = (error: Error) => {
           observer.error(error)
         }
+
+        global.finishPrompt()
         process.on("message", messageHandler)
         process.on("error", errorHandler)
 
-        global.__kitPromptActive = true
-        finishPrompt = () => {
+        global.finishPrompt = () => {
           process.off("message", messageHandler)
           process.off("error", errorHandler)
-          global.__kitPromptActive = false
-          finishPrompt = () => {}
+          log(`👄 Finish prompt...`)
+          log(
+            `👄 ${process.pid}: ✂️  ${process.listenerCount(
+              "message"
+            )}`
+          )
+          global.finishPrompt = () => {}
         }
 
-        return finishPrompt
+        return global.finishPrompt
       })
     ).pipe(
       takeUntil(global.__kitEndPrevPromptSubject),
@@ -795,7 +800,7 @@ let waitForPromptValue = ({
         //   )
         // }
 
-        finishPrompt()
+        global.finishPrompt()
         resolve(value)
 
         global.__kitAddErrorListeners()
@@ -820,14 +825,14 @@ let onEscapeDefault: ChannelHandler = async (
   input: string,
   state: AppState
 ) => {
-  finishScript(true)
+  finishScript()
 }
 
 let onAbandonDefault = () => {
   global.log(
     `${process.pid}: Abandon caused exit. Provide a "onAbandon" handler to override.`
   )
-  finishScript(true)
+  finishScript()
 }
 
 let onBackDefault = async () => {}
@@ -1083,7 +1088,7 @@ let onBlurDefault = () => {
   global.log(
     `${process.pid}: Blur caused exit. Provide a "onBlur" handler to override.`
   )
-  finishScript(true)
+  finishScript()
 }
 
 let onChangeDefault = () => {}
@@ -2107,10 +2112,12 @@ global.setValue = async value => {
 
 global.getDataFromApp = global.sendWait = async (
   channel: GetAppData,
-  data?: any
+  data?: any,
+  timeout: number = 1000
 ) => {
   if (process?.send) {
     return await new Promise((res, rej) => {
+      let timeoutId = null
       let messageHandler = data => {
         // if (data?.promptId !== global.__kitPromptId) {
         //   log(
@@ -2124,10 +2131,21 @@ global.getDataFromApp = global.sendWait = async (
               ? data
               : data?.value
           )
+          if (timeoutId) {
+            clearTimeout(timeoutId)
+          }
           process.off("message", messageHandler)
         }
       }
       process.on("message", messageHandler)
+      if (timeout) {
+        timeoutId = setTimeout(() => {
+          process.off("message", messageHandler)
+          warn(
+            `${process.pid}: Timeout waiting for ${channel} on `
+          )
+        }, timeout)
+      }
       send(channel, data)
     })
   } else {

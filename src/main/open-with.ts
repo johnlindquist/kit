@@ -105,11 +105,13 @@ if (flag?.cmd) {
 } else {
   let command = `open -a "${app}" "${filePath}"`
 
-  await (open as unknown as Open)(filePath, {
-    app: {
-      name: app,
-    },
-  })
-  hide()
+  await Promise.all([
+    (open as unknown as Open)(filePath, {
+      app: {
+        name: app,
+      },
+    }),
+    await hide(),
+  ])
 }
 export {}

@@ -37,8 +37,8 @@ contents = await editor({
       key: "escape",
       onPress: async (input, { inputChanged }) => {
         changed = inputChanged
-        await submit(input)
         await hide()
+        await submit(input)
       },
       bar: "right",
     },

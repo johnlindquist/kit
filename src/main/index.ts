@@ -15,6 +15,7 @@ import {
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
 import { mainMenu } from "../api/kit.js"
+import { Open } from "../types/packages.js"
 
 let modifiers = {
   cmd: "cmd",
@@ -621,10 +622,12 @@ if (typeof script === "boolean" && !script) {
 
 // TODO: Help me clean up all these conditionals
 if (isApp && typeof script === "string") {
-  hide({
-    preloadScript: mainScriptPath,
-  })
-  open(script as string)
+  await Promise.all([
+    hide({
+      preloadScript: mainScriptPath,
+    }),
+    (open as unknown as Open)(script as string),
+  ])
 } else if (isPass) {
   await run((script as Script)?.filePath, `--pass`, input)
 } else if (
