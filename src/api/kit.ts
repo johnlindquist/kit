@@ -1617,7 +1617,7 @@ global.finishScript = (ignorePromptListener = false) => {
   }
 
   if (!done && noActiveListeners) {
-    log(`🏁 Finish script`)
+    // log(`🏁 Finish script`)
     done = true
 
     process.removeAllListeners()
