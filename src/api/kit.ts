@@ -1603,11 +1603,23 @@ global.preload = (scriptPath?: string) => {
 
 // global api for preloading main menu and removing listeners
 let done = false
-global.finishScript = () => {
-  if (!done) {
+global.finishScript = (ignorePromptListener = false) => {
+  let promptActive =
+    !ignorePromptListener &&
+    Boolean(global.__kitPromptActive)
+  let messageListenerCount =
+    process.listenerCount("message")
+
+  let noActiveListeners =
+    (promptActive
+      ? messageListenerCount - 1
+      : messageListenerCount) === 0
+
+  send(Channel.BEFORE_EXIT)
+  if (!done && noActiveListeners) {
     log(`🏁 Finish script`)
     done = true
-    send(Channel.BEFORE_EXIT)
+
     process.removeAllListeners()
   }
 }

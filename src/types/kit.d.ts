@@ -436,7 +436,7 @@ declare global {
 
   var preload: (scriptPath?: string) => void
 
-  var finishScript: () => void
+  var finishScript: (ignorePromptListener?: boolean) => void
   var setSelectedChoices: (
     choices: Choice[]
   ) => Promise<void>

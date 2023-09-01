@@ -97,6 +97,64 @@ global.onExit = handler => {
   process.on("beforeExit", handler)
 }
 
+let createHandlerWrapper = (
+  channel: Channel,
+  handler: (data: any) => void
+) => {
+  let wrappedHandler = (data: any) => {
+    // log(data)
+    if (data?.channel === channel) {
+      handler(data.state)
+    }
+  }
+  process.on("message", wrappedHandler)
+
+  return () => {
+    process.off("message", wrappedHandler)
+  }
+}
+
+global.onClick = handler => {
+  log(`Registering onClick handler`)
+  return createHandlerWrapper(Channel.SYSTEM_CLICK, handler)
+}
+
+global.onMousedown = handler => {
+  return createHandlerWrapper(
+    Channel.SYSTEM_MOUSEDOWN,
+    handler
+  )
+}
+
+global.onMouseup = handler => {
+  return createHandlerWrapper(
+    Channel.SYSTEM_MOUSEUP,
+    handler
+  )
+}
+
+global.onMousemove = handler => {
+  return createHandlerWrapper(
+    Channel.SYSTEM_MOUSEMOVE,
+    handler
+  )
+}
+
+global.onWheel = handler => {
+  return createHandlerWrapper(Channel.SYSTEM_WHEEL, handler)
+}
+
+global.onKeydown = handler => {
+  return createHandlerWrapper(
+    Channel.SYSTEM_KEYDOWN,
+    handler
+  )
+}
+
+global.onKeyup = handler => {
+  return createHandlerWrapper(Channel.SYSTEM_KEYUP, handler)
+}
+
 let _exec = global.exec
 global.exec = (
   command: string,
@@ -307,7 +365,7 @@ let onTabChanged = (input, state) => {
 // This is especially important when switching tabs
 global.__kitEndPrevPromptSubject = new Subject()
 global.__kitPromptState = {}
-
+let finishPrompt = () => {}
 let waitForPromptValue = ({
   ui,
   choices,
@@ -346,6 +404,7 @@ let waitForPromptValue = ({
   shortcuts,
   inputRegex,
 }: WaitForPromptValueProps) => {
+  finishPrompt()
   global.actionFlag = ""
   global.__kitPromptState = {}
   global.__kitEndPrevPromptSubject.next()
@@ -382,10 +441,15 @@ let waitForPromptValue = ({
         process.on("message", messageHandler)
         process.on("error", errorHandler)
 
-        return () => {
+        global.__kitPromptActive = true
+        finishPrompt = () => {
           process.off("message", messageHandler)
           process.off("error", errorHandler)
+          global.__kitPromptActive = false
+          finishPrompt = () => {}
         }
+
+        return finishPrompt
       })
     ).pipe(
       takeUntil(global.__kitEndPrevPromptSubject),
@@ -721,11 +785,6 @@ let waitForPromptValue = ({
           }
         }
 
-        process.removeAllListeners("message")
-        process.removeAllListeners("uncaughtException")
-        process.removeAllListeners("unhandledRejection")
-        process.removeAllListeners("error")
-
         // for (let eventName of process.eventNames()) {
         //   let count = process.listenerCount(eventName)
 
@@ -736,6 +795,7 @@ let waitForPromptValue = ({
         //   )
         // }
 
+        finishPrompt()
         resolve(value)
 
         global.__kitAddErrorListeners()
@@ -760,14 +820,14 @@ let onEscapeDefault: ChannelHandler = async (
   input: string,
   state: AppState
 ) => {
-  finishScript()
+  finishScript(true)
 }
 
 let onAbandonDefault = () => {
   global.log(
     `${process.pid}: Abandon caused exit. Provide a "onAbandon" handler to override.`
   )
-  finishScript()
+  finishScript(true)
 }
 
 let onBackDefault = async () => {}
@@ -1023,7 +1083,7 @@ let onBlurDefault = () => {
   global.log(
     `${process.pid}: Blur caused exit. Provide a "onBlur" handler to override.`
   )
-  finishScript()
+  finishScript(true)
 }
 
 let onChangeDefault = () => {}

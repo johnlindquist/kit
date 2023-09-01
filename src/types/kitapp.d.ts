@@ -32,6 +32,11 @@ import { Flags } from "./kit"
 import { Trash } from "./packages"
 import { marked } from "@johnlindquist/globals/types/marked"
 import { ChildProcess } from "child_process"
+import {
+  UiohookKeyboardEvent,
+  UiohookMouseEvent,
+  UiohookWheelEvent,
+} from "./io"
 
 export type Status = (typeof statuses)[number]
 
@@ -1074,4 +1079,27 @@ declare global {
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
   var preventSubmit: Symbol
+
+  var onClick: (
+    callback: (event: UiohookMouseEvent) => void
+  ) => void
+
+  var onMousedown: (
+    callback: (event: UiohookMouseEvent) => void
+  ) => void
+  var onMouseup: (
+    callback: (event: UiohookMouseEvent) => void
+  ) => void
+
+  var onWheel: (
+    callback: (event: UiohookWheelEvent) => void
+  ) => void
+
+  var onKeydown: (
+    callback: (event: UiohookKeyboardEvent) => void
+  ) => void
+
+  var onKeyup: (
+    callback: (event: UiohookKeyboardEvent) => void
+  ) => void
 }
