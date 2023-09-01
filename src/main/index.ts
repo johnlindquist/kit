@@ -8,11 +8,9 @@ import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import { getTimestamps } from "../core/db.js"
 import { Channel, Value } from "../core/enum.js"
 import {
-  toggleBackground,
   run,
   cmd,
   isMac,
-  parseScript,
   mainScriptPath,
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
@@ -461,7 +459,9 @@ let script = await mainMenu({
   },
   onNoChoices,
   onChoiceFocus: async (input, state) => {
-    isApp = state?.focused?.group === "Apps"
+    isApp =
+      state?.focused?.group === "Apps" ||
+      state?.focused?.group === "Community"
     isPass =
       state?.focused?.group === "Pass" &&
       !state?.focused?.exact
@@ -620,7 +620,7 @@ if (typeof script === "boolean" && !script) {
 }
 
 // TODO: Help me clean up all these conditionals
-if (isApp) {
+if (isApp && typeof script === "string") {
   hide({
     preloadScript: mainScriptPath,
   })
@@ -688,8 +688,10 @@ if (isApp) {
   } else if (flag[modifiers.opt]) {
     showLogWindow(script?.filePath)
   } else if (script.background) {
-    await toggleBackground(script)
-    await mainScript()
+    await run(
+      kitPath("cli", "toggle-background.js"),
+      script?.filePath
+    )
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
   } else if ((script as Script)?.shebang) {

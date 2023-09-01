@@ -633,55 +633,6 @@ export let exists = async (input: string) => {
   return true
 }
 
-export let toggleBackground = async (script: Script) => {
-  let { tasks } = await global.getBackgroundTasks()
-
-  let task = tasks.find(
-    task => task.filePath === script.filePath
-  )
-
-  let toggleOrLog: "toggle" | "log" | "edit" =
-    await global.arg(
-      `${script.command} is ${
-        task ? `running` : `stopped`
-      }`,
-      [
-        {
-          name: `${task ? `Stop` : `Start`} ${
-            script.command
-          }`,
-          value: `toggle`,
-          id: uuid(),
-        },
-        {
-          name: `Edit ${script.command}`,
-          value: `edit`,
-          id: uuid(),
-        },
-        {
-          name: `View ${script.command}.log`,
-          value: `log`,
-          id: uuid(),
-        },
-      ]
-    )
-
-  if (toggleOrLog === "toggle") {
-    global.send(Channel.TOGGLE_BACKGROUND, script.filePath)
-  }
-
-  if (toggleOrLog === "edit") {
-    await global.edit(script.filePath, kenvPath())
-  }
-
-  if (toggleOrLog === "log") {
-    await global.edit(
-      kenvPath("logs", `${script.command}.log`),
-      kenvPath()
-    )
-  }
-}
-
 export let getKenvs = async (
   ignorePattern = /^ignore$/
 ): Promise<string[]> => {
@@ -701,10 +652,16 @@ export let getKenvs = async (
 export let kitMode = () =>
   (process.env.KIT_MODE || "js").toLowerCase()
 
+global.__kitRun = false
+
+let kitGlobalRunCount = 0
 export let run = async (
   command: string,
   ...commandArgs: string[]
 ) => {
+  kitGlobalRunCount++
+  let kitLocalRunCount = kitGlobalRunCount
+
   let [script, ...scriptArgs] = command
     .split(/('[^']+?')|("[^"]+?")/)
     .filter(Boolean)
@@ -752,6 +709,11 @@ export let run = async (
   )
 
   global.flag.tab = ""
+
+  if (kitLocalRunCount === kitGlobalRunCount) {
+    global.finishScript()
+  }
+
   return result
 }
 
@@ -928,7 +890,7 @@ export let escapeShortcut: Shortcut = {
   onPress: async () => {
     setInput("")
     // preload(mainScriptPath)
-    finishScript(true)
+    global.finishScript(true)
   },
 }
 

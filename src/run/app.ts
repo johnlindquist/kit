@@ -27,9 +27,7 @@ process.on("disconnect", () => {
 })
 
 process.on("beforeExit", () => {
-  finishScript()
+  send(Channel.BEFORE_EXIT)
 })
 
 await run(script)
-
-finishScript()

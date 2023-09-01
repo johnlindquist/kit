@@ -1,12 +1,7 @@
 // Name: Kit Environment
 // Description: Script Kit
 
-import {
-  toggleBackground,
-  run,
-  cmd,
-  getKenvs,
-} from "../core/utils.js"
+import { run, cmd, getKenvs } from "../core/utils.js"
 
 let { name: selectedKenv } = await selectKenv(
   {
@@ -91,7 +86,7 @@ let kenvRunner = kenv => async () => {
     flag?.open
 
   if (script.background) {
-    await toggleBackground(script)
+    await cli("toggle-background", script.filePath)
   } else if (shouldEdit) {
     await edit(script.filePath, kenvPath())
   } else {

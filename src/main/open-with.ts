@@ -2,6 +2,7 @@
 // Description: Open with...
 
 import { sortBy, uniq } from "../core/utils.js"
+import { Open } from "../types/packages"
 
 let filePath = await path()
 setName(``)
@@ -103,7 +104,12 @@ if (flag?.cmd) {
   )
 } else {
   let command = `open -a "${app}" "${filePath}"`
-  await exec(command)
+
+  await (open as unknown as Open)(filePath, {
+    app: {
+      name: app,
+    },
+  })
   hide()
 }
 export {}

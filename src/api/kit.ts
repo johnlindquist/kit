@@ -1128,10 +1128,7 @@ export let getGroupedScripts = async () => {
 
           return ""
         }
-        choice.onSubmit = async (input, state) => {
-          await open(state.focused.value)
-          return true
-        }
+
         choice.group = "Community"
         choice.enter = "View Discussion"
         choice.lastGroup = true
@@ -1615,7 +1612,10 @@ global.finishScript = (ignorePromptListener = false) => {
       ? messageListenerCount - 1
       : messageListenerCount) === 0
 
-  send(Channel.BEFORE_EXIT)
+  if (global.__kitPromptId) {
+    send(Channel.BEFORE_EXIT)
+  }
+
   if (!done && noActiveListeners) {
     log(`🏁 Finish script`)
     done = true

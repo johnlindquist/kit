@@ -10,7 +10,6 @@ export interface CLI {
   "add-kit-to-profile": Promise<
     typeof import("./add-kenv-to-profile")
   >
-  "app-run": Promise<typeof import("./app-run")>
   "browse-examples": Promise<
     typeof import("./browse-examples")
   >
@@ -121,6 +120,9 @@ export interface CLI {
   sdk: Promise<typeof import("./sdk")>
   share: Promise<typeof import("./share")>
   ["kenv-switch"]: Promise<typeof import("./kenv-switch")>
+  ["toggle-background"]: Promise<
+    typeof import("./toggle-background")
+  >
   tutorial: Promise<typeof import("./tutorial")>
   uninstall: Promise<typeof import("./uninstall")>
   update: Promise<typeof import("./update")>

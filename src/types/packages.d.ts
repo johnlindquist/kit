@@ -52,7 +52,7 @@ export type Git = {
     options?: Partial<Parameters<typeof addRemote>[0]>
   ) => ReturnType<typeof addRemote>
 }
-export type Open = typeof import("open/index")
+export type Open = typeof import("open/index").default
 
 type NodeNotify =
   typeof import("node-notifier/index").notify
