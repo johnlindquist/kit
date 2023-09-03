@@ -1601,6 +1601,7 @@ global.preload = (scriptPath?: string) => {
 // global api for preloading main menu and removing listeners
 let done = false
 global.finishScript = () => {
+  process.removeAllListeners("disconnect")
   if (typeof global.finishPrompt === "function") {
     global.finishPrompt()
   }

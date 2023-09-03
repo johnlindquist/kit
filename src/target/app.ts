@@ -445,12 +445,6 @@ let waitForPromptValue = ({
         global.finishPrompt = () => {
           process.off("message", messageHandler)
           process.off("error", errorHandler)
-          log(`👄 Finish prompt...`)
-          log(
-            `👄 ${process.pid}: ✂️  ${process.listenerCount(
-              "message"
-            )}`
-          )
           global.finishPrompt = () => {}
         }
 
@@ -2135,14 +2129,28 @@ global.getDataFromApp = global.sendWait = async (
             clearTimeout(timeoutId)
           }
           process.off("message", messageHandler)
+
+          let count = process.listenerCount("message")
+          log(
+            `******* 🤔 ${process.pid}: REMOVE ${channel} Listener: message listener count ${count}`
+          )
         }
       }
       process.on("message", messageHandler)
+      log(
+        `******* 🤔 ${
+          process.pid
+        }: ADD ${channel} Listener: message listener count ${process.listenerCount(
+          "message"
+        )}`
+      )
       if (timeout) {
         timeoutId = setTimeout(() => {
           process.off("message", messageHandler)
-          warn(
-            `${process.pid}: Timeout waiting for ${channel} on `
+
+          let count = process.listenerCount("message")
+          log(
+            `******* 🤔 ${process.pid}: REMOVE ${channel} Listener: message listener count ${count}`
           )
         }, timeout)
       }
