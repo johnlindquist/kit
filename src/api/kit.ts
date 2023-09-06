@@ -1609,11 +1609,10 @@ global.finishScript = () => {
   let activeMessageListeners =
     process.listenerCount("message")
 
+  send(Channel.BEFORE_EXIT)
   if (!done && activeMessageListeners === 0) {
     // log(`🏁 Finish script`)
     done = true
     process.removeAllListeners()
-  } else {
-    send(Channel.BEFORE_EXIT)
   }
 }
