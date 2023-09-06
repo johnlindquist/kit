@@ -19,7 +19,7 @@ let actionFlags: {
     name: "Open in Default App",
     value: "open",
     action: async selectedFile => {
-      await open(path.dirname(selectedFile))
+      await open(selectedFile)
     },
   },
   {
