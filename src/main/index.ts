@@ -456,7 +456,9 @@ let script = await mainMenu({
   },
 
   onSubmit: i => {
-    input = i.trim()
+    if (i) {
+      input = i.trim()
+    }
   },
   onNoChoices,
   onChoiceFocus: async (input, state) => {
