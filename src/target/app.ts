@@ -2131,27 +2131,27 @@ global.getDataFromApp = global.sendWait = async (
           process.off("message", messageHandler)
 
           let count = process.listenerCount("message")
-          log(
-            `******* 🤔 ${process.pid}: REMOVE ${channel} Listener: message listener count ${count}`
-          )
+          // log(
+          //   `******* 🤔 ${process.pid}: REMOVE ${channel} Listener: message listener count ${count}`
+          // )
         }
       }
       process.on("message", messageHandler)
-      log(
-        `******* 🤔 ${
-          process.pid
-        }: ADD ${channel} Listener: message listener count ${process.listenerCount(
-          "message"
-        )}`
-      )
+      // log(
+      //   `******* 🤔 ${
+      //     process.pid
+      //   }: ADD ${channel} Listener: message listener count ${process.listenerCount(
+      //     "message"
+      //   )}`
+      // )
       if (timeout) {
         timeoutId = setTimeout(() => {
           process.off("message", messageHandler)
 
           let count = process.listenerCount("message")
-          log(
-            `******* 🤔 ${process.pid}: REMOVE ${channel} Listener: message listener count ${count}`
-          )
+          // log(
+          //   `******* 🤔 ${process.pid}: REMOVE ${channel} Listener: message listener count ${count}`
+          // )
         }, timeout)
       }
       send(channel, data)
