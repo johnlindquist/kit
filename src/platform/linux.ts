@@ -22,7 +22,6 @@ global.getActiveAppInfo = notSupported("getActiveAppInfo")
 global.getActiveAppBounds = notSupported(
   "getActiveAppBounds"
 )
-global.getActiveScreen = notSupported("getActiveScreen")
 global.getActiveTab = notSupported("getActiveTab")
 
 global.getSelectedFile = notSupported("getSelectedFile")

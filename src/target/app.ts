@@ -94,7 +94,7 @@ let promptId = 0
 global.__kitPromptId = ""
 
 global.onExit = handler => {
-  process.on("beforeExit", handler)
+  process.once("beforeExit", handler)
 }
 
 let createHandlerWrapper = (
@@ -3232,7 +3232,7 @@ global.registerShortcut = async (
     }
     __kit__registeredShortcuts.set(shortcut, messageHandler)
     process.on("message", messageHandler)
-    process.on("beforeExit", () => {
+    process.once("beforeExit", () => {
       global.unregisterShortcut(shortcut)
     })
   }

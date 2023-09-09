@@ -22,11 +22,11 @@ process.title = `Kit Idle - App`
 let script = await arg("Path to script:")
 process.title = path.basename(script)
 
-process.on("disconnect", () => {
+process.once("disconnect", () => {
   process.exit()
 })
 
-process.on("beforeExit", () => {
+process.once("beforeExit", () => {
   send(Channel.BEFORE_EXIT)
 })
 

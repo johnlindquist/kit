@@ -1600,6 +1600,13 @@ global.preload = (scriptPath?: string) => {
 
 // global api for preloading main menu and removing listeners
 let done = false
+let executed = false
+let beforeExit = () => {
+  if (executed) return
+  executed = true
+  send(Channel.BEFORE_EXIT)
+}
+
 global.finishScript = () => {
   process.removeAllListeners("disconnect")
   if (typeof global.finishPrompt === "function") {
@@ -1609,7 +1616,7 @@ global.finishScript = () => {
   let activeMessageListeners =
     process.listenerCount("message")
 
-  send(Channel.BEFORE_EXIT)
+  beforeExit()
   if (!done && activeMessageListeners === 0) {
     // log(`🏁 Finish script`)
     done = true
