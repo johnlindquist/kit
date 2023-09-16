@@ -4,6 +4,8 @@
 
 import { createGuideConfig } from "./main-helper.js"
 
+// TODO: Create a settings file for the kenv/kit paths
+
 let cliScript = await docs(
   kitPath("KIT.md"),
   createGuideConfig({
