@@ -39,6 +39,7 @@ let widget: Widget = async (html, options = {}) => {
   }
   let resizedHandler: WidgetHandler = () => {}
   let movedHandler: WidgetHandler = () => {}
+  let initHandler: WidgetHandler = () => {}
 
   let api: WidgetAPI = {
     capturePage: async () => {
@@ -113,6 +114,9 @@ let widget: Widget = async (html, options = {}) => {
     onMoved: (handler: WidgetHandler) => {
       movedHandler = handler
     },
+    onInit: (handler: WidgetHandler) => {
+      initHandler = handler
+    },
     executeJavaScript: async js => {
       return await global.sendWait(
         Channel.WIDGET_EXECUTE_JAVASCRIPT,
@@ -179,6 +183,13 @@ let widget: Widget = async (html, options = {}) => {
         process.off("message", messageHandler)
         closeHandler(data)
       }
+    }
+
+    if (
+      data.channel == Channel.WIDGET_INIT &&
+      data.widgetId == widgetId
+    ) {
+      initHandler(data)
     }
   }
 

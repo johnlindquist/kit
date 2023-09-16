@@ -55,6 +55,7 @@ export interface WidgetAPI {
   onClose: (handler: WidgetHandler) => void
   onResized: (handler: WidgetHandler) => void
   onMoved: (handler: WidgetHandler) => void
+  onInit: (handler: WidgetHandler) => void
   executeJavaScript: (js: string) => Promise<any>
 }
 
