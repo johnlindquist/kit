@@ -154,6 +154,16 @@ kit
 > If you're familiar with adding to your `.zshrc`, just add `~/.kit/bin` to your PATH.
 
 The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
+
+## Change .kenv Parent Directory
+
+<!-- description: Move .kenv from "home" -->
+<!-- value: cli/kenv-change-dir.js -->
+<!-- enter: Select Parent Directory -->
+
+By default, your ".kenv" is store in your system's home directory.
+
+If you'd like to move it to ~/.config/.kenv or somewhere else, press Enter then select a new parent directory.
       
 ## Add kenv Executables to $PATH
 

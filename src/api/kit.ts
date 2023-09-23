@@ -460,7 +460,7 @@ global.inspect = async (data, fileName) => {
   let formattedData = data
   let tmpFullPath = ""
 
-  if (typeof data === "object") {
+  if (typeof data !== "string") {
     formattedData = JSON.stringify(data, null, "\t")
   }
 

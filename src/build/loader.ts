@@ -1,6 +1,4 @@
-import { readFile } from "fs/promises"
 import { fileURLToPath } from "node:url"
-import { extname, resolve, dirname, basename } from "path"
 
 export async function JSXLoad(url) {
   const { build } = await import("esbuild")

@@ -67,6 +67,7 @@ for await (let s of snippetPaths) {
   })
 }
 
+// TODO: Check "exclude" metadata isn't filtering out snippets
 let snippet = await arg(
   {
     placeholder: "Choose a snippet",
