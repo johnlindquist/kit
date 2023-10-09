@@ -186,6 +186,6 @@ let selectedFile = await arg(
   }
 )
 
-actionFlags
+await actionFlags
   .find(f => flag?.[f.name])
   ?.action?.(selectedFile)

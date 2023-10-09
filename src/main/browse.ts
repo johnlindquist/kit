@@ -213,6 +213,6 @@ let selectedPath = await path({
   },
 })
 
-actionFlags
+await actionFlags
   .find(f => flag?.[f.name])
   ?.action?.(selectedPath)
