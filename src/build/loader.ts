@@ -23,6 +23,8 @@ export async function JSXLoad(url) {
         allowSyntheticDefaultImports: true,
         skipLibCheck: true,
         sourceMap: true,
+        // TODO: Load jsx files?
+        jsx: "react-jsx",
       },
     },
   })

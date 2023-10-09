@@ -90,7 +90,7 @@ resolve_node_version() {
     tag=
   fi
   # fetch "https://resolve-node.vercel.app/$tag"
-  echo "v18.16.1"
+  echo "v18.17.1"
 }
 
 # Currently known to support:

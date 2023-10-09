@@ -819,6 +819,7 @@ let onEscapeDefault: ChannelHandler = async (
   input: string,
   state: AppState
 ) => {
+  send(Channel.BEFORE_EXIT)
   finishScript()
 }
 

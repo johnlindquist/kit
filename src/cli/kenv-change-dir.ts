@@ -3,6 +3,7 @@ import { Channel } from "../core/enum.js"
 export {}
 
 // TODO: Testing opening app from Alfred/Terminal
+// TODO: Configure "move" kenv or "create" new kenv in directory
 let newKenvPath = await path({
   hint: `Select the parent directory that will contain your .kenv`,
 })

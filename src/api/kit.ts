@@ -531,6 +531,7 @@ global.appendChoices = async (
   )
 }
 
+// TODO: Add an option to avoid sorting
 global.createChoiceSearch = async (
   choices: Choice[],
   config: Partial<
