@@ -24,6 +24,7 @@ console.log({ npmVersion })
 
 console.log(`Building ESM to ${kitPath()}`)
 try {
+  await exec(`npm i`)
   let esm = await exec(`npx tsc --outDir ${kitPath()}`)
   console.log(esm)
 } catch (e) {
