@@ -2509,7 +2509,7 @@ let __pathSelector = async (
         })
 
         await setChoices(choices, {
-          skipInitialSearch: true,
+          skipInitialSearch: false,
           inputRegex: `[^\\${path.sep}]+$`,
         })
         setPauseResize(false)
@@ -2551,8 +2551,6 @@ let __pathSelector = async (
     if (allowed) {
       if (await isDir(targetPath)) {
         setInput(targetPath + path.sep)
-      } else {
-        submit(targetPath)
       }
     } else {
       let html = md(`
@@ -2584,9 +2582,12 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   }
 
   let currentInput = ``
+  let prevInput = ``
   let onInput = async (input, state) => {
+    let inputLess = input.length < prevInput.length
+    prevInput = input
     currentInput = input
-    setEnter("Actions")
+    setEnter((config as PathConfig)?.enter || "Actions")
     if (onInputHook) onInputHook(input, state)
     // if (input.endsWith(">")) {
     //   let choices = await createPathChoices(
@@ -2637,7 +2638,10 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     //   return
     // }
     let currentSlashCount = input?.split(path.sep).length
-    if (currentSlashCount != slashCount) {
+    if (
+      currentSlashCount != slashCount ||
+      (input.endsWith(path.sep) && inputLess)
+    ) {
       slashCount = currentSlashCount
       await lsCurrentDir(input)
     }
@@ -2714,7 +2718,6 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       // onLeft,
       // onNoChoices,
       // onEscape,
-      enter: "Actions",
       // TODO: If I want resize, I need to create choices first?
       onInit: async () => {
         setResize(true)
