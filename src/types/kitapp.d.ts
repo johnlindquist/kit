@@ -234,7 +234,11 @@ type Field =
       value?: string
       type?: string
       required?: boolean
-      [key: string]: string | boolean
+      min?: number
+      max?: number
+      step?: number
+      pattern?: string
+      [key: string]: string | boolean | number
     }
   | string
 
