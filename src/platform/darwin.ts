@@ -280,7 +280,7 @@ let fullySupportedEditors = {
 }
 
 global.edit = async (f, dir, line = 0, col = 0) => {
-  console.log(`📝 Edit ${f}`)
+  // console.log(`📝 Edit ${f}`)
   let file = path.resolve(
     f?.startsWith("~") ? f.replace(/^~/, home()) : f
   )

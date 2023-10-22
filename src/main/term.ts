@@ -5,10 +5,10 @@ Run a command in the built-in terminal.
 */
 
 // Name: Kit Terminal
-// Description: Open the Built-in Terminal
 // Trigger: >
 // Cache: true
 
+// TODO: Make terminal launch faster
 setName(``)
 await term({
   command: (arg?.pass as string) || "",

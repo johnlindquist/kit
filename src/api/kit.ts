@@ -748,6 +748,9 @@ export let getFlagsFromActions = (
   let flags: FlagsOptions = {}
   if (Array.isArray(actions)) {
     for (let action of actions) {
+      if (typeof action === "string") {
+        action = { name: action }
+      }
       flags[action.flag || action.name] = {
         ...action,
         hasAction: action?.onAction ? true : false,
