@@ -5,11 +5,13 @@ import {
 } from "@johnlindquist/kit-internal/date-fns"
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 import {
+  Action,
   ChannelHandler,
   Choice,
   Choices,
   FlagsOptions,
   Panel,
+  Preview,
   PromptConfig,
   ScoredChoice,
   Script,

@@ -749,9 +749,10 @@ export let getFlagsFromActions = (
   if (Array.isArray(actions)) {
     for (let action of actions) {
       if (typeof action === "string") {
-        action = { name: action }
+        action = { name: action, flag: action }
       }
       flags[action.flag || action.name] = {
+        flag: action.flag || action.name,
         ...action,
         hasAction: action?.onAction ? true : false,
         bar: action?.visible ? "right" : "",
