@@ -49,7 +49,7 @@ if (snippet.includes("${selection}")) {
 if (snippet.match(/\${(.+)?}/)) {
   setInput(``) // clearing keyword
   snippet = await template(snippet, {
-    name: "Fill in the template",
+    description: "Fill in the template",
     shortcuts: [
       {
         key: `${cmd}+s`,

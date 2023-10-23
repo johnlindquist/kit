@@ -131,7 +131,22 @@ let snippet = await arg(
   })
 )
 
-if (snippet.match(/\${(.+)?}/)) {
+snippet = snippet.replaceAll("\\$", "$")
+
+if (snippet.includes("$SELECTED_TEXT")) {
+  let selectedText = await getSelectedText()
+  snippet = snippet.replaceAll(
+    "$SELECTED_TEXT",
+    selectedText
+  )
+}
+
+if (snippet.includes("$CLIPBOARD")) {
+  let clipboardText = await paste()
+  snippet = snippet.replaceAll("$CLIPBOARD", clipboardText)
+}
+
+if (snippet.match(/\$\d+|\${(.+)?}/)) {
   setInput(``) // clearing keyword
   snippet = await template(snippet, {
     shortcuts: [
