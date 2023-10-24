@@ -231,29 +231,9 @@ global.attemptImport = async (scriptPath, ..._args) => {
     importResult = await import(kitImport)
   } catch (error) {
     let e = error.toString()
-    if (
-      e.startsWith("SyntaxError") &&
-      !e.includes("CommonJS module") &&
-      e.match(
-        /module|after argument list|await is only valid/
-      )
-    ) {
-      let tmpScript = await copyTmpFile(
-        scriptPath,
-        global.path
-          .basename(scriptPath)
-          .replace(/\.js$/, ".mjs")
-      )
-      importResult = await import(
-        tmpScript + "?uuid=" + global.uuid()
-      )
-      // await rm(mjsVersion)
-    } else {
-      if (process.env.KIT_CONTEXT === "app") {
-        await errorPrompt(error)
-      } else {
-        global.warn(error)
-      }
+    global.warn(e)
+    if (process.env.KIT_CONTEXT === "app") {
+      await errorPrompt(error)
     }
   }
 
