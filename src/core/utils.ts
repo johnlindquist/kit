@@ -116,7 +116,14 @@ export const themeDbPath = kitPath("db", "theme.json")
 export const userDbPath = kitPath("db", "user.json")
 export const tmpClipboardDir = kitPath("tmp", "clipboard")
 export const tmpDownloadsDir = kitPath("tmp", "downloads")
-export const mainScriptPath = kitPath("main", "index.js")
+
+export const getMainScriptPath = () => {
+  const version = process.env?.KIT_MAIN_SCRIPT
+  return kitPath(
+    "main",
+    `index${version ? `-${version}` : ""}.js`
+  )
+}
 export const execPath = knodePath(
   "bin",
   `node${isWin ? `.exe` : ``}`
@@ -912,6 +919,7 @@ export let shortcutsShortcut: Shortcut = {
   key: `${cmd}+/`,
   bar: "right",
   onPress: async () => {
+    setAlwaysOnTop(true)
     setIgnoreBlur(true)
     let shortcutsList = ``
     ;(global?.kitShortcutsMap || new Map()).forEach(

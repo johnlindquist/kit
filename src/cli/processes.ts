@@ -1,5 +1,5 @@
 // Name: Process List
-// Description: Manage/Terminate Running Processes
+// Description: Manage/Terminate Running Kit Processes
 // Enter: View Running Processes
 // Keyword: p
 // Log: false

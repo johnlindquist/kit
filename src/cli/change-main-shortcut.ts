@@ -3,7 +3,7 @@
 let shortcut = ""
 let confirm = false
 
-import { mainScriptPath } from "../core/utils.js"
+import { getMainScriptPath } from "../core/utils.js"
 
 while (!confirm) {
   ;({ shortcut } = await hotkey({
@@ -42,7 +42,7 @@ await wait(1500)
 submit("")
 
 if (process.env.KIT_CONTEXT === "app") {
-  await run(mainScriptPath)
+  await run(getMainScriptPath())
 }
 
 export {}

@@ -1,7 +1,7 @@
 import {
   KIT_FIRST_PATH,
   KIT_DEFAULT_PATH,
-  mainScriptPath,
+  getMainScriptPath,
   isInDir,
   cmd,
   escapeShortcut,
@@ -300,7 +300,7 @@ global.edit = async (f, dir, line = 0, col = 0) => {
     let openMain = false
     let onEscape = async (input, state) => {
       openMain =
-        state?.history[0]?.filePath === mainScriptPath
+        state?.history[0]?.filePath === getMainScriptPath()
       if (input) submit(input)
     }
     let onAbandon = async (input, state) => {

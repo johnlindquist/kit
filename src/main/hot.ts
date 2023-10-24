@@ -1,6 +1,7 @@
 // Name: Annoucements and Community Scripts
+// Description: Browse Annoucements and Community Scripts
+// Pass: true
 // Cache: true
-// Keyword: a
 
 let noChoices = false
 let onNoChoices = async input => {

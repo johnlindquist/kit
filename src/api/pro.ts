@@ -10,7 +10,7 @@ import {
 
 // TODO: Support urls. Make sure urls handle "widgetId" for sending messages
 let widget: Widget = async (html, options = {}) => {
-  hide()
+  // hide()
 
   let { widgetId } = await global.getDataFromApp(
     Channel.WIDGET_GET,
@@ -211,33 +211,15 @@ let menu = async (
 global.term = async (
   commandOrConfig: string | TerminalConfig = ""
 ) => {
-  let command = ""
-  let config: TerminalConfig = {}
-
-  if (typeof commandOrConfig === "string") {
-    command = commandOrConfig
-  } else {
-    command = commandOrConfig?.command || ""
-    config = commandOrConfig
-  }
-
-  if (global.__kitCurrentUI === UI.term) {
-    // Hack to clear the terminal when it's already open
-    await div({
-      html: ``,
-      height: PROMPT.HEIGHT.BASE,
-      onInit: async () => {
-        await wait(100)
-        submit("")
-      },
-    })
-  }
-
-  return await global.kitPrompt({
-    input: command,
-    ui: UI.term,
-    enter: "",
+  let config: TerminalConfig = {
+    command: "",
+    env: {
+      ...global.env,
+      PATH: KIT_FIRST_PATH,
+    },
     ignoreBlur: true,
+    height: PROMPT.HEIGHT.BASE,
+    previewWidthPercent: 40,
     shortcuts: [
       {
         name: "Exit",
@@ -256,12 +238,32 @@ global.term = async (
         },
       },
     ],
-    env: {
-      ...global.env,
-      PATH: KIT_FIRST_PATH,
-    },
-    height: PROMPT.HEIGHT.BASE,
-    previewWidthPercent: 40,
+  }
+
+  if (typeof commandOrConfig === "string") {
+    config.command = commandOrConfig
+  } else if (typeof commandOrConfig === "object") {
+    config = {
+      ...config,
+      ...(commandOrConfig as TerminalConfig),
+    }
+  }
+
+  if (global.__kitCurrentUI === UI.term) {
+    // Hack to clear the terminal when it's already open
+    await div({
+      html: ``,
+      height: PROMPT.HEIGHT.BASE,
+      onInit: async () => {
+        await wait(100)
+        submit("")
+      },
+    })
+  }
+
+  return await global.kitPrompt({
+    input: config.command,
+    ui: UI.term,
     ...config,
   })
 }

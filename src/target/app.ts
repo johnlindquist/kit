@@ -57,7 +57,7 @@ import {
 } from "../core/enum.js"
 import {
   assignPropsTo,
-  mainScriptPath,
+  getMainScriptPath,
   cmd,
   defaultShortcuts,
   escapeShortcut,
@@ -1863,7 +1863,10 @@ global.micro = async (
   )
 }
 
-global.arg = global.mini
+global.arg =
+  process?.env?.KIT_MAIN_SCRIPT === "v1"
+    ? global.basePrompt
+    : global.mini
 
 global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
@@ -2320,7 +2323,7 @@ global.mainScript = async (
 ) => {
   if (arg?.keyword) delete arg.keyword
   if (arg?.fn) delete arg.fn
-  preload(mainScriptPath)
+  preload(getMainScriptPath())
   setPlaceholder("Script Kit")
   setInput(input || "")
   global.args = []
@@ -2329,7 +2332,7 @@ global.mainScript = async (
     process.removeAllListeners("message")
     clearAllTimeouts()
     clearAllIntervals()
-    let m = run(mainScriptPath, `--input`, input)
+    let m = run(getMainScriptPath(), `--input`, input)
     if (tab) {
       await wait(200)
       setTab(tab)

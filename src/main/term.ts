@@ -4,32 +4,29 @@
 Run a command in the built-in terminal.
 */
 
+import { Channel } from "../core/enum.js"
+
 // Name: Kit Terminal
 // Trigger: >
-// Cache: true
+// Pass: true
 
 // TODO: Make terminal launch faster
 setName(``)
+
 await term({
   command: (arg?.pass as string) || "",
   env: process.env,
-  ignoreBlur: true,
   shortcuts: [
-    {
-      name: "Back to Main",
-      key: `${cmd}+enter`,
-      bar: "left",
-    },
     {
       name: "Close",
       key: `${cmd}+w`,
       bar: "right",
       onPress: async () => {
+        send(Channel.TERM_EXIT, "")
         finishScript()
       },
     },
   ],
 })
-await mainScript()
 
 export {}

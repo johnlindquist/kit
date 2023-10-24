@@ -3,7 +3,7 @@ import {
   appDbPath,
   kitPath,
   kenvPath,
-  mainScriptPath,
+  getMainScriptPath,
   prefsPath,
   promptDbPath,
   shortcutsPath,
@@ -542,7 +542,7 @@ export let getShortcutsDb = async (): Promise<
 > => {
   return await db(shortcutsPath, {
     shortcuts: {
-      [mainScriptPath]: isMac ? "cmd ;" : "ctrl ;",
+      [getMainScriptPath()]: isMac ? "cmd ;" : "ctrl ;",
     },
   })
 }

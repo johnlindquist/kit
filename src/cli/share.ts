@@ -1,9 +1,13 @@
-//Menu: Share Script
-//Description: Share the Selected Script
+// Menu: Share Script
+// Description: Open the Share Menu
 
 import { CLI } from "../cli"
+import { Script } from "../types"
 
-let { filePath } = await selectScript(`Share which script?`)
+let { filePath } = (await selectScript({
+  placeholder: `Share which script?`,
+  enter: "Open the Share Menu",
+})) as Script
 
 let how: keyof CLI = await arg(
   {

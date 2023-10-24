@@ -11,7 +11,7 @@ import {
   run,
   cmd,
   isMac,
-  mainScriptPath,
+  getMainScriptPath,
 } from "../core/utils.js"
 import { FlagsOptions, Script } from "../types/core.js"
 import { mainMenu } from "../api/kit.js"
@@ -626,7 +626,7 @@ if (typeof script === "boolean" && !script) {
 if (isApp && typeof script === "string") {
   await Promise.all([
     hide({
-      preloadScript: mainScriptPath,
+      preloadScript: getMainScriptPath(),
     }),
     (open as unknown as Open)(script as string),
   ])

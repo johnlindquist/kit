@@ -1,6 +1,6 @@
 // Description: Subscribe to the Script Kit Newsletter
 
-import { mainScriptPath } from "../core/utils.js"
+import { getMainScriptPath } from "../core/utils.js"
 
 setChoices([])
 
@@ -24,7 +24,7 @@ await div(
 )
 
 if (process.env.KIT_CONTEXT === "app") {
-  await run(mainScriptPath)
+  await run(getMainScriptPath())
 }
 
 export {}

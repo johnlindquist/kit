@@ -10,8 +10,12 @@ Create a new snippet based on the current input
 // Pass: true
 // Keyword: ns
 
-let snippet = await template(`// Name: $0`, {
-  preview: md(`# Create a New Snippet
+let snippet = await template(
+  `// Name: $0
+
+${arg?.pass || ""}`,
+  {
+    preview: md(`# Create a New Snippet
 
 ## Run a Snippet
 
@@ -20,9 +24,9 @@ Press "s" then space from the main menu to search your snippets.
 ## Snippet Name
 
 The file name will be inferred from the text following "// Name:". Snippets are saved to _${kenvPath(
-    "snippets",
-    "your-file-name.txt"
-  )}_ 
+      "snippets",
+      "your-file-name.txt"
+    )}_ 
 
 "//Name: Hello World" will be saved as "hello-world.txt" and appear as "Hello World" in the snippets menu.
 
@@ -77,8 +81,22 @@ For inserting random values:
 * $RANDOM 6 random Base-10 digits
 * $RANDOM_HEX 6 random Base-16 digits
 * $UUID A Version 4 UUID
+
+## Need More?
+
+~~~
+let name = await arg("What is your name?")
+let result = await template(\`Hello \${name}!\
+
+Script Kit is $0\`)
+
+// Paste the result into the frontmost app
+await setSelectedText(result)
+~~~
+Create a script and use variables from your script inside your template.
   `),
-})
+  }
+)
 
 let name = snippet.match(/\/\/ Name: (.*)/)[1]
 name = name.replace(/ /g, "-").toLowerCase() + ".txt"

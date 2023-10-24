@@ -1,5 +1,5 @@
 // Description: Subscribe to the Script Kit Newsletter
-import { mainScriptPath } from "../core/utils.js"
+import { getMainScriptPath } from "../core/utils.js"
 setChoices([])
 let email = await arg(
   "Enter e-mail to join newsletter:",
@@ -19,5 +19,5 @@ await div(
   md(`## Thanks! Make sure to confirm in your mail app 😇`)
 )
 if (process.env.KIT_CONTEXT === "app") {
-  await run(mainScriptPath)
+  await run(getMainScriptPath())
 }

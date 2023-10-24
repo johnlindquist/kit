@@ -2,7 +2,7 @@
 
 import { Script } from "../types/core"
 import {
-  mainScriptPath,
+  getMainScriptPath,
   trashScript,
 } from "../core/utils.js"
 
@@ -62,7 +62,7 @@ await wait(1500)
 submit("")
 
 if (process.env.KIT_CONTEXT === "app") {
-  await run(mainScriptPath)
+  await run(getMainScriptPath())
 }
 
 export {}

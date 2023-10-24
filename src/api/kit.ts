@@ -953,7 +953,7 @@ let groupScripts = scripts => {
       ? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(
           Boolean
         )
-      : ["Pass", "Community"],
+      : ["Pass"],
     recentKey: "timestamp",
     excludeGroups,
     recentLimit: process?.env?.KIT_RECENT_LIMIT
@@ -1028,13 +1028,15 @@ export let getGroupedScripts = async () => {
   let kitScripts = [
     kitPath("cli", "new.js"),
     kitPath("cli", "new-snippet.js"),
+    kitPath("cli", "share.js"),
     kitPath("cli", "find.js"),
-    kitPath("main", "file-search.js"),
     kitPath("main", "kit.js"),
     kitPath("main", "api.js"),
     kitPath("main", "guide.js"),
     kitPath("cli", "processes.js"),
     kitPath("cli", "kenv-manage.js"),
+    kitPath("main", "file-search.js"),
+
     kitPath("main", "google.js"),
     // kitPath("main", "suggest.js"),
     kitPath("main", "datamuse.js"),
@@ -1053,6 +1055,7 @@ export let getGroupedScripts = async () => {
     kitPath("cli", "manage-npm.js"),
     kitPath("main", "clipboard-history.js"),
     kitPath("main", "emoji.js"),
+
     kitPath("pro", "theme-selector.js"),
   ]
 
@@ -1093,44 +1096,44 @@ export let getGroupedScripts = async () => {
     parsedKitScripts
   )
 
-  let getHot = async () => {
-    let hotPath = kitPath("data", "hot.json")
-    if (await isFile(hotPath)) {
-      return await readJson(hotPath)
-    }
+  // let getHot = async () => {
+  //   let hotPath = kitPath("data", "hot.json")
+  //   if (await isFile(hotPath)) {
+  //     return await readJson(hotPath)
+  //   }
 
-    return []
-  }
+  //   return []
+  // }
 
-  let loadHotChoices = async () => {
-    try {
-      let hot = await getHot()
+  // let loadHotChoices = async () => {
+  //   try {
+  //     let hot = await getHot()
 
-      return hot.map(choice => {
-        choice.preview = async () => {
-          if (choice?.body) {
-            return await highlight(choice?.body)
-          }
+  //     return hot.map(choice => {
+  //       choice.preview = async () => {
+  //         if (choice?.body) {
+  //           return await highlight(choice?.body)
+  //         }
 
-          return ""
-        }
+  //         return ""
+  //       }
 
-        choice.group = "Community"
-        choice.enter = "View Discussion"
-        choice.lastGroup = true
+  //       choice.group = "Community"
+  //       choice.enter = "View Discussion"
+  //       choice.lastGroup = true
 
-        return choice
-      })
-    } catch (error) {
-      return [error.message]
-    }
-  }
+  //       return choice
+  //     })
+  //   } catch (error) {
+  //     return [error.message]
+  //   }
+  // }
 
-  let communityScripts = await loadHotChoices()
+  // let communityScripts = await loadHotChoices()
 
-  processedscripts = processedscripts.concat(
-    communityScripts
-  )
+  // processedscripts = processedscripts.concat(
+  //   communityScripts
+  // )
 
   let groupedScripts = groupScripts(processedscripts)
 
@@ -1168,7 +1171,7 @@ export let mainMenu = async (
   global.__kitScriptsFromCache = false
   let groupedScripts = await getGroupedScripts()
 
-  let script = await global.mini(
+  let script = await global.arg(
     scriptsConfig,
     groupedScripts
   )

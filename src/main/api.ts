@@ -1,5 +1,7 @@
-// Name: Browse Kit API
+// Name: API
+// Description: Browse Kit API
 // Keyword: api
+// Pass: true
 
 import { createGuideConfig } from "./main-helper.js"
 
@@ -8,7 +10,7 @@ let selectedDoc = await docs(
   createGuideConfig({
     name: "API",
     itemHeight: PROMPT.ITEM.HEIGHT.SM,
-    input: arg?.input || "",
+    input: arg?.input || arg?.pass || "",
     placeholder: "Browse API",
     enter: `Suggest Edit`,
     preventCollapse: true,
