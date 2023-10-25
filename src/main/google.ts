@@ -132,6 +132,13 @@ await arg(
               input
             )}`,
           } as any,
+          {
+            name: `Update googlethis npm package?`,
+            description:
+              "An outdated package may cause search to fail",
+            enter: `Update googlethis`,
+            value: `Update googlethis`,
+          },
         ]
       }
     } catch (e) {
@@ -145,4 +152,9 @@ await arg(
     }
   }
 )
-open(url)
+
+if (url === `Update googlethis`) {
+  await cli("update-kit-package", "googlethis")
+} else {
+  open(url)
+}

@@ -126,6 +126,10 @@ export interface CLI {
   tutorial: Promise<typeof import("./tutorial")>
   uninstall: Promise<typeof import("./uninstall")>
   update: Promise<typeof import("./update")>
+  ["update-kit-package"]: Promise<
+    typeof import("./update-kit-package")
+  >
+
   ["sync-path"]: Promise<typeof import("./sync-path")>
   ["sync-path-instructions"]: Promise<
     typeof import("./sync-path-instructions")
