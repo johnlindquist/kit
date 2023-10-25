@@ -129,7 +129,10 @@ export let db = async <T = any>(
     }
   }
 
-  let _db = new Low(new JSONFile(dbPath), {})
+  let jsonFile = new JSONFile(dbPath)
+  let result = await jsonFile.read()
+
+  let _db = new Low(jsonFile, result)
 
   try {
     await _db.read()
@@ -143,7 +146,7 @@ export let db = async <T = any>(
 
     if (path.dirname(dbPath) === kitPath("db")) {
       // await rm(dbPath)
-      _db = new Low(new JSONFile(dbPath), {})
+      _db = new Low(jsonFile, result)
       await _db.read()
     }
   }
