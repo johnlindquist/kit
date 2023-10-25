@@ -37,7 +37,6 @@ import {
   Stamp,
   setUserJson,
 } from "../core/db.js"
-import { Octokit } from "../share/auth-scriptkit.js"
 
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
@@ -1535,6 +1534,9 @@ global.md = (
 }
 
 export let authenticate = async () => {
+  let { Octokit } = await import(
+    "../share/auth-scriptkit.js"
+  )
   let octokit = new Octokit({
     auth: {
       scopes: ["gist"],
