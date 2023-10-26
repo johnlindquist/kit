@@ -984,7 +984,10 @@ let groupScripts = scripts => {
           }`
         }
 
-        if (typeof s?.pass === "string") {
+        if (
+          typeof s?.pass === "string" &&
+          s?.pass !== "true"
+        ) {
           s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${
             s.pass
           }`

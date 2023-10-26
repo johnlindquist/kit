@@ -354,7 +354,7 @@ export let forceSetScriptTimestamp = async (
 
 export let setScriptTimestamp = singleInvocationWithinDelay(
   forceSetScriptTimestamp,
-  500
+  100
 )
 
 // export let removeScriptFromDb = async (

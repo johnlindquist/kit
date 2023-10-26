@@ -155,7 +155,7 @@ kit
 
 The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
 
-## Change .kenv Parent Directory
+## Move .kenv Parent Directory
 
 <!-- description: Move .kenv from "home" -->
 <!-- value: cli/kenv-change-dir.js -->
