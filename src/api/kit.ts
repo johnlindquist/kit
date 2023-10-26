@@ -984,6 +984,12 @@ let groupScripts = scripts => {
           }`
         }
 
+        if (typeof s?.pass === "string") {
+          s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${
+            s.pass
+          }`
+        }
+
         s.tag = s.tag.trim()
       }
     },
