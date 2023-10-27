@@ -423,7 +423,6 @@ Create a script named <code>${scriptName}</code>
 ; app launcher
 , "sticky note"
 . file search
-` google search
 < clipboard history
 0-9 calculator
 ? docs
@@ -501,19 +500,26 @@ let script = await mainMenu({
   },
 
   shortcuts: [
-    {
-      name: "New Menu",
-      key: `${cmd}+shift+n`,
-      onPress: async () => {
-        await run(kitPath("cli", "new-menu.js"))
-      },
-    },
+    // {
+    //   name: "New Menu",
+    //   key: `${cmd}+shift+n`,
+    //   onPress: async () => {
+    //     await run(kitPath("cli", "new-menu.js"))
+    //   },
+    // },
     {
       name: "New",
       key: `${cmd}+n`,
       bar: "left",
       onPress: async () => {
         await run(kitPath("cli", "new.js"))
+      },
+    },
+    {
+      name: "New Snippet",
+      key: `${cmd}+shift+n`,
+      onPress: async () => {
+        await run(kitPath("cli", "new-snippet.js"))
       },
     },
     {

@@ -288,10 +288,6 @@ global.edit = async (f, dir, line = 0, col = 0) => {
 
   let KIT_EDITOR = await global.selectKitEditor(false)
 
-  console.log({
-    KIT_EDITOR,
-  })
-
   if (KIT_EDITOR === "kit") {
     let language = global.extname(file).replace(/^\./, "")
     let contents = (await readFile(file, "utf8")) || ""

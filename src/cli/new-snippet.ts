@@ -82,6 +82,10 @@ For inserting random values:
 * $RANDOM_HEX 6 random Base-16 digits
 * $UUID A Version 4 UUID
 
+## Snippet Metadata
+
+You can add // Snippet: my-custom-snippet; metadata to the top of your snippet to easily trigger the snippet from anywhere.
+
 ## Need More?
 
 ~~~
