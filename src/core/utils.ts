@@ -108,6 +108,7 @@ export const timestampsPath = kitPath(
   "db",
   "timestamps.json"
 )
+export const statsPath = kitPath("db", "stats.json")
 export const prefsPath = kitPath("db", "prefs.json")
 export const shortcutsPath = kitPath("db", "shortcuts.json")
 export const promptDbPath = kitPath("db", "prompt.json")

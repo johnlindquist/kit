@@ -14,7 +14,7 @@ import {
   isMac,
   scriptsSort,
   scriptsDbPath,
-  timestampsPath,
+  statsPath,
   userDbPath,
   Timestamp,
   getScriptFiles,
@@ -401,7 +401,7 @@ export let getTimestamps = async (
   }
 > => {
   return await db(
-    timestampsPath,
+    statsPath,
     {
       stamps: [],
     },
