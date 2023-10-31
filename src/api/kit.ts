@@ -468,7 +468,11 @@ global.compileTemplate = async (template, vars) => {
 global.currentOnTab = null
 global.onTabs = []
 global.onTabIndex = 0
-global.onTab = (name, fn) => {
+global.onTab = (name, tabFunction) => {
+  let fn = async (...args) => {
+    await tabFunction(...args)
+    finishScript()
+  }
   global.onTabs.push({ name, fn })
   if (global.flag?.tab) {
     if (global.flag?.tab === name) {
