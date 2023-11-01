@@ -5,7 +5,14 @@ delete flag.force
 
 let missingPackages = [
   ...new Set(
-    args.slice(0).map(pkg => adjustPackageName(pkg))
+    args.reduce(
+      (acc, pkg) => (
+        !pkg.startsWith("node:") &&
+          acc.push(adjustPackageName(pkg)),
+        acc
+      ),
+      []
+    )
   ),
 ]
 args = []

@@ -109,6 +109,11 @@ let kenvImport = async (packageName: string) => {
   packageName = adjustPackageName(packageName)
 
   try {
+    // if the `node:` protocol is used, just go ahead and import it
+    if (packageName.startsWith("node:")) {
+      return await defaultImport(packageName)
+    }
+
     let findMainFromPackageJson =
       findPackageJson(packageName)
 
