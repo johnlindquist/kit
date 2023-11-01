@@ -1981,6 +1981,9 @@ global.updateArgs = arrayOfArgs => {
 global.updateArgs(process.argv.slice(2))
 
 export let appInstall = async packageName => {
+  // don't try to install explicit built-in node modules
+  if (packageName.startsWith("node:")) return
+
   // if it detects an import like "langchain/models", we need to adjust the package name
   // allow a slash for scoped packages like "@johnlindquist/kit"
   packageName = adjustPackageName(packageName)
