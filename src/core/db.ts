@@ -307,7 +307,7 @@ function singleInvocationWithinDelay<T extends any[], U>(
   }
 }
 
-export let forceSetScriptTimestamp = async (
+export let setScriptTimestamp = async (
   stamp: Stamp
 ): Promise<Script[]> => {
   let timestampsDb = await getTimestamps()
@@ -330,6 +330,11 @@ export let forceSetScriptTimestamp = async (
     }
   } else {
     timestampsDb.stamps.push(stamp)
+    try {
+      await timestampsDb.write()
+    } catch (error) {
+      if (global.log) global.log(error)
+    }
   }
 
   let scriptsDb = await getScriptsDb(false)
@@ -344,18 +349,10 @@ export let forceSetScriptTimestamp = async (
     try {
       await scriptsDb.write()
     } catch (error) {}
-    try {
-      await timestampsDb.write()
-    } catch (error) {}
   }
 
   return scriptsDb.scripts
 }
-
-export let setScriptTimestamp = singleInvocationWithinDelay(
-  forceSetScriptTimestamp,
-  100
-)
 
 // export let removeScriptFromDb = async (
 //   filePath: string
