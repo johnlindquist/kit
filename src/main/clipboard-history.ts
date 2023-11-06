@@ -13,7 +13,7 @@ import {
 let transformer = keywordInputTransformer(arg?.keyword)
 
 let createPreview = (item, input) => {
-  if (item.preview) return item.preview
+  if (item.preview?.includes("img")) return item.preview
   let content = escapeHTML(item.value)
 
   if (item?.type === "image") {
@@ -97,6 +97,7 @@ while (!text) {
       itemHeight: PROMPT.ITEM.HEIGHT.XS,
       height: PROMPT.HEIGHT.BASE,
       resize: false,
+      searchKeys: ["name", "preview"],
       shortcuts: [
         {
           name: "Remove Selected",
@@ -145,18 +146,24 @@ while (!text) {
         },
       ],
       onChoiceFocus: async (input, state) => {
-        id = state?.focused?.id
-        isImage = (state?.focused as any)?.type === "image"
-        input = transformer(input)
+        if (input && input.length > 2) {
+          id = state?.focused?.id
+          isImage =
+            (state?.focused as any)?.type === "image"
+          input = transformer(input)
 
-        setPreview(createPreview(state?.focused, input))
+          setPreview(createPreview(state?.focused, input))
+        }
       },
       onInput: async (input, state) => {
-        id = state?.focused?.id
-        isImage = (state?.focused as any)?.type === "image"
-        input = transformer(input)
+        if (input && input.length > 2) {
+          id = state?.focused?.id
+          isImage =
+            (state?.focused as any)?.type === "image"
+          input = transformer(input)
 
-        setPreview(createPreview(state?.focused, input))
+          setPreview(createPreview(state?.focused, input))
+        }
       },
 
       // onInput: async (input, state) => {
