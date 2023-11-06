@@ -146,22 +146,20 @@ while (!text) {
         },
       ],
       onChoiceFocus: async (input, state) => {
-        if (input && input.length > 2) {
-          id = state?.focused?.id
-          isImage =
-            (state?.focused as any)?.type === "image"
-          input = transformer(input)
+        id = state?.focused?.id
+        isImage = (state?.focused as any)?.type === "image"
+        input = transformer(input)
 
+        if (input && input.length > 2) {
           setPreview(createPreview(state?.focused, input))
         }
       },
       onInput: async (input, state) => {
-        if (input && input.length > 2) {
-          id = state?.focused?.id
-          isImage =
-            (state?.focused as any)?.type === "image"
-          input = transformer(input)
+        id = state?.focused?.id
+        isImage = (state?.focused as any)?.type === "image"
+        input = transformer(input)
 
+        if (input && input.length > 2) {
           setPreview(createPreview(state?.focused, input))
         }
       },
