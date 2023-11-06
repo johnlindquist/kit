@@ -330,11 +330,12 @@ export let setScriptTimestamp = async (
     }
   } else {
     timestampsDb.stamps.push(stamp)
-    try {
-      await timestampsDb.write()
-    } catch (error) {
-      if (global.log) global.log(error)
-    }
+  }
+
+  try {
+    await timestampsDb.write()
+  } catch (error) {
+    if (global.log) global.log(error)
   }
 
   let scriptsDb = await getScriptsDb(false)
@@ -387,6 +388,9 @@ export type Stamp = {
   compileStamp?: number
   compileMessage?: string
   executionTime?: number
+  changeStamp?: number
+  exitStamp?: number
+  runStamp?: number
   runCount?: number
 }
 
