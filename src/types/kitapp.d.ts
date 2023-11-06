@@ -798,6 +798,18 @@ export interface Keyboard {
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
+export interface Mouse {
+  leftClick: () => Promise<void>
+  rightClick: () => Promise<void>
+  move: (
+    points: [{ x: number; y: number }]
+  ) => Promise<void>
+  setPosition: (position: {
+    x: number
+    y: number
+  }) => Promise<void>
+}
+
 export interface Bookmark {
   title: string
   url: string
@@ -1051,6 +1063,7 @@ declare global {
   var warn: typeof console.warn
 
   var keyboard: Keyboard
+  var mouse: Mouse
   var clipboard: KitClipboard
 
   var execLog: ExecLog
