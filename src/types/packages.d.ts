@@ -53,6 +53,7 @@ export type Git = {
   ) => ReturnType<typeof addRemote>
 }
 export type Open = typeof import("open/index").default
+export type OpenApp = typeof import("open/index").openApp
 
 type NodeNotify =
   typeof import("node-notifier/index").notify
@@ -130,6 +131,7 @@ declare global {
 
   var trash: Trash
   var open: Open
+  var openApp: OpenApp
   var rm: Trash
   var git: Git
   var degit: Degit

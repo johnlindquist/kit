@@ -54,6 +54,6 @@ let info = `
 
 await div(await highlight(info))
 
-open("Stream Deck.app")
+openApp("Elgato Stream Deck.app")
 
 export {}
