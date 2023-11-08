@@ -37,8 +37,8 @@ let name = await arg("Select a name", [
 
 ```js
 let name = await arg("Select a name", async () => {
-    let response = await get("https://swapi.dev/api/people/");
-    return response?.data?.results.map((p) => p.name);
+  let response = await get("https://swapi.dev/api/people/")
+  return response?.data?.results.map(p => p.name)
 })
 ```
 
@@ -46,24 +46,24 @@ let name = await arg("Select a name", async () => {
 
 ```js
 let person = await arg("Select a person", async () => {
-    let response = await get("https://swapi.dev/api/people/");
-    // return an array of objects with "name", "value", and "description" properties
-    return response?.data?.results.map((person) => { 
-        return {
-            name: person.name,
-            description: person.url,
-            value: person
-        }
-    });
+  let response = await get("https://swapi.dev/api/people/")
+  // return an array of objects with "name", "value", and "description" properties
+  return response?.data?.results.map(person => {
+    return {
+      name: person.name,
+      description: person.url,
+      value: person,
+    }
+  })
 })
 ```
 
 ### arg with Generated Choices
 
 ```js
-let char = await arg("Type then pick a char", (input) => { 
-    // return an array of strings
-    return input.split("")
+let char = await arg("Type then pick a char", input => {
+  // return an array of strings
+  return input.split("")
 })
 ```
 
@@ -71,22 +71,25 @@ let char = await arg("Type then pick a char", (input) => {
 
 ```js
 let url = "https://swapi.dev/api/people"
-let name = await arg({
+let name = await arg(
+  {
     placeholder: "Select a name",
     shortcuts: [
-        {
-            name: "Explore API",
-            key: "cmd+e",
-            onPress: async () => { 
-                open(url)
-            },
-            bar: "right"
-        }
-    ]
-}, async () => { 
-    let response = await get(url);
-    return response?.data?.results.map((p) => p.name);
-})
+      {
+        name: "Explore API",
+        key: "cmd+e",
+        onPress: async () => {
+          open(url)
+        },
+        bar: "right",
+      },
+    ],
+  },
+  async () => {
+    let response = await get(url)
+    return response?.data?.results.map(p => p.name)
+  }
+)
 ```
 
 ## div
@@ -100,7 +103,6 @@ let name = await arg({
 1. Just like arg, the first argument is a string or a prompt configuration object.
 2. Optional:The second argument is a string of tailwind class to apply to the container, e.g., `bg-white p-4`.
 
-
 ### div Hello World
 
 ```js
@@ -110,7 +112,8 @@ await div(`Hello world!`)
 ### div with Markdown
 
 ```js
-await div(md(`
+await div(
+  md(`
 # Hello world!
 
 ## Thanks for coming to my demo
@@ -118,23 +121,29 @@ await div(md(`
 * This is another item
 * This is the last item
 
-`))
+`)
+)
 ```
 
 ### div with Tailwind Classes
 
 ```js
-await div(`Hello world!`, `bg-white text-black text-4xl p-4`)
+await div(
+  `Hello world!`,
+  `bg-white text-black text-4xl p-4`
+)
 ```
 
 ### div with Submit Links
 
 ```js
-let name = await div(md(`# Pick a Name
+let name = await div(
+  md(`# Pick a Name
 * [John](submit:John)
 * [Mindy](submit:Mindy)
 * [Joy](submit:Joy)
-`))
+`)
+)
 
 await div(md(`# You selected ${name}`))
 ```
@@ -159,8 +168,8 @@ dev()
 
 ```js
 dev({
-    name: "John",
-    age: 40
+  name: "John",
+  age: 40,
 })
 ```
 
@@ -169,7 +178,6 @@ dev({
 <!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
 
 The `editor` function opens a text editor with the given text. The editor is a full-featured "Monaco" editor with syntax highlighting, find/replace, and more. The editor is a great way to edit or update text to write a file. The default language is markdown.
-
 
 ### editor Hello World
 
@@ -186,7 +194,9 @@ let content = await editor("Hello world!")
 ### Load Remote Text Content into Editor
 
 ```js
-let response = await get(`https://raw.githubusercontent.com/johnlindquist/kit/main/API.md`)
+let response = await get(
+  `https://raw.githubusercontent.com/johnlindquist/kit/main/API.md`
+)
 
 let content = await editor(response.data)
 ```
@@ -217,7 +227,7 @@ await term(`cd ~/.kenv/scripts && ls`)
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
 
-The `template` prompt will present the editor populated by your template. You can then tab through each variable in your template and edit it. 
+The `template` prompt will present the editor populated by your template. You can then tab through each variable in your template and edit it.
 
 ### Details
 
@@ -269,7 +279,6 @@ This can be useful when you want to use a palette of commands and trigger each o
 
 1. Optional: The first argument is a string to display in the prompt.
 
-
 ### hotkey Hello World
 
 ```js
@@ -299,7 +308,7 @@ await div(md(filePaths))
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
 
-The `fields` prompt allows you to rapidly create a form with fields. 
+The `fields` prompt allows you to rapidly create a form with fields.
 
 ### Details
 
@@ -308,26 +317,28 @@ The `fields` prompt allows you to rapidly create a form with fields.
 ### fields Hello World
 
 ```js
-let [first, last] = await fields(["First name", "Last name"])
+let [first, last] = await fields([
+  "First name",
+  "Last name",
+])
 ```
-
 
 ### fields with Field Properties
 
 ```js
 let [name, age] = await fields([
-    {
-        name: "name",
-        label: "Name",
-        type: "text",
-        placeholder: "John"
-    },
-    {
-        name: "age",
-        label: "Age",
-        type: "number",
-        placeholder: "40"
-    }
+  {
+    name: "name",
+    label: "Name",
+    type: "text",
+    placeholder: "John",
+  },
+  {
+    name: "age",
+    label: "Age",
+    type: "number",
+    placeholder: "40",
+  },
 ])
 ```
 
@@ -372,24 +383,26 @@ await widget(`<h1 class="p-4 text-4xl">Hello World!</h1>`)
 ### widget Clock
 
 ```js
-let clock = await widget(`<h1 class="text-7xl p-5 whitespace-nowrap">{{date}}</h1>`, {
+let clock = await widget(
+  `<h1 class="text-7xl p-5 whitespace-nowrap">{{date}}</h1>`,
+  {
     transparent: true,
     draggable: true,
     hasShadow: false,
     alwaysOnTop: true,
-})
+  }
+)
 
-setInterval(()=> {
-    clock.setState({
-        date: new Date().toLocaleTimeString()
-    })
+setInterval(() => {
+  clock.setState({
+    date: new Date().toLocaleTimeString(),
+  })
 }, 1000)
 ```
 
 ### widget Events
 
 ```js
-
 let text = ""
 let count = 0
 
@@ -402,14 +415,14 @@ let w = await widget(`
 </div>
 `)
 
-w.onClick((event) => {
-    if (event.targetId === "myButton") {
-        w.setState({count: count++})
-    }
+w.onClick(event => {
+  if (event.targetId === "myButton") {
+    w.setState({ count: count++ })
+  }
 })
 
 w.onClose(async () => {
-    await widget(`
+  await widget(`
 <div class="p-5">
     <h1>You closed the other widget</h1>
     <p>${text}</p>
@@ -417,19 +430,18 @@ w.onClose(async () => {
 `)
 })
 
-w.onInput((event) => {
-    text = event.value
+w.onInput(event => {
+  text = event.value
 })
 
-w.onMoved(({ x, y}) => {
-    // e.g., save position
+w.onMoved(({ x, y }) => {
+  // e.g., save position
 })
 
 w.onResized(({ width, height }) => {
-    // e.g., save size
+  // e.g., save size
 })
 ```
-
 
 ## path
 
@@ -439,11 +451,88 @@ The `path` prompt allows you to select a file or folder from the file system. Yo
 
 1. Optional: The first argument is the initial directory to open with. Defaults to the home directory.
 
-
 ### path Hello World
 
 ```js
 let selectedFile = await path()
+```
+
+## select
+
+Script Kit now contains a `select` prompt that lets you choose from a list of options.
+
+### Details
+
+1. The first argument is a array or a prompt configuration object.
+2. The second argument is a list of choices, a array to render, or a function that returns choices or a string to render.
+
+### select Basic Array Input
+
+```js
+let multipleChoice = await select(
+  "Select one or more developer",
+  ["John", "Nghia", "Mindy", "Joy"]
+)
+```
+
+### select Array Object
+
+```js
+const people = [
+  {
+    name: "John",
+    description: "Full-stack Dev",
+    value: "John",
+  },
+  {
+    name: "Nghia",
+    description: "Full-stackoverflow dev",
+    value: "Nghia",
+  },
+  {
+    name: "Mindy",
+    description: "Business Analyst",
+    value: "Mindy",
+  },
+  {
+    name: "Joy",
+    description: "Leader",
+    value: "Joy",
+  },
+]
+let multipleChoice = await select(
+  "Select one or more developer",
+  people
+)
+```
+
+### select Async Choices Array Object
+
+```js
+let name = await select(
+  "GET: NAME (please wait)",
+  async () => {
+    let response = await get(
+      "https://swapi.dev/api/people/"
+    )
+    return response?.data?.results.map(person => {
+      return {
+        name: person.name,
+        description: `height: ${person.height}, mass: ${person.mass}`,
+        value: person,
+        preview: () => JSON.stringify(person),
+      }
+    })
+  }
+)
+```
+
+### select Generated Input Choices
+
+```js
+let word = await select("Type then pick a words", input => {
+  return input.trim().split(new RegExp("[.,;/-_\n]", "g"))
+})
 ```
 
 ## Missing Something?
@@ -451,6 +540,6 @@ let selectedFile = await path()
 <!-- enter: Update Docs -->
 <!-- value: download-md.js -->
 
-These API docs are definitely incomplete and constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/blob/main/API.md) to the docs or open an issue on GitHub. 
+These API docs are definitely incomplete and constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/blob/main/API.md) to the docs or open an issue on GitHub.
 
 Press <kbd>Enter</kbd> to download the latest docs.
