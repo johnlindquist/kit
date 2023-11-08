@@ -184,7 +184,7 @@ global.selectKitEditor = async (reset = false) => {
       )
       .filter(Boolean)
 
-    filteredMacEditors.unshift({
+    filteredMacEditors.push({
       name: "kit",
       description: "built-in Script Kit editor",
       value: "kit",

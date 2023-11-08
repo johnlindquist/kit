@@ -1229,6 +1229,34 @@ export let processPreviewPath = async (s: Script) => {
   }
 }
 
+export let processScriptPreview =
+  (script: Script, infoBlock: string = "") =>
+  async () => {
+    let previewPath = getPreviewPath(script)
+    let preview = ``
+
+    if (await isFile(previewPath)) {
+      preview = await processWithPreviewFile(
+        script,
+        previewPath,
+        infoBlock
+      )
+    } else if (typeof script?.preview === "string") {
+      preview = await processWithStringPreview(
+        script,
+        infoBlock
+      )
+    } else {
+      preview = await processWithNoPreview(
+        script,
+        infoBlock
+      )
+    }
+
+    return preview
+  }
+
+// TODO: The logic around scripts + stats/timestamps is confusing. Clean it up.
 export let processScript =
   (timestamps: Stamp[] = []) =>
   async (s: Script): Promise<Script> => {
@@ -1256,27 +1284,7 @@ ${stamp.compileMessage}
 `
       }
     }
-    s.preview = async () => {
-      let previewPath = getPreviewPath(s)
-      let preview = ``
-
-      if (await isFile(previewPath)) {
-        preview = await processWithPreviewFile(
-          s,
-          previewPath,
-          infoBlock
-        )
-      } else if (typeof s?.preview === "string") {
-        preview = await processWithStringPreview(
-          s,
-          infoBlock
-        )
-      } else {
-        preview = await processWithNoPreview(s, infoBlock)
-      }
-
-      return preview
-    }
+    s.preview = processScriptPreview(s, infoBlock)
 
     return s
   }
