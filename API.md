@@ -446,6 +446,84 @@ The `path` prompt allows you to select a file or folder from the file system. Yo
 let selectedFile = await path()
 ```
 
+## select
+
+Script Kit now contains a `select` prompt that lets you choose from a list of options.
+
+### Details
+
+1. The first argument is a array or a prompt configuration object.
+2. The second argument is a list of choices, a array to render, or a function that returns choices or a string to render.
+
+### select Basic Array Input
+
+```js
+let multipleChoice = await select(
+  "Select one or more developer",
+  ["John", "Nghia", "Mindy", "Joy"]
+)
+```
+
+### select Array Object
+
+```js
+const people = [
+  {
+    name: "John",
+    description: "Full-stack Dev",
+    value: "John",
+  },
+  {
+    name: "Nghia",
+    description: "Full-stackoverflow dev",
+    value: "Nghia",
+  },
+  {
+    name: "Mindy",
+    description: "Business Analyst",
+    value: "Mindy",
+  },
+  {
+    name: "Joy",
+    description: "Leader",
+    value: "Joy",
+  },
+]
+let multipleChoice = await select(
+  "Select one or more developer",
+  people
+)
+```
+
+### select Async Choices Array Object
+
+```js
+let name = await select(
+  "GET: NAME (please wait)",
+  async () => {
+    let response = await get(
+      "https://swapi.dev/api/people/"
+    )
+    return response?.data?.results.map(person => {
+      return {
+        name: person.name,
+        description: `height: ${person.height}, mass: ${person.mass}`,
+        value: person,
+        preview: () => JSON.stringify(person),
+      }
+    })
+  }
+)
+```
+
+### select Generated Input Choices
+
+```js
+let word = await select("Type then pick a words", input => {
+  return input.trim().split(new RegExp("[.,;/-_\n]", "g"))
+})
+```
+
 ## Missing Something?
 
 <!-- enter: Update Docs -->
