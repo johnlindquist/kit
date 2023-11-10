@@ -47,34 +47,37 @@ export const resolveKenv = (...parts: string[]) => {
 
 export let store = async (
   nameOrPath: string,
-  initialData: any = {}
+  initialData: any
 ): Promise<InstanceType<typeof import("keyv")>> => {
   let isPath =
     nameOrPath.includes("/") || nameOrPath.includes("\\")
   let { default: Keyv } = await import("keyv")
   let { KeyvFile } = await import("keyv-file")
+  let dbPath = isPath
+    ? nameOrPath
+    : kenvPath("db", `${nameOrPath}.json`)
+
+  let fileExists = await isFile(dbPath)
 
   let keyv = new Keyv({
     store: new KeyvFile({
-      filename: isPath
-        ? nameOrPath
-        : kenvPath("db", `${nameOrPath}.json`),
+      filename: dbPath,
     }),
   })
 
-  let isInited = false
-  for await (let [key, value] of Object.entries(
-    initialData
-  )) {
-    if (await keyv.has(key)) {
-      isInited = true
-      break
-    }
-  }
+  if (!fileExists) {
+    let dataToInit
 
-  if (!isInited) {
+    if (typeof initialData === "function") {
+      dataToInit = await (
+        initialData as () => Promise<any>
+      )()
+    } else {
+      dataToInit = initialData
+    }
+
     for await (let [key, value] of Object.entries(
-      initialData
+      dataToInit
     )) {
       await keyv.set(key, value)
     }

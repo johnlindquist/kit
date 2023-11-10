@@ -202,7 +202,7 @@ let menu = async (
   label: string,
   scripts: string[] = []
 ) => {
-  send(Channel.SET_TRAY, {
+  return sendWait(Channel.SET_TRAY, {
     label,
     scripts,
   })
