@@ -14,6 +14,14 @@ await importKit("api/global.js")
 await importKit("api/kit.js")
 await importKit("api/lib.js")
 await importKit("target/terminal.js")
+await importKit("platform/base.js")
+
+let platform = os.platform()
+try {
+  await importKit(`platform/${platform}.js`)
+} catch (error) {
+  // console.log(`No ./platform/${platform}.js`)
+}
 
 export let kitMockPath = (...parts) =>
   path.resolve(home(".kit-mock-path"), ...parts)
