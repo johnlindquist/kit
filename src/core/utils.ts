@@ -441,6 +441,11 @@ export let formatScriptMetadata = (
       metadata?.group
   }
 
+  if (metadata?.recent) {
+    ;(metadata as unknown as ScriptMetadata).recent =
+      Boolean(metadata?.recent === "true")
+  }
+
   metadata.type = metadata?.schedule
     ? ProcessType.Schedule
     : metadata?.watch
@@ -1316,7 +1321,14 @@ export let groupChoices = (
   }
 
   for (let choice of choices) {
-    if (choice[recentKey] && !choice.pass) {
+    if (
+      choice[recentKey] &&
+      !choice.pass &&
+      !(
+        typeof choice?.recent === "boolean" &&
+        choice?.recent === false
+      )
+    ) {
       // TODO: Implement "recentLimit" number to the most recent choices
       // If choice is recent, add to the Recent group
       recentGroup.choices.push(choice)
@@ -1398,7 +1410,12 @@ export let groupChoices = (
   groups = groups.map((g, i) => {
     const maybeKey = sortChoicesKey?.[i]
     const sortKey =
-      typeof maybeKey === "string" ? maybeKey : "name"
+      typeof maybeKey === "boolean" && maybeKey === false
+        ? false
+        : typeof maybeKey === "string"
+        ? maybeKey
+        : "name"
+
     if (sortKey) {
       g.choices = g.choices.sort((a, b) => {
         if (a?.[sortKey] < b?.[sortKey]) return -1

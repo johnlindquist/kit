@@ -9,10 +9,11 @@ let selectedDoc = await docs(
   kitPath("GUIDE.md"),
   createGuideConfig({
     name: "Guide",
+    guidePath: kitPath("GUIDE.md"),
     itemHeight: PROMPT.ITEM.HEIGHT.SM,
     input: arg?.input || arg?.input || "",
     placeholder: "Browse Guide",
-    enter: `Suggest Edit`,
+    enter: `Open API.md`,
     preventCollapse: true,
     onNoChoices: async input => {
       setPanel(

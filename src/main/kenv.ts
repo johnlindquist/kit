@@ -36,6 +36,21 @@ let otherOptions: Choice<keyof CLI>[] = [
       "Pick a new keyboard shortcut for a script",
     value: "change-shortcut",
   },
+  {
+    name: "Move ~/.kenv",
+    description:
+      "Move your main kenv directory to another location",
+    value: "kenv-change-dir",
+    preview: md(`## Move .kenv Parent Directory
+
+    <!-- description: Move .kenv from "home" -->
+    <!-- value: cli/kenv-change-dir.js -->
+    <!-- enter: Select Parent Directory -->
+    
+    By default, your ".kenv" is store in your system's home directory.
+    
+    If you'd like to move it to ~/.config/.kenv or somewhere else, press Enter then select a new parent directory.`),
+  },
 ]
 
 let cliScript = await arg(

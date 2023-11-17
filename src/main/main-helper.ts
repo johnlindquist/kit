@@ -5,7 +5,9 @@ import { PromptConfig, Shortcut } from "../types/core.js"
 import { GuideSection } from "../types/kitapp.js"
 
 export let createGuideConfig =
-  (config: Partial<PromptConfig>) =>
+  (
+    config: Partial<PromptConfig> & { guidePath?: string }
+  ) =>
   async (sections: GuideSection[]) => {
     let getCodeblocks = (name: string): string => {
       let fileMarkdown = sections.find(
@@ -25,9 +27,10 @@ export let createGuideConfig =
 
     let shortcuts: Shortcut[] = [
       {
-        name: `Try It!`,
-        key: `${cmd}+n`,
+        name: `Playground`,
+        key: `${cmd}+p`,
         bar: "right",
+        visible: true,
         condition: focused => {
           let codeblocks = getCodeblocks(focused?.name)
           return codeblocks.trim().length > 0
@@ -40,6 +43,9 @@ export let createGuideConfig =
             /[^a-zA-Z0-9]/g,
             "-"
           )
+
+          // remove any emoji
+          name = name.replace(/:.+?:/g, "")
 
           name = `playground-${name}`
 
@@ -56,7 +62,16 @@ export let createGuideConfig =
             .join("\n")
 
           contents = `// Name: ${name}
-// Description: Generated from ${focused?.name} docs
+// Description: Generated from ${focused?.name} ${
+            config?.guidePath
+              ? path.basename(config.guidePath)
+              : "docs"
+          }${
+            config?.guidePath
+              ? `\n// Path: ${config.guidePath}`
+              : ""
+          }
+                             
 import "@johnlindquist/kit"
 
 ${contents}`
@@ -75,24 +90,25 @@ ${contents}`
           )
         },
       },
-      {
-        name: `Copy Examples`,
-        key: `${cmd}+c`,
-        bar: "right",
-        condition: focused => {
-          let codeblocks = getCodeblocks(focused?.name)
-          return codeblocks.trim().length > 0
-        },
-        onPress: async (input, { focused }) => {
-          let codeBlocks = getCodeblocks(focused?.name)
-          copy(codeBlocks)
-          setName("Copied to Clipboard!")
-        },
-      },
+      // {
+      //   name: `Copy Examples`,
+      //   key: `${cmd}+c`,
+      //   bar: "right",
+      //   condition: focused => {
+      //     let codeblocks = getCodeblocks(focused?.name)
+      //     return codeblocks.trim().length > 0
+      //   },
+      //   onPress: async (input, { focused }) => {
+      //     let codeBlocks = getCodeblocks(focused?.name)
+      //     copy(codeBlocks)
+      //     setName("Copied to Clipboard!")
+      //   },
+      // },
       {
         name: `Scroll`,
         key: `${cmd}+down`,
         bar: "right",
+        visible: true,
         onPress: async (input, { focused }) => {},
       },
     ]

@@ -115,9 +115,6 @@ if (errorMessage.includes("Cannot find package")) {
       placeholder: `🤕 Error in ${script}`,
       ignoreBlur: true,
       hint,
-      onEscape: async () => {
-        await mainScript()
-      },
       shortcuts: [
         {
           name: "Close",

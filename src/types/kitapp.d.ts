@@ -37,6 +37,7 @@ import {
   UiohookMouseEvent,
   UiohookWheelEvent,
 } from "./io"
+import { FileSearchOptions } from "./platform"
 
 export type Status = (typeof statuses)[number]
 
@@ -118,7 +119,10 @@ export type GetTypedText = {
 }
 
 export type Find = {
-  (config?: PromptConfig): Promise<string>
+  (
+    placeholderOrConfig?: string | PromptConfig,
+    options?: FileSearchOptions
+  ): Promise<string>
 }
 
 export type Editor = {
@@ -709,10 +713,6 @@ export interface SetTheme {
   (theme: Partial<KitTheme>): Promise<void>
 }
 
-export interface SetConfig {
-  (config: Config): void
-}
-
 export interface SetPlaceholder {
   (placeholder: string): void
 }
@@ -832,9 +832,6 @@ export interface KitClipboard {
 
   clear: () => Promise<void>
 }
-export interface SetAppearance {
-  (appearance: "light" | "dark" | "auto"): Promise<void>
-}
 
 export interface RegisterShortcut {
   (shortcut: string, callback: () => void): Promise<void>
@@ -847,6 +844,7 @@ export interface UnregisterShortcut {
 export type GuideSection = {
   name: string
   raw: string
+  group: string
   comments: {
     [key: string]: string
   }
@@ -908,8 +906,6 @@ export interface AppApi {
   setTheme: SetTheme
   setScriptTheme: SetTheme
 
-  setConfig: SetConfig
-
   show: ShowAppWindow
   showImage: ShowAppWindow
 
@@ -961,7 +957,6 @@ export interface AppApi {
 
   focus: () => Promise<void>
   setAlwaysOnTop: (alwaysOnTop: boolean) => Promise<void>
-  setAppearance: SetAppearance
   docs: Docs
   getAppState: any
 
@@ -1036,8 +1031,6 @@ declare global {
   var setTheme: SetTheme
   var setScriptTheme: SetTheme
 
-  var setConfig: SetConfig
-
   var show: ShowAppWindow
   var showImage: ShowAppWindow
 
@@ -1073,7 +1066,6 @@ declare global {
     alwaysOnTop: boolean
   ) => Promise<void>
 
-  var setAppearance: SetAppearance
   var docs: Docs
   var getAppState: any
 

@@ -219,6 +219,8 @@ let invocation = 0
 let invokeChoices = async (props: InvokeChoicesProps) => {
   invocation++
   let localInvocation = invocation
+  if (!props?.choices) return
+
   if (Array.isArray(props.choices)) {
     displayChoices(props)
     return props.choices
@@ -237,7 +239,7 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
       displayChoices({
         ...props,
         choices: result,
-        generated: true,
+        generated: (props.choices as Function).length !== 0,
       })
       return result
     }
@@ -245,7 +247,7 @@ let invokeChoices = async (props: InvokeChoicesProps) => {
     displayChoices({
       ...props,
       choices: resultOrPromise,
-      generated: true,
+      generated: (props.choices as Function).length !== 0,
     })
     return resultOrPromise
   }
@@ -262,6 +264,7 @@ let getInitialChoices = async (
     setChoices([])
   }
   if (typeof props?.choices === "function") {
+    log({ getInitialChoices: props?.choices?.length })
     return await invokeChoices({ ...props })
   } else {
     displayChoices(props)
@@ -487,10 +490,16 @@ let waitForPromptValue = ({
           )
           return
         }
-        let { value, focused } = data?.state
+        let { value, focused, multiple, selected } =
+          data?.state
         let choice = (global.kitPrevChoices || []).find(
           (c: Choice) => c.id === focused?.id
         )
+
+        // handle when a select prompt uses a flag
+        if (multiple) {
+          return selected
+        }
 
         // TODO: Dont use onSubmit for chat component? onUserMessage maybe?
         if (global.__kitPromptState?.ui !== UI.chat) {
@@ -985,11 +994,14 @@ let prepPrompt = async (config: PromptConfig) => {
       escapeDefault && !hasEscapeShortcut
     )
   }
+  let choicesAreAFunction = typeof choices === "function"
+  let choicesHasAnInputArg =
+    (choices as Function)?.length > 0
 
   let mode =
-    typeof choices === "function" && choices?.length > 0
-      ? Mode.GENERATE
-      : Mode.FILTER
+    !choicesAreAFunction || !choicesHasAnInputArg
+      ? Mode.FILTER
+      : Mode.GENERATE
 
   let promptData = {
     footer: footer || "",
@@ -1039,12 +1051,13 @@ let createOnInputDefault = (
   className,
   debounceInput
 ) => {
-  let mode =
-    typeof choices === "function" && choices?.length > 0
-      ? Mode.GENERATE
-      : Mode.FILTER
+  let choicesAreAFunction = typeof choices === "function"
+  let choicesHasAnInputArg = choices?.length > 0
 
-  if (mode !== Mode.GENERATE) return async () => {}
+  if (!choicesAreAFunction || !choicesHasAnInputArg) {
+    return async () => {}
+  }
+
   // "input" is on the state, so this is only provided as a convenience for the user
   let _promptId = promptId
   return debounce(async (input, state) => {
@@ -1064,12 +1077,13 @@ let createOnActionInputDefault = (
   className,
   debounceInput
 ) => {
-  let mode =
-    typeof actions === "function" && actions?.length > 0
-      ? Mode.GENERATE
-      : Mode.FILTER
+  let actionsAreAFunction = typeof actions === "function"
+  let actionsHasAnInputArg = actions?.length > 0
 
-  if (mode !== Mode.GENERATE) return async () => {}
+  if (!actionsAreAFunction || !actionsHasAnInputArg) {
+    return async () => {}
+  }
+
   // "input" is on the state, so this is only provided as a convenience for the user
   let _promptId = promptId
   return debounce(async (input, state) => {
@@ -1155,6 +1169,14 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   if (typeof config?.keyword === "string") {
     delete arg?.keyword
+  }
+
+  if (config?.focused) {
+    config.defaultValue = config.focused
+  }
+
+  if (config?.focusedId) {
+    config.defaultChoiceId = config.focusedId
   }
 
   let {
@@ -1460,34 +1482,79 @@ global.docs = async (filePath: string, options = {}) => {
 
   let sections: GuideSection[] = []
   let placeholder = ""
-  for (let token of tokens) {
-    if (token.type === "heading" && token.depth === 1) {
-      setName(token.text)
-      placeholder = token.text
-      continue
-    }
+  let group = ""
+  let order = []
+  let useGroups = tokens.find(
+    t => t.type === "heading" && t.depth === 3
+  )
 
-    if (token.type === "heading" && token.depth === 2) {
-      sections.push({
-        name: token.text,
-        raw: `# ${token.text}\n\n`,
-        comments: {},
-      })
-    } else if (
-      sections.length &&
-      token.type === "html" &&
-      token.text.startsWith("<!--")
-    ) {
-      let [key, value] = token.text
+  let parseKVFromText = (text: string) => {
+    return (
+      text
         .replace(/<!--(.*)-->/, "$1")
         .trim()
         // Only split on the first colon and filter out empty strings
         .split(/:(.+)/)
         .map(s => s.trim())
         .filter(s => s.length > 0)
+    )
+  }
 
-      sections[sections.length - 1].comments[key.trim()] =
-        value.trim()
+  let h1Value = ""
+  let h2Value = ""
+  let currentHeading = ""
+
+  for (let token of tokens) {
+    if (token.type === "heading" && token.depth < 3) {
+      currentHeading = `h${token.depth}`
+    }
+
+    if (token.type === "heading" && token.depth === 1) {
+      setName(token.text)
+      placeholder = token.text
+
+      continue
+    }
+
+    if (
+      token.type === "heading" &&
+      token.depth === 2 &&
+      useGroups
+    ) {
+      group = token.text
+      if (!order.includes(group)) order.push(group)
+    } else if (
+      token.type === "heading" &&
+      token.depth === 3
+    ) {
+      sections.push({
+        name: token.text,
+        group,
+        raw: `# ${token.text}\n\n`,
+        comments: {
+          // TODO: determine if we want to keep a strategy where values can default to the parent heading value
+          // value: h2Value || h1Value,
+        },
+      })
+    } else if (
+      token.type === "html" &&
+      token.text.startsWith("<!--")
+    ) {
+      // Fallback to h2/h1s
+      let [key, value] = parseKVFromText(token.text)
+      let trimmedValue = value.trim()
+      if (key === "value") {
+        if (currentHeading === "h1") {
+          h1Value = trimmedValue
+        } else if (currentHeading === "h2") {
+          h2Value = trimmedValue
+        }
+      }
+
+      if (sections.length) {
+        sections[sections.length - 1].comments[key.trim()] =
+          trimmedValue
+      }
     } else if (sections.length) {
       sections[sections.length - 1].raw += token.raw
     }
@@ -1502,22 +1569,34 @@ global.docs = async (filePath: string, options = {}) => {
     "p-5 prose dark:prose-dark prose-sm"
 
   let choices = sections.map(section => {
+    let value = section?.comments?.value || section?.name
+
     return {
       name: section.name,
       className: "text-base",
       preview: async () =>
         highlight(section.raw, containerClasses),
-      value: section?.comments?.value || section?.name,
+      value,
       ...section.comments,
+      group: section?.group,
     }
+  })
+
+  let groupedChoices = groupChoices(choices, {
+    order,
+    sortChoicesKey: Array.from(
+      { length: order.length },
+      () => false
+    ),
   })
 
   return await arg(
     {
       placeholder,
+
       ...config,
     },
-    choices
+    groupedChoices
   )
 }
 
@@ -1650,7 +1729,7 @@ global.hotkey = async (
 }
 
 global.basePrompt = async (
-  placeholderOrConfig = "Type a value:",
+  placeholderOrConfig = "Enter text...",
   choices = ``,
   actions = ``
 ) => {
@@ -1759,7 +1838,8 @@ global.basePrompt = async (
 
 global.select = async (
   placeholderOrConfig = "Type a value:",
-  choices = []
+  choices = [],
+  actions = []
 ) => {
   let config: PromptConfig = {
     multiple: true,
@@ -1795,7 +1875,7 @@ global.select = async (
     }
   }
 
-  return await arg(config, choices)
+  return await arg(config, choices, actions)
 }
 
 global.mini = async (
@@ -2463,6 +2543,42 @@ let __pathSelector = async (
     },
   })
 
+  let currentDirChoices = async (
+    startPath,
+    dirFilter = () => true
+  ) => {
+    try {
+      let choices = await createPathChoices(startPath, {
+        dirFilter,
+        onlyDirs,
+      })
+
+      choices.push({
+        name: `Create File "{base}"`,
+        miss: true,
+        value: "create-file",
+        enter: "Create File",
+      })
+
+      choices.push({
+        name: `Create Folder "{base}"`,
+        miss: true,
+        value: "create-folder",
+        enter: "Create Folder",
+      })
+
+      await setChoices(choices, {
+        skipInitialSearch: false,
+        inputRegex: `[^\\${path.sep}]+$`,
+      })
+      setPauseResize(false)
+      if (focusOn) setFocused(focusOn)
+      focusOn = ``
+    } catch {
+      setPanel(md(`### Failed to read ${startPath}`))
+    }
+  }
+
   let inputRegex = `[^\\${path.sep}]+$`
   setFilterInput(inputRegex)
 
@@ -2477,13 +2593,6 @@ let __pathSelector = async (
     // if (!input) {
     //   await mainScript()
     // }
-    let dirFilter = dirent => {
-      // if (dirent.name.startsWith(".")) {
-      //   return input?.includes(path.sep + ".") || showHidden
-      // }
-
-      return true
-    }
 
     if (input?.startsWith("~")) startPath = home()
 
@@ -2494,36 +2603,7 @@ let __pathSelector = async (
     }
     let isCurrentDir = await isDir(startPath)
     if (isCurrentDir) {
-      try {
-        let choices = await createPathChoices(startPath, {
-          dirFilter,
-          onlyDirs,
-        })
-
-        choices.push({
-          name: `Create File "{base}"`,
-          miss: true,
-          value: "create-file",
-          enter: "Create File",
-        })
-
-        choices.push({
-          name: `Create Folder "{base}"`,
-          miss: true,
-          value: "create-folder",
-          enter: "Create Folder",
-        })
-
-        await setChoices(choices, {
-          skipInitialSearch: false,
-          inputRegex: `[^\\${path.sep}]+$`,
-        })
-        setPauseResize(false)
-        if (focusOn) setFocused(focusOn)
-        focusOn = ``
-      } catch {
-        setPanel(md(`### Failed to read ${startPath}`))
-      }
+      await currentDirChoices(startPath)
     } else {
       setPanel(md(`### ${startPath} is not a path`))
     }
@@ -2718,6 +2798,14 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       inputRegex: `[^\\${path.sep}]+$`,
       onInput,
       onTab,
+      onMenuToggle: async (input, state) => {
+        onMenuToggleDefault(input, state)
+
+        if (!state.flaggedValue) {
+          setInput(currentInput)
+          await lsCurrentDir(currentInput)
+        }
+      },
       ignoreBlur: true,
       alwaysOnTop: true,
       // onRight,
@@ -2898,10 +2986,6 @@ global.clipboard = {
   clear: async () => {
     return await sendWait(Channel.CLIPBOARD_CLEAR)
   },
-}
-
-global.setConfig = async (config: Partial<Config>) => {
-  send(Channel.SET_CONFIG, config)
 }
 
 global.setStatus = async (status: KitStatus) => {
@@ -3164,10 +3248,6 @@ global.getExtraLibs = async (): Promise<ExtraLib[]> => {
     warn(error)
   }
   return [...nodeLibs, ...kitLibs]
-}
-
-global.setAppearance = async appearance => {
-  await sendWait(Channel.SET_APPEARANCE, appearance)
 }
 
 global.setShortcuts = async shortcuts => {

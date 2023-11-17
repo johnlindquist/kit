@@ -10,6 +10,7 @@ let cliScript = await docs(
   kitPath("KIT.md"),
   createGuideConfig({
     name: "Kit",
+    guidePath: kitPath("KIT.md"),
     input: arg?.input || "",
     placeholder: "Kit Actions",
     preventCollapse: true,
@@ -22,5 +23,10 @@ Feel free to [suggest an edit](https://github.com/johnlindquist/kit/blob/main/KI
     },
   })
 )
-await run(kitPath(cliScript))
+if (cliScript.startsWith("http")) {
+  open(cliScript)
+} else {
+  await run(kitPath(cliScript))
+}
+
 export {}

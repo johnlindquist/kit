@@ -22,6 +22,7 @@ let kitImport = async (...pathParts: string[]) =>
 await kitImport("api", "global.js")
 await kitImport("api", "kit.js")
 await kitImport("api", "lib.js")
+await import(`../platform/base.js`)
 
 let platform = process.env?.PLATFORM || os.platform()
 

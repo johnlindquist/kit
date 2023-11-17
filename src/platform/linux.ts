@@ -62,4 +62,4 @@ global.setWindowSizeByIndex = notSupported(
 global.shutdown = notSupported("shutdown")
 global.sleep = notSupported("sleep")
 global.tileWindow = notSupported("tileWindow")
-global.find = notSupported("find")
+global.fileSearch = notSupported("fileSearch")

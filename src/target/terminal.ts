@@ -370,10 +370,6 @@ global.submit = async (value: any) => {
   notSupported("submit")
 }
 
-global.setConfig = (value: any) => {
-  notSupported("setConfig")
-}
-
 global.setLoading = (loading: boolean) => {}
 global.setRunning = (running: boolean) => {}
 

@@ -7,6 +7,7 @@ import { configEnv } from "../core/utils.js"
 await import("../api/global.js")
 await import("../api/kit.js")
 await import("../api/lib.js")
+await import(`../platform/base.js`)
 
 let platform = process.env?.PLATFORM || os.platform()
 try {

@@ -132,54 +132,70 @@ export let db = async <T = any>(
     }
   }
 
-  let jsonFile = new JSONFile(dbPath)
-  let result = await jsonFile.read()
-
-  let _db = new Low(jsonFile, result)
-
-  try {
-    await _db.read()
-  } catch (error) {
-    // if dbPath dir is kitPath("db"), then delete the dbPath file and try again
-    if (global?.warn) {
-      try {
-        global.warn(error)
-      } catch (error) {}
-    }
-
-    if (path.dirname(dbPath) === kitPath("db")) {
-      // await rm(dbPath)
-      _db = new Low(jsonFile, result)
-      await _db.read()
-    }
-  }
-
-  if (!_db.data || !fromCache) {
-    let getData = async () => {
-      if (typeof data === "function") {
-        let result = await (data as any)()
-        if (Array.isArray(result)) return { items: result }
-
-        return result
-      }
-
-      if (Array.isArray(data)) return { items: data }
-
-      return data
-    }
-
-    _db.data = await getData()
+  let _db
+  let init = async () => {
+    let jsonFile = new JSONFile(dbPath)
+    let result = await jsonFile.read()
+    _db = new Low(jsonFile, result)
 
     try {
-      await _db.write()
+      await _db.read()
     } catch (error) {
-      if (global.log) {
-        global.log(error)
+      // if dbPath dir is kitPath("db"), then delete the dbPath file and try again
+      if (global?.warn) {
+        try {
+          global.warn(error)
+        } catch (error) {}
+      }
+
+      if (path.dirname(dbPath) === kitPath("db")) {
+        // await rm(dbPath)
+        _db = new Low(jsonFile, result)
+        await _db.read()
+      }
+    }
+
+    if (!_db.data || !fromCache) {
+      let getData = async () => {
+        if (typeof data === "function") {
+          let result = await (data as any)()
+          if (Array.isArray(result))
+            return { items: result }
+
+          return result
+        }
+
+        if (Array.isArray(data)) return { items: data }
+
+        return data
+      }
+
+      _db.data = await getData()
+
+      try {
+        await _db.write()
+      } catch (error) {
+        if (global.log) {
+          global.log(error)
+        }
       }
     }
   }
 
-  let dbProxy = new Proxy({} as any, {
+  await init()
+
+  let dbAPI = {
+    dbPath,
+    clear: async () => {
+      await rm(dbPath)
+    },
+    reset: async () => {
+      await rm(dbPath)
+      await init()
+    },
+  }
+
+  let dbProxy = new Proxy(dbAPI as any, {
     get: (_target, k: string) => {
       if (k === "then") return _db
       let d = _db as any

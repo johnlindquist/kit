@@ -40,6 +40,9 @@ export interface CLI {
   "goto-docs": Promise<typeof import("./goto-docs")>
   "goto-guide": Promise<typeof import("./goto-guide")>
   tips: Promise<typeof import("./tips")>
+  "kenv-change-dir": Promise<
+    typeof import("./kenv-change-dir")
+  >
   "manage-npm": Promise<typeof import("./manage-npm")>
   "more-info": Promise<typeof import("./more-info")>
   "new-from-template": Promise<

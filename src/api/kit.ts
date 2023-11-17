@@ -47,7 +47,12 @@ global.isMac = os.platform().startsWith("darwin")
 global.isLinux = os.platform().startsWith("linux")
 global.cmd = global.isMac ? "cmd" : "ctrl"
 
+let isErrored = false
 export let errorPrompt = async (error: Error) => {
+  if (isErrored) {
+    return
+  }
+  isErrored = true
   if (global.__kitAbandoned) {
     let { name } = path.parse(global.kitScript)
     let errorLog = path.resolve(

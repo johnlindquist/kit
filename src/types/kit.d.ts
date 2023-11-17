@@ -31,7 +31,8 @@ export interface Arg {
 export interface Select {
   <T = any[]>(
     placeholderOrConfig?: string | PromptConfig,
-    choices: Choices<T>
+    choices: Choices<T>,
+    actions?: Action[]
   )
 }
 export interface EnvConfig extends PromptConfig {
@@ -424,7 +425,7 @@ declare global {
       groupKey?: string
       missingGroupName?: string
       order?: string[]
-      sortChoicesKey?: string[]
+      sortChoicesKey?: (string | boolean)[]
       recentKey?: string
       recentLimit?: number
       excludeGroups?: string[]

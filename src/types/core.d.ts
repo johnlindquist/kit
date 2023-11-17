@@ -58,6 +58,7 @@ export interface Choice<Value = any> {
   selected?: boolean
   actions?: Action[]
   exact?: boolean
+  recent?: boolean
 }
 
 export interface ScoredChoice {
@@ -131,6 +132,7 @@ export interface ScriptMetadata {
   group?: string
   keyword?: string
   enter?: string
+  recent?: boolean
 }
 
 export type Script = ScriptMetadata &
@@ -225,6 +227,7 @@ export interface PromptData {
   scripts: boolean
   onInputSubmit: { [key: string]: any }
   defaultChoiceId: string
+  focusedId: string
   footer: string
   env: any
   shortcuts: Shortcut[]
@@ -242,6 +245,7 @@ export interface PromptData {
   itemHeight: number
   inputHeight: number
   defaultValue: string
+  focused: string
   formData?: any
   html?: string
   theme?: any

@@ -1,6 +1,9 @@
 # Script Kit Guide
 
-## Running a Script
+
+## Run
+
+### Running Scripts
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -8,7 +11,9 @@ Press `cmd+;` (or `ctrl+;` on Windows) to open the Script Kit prompt. Search for
 
 You can also open the prompt from the menu bar and select "Open Prompt."
 
-## Debugging a Script
+## Debug
+
+### Debugging Scripts
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -21,7 +26,9 @@ let response = await get("https://api.github.com/repos/johnlindquist/kit")
 debugger
 ```
 
-## Create a Script
+## Create
+
+### Create a Script
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -31,7 +38,7 @@ With the Kit.app prompt open, start typing the name of the script you want to cr
 
 Kit.app continuously watches the `~/.kenv/scripts` directory for changes. Creating, deleting, or modifying scripts will be automatically reflected in the Kit.app prompt.
 
-## Naming a Script
+### Naming a Script
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -44,7 +51,7 @@ The file name of the script is lowercased and dashed like `hello-world.js` by co
 When creating a script with the prompt, you can type the `Friendly Name` of the script and Kit.app will automatically create the dashed file name for you.
 
 
-## // Shortcut Metadata
+### // Shortcut Metadata
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -66,8 +73,9 @@ import "@johnlindquist/kit"
 say(`You pressed option i`)
 ```
 
+## Basics
 
-## Input Text with `await arg()`
+### Input Text with `await arg()`
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -83,7 +91,7 @@ let name = await arg("Enter your name")
 await div(md(`Hello, ${name}`))
 ```
 
-## Select From a List of Strings
+### Select From a List of Strings
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -101,7 +109,7 @@ let fruit = await arg("Pick a fruit", [
 await div(md(`You selected ${fruit}`))
 ```
 
-## Select From a List of Objects
+### Select From a List of Objects
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -137,7 +145,7 @@ await div(
 )
 ```
 
-## Select from a Dynamic List
+### Select from a Dynamic List
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -156,7 +164,7 @@ await arg("Select a Star Wars Character", async () => {
 
 
 
-## Display a Preview When Focusing a Choice
+### Display a Preview When Focusing a Choice
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -180,7 +188,7 @@ let height = await arg("Select a Kitten", choices)
 await div(md(`You selected ${height}`))
 ```
 
-## Display HTML Beneath the Input
+### Display HTML Beneath the Input
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -241,7 +249,7 @@ Just type some text to see the choices update
 )
 ```
 
-## Display Only HTML
+### Display Only HTML
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -255,7 +263,7 @@ import "@johnlindquist/kit"
 await div(`<h1>Hello World</h1>`)
 ```
 
-### Style the Container
+### Style a Container
 
 The second argument of `div` allows you to add [tailwind](https://tailwindcss.com/) classes to the container of your html. For example, `p-5` will add a `padding: 1.25rem;` to the container.
 
@@ -264,7 +272,7 @@ await div(`<h1>Hi</h1>`, `p-5`)
 ```
 
 
-## Display HTML with CSS
+### Display HTML with CSS
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -280,7 +288,7 @@ await div(
 )
 ```
 
-## Display Markdown
+### Display Markdown
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -296,22 +304,7 @@ let html = md(`# Hello World`)
 await div(html)
 ```
 
-## Create a Widget
-
-<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
-
-Use the `widget` method to spawn a new, persisting window that is disconnected from the script.
-
-```js
-await widget(`
-<div class="bg-black text-white h-screen p-5">
-    Hello there!
-<div>
-
-`)
-```
-
-## Set Options using Flags
+### Set Options using Flags
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -355,7 +348,9 @@ Using the same script above, In the terminal, you would pass an open flag like s
 my-sites --open
 ```
 
-## Store Simple JSON data with db
+## Cache
+
+### Store Simple JSON data with db
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -421,7 +416,9 @@ await scriptDB.write();
 ```
 
 
-## Watch Files to Trigger Scripts
+## Watch
+
+### Watch Files to Trigger Scripts
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -469,7 +466,7 @@ if (event === "add") {
 }
 ```
 
-
+## Command
 
 ## Run Shell Commands
 
@@ -496,6 +493,8 @@ await Promise.all([
 let name = "foo bar"
 await $`mkdir /tmp/${name}`
 ```
+
+## Requests
 
 ## Make HTTP Requests with get, put, post, and del
 
@@ -538,7 +537,7 @@ await div(md(response.data.message))
 
 
 
-## Download Files
+### Download Files
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -558,7 +557,9 @@ let filePath = home(fileName)
 await writeFile(filePath, buffer)
 ```
 
-## Read a Text File
+## Files
+
+### Read a Text File
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -580,7 +581,7 @@ let contents = await readFile(filePath, "utf-8")
 await editor(contents)
 ```
 
-## Create a Text File
+### Create a Text File
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -602,7 +603,7 @@ if (!exists) {
 
 
 
-## Live Edit a Text File
+### Live Edit a Text File
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -625,8 +626,9 @@ await editor({
 })
 ```
 
+## Schedule
 
-## Run a Script on a Schedule
+### Run a Script on a Schedule
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -645,7 +647,9 @@ notify(`Stand up and stretch`)
 
 [Crontab.guru](https://crontab.guru/) is a great utility to help generate and understand cron syntax.
 
-## Environment Variables
+## .env
+
+### Environment Variables
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -663,7 +667,7 @@ await div(md(`You loaded ${KEY} from ~/.kenv/.env`))
 
 
 
-## Environment Variable Async Prompt
+### Environment Variable Async Prompt
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -690,9 +694,9 @@ await div(
 )
 ```
 
+## Share
 
-
-## Share as a Gist, Link, URL, or Markdown
+### Share as a Gist, Link, URL, or Markdown
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -703,7 +707,9 @@ The Script Kit main window also includes many other share options:
 - Share as URL <kbd>opt+u</kbd>: Creates a Gist of the selected script, then copies an installable public URL to the clipboard
 - Share as Markdown <kbd>cmd+m</kbd>: Copies the selected script as a Markdown snippet to the clipboard
 
-## Get Featured
+## Community
+
+### Get Featured
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -716,7 +722,9 @@ To get featured, post your script to the [Script Kit Github discussions Share pa
 
 As a shortcut, hit <kbd>cmd+s</kbd> with a script selected to automatically run the "Share as Discussion" process.
 
-## Experiment with Data in Chrome DevTools
+## Inspect
+
+### Experiment with Data in Chrome DevTools
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -733,7 +741,9 @@ dev({
 })
 ```
 
-## // Shortcode Metadata
+## Metadata
+
+### // Shortcode Metadata
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -749,7 +759,9 @@ import "@johnlindquist/kit"
 say(`You pressed option i`)
 ```
 
-## Quick Submit from Hint
+## Tips
+
+### Quick Submit from Hint
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -770,7 +782,7 @@ if (value === "y") {
 }
 ```
 
-## Quick Submit from Choice
+### Quick Submit from Choice
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -799,7 +811,7 @@ await div(md(value))
 
 
 
-## Run Scripts from Other Apps
+### Run Scripts from Other Apps
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -829,8 +841,9 @@ Any arguments you pass to the script will also be sent along. So if you want to 
 ~/.kit/kar center-app 50
 ```
 
+## Path
 
-## Select a Path
+### Select a Path
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -844,7 +857,7 @@ let filePath = await path()
 await div(md(`You selected ${filePath}`))
 ```
 
-## Select a Path with Options
+### Select a Path with Options
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -877,7 +890,7 @@ await path({
 ```
 
 
-## Select from Finder Prompts
+### Select from Finder Prompts
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -893,7 +906,9 @@ let folderPath = await selectFolder()
 await div(md(`You selected ${filePath} and ${folderPath}`))
 ```
 
-## Built-in Terminal
+## Terminal
+
+### Built-in Terminal
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -913,9 +928,9 @@ await term({
 
 
 
+## Editor
 
-
-## Built-in Editor
+### Built-in Editor
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -931,7 +946,7 @@ let result = await editor()
 await div(md(result))
 ```
 
-## Load Text in the Editor
+### Load Text in the Editor
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -954,8 +969,9 @@ let result = await editor({
 await div(md(result))
 ```
 
+## Config
 
-## Add ~/.kit/bin to $PATH
+### Add ~/.kit/bin to $PATH
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -977,7 +993,7 @@ kit
 
 The `kit` CLI will allow you to run, edit, etc scripts from your terminal.
 
-## Required Permissions for Features
+### Required Permissions for Features
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -990,7 +1006,9 @@ Kit.app requires accessibility permission for the following reasons:
 
 ![osx preferences panel](https://user-images.githubusercontent.com/36073/174673600-59020e49-be04-4786-81f7-5bbe20a9ce6c.png)
 
-## Submit From Live Data
+## Submit
+
+### Submit From Live Data
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1020,7 +1038,7 @@ intervalId = setInterval(() => {
 ```
 
 
-## Strict Mode
+### Strict Mode
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1051,8 +1069,9 @@ let fruitOrInput = await arg(
 await textarea(`${fruit} and ${fruitOrInput}`)
 ```
 
+## Tips
 
-## Quick Keys
+### Quick Keys
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1096,8 +1115,24 @@ console.log(vegetable) //"Celery" or "Carrot"
 ```
 
 
+## Widget
 
-## Position a Widget on Screen
+### Create a Widget
+
+<!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
+
+Use the `widget` method to spawn a new, persisting window that is disconnected from the script.
+
+```js
+await widget(`
+<div class="bg-black text-white h-screen p-5">
+    Hello there!
+<div>
+
+`)
+```
+
+### Position a Widget on Screen
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1127,7 +1162,9 @@ await widget(
 )
 ```
 
-## Update on Input
+## Advanced Prompt
+
+### Update on Input
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1165,7 +1202,9 @@ ${input ? cToF(input) + "f" : `Waiting for input`}
 )
 ```
 
-## Clone Git Repos with degit
+## Git
+
+### Clone Git Repos with degit
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1182,7 +1221,9 @@ await degit(`https://github.com/sveltejs/template`).clone(
 edit(targetDir)
 ```
 
-## View Logs
+## Log
+
+### View Logs
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1208,7 +1249,7 @@ If you want to watch the main log, you can use:
 tail -f ~/.kit/logs/kit.log
 ```
 
-## Save webpage as a PDF
+### Save webpage as a PDF
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1224,7 +1265,7 @@ const pdfResults = await getWebpageAsPdf('https://legiblenews.com');
 await writeFile(home('news.pdf'), pdfResults);
 ```
 
-## Take screenshot of webpage
+### Take screenshot of webpage
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1242,7 +1283,7 @@ const screenshotResults = await getScreenshotFromWebpage('https://legiblenews.co
 await writeFile(home('news.png'), screenshotResults);
 ```
 
-## Scrape content from a webpage
+### Scrape content from a webpage
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
@@ -1275,6 +1316,8 @@ let filePath = home(`pinned-repos.md`)
 // if it doesn't exist
 let content = await ensureReadFile(filePath, items.map(({title, link}) => `- [${title}](${link})`).join('\n'))
 ```
+
+## Contribute
 
 ## Missing Something?
 
