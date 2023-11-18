@@ -91,6 +91,7 @@ await ensureTemplates()
 
 let ext = `.${kitMode()}`
 
+log({ arg, template: arg?.template })
 let template =
   arg?.template ||
   (await env("KIT_TEMPLATE", {

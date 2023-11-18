@@ -1,7 +1,11 @@
-// Name: Unlock Script Kit Pro
-// Description: Add Debugger, Logger, and Support Development
+// Name: Sponsor to Unlock Script Kit Pro
+// NameHTML: <span class="relative ml-0.5" style=""><span class="absolute animate-ping ml-1">🌟</span><span class="">🌟</span></span>
+
+// Description: Unlock Debugger, Logger, and Support Development
 // Enter: Open Sponsorship Page
 // PreviewPath: $KIT/SPONSOR.md
+// Pass: true
+// Bg: shadow-md shadow-primary/25 bg-gradient-to-r from-transparent to-primary-50
 
 let sponsorUrl = `https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205`
 try {

@@ -23,6 +23,7 @@ Feel free to [suggest an edit](https://github.com/johnlindquist/kit/blob/main/KI
     },
   })
 )
+
 if (cliScript.startsWith("http")) {
   open(cliScript)
 } else {

@@ -315,6 +315,11 @@ let createOnChoiceFocusDefault = (
         }
       }
 
+      log({
+        input,
+        previewType: typeof choice?.preview,
+        preview: choice?.preview,
+      })
       if (
         choice &&
         choice?.preview &&
@@ -2989,7 +2994,7 @@ global.clipboard = {
 }
 
 global.setStatus = async (status: KitStatus) => {
-  send(Channel.SET_STATUS, status)
+  await sendWait(Channel.SET_STATUS, status)
 }
 
 global.setTheme = async (theme: KitTheme) => {

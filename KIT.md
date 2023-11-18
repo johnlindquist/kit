@@ -45,12 +45,16 @@ Or just hit _Enter_ to browse all.
 - Tutorials and lessons
 - Script Kit Tips and Tricks
 - Curated dev news
+
+### Sign-in to Share Scripts
+
+<!-- description: Sign-in to share scripts -->
+<!-- value: main/sign-in.js -->
+<!-- enter: Sign-in -->
+
+Sign-in to share scripts with others.
       
 ## FAQ
-
-<!-- description: Frequently asked questions -->
-<!-- value: cli/faq.js -->
-<!-- enter: Discuss on GitHub -->
 
 ### What is Script Kit?
 

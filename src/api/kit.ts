@@ -1043,6 +1043,7 @@ export let getGroupedScripts = async () => {
 
   let kitScripts = [
     kitPath("cli", "new.js"),
+    kitPath("cli", "new-menu.js"),
     kitPath("cli", "new-snippet.js"),
     kitPath("cli", "share.js"),
     kitPath("cli", "find.js"),
@@ -1051,8 +1052,22 @@ export let getGroupedScripts = async () => {
     kitPath("cli", "kenv-manage.js"),
     kitPath("main", "file-search.js"),
     // kitPath("main", "google.js"),
+  ]
+
+  if (env?.KIT_LOGIN) {
+    kitScripts.push(kitPath("main", "account.js"))
+  } else {
+    kitScripts.push(kitPath("main", "sign-in.js"))
+  }
+
+  if (env?.KIT_PRO !== "true") {
+    kitScripts.push(kitPath("main", "sponsor.js"))
+  }
+
+  kitScripts = kitScripts.concat([
     kitPath("main", "api.js"),
     kitPath("main", "guide.js"),
+    kitPath("main", "tips.js"),
     // kitPath("main", "suggest.js"),
     kitPath("main", "datamuse.js"),
     kitPath("main", "giphy.js"),
@@ -1072,17 +1087,7 @@ export let getGroupedScripts = async () => {
     kitPath("main", "emoji.js"),
 
     kitPath("pro", "theme-selector.js"),
-  ]
-
-  if (env?.KIT_LOGIN) {
-    kitScripts.push(kitPath("main", "account.js"))
-  } else {
-    kitScripts.push(kitPath("main", "sign-in.js"))
-  }
-
-  if (env?.KIT_PRO !== "true") {
-    kitScripts.push(kitPath("main", "sponsor.js"))
-  }
+  ])
 
   if (isMac) {
     kitScripts.push(kitPath("main", "system-commands.js"))
@@ -1217,8 +1222,12 @@ export let selectScript = async (
 
 export let processPreviewPath = async (s: Script) => {
   if (s.previewpath) {
+    log({ previewpath: s.previewpath })
+    log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`)
     s.preview = async () => {
       let previewPath = getPreviewPath(s)
+
+      log({ previewPath })
 
       let preview = `<div></div>`
 
@@ -1226,6 +1235,8 @@ export let processPreviewPath = async (s: Script) => {
         preview = await md(
           await readFile(previewPath, "utf8")
         )
+
+        log({ preview })
       }
 
       return preview
@@ -1555,6 +1566,13 @@ global.md = (
   containerClasses = "p-5 prose prose-sm"
 ) => {
   return _md(content + "\n", containerClasses)
+}
+
+export let isAuthenticated = async () => {
+  let envPath = kenvPath(".kenv")
+  let envContents = await readFile(envPath, "utf8")
+  // check if the .env file has a GITHUB_SCRIPTKIT_TOKEN
+  return envContents.match(/^GITHUB_SCRIPTKIT_TOKEN=.*/g)
 }
 
 export let authenticate = async () => {

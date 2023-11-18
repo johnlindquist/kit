@@ -349,6 +349,11 @@ global.edit = async (f, dir, line = 0, col = 0) => {
         child.on("exit", () => {
           clearTimeout(timeout)
         })
+        child.on("SIGTERM", () => {
+          global.log(
+            `Editor process terminated: ${editCommand}`
+          )
+        })
       }
     }
     let editorFn =

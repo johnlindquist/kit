@@ -587,11 +587,67 @@ await writeFile(imagePath, buffer)
 await revealFile(imagePath)
 ```
 
+## Alerts
+
+### beep
+
+Beep the system speaker:
+
+```js
+await beep()
+```
+
+### say
+
+Say something using the built-in text-to-speech:
+
+```js
+await say("Done!")
+```
+
+### setStatus
+
+Set the system menu bar icon and message. 
+Each status message will be appended to a list. 
+Clicking on the menu will display the list of messages. 
+The status and messages will be dismissed once the tray closes, so use `log` if you want to persist messages.
+
+```js
+await setStatus({
+  message: "Working on it...",
+  status: "busy",
+})
+```
+
+### menu
+
+Set the system menu to a custom message/emoji with a list of scripts to run.
+
+```js
+await menu(`👍`, ["my-script", "another-script"])
+```
+
+Reset the menu to the default icon and scripts by passing an empty string
+
+```js
+await menu(``)
+```
+
+### notify
+
+Send a system notification
+
+```js
+await notify("Attention!")
+```
+
+> Note: osx notifications require permissions for "Terminal Notifier" in the system preferences. Due to the complicated nature of configuring notifications, please use a search engine to find the latest instructions for your osx version.
+> In the Script Kit menu bar icon: "Permissions -> Request Notification Permissions" might help.
+
+
 ## Widget
 
 ### widget
-
-
 
 A `widget` creates a new window using HTML. The HTML can be styled via [Tailwind CSS](https://tailwindcss.com/docs/utility-first) class names.
 Templating and interactivity can be added via [petite-vue](https://github.com/vuejs/petite-vue).

@@ -1265,7 +1265,9 @@ export let groupChoices = (
     }
     if (choice?.pass) {
       choice.group = "Pass"
-      choice.preview = `<div></div>`
+      if (!choice.previewpath) {
+        choice.preview = `<div></div>`
+      }
       passGroup.choices.push(choice)
     } else if (
       !Boolean(choice?.group) &&

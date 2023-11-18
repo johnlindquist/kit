@@ -1,6 +1,7 @@
 // Name: Account
 // Description: Join Discord, View Account, and Sponsor
 // Enter: View Account
+// Pass: true
 
 import { authenticate } from "../api/kit.js"
 import { getUserJson, setUserJson } from "../core/db.js"
