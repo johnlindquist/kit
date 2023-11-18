@@ -5,7 +5,7 @@
 // Enter: Open Sponsorship Page
 // PreviewPath: $KIT/SPONSOR.md
 // Pass: true
-// Bg: shadow-md shadow-primary/25 bg-gradient-to-r from-transparent to-primary-50
+// FocusedClassName: shadow-md shadow-primary/25 bg-gradient-to-r from-transparent to-primary-50
 
 let sponsorUrl = `https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205`
 try {

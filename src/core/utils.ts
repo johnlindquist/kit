@@ -365,7 +365,7 @@ export let getMetadata = (contents: string): Metadata => {
 
     let v = value.trim()
     if (v.length) {
-      let k = key.trim().toLowerCase()
+      let k = key[0].toLowerCase() + key.slice(1)
       if (!metadata[k]) metadata[k] = v
     }
   }
@@ -1254,18 +1254,20 @@ export let groupChoices = (
     choices: [],
   }
 
-  let putIntoGroups = choice => {
+  let putIntoGroups = (choice: Choice) => {
     if (tagger) tagger(choice)
     if (
       excludeGroups.find(
-        c => choice?.group === c || choice?.kenv === c
+        c =>
+          choice?.group === c ||
+          (choice as Script)?.kenv === c
       )
     ) {
       choice.exclude = true
     }
     if (choice?.pass) {
       choice.group = "Pass"
-      if (!choice.previewpath) {
+      if (!choice.previewPath) {
         choice.preview = `<div></div>`
       }
       passGroup.choices.push(choice)

@@ -17,6 +17,7 @@ export interface Choice<Value = any> {
         input: string,
         state: AppState
       ) => string | Promise<string>)
+  previewPath?: string
   previewLang?: string
   id?: string
   shortcode?: string
@@ -25,7 +26,9 @@ export interface Choice<Value = any> {
   className?: string
   nameClassName?: string
   tagClassName?: string
+  focusedClassName?: string
   descriptionClassName?: string
+  nameHTML?: string
   tag?: string
   shortcut?: string
   drag?:
@@ -59,6 +62,7 @@ export interface Choice<Value = any> {
   actions?: Action[]
   exact?: boolean
   recent?: boolean
+  bg?: string
 }
 
 export interface ScoredChoice {
@@ -124,7 +128,7 @@ export interface ScriptMetadata {
   ["color-background"]?: string
   ["opacity"]?: string
   preview?: Choice["preview"]
-  previewpath?: string
+  previewPath?: string
   debug?: boolean
   verbose?: boolean
   cache?: boolean

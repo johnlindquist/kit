@@ -1221,9 +1221,7 @@ export let selectScript = async (
 }
 
 export let processPreviewPath = async (s: Script) => {
-  if (s.previewpath) {
-    log({ previewpath: s.previewpath })
-    log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`)
+  if (s.previewPath) {
     s.preview = async () => {
       let previewPath = getPreviewPath(s)
 
@@ -1305,9 +1303,9 @@ ${stamp.compileMessage}
   }
 
 export let getPreviewPath = (s: Script): string => {
-  if (s?.previewpath) {
+  if (s?.previewPath) {
     return path.normalize(
-      s.previewpath
+      s.previewPath
         .replace("~", home())
         .replace("$KIT", kitPath())
     )
