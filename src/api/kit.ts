@@ -1225,16 +1225,12 @@ export let processPreviewPath = async (s: Script) => {
     s.preview = async () => {
       let previewPath = getPreviewPath(s)
 
-      log({ previewPath })
-
       let preview = `<div></div>`
 
       if (await isFile(previewPath)) {
         preview = await md(
           await readFile(previewPath, "utf8")
         )
-
-        log({ preview })
       }
 
       return preview
