@@ -315,11 +315,6 @@ let createOnChoiceFocusDefault = (
         }
       }
 
-      log({
-        input,
-        previewType: typeof choice?.preview,
-        preview: choice?.preview,
-      })
       if (
         choice &&
         choice?.preview &&
