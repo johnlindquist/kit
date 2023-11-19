@@ -1,6 +1,5 @@
 // Name: Sponsor to Unlock Script Kit Pro
-// NameHTML: <span class="relative ml-0.5" style=""><span class="absolute animate-ping ml-1">🌟</span><span class="">🌟</span></span>
-
+// NameHTML: <span class="relative ml-0.5" style=""><span class="absolute animate-ping-emoji text-lg">🌟</span><span class="text-lg animate-pulse-emoji">🌟</span></span>
 // Description: Unlock Debugger, Logger, and Support Development
 // Enter: Open Sponsorship Page
 // PreviewPath: $KIT/SPONSOR.md
