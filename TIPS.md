@@ -7,9 +7,6 @@ Tips are a collection of answers to user questions in GitHub Discussions and our
 ### Format Latest Clipboard Item
 
 ```js
-// Name: Format Latest Clipboard Item
-// Shortcut: opt 5
-
 import "@johnlindquist/kit"
 
 let text = await paste()

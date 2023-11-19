@@ -3,17 +3,17 @@
 // Keyword: tips
 // Pass: true
 
-import { createGuideConfig } from "./main-helper.js"
+import { createTipsConfig } from "./main-helper.js"
 
-let selectedDoc = await docs(
+await docs(
   kitPath("TIPS.md"),
-  createGuideConfig({
+  createTipsConfig({
     name: "Tips",
     guidePath: kitPath("TIPS.md"),
     itemHeight: PROMPT.ITEM.HEIGHT.SM,
     input: arg?.input || arg?.input || "",
     placeholder: "Browse Tips",
-    enter: `Open TIPS.md`,
+    enter: `Create Script`,
     preventCollapse: true,
     onNoChoices: async input => {
       setPanel(
@@ -24,10 +24,5 @@ Tips are constantly evolving. If you're missing something, [suggest an edit](htt
     },
   })
 )
-
-let url =
-  "https://github.com/johnlindquist/kit/blob/main/TIPS.md"
-
-open(url)
 
 export {}

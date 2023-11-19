@@ -663,7 +663,7 @@ export let getKenvs = async (
 }
 
 export let kitMode = () =>
-  (process.env.KIT_MODE || "js").toLowerCase()
+  (process.env.KIT_MODE || "ts").toLowerCase()
 
 global.__kitRun = false
 

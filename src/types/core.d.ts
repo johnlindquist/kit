@@ -62,7 +62,6 @@ export interface Choice<Value = any> {
   actions?: Action[]
   exact?: boolean
   recent?: boolean
-  bg?: string
 }
 
 export interface ScoredChoice {

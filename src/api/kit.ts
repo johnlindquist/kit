@@ -1042,7 +1042,7 @@ export let getGroupedScripts = async () => {
   }
 
   let kitScripts = [
-    kitPath("cli", "new.js"),
+    // kitPath("cli", "new.js"),
     kitPath("cli", "new-menu.js"),
     kitPath("cli", "new-snippet.js"),
     kitPath("cli", "share.js"),

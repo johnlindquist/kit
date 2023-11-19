@@ -11,6 +11,7 @@ export interface Main {
   showandtell: Promise<typeof import("./showandtell")>
   snippets: Promise<typeof import("./snippets")>
   templates: Promise<typeof import("./templates")>
+  tips: Promise<typeof import("./tips")>
 }
 
 interface MainModuleLoader {

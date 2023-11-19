@@ -118,3 +118,38 @@ ${contents}`
       shortcuts,
     } as PromptConfig
   }
+
+export let createTipsConfig =
+  (
+    config: Partial<PromptConfig> & { guidePath?: string }
+  ) =>
+  async (sections: GuideSection[]) => {
+    let getCodeblocks = (name: string): string => {
+      let fileMarkdown = sections.find(
+        s => s.name === name
+      )?.raw
+      if (!fileMarkdown) return ""
+      let lexer = new marked.Lexer()
+      let nodes = lexer.lex(fileMarkdown)
+      // Grab all of the code blocks
+      let codeBlocks = nodes
+        .filter(node => node.type === "code")
+        .map((node: any) => (node?.text ? node.text : ``))
+        .join("\n\n")
+
+      return codeBlocks
+    }
+
+    return {
+      ...config,
+      onSubmit: async (input, { focused }) => {
+        let contents = getCodeblocks(focused?.name)
+
+        if (arg?.keyword) {
+          delete arg.keyword
+        }
+        arg.tip = contents
+        await cli("new")
+      },
+    } as PromptConfig
+  }

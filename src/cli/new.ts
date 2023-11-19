@@ -1,15 +1,3 @@
-/*
-# New Script
-
-Create a new script based on the current input
-*/
-
-// Name: New Script
-// Description: Create a new script
-// Log: false
-// Pass: true
-// Keyword: n
-
 import {
   exists,
   stripName,
@@ -84,6 +72,10 @@ let contents = [arg?.npm]
   .map(npm => `let {} = await npm("${npm}")`)
   .join("\n")
 
+if (arg?.tip) {
+  contents = arg?.tip
+}
+
 let stripExtension = fileName =>
   fileName.replace(path.extname(fileName), "")
 
@@ -91,7 +83,6 @@ await ensureTemplates()
 
 let ext = `.${kitMode()}`
 
-log({ arg, template: arg?.template })
 let template =
   arg?.template ||
   (await env("KIT_TEMPLATE", {
@@ -123,11 +114,15 @@ let templateContent = await readFile(templatePath, "utf8")
 
 let templateCompiler = compile(templateContent)
 let scriptName = arg?.pass || arg?.scriptName
-contents += templateCompiler({
-  ...env,
-  ...Object.fromEntries(memoryMap),
-  name: scriptName,
-})
+
+if (!arg?.tip) {
+  contents += templateCompiler({
+    ...env,
+    ...Object.fromEntries(memoryMap),
+    name: scriptName,
+  })
+}
+
 if (
   (scriptName || command !== name) &&
   !contents.includes(`Name:`)
