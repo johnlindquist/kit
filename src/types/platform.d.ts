@@ -267,11 +267,18 @@ interface SetActiveAppSize {
 interface GetActiveAppInfo {
   (): Promise<{
     localizedName: string
-    bundleId: string
-    bundlePath: string
-    executablePath: string
-    isLaunched: boolean
-    pid: number
+    bundleIdentifier: string
+    bundleURLPath: string
+    executableURLPath: string
+    isFinishedLaunching: boolean
+    processIdentifier: number
+    windowTitle: string
+    windowIndex: number
+    windowID: number
+    x: number
+    y: number
+    width: number
+    height: number
   }>
 }
 interface GetActiveAppBounds {

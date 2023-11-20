@@ -46,6 +46,9 @@ export interface CLI {
   >
   "manage-npm": Promise<typeof import("./manage-npm")>
   "more-info": Promise<typeof import("./more-info")>
+  "new-from-clipboard": Promise<
+    typeof import("./new-from-clipboard")
+  >
   "new-from-template": Promise<
     typeof import("./new-from-template")
   >

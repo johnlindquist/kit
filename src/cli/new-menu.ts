@@ -17,6 +17,11 @@ let newChoices: Choice<keyof CLI | keyof Main>[] = [
     value: "new",
   },
   {
+    name: "New from Clipboard",
+    description: `Create a script from your clipboard`,
+    value: "new-from-clipboard",
+  },
+  {
     name: "New from Tips",
     description:
       "Browse a variety of tips and tricks to get started",

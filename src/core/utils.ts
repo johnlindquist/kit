@@ -911,6 +911,15 @@ export let escapeShortcut: Shortcut = {
   },
 }
 
+export let backToMainShortcut: Shortcut = {
+  name: `Back`,
+  key: `escape`,
+  bar: "left",
+  onPress: async () => {
+    await mainScript()
+  },
+}
+
 export let closeShortcut: Shortcut = {
   name: "Exit",
   key: `${cmd}+w`,
