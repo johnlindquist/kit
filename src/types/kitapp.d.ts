@@ -906,7 +906,6 @@ export interface AppApi {
   setTheme: SetTheme
   setScriptTheme: SetTheme
 
-  show: ShowAppWindow
   showImage: ShowAppWindow
 
   currentOnTab: any
@@ -931,6 +930,7 @@ export interface AppApi {
 
   memoryMap: Map<string, any>
 
+  show: () => Promise<void>
   hide: (hideOptions?: HideOptions) => Promise<void>
   blur: () => Promise<void>
 
@@ -1031,9 +1031,9 @@ declare global {
   var setTheme: SetTheme
   var setScriptTheme: SetTheme
 
-  var show: ShowAppWindow
   var showImage: ShowAppWindow
 
+  var show: () => Promise<void>
   var hide: (hideOptions?: HideOptions) => Promise<void>
   var blur: () => Promise<void>
 

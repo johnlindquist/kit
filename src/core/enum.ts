@@ -300,6 +300,7 @@ export enum Channel {
   SYSTEM_MOUSEMOVE = "SYSTEM_MOUSEMOVE",
   SYSTEM_WHEEL = "SYSTEM_WHEEL",
   KENV_NEW_PATH = "KENV_NEW_PATH",
+  SHOW_APP = "SHOW_APP",
 }
 
 export enum ProcessType {

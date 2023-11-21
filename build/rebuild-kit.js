@@ -10,6 +10,12 @@ let kitPath = (...pathParts) =>
     ...pathParts
   )
 
+let knodePath = (...parts) =>
+  path.join(
+    process.env.KNODE || path.resolve(homedir(), ".knode"),
+    ...parts.filter(Boolean)
+  )
+
 cp("-R", "./root/.", kitPath())
 cp("-R", "./build", kitPath())
 cp("-R", "./src/types", kitPath())
@@ -36,8 +42,6 @@ let cjs = exec(
 await Promise.all([esm, dec, cjs])
 console.log(`Fix cjs`)
 await exec(`node ./scripts/cjs-fix.js`)
-
-console.log(`Downloading data`)
 
 console.log(`Write .kitignore`)
 await writeFile(kitPath(".kitignore"), "*")

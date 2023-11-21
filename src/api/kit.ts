@@ -351,17 +351,6 @@ if (process?.send) {
   }
 }
 
-global.show = async (html, options) => {
-  await global.widget(
-    md(`## Show is Deprecated
-
-Please use the new \`widget\` function instead.
-
-[https://github.com/johnlindquist/kit/discussions/745](https://github.com/johnlindquist/kit/discussions/745)`)
-  )
-  // global.send(Channel.SHOW, { options, html })
-}
-
 global.dev = async data => {
   await global.sendWait(Channel.DEV_TOOLS, data)
 }
@@ -764,6 +753,10 @@ global.hide = async (hideOptions = {}) => {
   if (process.env.KIT_HIDE_DELAY) {
     await wait(-process.env.KIT_HIDE_DELAY)
   }
+}
+
+global.show = async () => {
+  await global.sendWait(Channel.SHOW_APP)
 }
 
 global.blur = async () => {

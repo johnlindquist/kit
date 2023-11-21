@@ -943,6 +943,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
     ui: UI.arg,
     resize: false,
     env: global.env,
+    show: true,
     ...(data as PromptData),
   })
 }
