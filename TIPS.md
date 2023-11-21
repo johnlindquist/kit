@@ -77,6 +77,67 @@ let choice = await arg({
 await div(md(`You chose ${choice}`))
 ```
 
+## Progress Panel
+
+```js
+// Name: Progress Panel
+
+import "@johnlindquist/kit"
+
+let first = ""
+let second = ""
+let third = ""
+let progressPanel = () =>
+  md(`# Progress: 
+- ${first || "Waiting first value"}
+- ${second || "Waiting second value"}
+- ${third || "Waiting third value"}
+`)
+
+first = await arg("Enter the first value", progressPanel)
+second = await arg("Enter the second value", progressPanel)
+third = await arg("Enter the third value", progressPanel)
+
+await div(
+  md(`# You entered:
+- ${first}
+- ${second}
+- ${third}
+`)
+)
+```
+
+### Force a User to Pick an Option
+
+```js
+// Name: Force a User to Pick an Option
+
+import "@johnlindquist/kit"
+
+let animals = ["dog", "cat", "rabbit", "horse", "elephant"]
+let secondsRemaining = 3
+let getHint = secondsRemaining => `Hurry! You only have ${secondsRemaining} seconds to choose an animal...`
+
+let animal = ""
+
+animal = await arg(
+  {
+    hint: getHint(secondsRemaining),
+    onInit: async () => {
+      while (secondsRemaining > 0 && !animal) {
+        setHint(getHint(secondsRemaining))
+        await wait(1000)
+        secondsRemaining--
+      }
+
+      if (!animal) exit()
+    },
+  },
+  animals
+)
+
+await div(md(`# Phew! You made it! You chose ${animal}`))
+```
 
 
 ## Clipboard
