@@ -443,6 +443,7 @@ export type PromptConfig = {
   }
   env?: any
   shortcuts?: Shortcut[]
+  show?: boolean
 } & Partial<
   Omit<PromptData, "choices" | "id" | "script" | "preview">
 >
