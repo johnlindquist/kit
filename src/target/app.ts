@@ -3422,21 +3422,17 @@ global.toast = async (text: string, options: any = {}) => {
 }
 
 global.mic = async (config: MicConfig = {}) => {
+  let tmpFilePath = ""
   if (config?.dot) {
     let data = await global.sendWait(
       Channel.START_MIC,
-      config
+      config,
+      0
     )
 
-    const [header, content] = data.state.value.split(",")
-    const [type, encoding] = header.split(";")
-    // log(`decoding ${encoding} ${type}`)
-    if (encoding === "base64") {
-      data.state.value = Buffer.from(content, "base64")
-    }
-    return Buffer.from(data?.state?.value, "base64")
+    tmpFilePath = data?.state?.value
   } else {
-    return await global.kitPrompt({
+    tmpFilePath = await global.kitPrompt({
       ui: UI.mic,
       enter: "Stop",
       width: PROMPT.WIDTH.BASE,
@@ -3463,6 +3459,8 @@ global.mic = async (config: MicConfig = {}) => {
       ...config,
     })
   }
+
+  return await readFile(tmpFilePath)
 }
 
 global.micdot = async (config: MicConfig = {}) => {

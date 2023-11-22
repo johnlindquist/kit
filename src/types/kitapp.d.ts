@@ -174,7 +174,6 @@ export type EditorConfig =
 
 export type MicConfig = PromptConfig & {
   timeSlice?: number
-  format?: string
   stream?: boolean
   dot?: boolean
 }
@@ -995,7 +994,8 @@ declare global {
   var send: Send
   var sendWait: (
     channel: Channel,
-    value?: any
+    value?: any,
+    timeout?: number
   ) => Promise<any>
 
   var setFocused: SetFocused

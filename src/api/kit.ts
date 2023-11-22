@@ -408,13 +408,23 @@ global.tmpPath = (...parts) => {
   let command = global?.kitScript
     ? resolveScriptToCommand(global.kitScript)
     : ""
-  let scriptTmpDir = global.kenvPath(
-    "tmp",
-    command,
+
+  let tmpCommandDir = global.path.resolve(
+    os.tmpdir(),
+    "kit",
+    command
+  )
+
+  let scriptTmpDir = global.path.resolve(
+    tmpCommandDir,
     ...parts
   )
 
-  global.mkdir("-p", global.path.dirname(scriptTmpDir))
+  let kenvTmpCommandPath = kenvPath("tmp", command)
+
+  global.ensureDir(tmpCommandDir)
+  // symlink to kenvPath("command")
+  global.ensureSymlink(tmpCommandDir, kenvTmpCommandPath)
   return scriptTmpDir
 }
 /**
