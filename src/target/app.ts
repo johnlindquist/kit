@@ -1496,7 +1496,27 @@ global.div = async (
   })
 }
 
-global.docs = async (filePath: string, options = {}) => {
+global.getCodeblocksFromSections =
+  (sections: GuideSection[]) =>
+  (name: string): string => {
+    let fileMarkdown = sections.find(
+      s => s.name === name
+    )?.raw
+    if (!fileMarkdown) return ""
+    let lexer = new marked.Lexer()
+    let nodes = lexer.lex(fileMarkdown)
+    // Grab all of the code blocks
+    let codeBlocks = nodes
+      .filter(node => node.type === "code")
+      .map((node: any) => (node?.text ? node.text : ``))
+      .join("\n\n")
+
+    return codeBlocks
+  }
+
+global.groupMarkdownFileIntoChoices = async (
+  filePath: string
+) => {
   let fileMarkdown = await readFile(filePath, "utf-8")
   let lexer = new marked.Lexer()
   let tokens = lexer.lex(fileMarkdown)
@@ -1581,11 +1601,6 @@ global.docs = async (filePath: string, options = {}) => {
     }
   }
 
-  let config =
-    typeof options === "function"
-      ? await options(sections, tokens)
-      : options
-
   let containerClasses =
     "p-5 prose dark:prose-dark prose-sm"
 
@@ -1610,6 +1625,27 @@ global.docs = async (filePath: string, options = {}) => {
       () => false
     ),
   })
+
+  return {
+    sections,
+    tokens,
+    placeholder,
+    choices,
+    groupedChoices,
+  }
+}
+
+global.docs = async (filePath: string, options = {}) => {
+  let { placeholder, groupedChoices, sections, tokens } =
+    await global.groupMarkdownFileIntoChoices(
+      filePath,
+      options
+    )
+
+  let config =
+    typeof options === "function"
+      ? await options(sections, tokens)
+      : options
 
   return await arg(
     {

@@ -124,24 +124,24 @@ export let createTipsConfig =
     config: Partial<PromptConfig> & { guidePath?: string }
   ) =>
   async (sections: GuideSection[]) => {
-    let getCodeblocks = (name: string): string => {
-      let fileMarkdown = sections.find(
-        s => s.name === name
-      )?.raw
-      if (!fileMarkdown) return ""
-      let lexer = new marked.Lexer()
-      let nodes = lexer.lex(fileMarkdown)
-      // Grab all of the code blocks
-      let codeBlocks = nodes
-        .filter(node => node.type === "code")
-        .map((node: any) => (node?.text ? node.text : ``))
-        .join("\n\n")
-
-      return codeBlocks
-    }
+    let getCodeblocks =
+      global.getCodeblocksFromSections(sections)
 
     return {
       ...config,
+      shortcuts: [
+        {
+          name: "Copy Tip",
+          key: `${cmd}+c`,
+          bar: "right",
+          visible: true,
+          onPress: async (input, { focused }) => {
+            let codeBlocks = getCodeblocks(focused?.name)
+            await copy(codeBlocks)
+            toast("Copied to Clipboard!")
+          },
+        },
+      ],
       onSubmit: async (input, { focused }) => {
         let contents = getCodeblocks(focused?.name)
 
