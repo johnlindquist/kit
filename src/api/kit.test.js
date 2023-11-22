@@ -1,4 +1,5 @@
 import ava from "ava"
+import os from "os"
 import fs from "fs-extra"
 import "../../test/config.js"
 
@@ -41,7 +42,10 @@ ava.serial(`tmpPath generates a tmp path`, async t => {
   )
 
   t.true(await pathExists(kenvPath("tmp", script)))
-  t.is(stdout.trim(), kenvPath("tmp", script, file))
+  t.is(
+    stdout.trim(),
+    path.resolve(os.tmpdir(), "kit", script, file)
+  )
   t.is(stderr, "")
 })
 
