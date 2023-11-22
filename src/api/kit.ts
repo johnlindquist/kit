@@ -1,5 +1,6 @@
 import * as os from "os"
 import { pathToFileURL } from "url"
+import { ensureDirSync, ensureSymlinkSync } from "fs-extra"
 import {
   QuickScore,
   quickScore,
@@ -422,9 +423,9 @@ global.tmpPath = (...parts) => {
 
   let kenvTmpCommandPath = kenvPath("tmp", command)
 
-  global.ensureDir(tmpCommandDir)
+  ensureDirSync(tmpCommandDir)
   // symlink to kenvPath("command")
-  global.ensureSymlink(tmpCommandDir, kenvTmpCommandPath)
+  ensureSymlink(tmpCommandDir, kenvTmpCommandPath)
   return scriptTmpDir
 }
 /**
