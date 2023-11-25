@@ -19,7 +19,7 @@ Pick a different kenv name.
   `)
     }
 
-    setEnter(`Create "${kenv}"`)
+    setEnter(kenv ? `Create "${kenv}"` : "")
 
     return md(`  
 # Create a "Kit Environment" AKA "kenv"

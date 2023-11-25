@@ -346,12 +346,18 @@ global.edit = async (f, dir, line = 0, col = 0) => {
         child.kill()
       }, 1000)
       if (child) {
-        child.on("exit", () => {
+        child.on("exit", (code, signal) => {
           clearTimeout(timeout)
+          if (signal === "SIGTERM") {
+            global.log(
+              `Editor process was terminated with SIGTERM: ${editCommand}`
+            )
+          }
         })
-        child.on("SIGTERM", () => {
+
+        child.on("error", err => {
           global.log(
-            `Editor process terminated: ${editCommand}`
+            `Error with editor process: ${err.message}`
           )
         })
       }
