@@ -757,26 +757,6 @@ let waitForPromptValue = ({
               )
               break
 
-            case Channel.ON_AUDIO_DATA:
-              if (
-                typeof data?.state?.value === "string" &&
-                data?.state?.value?.startsWith("data:")
-              ) {
-                // log(`Found data.state.value`)
-                const [header, content] =
-                  data.state.value.split(",")
-                const [type, encoding] = header.split(";")
-                // log(`decoding ${encoding} ${type}`)
-                if (encoding === "base64") {
-                  data.state.value = Buffer.from(
-                    content,
-                    "base64"
-                  )
-                }
-              }
-              onAudioData(data.state.input, data.state)
-              break
-
             case Channel.SCRIPTS_CHANGED:
               global.__kitScriptsFromCache = false
               break
@@ -3421,54 +3401,100 @@ global.toast = async (text: string, options: any = {}) => {
   })
 }
 
-global.mic = async (config: MicConfig = {}) => {
-  let tmpFilePath = ""
-  if (config?.dot) {
-    let data = await global.sendWait(
-      Channel.START_MIC,
-      config,
-      0
-    )
+let beginMicStream = () => {
+  global.mic.stream = undefined
+  global.mic.stream = new Readable({
+    read() {},
+  })
 
-    tmpFilePath = data?.state?.value
-  } else {
-    tmpFilePath = await global.kitPrompt({
-      ui: UI.mic,
-      enter: "Stop",
-      width: PROMPT.WIDTH.BASE,
-      height: PROMPT.HEIGHT.BASE,
-      resize: true,
-      shortcuts: [
-        escapeShortcut,
-        {
-          key: `${cmd}+i`,
-          name: `Select Mic`,
-          onPress: async () => {
-            await run(kitPath("cli", "select-mic.js"))
-            await mainScript()
-          },
-          bar: "right",
-        },
+  if (
+    !process.listeners("message").includes(micStreamHandler)
+  ) {
+    process.on("message", micStreamHandler)
+  }
+}
 
-        closeShortcut,
-      ],
-      ignoreBlur: true,
-      timeSlice: 200,
-      format: "webm",
-      stream: false,
-      ...config,
+let endMicStream = debounce((stop = true) => {
+  if (stop) mic.stop()
+  if (global.mic.stream) {
+    global.mic.stream.push(null)
+    setImmediate(() => {
+      global.mic.stream.removeAllListeners()
+      setImmediate(() => {
+        global.mic.stream = undefined
+        process.off("message", micStreamHandler)
+      })
     })
   }
+}, 100)
+
+let micStreamHandler = (message: AppMessage) => {
+  if (message.channel === Channel.MIC_STREAM) {
+    // Push the data into the stream
+    if (message?.state?.value) {
+      const isBuffer = Buffer.isBuffer(message.state?.value)
+      const buffer = isBuffer
+        ? message.state?.value
+        : Buffer.from(message.state?.value)
+
+      if (global.mic.stream) global.mic.stream.push(buffer)
+    }
+  }
+
+  if (message.channel === Channel.ABANDON) {
+    endMicStream(false)
+  }
+}
+global.mic = async (config: MicConfig = {}) => {
+  // Create a Readable stream on the fly
+  beginMicStream()
+
+  let tmpFilePath = await global.kitPrompt({
+    ui: UI.mic,
+    enter: "Stop",
+    width: PROMPT.WIDTH.BASE,
+    height: PROMPT.HEIGHT.BASE,
+    resize: true,
+    shortcuts: [
+      escapeShortcut,
+      {
+        key: `${cmd}+i`,
+        name: `Select Mic`,
+        onPress: async () => {
+          await run(kitPath("cli", "select-mic.js"))
+          await mainScript()
+        },
+        bar: "right",
+      },
+
+      closeShortcut,
+    ],
+    ignoreBlur: true,
+    timeSlice: 200,
+    ...config,
+  })
+
+  endMicStream()
 
   return await readFile(tmpFilePath)
 }
 
-global.micdot = async (config: MicConfig = {}) => {
-  return await mic({ ...config, dot: true })
+global.mic.stream = undefined
+
+global.mic.start = async (config: MicConfig) => {
+  beginMicStream()
+  return global.sendWait(Channel.START_MIC, {
+    ...config,
+    dot: true,
+  })
 }
 
 global.mic.stop = async () => {
-  return await sendWait(Channel.STOP_MIC)
+  endMicStream(false)
+  let result = await sendWait(Channel.STOP_MIC)
+  let filePath = result?.state?.value
+
+  return await readFile(filePath)
 }
 
 global.webcam = async () => {

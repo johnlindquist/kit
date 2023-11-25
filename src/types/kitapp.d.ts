@@ -38,6 +38,7 @@ import {
   UiohookWheelEvent,
 } from "./io"
 import { FileSearchOptions } from "./platform"
+import { ReadStream, WriteStream } from "fs"
 
 export type Status = (typeof statuses)[number]
 
@@ -99,7 +100,9 @@ export type Toast = {
 export type Mic = {
   (config?: MicConfig): Promise<Buffer>
 } & {
-  stop?: () => Promise<void>
+  stop?: () => Promise<Buffer>
+  start?: (config?: MicConfig) => Promise<void>
+  stream?: Readable
 }
 
 export type WebCam = {
@@ -174,8 +177,6 @@ export type EditorConfig =
 
 export type MicConfig = PromptConfig & {
   timeSlice?: number
-  stream?: boolean
-  dot?: boolean
 }
 
 export interface TextareaConfig extends PromptConfig {
@@ -520,6 +521,7 @@ export interface ChannelMap {
   [Channel.REVEAL_FILE]: string
   [Channel.PLAY_AUDIO]: AudioOptions
   [Channel.STOP_AUDIO]: undefined
+  [Channel.STOP_MIC]: undefined
   [Channel.SPEAK_TEXT]: any
 
   [Channel.REMOVE_CLIPBOARD_HISTORY_ITEM]: string
@@ -541,6 +543,7 @@ export interface ChannelMap {
   [Channel.SET_SCORED_CHOICES]: ScoredChoice[]
   [Channel.SET_SCORED_FLAGS]: ScoredChoice[]
   [Channel.SET_DARK]: boolean
+
   [Channel.SET_DESCRIPTION]: string
   [Channel.SET_EDITOR_CONFIG]: EditorConfig
   [Channel.SET_EDITOR_SUGGESTIONS]: string[]
@@ -630,6 +633,8 @@ export interface ChannelMap {
   [Channel.SET_ALWAYS_ON_TOP]: boolean
   [Channel.SET_APPEARANCE]: Appearance
   [Channel.PRELOAD]: string
+  [Channel.MIC_STREAM]: boolean
+  [Channel.START_MIC]: MicConfig
 }
 export interface Send {
   (channel: Channel | GetAppData | SendNoOptions): void
