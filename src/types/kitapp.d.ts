@@ -1087,7 +1087,6 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
-  var micdot: Mic
   var webcam: WebCam
   var getMediaDevices: GetMediaDevices
   var getTypedText: GetTypedText
