@@ -1,4 +1,4 @@
-# Script Kit App
+# Script Kit v2
 
 [https://scriptkit.com/](https://scriptkit.com/)
 
@@ -18,6 +18,8 @@ The App was created with https://github.com/electron-react-boilerplate/electron-
 I have been unable to prioritize the time to switch over to another build system or keeping up with the boilerplate, especially with so many moving pieces.
 
 Thus, we use yarn to build the App and npm to build the SDK 🤦‍♂️
+
+> Note: A huge focus of v3 will be to clean up this mess and make it much, much easier to contribute.
 
 ### Using node 18.18.2 from ~/.knode
 
