@@ -2,16 +2,19 @@
   "name": "@johnlindquist/kit",
   "type": "module",
   "bin": {
-    "kit": "./bin/kit",
-    "sk": "./bin/sk",
-    "kitblitz": "./bin/kitblitz.mjs"
+    "kit": "bin/kit",
+    "sk": "bin/sk",
+    "kitblitz": "bin/kitblitz.mjs"
   },
   "engines": {
     "node": ">=14.8.0"
   },
   "version": "0.0.0-development",
   "description": "The Script Kit sdk",
-  "repository": "github:johnlindquist/kit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnlindquist/kit.git"
+  },
   "exports": {
     ".": "./index.js",
     "./*": "./*",
