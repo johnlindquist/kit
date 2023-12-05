@@ -2406,6 +2406,10 @@ global.setLoading = (loading: boolean) => {
   global.send(Channel.SET_LOADING, loading)
 }
 
+global.setProgress = (progress: number) => {
+  global.send(Channel.SET_PROGRESS, progress)
+}
+
 global.setRunning = (running: boolean) => {
   global.send(Channel.SET_RUNNING, running)
 }

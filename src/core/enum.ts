@@ -301,6 +301,7 @@ export enum Channel {
   KENV_NEW_PATH = "KENV_NEW_PATH",
   SHOW_APP = "SHOW_APP",
   MIC_STREAM = "MIC_STREAM",
+  SET_PROGRESS = "SET_PROGRESS",
 }
 
 export enum ProcessType {

@@ -26,6 +26,7 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "build-kit": "node ./build/build-kit.js",
+    "commit": "cz",
     "rebuild-kit": "node ./build/rebuild-kit.js",
     "download-md": "node ./build/download-md.js",
     "dev": "tsc --watch --outDir ~/.kit",
@@ -79,6 +80,7 @@
     "@types/node": "^20.8.4",
     "@types/node-ipc": "9.2.1",
     "ava": "5.3.1",
+    "cz-conventional-changelog": "^3.3.0",
     "debug": "4.3.4",
     "semantic-release": "22.0.8",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
@@ -130,6 +132,11 @@
     ]
   },
   "volta": {
-    "node": "18.17.1"
+    "node": "18.18.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }

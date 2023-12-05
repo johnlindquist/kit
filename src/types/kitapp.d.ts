@@ -564,6 +564,7 @@ export interface ChannelMap {
   [Channel.SET_FOCUSED]: string
   [Channel.SET_FOOTER]: string
   [Channel.SET_LOADING]: boolean
+  [Channel.SET_PROGRESS]: number
   [Channel.SET_RUNNING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGO]: string

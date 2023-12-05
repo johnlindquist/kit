@@ -163,42 +163,23 @@ if (repo.split("/").length === 2) {
 }
 
 setPauseResize(false)
-let result = await div({
-  html: md(`# Cloning ${repo}
 
-## Please wait while this repo is cloned:
+let termPreview = md(`# Please Wait...
 
-> ${repo} -> ${kenvDir}
+Attempting to automatically clone ${repo} to ${kenvDir} and remove the .git folder using [degit](https://github.com/Rich-Harris/degit).
 
-`),
-  enter: "",
-  onInit: async () => {
-    await wait(1000)
-    try {
-      if (removeGit === "y") {
-        let kenvRepo = degit(repo)
-        await kenvRepo.clone(kenvDir)
-      } else {
-        await git.clone(repo, kenvDir)
-      }
-      submit("done")
-      log(`Cloned ${repo} to ${kenvDir}`)
-    } catch (e) {
-      warn(`Error cloning ${repo} to ${kenvDir}`)
-      submit("error")
-    }
-  },
-})
-
-if (result === "error") {
-  div(
-    md(`# Error cloning ${repo} to ${kenvDir}
-
-> Please check the logs
-  `)
-  )
-
-  await wait(2000)
+> If this fails, please clone the repo manually and then run \`kit kenv trust ${kenvName}\` to trust the scripts in this repo.
+`)
+if (removeGit === "y") {
+  await term({
+    command: `npx degit ${repo} ${kenvDir}`,
+    preview: termPreview,
+  })
+} else {
+  await term({
+    command: `git clone ${repo} ${kenvDir}`,
+    preview: termPreview,
+  })
 }
 
 // check if package.json exists

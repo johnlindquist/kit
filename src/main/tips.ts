@@ -5,11 +5,13 @@
 
 import { createTipsConfig } from "./main-helper.js"
 
+let tipsPath = kitPath("TIPS.md")
+
 await docs(
-  kitPath("TIPS.md"),
+  tipsPath,
   createTipsConfig({
     name: "Tips",
-    guidePath: kitPath("TIPS.md"),
+    guidePath: tipsPath,
     itemHeight: PROMPT.ITEM.HEIGHT.SM,
     input: arg?.input || arg?.input || "",
     placeholder: "Browse Tips",
