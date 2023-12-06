@@ -22,8 +22,10 @@ import {
   parseScript,
 } from "./utils.js"
 
-import pkg from "fs-extra"
-const { writeJson, readJson } = pkg
+import {
+  writeJson,
+  readJson,
+} from "@johnlindquist/kit-internal/fs-extra"
 
 import { Choice, Script, PromptDb } from "../types/core"
 import {

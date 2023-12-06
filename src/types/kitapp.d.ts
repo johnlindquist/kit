@@ -694,6 +694,10 @@ export interface SetLoading {
   (loading: boolean): void
 }
 
+export interface SetProgress {
+  (progress: number): void
+}
+
 export interface SetStatus {
   (status: KitStatus): void
 }
@@ -907,6 +911,7 @@ export interface AppApi {
   setIgnoreBlur: SetIgnoreBlur
   setResize: SetResize
   setLoading: SetLoading
+  setProgress: SetProgress
   setStatus: SetStatus
   setTheme: SetTheme
   setScriptTheme: SetTheme
@@ -1032,6 +1037,7 @@ declare global {
   var setResize: SetResize
   var setPauseResize: SetResize
   var setLoading: SetLoading
+  var setProgress: SetProgress
   var setRunning: SetLoading
   var setStatus: SetStatus
   var setTheme: SetTheme
