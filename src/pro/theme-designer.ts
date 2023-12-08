@@ -94,7 +94,7 @@ w.onInput(
 w.onClick(async event => {
   if (event.dataset.name === "save") {
     let appearance = await arg(
-      `Use ${themeName} for Appearance`,
+      `Use ${themeName} for which system appearance?`,
       ["Light", "Dark", "Both"]
     )
     if (appearance === "Light" || appearance === "Both") {
