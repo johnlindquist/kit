@@ -118,7 +118,7 @@ let widget: Widget = async (html, options = {}) => {
       initHandler = handler
     },
     executeJavaScript: async js => {
-      return await global.sendWait(
+      return await global.sendWaitLong(
         Channel.WIDGET_EXECUTE_JAVASCRIPT,
         {
           widgetId,

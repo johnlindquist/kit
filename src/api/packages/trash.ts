@@ -19,7 +19,7 @@ export default async function trash(
     : inputs
 
   if (process.env.KIT_CONTEXT === "app") {
-    return await sendWait(Channel.TRASH, pathsToTrash)
+    return await sendWaitLong(Channel.TRASH, pathsToTrash)
   }
 
   // Iterate over each path

@@ -101,7 +101,7 @@ export type Mic = {
   (config?: MicConfig): Promise<Buffer>
 } & {
   stop?: () => Promise<Buffer>
-  start?: (config?: MicConfig) => Promise<void>
+  start?: (config?: MicConfig) => Promise<string>
   stream?: Readable
 }
 
@@ -176,6 +176,7 @@ export type EditorConfig =
   | (PromptConfig & EditorOptions)
 
 export type MicConfig = PromptConfig & {
+  filePath?: string
   timeSlice?: number
 }
 
@@ -924,6 +925,10 @@ export interface AppApi {
   clearTabs: () => void
   getDataFromApp: (channel: Channel) => Promise<any>
   sendWait: (channel: Channel, value: any) => Promise<any>
+  sendWaitLong: (
+    channel: Channel,
+    value: any
+  ) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
     tasks: Background[]
@@ -1004,6 +1009,11 @@ declare global {
   var hotkey: Hotkey
   var send: Send
   var sendWait: (
+    channel: Channel,
+    value?: any,
+    timeout?: number
+  ) => Promise<any>
+  var sendWaitLong: (
     channel: Channel,
     value?: any,
     timeout?: number

@@ -2271,6 +2271,21 @@ global.getDataFromApp = global.sendWait = async (
       if (timeout) {
         timeoutId = setTimeout(() => {
           process.off("message", messageHandler)
+          rej(
+            new Error(
+              `Timeout after ${
+                timeout / 1000
+              } seconds waiting for ${channel} response
+              
+The app failed to send a ${channel} response to the script process within the expected timeframe. Halting script.
+
+Please share this error to our GitHub Discussions with your scenario: https://github.com/johnlindquist/kit/discussions/categories/errors
+`,
+              {
+                cause: "timeout",
+              }
+            )
+          )
 
           let count = process.listenerCount("message")
           // log(
@@ -2283,6 +2298,14 @@ global.getDataFromApp = global.sendWait = async (
   } else {
     return null
   }
+}
+
+global.sendWaitLong = async (
+  channel: GetAppData,
+  data?: any,
+  timeout: number = 60000
+) => {
+  return await global.sendWait(channel, data, timeout)
 }
 
 global.getBackgroundTasks = () =>
@@ -3387,7 +3410,7 @@ global.startDrag = async (
 }
 
 global.eyeDropper = async () => {
-  return await sendWait(Channel.GET_COLOR)
+  return await sendWaitLong(Channel.GET_COLOR)
 }
 
 global.getTypedText = async () => {
@@ -3419,7 +3442,7 @@ let beginMicStream = () => {
 }
 
 let endMicStream = debounce((stop = true) => {
-  if (stop) mic.stop()
+  if (stop) send(Channel.STOP_MIC)
   if (global.mic.stream) {
     global.mic.stream.push(null)
     setImmediate(() => {
@@ -3487,10 +3510,17 @@ global.mic.stream = undefined
 
 global.mic.start = async (config: MicConfig) => {
   beginMicStream()
-  return global.sendWait(Channel.START_MIC, {
+  let filePath = global.tmpPath(
+    global.formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss") +
+      ".webm"
+  )
+  await global.sendWait(Channel.START_MIC, {
+    filePath,
     ...config,
     dot: true,
   })
+
+  return filePath
 }
 
 global.mic.stop = async () => {

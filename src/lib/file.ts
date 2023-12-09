@@ -78,21 +78,21 @@ global.copyPathAsPicture = copyPathAsImage
 global.selectFolder = async (
   message: string = "Pick a folder:"
 ) => {
-  return await sendWait(Channel.SELECT_FOLDER, message)
+  return await sendWaitLong(Channel.SELECT_FOLDER, message)
 }
 
 global.selectFile = async (
   message: string = "Pick a file:"
 ) => {
-  return await sendWait(Channel.SELECT_FILE, message)
+  return await sendWaitLong(Channel.SELECT_FILE, message)
 }
 
 global.revealFile = async filePath => {
-  return sendWait(Channel.REVEAL_FILE, filePath.trim())
+  return sendWaitLong(Channel.REVEAL_FILE, filePath.trim())
 }
 
 global.revealInFinder = async filePath => {
-  return sendWait(Channel.REVEAL_FILE, filePath.trim())
+  return sendWaitLong(Channel.REVEAL_FILE, filePath.trim())
 }
 
 export {}
