@@ -400,6 +400,11 @@ export type SendNoOptions =
   | Channel.PONG
 export interface ChannelMap {
   // Figure these undefined out later
+  [Channel.ERROR]: {
+    script: string
+    message?: string
+    stack?: string
+  }
   [Channel.VALUE_SUBMITTED]: any
   [Channel.GET_BACKGROUND]: undefined
   [Channel.GET_COLOR]: undefined

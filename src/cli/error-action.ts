@@ -2,7 +2,7 @@
 // Description: An error has occurred
 
 import { cmd, extensionRegex } from "../core/utils.js"
-import { ErrorAction } from "../core/enum.js"
+import { Channel, ErrorAction } from "../core/enum.js"
 
 let script = await arg()
 let stackFile = await arg()
@@ -56,6 +56,12 @@ import _ from "lodash"
   await edit(errorFile, kenvPath(), line, col)
   exit()
 }
+
+send(Channel.ERROR, {
+  script,
+  stack: stack || "",
+  message: errorMessage || "",
+})
 
 // if errorMessage contains "Cannot find package"
 if (errorMessage.includes("Cannot find package")) {
