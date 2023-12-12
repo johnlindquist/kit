@@ -24,7 +24,8 @@ let widget: Widget = async (html, options = {}) => {
         resizable: true,
         ...options,
       },
-    }
+    },
+    false
   )
 
   type WidgetHandler = (message: WidgetMessage) => void
@@ -46,7 +47,8 @@ let widget: Widget = async (html, options = {}) => {
       return (
         await global.getDataFromApp(
           Channel.WIDGET_CAPTURE_PAGE,
-          { widgetId }
+          { widgetId },
+          false
         )
       )?.imagePath
     },

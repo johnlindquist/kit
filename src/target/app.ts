@@ -3557,8 +3557,17 @@ global.webcam = async () => {
 
 global.getMediaDevices = async () => {
   let appMessage = await sendWait(Channel.GET_DEVICES)
+  let devices = appMessage?.state?.value?.map(d => {
+    return {
+      name: d.label,
+      description: d.kind,
+      group: d.kind,
+      value: d,
+      ...d,
+    }
+  })
 
-  return appMessage?.state?.value
+  return devices
 }
 
 global.clearTimestamps = async () => {
