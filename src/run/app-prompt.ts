@@ -32,6 +32,9 @@ try {
     args: string[]
   }>((resolve, reject) => {
     let messageHandler = data => {
+      if (data.channel === Channel.HEARTBEAT) {
+        send(Channel.HEARTBEAT)
+      }
       if (data.channel === Channel.VALUE_SUBMITTED) {
         process.off("message", messageHandler)
         resolve(data.value)

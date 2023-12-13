@@ -303,6 +303,7 @@ export enum Channel {
   MIC_STREAM = "MIC_STREAM",
   SET_PROGRESS = "SET_PROGRESS",
   ERROR = "ERROR",
+  HEARTBEAT = "HEARTBEAT",
 }
 
 export enum ProcessType {
