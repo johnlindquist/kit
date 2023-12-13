@@ -1058,7 +1058,7 @@ export let getGroupedScripts = async () => {
   ]
 
   if (env?.KIT_LOGIN) {
-    kitScripts.push(kitPath("main", "account.js"))
+    kitScripts.push(kitPath("main", "account-v2.js"))
   } else {
     kitScripts.push(kitPath("main", "sign-in.js"))
   }

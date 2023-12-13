@@ -4,6 +4,24 @@
 import { cmd, extensionRegex } from "../core/utils.js"
 import { Channel, ErrorAction } from "../core/enum.js"
 
+if (args?.length > 5) {
+  warn(`Too many error args: ${args.slice(4).join(", ")}`)
+}
+
+if (args?.length < 5) {
+  warn(`Not enough error args: ${args.join(", ")}`)
+  let requiredArgs = [
+    "script",
+    "stackFile",
+    "errorFile",
+    "line",
+    "col",
+  ]
+  let missingArgs = requiredArgs.slice(args.length)
+  for (let arg of missingArgs) {
+    args.push(arg)
+  }
+}
 let script = await arg()
 let stackFile = await arg()
 let errorFile = await arg()
@@ -252,6 +270,7 @@ ${scriptContents}
     ]
   )
 
+  warn(`Opening Error Prompt for: ${errorAction}`)
   await errorActions[errorAction]()
 }
 

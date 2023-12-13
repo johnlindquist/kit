@@ -527,7 +527,7 @@ let script = await mainMenu({
       flag: "sign-in-to-script-kit",
       key: `${cmd}+shift+opt+s`,
       onPress: async () => {
-        await run(kitPath("main", "account.js"))
+        await run(kitPath("main", "account-v2.js"))
       },
     },
     {
