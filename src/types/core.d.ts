@@ -136,6 +136,7 @@ export interface ScriptMetadata {
   keyword?: string
   enter?: string
   recent?: boolean
+  img?: string
 }
 
 export type Script = ScriptMetadata &

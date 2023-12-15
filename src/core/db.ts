@@ -20,6 +20,7 @@ import {
   getScriptFiles,
   getKenvs,
   parseScript,
+  processInBatches,
 } from "./utils.js"
 
 import {
@@ -257,15 +258,27 @@ export let parseScripts = async (
     scriptFiles = [...scriptFiles, ...scripts]
   }
 
-  let scriptInfo = await Promise.all(
-    scriptFiles.map(parseScript)
+  let scriptInfoPromises = []
+  for (const file of scriptFiles) {
+    let asyncScriptInfoFunction = parseScript(file)
+
+    scriptInfoPromises.push(asyncScriptInfoFunction)
+  }
+
+  let scriptInfo = await processInBatches(
+    scriptInfoPromises,
+    10
   )
+
   let timestamps = []
   try {
     let timestampsDb = await getTimestamps()
     timestamps = timestampsDb.stamps
   } catch {}
-  return scriptInfo.sort(scriptsSort(timestamps))
+
+  scriptInfo.sort(scriptsSort(timestamps))
+
+  return scriptInfo
 }
 
 export let getScriptsDb = async (
@@ -277,55 +290,16 @@ export let getScriptsDb = async (
   }
 > => {
   // if (!fromCache) console.log(`🔄 Refresh scripts db`)
-  return await db(
+
+  let dbResult = await db(
     scriptsDbPath,
     async () => ({
       scripts: await parseScripts(ignoreKenvPattern),
     }),
     fromCache
   )
-}
 
-type QueueItem = {
-  stamp: Stamp
-  resolve: (value: Script[]) => void
-  reject: (reason?: any) => void
-}
-
-// Higher-order function for adding "one-shot" behavior
-function singleInvocationWithinDelay<T extends any[], U>(
-  func: (...args: T) => Promise<U>,
-  delay: number
-): (...funcArgs: T) => Promise<U | undefined> {
-  let debounceTimer: NodeJS.Timeout | null = null
-  let invocationTimer: NodeJS.Timeout | null = null
-
-  return (...args: T): Promise<U | undefined> => {
-    return new Promise<U | undefined>((resolve, reject) => {
-      // If a debounce timer is already running, clear the invocation timer and reset the debounce timer
-      if (debounceTimer !== null) {
-        clearTimeout(invocationTimer!)
-        clearTimeout(debounceTimer)
-        invocationTimer = null
-        debounceTimer = setTimeout(() => {
-          debounceTimer = null
-        }, delay)
-        resolve(undefined)
-        return
-      }
-
-      // If no debounce timer is running, start one
-      debounceTimer = setTimeout(() => {
-        debounceTimer = null
-        invocationTimer = setTimeout(() => {
-          invocationTimer = null
-          func(...args)
-            .then(resolve)
-            .catch(reject)
-        }, 1)
-      }, delay)
-    })
-  }
+  return dbResult
 }
 
 export let setScriptTimestamp = async (

@@ -28,6 +28,7 @@ import {
   groupChoices,
   formatChoices,
   parseScript,
+  processInBatches,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -41,6 +42,84 @@ import {
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 import { Kenv } from "../types/kit"
+import { Fields as TraceFields } from "chrome-trace-event"
+
+export async function initTrace() {
+  if (
+    process.env.KIT_TRACE ||
+    (process.env.KIT_TRACE_DATA && !global?.trace?.enabled)
+  ) {
+    let timestamp = Date.now()
+    let { default: Trace } = await import(
+      "chrome-trace-event"
+    )
+    let tracer = new Trace.Tracer({
+      noStream: true,
+    })
+
+    await ensureDir(kitPath("trace"))
+
+    let writeStream = createWriteStream(
+      kitPath("trace", `trace-${timestamp}.json`)
+    )
+
+    tracer.pipe(writeStream)
+
+    const tidCache = new Map()
+
+    function updateFields(channel) {
+      let tid
+      if (channel) {
+        let cachedTid = tidCache.get(channel)
+        if (cachedTid === undefined) {
+          cachedTid = Object.entries(Channel).findIndex(
+            ([, value]) => value === channel
+          )
+          tidCache.set(channel, cachedTid)
+        }
+        tid = cachedTid
+      }
+      return tid
+    }
+
+    function createTraceFunction(
+      eventType: "B" | "E" | "I"
+    ) {
+      return function (fields: TraceFields) {
+        fields.tid = updateFields(fields?.channel) || 1
+        if (!process.env.KIT_TRACE_DATA) {
+          fields.args = undefined
+        }
+        return tracer.mkEventFunc(eventType)(fields)
+      }
+    }
+
+    global.trace = {
+      begin: createTraceFunction("B"),
+      end: createTraceFunction("E"),
+      instant: createTraceFunction("I"),
+      flush: () => {
+        tracer.flush()
+      },
+      enabled: true,
+    }
+
+    global.trace.instant({
+      name: "Init Trace",
+      args: {
+        timestamp,
+      },
+    })
+  }
+}
+
+global.trace ||= {
+  begin: () => {},
+  end: () => {},
+  instant: () => {},
+  flush: () => {},
+  enabled: false,
+}
 
 global.isWin = os.platform().startsWith("win")
 global.isMac = os.platform().startsWith("darwin")
@@ -249,13 +328,21 @@ global.send = (channel: Channel, value?: any) => {
   if (global.__kitAbandoned) return null
   if (process?.send) {
     try {
-      process.send({
+      let payload = {
         pid: process.pid,
         promptId: global.__kitPromptId,
         kitScript: global.kitScript,
         channel,
         value,
+      }
+
+      global.trace.instant({
+        name: `Send ${channel}`,
+        channel,
+        args: payload,
       })
+
+      process.send(payload)
     } catch (e) {
       global.warn(e)
     }
@@ -1018,23 +1105,47 @@ export let getProcessedScripts = async () => {
   )
     return processedScripts
 
-  let scripts: Script[] = await getScripts(
-    global.__kitScriptsFromCache
-  )
+  trace.begin({
+    name: "getScripts",
+  })
+  let scripts: Script[] = await getScripts(true)
+  trace.end({
+    name: "getScripts",
+  })
 
+  trace.begin({
+    name: "getTimestamps",
+  })
   let timestampsDb = await getTimestamps()
+  trace.end({
+    name: "getTimestamps",
+  })
 
   global.__kitScriptsFromCache = true
 
-  processedScripts = await Promise.all(
-    scripts.map(processScript(timestampsDb.stamps))
+  trace.begin({
+    name: "processedScripts = await Promise.all",
+  })
+  processedScripts = await processInBatches(
+    scripts.map(processScript(timestampsDb.stamps)),
+    10
   )
+
+  trace.end({
+    name: "processedScripts = await Promise.all",
+  })
 
   return scripts
 }
 
 export let getGroupedScripts = async () => {
+  trace.begin({
+    name: "getProcessedScripts",
+  })
   let processedscripts = await getProcessedScripts()
+  trace.end({
+    name: "getProcessedScripts",
+  })
 
   let apps = (await getApps()).map(a => {
     a.ignoreFlags = true
@@ -1101,7 +1212,10 @@ export let getGroupedScripts = async () => {
     }
   }
 
-  let parsedKitScripts = await Promise.all(
+  trace.begin({
+    name: "parsedKitScripts",
+  })
+  let parsedKitScripts = await processInBatches(
     kitScripts.map(async scriptPath => {
       let script = await parseScript(scriptPath)
 
@@ -1112,8 +1226,13 @@ export let getGroupedScripts = async () => {
       processPreviewPath(script)
 
       return script
-    })
+    }),
+    5
   )
+
+  trace.end({
+    name: "parsedKitScripts",
+  })
 
   processedscripts = processedscripts.concat(
     parsedKitScripts
@@ -1158,7 +1277,13 @@ export let getGroupedScripts = async () => {
   //   communityScripts
   // )
 
+  trace.begin({
+    name: "groupScripts",
+  })
   let groupedScripts = groupScripts(processedscripts)
+  trace.end({
+    name: "groupScripts",
+  })
 
   groupedScripts = groupedScripts.map(s => {
     if (s.group === "Pass") {
@@ -1187,12 +1312,36 @@ export let mainMenu = async (
     { name: "Exit", key: `${cmd}+w`, bar: "" },
   ])
 
+  // if (global.trace) {
+  //   global.trace.addBegin({
+  //     name: "buildScriptConfig",
+  //     tid: 0,
+  //     args: `Build main menu`,
+  //   })
+  // }
+
+  trace.begin({
+    name: "buildScriptConfig",
+  })
+
   let scriptsConfig = buildScriptConfig(message)
+
+  trace.end({
+    name: "buildScriptConfig",
+  })
+
   scriptsConfig.keepPreview = true
 
   // We preload from an in-memory cache, then replace with the actual scripts
   global.__kitScriptsFromCache = false
+
+  trace.begin({
+    name: "getGroupedScripts",
+  })
   let groupedScripts = await getGroupedScripts()
+  trace.end({
+    name: "getGroupedScripts",
+  })
 
   let script = await global.arg(
     scriptsConfig,
@@ -1223,7 +1372,7 @@ export let selectScript = async (
   return await getScriptResult(script, message)
 }
 
-export let processPreviewPath = async (s: Script) => {
+export let processPreviewPath = (s: Script) => {
   if (s.previewPath) {
     s.preview = async () => {
       let previewPath = getPreviewPath(s)
@@ -1231,9 +1380,7 @@ export let processPreviewPath = async (s: Script) => {
       let preview = `<div></div>`
 
       if (await isFile(previewPath)) {
-        preview = await md(
-          await readFile(previewPath, "utf8")
-        )
+        preview = md(await readFile(previewPath, "utf8"))
       }
 
       return preview
@@ -1633,6 +1780,9 @@ let done = false
 let executed = false
 let beforeExit = () => {
   if (executed) return
+  if (global?.trace?.flush) {
+    global.trace.flush()
+  }
   executed = true
   send(Channel.BEFORE_EXIT)
 }

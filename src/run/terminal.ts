@@ -5,7 +5,8 @@ import os from "os"
 import { configEnv } from "../core/utils.js"
 
 await import("../api/global.js")
-await import("../api/kit.js")
+let { initTrace } = await import("../api/kit.js")
+await initTrace()
 await import("../api/lib.js")
 await import(`../platform/base.js`)
 
@@ -22,3 +23,4 @@ await import("../target/terminal.js")
 let { runCli } = await import("../cli/kit.js")
 
 await runCli()
+trace.flush()

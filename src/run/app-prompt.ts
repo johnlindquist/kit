@@ -5,7 +5,9 @@ import { configEnv, run } from "../core/utils.js"
 import { Channel } from "../core/enum.js"
 
 await import("../api/global.js")
-await import("../api/kit.js")
+let { initTrace } = await import("../api/kit.js")
+await initTrace()
+
 await import("../api/pro.js")
 await import("../api/lib.js")
 await import(`../platform/base.js`)
@@ -36,6 +38,10 @@ try {
         send(Channel.HEARTBEAT)
       }
       if (data.channel === Channel.VALUE_SUBMITTED) {
+        trace.instant({
+          name: "app-prompt.ts -> VALUE_SUBMITTED",
+          args: data,
+        })
         process.off("message", messageHandler)
         resolve(data.value)
       }

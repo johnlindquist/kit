@@ -143,13 +143,20 @@ export const KIT_APP_PROMPT = kitPath(
 export let combinePath = (
   arrayOfPaths: string[]
 ): string => {
-  return [
-    ...new Set(
-      [...arrayOfPaths]
-        .flatMap(p => (p ? p.split(path.delimiter) : []))
-        .filter(Boolean)
-    ),
-  ].join(path.delimiter)
+  const pathSet = new Set<string>()
+
+  for (const p of arrayOfPaths) {
+    if (p) {
+      const paths = p.split(path.delimiter)
+      for (const singlePath of paths) {
+        if (singlePath) {
+          pathSet.add(singlePath)
+        }
+      }
+    }
+  }
+
+  return Array.from(pathSet).join(path.delimiter)
 }
 
 const UNIX_DEFAULT_PATH = combinePath([
@@ -355,34 +362,44 @@ ${contents}`.trim()
 
 //app
 export let getMetadata = (contents: string): Metadata => {
-  let matches = contents.matchAll(
-    /(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/gm
-  )
+  const lines = contents.split("\n")
+  const metadata = {}
 
-  let metadata = {}
-  for (let [, key, value] of matches) {
-    if (!value || !key) continue
+  for (const line of lines) {
+    // Skip lines that don't start with '//' or '#'
+    if (!line.startsWith("//") && !line.startsWith("#"))
+      continue
 
-    let v = value.trim()
-    if (v.length) {
-      let k = key[0].toLowerCase() + key.slice(1)
-      if (!metadata[k]) metadata[k] = v
+    // Find the index of the first colon
+    const colonIndex = line.indexOf(":")
+    if (colonIndex === -1) continue
+
+    // Extract key and value based on the colon index
+    const key = line
+      .substring(2, colonIndex)
+      .trim()
+      .toLowerCase()
+    const value = line.substring(colonIndex + 1).trim()
+
+    // Skip empty keys or values
+    if (!key || !value) continue
+
+    // Only assign if the key hasn't been assigned before
+    if (!(key in metadata)) {
+      metadata[key] = value
     }
   }
 
   return metadata
 }
 
+const shebangRegex = /^#!(.+)/m
+
 export let getShebangFromContents = (
   contents: string
 ): string | undefined => {
-  let shebangLine = contents.match(/^#!(.*)$/m)
-  if (shebangLine) {
-    let shebang = shebangLine[1].trim()
-    if (shebang) return shebang
-  }
-
-  return ""
+  let match = contents.match(shebangRegex)
+  return match ? match[1].trim() : undefined
 }
 
 //app
@@ -535,6 +552,7 @@ export let parseScript = async (
   let parsedFilePath = await parseFilePath(filePath)
 
   let contents = await readFile(filePath, "utf8")
+
   let metadata = parseMetadata(contents)
 
   let shebang = getShebangFromContents(contents)
@@ -649,17 +667,23 @@ export let exists = async (input: string) => {
 export let getKenvs = async (
   ignorePattern = /^ignore$/
 ): Promise<string[]> => {
-  let kenvs: string[] = []
-  if (!(await isDir(kenvPath("kenvs")))) return kenvs
+  if (!(await isDir(kenvPath("kenvs")))) return []
 
   let dirs = await readdir(kenvPath("kenvs"), {
     withFileTypes: true,
   })
 
-  return dirs
-    .filter(d => !Boolean(d?.name?.match(ignorePattern)))
-    .filter(d => d.isDirectory() || d.isSymbolicLink())
-    .map(d => kenvPath("kenvs", d.name))
+  let kenvs = []
+  for (let dir of dirs) {
+    if (
+      !dir.name.match(ignorePattern) &&
+      (dir.isDirectory() || dir.isSymbolicLink())
+    ) {
+      kenvs.push(kenvPath("kenvs", dir.name))
+    }
+  }
+
+  return kenvs
 }
 
 export let kitMode = () =>
@@ -675,14 +699,22 @@ export let run = async (
   kitGlobalRunCount++
   let kitLocalRunCount = kitGlobalRunCount
 
-  let [script, ...scriptArgs] = command
-    .split(/('[^']+?')|("[^"]+?")/)
-    .filter(Boolean)
-    .flatMap(item =>
-      item.match(/'|"/)
-        ? item.replace(/'|"/g, "")
-        : item.trim().split(/\s/)
-    )
+  let scriptArgs = []
+  let script = ""
+  let match
+  let splitRegex = /('[^']+?')|("[^"]+?")|\s+/
+  let quoteRegex = /'|"/g
+  let parts = command.split(splitRegex).filter(Boolean)
+
+  for (let item of parts) {
+    if (!script) {
+      script = item.replace(quoteRegex, "")
+    } else if (!item.match(quoteRegex)) {
+      scriptArgs.push(...item.trim().split(/\s+/))
+    } else {
+      scriptArgs.push(item.replace(quoteRegex, ""))
+    }
+  }
   // In case a script is passed with a path, we want to use the full command
   if (script.includes(path.sep)) {
     script = command
@@ -828,19 +860,26 @@ export let trashScript = async (script: Script) => {
 
 export let getScriptFiles = async (kenv = kenvPath()) => {
   let scriptsPath = path.join(kenv, "scripts")
-  if (!(await isDir(scriptsPath))) {
+  try {
+    let dirEntries = await readdir(scriptsPath)
+    let scriptFiles = []
+    for (let fileName of dirEntries) {
+      if (!fileName.startsWith(".")) {
+        let fullPath = path.join(scriptsPath, fileName)
+        if (!path.extname(fileName)) {
+          let stats = await lstat(fullPath)
+          if (!stats.isDirectory()) {
+            scriptFiles.push(fullPath)
+          }
+        } else {
+          scriptFiles.push(fullPath)
+        }
+      }
+    }
+    return scriptFiles
+  } catch {
     return []
   }
-
-  let result = await readdir(scriptsPath, {
-    withFileTypes: true,
-  })
-
-  return result
-    .filter(file => file.isFile())
-    .map(file => file.name)
-    .filter(name => !name.startsWith("."))
-    .map(file => path.join(scriptsPath, file))
 }
 
 export type Timestamp = {
@@ -1661,4 +1700,17 @@ export let escapeHTML = (text: string) => {
 
   // Convert newline characters to <br/>
   return text.replace(/\n/g, "<br/>")
+}
+
+export let processInBatches = async <T>(
+  items: Promise<T>[],
+  batchSize: number
+): Promise<T[]> => {
+  let result: T[] = []
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize)
+    const batchResults = await Promise.all(batch)
+    result = result.concat(batchResults)
+  }
+  return result
 }

@@ -95,6 +95,32 @@ export interface OnTab {
   ): void
 }
 
+export interface Trace {
+  enabled: boolean
+  begin: (
+    fields: Parameters<
+      InstanceType<
+        typeof import("chrome-trace-event").Tracer
+      >["begin"]
+    >[0]
+  ) => void
+  end: (
+    fields: Parameters<
+      InstanceType<
+        typeof import("chrome-trace-event").Tracer
+      >["end"]
+    >[0]
+  ) => void
+  instant: (
+    fields: Parameters<
+      InstanceType<
+        typeof import("chrome-trace-event").Tracer
+      >["instantEvent"]
+    >[0]
+  ) => void
+  flush: () => void
+}
+
 export interface OnExit {
   (fn: () => void): void
 }
@@ -444,4 +470,5 @@ declare global {
     choices: Choice[]
   ) => Promise<void>
   var toggleAllSelectedChoices: () => Promise<void>
+  var trace: Trace
 }

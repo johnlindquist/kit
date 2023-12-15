@@ -13,7 +13,7 @@ let selectedDoc = await docs(
     itemHeight: PROMPT.ITEM.HEIGHT.SM,
     input: arg?.input || arg?.input || "",
     placeholder: "Browse Guide",
-    enter: `Open API.md`,
+    enter: `Open GUIDE.md`,
     preventCollapse: true,
     onNoChoices: async input => {
       setPanel(

@@ -432,6 +432,9 @@ let isApp = false
 let isPass = false
 let input = ""
 
+trace.instant({
+  args: "mainMenu",
+})
 let script = await mainMenu({
   name: "Main",
   description: "Script Kit",
@@ -622,6 +625,10 @@ let script = await mainMenu({
     },
   ],
   input: arg?.input || "",
+})
+
+trace.instant({
+  args: "mainMenu submitted",
 })
 
 if (typeof script === "boolean" && !script) {

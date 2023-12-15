@@ -2,7 +2,7 @@ import fs from "fs"
 import { unlink } from "fs/promises"
 import { filesize } from "filesize"
 import util from "util"
-
+import path from "path"
 import {
   AppState,
   ChannelHandler,
@@ -590,6 +590,11 @@ let waitForPromptValue = ({
 
           global.__kitPromptState = data.state
 
+          trace.instant({
+            name: data?.channel,
+            channel: data?.channel,
+            args: data,
+          })
           switch (data.channel) {
             case Channel.PING:
               send(Channel.PONG)
@@ -1120,6 +1125,11 @@ global.__currentPromptSecret = false
 global.__currentPromptConfig = {}
 
 global.kitPrompt = async (config: PromptConfig) => {
+  trace.begin({
+    name: config.ui,
+    channel: Channel.SET_PROMPT_DATA,
+    args: config,
+  })
   promptId++
   global.__currentPromptSecret = config.secret || false
   let ui = config?.ui || UI.arg
@@ -1237,7 +1247,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     onChoiceFocus
   )
 
-  return await waitForPromptValue({
+  let value = await waitForPromptValue({
     ui,
     choices,
     validate,
@@ -1275,6 +1285,13 @@ global.kitPrompt = async (config: PromptConfig) => {
     inputRegex,
     initialChoices,
   })
+
+  trace.end({
+    name: config.ui,
+    channel: Channel.SET_PROMPT_DATA,
+  })
+
+  return value
 }
 
 global.drop = async (
@@ -2498,17 +2515,17 @@ let getFileInfo = async (filePath: string) => {
 export let createPathChoices = async (
   startPath: string,
   {
-    dirFilter = (dirent: Dirent) => true,
-    dirSort = (a: any, b: any) => 0,
+    dirFilter = dirent => true,
+    dirSort = (a, b) => 0,
     onlyDirs = false,
-  }
+  } = {}
 ) => {
   let dirFiles = await readdir(startPath, {
     withFileTypes: true,
   })
 
   // Sort .files and .folders to the bottom
-  dirFiles = dirFiles.sort((a, b) => {
+  dirFiles.sort((a, b) => {
     if (a.name.startsWith(".") && !b.name.startsWith(".")) {
       return 1
     }
@@ -2613,7 +2630,7 @@ let __pathSelector = async (
   ) => {
     try {
       let choices = await createPathChoices(startPath, {
-        dirFilter,
+        dirFilter: dirFilter as (dirent: any) => true,
         onlyDirs,
       })
 
@@ -2838,7 +2855,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       }
 
       sort = s
-      let dirSort = sorters[s]
+      let dirSort = sorters[s] as any
       let choices = await createPathChoices(startPath, {
         dirFilter: () => true,
         dirSort,
