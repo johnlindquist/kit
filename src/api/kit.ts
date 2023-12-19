@@ -491,6 +491,14 @@ global.setup = async (setupPath, ..._args) => {
   )
 }
 
+global.kenvTmpPath = (...parts) => {
+  let command = resolveScriptToCommand(global.kitScript)
+  let scriptTmpDir = kenvPath("tmp", command, ...parts)
+
+  mkdir("-p", path.dirname(scriptTmpDir))
+  return scriptTmpDir
+}
+
 global.tmpPath = (...parts) => {
   let command = global?.kitScript
     ? resolveScriptToCommand(global.kitScript)

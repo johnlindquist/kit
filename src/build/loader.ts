@@ -1,8 +1,7 @@
 import { fileURLToPath } from "node:url"
+import { build } from "esbuild"
 
 export async function JSXLoad(url) {
-  const { build } = await import("esbuild")
-
   const result = await build({
     entryPoints: [fileURLToPath(url)],
     bundle: true,
@@ -45,11 +44,11 @@ export async function NoLoad(url) {
 }
 
 export async function load(url, context, defaultLoad) {
-  if (url.endsWith(".kit")) {
+  if (url.includes(".ts?")) {
     // let dir = basename(dirname(url))
     const transform = await JSXLoad(url)
     return transform
   }
 
-  return await defaultLoad(url, context, defaultLoad)
+  return defaultLoad(url, context, defaultLoad)
 }

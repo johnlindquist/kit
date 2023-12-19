@@ -13,7 +13,7 @@ global.applescript = async (
   script,
   options = { silent: true }
 ) => {
-  let applescriptPath = tmpPath("latest.scpt")
+  let applescriptPath = kenvTmpPath("latest.scpt")
   await writeFile(applescriptPath, script)
 
   let p = new Promise<string>((res, rej) => {

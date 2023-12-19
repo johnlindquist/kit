@@ -287,6 +287,7 @@ export interface KitApi {
    * ```
    */
   tmpPath: PathFn
+  kenvTmpPath: PathFn
 
   inspect: Inspect
 
@@ -361,6 +362,7 @@ declare global {
   var kenvPath: PathFn
   var knodePath: PathFn
   var tmpPath: PathFn
+  var kenvTmpPath: PathFn
 
   var attemptImport: KitModuleLoader
   var npm: KitModuleLoader
