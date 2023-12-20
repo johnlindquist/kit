@@ -4,6 +4,8 @@
 // UI: arg
 // Exclude: true
 // Cache: true
+performance.measure("index", "run")
+
 import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import { getTimestamps } from "../core/db.js"
 import { Channel, Value } from "../core/enum.js"

@@ -310,7 +310,7 @@ global.attemptImport = async (scriptPath, ..._args) => {
     global.updateArgs(_args)
 
     let href = pathToFileURL(scriptPath).href
-    let kitImport = `${href}?uuid=${global.uuid()}.kit`
+    let kitImport = `${href}?now=${Date.now()}.kit`
     importResult = await import(kitImport)
   } catch (error) {
     let e = error.toString()
@@ -761,6 +761,8 @@ global.setChoices = async (choices, config) => {
     inputRegex: config?.inputRegex || "",
     generated: Boolean(config?.generated),
   })
+
+  performance.measure("SET_CHOICES", "run")
 }
 
 global.flag ||= {}

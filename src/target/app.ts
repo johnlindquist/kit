@@ -931,6 +931,8 @@ global.setPrompt = (data: Partial<PromptData>) => {
     show: true,
     ...(data as PromptData),
   })
+
+  performance.measure("SET_PROMPT_DATA", "run")
 }
 
 global.kitShortcutsMap = new Map()

@@ -696,6 +696,7 @@ export let run = async (
   command: string,
   ...commandArgs: string[]
 ) => {
+  performance.mark("run")
   kitGlobalRunCount++
   let kitLocalRunCount = kitGlobalRunCount
 

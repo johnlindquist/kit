@@ -17,10 +17,23 @@ try {
   // console.log(`No ./platform/${platform}.js`)
 }
 
+if (process.env.KIT_MEASURE) {
+  let { PerformanceObserver, performance } = await import(
+    "perf_hooks"
+  )
+  let obs = new PerformanceObserver(list => {
+    let entry = list.getEntries()[0]
+    log(`⌚️ [Perf] ${entry.name}: ${entry.duration}ms`)
+  })
+  obs.observe({ entryTypes: ["measure"] })
+}
+performance.mark("start")
+
 configEnv()
 
 await import("../target/terminal.js")
 let { runCli } = await import("../cli/kit.js")
 
+performance.mark("run")
 await runCli()
 trace.flush()

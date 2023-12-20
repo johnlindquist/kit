@@ -44,7 +44,11 @@ export async function NoLoad(url) {
 }
 
 export async function load(url, context, defaultLoad) {
-  if (url.includes(".ts?")) {
+  if (
+    url.endsWith(".kit") &&
+    (url.includes(".ts?") ||
+      process.env?.KIT_TARGET === "terminal")
+  ) {
     // let dir = basename(dirname(url))
     const transform = await JSXLoad(url)
     return transform

@@ -18,6 +18,8 @@ import { PromptConfig } from "../types/core"
 global.actionFlag = ""
 global.getScripts = getScripts
 
+performance.mark("run")
+
 await import("@johnlindquist/globals")
 await import("./packages/zx.js")
 await import("./packages/clipboardy.js")

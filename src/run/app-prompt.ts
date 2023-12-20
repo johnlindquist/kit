@@ -21,6 +21,17 @@ try {
 
 await import("../target/app.js")
 
+if (process.env.KIT_MEASURE) {
+  let { PerformanceObserver, performance } = await import(
+    "perf_hooks"
+  )
+  let obs = new PerformanceObserver(list => {
+    let entry = list.getEntries()[0]
+    log(`⌚️ [Perf] ${entry.name}: ${entry.duration}ms`)
+  })
+  obs.observe({ entryTypes: ["measure"] })
+}
+
 let script = ""
 let trigger = ""
 let args = []
@@ -67,4 +78,6 @@ process.once("disconnect", () => {
 process.once("beforeExit", () => {
   send(Channel.BEFORE_EXIT)
 })
+
+performance.mark("run")
 await run(script, ...args)
