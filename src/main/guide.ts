@@ -1,5 +1,5 @@
 // Name: Guide
-// Description: Explore Script Kit Guide
+// Description: Docs Script Kit Guide
 // Keyword: guide
 // Pass: true
 

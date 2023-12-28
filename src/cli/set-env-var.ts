@@ -1,3 +1,4 @@
+import { Env } from "../core/enum.js"
 import { kitDotEnvPath } from "../core/utils.js"
 
 let envKey = await arg("env key:")
@@ -30,7 +31,7 @@ let exists = contents.match(
   new RegExp("^" + envKey + "=.*$", "gm")
 )
 let fn =
-  envValue === "__KIT_ClEAR_ENV__"
+  envValue === Env.REMOVE
     ? removeEnv
     : exists
     ? updateEnv

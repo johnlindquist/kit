@@ -6,6 +6,10 @@
 
 [https://github.com/johnlindquist/kit/discussions](https://github.com/johnlindquist/kit/discussions)
 
+## Docs
+
+[https://github.com/johnlindquist/kit-docs](https://github.com/johnlindquist/kit-docs)
+
 ## ⭐️ Unlock Script Kit Pro by Sponsoring Script Kit ⭐️
 
 ❤️ [Sponsor me on GitHub](https://github.com/sponsors/johnlindquist/sponsorships?sponsor=johnlindquist&tier_id=235205) ❤️

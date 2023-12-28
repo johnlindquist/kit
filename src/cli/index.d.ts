@@ -64,6 +64,9 @@ export interface CLI {
   "open-kenv": Promise<typeof import("./open-kenv")>
   "open-log": Promise<typeof import("./open-log")>
   "set-env-var": Promise<typeof import("./set-env-var")>
+  "remove-env-var": Promise<
+    typeof import("./remove-env-var")
+  >
   "search-docs": Promise<typeof import("./search-docs")>
   "view-docs": Promise<typeof import("./view-docs")>
   "share-copy": Promise<typeof import("./share-copy")>

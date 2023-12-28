@@ -1189,6 +1189,7 @@ export let getGroupedScripts = async () => {
   }
 
   kitScripts = kitScripts.concat([
+    kitPath("main", "docs.js"),
     kitPath("main", "api.js"),
     kitPath("main", "guide.js"),
     kitPath("main", "tips.js"),

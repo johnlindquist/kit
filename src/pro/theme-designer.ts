@@ -27,13 +27,21 @@ if (themePaths.length) {
     themePaths.concat(["New Theme"])
   )
   if (themePath === "New Theme") {
-    themeName = await arg("Name new theme")
+    themeName = await arg({
+      placeholder: "Name new theme",
+      hint: "The name will be slugified and used as the filename",
+      enter: "Create Theme",
+    })
   } else {
     theme = await readJson(themePath)
     themeName = theme?.name || "Custom Theme"
   }
 } else {
-  themeName = await arg("Name new theme")
+  themeName = await arg({
+    placeholder: "Name new theme",
+    hint: "The name will be slugified and used as the filename",
+    enter: "Create Theme",
+  })
 }
 
 let themeSlug = slugify(themeName, {
@@ -118,7 +126,7 @@ setTimeout(() => {
 await arg(
   {
     placeholder: `Sample Prompt for Theme Design`,
-    hint: `Click "save" to continue`,
+    hint: `Click "save" in the widget to continue`,
     ignoreBlur: true,
     alwaysOnTop: true,
   },

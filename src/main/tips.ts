@@ -1,5 +1,5 @@
 // Name: Tips
-// Description: Explore Script Kit Tips
+// Description: Docs for Script Kit Tips
 // Keyword: tips
 // Pass: true
 
