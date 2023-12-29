@@ -1171,6 +1171,7 @@ export let getGroupedScripts = async () => {
     kitPath("cli", "new-snippet.js"),
     kitPath("cli", "share.js"),
     kitPath("cli", "find.js"),
+    kitPath("main", "docs.js"),
     kitPath("main", "kit.js"),
     kitPath("cli", "processes.js"),
     kitPath("cli", "kenv-manage.js"),
@@ -1189,10 +1190,9 @@ export let getGroupedScripts = async () => {
   }
 
   kitScripts = kitScripts.concat([
-    kitPath("main", "docs.js"),
-    kitPath("main", "api.js"),
-    kitPath("main", "guide.js"),
-    kitPath("main", "tips.js"),
+    // kitPath("main", "api.js"),
+    // kitPath("main", "guide.js"),
+    // kitPath("main", "tips.js"),
     // kitPath("main", "suggest.js"),
     kitPath("main", "datamuse.js"),
     kitPath("main", "giphy.js"),

@@ -365,10 +365,20 @@ ${contents}`.trim()
 export let getMetadata = (contents: string): Metadata => {
   const lines = contents.split("\n")
   const metadata = {}
+  let commentStyle = null
 
   for (const line of lines) {
-    // Skip lines that don't start with '//' or '#'
-    if (!line.startsWith("//") && !line.startsWith("#"))
+    // Determine the comment style based on the first encountered comment line
+    if (commentStyle === null) {
+      if (line.startsWith("//")) commentStyle = "//"
+      else if (line.startsWith("#")) commentStyle = "#"
+    }
+
+    // Skip lines that don't start with the determined comment style
+    if (
+      commentStyle === null ||
+      (commentStyle && !line.startsWith(commentStyle))
+    )
       continue
 
     // Find the index of the first colon
@@ -377,7 +387,7 @@ export let getMetadata = (contents: string): Metadata => {
 
     // Extract key and value based on the colon index
     const key = line
-      .substring(2, colonIndex)
+      .substring(commentStyle.length, colonIndex)
       .trim()
       .toLowerCase()
     const value = line.substring(colonIndex + 1).trim()

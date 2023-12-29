@@ -53,9 +53,9 @@ let options = {
   },
 }
 
-console.log(`Download docs`)
+console.log(`Download md`)
 await exec(
-  `node ./run/terminal.js ./help/download-docs.js`,
+  `node ./run/terminal.js ./cli/download-md.js`,
   options
 )
 

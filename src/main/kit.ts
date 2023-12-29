@@ -1,6 +1,7 @@
 // Name: Kit Settings
 // Description: Manage Kit Settings
 // Keyword: kit
+// Pass: true
 
 import { createGuideConfig } from "./main-helper.js"
 
@@ -11,7 +12,7 @@ let cliScript = await docs(
   createGuideConfig({
     name: "Kit",
     guidePath: kitPath("KIT.md"),
-    input: arg?.input || "",
+    input: arg?.input || arg?.pass || "",
     placeholder: "Kit Actions",
     preventCollapse: true,
     onNoChoices: async input => {
