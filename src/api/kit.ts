@@ -730,11 +730,6 @@ global.___kitFormatChoices = async (
 ) => {
   if (!Array.isArray(choices)) return choices
   let formattedChoices = formatChoices(choices, className)
-  let { AiFillAccountBook } = await import("react-icons/ai")
-  let svg = AiFillAccountBook({})
-  for (let choice of formattedChoices) {
-    choice.img = svg
-  }
   let { __currentPromptConfig } = global as any
   let { shortcuts: globalShortcuts } =
     __currentPromptConfig || {}
