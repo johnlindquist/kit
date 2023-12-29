@@ -27,11 +27,13 @@ if (themePaths.length) {
     themePaths.concat(["New Theme"])
   )
   if (themePath === "New Theme") {
+    themePath = ""
     themeName = await arg({
       placeholder: "Name new theme",
       hint: "The name will be slugified and used as the filename",
       enter: "Create Theme",
     })
+    theme.name = themeName
   } else {
     theme = await readJson(themePath)
     themeName = theme?.name || "Custom Theme"
@@ -50,6 +52,7 @@ let themeSlug = slugify(themeName, {
 })
 
 themePath ||= kenvPath("themes", `${themeSlug}.json`)
+log({ themeSlug, themePath })
 let themeExists = await isFile(themePath)
 if (!themeExists) {
   await writeJson(themePath, theme, {

@@ -2,6 +2,7 @@
 // Description: Docs for Script Kit Tips
 // Keyword: tips
 // Pass: true
+// Enter: Open Tips
 
 import { createTipsConfig } from "./main-helper.js"
 

@@ -45,3 +45,22 @@ await exec(`node ./scripts/cjs-fix.js`)
 
 console.log(`Write .kitignore`)
 await writeFile(kitPath(".kitignore"), "*")
+
+let options = {
+  cwd: kitPath(),
+  env: {
+    PATH: `${knodePath("bin")}:${process.env.PATH}`,
+  },
+}
+
+console.log(`Download docs`)
+await exec(
+  `node ./run/terminal.js ./help/download-docs.js`,
+  options
+)
+
+console.log(`Download hot`)
+await exec(
+  `node ./run/terminal.js ./hot/download-hot.js`,
+  options
+)

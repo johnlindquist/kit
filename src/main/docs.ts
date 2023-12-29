@@ -1,5 +1,6 @@
 // Name: Docs
 // Description: Script Kit Docs
+// Enter: Open Docs
 // Keyword: docs
 // Pass: true
 
@@ -16,4 +17,12 @@ onTab("Guide", async () => {
 
 onTab("Tips", async () => {
   await main("tips")
+})
+
+onTab("Community Scripts", async () => {
+  await main("community")
+})
+
+onTab("Announcements", async () => {
+  await main("announcements")
 })

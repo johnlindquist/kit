@@ -1,6 +1,7 @@
 import { randomUUID as uuid } from "crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import * as path from "path"
+import untildify from "untildify"
 import {
   Script,
   ScriptPathInfo,
@@ -440,7 +441,7 @@ export let formatScriptMetadata = (
   }
 
   if (metadata?.image) {
-    metadata.img = metadata?.image
+    metadata.img = untildify(metadata?.image)
   }
 
   if (metadata?.timeout) {

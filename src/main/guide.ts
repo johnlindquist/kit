@@ -2,6 +2,7 @@
 // Description: Docs Script Kit Guide
 // Keyword: guide
 // Pass: true
+// Enter: Open Guide
 
 import { createGuideConfig } from "./main-helper.js"
 

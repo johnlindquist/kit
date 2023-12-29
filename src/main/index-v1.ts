@@ -12,6 +12,8 @@ export interface Main {
   snippets: Promise<typeof import("./snippets")>
   templates: Promise<typeof import("./templates")>
   tips: Promise<typeof import("./tips")>
+  community: Promise<typeof import("./community")>
+  announcements: Promise<typeof import("./announcements")>
 }
 
 interface MainModuleLoader {

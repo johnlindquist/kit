@@ -6,25 +6,74 @@
 import "@johnlindquist/kit"
 import { globby } from "globby"
 
-let themePaths = await globby([
-  kitPath("themes", "*.json").replaceAll("\\", "/"),
+let customThemePaths = await globby([
   kenvPath("themes", "*.json").replaceAll("\\", "/"),
 ])
+
+let themePaths = await globby([
+  kitPath("themes", "*.json").replaceAll("\\", "/"),
+  "!" +
+    kitPath("themes", "script-kit*.json").replaceAll(
+      "\\",
+      "/"
+    ),
+])
+
+let defaultThemePaths = await globby([
+  kitPath("themes", "script-kit*.json").replaceAll(
+    "\\",
+    "/"
+  ),
+])
+
 let guide = await readFile(kitPath("GUIDE.md"), "utf-8")
 
 let themes = []
 
 // Sort script-kit-dark and script-kit-light to the top
-themePaths.sort((a, b) => {
-  if (a.includes("script-kit")) {
-    return -1
-  }
-  return 1
-})
-
 let themeName = ""
+
+for await (let themePath of defaultThemePaths) {
+  let theme = await readJson(themePath)
+  theme.group = "Default"
+  theme.preview = async () => {
+    themeName = theme.name
+    setScriptTheme(theme)
+
+    return md(
+      `# Preview of ${theme.name}
+    
+` + guide
+    )
+  }
+  theme.value = themePath
+  theme.description = themePath
+  theme.enter = "Apply Theme"
+  themes.push(theme)
+}
+
 for await (let themePath of themePaths) {
   let theme = await readJson(themePath)
+  theme.group = "Built-in"
+  theme.preview = async () => {
+    themeName = theme.name
+    setScriptTheme(theme)
+
+    return md(
+      `# Preview of ${theme.name}
+    
+` + guide
+    )
+  }
+  theme.value = themePath
+  theme.description = themePath
+  theme.enter = "Apply Theme"
+  themes.push(theme)
+}
+
+for await (let themePath of customThemePaths) {
+  let theme = await readJson(themePath)
+  theme.group = "Custom"
   theme.preview = async () => {
     themeName = theme.name
     setScriptTheme(theme)
@@ -44,6 +93,7 @@ for await (let themePath of themePaths) {
 let RESET = "Reset to Defaults"
 
 themes.unshift({
+  group: "Kit",
   name: "Theme Designer",
   enter: "Open Theme Designer",
   description: "Design your own theme",
@@ -56,6 +106,7 @@ Design your own using the theme design widget.
 
 if (env.KIT_THEME_LIGHT || env.KIT_THEME_DARK) {
   themes.unshift({
+    group: "Kit",
     name: RESET,
     description:
       "Reset both light and dark themes to defaults",
@@ -67,6 +118,10 @@ if (env.KIT_THEME_LIGHT || env.KIT_THEME_DARK) {
   `),
   })
 }
+
+themes = groupChoices(themes, {
+  order: ["Kit", "Custom", "Default", "Built-in"],
+})
 
 let themePath = await arg("Theme Selector", themes)
 
