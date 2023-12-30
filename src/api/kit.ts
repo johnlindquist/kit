@@ -1,5 +1,6 @@
 import * as os from "os"
 import { pathToFileURL } from "url"
+import * as JSONSafe from "safe-stable-stringify"
 import {
   QuickScore,
   quickScore,
@@ -362,7 +363,7 @@ global.log = (...args) => {
       Channel.KIT_LOG,
       args
         .map(a =>
-          typeof a != "string" ? JSON.stringify(a) : a
+          typeof a != "string" ? JSONSafe.stringify(a) : a
         )
         .join(" ")
     )
@@ -376,7 +377,7 @@ global.warn = (...args) => {
       Channel.KIT_WARN,
       args
         .map(a =>
-          typeof a != "string" ? JSON.stringify(a) : a
+          typeof a != "string" ? JSONSafe.stringify(a) : a
         )
         .join(" ")
     )
@@ -396,7 +397,7 @@ if (process?.send) {
   global.console.log = (...args) => {
     let log = args
       .map(a =>
-        typeof a != "string" ? JSON.stringify(a) : a
+        typeof a != "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 
@@ -406,7 +407,7 @@ if (process?.send) {
   global.console.warn = (...args) => {
     let warn = args
       .map(a =>
-        typeof a != "string" ? JSON.stringify(a) : a
+        typeof a != "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 
@@ -420,7 +421,7 @@ if (process?.send) {
   global.console.error = (...args) => {
     let error = args
       .map(a =>
-        typeof a != "string" ? JSON.stringify(a) : a
+        typeof a != "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 
@@ -430,7 +431,7 @@ if (process?.send) {
   global.console.info = (...args) => {
     let info = args
       .map(a =>
-        typeof a != "string" ? JSON.stringify(a) : a
+        typeof a != "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 
@@ -538,7 +539,7 @@ global.inspect = async (data, fileName) => {
   let tmpFullPath = ""
 
   if (typeof data !== "string") {
-    formattedData = JSON.stringify(data, null, "\t")
+    formattedData = JSONSafe.stringify(data, null, "\t")
   }
 
   if (fileName) {

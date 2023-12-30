@@ -73,6 +73,7 @@
     "p-limit": "^5.0.0",
     "quick-score": "^0.2.0",
     "rimraf": "5.0.5",
+    "safe-stable-stringify": "^2.4.3",
     "shelljs": "0.8.5",
     "slugify": "1.6.6",
     "suggestion": "2.1.2",
