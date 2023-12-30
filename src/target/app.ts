@@ -3249,14 +3249,14 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
     filePath: `file:///node_modules/@johnlindquist/globals/index.d.ts`,
   })
 
-  // let content = await readFile(
-  //   kitPath("types", "kit-editor.d.ts"),
-  //   "utf8"
-  // )
-  // extraLibs.push({
-  //   content,
-  //   filePath: `file:///kit.d.ts`,
-  // })
+  let content = await readFile(
+    kitPath("types", "kit-editor.d.ts"),
+    "utf8"
+  )
+  extraLibs.push({
+    content,
+    filePath: `file:///kit.d.ts`,
+  })
 
   let shelljsContent = await readFile(
     kitPath(
@@ -3303,15 +3303,15 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
     filePath: `file:///node_modules/@types/node-notifier/index.d.ts`,
   })
 
-  let trashContent = await readFile(
-    kitPath("node_modules", "trash", "index.d.ts"),
-    "utf8"
-  )
+  // let trashContent = await readFile(
+  //   kitPath("node_modules", "trash", "index.d.ts"),
+  //   "utf8"
+  // )
 
-  extraLibs.push({
-    content: trashContent,
-    filePath: `file:///node_modules/@types/trash/index.d.ts`,
-  })
+  // extraLibs.push({
+  //   content: trashContent,
+  //   filePath: `file:///node_modules/@types/trash/index.d.ts`,
+  // })
 
   return extraLibs
 }

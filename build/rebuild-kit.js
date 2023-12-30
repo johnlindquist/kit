@@ -53,14 +53,16 @@ let options = {
   },
 }
 
-console.log(`Download md`)
-await exec(
-  `node ./run/terminal.js ./cli/download-md.js`,
-  options
+console.log(
+  `Downloading md, hot, and building editor types concurrently`
 )
-
-console.log(`Download hot`)
-await exec(
-  `node ./run/terminal.js ./hot/download-hot.js`,
-  options
-)
+await Promise.all([
+  exec(
+    `node ./run/terminal.js ./cli/download-md.js`,
+    options
+  ),
+  exec(
+    `node ./run/terminal.js ./hot/download-hot.js`,
+    options
+  ),
+])

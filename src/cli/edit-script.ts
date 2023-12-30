@@ -25,10 +25,11 @@ if (scriptPath.endsWith(".mjs")) {
 
 if (isApp && isKitEditor) {
   let value = await readFile(scriptPath, "utf-8")
+  let extraLibs = await global.getExtraLibs()
   await editor({
     value,
     description: scriptPath,
-    extraLibs: await global.getExtraLibs(),
+    extraLibs,
     language: path.extname(scriptPath).slice(1),
     shortcuts: [
       {
