@@ -303,6 +303,18 @@ global.getProcesses = async () =>
   (await global.getDataFromApp(Channel.GET_PROCESSES))
     .processes
 
+global.getKitWindows = async () => {
+  let message = await global.getDataFromApp(
+    Channel.GET_KIT_WINDOWS
+  )
+
+  return message.windows
+}
+
+global.focusKitWindow = async (id: string) => {
+  return sendWait(Channel.FOCUS_KIT_WINDOW, { id })
+}
+
 global.setActiveAppBounds = async ({
   left,
   top,

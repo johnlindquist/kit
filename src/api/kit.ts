@@ -1176,6 +1176,7 @@ export let getGroupedScripts = async () => {
     kitPath("main", "kit.js"),
     kitPath("cli", "processes.js"),
     kitPath("cli", "kenv-manage.js"),
+    kitPath("main", "kit-windows.js"),
     kitPath("main", "file-search.js"),
     // kitPath("main", "google.js"),
   ]

@@ -309,6 +309,8 @@ export enum Channel {
   SET_PROGRESS = "SET_PROGRESS",
   ERROR = "ERROR",
   HEARTBEAT = "HEARTBEAT",
+  GET_KIT_WINDOWS = "GET_KIT_WINDOWS",
+  FOCUS_KIT_WINDOW = "FOCUS_KIT_WINDOW",
 }
 
 export enum ProcessType {

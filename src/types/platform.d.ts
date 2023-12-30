@@ -248,6 +248,30 @@ interface GetProcesses {
   (): Promise<ProcessInfo[]>
 }
 
+interface Rectangle {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+interface KitWindow {
+  name: string
+  id: string
+  value: string
+  bounds: Rectangle
+  isFocused: boolean
+  isVisible: boolean
+  isDestroyed: boolean
+}
+
+interface GetKitWindows {
+  (): Promise<KitWindow[]>
+}
+
+interface FocusAppWindow {
+  (id: string): Promise<void>
+}
+
 interface Bounds {
   left: number
   top: number
@@ -421,6 +445,8 @@ declare global {
   var getActiveTab: GetActiveTab
   var getMousePosition: GetMousePosition
   var getProcesses: GetProcesses
+  var getKitWindows: GetKitWindows
+  var focusKitWindow: FocusAppWindow
   var getScreens: GetScreens
   var getSelectedFile: GetSelectedFile
   var revealInFinder: RevealInFinder
