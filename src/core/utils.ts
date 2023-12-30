@@ -370,7 +370,7 @@ export let getMetadata = (contents: string): Metadata => {
   for (const line of lines) {
     // Determine the comment style based on the first encountered comment line
     if (commentStyle === null) {
-      if (line.startsWith("//")) commentStyle = "//"
+      if (line.startsWith("/")) commentStyle = "//"
       else if (line.startsWith("#")) commentStyle = "#"
     }
 
