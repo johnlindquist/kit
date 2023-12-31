@@ -23,7 +23,7 @@ await widget(md(\`# Hello world\`), {
     `)
   )
 } else {
-  let window = await arg<KitWindow>(
+  let id = await arg(
     {
       placeholder: "Focus Kit Window",
       enter: "Focus",
@@ -32,5 +32,5 @@ await widget(md(\`# Hello world\`), {
     windows as Choice[]
   )
 
-  await focusKitWindow(window?.id)
+  await focusKitWindow(id)
 }
