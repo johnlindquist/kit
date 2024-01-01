@@ -14,14 +14,14 @@ await docs(
     name: "Tips",
     guidePath: tipsPath,
     itemHeight: PROMPT.ITEM.HEIGHT.SM,
-    input: arg?.input || arg?.input || "",
+    input: arg?.input || "",
     placeholder: "Browse Tips",
     enter: `Create Script`,
     preventCollapse: true,
     onNoChoices: async input => {
       setPanel(
         md(`# Expected ${input} in the Tips?
-Tips are constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/blob/main/TIPS.md) to the tips.
+Tips are constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit-docs/blob/main/TIPS.md) to the tips.
 `)
       )
     },

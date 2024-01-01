@@ -19,7 +19,7 @@ let selectedDoc = await docs(
     onNoChoices: async input => {
       setPanel(
         md(`# Expected ${input} in the Guide?
-This guide is constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit/blob/main/GUIDE.md) to the guide or open an issue on GitHub.
+This guide is constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit-docs/blob/main/GUIDE.md) to the guide or open an issue on GitHub.
 `)
       )
     },
