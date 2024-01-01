@@ -386,10 +386,13 @@ export let getMetadata = (contents: string): Metadata => {
     if (colonIndex === -1) continue
 
     // Extract key and value based on the colon index
-    const key = line
+    let key = line
       .substring(commentStyle.length, colonIndex)
       .trim()
-      .toLowerCase()
+
+    if (key?.length > 0) {
+      key = key[0].toLowerCase() + key.slice(1)
+    }
     const value = line.substring(colonIndex + 1).trim()
 
     // Skip empty keys or values

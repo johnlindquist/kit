@@ -15,5 +15,6 @@ await downloadMarkdown("API.md")
 await downloadMarkdown("GUIDE.md")
 await downloadMarkdown("KIT.md")
 await downloadMarkdown("TIPS.md")
+await downloadMarkdown("SPONSOR.md")
 
 export {}
