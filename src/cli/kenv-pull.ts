@@ -22,7 +22,7 @@ await term({
 
 > The terminal only ran "git fetch" to show you what changes are available.
 
-You still need to run "get merge" to apply the changes.
+You still need to run "git merge" to apply the changes.
   
   `),
   cwd: dir,

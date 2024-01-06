@@ -2517,7 +2517,7 @@ let getFileInfo = async (filePath: string) => {
 export let createPathChoices = async (
   startPath: string,
   {
-    dirFilter = dirent => !dirent.isSymbolicLink(),
+    dirFilter = dirent => true,
     dirSort = (a, b) => 0,
     onlyDirs = false,
   } = {}
@@ -2539,9 +2539,41 @@ export let createPathChoices = async (
 
   let dirents = dirFiles.filter(dirFilter)
 
-  let folders = dirents.filter(
-    dirent =>
-      dirent.isDirectory() && !dirent.isSymbolicLink()
+  // Follow symlinks
+  for (let dirent of dirents) {
+    if (dirent.isSymbolicLink()) {
+      let resolved = await fs.promises.realpath(
+        path.resolve(dirent.path, dirent.name)
+      )
+
+      dirent.path = path.dirname(resolved)
+      dirent.name = path.basename(resolved)
+      dirent.isDirectory = () => {
+        return fs.statSync(resolved).isDirectory()
+      }
+      dirent.isFile = () => {
+        return fs.statSync(resolved).isFile()
+      }
+      dirent.isSymbolicLink = () => {
+        return fs.statSync(resolved).isSymbolicLink()
+      }
+      dirent.isBlockDevice = () => {
+        return fs.statSync(resolved).isBlockDevice()
+      }
+      dirent.isCharacterDevice = () => {
+        return fs.statSync(resolved).isCharacterDevice()
+      }
+      dirent.isFIFO = () => {
+        return fs.statSync(resolved).isFIFO()
+      }
+      dirent.isSocket = () => {
+        return fs.statSync(resolved).isSocket()
+      }
+    }
+  }
+
+  let folders = dirents.filter(dirent =>
+    dirent.isDirectory()
   )
   let files = onlyDirs
     ? []
@@ -2549,8 +2581,11 @@ export let createPathChoices = async (
 
   let mapDirents = (dirents: Dirent[]): Choice[] => {
     return dirents.map(dirent => {
-      let fullPath = path.resolve(startPath, dirent.name)
+      let fullPath = path.resolve(dirent.path, dirent.name)
+      console.log({ fullPath })
       let { size, mtime } = fs.statSync(fullPath)
+      console.log({ size, mtime })
+
       let type = dirent.isDirectory() ? "folder" : "file"
       let description =
         type === "folder"
@@ -2623,7 +2658,7 @@ let __pathSelector = async (
       //   return showHidden
       // }
 
-      return !dirent.isSymbolicLink()
+      return true
     },
   })
 
@@ -2865,7 +2900,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       sort = s
       let dirSort = sorters[s] as any
       let choices = await createPathChoices(startPath, {
-        dirFilter: dirent => !dirent.isSymbolicLink(),
+        dirFilter: dirent => true,
         dirSort,
         onlyDirs,
       })
