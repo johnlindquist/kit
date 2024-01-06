@@ -84,14 +84,14 @@ let historyWithPreviews = async () => {
 let id = ``
 let text = ""
 let isImage = false
-let keyword = arg?.keyword || ""
+let input = arg?.keyword ? `${arg.keyword} ` : ""
 let defaultChoiceId = ""
 while (!text) {
   let history = await historyWithPreviews()
   text = await arg(
     {
       defaultChoiceId,
-      input: keyword + ` `,
+      input,
       placeholder: "Hit enter to paste",
       enter: `Paste item`,
       itemHeight: PROMPT.ITEM.HEIGHT.XS,

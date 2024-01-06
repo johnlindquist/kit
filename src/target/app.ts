@@ -2517,7 +2517,7 @@ let getFileInfo = async (filePath: string) => {
 export let createPathChoices = async (
   startPath: string,
   {
-    dirFilter = dirent => true,
+    dirFilter = dirent => !dirent.isSymbolicLink(),
     dirSort = (a, b) => 0,
     onlyDirs = false,
   } = {}
@@ -2539,8 +2539,9 @@ export let createPathChoices = async (
 
   let dirents = dirFiles.filter(dirFilter)
 
-  let folders = dirents.filter(dirent =>
-    dirent.isDirectory()
+  let folders = dirents.filter(
+    dirent =>
+      dirent.isDirectory() && !dirent.isSymbolicLink()
   )
   let files = onlyDirs
     ? []
@@ -2622,7 +2623,7 @@ let __pathSelector = async (
       //   return showHidden
       // }
 
-      return true
+      return !dirent.isSymbolicLink()
     },
   })
 
@@ -2657,8 +2658,13 @@ let __pathSelector = async (
       setPauseResize(false)
       if (focusOn) setFocused(focusOn)
       focusOn = ``
-    } catch {
-      setPanel(md(`### Failed to read ${startPath}`))
+    } catch (error) {
+      setPanel(
+        md(`### Failed to read ${startPath}
+      
+${error}      
+      `)
+      )
     }
   }
 
@@ -2859,7 +2865,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       sort = s
       let dirSort = sorters[s] as any
       let choices = await createPathChoices(startPath, {
-        dirFilter: () => true,
+        dirFilter: dirent => !dirent.isSymbolicLink(),
         dirSort,
         onlyDirs,
       })
