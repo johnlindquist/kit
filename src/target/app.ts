@@ -2582,9 +2582,7 @@ export let createPathChoices = async (
   let mapDirents = (dirents: Dirent[]): Choice[] => {
     return dirents.map(dirent => {
       let fullPath = path.resolve(dirent.path, dirent.name)
-      console.log({ fullPath })
       let { size, mtime } = fs.statSync(fullPath)
-      console.log({ size, mtime })
 
       let type = dirent.isDirectory() ? "folder" : "file"
       let description =
