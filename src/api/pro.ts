@@ -1,4 +1,3 @@
-import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 import { Channel, UI } from "../core/enum.js"
 import { KIT_FIRST_PATH } from "../core/utils.js"
 import {
@@ -71,6 +70,70 @@ let widget: Widget = async (html, options = {}) => {
     fit: () => {
       global.send(Channel.WIDGET_FIT, { widgetId })
     },
+    show: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "show",
+        args: [],
+      })
+    },
+    hide: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "hide",
+        args: [],
+      })
+    },
+    showInactive: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "showInactive",
+        args: [],
+      })
+    },
+    setAlwaysOnTop: (flag: boolean) => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "setAlwaysOnTop",
+        args: [flag],
+      })
+    },
+    focus: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "focus",
+        args: [],
+      })
+    },
+    blur: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "blur",
+        args: [],
+      })
+    },
+    minimize: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "minimize",
+        args: [],
+      })
+    },
+    maximize: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "maximize",
+        args: [],
+      })
+    },
+    restore: () => {
+      global.send(Channel.WIDGET_CALL, {
+        widgetId,
+        method: "restore",
+        args: [],
+      })
+    },
+
     setSize: (width, height) => {
       global.send(Channel.WIDGET_SET_SIZE, {
         widgetId,

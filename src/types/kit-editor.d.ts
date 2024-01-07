@@ -12488,6 +12488,8 @@ export type WidgetOptions =
     center?: boolean
     containerClass?: string
     preventEscape?: boolean
+    experimental?: boolean
+    css?: string
   }
 
 export interface WidgetMessage {
@@ -12527,6 +12529,15 @@ export interface WidgetAPI {
   onMoved: (handler: WidgetHandler) => void
   onInit: (handler: WidgetHandler) => void
   executeJavaScript: (js: string) => Promise<any>
+  show: () => void
+  showInactive: () => void
+  hide: () => void
+  focus: () => void
+  blur: () => void
+  minimize: () => void
+  maximize: () => void
+  restore: () => void
+  setAlwaysOnTop: (flag: boolean) => void
 }
 
 export interface Widget {
