@@ -2538,13 +2538,22 @@ export let createPathChoices = async (
   })
 
   let dirents = dirFiles.filter(dirFilter)
+  let validDirents = []
 
   // Follow symlinks
   for (let dirent of dirents) {
     if (dirent.isSymbolicLink()) {
-      let resolved = await fs.promises.realpath(
-        path.resolve(dirent.path, dirent.name)
-      )
+      let resolved
+      try {
+        resolved = await fs.promises.realpath(
+          path.resolve(dirent.path, dirent.name)
+        )
+      } catch (error) {
+        // Handle the error if the symbolic link is missing
+        // remove the symlink from the list of dirents and skip
+        // to the next iteration
+        continue
+      }
 
       dirent.path = path.dirname(resolved)
       dirent.name = path.basename(resolved)
@@ -2570,7 +2579,10 @@ export let createPathChoices = async (
         return fs.statSync(resolved).isSocket()
       }
     }
+    validDirents.push(dirent)
   }
+
+  dirents = validDirents
 
   let folders = dirents.filter(dirent =>
     dirent.isDirectory()
