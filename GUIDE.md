@@ -1256,7 +1256,7 @@ import "@johnlindquist/kit"
 const items = await scrapeSelector(
   'https://github.com/johnlindquist',
   // CSS Selector to target elements
-  '.pinned-item-list-item-content > div > a',
+  '.pinned-item-list-item-content > div > span > a',
   // [Optional] function to transform the elements, if omitted then `element.innerText` is returned
   (element) => ({
     title: element.innerText,
