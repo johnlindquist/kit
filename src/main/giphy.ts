@@ -19,7 +19,6 @@ let GIPHY_API_KEY = await env("GIPHY_API_KEY", {
   panel: md(
     `## Get a [Giphy API Key](https://developers.giphy.com/dashboard/)`
   ),
-  ignoreBlur: true,
   secret: true,
 })
 

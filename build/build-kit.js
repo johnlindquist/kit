@@ -67,17 +67,17 @@ let dec = exec(
   `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
 )
 
-console.log(`Building CJS to ${kitPath()}`)
-let cjs = exec(
-  `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
-    "cjs"
-  )}"`
-)
+// console.log(`Building CJS to ${kitPath()}`)
+// let cjs = exec(
+//   `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
+//     "cjs"
+//   )}"`
+// )
 
-await Promise.all([installNode, esm, dec, cjs])
+await Promise.all([installNode, esm, dec])
 
-console.log(`Fix cjs`)
-await exec(`node ./scripts/cjs-fix.js`)
+// console.log(`Fix cjs`)
+// await exec(`node ./scripts/cjs-fix.js`)
 
 console.log(`Install deps`)
 

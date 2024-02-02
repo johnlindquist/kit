@@ -59,8 +59,10 @@
     "@types/node-notifier": "8.0.3",
     "@types/shelljs": "0.8.13",
     "advanced-calculator": "1.1.1",
+    "body-parser": "^1.20.2",
     "chrome-trace-event": "^1.0.3",
-    "esbuild": "0.19.9",
+    "esbuild": "0.19.12",
+    "express": "^4.18.2",
     "file-icon": "5.1.1",
     "filesize": "10.1.0",
     "globby": "^14.0.0",
@@ -80,6 +82,7 @@
     "zx": "^7.2.3"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.6.8",
     "@types/debug": "4.1.9",
     "@types/express": "4.17.19",
     "@types/express-ws": "3.0.2",

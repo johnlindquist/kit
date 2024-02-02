@@ -54,7 +54,6 @@ if (process?.env?.KIT_TRUST_SCRIPTS !== "true") {
   let message = await arg(
     {
       enter: "",
-      ignoreBlur: true,
       placeholder: `Type "ok" and hit enter to continue...`,
       strict: true,
       height: PROMPT.HEIGHT["4XL"],

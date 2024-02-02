@@ -17,6 +17,7 @@ import {
   PromptConfig,
   ScoredChoice,
   Script,
+  Shortcut,
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
 
@@ -520,7 +521,17 @@ global.tmpPath = (...parts) => {
 
   global.ensureDirSync(tmpCommandDir)
   // symlink to kenvPath("command")
-  global.ensureSymlink(tmpCommandDir, kenvTmpCommandPath)
+  // Check if tmpCommandDir exists and is not a symlink before creating the symlink
+  if (
+    !global.existsSync(kenvTmpCommandPath) ||
+    global.lstatSync(kenvTmpCommandPath).isSymbolicLink()
+  ) {
+    global.ensureSymlinkSync(
+      tmpCommandDir,
+      kenvTmpCommandPath
+    )
+  }
+
   return scriptTmpDir
 }
 /**
@@ -998,7 +1009,479 @@ export let highlightJavaScript = async (
   return wrapped
 }
 
-function buildScriptConfig(
+let order = [
+  "Script Actions",
+  "Copy",
+  "Debug",
+  "Kenv",
+  "Git",
+  "Share",
+  "Export",
+  // "DB",
+  "Run",
+]
+
+export let shortcuts: Shortcut[] = [
+  // {
+  //   name: "New Menu",
+  //   key: `${cmd}+shift+n`,
+  //   onPress: async () => {
+  //     await run(kitPath("cli", "new-menu.js"))
+  //   },
+  // },
+  {
+    name: "New",
+    key: `${cmd}+n`,
+    bar: "left",
+    onPress: async () => {
+      await run(kitPath("cli", "new.js"))
+    },
+  },
+  {
+    name: "New Snippet",
+    key: `${cmd}+shift+n`,
+    onPress: async () => {
+      await run(kitPath("cli", "new-snippet.js"))
+    },
+  },
+  {
+    name: "Sign In",
+    flag: "sign-in-to-script-kit",
+    key: `${cmd}+shift+opt+s`,
+    onPress: async () => {
+      await run(kitPath("main", "account-v2.js"))
+    },
+  },
+  {
+    name: "List Processes",
+    key: `${cmd}+p`,
+    onPress: async () => {
+      let processes = await getProcesses()
+      if (
+        processes.filter(p => p?.scriptPath)?.length > 1
+      ) {
+        await run(kitPath("cli", "processes.js"))
+      }
+    },
+  },
+  {
+    name: "Find Script",
+    key: `${cmd}+f`,
+    onPress: async () => {
+      global.setFlags({})
+      await run(kitPath("cli", "find.js"))
+    },
+  },
+  {
+    name: "Reset Prompt",
+    key: `${cmd}+0`,
+    onPress: async () => {
+      await run(kitPath("cli", "kit-clear-prompt.js"))
+    },
+  },
+  {
+    name: "Edit",
+    key: `${cmd}+o`,
+    onPress: async (input, { focused }) => {
+      if (process?.env?.KIT_EDITOR !== "kit") {
+        await hide()
+      }
+      await run(
+        kitPath("cli", "edit-script.js"),
+        focused.value.filePath
+      )
+      submit(false)
+    },
+    bar: "right",
+  },
+  {
+    name: "Create/Edit Doc",
+    key: `${cmd}+.`,
+    onPress: async (input, { focused }) => {
+      await run(
+        kitPath("cli", "edit-doc.js"),
+        focused.value.filePath
+      )
+      submit(false)
+    },
+  },
+  {
+    name: "Log",
+    key: `${cmd}+l`,
+    onPress: async (input, { focused }) => {
+      await run(
+        kitPath("cli", "open-script-log.js"),
+        focused?.value?.filePath
+      )
+    },
+  },
+  {
+    name: "Share",
+    key: `${cmd}+s`,
+    condition: c => !c.needsDebugger,
+    onPress: async (input, { focused }) => {
+      let shareFlags = {}
+      for (let [k, v] of Object.entries(scriptFlags)) {
+        if (k.startsWith("share")) {
+          shareFlags[k] = v
+          delete shareFlags[k].group
+        }
+      }
+      await setFlags(shareFlags)
+      await setFlagValue(focused?.value)
+    },
+    bar: "right",
+  },
+  {
+    name: "Debug",
+    key: `${cmd}+enter`,
+    condition: c => c.needsDebugger,
+    onPress: async (input, { focused }) => {
+      flag.cmd = true
+      submit(focused)
+    },
+    bar: "right",
+  },
+]
+
+export let modifiers = {
+  cmd: "cmd",
+  shift: "shift",
+  opt: "opt",
+  ctrl: "ctrl",
+}
+
+export let scriptFlags: FlagsOptions = {
+  order,
+  sortChoicesKey: order.map(o => ""),
+  // open: {
+  //   name: "Script Actions",
+  //   description: "Open the selected script in your editor",
+  //   shortcut: `${cmd}+o`,
+  //   action: "right",
+  // },
+  // ["new-menu"]: {
+  //   name: "New",
+  //   description: "Create a new script",
+  //   shortcut: `${cmd}+n`,
+  //   action: "left",
+  // },
+  ["edit-script"]: {
+    name: "Edit",
+    group: "Script Actions",
+    description: "Open the selected script in your editor",
+    preview: async (input, state) => {
+      let flaggedFilePath = state?.flaggedValue?.filePath
+      if (!flaggedFilePath) return
+
+      // Get last modified time
+      let { size, mtime, mtimeMs } = await stat(
+        flaggedFilePath
+      )
+      let lastModified = new Date(mtimeMs)
+
+      let stamps = await getTimestamps()
+      let stamp = stamps.stamps.find(
+        s => s.filePath === flaggedFilePath
+      )
+
+      let composeBlock = (...lines) =>
+        lines.filter(Boolean).join("\n")
+
+      let compileMessage =
+        stamp?.compileMessage?.trim() || ""
+      let compileStamp = stamp?.compileStamp
+        ? `Last compiled: ${formatDistanceToNow(
+            new Date(stamp?.compileStamp),
+            { includeSeconds: true }
+          )} ago`
+        : ""
+      let executionTime = stamp?.executionTime
+        ? `Last run duration: ${stamp?.executionTime}ms`
+        : ""
+      let runCount = stamp?.runCount
+        ? `Run count: ${stamp?.runCount}`
+        : ""
+
+      let compileBlock = composeBlock(
+        compileMessage && `* ${compileMessage}`,
+        compileStamp && `* ${compileStamp}`
+      )
+
+      if (compileBlock) {
+        compileBlock =
+          `### Compile Info\n${compileBlock}`.trim()
+      }
+
+      let executionBlock = composeBlock(
+        runCount && `* ${runCount}`,
+        executionTime && `* ${executionTime}`
+      )
+
+      if (executionBlock) {
+        executionBlock =
+          `### Execution Info\n${executionBlock}`.trim()
+      }
+
+      let lastRunBlock = ""
+      if (stamp) {
+        let lastRunDate = new Date(stamp.timestamp)
+        lastRunBlock = `### Last Run
+  - ${lastRunDate.toLocaleString()}
+  - ${formatDistanceToNow(lastRunDate)} ago
+  `.trim()
+      }
+
+      let modifiedBlock = `### Last Modified 
+- ${lastModified.toLocaleString()}      
+- ${formatDistanceToNow(lastModified)} ago`
+
+      let info = md(
+        `# Stats
+
+#### ${flaggedFilePath}
+
+${compileBlock}
+  
+${executionBlock}
+  
+${modifiedBlock}
+  
+${lastRunBlock}
+  
+`.trim()
+      )
+      return info
+    },
+  },
+  [cmd]: {
+    group: "Debug",
+    name: "Debug Script",
+    description:
+      "Open inspector. Pause on debugger statements.",
+    shortcut: `${cmd}+enter`,
+    flag: cmd,
+  },
+  [modifiers.opt]: {
+    group: "Debug",
+    name: "Open Log Window",
+    description: "Open a log window for selected script",
+    shortcut: `alt+enter`,
+    flag: modifiers.opt,
+  },
+  ["push-script"]: {
+    group: "Git",
+    name: "Push to Git Repo",
+    description: "Push the selected script to a git repo",
+  },
+  ["pull-script"]: {
+    group: "Git",
+    name: "Pull from Git Repo",
+    description: "Pull the selected script from a git repo",
+  },
+
+  ["edit-doc"]: {
+    group: "Script Actions",
+    name: "Create/Edit Doc",
+    description:
+      "Open the selected script's markdown in your editor",
+  },
+  ["share-script-as-discussion"]: {
+    group: "Share",
+    name: "Post to Community Scripts",
+    description:
+      "Share the selected script on GitHub Discussions",
+  },
+  ["share-script-as-link"]: {
+    group: "Share",
+    name: "Create Install URL",
+    description:
+      "Create a link which will install the script",
+  },
+  ["share-script-as-kit-link"]: {
+    group: "Share",
+    name: "Share as private kit:// link",
+    description:
+      "Create a private link which will install the script",
+  },
+  ["share-script"]: {
+    group: "Share",
+    name: "Share as Gist",
+    description: "Share the selected script as a gist",
+  },
+  ["share-script-as-markdown"]: {
+    group: "Share",
+    name: "Share as Markdown",
+    description:
+      "Copies script contents in fenced JS Markdown",
+  },
+  ["share-copy"]: {
+    group: "Copy",
+    name: "Copy",
+    description: "Copy script contents to clipboard",
+    shortcut: `${cmd}+c`,
+  },
+  ["copy-path"]: {
+    group: "Copy",
+    name: "Copy Path",
+    description: "Copy full path of script to clipboard",
+  },
+  ["paste-as-markdown"]: {
+    group: "Copy",
+    name: "Paste as Markdown",
+    description:
+      "Paste the contents of the script as Markdown",
+    shortcut: `${cmd}+shift+p`,
+  },
+  duplicate: {
+    group: "Script Actions",
+    name: "Duplicate",
+    description: "Duplicate the selected script",
+    shortcut: `${cmd}+d`,
+  },
+  rename: {
+    group: "Script Actions",
+    name: "Rename",
+    description: "Rename the selected script",
+    shortcut: `${cmd}+shift+r`,
+  },
+  remove: {
+    group: "Script Actions",
+    name: "Remove",
+    description: "Delete the selected script",
+    shortcut: `${cmd}+shift+backspace`,
+  },
+  ["remove-from-recent"]: {
+    group: "Script Actions",
+    name: "Remove from Recent",
+    description:
+      "Remove the selected script from the recent list",
+  },
+  ["clear-recent"]: {
+    group: "Script Actions",
+    name: "Clear Recent",
+    description: "Clear the recent list of scripts",
+  },
+  // ["open-script-database"]: {
+  //   group: "DB",
+  //   name: "Open Database",
+  //   description: "Open the db file for the selected script",
+  //   shortcut: `${cmd}+b`,
+  // },
+  // ["clear-script-database"]: {
+  //   group: "DB",
+  //   name: "Delete Database",
+  //   description:
+  //     "Delete the db file for the selected script",
+  // },
+  ["reveal-script"]: {
+    group: "Script Actions",
+    name: "Reveal",
+    description: `Reveal the selected script in ${
+      isMac ? "Finder" : "Explorer"
+    }`,
+    shortcut: `${cmd}+shift+f`,
+  },
+  ["kenv-term"]: {
+    group: "Kenv",
+    name: "Open Script Kenv in a  Terminal",
+    description:
+      "Open the selected script's kenv in a terminal",
+  },
+  ["kenv-trust"]: {
+    group: "Kenv",
+    name: "Trust Script Kenv",
+    description: "Trust the selected script's kenv",
+  },
+  ["kenv-view"]: {
+    group: "Kenv",
+    name: "View Script Kenv",
+    description: "View the selected script's kenv",
+  },
+  ["kenv-visit"]: {
+    group: "Kenv",
+    name: "Open Script Repo",
+    description:
+      "Visit the selected script's kenv in your browser",
+  },
+  // ["share"]: {
+  //   name: "Share",
+  //   description: "Share the selected script",
+  //   shortcut: `${cmd}+s`,
+  //   bar: "right",
+  // },
+  // ["share-script"]: {
+  //   name: "Share as Gist",
+  //   description: "Share the selected script as a gist",
+  //   shortcut: `${cmd}+g`,
+  // },
+  // ["share-script-as-kit-link"]: {
+  //   name: "Share as kit:// link",
+  //   description:
+  //     "Create a link which will install the script",
+  //   shortcut: "option+s",
+  // },
+  // ["share-script-as-link"]: {
+  //   name: "Share as URL",
+  //   description:
+  //     "Create a URL which will install the script",
+  //   shortcut: `${cmd}+u`,
+  // },
+  // ["share-script-as-discussion"]: {
+  //   name: "Share as GitHub Discussion",
+  //   description:
+  //     "Copies shareable info to clipboard and opens GitHub Discussions",
+  // },
+  // ["share-script-as-markdown"]: {
+  //   name: "Share as Markdown",
+  //   description:
+  //     "Copies script contents in fenced JS Markdown",
+  //   shortcut: `${cmd}+m`,
+  // },
+  ["change-shortcut"]: {
+    group: "Script Actions",
+    name: "Change Shortcut",
+    description:
+      "Prompts to pick a new shortcut for the script",
+  },
+  move: {
+    group: "Kenv",
+    name: "Move Script to Kenv",
+    description: "Move the script between Kit Environments",
+  },
+  ["stream-deck"]: {
+    group: "Export",
+    name: "Prepare Script for Stream Deck",
+    description:
+      "Create a .sh file around the script for Stream Decks",
+  },
+  ["open-script-log"]: {
+    group: "Debug",
+    name: "Open Log File",
+    description:
+      "Open the log file for the selected script",
+  },
+  [modifiers.shift]: {
+    group: "Run",
+    name: "Run script w/ shift flag",
+    shortcut: "shift+enter",
+    flag: "shift",
+  },
+  [modifiers.ctrl]: {
+    group: "Run",
+    name: "Run script w/ ctrl flag",
+    shortcut: "ctrl+enter",
+    flag: "ctrl",
+  },
+  ["settings"]: {
+    group: "Run",
+    name: "Settings",
+    description: "Open the settings menu",
+    shortcut: `${cmd}+,`,
+  },
+}
+
+export function buildScriptConfig(
   message: string | PromptConfig
 ): PromptConfig {
   let scriptsConfig =
@@ -1309,21 +1792,23 @@ export let getGroupedScripts = async () => {
   return groupedScripts
 }
 
+export let mainShortcuts: Shortcut[] = [
+  { name: "New Menu", key: `${cmd}+shift+n` },
+  { name: "New", key: `${cmd}+n`, bar: "left" },
+  { name: "List Processes", key: `${cmd}+p` },
+  { name: "Find Script", key: `${cmd}+f` },
+  { name: "Reset Prompt", key: `${cmd}+0` },
+  { name: "Edit", key: "cmd+o", bar: "right" },
+  { name: "Create/Edit Doc", key: `${cmd}+.` },
+  { name: "Log", key: `${cmd}+l` },
+  { name: "Share", key: `${cmd}+s`, bar: "right" },
+  { name: "Exit", key: `${cmd}+w`, bar: "" },
+]
+
 export let mainMenu = async (
   message: string | PromptConfig = "Select a script"
 ): Promise<Script | string> => {
-  setShortcuts([
-    { name: "New Menu", key: `${cmd}+shift+n` },
-    { name: "New", key: `${cmd}+n`, bar: "left" },
-    { name: "List Processes", key: `${cmd}+p` },
-    { name: "Find Script", key: `${cmd}+f` },
-    { name: "Reset Prompt", key: `${cmd}+0` },
-    { name: "Edit", key: "cmd+o", bar: "right" },
-    { name: "Create/Edit Doc", key: `${cmd}+.` },
-    { name: "Log", key: `${cmd}+l` },
-    { name: "Share", key: `${cmd}+s`, bar: "right" },
-    { name: "Exit", key: `${cmd}+w`, bar: "" },
-  ])
+  setShortcuts(mainShortcuts)
 
   // if (global.trace) {
   //   global.trace.addBegin({

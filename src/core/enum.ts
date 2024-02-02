@@ -179,6 +179,8 @@ export enum Channel {
   WIDGET_SET_SIZE = "WIDGET_SET_SIZE",
   WIDGET_FIT = "WIDGET_FIT",
   WIDGET_INIT = "WIDGET_INIT",
+  WIDGET_THEME = "WIDGET_THEME",
+  WIDGET_ERROR = "WIDGET_ERROR",
   SHORTCUT = "SHORTCUT",
   ON_PASTE = "ON_PASTE",
   ON_DRAG_ENTER = "ON_DRAG_ENTER",
@@ -312,6 +314,7 @@ export enum Channel {
   HEARTBEAT = "HEARTBEAT",
   GET_KIT_WINDOWS = "GET_KIT_WINDOWS",
   FOCUS_KIT_WINDOW = "FOCUS_KIT_WINDOW",
+  PROMPT_READY = "PROMPT_READY",
 }
 
 export enum ProcessType {
@@ -650,3 +653,5 @@ export const PROMPT = {
     },
   },
 }
+
+export {}

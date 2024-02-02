@@ -141,6 +141,7 @@ export const KIT_APP_PROMPT = kitPath(
   "run",
   "app-prompt.js"
 )
+export const KIT_APP_INDEX = kitPath("run", "app-index.js")
 export let combinePath = (
   arrayOfPaths: string[]
 ): string => {
@@ -366,12 +367,60 @@ export let getMetadata = (contents: string): Metadata => {
   const lines = contents.split("\n")
   const metadata = {}
   let commentStyle = null
+  let spaceRegex = null
+  let inMultilineComment = false
+  let multilineCommentEnd = null
+
+  const setCommentStyle = (style: string) => {
+    commentStyle = style
+    spaceRegex = new RegExp(`^${commentStyle} ?[^ ]`)
+  }
 
   for (const line of lines) {
+    // Check for the start of a multiline comment block
+    if (
+      !inMultilineComment &&
+      (line.trim().startsWith("/*") ||
+        line.trim().startsWith("'''") ||
+        line.trim().startsWith('"""') ||
+        line.trim().match(/^: '/))
+    ) {
+      inMultilineComment = true
+      multilineCommentEnd = line.trim().startsWith("/*")
+        ? "*/"
+        : line.trim().startsWith(": '")
+        ? "'"
+        : line.trim().startsWith("'''")
+        ? "'''"
+        : '"""'
+    }
+
+    // Check for the end of a multiline comment block
+    if (
+      inMultilineComment &&
+      line.trim().endsWith(multilineCommentEnd)
+    ) {
+      inMultilineComment = false
+      multilineCommentEnd = null
+      continue // Skip the end line of a multiline comment block
+    }
+
+    // Skip lines that are part of a multiline comment block
+    if (inMultilineComment) continue
+
     // Determine the comment style based on the first encountered comment line
     if (commentStyle === null) {
-      if (line.startsWith("/")) commentStyle = "//"
-      else if (line.startsWith("#")) commentStyle = "#"
+      if (
+        line.startsWith("//") &&
+        (line[2] === " " || /[a-zA-Z]/.test(line[2]))
+      ) {
+        setCommentStyle("//")
+      } else if (
+        line.startsWith("#") &&
+        (line[1] === " " || /[a-zA-Z]/.test(line[1]))
+      ) {
+        setCommentStyle("#")
+      }
     }
 
     // Skip lines that don't start with the determined comment style
@@ -380,6 +429,9 @@ export let getMetadata = (contents: string): Metadata => {
       (commentStyle && !line.startsWith(commentStyle))
     )
       continue
+
+    // Check for 0 or 1 space after the comment style
+    if (!line.match(spaceRegex)) continue
 
     // Find the index of the first colon
     const colonIndex = line.indexOf(":")

@@ -61,7 +61,6 @@ setBounds({
 let [repo, kenvName, removeGit, install, ok] = await fields(
   {
     height: PROMPT.HEIGHT["4XL"],
-    ignoreBlur: true,
     preview: buildPreview(),
     enter: "",
     onInit: async () => {

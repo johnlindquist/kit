@@ -282,7 +282,6 @@ global.term = async (
       ...global.env,
       PATH: KIT_FIRST_PATH,
     },
-    ignoreBlur: true,
     height: PROMPT.HEIGHT.BASE,
     previewWidthPercent: 40,
     shortcuts: [

@@ -80,7 +80,7 @@ import {
 } from "../api/kit.js"
 import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
-import { EventEmitter } from "events"
+import { pathToFileURL } from "url"
 
 interface DisplayChoicesProps
   extends Partial<PromptConfig> {
@@ -909,7 +909,6 @@ global.setPrompt = (data: Partial<PromptData>) => {
     scriptPath: global.kitScript,
     flags: prepFlags(data?.flags),
     hint: "",
-    ignoreBlur: false,
     input: "",
     kitScript: global.kitScript,
     kitArgs: global.args,
@@ -1101,12 +1100,7 @@ let createOnActionInputDefault = (
   }, debounceInput)
 }
 
-let onBlurDefault = () => {
-  global.log(
-    `${process.pid}: Blur caused exit. Provide a "onBlur" handler to override.`
-  )
-  finishScript()
-}
+let onBlurDefault = () => {}
 
 let onChangeDefault = () => {}
 
@@ -1171,13 +1165,6 @@ global.kitPrompt = async (config: PromptConfig) => {
       ...shortcutsShortcut,
       bar: "",
     })
-  }
-
-  if (config?.ignoreBlur && !config?.onBlur) {
-    config.onBlur = () => {}
-  }
-  if (config?.onBlur) {
-    config.ignoreBlur = true
   }
 
   if (typeof config?.keyword === "string") {
@@ -1313,7 +1300,6 @@ global.drop = async (
     height: PROMPT.WIDTH.XXS,
     shortcuts: [escapeShortcut, closeShortcut],
     ...config,
-    ignoreBlur: true,
   })
 }
 
@@ -1322,7 +1308,7 @@ global.emoji = async (config?: PromptConfig) => {
     ui: UI.emoji,
     enter: "Select",
     shortcuts: [escapeShortcut],
-    ignoreBlur: true,
+
     width: 350,
     height: 510,
     ...config,
@@ -1684,7 +1670,6 @@ global.editor = async (options?: EditorOptions) => {
     onPaste: onPasteDefault,
     onDrop: onDropDefault,
     onBlur: () => {},
-    ignoreBlur: true,
   }
 
   let editorOptions =
@@ -2007,7 +1992,7 @@ global.arg =
 global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
     placeholder: "",
-    ignoreBlur: true,
+
     resize: true,
     ui: UI.chat,
     width: PROMPT.WIDTH.BASE,
@@ -2086,7 +2071,7 @@ global.textarea = async (options = "") => {
 
   return await global.kitPrompt({
     ui: UI.textarea,
-    ignoreBlur: true,
+
     enter: "",
     shortcuts: defaultShortcuts,
     height: PROMPT.HEIGHT.XL,
@@ -2150,21 +2135,18 @@ export let appInstall = async packageName => {
       `[${stripVersion}](${packageLink}) has had ${downloads} downloads from npm in the past week`
     )
 
-    let trust = await global.arg(
-      { placeholder, ignoreBlur: true },
-      [
-        {
-          name: `Abort`,
-          value: "false",
-          preview,
-        },
-        {
-          name: `Install ${packageName}`,
-          value: "true",
-          preview,
-        },
-      ]
-    )
+    let trust = await global.arg({ placeholder }, [
+      {
+        name: `Abort`,
+        value: "false",
+        preview,
+      },
+      {
+        name: `Install ${packageName}`,
+        value: "true",
+        preview,
+      },
+    ])
 
     if (trust === "false") {
       echo(`Ok. Exiting...`)
@@ -2231,8 +2213,16 @@ global.setFilterInput = async inputFilter => {
   global.send(Channel.SET_FILTER_INPUT, inputFilter)
 }
 
+global.showDeprecated = async (markdown: string) => {
+  await div(md(markdown))
+}
+
 global.setIgnoreBlur = async ignore => {
-  return global.sendWait(Channel.SET_IGNORE_BLUR, ignore)
+  return await global.showDeprecated(`# setIgnoreBlur is deprecated
+  
+
+All prompts now ignore blur by default  
+  `)
 }
 
 global.setResize = async ignore => {
@@ -2606,8 +2596,12 @@ export let createPathChoices = async (
               mtime
             )} ago`
 
+      let img = pathToFileURL(
+        kitPath("icons", type + ".svg")
+      ).href
+
       return {
-        img: kitPath("icons", type + ".svg"),
+        img,
         name: dirent.name,
         value: fullPath,
         description,
@@ -2783,7 +2777,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
 
       await div({
         html,
-        ignoreBlur: true,
+
         enter: "Back to Main",
         shortcuts: [
           {
@@ -2940,7 +2934,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
           await lsCurrentDir(currentInput)
         }
       },
-      ignoreBlur: true,
+
       alwaysOnTop: true,
       // onRight,
       // onLeft,
@@ -3566,7 +3560,7 @@ global.mic = async (config: MicConfig = {}) => {
 
       closeShortcut,
     ],
-    ignoreBlur: true,
+
     timeSlice: 200,
     ...config,
   })
@@ -3621,7 +3615,6 @@ global.webcam = async () => {
       },
       closeShortcut,
     ],
-    ignoreBlur: true,
   })
 }
 

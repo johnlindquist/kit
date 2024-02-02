@@ -187,7 +187,6 @@ git clone ${url} ${kenv}
           bar: "left",
         },
       ],
-      ignoreBlur: true,
       html,
       ...xxs,
       onInit: async () => {

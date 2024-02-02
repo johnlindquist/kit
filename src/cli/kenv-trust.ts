@@ -127,7 +127,6 @@ let matchKenv = false
 let matchKenvConfig = {
   enter: "",
   height: PROMPT.HEIGHT["4XL"],
-  ignoreBlur: true,
   shortcuts: [],
   placeholder: `Type "${kenv}" to trust this kenv`,
   // onInit: async () => {

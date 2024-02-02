@@ -32,19 +32,12 @@ let dec = exec(
   `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
 )
 
-console.log(`Building CJS to ${kitPath()}`)
-let cjs = exec(
-  `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
-    "cjs"
-  )}"`
-)
-
-await Promise.all([esm, dec, cjs])
-console.log(`Fix cjs`)
-await exec(`node ./scripts/cjs-fix.js`)
-
-console.log(`Write .kitignore`)
-await writeFile(kitPath(".kitignore"), "*")
+// console.log(`Building CJS to ${kitPath()}`)
+// let cjs = exec(
+//   `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
+//     "cjs"
+//   )}"`
+// )
 
 let options = {
   cwd: kitPath(),
@@ -53,10 +46,7 @@ let options = {
   },
 }
 
-console.log(
-  `Downloading md, hot, and building editor types concurrently`
-)
-await Promise.all([
+let downloads = Promise.all([
   exec(
     `node ./run/terminal.js ./cli/download-md.js`,
     options
@@ -66,3 +56,10 @@ await Promise.all([
     options
   ),
 ])
+
+await Promise.all([esm, dec, downloads])
+// console.log(`Fix cjs`)
+// await exec(`node ./scripts/cjs-fix.js`)
+
+console.log(`Write .kitignore`)
+await writeFile(kitPath(".kitignore"), "*")

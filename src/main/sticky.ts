@@ -8,7 +8,6 @@ Notes are saved to `~/.kenv/sticky.md`.
 
 // Name: Sticky Pad
 // Description: Take Quick Notes
-/// Cache: true
 // Trigger: ,
 // Pass: true
 

@@ -6,7 +6,6 @@ import { prependImport } from "./lib/utils.js"
 
 let url = await arg({
   placeholder: "Enter script url:",
-  ignoreBlur: true,
 })
 
 if (url.includes("gist.github.com")) {

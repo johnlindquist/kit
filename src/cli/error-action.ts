@@ -137,7 +137,6 @@ if (errorMessage.includes("Cannot find package")) {
   let errorAction: ErrorAction = await arg(
     {
       placeholder: `🤕 Error in ${script}`,
-      ignoreBlur: true,
       hint,
       shortcuts: [
         {

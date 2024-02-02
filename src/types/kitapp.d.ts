@@ -165,7 +165,6 @@ export type EditorOptions =
     onPaste?: PromptConfig["onPaste"]
     onBlur?: PromptConfig["onBlur"]
     onDrop?: PromptConfig["onDrop"]
-    ignoreBlur?: boolean
     extraLibs?: { content: string; filePath: string }[]
     template?: string
     suggestions?: string[]
@@ -274,7 +273,6 @@ export interface DivConfig extends PromptConfig {
   html: string
   placeholder?: string
   hint?: string
-  ignoreBlur?: boolean
   footer?: string
 }
 
@@ -688,10 +686,6 @@ export interface SetFocused {
   (id: string): void
 }
 
-export interface SetIgnoreBlur {
-  (ignoreBlur: boolean): Promise<void>
-}
-
 export interface SetResize {
   (resize: boolean): void
 }
@@ -702,6 +696,9 @@ export interface SetLoading {
 
 export interface SetProgress {
   (progress: number): void
+}
+export interface ShowDeprecated {
+  (message: string): Promise<void>
 }
 
 export interface SetStatus {
@@ -912,6 +909,7 @@ export interface AppApi {
   setDescription: SetDescription
   setInput: SetInput
   setFilterInput: SetInput
+  showDeprecated: ShowDeprecated
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur

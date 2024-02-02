@@ -1,3 +1,4 @@
+import { pathToFileURL } from "url"
 import {
   escapeShortcut,
   cmd,
@@ -131,7 +132,7 @@ let createChoices = async () => {
           name: appName.replace(/\.(app|lnk|url)\s*$/i, ""),
           value,
           description: appPath.replace(/\r?\n?$/i, ""),
-          img,
+          img: pathToFileURL(img).href,
           enter: `Open`,
         }
       })

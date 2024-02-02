@@ -20,6 +20,7 @@ export type WidgetOptions =
     preventEscape?: boolean
     experimental?: boolean
     css?: string
+    body?: string
   }
 
 export interface WidgetMessage {

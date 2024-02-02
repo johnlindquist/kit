@@ -137,6 +137,7 @@ export interface ScriptMetadata {
   enter?: string
   recent?: boolean
   img?: string
+  postfix?: string
 }
 
 export type Script = ScriptMetadata &
@@ -208,7 +209,6 @@ export interface PromptData {
   hasPreview: boolean
   keepPreview?: boolean
   hint: string
-  ignoreBlur: boolean
   input: string
   inputRegex: string
   kitArgs: string[]
@@ -267,6 +267,7 @@ export interface PromptData {
   keyword?: string
   multiple?: boolean
   searchKeys?: string[]
+  show?: boolean
 }
 
 export interface GenerateChoices {

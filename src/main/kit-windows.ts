@@ -27,7 +27,6 @@ await widget(md(\`# Hello world\`), {
     {
       placeholder: "Focus Kit Window",
       enter: "Focus",
-      ignoreBlur: true,
     },
     windows as Choice[]
   )

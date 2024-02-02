@@ -130,7 +130,6 @@ await arg(
   {
     placeholder: `Sample Prompt for Theme Design`,
     hint: `Click "save" in the widget to continue`,
-    ignoreBlur: true,
     alwaysOnTop: true,
   },
   scripts

@@ -139,6 +139,7 @@ export interface ScriptMetadata {
   enter?: string
   recent?: boolean
   img?: string
+  postfix?: string
 }
 
 export type Script = ScriptMetadata &
@@ -210,7 +211,6 @@ export interface PromptData {
   hasPreview: boolean
   keepPreview?: boolean
   hint: string
-  ignoreBlur: boolean
   input: string
   inputRegex: string
   kitArgs: string[]
@@ -269,6 +269,7 @@ export interface PromptData {
   keyword?: string
   multiple?: boolean
   searchKeys?: string[]
+  show?: boolean
 }
 
 export interface GenerateChoices {
@@ -10872,7 +10873,6 @@ export type EditorOptions =
     onPaste?: PromptConfig["onPaste"]
     onBlur?: PromptConfig["onBlur"]
     onDrop?: PromptConfig["onDrop"]
-    ignoreBlur?: boolean
     extraLibs?: { content: string; filePath: string }[]
     template?: string
     suggestions?: string[]
@@ -10981,7 +10981,6 @@ export interface DivConfig extends PromptConfig {
   html: string
   placeholder?: string
   hint?: string
-  ignoreBlur?: boolean
   footer?: string
 }
 
@@ -11395,10 +11394,6 @@ export interface SetFocused {
   (id: string): void
 }
 
-export interface SetIgnoreBlur {
-  (ignoreBlur: boolean): Promise<void>
-}
-
 export interface SetResize {
   (resize: boolean): void
 }
@@ -11409,6 +11404,9 @@ export interface SetLoading {
 
 export interface SetProgress {
   (progress: number): void
+}
+export interface ShowDeprecated {
+  (message: string): Promise<void>
 }
 
 export interface SetStatus {
@@ -11619,6 +11617,7 @@ export interface AppApi {
   setDescription: SetDescription
   setInput: SetInput
   setFilterInput: SetInput
+  showDeprecated: ShowDeprecated
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur
@@ -12490,6 +12489,7 @@ export type WidgetOptions =
     preventEscape?: boolean
     experimental?: boolean
     css?: string
+    body?: string
   }
 
 export interface WidgetMessage {

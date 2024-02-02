@@ -31,10 +31,7 @@ await import("./packages/git.js")
 
 global.env = async (envKey, promptConfig) => {
   if (!envKey) throw new Error(`Environment Key Required`)
-  let ignoreBlur =
-    (promptConfig as PromptConfig)?.ignoreBlur === false
-      ? false
-      : true
+
   let secret =
     typeof (promptConfig as PromptConfig)?.secret ===
     "boolean"
@@ -57,7 +54,6 @@ global.env = async (envKey, promptConfig) => {
           enter: "Write to .env",
           shortcuts: [],
           placeholder: promptConfig,
-          ignoreBlur,
           secret,
           keyword: "",
         })
@@ -65,7 +61,6 @@ global.env = async (envKey, promptConfig) => {
           enter: "Write to .env",
           shortcuts: [],
           placeholder: `Set ${envKey}:`,
-          ignoreBlur,
           ...promptConfig,
           secret,
           keyword: "",

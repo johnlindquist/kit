@@ -6,7 +6,6 @@ await div({
   Please grant accessibility permissions to Kit.app then restart Kit.app
   `.trim()
   ),
-  ignoreBlur: true,
 })
 
 export {}

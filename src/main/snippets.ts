@@ -127,7 +127,7 @@ let snippet = await arg(
   snippetChoices.concat({
     name: "No snippets found...",
     miss: true,
-    info: true,
+    nameClassName: "text-primary",
   })
 )
 
