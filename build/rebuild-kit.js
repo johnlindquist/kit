@@ -58,8 +58,6 @@ let downloads = Promise.all([
 ])
 
 await Promise.all([esm, dec, downloads])
-// console.log(`Fix cjs`)
-// await exec(`node ./scripts/cjs-fix.js`)
 
 console.log(`Write .kitignore`)
 await writeFile(kitPath(".kitignore"), "*")

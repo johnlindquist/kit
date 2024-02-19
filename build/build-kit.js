@@ -76,9 +76,6 @@ let dec = exec(
 
 await Promise.all([installNode, esm, dec])
 
-// console.log(`Fix cjs`)
-// await exec(`node ./scripts/cjs-fix.js`)
-
 console.log(`Install deps`)
 
 let options = {

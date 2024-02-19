@@ -22,5 +22,3 @@ npm --version
 npm i
 npx tsc --outDir $KIT
 npx tsc --project ./tsconfig-declaration.json --outDir $KIT
-npx tsc --project ./tsconfig-cjs.json --outDir "$KIT/cjs"
-node ./scripts/cjs-fix.js

@@ -59,11 +59,4 @@ try {
 
 console.log(`Fixing cjs`)
 
-try {
-  await exec(`node ./scripts/cjs-fix.js`)
-} catch (e) {
-  console.log(e)
-  exit(1)
-}
-
 cd(kitPath())
