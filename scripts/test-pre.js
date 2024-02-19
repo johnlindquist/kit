@@ -25,7 +25,7 @@ if (await isDir(kenvTestPath)) {
 let { stdout: branch, stderr } =
   await $`git branch --show-current`
 
-if (stderr || !branch.match(/main|beta|alpha/)) exit(1)
+if (stderr || !branch.match(/main|beta|alpha|next/)) exit(1)
 
 branch = branch.trim()
 let repo = `johnlindquist/kenv#${branch}`
