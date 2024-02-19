@@ -67,13 +67,6 @@ let dec = exec(
   `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
 )
 
-// console.log(`Building CJS to ${kitPath()}`)
-// let cjs = exec(
-//   `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
-//     "cjs"
-//   )}"`
-// )
-
 await Promise.all([installNode, esm, dec])
 
 console.log(`Install deps`)

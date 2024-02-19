@@ -43,20 +43,4 @@ try {
   exit(1)
 }
 
-console.log(`Building CJS to ${kitPath()}`)
-
-try {
-  let cjs = await exec(
-    `npx tsc --project ./tsconfig-cjs.json --outDir "${kitPath(
-      "cjs"
-    )}"`
-  )
-  console.log(cjs)
-} catch (e) {
-  console.log(e)
-  exit(1)
-}
-
-console.log(`Fixing cjs`)
-
 cd(kitPath())
