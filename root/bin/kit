@@ -27,6 +27,6 @@ KIT="$KIT" \
     KENV="$KENV" \
     NODE_NO_WARNINGS=1 \
     $KIT_NODE \
-    --experimental-loader "file://$KIT/build/loader.js" \
+    --loader "file://$KIT/build/loader.js" \
     $KIT/run/terminal.js \
     "$@"

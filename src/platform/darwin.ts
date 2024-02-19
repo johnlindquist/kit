@@ -239,11 +239,18 @@ If you need additional help, we're happy to answer questions:
   })
 }
 
+let execAndLogCommand = async (
+  command: string,
+  config: Parameters<typeof exec>[1]
+) => {
+  global.log(`${process.pid}: > ${command}`)
+  return exec(command, config)
+}
 let atom = async (file: string, dir: string) => {
   let command = `${global.env.KIT_EDITOR} '${file}' ${
     dir ? ` '${dir}'` : ``
   }`
-  await exec(command, execConfig())
+  await execAndLogCommand(command, execConfig())
 }
 
 let code = async (file, dir, line = 0, col = 0) => {
@@ -256,7 +263,7 @@ let code = async (file, dir, line = 0, col = 0) => {
 
   let config = execConfig()
 
-  await exec(command, config)
+  await execAndLogCommand(command, config)
 }
 
 let webstorm = async (file, dir, line = 0) => {
@@ -264,7 +271,7 @@ let webstorm = async (file, dir, line = 0) => {
 
   let config = execConfig()
 
-  await exec(command, config)
+  await execAndLogCommand(command, config)
 }
 
 let vim = terminalEditor("vim")
@@ -336,38 +343,29 @@ global.edit = async (f, dir, line = 0, col = 0) => {
   } else {
     hide()
 
-    let execEditor = (file: string) => {
+    let execEditor = async (file: string) => {
       let editCommand = `"${KIT_EDITOR}" "${file}"`
-
       let config = execConfig()
-      let child = exec(editCommand, config)
+      let { exitCode, stdout, stderr } =
+        await execAndLogCommand(editCommand, config)
 
-      let timeout = setTimeout(() => {
-        child.kill()
-      }, 1000)
-      if (child) {
-        child.on("exit", (code, signal) => {
-          clearTimeout(timeout)
-          if (signal === "SIGTERM") {
-            global.log(
-              `Editor process was terminated with SIGTERM: ${editCommand}`
-            )
-          }
-        })
+      global.log(
+        `${
+          process.pid
+        }: Edit command exited with ${exitCode}. ${
+          exitCode === 0 ? "✅" : "❌"
+        }`
+      )
 
-        child.on("error", err => {
-          global.log(
-            `Error with editor process: ${err.message}`
-          )
-        })
+      if (exitCode !== 0) {
+        global.log(`Stdout: ${stdout}`)
+        global.log(`Stderr: ${stderr}`)
       }
     }
     let editorFn =
       fullySupportedEditors[path.basename(KIT_EDITOR)] ||
       execEditor
-    global.log(
-      `Opening ${file} with ${global.env.KIT_EDITOR}`
-    )
+
     try {
       await editorFn(file, dir, line, col)
     } catch {}

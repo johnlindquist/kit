@@ -365,6 +365,7 @@ declare global {
   var kenvTmpPath: PathFn
 
   var attemptImport: KitModuleLoader
+  /** @deprecated Use standard or dynamic imports instead. */
   var npm: KitModuleLoader
   var npmInstall: (packageName: string) => Promise<void>
   var installMissingPackage: (

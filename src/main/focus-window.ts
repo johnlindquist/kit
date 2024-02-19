@@ -61,7 +61,7 @@ let selectedWindow = await arg<{
       }
     })
 )
-
+await hide()
 await focusWindow(
   selectedWindow.ownerName,
   selectedWindow.name

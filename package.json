@@ -141,7 +141,7 @@
     ]
   },
   "volta": {
-    "node": "18.18.2"
+    "node": "20.9.0"
   },
   "config": {
     "commitizen": {

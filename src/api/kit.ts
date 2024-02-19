@@ -1,3 +1,4 @@
+import { existsSync, lstatSync } from "fs"
 import * as os from "os"
 import { pathToFileURL } from "url"
 import * as JSONSafe from "safe-stable-stringify"
@@ -523,8 +524,8 @@ global.tmpPath = (...parts) => {
   // symlink to kenvPath("command")
   // Check if tmpCommandDir exists and is not a symlink before creating the symlink
   if (
-    !global.existsSync(kenvTmpCommandPath) ||
-    global.lstatSync(kenvTmpCommandPath).isSymbolicLink()
+    !existsSync(kenvTmpCommandPath) ||
+    lstatSync(kenvTmpCommandPath).isSymbolicLink()
   ) {
     global.ensureSymlinkSync(
       tmpCommandDir,

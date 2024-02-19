@@ -15,7 +15,7 @@ async function cacheJSXLoad(url, cacheDir) {
 
     if (cacheStat.mtime >= sourceStat.mtime) {
       // Cache is up-to-date
-      global.log(`💪 Loading cached version of ${url}`)
+      // global.log(`💪 Loading cached version of ${url}`)
       return {
         source: await readFile(cachePath, "utf8"),
         format: "module",
@@ -27,7 +27,7 @@ async function cacheJSXLoad(url, cacheDir) {
   }
 
   // Build and cache the result
-  global.log(`🔨 Building ${url}`)
+  // global.log(`🔨 Building ${url}`)
   const result = await JSXLoad(url)
   // Read any comments from the top of the file and add theme to the top of the cache file
   const contents = await readFile(path, "utf8")
@@ -99,9 +99,9 @@ export async function load(url, context, defaultLoad) {
     const start = performance.now()
     const transform = await cacheJSXLoad(url, cacheDir)
     const end = performance.now()
-    global.log(
-      `cacheJSXLoad took ${end - start}ms to complete`
-    )
+    // global.log(
+    //   `cacheJSXLoad took ${end - start}ms to complete`
+    // )
     return transform
   }
 

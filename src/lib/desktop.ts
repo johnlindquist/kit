@@ -303,6 +303,9 @@ global.getProcesses = async () =>
   (await global.getDataFromApp(Channel.GET_PROCESSES))
     .processes
 
+global.getPrompts = async () =>
+  (await global.getDataFromApp(Channel.GET_PROMPTS)).prompts
+
 global.getKitWindows = async () => {
   let message = await global.getDataFromApp(
     Channel.GET_KIT_WINDOWS

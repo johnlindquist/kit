@@ -3,15 +3,12 @@ import {
   appDbPath,
   kitPath,
   kenvPath,
-  getMainScriptPath,
   prefsPath,
   promptDbPath,
-  shortcutsPath,
   isDir,
   isFile,
   extensionRegex,
   resolveScriptToCommand,
-  isMac,
   scriptsSort,
   scriptsDbPath,
   statsPath,
@@ -529,21 +526,6 @@ export let getUserJson = async (): Promise<UserDb> => {
   }
 
   return user
-}
-
-type ShortcutsDb = {
-  shortcuts: {
-    [key: string]: string
-  }
-}
-export let getShortcutsDb = async (): Promise<
-  Low<any> & ShortcutsDb
-> => {
-  return await db(shortcutsPath, {
-    shortcuts: {
-      [getMainScriptPath()]: isMac ? "cmd ;" : "ctrl ;",
-    },
-  })
 }
 
 type PrefsDb = {

@@ -25,11 +25,11 @@ while (!confirm) {
     },
   ])
 }
-
-let kitDb = await db(kitPath("db", "shortcuts.json"))
-
-kitDb.data.shortcuts[kitPath("main", "index.js")] = shortcut
-await kitDb.write()
+await run(
+  kitPath("cli", "set-env-var.js"),
+  "KIT_MAIN_SHORTCUT",
+  shortcut
+)
 
 arg(`Shortcut Changed`, [
   {

@@ -10622,6 +10622,7 @@ declare global {
   var kenvTmpPath: PathFn
 
   var attemptImport: KitModuleLoader
+  /** @deprecated Use standard or dynamic imports instead. */
   var npm: KitModuleLoader
   var npmInstall: (packageName: string) => Promise<void>
   var installMissingPackage: (
@@ -12238,6 +12239,20 @@ interface Rectangle {
   width: number
   height: number
 }
+
+export interface Prompt {
+  id: string
+  pid: number
+  birthTime: number
+  isFocused: boolean
+  isVisible: boolean
+  isDestroyed: boolean
+  bounds: Rectangle
+}
+
+interface GetPrompts {
+  (): Promise<Prompt[]>
+}
 interface KitWindow {
   name: string
   id: string
@@ -12429,6 +12444,7 @@ declare global {
   var getActiveTab: GetActiveTab
   var getMousePosition: GetMousePosition
   var getProcesses: GetProcesses
+  var getPrompts: GetPrompts
   var getKitWindows: GetKitWindows
   var focusKitWindow: FocusAppWindow
   var getScreens: GetScreens
