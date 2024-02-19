@@ -6,6 +6,7 @@ on:
       - main
       - beta
       - alpha
+      - next
     tags:
       - "*"
 
