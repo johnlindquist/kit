@@ -22,11 +22,11 @@ if [[ $KIT =~ ^/[a-zA-Z]/ ]]; then
     KIT="${KIT/\/$drive_letter\//\/$drive_letter:/}"
 fi
 
-
+KIT_TARGET="terminal" \
 KIT="$KIT" \
-    KENV="$KENV" \
-    NODE_NO_WARNINGS=1 \
-    $KIT_NODE \
-    --loader "file://$KIT/build/loader.js" \
-    $KIT/run/terminal.js \
-    "$@"
+KENV="$KENV" \
+NODE_NO_WARNINGS=1 \
+$KIT_NODE \
+--loader "file://$KIT/build/loader.js" \
+$KIT/run/terminal.js \
+"$@"

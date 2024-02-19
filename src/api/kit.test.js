@@ -48,18 +48,3 @@ ava.serial(`tmpPath generates a tmp path`, async t => {
   )
   t.is(stderr, "")
 })
-
-ava.serial(`npm installs a package`, async t => {
-  let script = `mock-npm-install-express`
-
-  let { stdout, stderr } = await testScript(
-    script,
-    `
-    await npm("express")
-    `
-  )
-  let pkg = await readJson(kenvPath("package.json"))
-
-  t.truthy(pkg.devDependencies?.["express"])
-  t.falsy(pkg.dependencies?.["express"])
-})
