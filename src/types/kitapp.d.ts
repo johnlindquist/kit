@@ -49,6 +49,7 @@ export interface AppMessage {
   state: AppState
   widgetId?: number
   promptId: string
+  env?: Record<string, string>
 }
 
 export interface Config {

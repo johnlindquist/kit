@@ -145,6 +145,8 @@ let execConfig = () => {
 let macEditors = [
   "atom",
   "code",
+  "cursor",
+  "cursor-nightly",
   "emacs",
   "nano",
   "ne",
@@ -152,6 +154,7 @@ let macEditors = [
   "sublime",
   "webstorm",
   "vim",
+  "zed",
 ]
 
 let safeReaddir = async (path: string) => {
@@ -279,6 +282,9 @@ let nvim = terminalEditor("nvim")
 let nano = terminalEditor("nano")
 let fullySupportedEditors = {
   code,
+  cursor: code,
+  ["cursor-nightly"]: code,
+  zed: atom,
   vim,
   nvim,
   nano,

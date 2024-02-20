@@ -765,6 +765,10 @@ let waitForPromptValue = ({
             case Channel.SCRIPTS_CHANGED:
               global.__kitScriptsFromCache = false
               break
+
+            case Channel.ENV_CHANGED:
+              ;(process as any).env = data?.env
+              break
           }
         },
         // TODO: Add a kit log
