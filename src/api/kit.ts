@@ -2288,9 +2288,10 @@ let beforeExit = () => {
 
 global.finishScript = () => {
   process.removeAllListeners("disconnect")
-  if (typeof global.finishPrompt === "function") {
-    global.finishPrompt()
-  }
+  // Sometimes ends a script before a command like "open" can complete
+  // if (typeof global.finishPrompt === "function") {
+  //   global.finishPrompt()
+  // }
 
   let activeMessageListeners =
     process.listenerCount("message")
