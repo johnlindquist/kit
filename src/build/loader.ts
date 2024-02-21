@@ -4,26 +4,28 @@ import { dirname, join, basename, resolve } from "path"
 import { ensureDir } from "fs-extra"
 import { readFile, writeFile, stat } from "fs/promises"
 
-async function cacheJSXLoad(url, cacheDir) {
+async function cacheJSXLoad(url, cacheDir = "") {
   const path = fileURLToPath(url)
   const cachePath = join(cacheDir, basename(path) + ".js")
-  try {
-    const [sourceStat, cacheStat] = await Promise.all([
-      stat(path),
-      stat(cachePath),
-    ])
+  if (cacheDir) {
+    try {
+      const [sourceStat, cacheStat] = await Promise.all([
+        stat(path),
+        stat(cachePath),
+      ])
 
-    if (cacheStat.mtime >= sourceStat.mtime) {
-      // Cache is up-to-date
-      // global.log(`💪 Loading cached version of ${url}`)
-      return {
-        source: await readFile(cachePath, "utf8"),
-        format: "module",
-        shortCircuit: true,
+      if (cacheStat.mtime >= sourceStat.mtime) {
+        // Cache is up-to-date
+        // global.log(`💪 Loading cached version of ${url}`)
+        return {
+          source: await readFile(cachePath, "utf8"),
+          format: "module",
+          shortCircuit: true,
+        }
       }
+    } catch (error) {
+      // If the cache file doesn't exist or there's an error, we'll proceed to build
     }
-  } catch (error) {
-    // If the cache file doesn't exist or there's an error, we'll proceed to build
   }
 
   // Build and cache the result
@@ -38,8 +40,9 @@ async function cacheJSXLoad(url, cacheDir) {
     )
 
   const output = metadata.join("\n") + "\n" + result.source
-
-  await writeFile(cachePath, output, "utf8")
+  if (cacheDir) {
+    await writeFile(cachePath, output, "utf8")
+  }
   return result
 }
 
@@ -86,19 +89,22 @@ export async function NoLoad(url) {
 }
 
 export async function load(url, context, defaultLoad) {
+  const isTerminal = process.env?.KIT_TARGET === "terminal"
   if (
     url.endsWith(".kit") &&
-    (url.includes(".ts?") ||
-      process.env?.KIT_TARGET === "terminal")
+    (url.includes(".ts?") || isTerminal)
   ) {
-    const cacheDir = resolve(
-      dirname(fileURLToPath(url)),
-      ".cache"
-    )
-    await ensureDir(cacheDir)
-    const start = performance.now()
+    let cacheDir = ""
+    if (!isTerminal) {
+      cacheDir = resolve(
+        dirname(fileURLToPath(url)),
+        ".cache"
+      )
+      await ensureDir(cacheDir)
+    }
+    // const start = performance.now()
     const transform = await cacheJSXLoad(url, cacheDir)
-    const end = performance.now()
+    // const end = performance.now()
     // global.log(
     //   `cacheJSXLoad took ${end - start}ms to complete`
     // )
