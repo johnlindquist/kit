@@ -28,4 +28,4 @@ await appendFile(selectedProfile, `\n${exportKitBinPath}`)
 let { stdout } = execaCommandSync(`wc ${selectedProfile}`)
 let lineCount = stdout.trim().split(" ").shift()
 
-edit(selectedProfile, kenvPath(), lineCount)
+await edit(selectedProfile, kenvPath(), lineCount)

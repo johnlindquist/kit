@@ -50,14 +50,14 @@ global.env = async (envKey, promptConfig) => {
     typeof promptConfig === "function"
       ? await promptConfig()
       : typeof promptConfig === "string"
-      ? await global.kitPrompt({
+      ? await global.mini({
           enter: "Write to .env",
           shortcuts: [],
           placeholder: promptConfig,
           secret,
           keyword: "",
         })
-      : await global.kitPrompt({
+      : await global.mini({
           enter: "Write to .env",
           shortcuts: [],
           placeholder: `Set ${envKey}:`,

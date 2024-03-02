@@ -119,6 +119,10 @@ let script = await mainMenu({
       input = i.trim()
     }
   },
+  onBlur: async (input, state) => {
+    hide()
+    exit()
+  },
   onNoChoices,
   onChoiceFocus: async (input, state) => {
     isApp =

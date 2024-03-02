@@ -5,9 +5,9 @@ let { filePath, command } = await selectScript(
 )
 
 let logPath = getLogFromScriptPath(filePath)
-
+log(`Opening log for ${filePath}: ${logPath}`)
 await ensureFile(logPath)
 
-edit(logPath)
+await edit(logPath)
 
 export {}

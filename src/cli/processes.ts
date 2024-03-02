@@ -4,11 +4,11 @@
 // Keyword: p
 // Log: false
 
-import { Channel } from "../core/enum.js"
 import {
   escapeShortcut,
   cmd,
   viewLogShortcut,
+  terminateProcessShortcut,
 } from "../core/utils.js"
 let formatProcesses = async () => {
   let processes: any = await getProcesses()
@@ -32,7 +32,7 @@ let formatProcesses = async () => {
 
   return processes
 }
-let id = setTimeout(async () => {
+let id = setInterval(async () => {
   setChoices(await formatProcesses())
 }, 1000)
 
@@ -40,9 +40,13 @@ let currentProcesses = await formatProcesses()
 
 let argPromise = arg(
   {
-    placeholder: "Select Process",
-    enter: "Terminate",
-    shortcuts: [escapeShortcut, viewLogShortcut],
+    placeholder: "Focus Prompt",
+    enter: "Focus",
+    shortcuts: [
+      escapeShortcut,
+      viewLogShortcut,
+      terminateProcessShortcut,
+    ],
     onAbandon: async () => {
       clearTimeout(id)
       await mainScript()
@@ -53,13 +57,7 @@ let argPromise = arg(
 let { pid, scriptPath }: any = await argPromise
 clearInterval(id)
 
-setDescription(`${pid}: ${scriptPath}`)
+let prompts = await getPrompts()
+const prompt = prompts.find(p => p.pid === pid)
 
-await sendWait(Channel.TERMINATE_PROCESS, pid)
-let processes = await formatProcesses()
-
-if (processes?.length === 0) {
-  await mainScript()
-} else {
-  await run(kitPath("cli", "processes.js"))
-}
+await prompt.focus()

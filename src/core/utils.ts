@@ -1096,6 +1096,20 @@ export let viewLogShortcut: Shortcut = {
     )
   },
   bar: "right",
+  visible: true,
+}
+
+export let terminateProcessShortcut: Shortcut = {
+  name: "Terminate Process",
+  key: `${cmd}+enter`,
+  onPress: async (input, { focused }) => {
+    await sendWait(
+      Channel.TERMINATE_PROCESS,
+      focused?.value?.pid
+    )
+  },
+  bar: "right",
+  visible: true,
 }
 
 export let smallShortcuts: Shortcut[] = [

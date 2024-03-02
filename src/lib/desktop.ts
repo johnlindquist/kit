@@ -302,9 +302,21 @@ global.getMousePosition = async () =>
 global.getProcesses = async () =>
   (await global.getDataFromApp(Channel.GET_PROCESSES))
     .processes
-
-global.getPrompts = async () =>
-  (await global.getDataFromApp(Channel.GET_PROMPTS)).prompts
+global.getPrompts = async () => {
+  let { prompts } = await global.getDataFromApp(
+    Channel.GET_PROMPTS
+  )
+  if (!prompts) return []
+  for (let prompt of prompts) {
+    prompt.focus = async () => {
+      await hide()
+      await sendWait(Channel.FOCUS_PROMPT, {
+        pid: prompt.pid,
+      })
+    }
+  }
+  return prompts
+}
 
 global.getKitWindows = async () => {
   let message = await global.getDataFromApp(

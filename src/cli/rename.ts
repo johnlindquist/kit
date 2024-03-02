@@ -56,6 +56,6 @@ mv(filePath, newFilePath)
 await cli("create-bin", "scripts", newFilePath)
 await refreshScripts()
 
-edit(newFilePath, kenvPath())
+await edit(newFilePath, kenvPath())
 
 export {}

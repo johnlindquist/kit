@@ -263,6 +263,7 @@ export interface Prompt {
   isVisible: boolean
   isDestroyed: boolean
   bounds: Rectangle
+  focus: () => Promise<void>
 }
 
 interface GetPrompts {

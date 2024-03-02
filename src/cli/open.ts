@@ -1,5 +1,5 @@
 // Name: Open
 
-edit(kenvPath())
+await edit(kenvPath())
 
 export {}

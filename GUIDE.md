@@ -1179,7 +1179,7 @@ await degit(`https://github.com/sveltejs/template`).clone(
   targetDir
 )
 
-edit(targetDir)
+await edit(targetDir)
 ```
 
 ## View Logs

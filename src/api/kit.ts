@@ -1055,6 +1055,7 @@ export let shortcuts: Shortcut[] = [
   },
   {
     name: "List Processes",
+    flag: "list-processes",
     key: `${cmd}+p`,
     onPress: async () => {
       let processes = await getProcesses()
