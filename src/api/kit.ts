@@ -2286,21 +2286,23 @@ let beforeExit = () => {
   executed = true
   send(Channel.BEFORE_EXIT)
 }
-
 global.finishScript = () => {
   process.removeAllListeners("disconnect")
   // Sometimes ends a script before a command like "open" can complete
   // if (typeof global.finishPrompt === "function") {
   //   global.finishPrompt()
   // }
-
   let activeMessageListeners =
     process.listenerCount("message")
 
-  beforeExit()
   if (!done && activeMessageListeners === 0) {
     // log(`🏁 Finish script`)
     done = true
     process.removeAllListeners()
+    beforeExit()
+  } else {
+    log(
+      `🏁 Reached the end of the script, but detected ${activeMessageListeners} active message listeners. Use "exit()" to force exit.`
+    )
   }
 }
