@@ -1007,12 +1007,11 @@ export let isInDir =
   }
 
 export let escapeShortcut: Shortcut = {
-  name: `Back`,
+  name: `Exit`,
   key: `escape`,
   bar: "left",
   onPress: async () => {
-    setInput("")
-    global.finishScript()
+    exit()
   },
 }
 

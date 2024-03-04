@@ -2469,9 +2469,9 @@ for (let method of loadingList) {
   let original = global[method]
   global[method] = function (...args: any[]) {
     setLoading(true)
-    let result = original.apply(this, args)
-    result.then(() => setLoading(false))
-    return result
+    return original
+      .apply(this, args)
+      .then(() => setLoading(false))
   }
 }
 
