@@ -2300,7 +2300,7 @@ global.finishScript = () => {
     done = true
     process.removeAllListeners()
     beforeExit()
-  } else {
+  } else if (process?.env?.KIT_CONTEXT === "app") {
     log(
       `🏁 Reached the end of the script, but detected ${activeMessageListeners} active message listeners. Use "exit()" to force exit.`
     )
