@@ -27,6 +27,12 @@
 | | Measure Tool |
 | | Debug from IDE |
 
+## Installation via homebrew
+
+```shell
+brew install --cask kit
+```
+
 ## Script Kit Dev Setup
 
 > Note: This ain't pretty 😅
