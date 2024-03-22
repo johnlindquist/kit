@@ -2167,11 +2167,11 @@ global.highlight = async (
   return result
 }
 
-global.setTab = (tabName: string) => {
+global.setTab = async (tabName: string) => {
   let i = global.onTabs.findIndex(
     ({ name }) => name === tabName
   )
-  global.send(Channel.SET_TAB_INDEX, i)
+  await global.sendWait(Channel.SET_TAB_INDEX, i)
   global.onTabs[i].fn()
 }
 
@@ -2224,6 +2224,9 @@ export let authenticate = async () => {
     "../share/auth-scriptkit.js"
   )
   let octokit = new Octokit({
+    request: {
+      fetch: global.fetch,
+    },
     auth: {
       scopes: ["gist"],
       env: "GITHUB_SCRIPTKIT_TOKEN",

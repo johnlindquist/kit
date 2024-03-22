@@ -2450,7 +2450,7 @@ global.setRunning = (running: boolean) => {
   global.send(Channel.SET_RUNNING, running)
 }
 
-let loadingList = [
+const loadingList = [
   "$",
   "applescript",
   "download",
@@ -2465,13 +2465,19 @@ let loadingList = [
   "say",
   "playAudioFile",
 ]
-for (let method of loadingList) {
-  let original = global[method]
-  global[method] = function (...args: any[]) {
-    setLoading(true)
-    return original
-      .apply(this, args)
-      .then(() => setLoading(false))
+
+// Patches global methods in `loadingList` to toggle loading state on call: checks method existence, wraps to toggle `setLoading(true)` pre-call and `setLoading(false)` post-call.
+
+for (const method of loadingList) {
+  if (global.hasOwnProperty(method)) {
+    const originalMethod = global[method]
+    global[method] = function (...args: any[]) {
+      setLoading(true)
+      const result = originalMethod.apply(this, args)
+      return Promise.resolve(result).finally(() =>
+        setLoading(false)
+      )
+    }
   }
 }
 

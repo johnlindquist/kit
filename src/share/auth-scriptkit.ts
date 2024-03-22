@@ -181,8 +181,9 @@ export let Octokit = OctokitCore.plugin(
   authStrategy: createScriptKitAuth,
   userAgent: `scriptkit-octokit/${VERSION}`,
   throttle: {
+    enabled: true,
     onRateLimit,
-    onAbuseLimit,
+    onSecondaryRateLimit: onAbuseLimit,
   },
 })
 

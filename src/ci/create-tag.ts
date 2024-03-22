@@ -1,6 +1,9 @@
 let { Octokit } = await npm("@octokit/rest")
 
 let octokit = new Octokit({
+  request: {
+    hook: require("@octokit/plugin-request-log").requestLog,
+  },
   auth: await env("GITHUB_TOKEN"),
 })
 
@@ -32,4 +35,4 @@ let createRefResponse = await octokit.git.createRef({
   sha: tagCreateResponse.data.sha,
 })
 
-export { }
+export {}

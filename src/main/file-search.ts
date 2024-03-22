@@ -38,6 +38,9 @@ let actionFlags: {
   },
   {
     name: `Show in ${isMac ? "Finder" : "Explorer"}`,
+    description: `Reveal the file in ${
+      isMac ? "Finder" : "Explorer"
+    }`,
     value: "finder",
     action: async selectedFile => {
       await revealFile(selectedFile)
