@@ -89,7 +89,7 @@
     "ava": "6.1.2",
     "cz-conventional-changelog": "^3.3.0",
     "debug": "4.3.4",
-    "semantic-release": "23.0.5",
+    "semantic-release": "23.0.6",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
     "tsc-watch": "6.0.4",
     "typescript": "5.4.3",

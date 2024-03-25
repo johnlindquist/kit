@@ -26,7 +26,7 @@ KIT_TARGET="terminal" \
 KIT="$KIT" \
 KENV="$KENV" \
 NODE_NO_WARNINGS=1 \
-$KIT_NODE \
+"$KIT_NODE" \
 --loader "file://$KIT/build/loader.js" \
-$KIT/run/terminal.js \
+"$KIT/run/terminal.js" \
 "$@"

@@ -13,18 +13,25 @@ while (true) {
       enter: "Select",
     },
     [
-      { name: "Install an npm package", value: "install" },
+      {
+        name: "Install an npm package",
+        value: "install",
+        shortcode: "i",
+      },
       {
         name: "Update an npm package",
         value: "update-package",
+        shortcode: "up",
       },
       {
         name: "Uninstall an npm package",
         value: "uninstall",
+        shortcode: "un",
       },
       {
         name: "Get more info about an npm packaage",
         value: "more-info",
+        shortcode: "info",
       },
       {
         name: "Open a Terminal to Manually Install/Uninstall",
