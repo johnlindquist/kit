@@ -86,7 +86,7 @@ The build command builds the SDK to ~/.kit
 
 1. cd to ~/.kit
 2. yarn link
-3. cd to ~/wherever you cloned kitapp
+3. cd to wherever you cloned kitapp
 4. yarn link @johnlindquist/kit
 
 This will force the App to use the SDK so you can work on both simultaneously
