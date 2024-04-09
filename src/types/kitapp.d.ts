@@ -573,7 +573,6 @@ export interface ChannelMap {
   [Channel.SET_RUNNING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGO]: string
-  [Channel.SET_LOGIN]: boolean
   [Channel.SET_NAME]: string
   [Channel.SET_OPEN]: boolean
   [Channel.SET_PANEL]: string

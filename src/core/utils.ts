@@ -112,7 +112,6 @@ export const timestampsPath = kitPath(
 export const statsPath = kitPath("db", "stats.json")
 export const prefsPath = kitPath("db", "prefs.json")
 export const promptDbPath = kitPath("db", "prompt.json")
-export const appDbPath = kitPath("db", "app.json")
 export const themeDbPath = kitPath("db", "theme.json")
 export const userDbPath = kitPath("db", "user.json")
 export const tmpClipboardDir = kitPath("tmp", "clipboard")

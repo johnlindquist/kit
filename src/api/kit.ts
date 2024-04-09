@@ -46,6 +46,8 @@ import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
 import { Kenv } from "../types/kit"
 import { Fields as TraceFields } from "chrome-trace-event"
+import dotenv from "dotenv"
+import { kenvEnv } from "../types/env"
 
 export async function initTrace() {
   if (
@@ -2217,6 +2219,43 @@ export let isAuthenticated = async () => {
   let envContents = await readFile(envPath, "utf8")
   // check if the .env file has a GITHUB_SCRIPTKIT_TOKEN
   return envContents.match(/^GITHUB_SCRIPTKIT_TOKEN=.*/g)
+}
+
+export let setEnvVar = async (
+  key: string,
+  value: string
+) => {
+  await global.cli("set-env-var", key, value)
+}
+
+export let getEnvVar = async (
+  key: string,
+  fallback: string
+) => {
+  let kenvEnv = dotenv.parse(
+    await readFile(kenvPath(".env"), "utf8")
+  ) as kenvEnv
+  return kenvEnv?.[key] || fallback
+}
+
+export let toggleEnvVar = async (
+  key: keyof kenvEnv,
+  defaultValue = "true"
+) => {
+  let kenvEnv = dotenv.parse(
+    await readFile(kenvPath(".env"), "utf8")
+  ) as kenvEnv
+  // Check if the environment variable `key` exists and if its value is equal to the `defaultState`
+  // If it is, toggle the value between "true" and "false"
+  // If it isn't, set it to the `defaultState`
+  await setEnvVar(
+    key,
+    kenvEnv?.[key] === defaultValue
+      ? defaultValue === "true"
+        ? "false"
+        : "true" // Toggle the value
+      : defaultValue // Set to defaultState if not already set
+  )
 }
 
 export let authenticate = async () => {

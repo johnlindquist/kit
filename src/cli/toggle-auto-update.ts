@@ -1,7 +1,5 @@
-import { getAppDb } from "../core/db.js"
+import { toggleEnvVar } from "../api/kit.js"
 
-let appDb = await getAppDb()
-appDb.autoUpdate = !appDb.autoUpdate
-await appDb.write()
+await toggleEnvVar("KIT_AUTO_UPDATE", "true")
 
 export {}

@@ -1,6 +1,5 @@
 import * as path from "path"
 import {
-  appDbPath,
   kitPath,
   kenvPath,
   prefsPath,
@@ -486,28 +485,6 @@ export type AppDb = {
 export type UserDb = Partial<
   RestEndpointMethodTypes["users"]["getAuthenticated"]["response"]["data"]
 >
-
-export const appDefaults: AppDb = {
-  version: "0.0.0",
-  openAtLogin: true,
-  previewScripts: true,
-  autoUpdate: true,
-  tray: true,
-  authorized: false,
-  searchDebounce: true,
-  termFont: "monospace",
-  convertKeymap: true,
-  cachePrompt: true,
-  mini: false,
-  disableGpu: false,
-  disableBlurEffect: false,
-}
-
-export let getAppDb = async (): Promise<
-  Low<any> & AppDb
-> => {
-  return await db(appDbPath, appDefaults)
-}
 
 export let setUserJson = async (user: UserDb) => {
   await writeJson(userDbPath, user)

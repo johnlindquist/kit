@@ -1,10 +1,11 @@
 // Description: Toggle Open at Login
 
-import { Channel } from "../core/enum.js"
+import { getEnvVar, setEnvVar } from "../api/kit.js"
 
-import { getAppDb } from "../core/db.js"
-
-let { openAtLogin } = await getAppDb()
+let openAtLogin = await getEnvVar(
+  "KIT_OPEN_AT_LOGIN",
+  "true"
+)
 
 let placeholder = `"Open at login" is ${
   openAtLogin ? "en" : "dis"
@@ -21,6 +22,9 @@ let toggle = await arg(placeholder, [
   },
 ])
 
-send(Channel.SET_LOGIN, toggle)
+await setEnvVar(
+  "KIT_OPEN_AT_LOGIN",
+  toggle ? "true" : "false"
+)
 
 export {}
