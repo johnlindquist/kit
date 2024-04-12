@@ -17,6 +17,7 @@ export type kenvEnv = {
   KIT_MONO_FONT?: string | undefined
   KIT_NO_PREVIEW?: string | undefined
   KIT_OPEN_AT_LOGIN?: string | undefined
+  KIT_OPEN_IN?: string | undefined
   KIT_SANS_FONT?: string | undefined
   KIT_SEARCH_DEBOUNCE?: string | undefined
   KIT_SERIF_FONT?: string | undefined
@@ -29,4 +30,5 @@ export type kenvEnv = {
   KIT_TYPED_LIMIT?: string | undefined
   KIT_WEBCAM?: string | undefined
   KIT_WIDTH?: string | undefined
+  KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
 }

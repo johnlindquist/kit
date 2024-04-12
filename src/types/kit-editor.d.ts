@@ -10029,11 +10029,14 @@ export type kenvEnv = {
   KIT_DISPLAY?: string | undefined
   KIT_EMOJI_SHORTCUT?: string | undefined
   KIT_KEYBOARD?: string | undefined
+  KIT_MAIN_SCRIPT?: string | undefined
   KIT_MAIN_SHORTCUT?: string | undefined
   KIT_MIC?: string | undefined
+  KIT_MEASURE?: string | undefined
   KIT_MONO_FONT?: string | undefined
   KIT_NO_PREVIEW?: string | undefined
   KIT_OPEN_AT_LOGIN?: string | undefined
+  KIT_OPEN_IN?: string | undefined
   KIT_SANS_FONT?: string | undefined
   KIT_SEARCH_DEBOUNCE?: string | undefined
   KIT_SERIF_FONT?: string | undefined
