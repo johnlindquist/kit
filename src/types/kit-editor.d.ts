@@ -10049,6 +10049,7 @@ export type kenvEnv = {
   KIT_TYPED_LIMIT?: string | undefined
   KIT_WEBCAM?: string | undefined
   KIT_WIDTH?: string | undefined
+  KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
 }
 
 

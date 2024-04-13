@@ -145,6 +145,9 @@ if (themePath === "theme-designer") {
     }
   }
 
+  let theme = await readJson(themePath)
+  await setTheme(theme)
+
   await setInput("")
   await mainScript()
 }
