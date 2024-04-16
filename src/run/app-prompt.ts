@@ -1,3 +1,4 @@
+process.send({ channel: Channel.HEARTBEAT })
 process.env.KIT_TARGET = "app-prompt"
 
 import os from "os"

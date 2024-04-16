@@ -23,7 +23,8 @@
     "./target/*": "./target/*.js",
     "./platform/*": "./platform/*.js",
     "./run/*": "./run/*.js",
-    "./core/*": "./core/*.js"
+    "./core/*": "./core/*.js",
+    "./workers": "./workers/index.js"
   },
   "types": "./types/index.d.ts",
   "scripts": {

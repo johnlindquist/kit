@@ -44,12 +44,16 @@ let installNodeWin = async () => {
   await rename(knodePath(nodeDirName), knodePath("bin"))
 }
 
-let installNode =
+let installNode = (
   platform() !== "win32"
     ? exec(
         `./build/install-node.sh v20.11.1 --prefix '${knodePath()}'`
       )
     : installNodeWin()
+).catch(e => {
+  console.error(e)
+  process.exit(1)
+})
 
 cp("-R", "./root/.", kitPath())
 cp("-R", "./build", kitPath())
@@ -59,15 +63,26 @@ cp("*.md", kitPath())
 cp("package*.json", kitPath())
 cp("LICENSE", kitPath())
 
+console.log(`Installing node to ${knodePath()}...`)
+
+await installNode
+
 console.log(`Building ESM to ${kitPath()}`)
-let esm = exec(`npx tsc --outDir ${kitPath()}`)
+let esm = exec(`npx tsc --outDir ${kitPath()}`).catch(e => {
+  console.error(e)
+  process.exit(1)
+})
+
+await esm
 
 console.log(`Building declarations to ${kitPath()}`)
 let dec = exec(
   `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
-)
-
-await Promise.all([installNode, esm, dec])
+).catch(e => {
+  console.error(e)
+  process.exit(1)
+})
+await dec
 
 console.log(`Install deps`)
 

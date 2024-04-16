@@ -1,3 +1,17 @@
+import path from "path"
+import shelljs from "shelljs"
+import {
+  kitPath,
+  knodePath,
+  home,
+} from "../../core/utils.js"
+import { compile } from "@johnlindquist/globals"
+import {
+  ensureDir,
+  readFile,
+  writeFile,
+} from "@johnlindquist/kit-internal/fs-extra"
+
 import { Bin } from "../../core/enum"
 import { Choice, Script } from "../../types/core"
 
@@ -68,9 +82,9 @@ export let createBinFromScript = async (
     binFilePath += ".cmd"
   }
 
-  await global.ensureDir(path.dirname(binFilePath))
-  await global.writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
+  await ensureDir(path.dirname(binFilePath))
+  await writeFile(binFilePath, compiledBinTemplate)
+  shelljs.chmod(755, binFilePath)
 }
 
 interface Doc {

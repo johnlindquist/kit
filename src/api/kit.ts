@@ -1,4 +1,10 @@
+import path from "path"
 import { existsSync, lstatSync } from "fs"
+import { md as globalMd } from "@johnlindquist/globals"
+import {
+  readFile,
+  readJson,
+} from "@johnlindquist/kit-internal/fs-extra"
 import * as os from "os"
 import { pathToFileURL } from "url"
 import * as JSONSafe from "safe-stable-stringify"
@@ -21,12 +27,15 @@ import {
   Shortcut,
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
+import { isMainThread } from "worker_threads"
 
 import {
   kitPath,
   kenvPath,
   resolveScriptToCommand,
   run,
+  home,
+  isFile,
   getKenvs,
   groupChoices,
   formatChoices,
@@ -509,16 +518,13 @@ global.tmpPath = (...parts) => {
     ? resolveScriptToCommand(global.kitScript)
     : ""
 
-  let tmpCommandDir = global.path.resolve(
+  let tmpCommandDir = path.resolve(
     os.tmpdir(),
     "kit",
     command
   )
 
-  let scriptTmpDir = global.path.resolve(
-    tmpCommandDir,
-    ...parts
-  )
+  let scriptTmpDir = path.resolve(tmpCommandDir, ...parts)
 
   let kenvTmpCommandPath = kenvPath("tmp", command)
 
@@ -1533,8 +1539,9 @@ export let getApps = async () => {
 
 let groupScripts = scripts => {
   let excludeGroups =
-    env?.KIT_EXCLUDE_KENVS?.split(",").map(k => k.trim()) ||
-    []
+    global?.env?.KIT_EXCLUDE_KENVS?.split(",").map(k =>
+      k.trim()
+    ) || []
 
   return groupChoices(scripts, {
     groupKey: "kenv",
@@ -1596,17 +1603,21 @@ let groupScripts = scripts => {
 }
 
 let processedScripts = []
-export let getProcessedScripts = async () => {
+export let getProcessedScripts = async (
+  fromCache = true
+) => {
   if (
+    fromCache &&
     global.__kitScriptsFromCache &&
     processedScripts.length
-  )
+  ) {
     return processedScripts
+  }
 
   trace.begin({
     name: "getScripts",
   })
-  let scripts: Script[] = await getScripts(true)
+  let scripts: Script[] = await getScripts(fromCache)
   trace.end({
     name: "getScripts",
   })
@@ -1636,11 +1647,13 @@ export let getProcessedScripts = async () => {
   return scripts
 }
 
-export let getGroupedScripts = async () => {
+export let getGroupedScripts = async (fromCache = true) => {
   trace.begin({
     name: "getProcessedScripts",
   })
-  let processedscripts = await getProcessedScripts()
+  let processedscripts = await getProcessedScripts(
+    fromCache
+  )
   trace.end({
     name: "getProcessedScripts",
   })
@@ -1668,13 +1681,13 @@ export let getGroupedScripts = async () => {
     // kitPath("main", "google.js"),
   ]
 
-  if (env?.KIT_LOGIN) {
+  if (global?.env?.KIT_LOGIN) {
     kitScripts.push(kitPath("main", "account-v2.js"))
   } else {
     kitScripts.push(kitPath("main", "sign-in.js"))
   }
 
-  if (env?.KIT_PRO !== "true") {
+  if (global?.env?.KIT_PRO !== "true") {
     kitScripts.push(kitPath("main", "sponsor.js"))
   }
 
@@ -1707,7 +1720,7 @@ export let getGroupedScripts = async () => {
     kitScripts.push(kitPath("main", "system-commands.js"))
     kitScripts.push(kitPath("main", "focus-window.js"))
 
-    if (!Boolean(env?.KIT_ACCESSIBILITY)) {
+    if (!Boolean(global?.env?.KIT_ACCESSIBILITY)) {
       kitScripts.push(kitPath("main", "accessibility.js"))
     }
   }
@@ -2206,12 +2219,11 @@ global.clearTabs = () => {
   global.send(Channel.CLEAR_TABS)
 }
 
-let _md = global.md
 global.md = (
   content = "",
   containerClasses = "p-5 prose prose-sm"
 ) => {
-  return _md(content + "\n", containerClasses)
+  return globalMd(content + "\n", containerClasses)
 }
 
 export let isAuthenticated = async () => {
