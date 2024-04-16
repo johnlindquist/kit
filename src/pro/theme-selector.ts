@@ -143,10 +143,10 @@ if (themePath === "theme-designer") {
     if (appearance === "Dark" || appearance === "Both") {
       await cli("set-env-var", "KIT_THEME_DARK", themePath)
     }
-  }
 
-  let theme = await readJson(themePath)
-  await setTheme(theme)
+    let theme = await readJson(themePath)
+    await setTheme(theme)
+  }
 
   await setInput("")
   await mainScript()

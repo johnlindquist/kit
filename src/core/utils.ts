@@ -1587,7 +1587,7 @@ export let defaultGroupNameClassName = `font-medium text-xxs text-text-base/60 u
 export let formatChoices = (
   choices: Choice[],
   className = ""
-) => {
+): Choice[] => {
   if (Array.isArray(choices)) {
     return (choices as Choice<any>[]).flatMap(
       (choice, index) => {
