@@ -1,5 +1,6 @@
 // Description: Clear Timestamps
 
+import { Choice, Script } from "@johnlindquist/kit"
 import {
   getGroupedScripts,
   processScriptPreview,
@@ -11,7 +12,9 @@ import { formatChoices } from "../core/utils.js"
 
 let groupedScripts = await getGroupedScripts()
 let scripts = formatChoices(groupedScripts)
-let firstScript = scripts.find(script => !script.skip)
+let firstScript = scripts.find(
+  script => !script.skip
+) as Script
 let preview = ``
 try {
   preview = await processScriptPreview(firstScript)()
