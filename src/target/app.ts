@@ -2159,7 +2159,6 @@ export let appInstall = async packageName => {
   }
 
   setHint(`Installing ${packageName}...`)
-  setIgnoreBlur(true)
 
   await global.cli("install", packageName)
   console.clear()

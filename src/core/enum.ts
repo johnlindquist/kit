@@ -593,6 +593,7 @@ export enum Trigger {
   Kar = "kar",
   Menu = "menu",
   Tray = "tray",
+  Trigger = "trigger",
   RunTxt = "runTxt",
 }
 

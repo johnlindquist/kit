@@ -1038,7 +1038,6 @@ export let shortcutsShortcut: Shortcut = {
   bar: "right",
   onPress: async () => {
     setAlwaysOnTop(true)
-    setIgnoreBlur(true)
     let shortcutsList = ``
     ;(global?.kitShortcutsMap || new Map()).forEach(
       (name, shortcut) => {

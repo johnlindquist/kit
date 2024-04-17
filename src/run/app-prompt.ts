@@ -1,8 +1,23 @@
 process.env.KIT_TARGET = "app-prompt"
+import { Channel, Trigger } from "../core/enum.js"
 
+let script = ""
+let tooEarlyHandler = data => {
+  if (data.channel === Channel.VALUE_SUBMITTED) {
+    script =
+      data?.value?.script || data?.state?.value?.filePath
+    const value = `${process.pid}: ${
+      data?.channel
+    }: ${script} ${performance.now()}ms`
+    // process.send({
+    //   channel: Channel.CONSOLE_LOG,
+    //   value,
+    // });
+  }
+}
+process.on("message", tooEarlyHandler)
 import os from "os"
 import { configEnv, run } from "../core/utils.js"
-import { Channel } from "../core/enum.js"
 
 await import("../api/global.js")
 let { initTrace } = await import("../api/kit.js")
@@ -32,7 +47,6 @@ if (process.env.KIT_MEASURE) {
   obs.observe({ entryTypes: ["measure"] })
 }
 
-let script = ""
 let trigger = ""
 let args = []
 let result = null
@@ -44,6 +58,20 @@ try {
     trigger: string
     args: string[]
   }>((resolve, reject) => {
+    process.off("message", tooEarlyHandler)
+
+    if (script) {
+      // process.send({
+      //   channel: Channel.CONSOLE_LOG,
+      //   value: `Too early ${tooEarly}...`,
+      // })
+      resolve({
+        script,
+        args: [],
+        trigger: Trigger.Trigger,
+      })
+      return
+    }
     let messageHandler = data => {
       if (data.channel === Channel.HEARTBEAT) {
         send(Channel.HEARTBEAT)

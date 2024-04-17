@@ -45,7 +45,6 @@ open(
 let message = `Copied ${command} to clipboard as markdown`
 
 setAlwaysOnTop(true)
-setIgnoreBlur(true)
 await div(
   await highlight(`## ${message}
 
