@@ -6,9 +6,9 @@ let tooEarlyHandler = data => {
   if (data.channel === Channel.VALUE_SUBMITTED) {
     script =
       data?.value?.script || data?.state?.value?.filePath
-    const value = `${process.pid}: ${
-      data?.channel
-    }: ${script} ${performance.now()}ms`
+    // const value = `${process.pid}: ${
+    //   data?.channel
+    // }: ${script} ${performance.now()}ms`
     // process.send({
     //   channel: Channel.CONSOLE_LOG,
     //   value,

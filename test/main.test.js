@@ -9,6 +9,69 @@ process.env.KIT =
 process.env.KNODE =
   process.env.KNODE || path.resolve(homedir(), ".knode")
 
+ava.serial("app-prompt.js", async t => {
+  let script = `mock-script-with-arg`
+  let scriptPath = kenvPath("scripts", `${script}.js`)
+  let placeholder = "hello"
+  let contents = `
+    await arg("${placeholder}")
+    `
+  await $`kit new ${script} main --no-edit`
+  await writeFile(scriptPath, contents)
+
+  t.log(`Starting app-prompt.js...`)
+  let mockApp = fork(KIT_APP_PROMPT, {
+    env: {
+      NODE_NO_WARNINGS: "1",
+      KIT: home(".kit"),
+      KENV: kenvPath(),
+      KIT_CONTEXT: "app",
+    },
+  })
+
+  let command = "mock-script-with-arg"
+  let value = {
+    script: command,
+    args: ["hello"],
+  }
+
+  t.log(`Waiting for app-prompt.js to start...`)
+  let result = await new Promise((resolve, reject) => {
+    /**
+    channel: Channel
+    pid: number
+    newPid?: number
+    state: AppState
+    widgetId?: number
+       * 
+       */
+    mockApp.on("message", data => {
+      console.log(`received`, data)
+      if (data.channel === Channel.SET_SCRIPT) {
+        // The mockApp will hang waiting for input if you don't submit a value
+        mockApp.send({
+          channel: Channel.VALUE_SUBMITTED,
+          value: "done",
+        })
+        resolve(data)
+      }
+    })
+
+    mockApp.on("spawn", () => {
+      mockApp.send(
+        {
+          channel: Channel.VALUE_SUBMITTED,
+          value,
+        },
+        error => {}
+      )
+    })
+  })
+
+  t.log({ result, command })
+  t.is(result.value.command, command)
+})
+
 ava.serial("kit setup", async t => {
   let envPath = kenvPath(".env")
   let fileCreated = test("-f", envPath)
@@ -244,61 +307,6 @@ ava.serial("kit script in random dir", async t => {
   // t.log({ stdout, stderr, scriptPath })
 
   t.true(stdout.includes("hello"))
-})
-
-ava.serial("app-prompt.js", async t => {
-  let script = `mock-script-with-arg`
-  let scriptPath = kenvPath("scripts", `${script}.js`)
-  let placeholder = "hello"
-  let contents = `
-  await arg("${placeholder}")
-  `
-  await $`kit new ${script} main --no-edit`
-  await writeFile(scriptPath, contents)
-
-  let mockApp = fork(KIT_APP_PROMPT, {
-    env: {
-      NODE_NO_WARNINGS: "1",
-      KIT: home(".kit"),
-      KENV: kenvPath(),
-      KIT_CONTEXT: "app",
-    },
-  })
-
-  await new Promise((resolve, reject) => {
-    let command = "mock-script-with-arg"
-    let value = {
-      script: command,
-      args: ["hello"],
-    }
-    let id = null
-    /**
-  channel: Channel
-  pid: number
-  newPid?: number
-  state: AppState
-  widgetId?: number
-     * 
-     */
-    mockApp.on("message", data => {
-      if (id) clearInterval(id)
-      if (data.channel === Channel.SET_SCRIPT) {
-        t.is(data.value.command, command)
-      }
-
-      resolve(data)
-    })
-
-    id = setInterval(() => {
-      mockApp.send(
-        {
-          channel: Channel.VALUE_SUBMITTED,
-          value,
-        },
-        error => {}
-      )
-    }, 100)
-  })
 })
 
 ava.serial(`Run both JS and TS scripts`, async t => {
