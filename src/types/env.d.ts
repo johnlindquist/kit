@@ -32,4 +32,5 @@ export type kenvEnv = {
   KIT_WIDTH?: string | undefined
   KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
   KIT_SEARCH_MIN_SCORE?: string | undefined
+  KIT_SEARCH_MAX_ITERATIONS?: string | undefined
 }
