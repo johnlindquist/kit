@@ -1859,7 +1859,7 @@ export let mainMenu = async (
   })
 
   process.send({
-    type: Channel.MAIN_MENU_READY,
+    channel: Channel.MAIN_MENU_READY,
     scripts: groupedScripts.length,
   })
   let script = await global.arg(

@@ -10023,6 +10023,7 @@ export type kenvEnv = {
   KIT_CACHE_PROMPT?: string | undefined
   KIT_CLIPBOARD?: string | undefined
   KIT_CONVERT_KEY?: string | undefined
+  KIT_CWD?: string | undefined
   KIT_DEBUG_PROMPT?: string | undefined
   KIT_DISABLE_AUTO_UPDATE?: string | undefined
   KIT_DISABLE_BLUR?: string | undefined
@@ -10041,6 +10042,7 @@ export type kenvEnv = {
   KIT_SANS_FONT?: string | undefined
   KIT_SEARCH_DEBOUNCE?: string | undefined
   KIT_SERIF_FONT?: string | undefined
+  KIT_STDIO?: string | undefined
   KIT_SUSPEND_WATCHERS?: string | undefined
   KIT_TERM_FONT?: string | undefined
   KIT_THEME_DARK?: string | undefined
@@ -10053,6 +10055,7 @@ export type kenvEnv = {
   KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
   KIT_SEARCH_MIN_SCORE?: string | undefined
   KIT_SEARCH_MAX_ITERATIONS?: string | undefined
+  KIT_USE_EXEC_PATH?: string | undefined
 }
 
 

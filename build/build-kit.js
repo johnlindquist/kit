@@ -30,9 +30,10 @@ let installNodeWin = async () => {
 
   rm("-rf", knodePath())
 
+  let arch = process.arch === "x64" ? "x64" : "x86"
   await new Promise(r => {
     download(
-      `https://nodejs.org/dist/v20.11.1/node-v20.11.1-win-x86.zip`
+      `https://nodejs.org/dist/v20.11.1/node-v20.11.1-win-${arch}.zip`
     )
       .pipe(Extract({ path: knodePath() }))
       .on("finish", r)

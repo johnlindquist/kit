@@ -1,9 +1,11 @@
 export type kenvEnv = {
   KIT_AUTO_UPDATE?: string | undefined
+  KIT_BACKGROUND_COLOR?: string | undefined
   KIT_BACKGROUND_MATERIAL?: string | undefined
   KIT_CACHE_PROMPT?: string | undefined
   KIT_CLIPBOARD?: string | undefined
   KIT_CONVERT_KEY?: string | undefined
+  KIT_CWD?: string | undefined
   KIT_DEBUG_PROMPT?: string | undefined
   KIT_DISABLE_AUTO_UPDATE?: string | undefined
   KIT_DISABLE_BLUR?: string | undefined
@@ -22,6 +24,7 @@ export type kenvEnv = {
   KIT_SANS_FONT?: string | undefined
   KIT_SEARCH_DEBOUNCE?: string | undefined
   KIT_SERIF_FONT?: string | undefined
+  KIT_STDIO?: string | undefined
   KIT_SUSPEND_WATCHERS?: string | undefined
   KIT_TERM_FONT?: string | undefined
   KIT_THEME_DARK?: string | undefined
