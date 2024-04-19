@@ -135,7 +135,6 @@ global.clearAllTimeouts = () => {
 }
 
 global.exit = (code: number = 0) => {
-  log(`Exiting with code: ${code}`)
   global.send(Channel.BEFORE_EXIT)
   process.exit(code)
 }

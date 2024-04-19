@@ -80,7 +80,7 @@
     "shelljs": "0.8.5",
     "slugify": "1.6.6",
     "suggestion": "2.1.2",
-    "zx": "^8.0.1"
+    "zx": "^8.0.2"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
