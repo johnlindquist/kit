@@ -399,6 +399,9 @@ export type SendNoOptions =
   | Channel.PONG
 export interface ChannelMap {
   // Figure these undefined out later
+  [Channel.KIT_LOADING]: string
+  [Channel.KIT_READY]: string
+  [Channel.MAIN_MENU_READY]: string
   [Channel.ERROR]: {
     script: string
     message?: string

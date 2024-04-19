@@ -14,6 +14,7 @@ import {
 
 import { getScripts } from "../core/db.js"
 import { PromptConfig } from "../types/core"
+import { Channel } from "../core/enum.js"
 
 global.actionFlag = ""
 global.getScripts = getScripts
@@ -131,4 +132,10 @@ global.clearAllIntervals = () => {
 global.clearAllTimeouts = () => {
   timeouts?.forEach(id => clearTimeout(id))
   timeouts = new Set()
+}
+
+global.exit = (code: number = 0) => {
+  log(`Exiting with code: ${code}`)
+  global.send(Channel.BEFORE_EXIT)
+  process.exit(code)
 }

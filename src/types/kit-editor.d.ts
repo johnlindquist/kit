@@ -10019,6 +10019,7 @@ interface DefaultFontFamily {
 }
 export type kenvEnv = {
   KIT_AUTO_UPDATE?: string | undefined
+  KIT_BACKGROUND_MATERIAL?: string | undefined
   KIT_CACHE_PROMPT?: string | undefined
   KIT_CLIPBOARD?: string | undefined
   KIT_CONVERT_KEY?: string | undefined
@@ -11144,6 +11145,9 @@ export type SendNoOptions =
   | Channel.PONG
 export interface ChannelMap {
   // Figure these undefined out later
+  [Channel.KIT_LOADING]: string
+  [Channel.KIT_READY]: string
+  [Channel.MAIN_MENU_READY]: string
   [Channel.ERROR]: {
     script: string
     message?: string

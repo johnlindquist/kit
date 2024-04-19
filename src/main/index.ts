@@ -171,6 +171,10 @@ trace.instant({
   args: "mainMenu submitted",
 })
 
+if (!script) {
+  await arg("Script was not selected...")
+}
+
 if (typeof script === "boolean" && !script) {
   exit()
 }
@@ -183,7 +187,7 @@ if (isApp && typeof script === "string") {
     }),
     (open as unknown as Open)(script as string),
   ])
-} else if (isPass || (script as Script).postfix) {
+} else if (isPass || (script as Script)?.postfix) {
   await run(
     (script as Script)?.filePath,
     `--pass`,

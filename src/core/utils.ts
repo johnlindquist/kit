@@ -826,7 +826,7 @@ export let run = async (
     typeof global?.onTabs?.length !== "undefined" &&
     global?.onTabs?.length === 0
   ) {
-    global.finishScript()
+    global?.exit()
   }
 
   return result

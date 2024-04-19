@@ -590,7 +590,7 @@ global.onTabIndex = 0
 global.onTab = (name, tabFunction) => {
   let fn = async (...args) => {
     await tabFunction(...args)
-    finishScript()
+    exit()
   }
   global.onTabs.push({ name, fn })
   if (global.flag?.tab) {
@@ -1858,6 +1858,10 @@ export let mainMenu = async (
     name: "getGroupedScripts",
   })
 
+  process.send({
+    type: Channel.MAIN_MENU_READY,
+    scripts: groupedScripts.length,
+  })
   let script = await global.arg(
     scriptsConfig,
     groupedScripts
@@ -2330,33 +2334,33 @@ global.preload = (scriptPath?: string) => {
 }
 
 // global api for preloading main menu and removing listeners
-let done = false
-let executed = false
-let beforeExit = () => {
-  if (executed) return
-  if (global?.trace?.flush) {
-    global.trace.flush()
-  }
-  executed = true
-  send(Channel.BEFORE_EXIT)
-}
-global.finishScript = () => {
-  process.removeAllListeners("disconnect")
-  // Sometimes ends a script before a command like "open" can complete
-  // if (typeof global.finishPrompt === "function") {
-  //   global.finishPrompt()
-  // }
-  let activeMessageListeners =
-    process.listenerCount("message")
+// let done = false
+// let executed = false
+// let beforeExit = () => {
+//   if (executed) return
+//   if (global?.trace?.flush) {
+//     global.trace.flush()
+//   }
+//   executed = true
+//   send(Channel.BEFORE_EXIT)
+// }
+// global.finishScript = () => {
+//   process.removeAllListeners("disconnect")
+//   // Sometimes ends a script before a command like "open" can complete
+//   // if (typeof global.finishPrompt === "function") {
+//   //   global.finishPrompt()
+//   // }
+//   let activeMessageListeners =
+//     process.listenerCount("message")
 
-  if (!done && activeMessageListeners === 0) {
-    // log(`🏁 Finish script`)
-    done = true
-    process.removeAllListeners()
-    beforeExit()
-  } else if (process?.env?.KIT_CONTEXT === "app") {
-    log(
-      `🏁 Reached the end of the script, but detected ${activeMessageListeners} active message listeners. Use "exit()" to force exit.`
-    )
-  }
-}
+//   if (!done && activeMessageListeners === 0) {
+//     // log(`🏁 Finish script`)
+//     done = true
+//     process.removeAllListeners()
+//     beforeExit()
+//   } else if (process?.env?.KIT_CONTEXT === "app") {
+//     log(
+//       `🏁 Reached the end of the script, but detected ${activeMessageListeners} active message listeners. Use "exit()" to force exit.`
+//     )
+//   }
+// }

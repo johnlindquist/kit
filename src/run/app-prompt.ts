@@ -19,22 +19,60 @@ process.on("message", tooEarlyHandler)
 import os from "os"
 import { configEnv, run } from "../core/utils.js"
 
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "../core/utils.js",
+})
 await import("../api/global.js")
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "../api/global.js",
+})
 let { initTrace } = await import("../api/kit.js")
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "../api/kit.js",
+})
 await initTrace()
 
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "initTrace",
+})
+
 await import("../api/pro.js")
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "../api/pro.js",
+})
 await import("../api/lib.js")
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "../api/lib.js",
+})
 await import(`../platform/base.js`)
+
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "../platform/base.js",
+})
 
 let platform = os.platform()
 try {
   await import(`../platform/${platform}.js`)
+  process.send({
+    channel: Channel.KIT_LOADING,
+    value: `../platform/${platform}.js`,
+  })
 } catch (error) {
   // console.log(`No ./platform/${platform}.js`)
 }
 
 await import("../target/app.js")
+process.send({
+  channel: Channel.KIT_LOADING,
+  value: "../target/app.js",
+})
 
 if (process.env.KIT_MEASURE) {
   let { PerformanceObserver, performance } = await import(
@@ -51,7 +89,10 @@ let trigger = ""
 let args = []
 let result = null
 process.title = `Kit Idle - App Prompt`
-
+process.send({
+  channel: Channel.KIT_READY,
+  value: result,
+})
 try {
   result = await new Promise<{
     script: string
@@ -104,6 +145,10 @@ process.once("disconnect", () => {
 })
 
 process.once("beforeExit", () => {
+  if (global?.trace?.flush) {
+    global.trace.flush()
+    global.trace = null
+  }
   send(Channel.BEFORE_EXIT)
 })
 
