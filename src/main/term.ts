@@ -23,7 +23,7 @@ await term({
       bar: "right",
       onPress: async () => {
         send(Channel.TERM_EXIT, "")
-        exit()
+        finishScript()
       },
     },
   ],

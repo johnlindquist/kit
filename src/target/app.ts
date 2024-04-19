@@ -837,14 +837,15 @@ let onEscapeDefault: ChannelHandler = async (
   input: string,
   state: AppState
 ) => {
-  exit()
+  send(Channel.BEFORE_EXIT)
+  finishScript()
 }
 
 let onAbandonDefault = () => {
   global.log(
     `${process.pid}: Abandon caused exit. Provide a "onAbandon" handler to override.`
   )
-  exit()
+  finishScript()
 }
 
 let onBackDefault = async () => {}

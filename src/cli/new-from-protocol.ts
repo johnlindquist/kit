@@ -107,7 +107,7 @@ Hit "escape" to cancel.
   )
 
   if (message !== "ok") {
-    global.exit()
+    global.finishScript()
   }
 }
 

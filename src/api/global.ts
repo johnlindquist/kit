@@ -133,8 +133,3 @@ global.clearAllTimeouts = () => {
   timeouts?.forEach(id => clearTimeout(id))
   timeouts = new Set()
 }
-
-global.exit = (code: number = 0) => {
-  global.send(Channel.BEFORE_EXIT)
-  process.exit(code)
-}

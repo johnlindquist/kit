@@ -206,7 +206,7 @@ if (text) {
       await keyboard.releaseKey(...pasteKeys)
     } else {
       await setSelectedText(text)
-      exit()
+      send(Channel.BEFORE_EXIT)
     }
   }
 }

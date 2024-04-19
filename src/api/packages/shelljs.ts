@@ -19,7 +19,7 @@ const {
 global.cp = cp
 global.chmod = chmod
 global.echo = echo
-// global.exit = exit
+global.exit = exit
 global.grep = grep
 global.ln = ln
 global.ls = ls
