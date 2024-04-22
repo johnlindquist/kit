@@ -5,5 +5,5 @@
 
 let { emoji: e } = await emoji()
 
-if (e) setSelectedText(e)
+if (e) await setSelectedText(e)
 export {}

@@ -1809,23 +1809,10 @@ export let getGroupedScripts = async (fromCache = true) => {
   return groupedScripts
 }
 
-export let mainShortcuts: Shortcut[] = [
-  { name: "New Menu", key: `${cmd}+shift+n` },
-  { name: "New", key: `${cmd}+n`, bar: "left" },
-  { name: "List Processes", key: `${cmd}+p` },
-  { name: "Find Script", key: `${cmd}+f` },
-  { name: "Reset Prompt", key: `${cmd}+0` },
-  { name: "Edit", key: "cmd+o", bar: "right" },
-  { name: "Create/Edit Doc", key: `${cmd}+.` },
-  { name: "Log", key: `${cmd}+l` },
-  { name: "Share", key: `${cmd}+s`, bar: "right" },
-  { name: "Exit", key: `${cmd}+w`, bar: "" },
-]
-
 export let mainMenu = async (
   message: string | PromptConfig = "Select a script"
 ): Promise<Script | string> => {
-  setShortcuts(mainShortcuts)
+  setShortcuts(shortcuts)
 
   // if (global.trace) {
   //   global.trace.addBegin({

@@ -10019,6 +10019,7 @@ interface DefaultFontFamily {
 }
 export type kenvEnv = {
   KIT_AUTO_UPDATE?: string | undefined
+  KIT_BACKGROUND_COLOR?: string | undefined
   KIT_BACKGROUND_MATERIAL?: string | undefined
   KIT_CACHE_PROMPT?: string | undefined
   KIT_CLIPBOARD?: string | undefined
