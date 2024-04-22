@@ -19,6 +19,7 @@ import {
   scriptFlags,
   shortcuts,
   modifiers,
+  errorPrompt,
 } from "../api/kit.js"
 import { Open } from "../types/packages.js"
 
@@ -171,8 +172,11 @@ trace.instant({
   args: "mainMenu submitted",
 })
 
-if (!script) {
-  await arg("Script was not selected...")
+if (!script && Object.keys(flag).length === 0) {
+  await errorPrompt({
+    message: `An unknown error occurred. Please try again.`,
+    name: "No Script or Flag Detected",
+  })
 }
 
 if (typeof script === "boolean" && !script) {
