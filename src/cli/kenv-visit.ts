@@ -1,7 +1,7 @@
 //Description: Visit a Kenv Repo
 import { getKenvs } from "../core/utils.js"
 let kenv = await arg(
-  "Remove which kenv",
+  "Visit which kenv?",
   (
     await getKenvs()
   ).map(value => ({
