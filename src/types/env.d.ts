@@ -12,6 +12,7 @@ export type kenvEnv = {
   KIT_DISABLE_GPU?: string | undefined
   KIT_DISPLAY?: string | undefined
   KIT_EMOJI_SHORTCUT?: string | undefined
+  KIT_IDLE_PROCESSES?: string | undefined
   KIT_KEYBOARD?: string | undefined
   KIT_MAIN_SCRIPT?: string | undefined
   KIT_MAIN_SHORTCUT?: string | undefined
