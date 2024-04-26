@@ -1138,4 +1138,6 @@ declare global {
   var onKeyup: (
     callback: (event: UiohookKeyboardEvent) => void
   ) => void
+
+  var getTheme: () => Promise<KitTheme>
 }

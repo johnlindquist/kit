@@ -3660,3 +3660,7 @@ global.setSelectedChoices = async (choices: Choice[]) => {
     choices
   )
 }
+
+global.getTheme = async () => {
+  return await sendWait(Channel.GET_THEME)
+}
