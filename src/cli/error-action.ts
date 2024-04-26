@@ -101,21 +101,21 @@ if (errorMessage.includes("Cannot find package")) {
     [key in ErrorAction]: () => Promise<void>
   } = {
     [ErrorAction.Open]: async () => {
-      edit(errorFile, kenvPath(), line, col)
+      await edit(errorFile, kenvPath(), line, col)
     },
     [ErrorAction.Copy]: async () => {
-      copy(stack)
+      await copy(stack)
       exit()
     },
     [ErrorAction.KitLog]: async () => {
-      edit(kitPath("logs", "kit.log"), kenvPath())
+      await edit(kitPath("logs", "kit.log"), kenvPath())
     },
     [ErrorAction.Log]: async () => {
-      edit(errorLogPath, kenvPath())
+      await edit(errorLogPath, kenvPath())
     },
     [ErrorAction.Ask]: async () => {
-      copy(stack)
-      exec(
+      await copy(stack)
+      await exec(
         `open "https://github.com/johnlindquist/kit/discussions/categories/errors"`
       )
     },
