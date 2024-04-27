@@ -54,9 +54,15 @@ export let isDir = async (
   dir: string
 ): Promise<boolean> => {
   try {
-    let stats = await lstat(dir)
+    try {
+      let stats = await lstat(dir)
 
-    return stats.isDirectory()
+      return stats.isDirectory()
+    } catch (error) {
+      log(error)
+    }
+
+    return false
   } catch {
     return false
   }
@@ -932,9 +938,13 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
       if (!fileName.startsWith(".")) {
         let fullPath = path.join(scriptsPath, fileName)
         if (!path.extname(fileName)) {
-          let stats = await lstat(fullPath)
-          if (!stats.isDirectory()) {
-            scriptFiles.push(fullPath)
+          try {
+            let stats = await lstat(fullPath)
+            if (!stats.isDirectory()) {
+              scriptFiles.push(fullPath)
+            }
+          } catch (error) {
+            log(error)
           }
         } else {
           scriptFiles.push(fullPath)

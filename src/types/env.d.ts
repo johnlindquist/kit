@@ -36,6 +36,9 @@ export type kenvEnv = {
   KIT_TYPED_LIMIT?: string | undefined
   KIT_WEBCAM?: string | undefined
   KIT_WIDTH?: string | undefined
+  KIT_WINDOWS_PRERENDER_SHOW_INACTIVE_TIMEOUT?:
+    | string
+    | undefined
   KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
   KIT_SEARCH_MIN_SCORE?: string | undefined
   KIT_SEARCH_MAX_ITERATIONS?: string | undefined
