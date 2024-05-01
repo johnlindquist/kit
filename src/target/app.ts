@@ -2685,12 +2685,14 @@ let __pathSelector = async (
         onlyDirs,
       })
 
-      choices.push({
-        name: `Create File "{base}"`,
-        miss: true,
-        value: "create-file",
-        enter: "Create File",
-      })
+      if (!onlyDirs) {
+        choices.push({
+          name: `Create File "{base}"`,
+          miss: true,
+          value: "create-file",
+          enter: "Create File",
+        })
+      }
 
       choices.push({
         name: `Create Folder "{base}"`,
