@@ -31,8 +31,7 @@ let gistUrl = response.data.files[fileBasename].raw_url
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`
 
-let discussionPost = `
-[Open ${command} in Script Kit](${link})
+let discussionPost = `[Open ${command} in Script Kit](${link})
 
 \`\`\`${mdLanguage}
 ${content}
@@ -46,7 +45,6 @@ let message = `Copied ${command} to clipboard as markdown`
 await div(
   await highlight(`## ${message}
 
-${discussionPost}
-`)
+${discussionPost}`)
 )
 export {}
