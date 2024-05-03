@@ -10,6 +10,7 @@ let { filePath, command } = await selectScript(
 let octokit = await authenticate()
 
 let fileBasename = path.basename(filePath)
+const fileExtension = path.extname(filePath).replace('.', '')
 
 div(md(`## Creating Gist...`))
 setLoading(true)
@@ -24,6 +25,8 @@ let response = await octokit.rest.gists.create({
   public: true,
 })
 
+const mdLanguage = ['js', 'jsx', 'ts', 'tsx'].includes(fileExtension) ? fileExtension : 'js'
+
 let gistUrl = response.data.files[fileBasename].raw_url
 
 let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`
@@ -31,7 +34,7 @@ let link = `https://scriptkit.com/api/new?name=${command}&url=${gistUrl}"`
 let discussionPost = `
 [Open ${command} in Script Kit](${link})
 
-\`\`\`js
+\`\`\`${mdLanguage}
 ${content}
 \`\`\`
 `
