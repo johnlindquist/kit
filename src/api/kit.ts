@@ -35,6 +35,7 @@ import {
   run,
   home,
   isFile,
+  fileExists,
   getKenvs,
   groupChoices,
   formatChoices,
@@ -990,7 +991,7 @@ export let highlightJavaScript = async (
   filePath: string,
   shebang = ""
 ): Promise<string> => {
-  let isPathAFile = await isFile(filePath)
+  let isPathAFile = fileExists(filePath)
   let contents = ``
   if (isPathAFile) {
     contents = await readFile(filePath, "utf8")

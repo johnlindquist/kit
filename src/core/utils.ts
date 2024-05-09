@@ -214,7 +214,7 @@ export let assignPropsTo = (
 }
 
 //app
-let fileExists = (path: string) => {
+export let fileExists = (path: string) => {
   try {
     return lstatSync(path, {
       throwIfNoEntry: false,
