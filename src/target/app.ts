@@ -81,6 +81,7 @@ import {
 import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
 import { pathToFileURL } from "url"
+import { PathConfig } from "../types/kit"
 
 interface DisplayChoicesProps
   extends Partial<PromptConfig> {
@@ -2645,7 +2646,7 @@ let verifyFullDiskAccess = async () => {
   return global.sendWait(Channel.VERIFY_FULL_DISK_ACCESS)
 }
 
-type PathConfig = PromptConfig & {
+type uzPathConfig = PromptConfig & {
   startPath?: string
   onlyDirs?: boolean
 }
@@ -2683,6 +2684,15 @@ let __pathSelector = async (
       let choices = await createPathChoices(startPath, {
         dirFilter: dirFilter as (dirent: any) => true,
         onlyDirs,
+      })
+
+      choices.push({
+        name: "Doesn't exist, select anyway",
+        miss: true,
+        onSubmit: async input => {
+          submit(input)
+        },
+        enter: "Select",
       })
 
       choices.push({
@@ -3397,9 +3407,6 @@ global.setShortcuts = async shortcuts => {
 global.getAppState = async () => {
   return await sendWait(Channel.GET_APP_STATE)
 }
-
-global.formatDate = format
-global.formatDateToNow = formatDistanceToNow
 
 global.__kitAddErrorListeners = () => {
   if (process.listenerCount("unhandledRejection") === 0) {

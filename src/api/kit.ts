@@ -1123,6 +1123,7 @@ export let shortcuts: Shortcut[] = [
         kitPath("cli", "open-script-log.js"),
         focused?.value?.filePath
       )
+      submit(false)
     },
   },
   {

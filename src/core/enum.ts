@@ -322,6 +322,7 @@ export enum Channel {
   MAIN_MENU_READY = "MAIN_MENU_READY",
   KIT_LOADING = "KIT_LOADING",
   GET_THEME = "GET_THEME",
+  TERMINATE_ALL_PROCESSES = "TERMINATE_ALL_PROCESSES",
 }
 
 export enum ProcessType {

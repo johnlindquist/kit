@@ -1119,6 +1119,16 @@ export let terminateProcessShortcut: Shortcut = {
   visible: true,
 }
 
+export let terminateAllProcessesShortcut: Shortcut = {
+  name: "Terminate All Processes",
+  key: `${cmd}+shift+enter`,
+  onPress: async () => {
+    await sendWait(Channel.TERMINATE_ALL_PROCESSES)
+  },
+  bar: "right",
+  visible: true,
+}
+
 export let smallShortcuts: Shortcut[] = [
   // escapeShortcut,
   closeShortcut,
@@ -1298,6 +1308,17 @@ export const debounce = <T extends Procedure>(
       func(...args)
     }
   }
+}
+
+export const range = (
+  start: number,
+  end: number,
+  step = 1
+): number[] => {
+  return Array.from(
+    { length: Math.ceil((end - start) / step) },
+    (_, i) => start + i * step
+  )
 }
 
 type Iteratee<T> = ((item: T) => any) | keyof T

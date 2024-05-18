@@ -14,7 +14,10 @@ import {
 
 import { getScripts } from "../core/db.js"
 import { PromptConfig } from "../types/core"
-import { Channel } from "../core/enum.js"
+import {
+  format,
+  formatDistanceToNow,
+} from "@johnlindquist/kit-internal/date-fns"
 
 global.actionFlag = ""
 global.getScripts = getScripts
@@ -133,3 +136,6 @@ global.clearAllTimeouts = () => {
   timeouts?.forEach(id => clearTimeout(id))
   timeouts = new Set()
 }
+
+global.formatDate = format
+global.formatDateToNow = formatDistanceToNow

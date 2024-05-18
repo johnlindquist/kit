@@ -10,7 +10,6 @@ import { Channel } from "../core/enum.js"
 // Trigger: >
 // Pass: true
 
-// TODO: Make terminal launch faster
 setName(``)
 
 await term({
