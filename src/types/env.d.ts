@@ -9,8 +9,12 @@ export type kenvEnv = {
   KIT_DEBUG_PROMPT?: string | undefined
   KIT_DISABLE_ALWAYS_ON_TOP?: string | undefined
   KIT_DISABLE_AUTO_UPDATE?: string | undefined
+  KIT_DISABLE_BACKGROUND_THROTTLE?: string | undefined
+  KIT_DISABLE_SHADOW?: string | undefined
   KIT_DISABLE_BLUR?: string | undefined
   KIT_DISABLE_GPU?: string | undefined
+  KIT_ENABLE_FRAME?: string | undefined
+  KIT_ENABLE_TRANSPARENT?: string | undefined
   KIT_DISPLAY?: string | undefined
   KIT_EMOJI_SHORTCUT?: string | undefined
   KIT_IDLE_PROCESSES?: string | undefined
@@ -23,6 +27,9 @@ export type kenvEnv = {
   KIT_NO_PREVIEW?: string | undefined
   KIT_OPEN_AT_LOGIN?: string | undefined
   KIT_OPEN_IN?: string | undefined
+  KIT_PROMPT_INITIAL_SHOW?: string | undefined
+  KIT_PROMPT_INITIAL_X?: string | undefined
+  KIT_PROMPT_INITIAL_Y?: string | undefined
   KIT_SANS_FONT?: string | undefined
   KIT_SEARCH_DEBOUNCE?: string | undefined
   KIT_SERIF_FONT?: string | undefined

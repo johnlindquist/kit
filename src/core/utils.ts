@@ -12,8 +12,13 @@ import {
 } from "../types/core"
 import { platform, homedir } from "os"
 import { lstatSync, PathLike, realpathSync } from "fs"
-import { lstat, readdir, readFile } from "fs/promises"
-
+import {
+  access,
+  lstat,
+  readdir,
+  readFile,
+} from "fs/promises"
+import { constants } from "fs"
 import { execSync } from "child_process"
 
 import { ProcessType, Channel, PROMPT } from "./enum.js"
@@ -42,8 +47,9 @@ export let isFile = async (
   file: string
 ): Promise<boolean> => {
   try {
-    let stats = await lstat(file)
-    return stats.isFile()
+    await access(file, constants.F_OK)
+    let stats = await lstat(file).catch(() => null)
+    return stats?.isFile()
   } catch {
     return false
   }
