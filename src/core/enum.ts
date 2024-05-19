@@ -384,7 +384,7 @@ export enum Value {
 }
 
 // TODO: Extract "Key" into its own package to be shared between "kit" and "kitapp"
-export const enum Key {
+export enum Key {
   Num0 = 0,
   Num1 = 1,
   Num2 = 2,
