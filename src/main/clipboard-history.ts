@@ -198,7 +198,7 @@ if (text) {
       await hide()
 
       let pasteKeys = [
-        isMac ? Key.LeftSuper : Key.LeftControl,
+        isMac ? Key.Meta : Key.Control,
         Key.V,
       ]
 

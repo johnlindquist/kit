@@ -4,10 +4,7 @@ import { isMac } from "../core/utils.js"
 global.getSelectedText = async () => {
   await global.hide()
 
-  let copyKeys = [
-    isMac ? Key.LeftSuper : Key.LeftControl,
-    Key.C,
-  ]
+  let copyKeys = [isMac ? Key.Meta : Key.Control, Key.C]
 
   await keyboard.pressKey(...copyKeys)
   await keyboard.releaseKey(...copyKeys)
