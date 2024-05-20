@@ -197,13 +197,7 @@ if (text) {
       await clipboard.writeImage(await readFile(text))
       await hide()
 
-      let pasteKeys = [
-        isMac ? Key.Meta : Key.Control,
-        Key.V,
-      ]
-
-      await keyboard.pressKey(...pasteKeys)
-      await keyboard.releaseKey(...pasteKeys)
+      await sendWait(Channel.KEYBOARD_PASTE)
     } else {
       await setSelectedText(text)
       send(Channel.BEFORE_EXIT)
