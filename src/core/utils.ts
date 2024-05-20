@@ -22,6 +22,8 @@ import { constants } from "fs"
 import { execSync } from "child_process"
 
 import { ProcessType, Channel, PROMPT } from "./enum.js"
+import { Parser, type Program } from "acorn"
+import tsPlugin from "acorn-typescript"
 
 export let isWin = platform().startsWith("win")
 export let isMac = platform().startsWith("darwin")
@@ -372,8 +374,7 @@ ${contents}`.trim()
   return contents
 }
 
-//app
-export let getMetadata = (contents: string): Metadata => {
+const getMetadataFromComments = (contents: string) : Record<string, string> => {
   const lines = contents.split("\n")
   const metadata = {}
   let commentStyle = null
@@ -399,10 +400,10 @@ export let getMetadata = (contents: string): Metadata => {
       multilineCommentEnd = line.trim().startsWith("/*")
         ? "*/"
         : line.trim().startsWith(": '")
-        ? "'"
-        : line.trim().startsWith("'''")
-        ? "'''"
-        : '"""'
+          ? "'"
+          : line.trim().startsWith("'''")
+            ? "'''"
+            : '"""'
     }
 
     // Check for the end of a multiline comment block
@@ -458,15 +459,120 @@ export let getMetadata = (contents: string): Metadata => {
     const value = line.substring(colonIndex + 1).trim()
 
     // Skip empty keys or values
-    if (!key || !value) continue
+    if (!key || !value) {
+      continue
+    }
+
+    let parsedValue: string | boolean | number;
+    switch (true) {
+      case value.toLowerCase() === 'true':
+        parsedValue = true
+        break
+      case value.toLowerCase() === 'false':
+        parsedValue = false
+        break
+      case key.toLowerCase() === 'timeout':
+        parsedValue = parseInt(value, 10)
+        break
+      default:
+        parsedValue = value
+    }
 
     // Only assign if the key hasn't been assigned before
     if (!(key in metadata)) {
-      metadata[key] = value
+      metadata[key] = parsedValue
     }
   }
 
   return metadata
+}
+
+
+function parseTypeScript(code: string) {
+  // @ts-expect-error Somehow these are not 100% compatible
+  const parser = Parser.extend(tsPlugin({ allowSatisfies: true }))
+  return parser.parse(code, { sourceType: "module", ecmaVersion: "latest" })
+}
+
+function getMetadataFromExport(ast: Program): Partial<Metadata> {
+  function isOfType<T extends { type: string }, TType extends string>(node: T, type: TType): node is T & { type: TType } {
+    return node.type === type
+  }
+
+  for (const node of ast.body) {
+    if (!isOfType(node, "ExportNamedDeclaration") || !node.declaration) {
+      continue
+    }
+
+    const declaration = node.declaration
+
+    if (declaration.type !== "VariableDeclaration" || !declaration.declarations[0]) {
+      continue
+    }
+
+    const namedExport = declaration.declarations[0]
+
+    if (!("name" in namedExport.id) || namedExport.id.name !== "metadata") {
+      continue
+    }
+
+    if (namedExport.init?.type !== "ObjectExpression") {
+      continue
+    }
+
+    const properties = namedExport.init?.properties
+
+    return properties.reduce((acc, prop) => {
+      if (!isOfType(prop, "Property")) {
+        throw Error("Not a Property")
+      }
+
+      const key = prop.key
+      const value = prop.value
+
+      if (!isOfType(key, "Identifier")) {
+        throw Error("Key is not an Identifier")
+      }
+
+      if (!isOfType(value, "Literal")) {
+        throw Error(`value is not a Literal, but a ${value.type}`)
+      }
+
+      acc[key.name] = value.value
+      return acc
+    }, {})
+  }
+
+  // Nothing found
+  return {}
+}
+
+//app
+export let getMetadata = (contents: string): Metadata => {
+  const fromComments = getMetadataFromComments(contents)
+
+  if (!/(const|var|let) metadata/g.test(contents)) {
+    // No named export in file, return early
+    return fromComments
+  }
+
+  let ast: Program
+  try {
+    ast = parseTypeScript(contents)
+  } catch(err) {
+    // TODO: May wanna introduce some error handling here. In my script version, I automatically added an error
+    //  message near the top of the user's file, indicating that their input couldn't be parsed...
+    //  acorn-typescript unfortunately doesn't support very modern syntax, like `const T` generics.
+    //  But it works in most cases.
+    return fromComments
+  }
+
+  try {
+    const fromExport = getMetadataFromExport(ast)
+    return {...fromComments, ...fromExport}
+  } catch(err) {
+    return fromComments
+  }
 }
 
 const shebangRegex = /^#!(.+)/m
@@ -479,73 +585,46 @@ export let getShebangFromContents = (
 }
 
 //app
-export let formatScriptMetadata = (
+export let postprocessMetadata = (
   metadata: Metadata,
   fileContents: string
 ): ScriptMetadata => {
-  if (metadata?.shortcut) {
-    metadata.shortcut = shortcutNormalizer(
-      metadata?.shortcut
+  const result: Partial<ScriptMetadata> = { ...metadata }
+
+  if (metadata.shortcut) {
+    result.shortcut = shortcutNormalizer(
+      metadata.shortcut
     )
 
-    metadata.friendlyShortcut = friendlyShortcut(
+    result.friendlyShortcut = friendlyShortcut(
       metadata.shortcut
     )
   }
 
-  // A shortcode allows you to run the script using "spacebar"
-  if (metadata?.shortcode) {
-    ;(metadata as unknown as ScriptMetadata).shortcode =
-      metadata?.shortcode?.trim()?.toLowerCase()
+  if (metadata.shortcode) {
+    result.shortcode = metadata.shortcode?.trim()?.toLowerCase()
   }
 
-  if (metadata?.trigger) {
-    ;(metadata as unknown as ScriptMetadata).shortcode =
-      metadata?.trigger?.trim()?.toLowerCase()
+  if (metadata.trigger) {
+    result.trigger = metadata.trigger?.trim()?.toLowerCase()
   }
 
   // An alias brings the script to the top of the list
-  if (metadata?.alias) {
-    ;(metadata as unknown as ScriptMetadata).alias =
-      metadata?.alias?.trim().toLowerCase()
+  if (metadata.alias) {
+    result.alias = metadata.alias?.trim().toLowerCase()
   }
 
-  if (metadata?.verbose) {
-    ;(metadata as unknown as ScriptMetadata).verbose =
-      Boolean(metadata?.verbose === "true")
+  if (metadata.image) {
+    result.img = untildify(metadata.image)
   }
 
-  if (metadata?.image) {
-    metadata.img = untildify(metadata?.image)
-  }
-
-  if (metadata?.timeout) {
-    ;(metadata as unknown as ScriptMetadata).timeout =
-      parseInt(metadata?.timeout, 10)
-  }
-
-  if (metadata?.exclude) {
-    ;(metadata as unknown as ScriptMetadata).exclude =
-      Boolean(metadata?.exclude === "true")
-  }
-
-  if (metadata?.group) {
-    ;(metadata as unknown as ScriptMetadata).group =
-      metadata?.group
-  }
-
-  if (metadata?.recent) {
-    ;(metadata as unknown as ScriptMetadata).recent =
-      Boolean(metadata?.recent === "true")
-  }
-
-  metadata.type = metadata?.schedule
+  result.type = metadata.schedule
     ? ProcessType.Schedule
-    : metadata?.watch
+    : result?.watch
     ? ProcessType.Watch
-    : metadata?.system
+    : result?.system
     ? ProcessType.System
-    : metadata?.background
+    : result?.background
     ? ProcessType.Background
     : ProcessType.Prompt
 
@@ -555,32 +634,20 @@ export let formatScriptMetadata = (
     ) || []
 
   if (tabs?.length) {
-    ;(metadata as unknown as ScriptMetadata).tabs = tabs
+    result.tabs = tabs
   }
 
-  let hasFlags = Boolean(
+  result.hasFlags = Boolean(
     fileContents.match(
       new RegExp(`(?<=^setFlags).*`, "gim")
     )
   )
 
-  if (hasFlags) {
-    ;(metadata as unknown as ScriptMetadata).hasFlags = true
-  }
-
-  if (metadata?.log === "false") {
-    ;(metadata as unknown as ScriptMetadata).log = "false"
-  }
-
-  let hasPreview = Boolean(
+  result.hasPreview = Boolean(
     fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0]
   )
-  if (hasPreview) {
-    ;(metadata as unknown as ScriptMetadata).hasPreview =
-      hasPreview
-  }
 
-  return metadata as unknown as ScriptMetadata
+  return result as unknown as ScriptMetadata
 }
 
 //app
@@ -588,7 +655,7 @@ export let parseMetadata = (
   fileContents: string
 ): ScriptMetadata => {
   let metadata: Metadata = getMetadata(fileContents)
-  return formatScriptMetadata(metadata, fileContents)
+  return postprocessMetadata(metadata, fileContents)
 }
 
 //app

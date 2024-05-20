@@ -106,12 +106,12 @@ export interface ScriptMetadata {
   schedule?: string
   system?: string
   watch?: string
-  background?: string
+  background?: boolean
   type: ProcessType
   timeout?: number
   tabs?: string[]
   tag?: string
-  log?: "true" | "false"
+  log?: boolean
   hasFlags?: boolean
   cmd?: string
   option?: string
@@ -454,8 +454,68 @@ export type PromptConfig = {
   Omit<PromptData, "choices" | "id" | "script" | "preview">
 >
 
+export type CronExpression =
+  | `${string} ${string} ${string} ${string} ${string}`
+  | `${string} ${string} ${string} ${string} ${string} ${string}`
+
 export interface Metadata {
-  [key: string]: string
+  /**
+   * Specifies the name of the script as it appears in the Script Kit interface.
+   * If not provided, the file name will be used.
+   */
+  name?: string
+  /** Provides a brief description of the script's functionality. */
+  description?: string
+  /** Defines an alternative search term to find this script */
+  alias?: string
+  /** Defines the path to an image to be used for the script */
+  image?: string
+  /** Defines a global keyboard shortcut to trigger the script. */
+  shortcut?: string
+  /**
+   * Similar to {@link trigger}, defines a string that, when typed in the main menu
+   * followed by a space, immediately executes the script.
+   */
+  shortcode?: string
+  /**
+   * Similar to {@link shortcode}, defines a string that, when typed in the main menu,
+   * immediately executes the script.
+   */
+  trigger?: string
+  /** Designates the script as a text expansion snippet and specifies the trigger text. */
+  snippet?: string
+  /** Associates a keyword with the script for easier discovery in the main menu. */
+  keyword?: string
+  /** Indicates that user input in the main menu should be passed as an argument to the script. */
+  pass?: boolean
+  /** Assigns the script to a specific group for organization in the main menu. */
+  group?: string
+  /** Excludes the script from appearing in the main menu. */
+  exclude?: boolean
+  /** Specifies a file or directory to watch for changes, triggering the script upon modifications. */
+  watch?: string
+  /** Indicates whether to elevate the log level during script execution */
+  verbose?: boolean
+  /** Indicates whether to disable logs */
+  log?: boolean
+  /** Designates the script as a background process, running continuously in the background. */
+  background?: boolean
+  /** Defines the number of seconds after which the script will be terminated */
+  timeout?: number
+  /** Associates the script with system events such as sleep, wake, or shutdown. */
+  system?:
+    | "suspend"
+    | "resume"
+    | "on-ac"
+    | "on-battery"
+    | "shutdown"
+    | "lock-screen"
+    | "unlock-screen"
+    | "user-did-become-active"
+    | "user-did-resign-active"
+    | string
+  /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
+  schedule?: CronExpression
 }
 
 export interface ProcessInfo {
@@ -10327,9 +10387,24 @@ declare class UiohookNapi extends EventEmitter {
 export declare const uIOhook: UiohookNapi
 
 
+import {
+  format,
+  formatDistanceToNow,
+} from "@johnlindquist/kit-internal/date-fns"
 
-
-
+import {
+  Action,
+  ChannelHandler,
+  Choice,
+  Choices,
+  FlagsOptions,
+  Panel,
+  Preview,
+  PromptConfig,
+  ScoredChoice,
+  Script,
+  Shortcut,
+} from "./core"
 
 
 export interface Arg {
@@ -10792,17 +10867,42 @@ declare global {
 
 
 
+import {
+  Key as KeyboardEnum,
+  Channel,
+  Mode,
+  statuses,
+  PROMPT as PROMPT_OBJECT,
+} from "../core/enum"
+
+
+
+import {
+  AppState,
+  ChannelHandler,
+  Choice,
+  Choices,
+  FlagsOptions,
+  PromptConfig,
+  PromptData,
+  ScoredChoice,
+  Script,
+  Shortcut,
+} from "./core"
+import {
+  BrowserWindowConstructorOptions,
+  Display,
+  Rectangle,
+} from "./electron"
 
 
 
 
-
-
-
-
-
-
-
+import {
+  UiohookKeyboardEvent,
+  UiohookMouseEvent,
+  UiohookWheelEvent,
+} from "./io"
 
 
 
@@ -11916,7 +12016,15 @@ declare global {
 }
 
 import * as shelljs from "shelljs/index"
-
+import {
+  add,
+  clone,
+  commit,
+  init,
+  pull,
+  push,
+  addRemote,
+} from "isomorphic-git"
 
 export type Trash = (
   input: string | readonly string[],
@@ -12560,7 +12668,11 @@ declare global {
 
 
 
-
+import {
+  BrowserWindowConstructorOptions,
+  Display,
+  Rectangle,
+} from "./electron"
 
 export type WidgetOptions =
   BrowserWindowConstructorOptions & {

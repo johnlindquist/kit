@@ -14,10 +14,10 @@ let groupedScripts = await getGroupedScripts()
 let scripts = formatChoices(groupedScripts)
 let firstScript = scripts.find(
   script => !script.skip
-) as Script
+)
 let preview = ``
 try {
-  preview = await processScriptPreview(firstScript)()
+  preview = await processScriptPreview(firstScript as unknown as Script)()
 } catch {}
 
 process.send({
