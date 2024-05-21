@@ -10148,7 +10148,10 @@ export type GlobalApi = Omit<GlobalsApi, "path"> &
   ProAPI
 
 declare global {
+  type Metadata = import("./core").Metadata;
+
   var kit: GlobalApi & Run
+
   namespace NodeJS {
     interface Global extends GlobalApi {}
   }
