@@ -229,7 +229,7 @@ export interface PromptData {
   resize: boolean
   placeholderOnly: boolean
   scripts: boolean
-  onInputSubmit: { [key: string]: any }
+  shortcodes: { [key: string]: any }
   defaultChoiceId: string
   focusedId: string
   footer: string
@@ -440,7 +440,7 @@ export type PromptConfig = {
   debounceInput?: number
   debounceChoiceFocus?: number
   keyword?: string
-  onInputSubmit?: {
+  shortcodes?: {
     [key: string]: any
   }
   env?: any

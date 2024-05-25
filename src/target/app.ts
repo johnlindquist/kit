@@ -991,7 +991,7 @@ let prepPrompt = async (config: PromptConfig) => {
     preview,
     previewWidthPercent,
     panel,
-    onInputSubmit = {},
+    shortcodes = {},
     hideOnEscape,
     keyword = config?.ui !== UI.arg ? "" : undefined,
     ...restConfig
@@ -1025,7 +1025,7 @@ let prepPrompt = async (config: PromptConfig) => {
     css: "",
     preventCollapse: false,
     ...restConfig,
-    onInputSubmit,
+    shortcodes,
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
