@@ -1,5 +1,5 @@
 import {
-  exists,
+  checkIfCommandExists,
   stripName,
   kitMode,
   stripMetadata,
@@ -36,7 +36,7 @@ let name = arg?.pass
         debounceInput: 0,
         placeholder: arg?.placeholder || "Enter a name",
         validate: input => {
-          return exists(stripName(input))
+          return checkIfCommandExists(stripName(input))
         },
         shortcuts: [],
         enter: `Create script and open in editor`,

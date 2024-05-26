@@ -720,7 +720,7 @@ export let stripName = (name: string) => {
 }
 
 //validator
-export let exists = async (input: string) => {
+export let checkIfCommandExists = async (input: string) => {
   if (await isBin(kenvPath("bin", input))) {
     return global.chalk`{red.bold ${input}} already exists. Try again:`
   }

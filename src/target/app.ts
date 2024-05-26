@@ -1021,7 +1021,7 @@ let prepPrompt = async (config: PromptConfig) => {
 
   let promptData = {
     footer: footer || "",
-    strict: Boolean(choices) || config?.ui === UI.chat,
+    strict: Boolean(choices),
     hasPreview: Boolean(preview),
     headerClassName: "",
     footerClassName: "",
@@ -2001,7 +2001,7 @@ global.arg =
 global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
     placeholder: "",
-
+    strict: true,
     resize: true,
     ui: UI.chat,
     width: PROMPT.WIDTH.BASE,
