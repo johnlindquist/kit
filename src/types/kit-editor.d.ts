@@ -10452,7 +10452,9 @@ export interface Edit {
 }
 
 export interface Browse {
-  (url: string): ReturnType<typeof import("open")>
+  (url: string): ReturnType<
+    typeof import("@johnlindquist/open")
+  >
 }
 
 export interface Wait {

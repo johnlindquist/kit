@@ -160,7 +160,12 @@ global.onKeyup = handler => {
 let _exec = global.exec
 global.exec = (
   command: string,
-  options = { shell: true, all: true, cwd: process.cwd() }
+  options = {
+    shell: true,
+    all: true,
+    cwd: process.cwd(),
+    windowsHide: true,
+  }
 ) => {
   let child = _exec(command, options)
   if (child?.all) child.all.pipe(process.stdout)
@@ -1016,7 +1021,7 @@ let prepPrompt = async (config: PromptConfig) => {
 
   let promptData = {
     footer: footer || "",
-    strict: Boolean(choices),
+    strict: Boolean(choices) || config?.ui === UI.chat,
     hasPreview: Boolean(preview),
     headerClassName: "",
     footerClassName: "",
