@@ -19,7 +19,12 @@ const {
 global.cp = cp
 global.chmod = chmod
 global.echo = echo
-global.exit = exit
+global.exit = (code?: number) => {
+  if (process?.env?.KIT_TARGET === "app-prompt") {
+    global?.send("BEFORE_EXIT" as any)
+  }
+  process.exit(code)
+}
 global.grep = grep
 global.ln = ln
 global.ls = ls

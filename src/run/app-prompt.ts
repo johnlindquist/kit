@@ -107,10 +107,6 @@ process.env.KIT_TRIGGER = trigger
 configEnv()
 process.title = `Kit - ${path.basename(script)}`
 
-process.once("disconnect", () => {
-  process.exit()
-})
-
 process.once("beforeExit", () => {
   if (global?.trace?.flush) {
     global.trace.flush()

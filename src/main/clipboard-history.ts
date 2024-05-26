@@ -200,7 +200,7 @@ if (text) {
       await sendWait(Channel.KEYBOARD_PASTE)
     } else {
       await setSelectedText(text)
-      send(Channel.BEFORE_EXIT)
+      exit()
     }
   }
 }

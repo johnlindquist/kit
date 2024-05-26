@@ -832,15 +832,6 @@ export let run = async (
 
   global.flag.tab = ""
 
-  if (
-    kitLocalRunCount === kitGlobalRunCount &&
-    // Without this, the TODOs example auto-exits
-    typeof global?.onTabs?.length !== "undefined" &&
-    global?.onTabs?.length === 0
-  ) {
-    global.finishScript()
-  }
-
   return result
 }
 
