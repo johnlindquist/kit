@@ -1,5 +1,7 @@
 import "@johnlindquist/globals"
 import shelljs from "shelljs"
+import path from "path"
+import os from "os"
 import { homedir, platform } from "os"
 import { existsSync } from "fs"
 
@@ -23,26 +25,50 @@ if (existsSync(kitPath())) rm("-rf", kitPath())
 await ensureDir(kitPath())
 await ensureDir(knodePath())
 
+export const extractNode = async file => {
+  // Install node-stream-zip if it's not already installed
+  if (!existsSync("node_modules/node-stream-zip")) {
+    await exec("npm i node-stream-zip")
+  }
+
+  let { default: StreamZip } = await import(
+    "node-stream-zip"
+  )
+
+  try {
+    // eslint-disable-next-line
+    const zip = new StreamZip.async({ file })
+    const fileName = path.parse(file).name
+    console.log(
+      `Extacting ${fileName} to ${knodePath("bin")}`
+    )
+    // node-18.18.2-win-x64
+    await zip.extract(fileName, knodePath("bin"))
+    await zip.close()
+  } catch (error) {
+    console.error({ error })
+  }
+}
+
 let installNodeWin = async () => {
-  let { Extract } = await import("unzipper")
   let { rename } = await import("fs/promises")
   let { rm } = shelljs
 
   rm("-rf", knodePath())
 
   let arch = process.arch === "x64" ? "x64" : "x86"
-  await new Promise(r => {
-    download(
-      `https://nodejs.org/dist/v20.11.1/node-v20.11.1-win-${arch}.zip`
-    )
-      .pipe(Extract({ path: knodePath() }))
-      .on("finish", r)
-  })
 
-  let nodeDir = await readdir(knodePath())
-  let nodeDirName = nodeDir.find(n => n.startsWith("node-"))
+  let url = `https://nodejs.org/dist/v20.11.1/node-v20.11.1-win-${arch}.zip`
+  let buffer = await download(url)
 
-  await rename(knodePath(nodeDirName), knodePath("bin"))
+  let nodeZipFilePath = path.join(
+    os.tmpdir(),
+    path.basename(url)
+  )
+  console.log(`Downloaded ${url} to ${nodeZipFilePath}`)
+  await writeFile(nodeZipFilePath, buffer)
+
+  await extractNode(nodeZipFilePath)
 }
 
 let installNode = (
