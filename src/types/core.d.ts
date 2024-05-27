@@ -352,6 +352,7 @@ export type Action = {
 
 export interface AppState {
   input?: string
+  actionsInput?: string
   inputChanged?: boolean
   flaggedValue?: any
   flag?: string
@@ -421,7 +422,7 @@ export type PromptConfig = {
   onTab?: ChannelHandler
   onKeyword?: ChannelHandler
   onInput?: ChannelHandler
-  onFlagInput?: ChannelHandler
+  onActionsInput?: ChannelHandler
   onChange?: ChannelHandler
   onBlur?: ChannelHandler
   onSelected?: ChannelHandler

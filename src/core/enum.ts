@@ -163,6 +163,7 @@ export enum Channel {
   DOWN = "DOWN",
   TAB = "TAB",
   INPUT = "INPUT",
+  ACTIONS_INPUT = "ACTIONS_INPUT",
   LEFT = "LEFT",
   RIGHT = "RIGHT",
   NOTIFY = "NOTIFY",

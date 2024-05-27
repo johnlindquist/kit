@@ -167,6 +167,7 @@ global.exec = (
     windowsHide: true,
   }
 ) => {
+  options.windowsHide = true
   let child = _exec(command, options)
   if (child?.all) child.all.pipe(process.stdout)
   return child as any
@@ -394,7 +395,7 @@ let waitForPromptValue = ({
   className,
   onNoChoices,
   onInput,
-  onFlagInput,
+  onActionsInput,
   onSelected,
   onChange,
   onEscape,
@@ -629,8 +630,8 @@ let waitForPromptValue = ({
 
               break
 
-            case Channel.FLAG_INPUT:
-              onFlagInput(data.state.input, data.state)
+            case Channel.ACTIONS_INPUT:
+              onActionsInput(data.state.input, data.state)
               break
 
             case Channel.SELECTED:
@@ -861,7 +862,7 @@ let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 let onMessageFocusDefault = async () => {}
-let onFlagInputDefault = async () => {}
+let onActionsInputDefault = async () => {}
 let onSelectedDefault = async () => {}
 
 let onKeywordDefault = async (input, state) => {
@@ -1217,7 +1218,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       className,
       debounceInput
     ),
-    onFlagInput = createOnActionInputDefault(
+    onActionsInput = createOnActionInputDefault(
       config?.actions,
       className,
       debounceInput
@@ -1251,7 +1252,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     validate,
     className,
     onInput,
-    onFlagInput,
+    onActionsInput,
     onSelected,
     onChange,
     onNoChoices,
