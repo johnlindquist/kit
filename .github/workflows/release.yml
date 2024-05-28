@@ -34,8 +34,7 @@ jobs:
 
       - name: Install Node
         run: |
-          mkdir -p ./.knode
-          ./build/install-node.sh v20.12.2 --prefix ./.knode
+          ./build/install-node.sh -v 20.12.2 -P ./.knode -y
 
       - name: Build Kit
         run: |
