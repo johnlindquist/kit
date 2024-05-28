@@ -111,13 +111,12 @@ let actionFlags: {
   ...(process.env?.KIT_OPEN_IN
     ? [
         {
-          name: `Open in ${process.env.KIT_OPEN_IN}`,
+          name: `Open with ${process.env.KIT_OPEN_IN}`,
           value: "open_in_custom",
           action: async selectedFile => {
             if (isMac) {
-              await exec(
-                `open -a '${process.env.KIT_OPEN_IN}' '${selectedFile}'`
-              )
+              let command = `${process.env.KIT_OPEN_IN} '${selectedFile}'`
+              await exec(command)
             } else {
               await exec(
                 `"${process.env.KIT_OPEN_IN}" ${selectedFile}`

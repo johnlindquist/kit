@@ -43,17 +43,17 @@ Thus, we use yarn to build the App and npm to build the SDK 🤦‍♂️
 
 > Note: A huge focus of v3 will be to clean up this mess and make it much, much easier to contribute.
 
-### Using node 20.12.2 from ~/.knode
+### Using node 20.11.1 from ~/.knode
 
-Installing `Kit.app` already installed node 20.12.2 to ~/.knode. You'll want to use this node version for all build/run steps:
+Installing `Kit.app` already installed node 20.11.1 to ~/.knode. You'll want to use this node version for all build/run steps:
 
 `PATH=~/.knode/bin:$PATH`
 
-This will use 20.12.2's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
+This will use 20.11.1's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
 
 - Use `volta` to manage node versions.
     1. Install [volta](https://volta.sh/)
-    2. Volta will automatically switch node version to 20.12.2 when working with kit.
+    2. Volta will automatically switch node version to 20.11.1 when working with kit.
 
 ### Clone Kit SDK
 

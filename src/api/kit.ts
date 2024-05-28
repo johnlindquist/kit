@@ -27,7 +27,6 @@ import {
   Shortcut,
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
-import { isMainThread } from "worker_threads"
 
 import {
   kitPath,
@@ -1054,7 +1053,6 @@ export let shortcuts: Shortcut[] = [
   },
   {
     name: "Sign In",
-    flag: "sign-in-to-script-kit",
     key: `${cmd}+shift+opt+s`,
     onPress: async () => {
       await run(kitPath("main", "account-v2.js"))
@@ -1062,7 +1060,6 @@ export let shortcuts: Shortcut[] = [
   },
   {
     name: "List Processes",
-    flag: "list-processes",
     key: `${cmd}+p`,
     onPress: async () => {
       let processes = await getProcesses()
@@ -1070,6 +1067,8 @@ export let shortcuts: Shortcut[] = [
         processes.filter(p => p?.scriptPath)?.length > 1
       ) {
         await run(kitPath("cli", "processes.js"))
+      } else {
+        toast("No running processes found...")
       }
     },
   },
