@@ -2950,14 +2950,6 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       inputRegex: `[^\\${path.sep}]+$`,
       onInput,
       onTab,
-      onMenuToggle: async (input, state) => {
-        onMenuToggleDefault(input, state)
-
-        if (!state.flaggedValue) {
-          setInput(currentInput)
-          await lsCurrentDir(currentInput)
-        }
-      },
 
       alwaysOnTop: true,
       // onRight,

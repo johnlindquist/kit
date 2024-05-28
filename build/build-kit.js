@@ -58,7 +58,7 @@ let installNodeWin = async () => {
 
   let arch = process.arch === "x64" ? "x64" : "x86"
 
-  let url = `https://nodejs.org/dist/v20.11.1/node-v20.11.1-win-${arch}.zip`
+  let url = `https://nodejs.org/dist/v20.12.2/node-v20.12.2-win-${arch}.zip`
   let buffer = await download(url)
 
   let nodeZipFilePath = path.join(
@@ -74,13 +74,24 @@ let installNodeWin = async () => {
 let installNode = (
   platform() !== "win32"
     ? exec(
-        `./build/install-node.sh v20.11.1 --prefix '${knodePath()}'`
+        `./build/install-node.sh -v 20.12.2 -P '${knodePath()}' -y`
       )
     : installNodeWin()
 ).catch(e => {
   console.error(e)
   process.exit(1)
 })
+
+// check npm and node versions
+let options = {
+  cwd: kitPath(),
+  env: {
+    PATH: `${knodePath("bin")}:${process.env.PATH}`,
+  },
+}
+
+// await exec(`node --version`, options)
+await exec(`npm --version`, options)
 
 cp("-R", "./root/.", kitPath())
 cp("-R", "./build", kitPath())
@@ -113,12 +124,6 @@ await dec
 
 console.log(`Install deps`)
 
-let options = {
-  cwd: kitPath(),
-  env: {
-    PATH: `${knodePath("bin")}:${process.env.PATH}`,
-  },
-}
 await exec(`npm i --production`, options)
 
 // console.log(`Install app deps`)
