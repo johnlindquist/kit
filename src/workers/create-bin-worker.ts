@@ -2,7 +2,7 @@ import path from "path"
 import { Bin } from "../core/enum.js"
 import { createBinFromScript } from "../cli/lib/utils.js"
 import { parentPort } from "worker_threads"
-import { Script } from "@johnlindquist/kit"
+import type { Script } from "../types/core"
 
 parentPort?.on("message", async filePath => {
   try {

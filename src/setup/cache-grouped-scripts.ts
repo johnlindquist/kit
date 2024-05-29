@@ -1,6 +1,6 @@
 // Description: Clear Timestamps
 
-import { Script } from "@johnlindquist/kit"
+import type { Script } from "../types/core"
 import {
   getGroupedScripts,
   processScriptPreview,

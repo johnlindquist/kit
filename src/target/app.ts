@@ -387,6 +387,19 @@ export let inspectPromptPromises = () => {
   dev(result)
 }
 
+let findAction = async (data: AppMessage) => {
+  if (data?.state?.action?.name) {
+    let f = global.kitFlagsAsChoices?.find(
+      f => f?.name === data?.state?.action?.name
+    )
+    if (f?.onAction) {
+      await f?.onAction(data?.state?.input, data.state)
+      return true
+    }
+  }
+  return false
+}
+
 let waitForPromptValue = ({
   ui,
   choices,
@@ -616,17 +629,7 @@ let waitForPromptValue = ({
               break
 
             case Channel.ACTION:
-              if (data?.state?.action?.name) {
-                let f = global.kitFlagsAsChoices?.find(
-                  f => f?.name === data?.state?.action?.name
-                )
-                if (f?.onAction) {
-                  await f?.onAction(
-                    data?.state?.input,
-                    data.state
-                  )
-                }
-              }
+              findAction(data)
 
               break
 
@@ -701,6 +704,9 @@ let waitForPromptValue = ({
               break
 
             case Channel.SHORTCUT:
+              let foundAction = await findAction(data)
+              if (foundAction) return
+
               if (data?.state?.flag) {
                 global.flag[data.state.flag] = true
                 global.actionFlag = data.state.flag || ""
@@ -1186,7 +1192,8 @@ global.kitPrompt = async (config: PromptConfig) => {
   }
 
   if (config?.focusedId) {
-    config.defaultChoiceId = config.focusedId
+    config.defaultChoiceId =
+      config.focusedId || global.__kitFocusedChoiceId
   }
 
   let {

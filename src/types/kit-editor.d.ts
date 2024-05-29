@@ -251,7 +251,7 @@ export interface PromptData {
   itemHeight: number
   inputHeight: number
   defaultValue: string
-  focused: string
+  focused?: string
   formData?: any
   html?: string
   theme?: any
@@ -350,6 +350,7 @@ export type Action = {
   enter?: string
   onAction?: ChannelHandler
   condition?: Shortcut["condition"]
+  focused?: boolean
 }
 
 export interface AppState {
