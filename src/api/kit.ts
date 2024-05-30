@@ -812,7 +812,7 @@ global.prepFlags = (
 
     validFlags[key] = {
       name: value?.name || key,
-      group: value?.group || "Actions",
+
       shortcut: value?.shortcut || "",
       description: value?.description || "",
       value: key,
@@ -820,20 +820,28 @@ global.prepFlags = (
       preview: value?.preview || "",
       hasAction: Boolean(value?.onAction),
     }
+
+    if (value?.group) {
+      validFlags[key].group = value.group
+    }
   }
 
   global.kitFlagsAsChoices = currentFlags.map(
     ([key, value]) => {
-      return {
+      const choice = {
         id: key,
-        group: value?.group || "Actions",
         name: value?.name || key,
         value: key,
         description: value?.description || "",
         preview: value?.preview || `<div></div>`,
         shortcut: value?.shortcut || "",
         onAction: value?.onAction || null,
+      } as Choice
+
+      if (value?.group) {
+        choice.group = value.group
       }
+      return choice
     }
   )
 
@@ -851,8 +859,9 @@ export let getFlagsFromActions = (
   if (Array.isArray(actions)) {
     for (let action of actions) {
       if (typeof action === "string") {
-        action = { name: action, flag: action }
+        action = { name: action, flag: action, close: true }
       }
+      action.close ??= true
       flags[action.flag || action.name] = {
         flag: action.flag || action.name,
         ...action,

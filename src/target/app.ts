@@ -3675,3 +3675,28 @@ global.setSelectedChoices = async (choices: Choice[]) => {
 global.getTheme = async () => {
   return await sendWait(Channel.GET_THEME)
 }
+
+// haha, suck it lib.dom.d.ts
+global.prompt = {
+  closeActions: async () => {
+    return await sendWait(Channel.CLOSE_ACTIONS)
+  },
+  openActions: async () => {
+    return await sendWait(Channel.OPEN_ACTIONS)
+  },
+  close: async () => {
+    return exit()
+  },
+  setInput: (input: string) => {
+    return global.setInput(input)
+  },
+  focus: () => {
+    return global.focus()
+  },
+  blur: () => {
+    return global.blur()
+  },
+  hide: () => {
+    return global.hide()
+  },
+}

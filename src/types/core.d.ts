@@ -348,6 +348,7 @@ export type Action = {
   enter?: string
   onAction?: ChannelHandler
   condition?: Shortcut["condition"]
+  close?: boolean
 }
 
 export interface AppState {

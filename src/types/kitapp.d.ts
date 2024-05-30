@@ -98,6 +98,16 @@ export type Toast = {
   (toast: string, options?: any): void
 }
 
+export type Prompt = {
+  closeActions(): Promise<void>
+  close(): Promise<void>
+  openActions(): Promise<void>
+  setInput(input: string): Promise<void>
+  focus(): Promise<void>
+  blur(): Promise<void>
+  hide(): Promise<void>
+}
+
 export type Mic = {
   (config?: MicConfig): Promise<Buffer>
 } & {
@@ -300,10 +310,6 @@ export interface KeyData {
 }
 export interface Hotkey {
   (placeholder?: string | PromptConfig): Promise<KeyData>
-}
-
-export interface AppleScript {
-  (script: string, options?: any): Promise<string>
 }
 
 type SetImage = string | { src: string }
@@ -893,6 +899,7 @@ export interface AppApi {
   emoji: Emoji
   div: Div
   hotkey: Hotkey
+  prompt: Prompt
 
   kitPrompt: (promptConfig: PromptConfig) => Promise<any>
   send: Send
@@ -1001,7 +1008,6 @@ export interface Schedule extends Choice {
 export interface HideOptions {
   preloadScript?: string
 }
-
 declare global {
   var textarea: TextArea
   var drop: Drop
@@ -1111,6 +1117,7 @@ declare global {
   var find: Find
   var mic: Mic
   var webcam: WebCam
+  var prompt: Prompt
   var getMediaDevices: GetMediaDevices
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT

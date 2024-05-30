@@ -21,8 +21,16 @@ let knodePath = (...parts) =>
     ...parts.filter(Boolean)
   )
 
-if (existsSync(kitPath())) rm("-rf", kitPath())
+if (existsSync(kitPath())) {
+  console.log(`Found kit at ${kitPath()}, removing...`)
+  rm("-rf", kitPath())
+}
 await ensureDir(kitPath())
+
+if (existsSync(knodePath())) {
+  console.log(`Found node at ${knodePath()}, removing...`)
+  rm("-rf", knodePath())
+}
 await ensureDir(knodePath())
 
 export const extractNode = async file => {
@@ -53,8 +61,6 @@ export const extractNode = async file => {
 let installNodeWin = async () => {
   let { rename } = await import("fs/promises")
   let { rm } = shelljs
-
-  rm("-rf", knodePath())
 
   let arch = process.arch === "x64" ? "x64" : "x86"
 
@@ -90,9 +96,6 @@ let options = {
   },
 }
 
-// await exec(`node --version`, options)
-await exec(`npm --version`, options)
-
 cp("-R", "./root/.", kitPath())
 cp("-R", "./build", kitPath())
 cp("-R", "./src/types", kitPath())
@@ -104,6 +107,18 @@ cp("LICENSE", kitPath())
 console.log(`Installing node to ${knodePath()}...`)
 
 await installNode
+
+let { stdout: nodeVersion } = await exec(
+  `node --version`,
+  options
+)
+let { stdout: npmVersion } = await exec(
+  `npm --version`,
+  options
+)
+
+console.log(`Node version: ${nodeVersion}`)
+console.log(`NPM version: ${npmVersion}`)
 
 console.log(`Building ESM to ${kitPath()}`)
 let esm = exec(`npx tsc --outDir ${kitPath()}`).catch(e => {

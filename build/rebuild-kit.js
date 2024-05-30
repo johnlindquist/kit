@@ -25,7 +25,9 @@ cp("package*.json", kitPath())
 cp("LICENSE", kitPath())
 
 console.log(`Building ESM to ${kitPath()}`)
-let esm = exec(`npx tsc --outDir ${kitPath()}`)
+let esm = exec(
+  `npx tsc --project ./tsconfig.json --outDir ${kitPath()}`
+)
 
 console.log(`Building declarations to ${kitPath()}`)
 let dec = exec(
