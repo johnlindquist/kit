@@ -4,10 +4,13 @@ import path from "path"
 import os from "os"
 import { homedir, platform } from "os"
 import { existsSync } from "fs"
+import { rm } from "fs/promises"
+
+let knodeVersion = `20.11.1`
 
 let originalDir = process.cwd()
 
-let { cd, rm, cp } = shelljs
+let { cd, cp } = shelljs
 
 let kitPath = (...pathParts) =>
   path.resolve(
@@ -21,19 +24,23 @@ let knodePath = (...parts) =>
     ...parts.filter(Boolean)
   )
 
-if (existsSync(kitPath())) {
-  console.log(`Found kit at ${kitPath()}, removing...`)
-  rm("-rf", kitPath())
+// check npm and node versions
+let options = {
+  cwd: kitPath(),
+  env: {
+    PATH: `${knodePath("bin")}:${process.env.PATH}`,
+  },
 }
-await ensureDir(kitPath())
+// Log which node is running this script using process.version and the node path
+console.log(
+  `build-kit and target node ${knodeVersion}
+  
+Running with ${process.argv[0]} version  ${process.version}
+Path to this script: ${process.argv[1]}
+  `
+)
 
-if (existsSync(knodePath())) {
-  console.log(`Found node at ${knodePath()}, removing...`)
-  rm("-rf", knodePath())
-}
-await ensureDir(knodePath())
-
-export const extractNode = async file => {
+let extractNode = async file => {
   // Install node-stream-zip if it's not already installed
   if (!existsSync("node_modules/node-stream-zip")) {
     await exec("npm i node-stream-zip")
@@ -59,12 +66,9 @@ export const extractNode = async file => {
 }
 
 let installNodeWin = async () => {
-  let { rename } = await import("fs/promises")
-  let { rm } = shelljs
-
   let arch = process.arch === "x64" ? "x64" : "x86"
 
-  let url = `https://nodejs.org/dist/v20.11.1/node-v20.11.1-win-${arch}.zip`
+  let url = `https://nodejs.org/dist/v${knodeVersion}/node-v${knodeVersion}-win-${arch}.zip`
   let buffer = await download(url)
 
   let nodeZipFilePath = path.join(
@@ -80,7 +84,7 @@ let installNodeWin = async () => {
 let installNode = (
   platform() !== "win32"
     ? exec(
-        `./build/install-node.sh -v 20.11.1 -P '${knodePath()}' -y`
+        `./build/install-node.sh -v ${knodeVersion} -P '${knodePath()}' -y`
       )
     : installNodeWin()
 ).catch(e => {
@@ -88,13 +92,32 @@ let installNode = (
   process.exit(1)
 })
 
-// check npm and node versions
-let options = {
-  cwd: kitPath(),
-  env: {
-    PATH: `${knodePath("bin")}:${process.env.PATH}`,
-  },
+if (existsSync(kitPath())) {
+  console.log(`Found kit at ${kitPath()}, removing...`)
+  await rm(kitPath(), { recursive: true, force: true })
 }
+await ensureDir(kitPath())
+
+if (existsSync(knodePath())) {
+  console.log(`Found node at ${knodePath()}, removing...`)
+  // Check node version
+  let { stdout: nodeVersion } = await exec(
+    `node --version`,
+    options
+  )
+  console.log(
+    `Current knode version: ${nodeVersion}. Required version ${knodeVersion}`
+  )
+  if (nodeVersion.endsWith(knodeVersion)) {
+    console.log(`Version match. Skipping re-install.`)
+  } else {
+    await rm(knodePath(), { recursive: true, force: true })
+    console.log(`Installing node to ${knodePath()}...`)
+
+    await installNode
+  }
+}
+await ensureDir(knodePath())
 
 cp("-R", "./root/.", kitPath())
 cp("-R", "./build", kitPath())
@@ -103,10 +126,6 @@ cp("-R", "./src/types", kitPath())
 cp("*.md", kitPath())
 cp("package*.json", kitPath())
 cp("LICENSE", kitPath())
-
-console.log(`Installing node to ${knodePath()}...`)
-
-await installNode
 
 let { stdout: nodeVersion } = await exec(
   `node --version`,
