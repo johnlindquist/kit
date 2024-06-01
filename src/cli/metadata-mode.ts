@@ -1,7 +1,7 @@
 import { getEnvVar, setEnvVar } from "../api/kit.js"
 import { Env } from "../core/enum.js"
 
-export const METADATA_MODE_ENV_KEY = "METADATA_MODE" as const
+export const METADATA_MODE_ENV_KEY = "KIT_METADATA_MODE" as const
 
 export async function getUserDefaultMetadataMode(forcePrompt: boolean = false) {
   if (forcePrompt) {
