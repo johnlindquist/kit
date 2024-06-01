@@ -33,7 +33,7 @@ export interface Select {
     placeholderOrConfig?: string | PromptConfig,
     choices: Choices<T>,
     actions?: Action[]
-  )
+  ): Promise<T>
 }
 export interface EnvConfig extends PromptConfig {
   reset?: boolean
