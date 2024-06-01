@@ -193,7 +193,7 @@ export type Shortcut = {
   onPress?: (
     input: string,
     state: AppState
-  ) => void | Promise<void>
+  ) => unknown | Promise<unknown>
   bar?: "right" | "left" | ""
   flag?: string
   visible?: boolean
