@@ -395,7 +395,7 @@ export interface SubmitHandler {
 
 export type PromptConfig = {
   validate?: (
-    choice: string
+    input: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   actions?: Action[] | Panel
