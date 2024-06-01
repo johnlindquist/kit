@@ -3700,3 +3700,8 @@ global.prompt = {
     return global.hide()
   },
 }
+
+let { $, cd } = await import("zx")
+
+global.$ = $
+global.cd = cd
