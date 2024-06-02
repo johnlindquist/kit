@@ -27,9 +27,6 @@ let knodePath = (...parts) =>
 // check npm and node versions
 let options = {
   cwd: kitPath(),
-  env: {
-    PATH: `${knodePath("bin")}:${process.env.PATH}`,
-  },
 }
 // Log which node is running this script using process.version and the node path
 console.log(
@@ -81,16 +78,22 @@ let installNodeWin = async () => {
   await extractNode(nodeZipFilePath)
 }
 
-let installNode = (
-  platform() !== "win32"
-    ? exec(
-        `./build/install-node.sh -v ${knodeVersion} -P '${knodePath()}' -y`
-      )
-    : installNodeWin()
-).catch(e => {
-  console.error(e)
-  process.exit(1)
-})
+let installNodeMac = async () => {
+  let arch = process.arch === "x64" ? "x64" : "x86"
+  await ensureDir(knodePath())
+  let command = `./build/install-node.sh -v ${knodeVersion} -P '${knodePath()}' -y`
+  console.log(command)
+  await exec(command)
+}
+
+let installNode = async () => {
+  let isWin = platform() === "win32"
+  if (isWin) {
+    await installNodeWin()
+  } else {
+    await installNodeMac()
+  }
+}
 
 if (existsSync(kitPath())) {
   console.log(`Found kit at ${kitPath()}, removing...`)
@@ -98,12 +101,12 @@ if (existsSync(kitPath())) {
 }
 await ensureDir(kitPath())
 
-if (existsSync(knodePath())) {
-  console.log(`Found node at ${knodePath()}, removing...`)
+let nodeExists = existsSync(knodePath("bin", "node"))
+if (nodeExists) {
+  console.log(`Found node at ${knodePath("bin", "node")}`)
   // Check node version
   let { stdout: nodeVersion } = await exec(
-    `node --version`,
-    options
+    `${knodePath("bin", "node")} --version`
   )
   console.log(
     `Current knode version: ${nodeVersion}. Required version ${knodeVersion}`
@@ -114,8 +117,17 @@ if (existsSync(knodePath())) {
     await rm(knodePath(), { recursive: true, force: true })
     console.log(`Installing node to ${knodePath()}...`)
 
-    await installNode
+    await ensureDir(knodePath())
+    await installNode()
   }
+} else {
+  console.log(
+    `Couldn't find node at ${knodePath("bin", "node")}`
+  )
+  console.log(`Installing node to ${knodePath()}...`)
+
+  await ensureDir(knodePath())
+  await installNode()
 }
 await ensureDir(knodePath())
 
@@ -128,11 +140,11 @@ cp("package*.json", kitPath())
 cp("LICENSE", kitPath())
 
 let { stdout: nodeVersion } = await exec(
-  `node --version`,
+  `${knodePath("bin", "node")} --version`,
   options
 )
 let { stdout: npmVersion } = await exec(
-  `npm --version`,
+  `${knodePath("bin", "npm")} --version`,
   options
 )
 
@@ -149,7 +161,10 @@ await esm
 
 console.log(`Building declarations to ${kitPath()}`)
 let dec = exec(
-  `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
+  `${knodePath(
+    "bin",
+    "npx"
+  )} tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
 ).catch(e => {
   console.error(e)
   process.exit(1)
@@ -158,20 +173,29 @@ await dec
 
 console.log(`Install deps`)
 
-await exec(`npm i --production`, options)
+await exec(
+  `${knodePath("bin", "npm")} i --production`,
+  options
+)
 
 // console.log(`Install app deps`)
 // await exec(`${npm} i @johnlindquist/kitdeps@0.1.1`)
 
 console.log(`Download docs`)
 await exec(
-  `node ./run/terminal.js ./help/download-docs.js`,
+  `${knodePath(
+    "bin",
+    "node"
+  )} ./run/terminal.js ./help/download-docs.js`,
   options
 )
 
 console.log(`Download hot`)
 await exec(
-  `node ./run/terminal.js ./hot/download-hot.js`,
+  `${knodePath(
+    "bin",
+    "node"
+  )} ./run/terminal.js ./hot/download-hot.js`,
   options
 )
 
