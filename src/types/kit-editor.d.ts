@@ -10064,6 +10064,7 @@ export type kenvEnv = {
   KIT_TRANSPARENT?: string | undefined
   KIT_TRAY?: string | undefined
   KIT_TYPED_LIMIT?: string | undefined
+  KIT_TYPING_RATE?: string | undefined
   KIT_WEBCAM?: string | undefined
   KIT_WIDTH?: string | undefined
   KIT_WINDOWS_PRERENDER_SHOW_INACTIVE_TIMEOUT?:
@@ -10347,7 +10348,7 @@ export interface Select {
     placeholderOrConfig?: string | PromptConfig,
     choices: Choices<T>,
     actions?: Action[]
-  )
+  ): Promise<T>
 }
 export interface EnvConfig extends PromptConfig {
   reset?: boolean
@@ -11581,8 +11582,21 @@ export interface Keyboard {
   type: (
     ...text: (string | KeyboardEnum)[]
   ) => Promise<void>
+  /**
+   * Types text or keys with a delay between each keystroke.
+   * @param config Configuration object for typing.
+   * @param config.rate The delay in milliseconds between keystrokes. Note: values less than 700 can give weird results.
+   * @param config.textOrKeys The text or keys to type.
+   */
+  typeDelayed: (config: {
+    rate?: number
+    textOrKeys: string | KeyboardEnum[]
+  }) => Promise<void>
   pressKey: (...keys: KeyboardEnum[]) => Promise<void>
   releaseKey: (...keys: KeyboardEnum[]) => Promise<void>
+  /**
+   * @deprecated Use `keyboard.typeDelayed` or set `KIT_TYPING_RATE` and use `keyboard.type` instead.
+   */
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 

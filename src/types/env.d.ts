@@ -42,6 +42,7 @@ export type kenvEnv = {
   KIT_TRANSPARENT?: string | undefined
   KIT_TRAY?: string | undefined
   KIT_TYPED_LIMIT?: string | undefined
+  KIT_TYPING_RATE?: string | undefined
   KIT_WEBCAM?: string | undefined
   KIT_WIDTH?: string | undefined
   KIT_WINDOWS_PRERENDER_SHOW_INACTIVE_TIMEOUT?:

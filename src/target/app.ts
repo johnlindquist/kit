@@ -3045,7 +3045,20 @@ global.setFocused = (id: string) => {
 
 global.keyboard = {
   type: async (...textOrKeys: (string | Key)[]) => {
-    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys)
+    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys, 0)
+  },
+  typeDelayed: async (config: {
+    rate: number
+    textOrKeys: string | Key[]
+  }) => {
+    await sendWait(
+      Channel.KEYBOARD_TYPE_RATE,
+      {
+        rate: config?.rate || 600,
+        textOrKeys: config.textOrKeys,
+      },
+      0
+    )
   },
   pressKey: async (...keys: Key[]) => {
     await sendWait(Channel.KEYBOARD_PRESS_KEY, keys)
@@ -3676,7 +3689,6 @@ global.getTheme = async () => {
   return await sendWait(Channel.GET_THEME)
 }
 
-// haha, suck it lib.dom.d.ts
 global.prompt = {
   closeActions: async () => {
     return await sendWait(Channel.CLOSE_ACTIONS)
