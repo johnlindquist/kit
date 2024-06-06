@@ -79,7 +79,11 @@ export let isBin = async (
 ): Promise<boolean> => {
   if (jsh) return false
   try {
-    return Boolean(execSync(`command -v ${bin}`))
+    const result = spawnSync("command", ["-v", bin], {
+      stdio: "ignore",
+      windowsHide: true,
+    })
+    return result.status === 0
   } catch {
     return false
   }

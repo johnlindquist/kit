@@ -124,6 +124,13 @@ export type Speech = {
   (config?: PromptConfig): Promise<string>
 }
 
+export type Screenshot = {
+  (
+    displayId?: number,
+    bounds?: ScreenShotBounds
+  ): Promise<Buffer>
+}
+
 export type GetMediaDevices = {
   (): Promise<MediaDeviceInfo[]>
 }
@@ -649,6 +656,18 @@ export interface ChannelMap {
   [Channel.PRELOAD]: string
   [Channel.MIC_STREAM]: boolean
   [Channel.START_MIC]: MicConfig
+  [Channel.SCREENSHOT]: {
+    displayId?: Screenshot["displayId"]
+    bounds?: Screenshot["bounds"]
+  }
+  [Channel.SYSTEM_CLICK]: boolean
+  [Channel.SYSTEM_MOVE]: boolean
+  [Channel.SYSTEM_KEYDOWN]: boolean
+  [Channel.SYSTEM_KEYUP]: boolean
+  [Channel.SYSTEM_MOUSEDOWN]: boolean
+  [Channel.SYSTEM_MOUSEUP]: boolean
+  [Channel.SYSTEM_MOUSEMOVE]: boolean
+  [Channel.SYSTEM_WHEEL]: boolean
 }
 export interface Send {
   (channel: Channel | GetAppData | SendNoOptions): void
@@ -1129,6 +1148,13 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
+  /**
+   * Captures a screenshot. Defaults to the display where the current mouse cursor is located and captures the full screen if no bounds are specified.
+   * @param displayId - The identifier for the display to capture. If not provided, captures the display with the current mouse cursor.
+   * @param bounds - The specific area of the screen to capture. If not provided, captures the entire screen.
+   * @returns A Promise that resolves to a Buffer containing the screenshot data.
+   */
+  var screenshot: Screenshot
   var webcam: WebCam
   var prompt: Prompt
   var getMediaDevices: GetMediaDevices
@@ -1136,28 +1162,56 @@ declare global {
   var PROMPT: typeof PROMPT_OBJECT
   var preventSubmit: Symbol
 
+  type disableHandler = () => void
+  /**
+   * Registers a global system onClick event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onClick: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => disableHandler
 
+  /**
+   * Registers a global system onMousedown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMousedown: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => disableHandler
+  /**
+   * Registers a global system onMouseup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMouseup: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
-
+  ) => disableHandler
+  /**
+   * Registers a global system onWheel event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onWheel: (
     callback: (event: UiohookWheelEvent) => void
-  ) => void
-
+  ) => disableHandler
+  /**
+   * Registers a global system onKeydown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeydown: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
-
+  ) => disableHandler
+  /**
+   * Registers a global system onKeyup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeyup: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
+  ) => disableHandler
 
   var getTheme: () => Promise<KitTheme>
 }

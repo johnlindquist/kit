@@ -1,4 +1,5 @@
 import { adjustPackageName } from "../core/utils.js"
+import { appInstallMultiple } from "../target/app.js"
 
 delete flag.trigger
 delete flag.force
@@ -17,8 +18,10 @@ let missingPackages = [
 ]
 args = []
 
-for await (let missingPackage of missingPackages) {
-  await installMissingPackage(missingPackage)
+if (missingPackages.length > 1) {
+  await appInstallMultiple(missingPackages)
+} else if (missingPackages.length === 1) {
+  await installMissingPackage(missingPackages[0])
 }
 
 export {}

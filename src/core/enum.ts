@@ -333,6 +333,7 @@ export enum Channel {
   CLOSE_PROMPT = "CLOSE_PROMPT",
   OPEN_ACTIONS = "OPEN_ACTIONS",
   KEYBOARD_TYPE_RATE = "KEYBOARD_TYPE_RATE",
+  SCREENSHOT = "SCREENSHOT",
 }
 
 export enum ProcessType {
