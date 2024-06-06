@@ -3146,6 +3146,10 @@ global.keyboard = {
   config: async config => {
     send(Channel.KEYBOARD_CONFIG, config)
   },
+  tap: async (...keys: Key[]) => {
+    await keyboard.pressKey(...keys)
+    await keyboard.releaseKey(...keys)
+  },
 }
 
 global.mouse = {

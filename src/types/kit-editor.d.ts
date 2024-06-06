@@ -10794,6 +10794,7 @@ declare global {
 
 
 
+import core from "./core/enum"
 
 
 
@@ -11407,8 +11408,8 @@ export interface ChannelMap {
 
   [Channel.KEYBOARD_CONFIG]: { autoDelayMs: number }
   [Channel.KEYBOARD_TYPE]: string
-  [Channel.KEYBOARD_PRESS_KEY]: KeyboardEnum[]
-  [Channel.KEYBOARD_RELEASE_KEY]: KeyboardEnum[]
+  [Channel.KEYBOARD_PRESS_KEY]: Key[]
+  [Channel.KEYBOARD_RELEASE_KEY]: Key[]
 
   [Channel.TRASH]: {
     input: Parameters<Trash>[0]
@@ -11598,9 +11599,7 @@ export interface ClipboardItem {
 }
 
 export interface Keyboard {
-  type: (
-    ...text: (string | KeyboardEnum)[]
-  ) => Promise<void>
+  type: (...text: (string | Key)[]) => Promise<void>
   /**
    * Types text or keys with a delay between each keystroke.
    * @param config Configuration object for typing.
@@ -11609,10 +11608,23 @@ export interface Keyboard {
    */
   typeDelayed: (config: {
     rate?: number
-    textOrKeys: string | KeyboardEnum[]
+    textOrKeys: string | Key[]
   }) => Promise<void>
-  pressKey: (...keys: KeyboardEnum[]) => Promise<void>
-  releaseKey: (...keys: KeyboardEnum[]) => Promise<void>
+  /**
+   * Presses a key.
+   * @param keys The keys to press.
+   */
+  pressKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Releases a key.
+   * @param keys The keys to release.
+   */
+  releaseKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Taps a key.
+   * @param keys The keys to tap.
+   */
+  tap: (...keys: Key[]) => Promise<void>
   /**
    * @deprecated Use `keyboard.typeDelayed` or set `KIT_TYPING_RATE` and use `keyboard.type` instead.
    */
@@ -11774,7 +11786,7 @@ export interface AppApi {
   ) => Promise<void>
 
   appKeystroke: SendKeystroke
-  Key: typeof KeyboardEnum
+  Key: typeof core.Key
 
   log: typeof console.log
   warn: typeof console.warn
@@ -11884,7 +11896,7 @@ declare global {
   ) => Promise<void>
 
   var appKeystroke: SendKeystroke
-  var Key: typeof KeyboardEnum
+  var Key: typeof core.Key
 
   var log: typeof console.log
   var warn: typeof console.warn
