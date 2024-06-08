@@ -1647,9 +1647,15 @@ let groupScripts = scripts => {
           typeof s?.pass === "string" &&
           s?.pass !== "true"
         ) {
-          s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${
-            s.pass
-          }`
+          if (s?.pass?.startsWith("/")) {
+            s.tag = `${s?.tag && ` ${s?.tag} `}pattern: ${
+              s.pass
+            }`
+          } else {
+            s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${
+              s.pass
+            }`
+          }
         }
 
         s.tag = s.tag.trim()

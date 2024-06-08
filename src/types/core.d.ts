@@ -52,7 +52,7 @@ export interface Choice<Value = any> {
   height?: number
   skip?: boolean
   miss?: boolean
-  pass?: boolean
+  pass?: boolean | string
   group?: string
   userGrouped?: boolean
   choices?: (Omit<Choice<any>, "choices"> | string)[]
