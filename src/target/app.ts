@@ -155,6 +155,36 @@ global.onKeyup = handler => {
   return createHandlerWrapper(Channel.SYSTEM_KEYUP, handler)
 }
 
+global.system = {
+  onClick: global.onClick,
+  onMousedown: global.onMousedown,
+  onMouseup: global.onMouseup,
+  onWheel: global.onWheel,
+  onKeydown: global.onKeydown,
+  onKeyup: global.onKeyup,
+}
+
+global.app = {
+  onScriptChanged: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_CHANGED,
+      handler
+    )
+  },
+  onScriptAdded: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_ADDED,
+      handler
+    )
+  },
+  onScriptRemoved: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_REMOVED,
+      handler
+    )
+  },
+}
+
 let _exec = global.exec
 global.exec = (
   command: string,

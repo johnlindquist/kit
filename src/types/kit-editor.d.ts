@@ -10809,6 +10809,7 @@ import core from "./core/enum"
 
 
 
+
 export type Status = (typeof statuses)[number]
 
 export interface AppMessage {
@@ -11411,6 +11412,10 @@ export interface ChannelMap {
   [Channel.KEYBOARD_PRESS_KEY]: Key[]
   [Channel.KEYBOARD_RELEASE_KEY]: Key[]
 
+  [Channel.SCRIPT_CHANGED]: Script
+  [Channel.SCRIPT_REMOVED]: Script
+  [Channel.SCRIPT_ADDED]: Script
+
   [Channel.TRASH]: {
     input: Parameters<Trash>[0]
     options: Parameters<Trash>[1]
@@ -11596,6 +11601,41 @@ export interface ClipboardItem {
   timestamp: string
   maybeSecret: boolean
   preview?: string
+}
+
+export interface System {
+  onClick: typeof global.onClick
+  onMousedown: typeof global.onMousedown
+  onMouseup: typeof global.onMouseup
+  onWheel: typeof global.onWheel
+  onKeydown: typeof global.onKeydown
+  onKeyup: typeof global.onKeyup
+}
+/**
+ * A handler for a script event. Receives the full path to the script that was affected
+ * @param script The script that was added, changed, or removed.
+ */
+type ScriptHandler = (scriptPath: string) => void
+type ScriptEventHandler = (
+  handler: ScriptHandler
+) => removeListener
+
+export type App = {
+  /**
+   * A handler for a script event. Receives the full path to the script that was added.
+   * @param scriptPath The full path to the script that was added
+   */
+  onScriptAdded?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was changed.
+   * @param scriptPath The full path to the script that was changed
+   */
+  onScriptChanged?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was removed.
+   * @param scriptPath The full path to the script that was removed
+   */
+  onScriptRemoved?: ScriptEventHandler
 }
 
 export interface Keyboard {
@@ -11942,7 +11982,7 @@ declare global {
   var PROMPT: typeof PROMPT_OBJECT
   var preventSubmit: Symbol
 
-  type disableHandler = () => void
+  type removeListener = () => void
   /**
    * Registers a global system onClick event listener.
    * @param callback - The callback to call when the event is fired.
@@ -11950,7 +11990,7 @@ declare global {
    */
   var onClick: (
     callback: (event: UiohookMouseEvent) => void
-  ) => disableHandler
+  ) => removeListener
 
   /**
    * Registers a global system onMousedown event listener.
@@ -11959,7 +11999,7 @@ declare global {
    */
   var onMousedown: (
     callback: (event: UiohookMouseEvent) => void
-  ) => disableHandler
+  ) => removeListener
   /**
    * Registers a global system onMouseup event listener.
    * @param callback - The callback to call when the event is fired.
@@ -11967,7 +12007,7 @@ declare global {
    */
   var onMouseup: (
     callback: (event: UiohookMouseEvent) => void
-  ) => disableHandler
+  ) => removeListener
   /**
    * Registers a global system onWheel event listener.
    * @param callback - The callback to call when the event is fired.
@@ -11975,7 +12015,7 @@ declare global {
    */
   var onWheel: (
     callback: (event: UiohookWheelEvent) => void
-  ) => disableHandler
+  ) => removeListener
   /**
    * Registers a global system onKeydown event listener.
    * @param callback - The callback to call when the event is fired.
@@ -11983,7 +12023,7 @@ declare global {
    */
   var onKeydown: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => disableHandler
+  ) => removeListener
   /**
    * Registers a global system onKeyup event listener.
    * @param callback - The callback to call when the event is fired.
@@ -11991,7 +12031,10 @@ declare global {
    */
   var onKeyup: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => disableHandler
+  ) => removeListener
+
+  var system: System
+  var app: App
 
   var getTheme: () => Promise<KitTheme>
 }
