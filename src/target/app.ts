@@ -7,10 +7,8 @@ import {
   AppState,
   ChannelHandler,
   Choice,
-  FlagsOptions,
   PromptConfig,
   PromptData,
-  Shortcut,
 } from "../types/core"
 
 import {
@@ -18,18 +16,16 @@ import {
   KeyData,
   AppMessage,
   EditorOptions,
-  Config,
   KitStatus,
-  Field,
   GuideSection,
   KitTheme,
   MicConfig,
   Fields,
   ClipboardItem,
+  ChannelMap,
 } from "../types/kitapp"
 
 import {
-  format,
   formatDistanceToNow,
   compareAsc,
 } from "@johnlindquist/kit-internal/date-fns"
@@ -100,9 +96,10 @@ global.onExit = handler => {
 }
 
 let createHandlerWrapper = (
-  channel: Channel,
+  channel: keyof ChannelMap,
   handler: (data: any) => void
 ) => {
+  global.send(channel, true)
   let wrappedHandler = (data: any) => {
     // log(data)
     if (data?.channel === channel) {
@@ -112,6 +109,7 @@ let createHandlerWrapper = (
   process.on("message", wrappedHandler)
 
   return () => {
+    global.send(channel, false)
     process.off("message", wrappedHandler)
   }
 }
@@ -155,6 +153,36 @@ global.onKeydown = handler => {
 
 global.onKeyup = handler => {
   return createHandlerWrapper(Channel.SYSTEM_KEYUP, handler)
+}
+
+global.system = {
+  onClick: global.onClick,
+  onMousedown: global.onMousedown,
+  onMouseup: global.onMouseup,
+  onWheel: global.onWheel,
+  onKeydown: global.onKeydown,
+  onKeyup: global.onKeyup,
+}
+
+global.app = {
+  onScriptChanged: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_CHANGED,
+      handler
+    )
+  },
+  onScriptAdded: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_ADDED,
+      handler
+    )
+  },
+  onScriptRemoved: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_REMOVED,
+      handler
+    )
+  },
 }
 
 let _exec = global.exec
@@ -2118,6 +2146,85 @@ global.updateArgs = arrayOfArgs => {
 
 global.updateArgs(process.argv.slice(2))
 
+export let appInstallMultiple = async (
+  packageNames: string[]
+) => {
+  let adjustedPackageNames = packageNames.map(
+    adjustPackageName
+  )
+
+  let i = 0
+  for await (let packageName of adjustedPackageNames) {
+    let placeholder = `${packageName} is required for this script`
+    setDescription(placeholder)
+    setName(" ")
+
+    let stripVersion = packageName.replace(
+      /(?<=.)(@|\^|~).*/g,
+      ""
+    )
+    let packageLink = `https://npmjs.com/package/${stripVersion}`
+
+    let response = null
+    try {
+      response = await get<{ downloads: number }>(
+        `https://api.npmjs.org/downloads/point/last-week/` +
+          stripVersion
+      )
+    } catch (error) {}
+
+    let downloads =
+      response?.data?.downloads || `an unknown number of`
+
+    let hint =
+      md(`A script requires the following packages. Do you trust them? 
+* ${adjustedPackageNames
+        .map((name, index) =>
+          index === i
+            ? `<span class="text-primary font-bold">${name}</span>`
+            : name
+        )
+        .join("\n* ")}
+
+---
+
+`)
+
+    let preview =
+      hint +
+      md(
+        `[${stripVersion}](${packageLink}) has had ${downloads} downloads from npm in the past week`
+      )
+
+    let trust = await global.arg({ placeholder }, [
+      {
+        name: `Abort`,
+        value: "false",
+        preview,
+      },
+      {
+        name: `Install ${packageName}`,
+        value: "true",
+        preview,
+      },
+    ])
+
+    if (trust === "false") {
+      echo(`Ok. Exiting...`)
+      exit()
+    }
+
+    i++
+  }
+
+  setHint(
+    `Installing ${adjustedPackageNames.join(", ")}...`
+  )
+
+  await global.cli("install", ...adjustedPackageNames)
+  console.clear()
+}
+
 export let appInstall = async packageName => {
   // don't try to install explicit built-in node modules
   if (packageName.startsWith("node:")) return
@@ -2697,7 +2804,7 @@ let __pathSelector = async (
         dirFilter: dirFilter as (dirent: any) => true,
         onlyDirs,
       })
-
+      
       choices.push({
         name: "Doesn't exist, select anyway",
         miss: true,
@@ -2706,13 +2813,15 @@ let __pathSelector = async (
         },
         enter: "Select",
       })
-
-      choices.push({
-        name: `Create File "{base}"`,
-        miss: true,
-        value: "create-file",
-        enter: "Create File",
-      })
+      
+      if (!onlyDirs) {
+        choices.push({
+          name: `Create File "{base}"`,
+          miss: true,
+          value: "create-file",
+          enter: "Create File",
+        })
+      }
 
       choices.push({
         name: `Create Folder "{base}"`,
@@ -3045,7 +3154,20 @@ global.setFocused = (id: string) => {
 
 global.keyboard = {
   type: async (...textOrKeys: (string | Key)[]) => {
-    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys)
+    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys, 0)
+  },
+  typeDelayed: async (config: {
+    rate: number
+    textOrKeys: string | Key[]
+  }) => {
+    await sendWait(
+      Channel.KEYBOARD_TYPE_RATE,
+      {
+        rate: config?.rate || 600,
+        textOrKeys: config.textOrKeys,
+      },
+      0
+    )
   },
   pressKey: async (...keys: Key[]) => {
     await sendWait(Channel.KEYBOARD_PRESS_KEY, keys)
@@ -3055,6 +3177,10 @@ global.keyboard = {
   },
   config: async config => {
     send(Channel.KEYBOARD_CONFIG, config)
+  },
+  tap: async (...keys: Key[]) => {
+    await keyboard.pressKey(...keys)
+    await keyboard.releaseKey(...keys)
   },
 }
 
@@ -3676,7 +3802,6 @@ global.getTheme = async () => {
   return await sendWait(Channel.GET_THEME)
 }
 
-// haha, suck it lib.dom.d.ts
 global.prompt = {
   closeActions: async () => {
     return await sendWait(Channel.CLOSE_ACTIONS)
@@ -3700,3 +3825,12 @@ global.prompt = {
     return global.hide()
   },
 }
+
+global.screenshot = async () => {
+  return await sendWait(Channel.SCREENSHOT)
+}
+
+let { $, cd } = await import("zx")
+
+global.$ = $
+global.cd = cd

@@ -2,7 +2,7 @@
 
 let devices = await getMediaDevices()
 
-let webcamId = await arg(
+let micId = await arg(
   "Select Mic",
   devices
     .filter(d => d.kind === "audioinput")
@@ -16,8 +16,8 @@ let webcamId = await arg(
 
 await run(
   kitPath("cli", "set-env-var.js"),
-  "KIT_WEBCAM",
-  webcamId
+  "KIT_MIC",
+  micId
 )
 
 export {}

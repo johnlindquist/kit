@@ -52,7 +52,7 @@ export interface Choice<Value = any> {
   height?: number
   skip?: boolean
   miss?: boolean
-  pass?: boolean
+  pass?: boolean | string
   group?: string
   userGrouped?: boolean
   choices?: (Omit<Choice<any>, "choices"> | string)[]
@@ -193,7 +193,7 @@ export type Shortcut = {
   onPress?: (
     input: string,
     state: AppState
-  ) => void | Promise<void>
+  ) => unknown | Promise<unknown>
   bar?: "right" | "left" | ""
   flag?: string
   visible?: boolean
@@ -349,6 +349,7 @@ export type Action = {
   onAction?: ChannelHandler
   condition?: Shortcut["condition"]
   close?: boolean
+  index?: number
 }
 
 export interface AppState {
@@ -394,7 +395,7 @@ export interface SubmitHandler {
 
 export type PromptConfig = {
   validate?: (
-    choice: string
+    input: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   actions?: Action[] | Panel

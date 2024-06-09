@@ -1,8 +1,9 @@
 import { exec } from "@johnlindquist/globals"
 import { editor } from "./editor.api"
 
+import core from "./core/enum"
 import {
-  Key as KeyboardEnum,
+  Key,
   Channel,
   Mode,
   statuses,
@@ -122,6 +123,13 @@ export type WebCam = {
 
 export type Speech = {
   (config?: PromptConfig): Promise<string>
+}
+
+export type Screenshot = {
+  (
+    displayId?: number,
+    bounds?: ScreenShotBounds
+  ): Promise<Buffer>
 }
 
 export type GetMediaDevices = {
@@ -632,8 +640,12 @@ export interface ChannelMap {
 
   [Channel.KEYBOARD_CONFIG]: { autoDelayMs: number }
   [Channel.KEYBOARD_TYPE]: string
-  [Channel.KEYBOARD_PRESS_KEY]: KeyboardEnum[]
-  [Channel.KEYBOARD_RELEASE_KEY]: KeyboardEnum[]
+  [Channel.KEYBOARD_PRESS_KEY]: Key[]
+  [Channel.KEYBOARD_RELEASE_KEY]: Key[]
+
+  [Channel.SCRIPT_CHANGED]: Script
+  [Channel.SCRIPT_REMOVED]: Script
+  [Channel.SCRIPT_ADDED]: Script
 
   [Channel.TRASH]: {
     input: Parameters<Trash>[0]
@@ -649,6 +661,18 @@ export interface ChannelMap {
   [Channel.PRELOAD]: string
   [Channel.MIC_STREAM]: boolean
   [Channel.START_MIC]: MicConfig
+  [Channel.SCREENSHOT]: {
+    displayId?: Screenshot["displayId"]
+    bounds?: Screenshot["bounds"]
+  }
+  [Channel.SYSTEM_CLICK]: boolean
+  [Channel.SYSTEM_MOVE]: boolean
+  [Channel.SYSTEM_KEYDOWN]: boolean
+  [Channel.SYSTEM_KEYUP]: boolean
+  [Channel.SYSTEM_MOUSEDOWN]: boolean
+  [Channel.SYSTEM_MOUSEUP]: boolean
+  [Channel.SYSTEM_MOUSEMOVE]: boolean
+  [Channel.SYSTEM_WHEEL]: boolean
 }
 export interface Send {
   (channel: Channel | GetAppData | SendNoOptions): void
@@ -810,12 +834,71 @@ export interface ClipboardItem {
   preview?: string
 }
 
+export interface System {
+  onClick: typeof global.onClick
+  onMousedown: typeof global.onMousedown
+  onMouseup: typeof global.onMouseup
+  onWheel: typeof global.onWheel
+  onKeydown: typeof global.onKeydown
+  onKeyup: typeof global.onKeyup
+}
+/**
+ * A handler for a script event. Receives the full path to the script that was affected
+ * @param script The script that was added, changed, or removed.
+ */
+type ScriptHandler = (scriptPath: string) => void
+type ScriptEventHandler = (
+  handler: ScriptHandler
+) => removeListener
+
+export type App = {
+  /**
+   * A handler for a script event. Receives the full path to the script that was added.
+   * @param scriptPath The full path to the script that was added
+   */
+  onScriptAdded?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was changed.
+   * @param scriptPath The full path to the script that was changed
+   */
+  onScriptChanged?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was removed.
+   * @param scriptPath The full path to the script that was removed
+   */
+  onScriptRemoved?: ScriptEventHandler
+}
+
 export interface Keyboard {
-  type: (
-    ...text: (string | KeyboardEnum)[]
-  ) => Promise<void>
-  pressKey: (...keys: KeyboardEnum[]) => Promise<void>
-  releaseKey: (...keys: KeyboardEnum[]) => Promise<void>
+  type: (...text: (string | Key)[]) => Promise<void>
+  /**
+   * Types text or keys with a delay between each keystroke.
+   * @param config Configuration object for typing.
+   * @param config.rate The delay in milliseconds between keystrokes. Note: values less than 700 can give weird results.
+   * @param config.textOrKeys The text or keys to type.
+   */
+  typeDelayed: (config: {
+    rate?: number
+    textOrKeys: string | Key[]
+  }) => Promise<void>
+  /**
+   * Presses a key.
+   * @param keys The keys to press.
+   */
+  pressKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Releases a key.
+   * @param keys The keys to release.
+   */
+  releaseKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Taps a key.
+   * @param keys The keys to tap.
+   */
+  tap: (...keys: Key[]) => Promise<void>
+  /**
+   * @deprecated Use `keyboard.typeDelayed` or set `KIT_TYPING_RATE` and use `keyboard.type` instead.
+   */
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
@@ -974,7 +1057,7 @@ export interface AppApi {
   ) => Promise<void>
 
   appKeystroke: SendKeystroke
-  Key: typeof KeyboardEnum
+  Key: typeof core.Key
 
   log: typeof console.log
   warn: typeof console.warn
@@ -1084,7 +1167,7 @@ declare global {
   ) => Promise<void>
 
   var appKeystroke: SendKeystroke
-  var Key: typeof KeyboardEnum
+  var Key: typeof core.Key
 
   var log: typeof console.log
   var warn: typeof console.warn
@@ -1116,6 +1199,13 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
+  /**
+   * Captures a screenshot. Defaults to the display where the current mouse cursor is located and captures the full screen if no bounds are specified.
+   * @param displayId - The identifier for the display to capture. If not provided, captures the display with the current mouse cursor.
+   * @param bounds - The specific area of the screen to capture. If not provided, captures the entire screen.
+   * @returns A Promise that resolves to a Buffer containing the screenshot data.
+   */
+  var screenshot: Screenshot
   var webcam: WebCam
   var prompt: Prompt
   var getMediaDevices: GetMediaDevices
@@ -1123,28 +1213,59 @@ declare global {
   var PROMPT: typeof PROMPT_OBJECT
   var preventSubmit: Symbol
 
+  type removeListener = () => void
+  /**
+   * Registers a global system onClick event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onClick: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => removeListener
 
+  /**
+   * Registers a global system onMousedown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMousedown: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => removeListener
+  /**
+   * Registers a global system onMouseup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMouseup: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onWheel event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onWheel: (
     callback: (event: UiohookWheelEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onKeydown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeydown: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onKeyup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeyup: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
+  ) => removeListener
+
+  var system: System
+  var app: App
 
   var getTheme: () => Promise<KitTheme>
 }

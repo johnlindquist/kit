@@ -58,7 +58,11 @@ let actionFlags: {
     name: "Open Path in Kit Term",
     value: "kit-term",
     action: async selectedFile => {
-      await term(`cd ${selectedFile}`)
+      await term({
+        command: `cd ${selectedFile}`,
+        description: selectedFile,
+        name: "Kit Term",
+      })
     },
   },
   {
