@@ -2804,7 +2804,7 @@ let __pathSelector = async (
         dirFilter: dirFilter as (dirent: any) => true,
         onlyDirs,
       })
-
+      
       choices.push({
         name: "Doesn't exist, select anyway",
         miss: true,
@@ -2813,13 +2813,15 @@ let __pathSelector = async (
         },
         enter: "Select",
       })
-
-      choices.push({
-        name: `Create File "{base}"`,
-        miss: true,
-        value: "create-file",
-        enter: "Create File",
-      })
+      
+      if (!onlyDirs) {
+        choices.push({
+          name: `Create File "{base}"`,
+          miss: true,
+          value: "create-file",
+          enter: "Create File",
+        })
+      }
 
       choices.push({
         name: `Create Folder "{base}"`,
