@@ -46,7 +46,10 @@ if (snippet.includes("${selection}")) {
   snippet = snippet.replaceAll("${selection}", selectedText)
 }
 
-if (snippet.match(/\${(.+)?}/)) {
+if (
+  snippet.match(/\${(.+)?}/) ||
+  snippet.match(/\$(?!\d)/)
+) {
   setInput(``) // clearing keyword
   snippet = await template(snippet, {
     description: "Fill in the template",

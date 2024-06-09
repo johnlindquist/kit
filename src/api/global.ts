@@ -14,7 +14,10 @@ import {
 
 import { getScripts } from "../core/db.js"
 import { PromptConfig } from "../types/core"
-import { Channel } from "../core/enum.js"
+import {
+  format,
+  formatDistanceToNow,
+} from "@johnlindquist/kit-internal/date-fns"
 
 global.actionFlag = ""
 global.getScripts = getScripts
@@ -22,7 +25,7 @@ global.getScripts = getScripts
 performance.mark("run")
 
 await import("@johnlindquist/globals")
-await import("./packages/zx.js")
+// await import("./packages/zx.js")
 await import("./packages/clipboardy.js")
 await import("./packages/node-notifier.js")
 await import("./packages/shelljs.js")
@@ -133,3 +136,6 @@ global.clearAllTimeouts = () => {
   timeouts?.forEach(id => clearTimeout(id))
   timeouts = new Set()
 }
+
+global.formatDate = format
+global.formatDateToNow = formatDistanceToNow

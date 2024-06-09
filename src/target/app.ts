@@ -7,10 +7,8 @@ import {
   AppState,
   ChannelHandler,
   Choice,
-  FlagsOptions,
   PromptConfig,
   PromptData,
-  Shortcut,
 } from "../types/core"
 
 import {
@@ -18,18 +16,16 @@ import {
   KeyData,
   AppMessage,
   EditorOptions,
-  Config,
   KitStatus,
-  Field,
   GuideSection,
   KitTheme,
   MicConfig,
   Fields,
   ClipboardItem,
+  ChannelMap,
 } from "../types/kitapp"
 
 import {
-  format,
   formatDistanceToNow,
   compareAsc,
 } from "@johnlindquist/kit-internal/date-fns"
@@ -81,6 +77,7 @@ import {
 import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
 import { pathToFileURL } from "url"
+import { PathConfig } from "../types/kit"
 
 interface DisplayChoicesProps
   extends Partial<PromptConfig> {
@@ -99,9 +96,10 @@ global.onExit = handler => {
 }
 
 let createHandlerWrapper = (
-  channel: Channel,
+  channel: keyof ChannelMap,
   handler: (data: any) => void
 ) => {
+  global.send(channel, true)
   let wrappedHandler = (data: any) => {
     // log(data)
     if (data?.channel === channel) {
@@ -111,6 +109,7 @@ let createHandlerWrapper = (
   process.on("message", wrappedHandler)
 
   return () => {
+    global.send(channel, false)
     process.off("message", wrappedHandler)
   }
 }
@@ -156,11 +155,47 @@ global.onKeyup = handler => {
   return createHandlerWrapper(Channel.SYSTEM_KEYUP, handler)
 }
 
+global.system = {
+  onClick: global.onClick,
+  onMousedown: global.onMousedown,
+  onMouseup: global.onMouseup,
+  onWheel: global.onWheel,
+  onKeydown: global.onKeydown,
+  onKeyup: global.onKeyup,
+}
+
+global.app = {
+  onScriptChanged: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_CHANGED,
+      handler
+    )
+  },
+  onScriptAdded: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_ADDED,
+      handler
+    )
+  },
+  onScriptRemoved: handler => {
+    return createHandlerWrapper(
+      Channel.SCRIPT_REMOVED,
+      handler
+    )
+  },
+}
+
 let _exec = global.exec
 global.exec = (
   command: string,
-  options = { shell: true, all: true, cwd: process.cwd() }
+  options = {
+    shell: true,
+    all: true,
+    cwd: process.cwd(),
+    windowsHide: true,
+  }
 ) => {
+  options.windowsHide = true
   let child = _exec(command, options)
   if (child?.all) child.all.pipe(process.stdout)
   return child as any
@@ -380,6 +415,19 @@ export let inspectPromptPromises = () => {
   dev(result)
 }
 
+let findAction = async (data: AppMessage) => {
+  if (data?.state?.action?.name) {
+    let f = global.kitFlagsAsChoices?.find(
+      f => f?.name === data?.state?.action?.name
+    )
+    if (f?.onAction) {
+      await f?.onAction(data?.state?.input, data.state)
+      return true
+    }
+  }
+  return false
+}
+
 let waitForPromptValue = ({
   ui,
   choices,
@@ -388,7 +436,7 @@ let waitForPromptValue = ({
   className,
   onNoChoices,
   onInput,
-  onFlagInput,
+  onActionsInput,
   onSelected,
   onChange,
   onEscape,
@@ -609,22 +657,12 @@ let waitForPromptValue = ({
               break
 
             case Channel.ACTION:
-              if (data?.state?.action?.name) {
-                let f = global.kitFlagsAsChoices?.find(
-                  f => f?.name === data?.state?.action?.name
-                )
-                if (f?.onAction) {
-                  await f?.onAction(
-                    data?.state?.input,
-                    data.state
-                  )
-                }
-              }
+              findAction(data)
 
               break
 
-            case Channel.FLAG_INPUT:
-              onFlagInput(data.state.input, data.state)
+            case Channel.ACTIONS_INPUT:
+              onActionsInput(data.state.input, data.state)
               break
 
             case Channel.SELECTED:
@@ -694,6 +732,9 @@ let waitForPromptValue = ({
               break
 
             case Channel.SHORTCUT:
+              let foundAction = await findAction(data)
+              if (foundAction) return
+
               if (data?.state?.flag) {
                 global.flag[data.state.flag] = true
                 global.actionFlag = data.state.flag || ""
@@ -837,15 +878,14 @@ let onEscapeDefault: ChannelHandler = async (
   input: string,
   state: AppState
 ) => {
-  send(Channel.BEFORE_EXIT)
-  finishScript()
+  exit()
 }
 
 let onAbandonDefault = () => {
   global.log(
     `${process.pid}: Abandon caused exit. Provide a "onAbandon" handler to override.`
   )
-  finishScript()
+  exit()
 }
 
 let onBackDefault = async () => {}
@@ -856,7 +896,7 @@ let onLeftDefault = async () => {}
 let onRightDefault = async () => {}
 let onTabDefault = async () => {}
 let onMessageFocusDefault = async () => {}
-let onFlagInputDefault = async () => {}
+let onActionsInputDefault = async () => {}
 let onSelectedDefault = async () => {}
 
 let onKeywordDefault = async (input, state) => {
@@ -990,7 +1030,7 @@ let prepPrompt = async (config: PromptConfig) => {
     preview,
     previewWidthPercent,
     panel,
-    onInputSubmit = {},
+    shortcodes = {},
     hideOnEscape,
     keyword = config?.ui !== UI.arg ? "" : undefined,
     ...restConfig
@@ -1024,7 +1064,7 @@ let prepPrompt = async (config: PromptConfig) => {
     css: "",
     preventCollapse: false,
     ...restConfig,
-    onInputSubmit,
+    shortcodes,
     tabIndex: global.onTabs?.findIndex(
       ({ name }) => global.arg?.tab
     ),
@@ -1180,7 +1220,8 @@ global.kitPrompt = async (config: PromptConfig) => {
   }
 
   if (config?.focusedId) {
-    config.defaultChoiceId = config.focusedId
+    config.defaultChoiceId =
+      config.focusedId || global.__kitFocusedChoiceId
   }
 
   let {
@@ -1212,7 +1253,7 @@ global.kitPrompt = async (config: PromptConfig) => {
       className,
       debounceInput
     ),
-    onFlagInput = createOnActionInputDefault(
+    onActionsInput = createOnActionInputDefault(
       config?.actions,
       className,
       debounceInput
@@ -1246,7 +1287,7 @@ global.kitPrompt = async (config: PromptConfig) => {
     validate,
     className,
     onInput,
-    onFlagInput,
+    onActionsInput,
     onSelected,
     onChange,
     onNoChoices,
@@ -1996,7 +2037,7 @@ global.arg =
 global.chat = async (options = {}) => {
   let messages = await global.kitPrompt({
     placeholder: "",
-
+    strict: true,
     resize: true,
     ui: UI.chat,
     width: PROMPT.WIDTH.BASE,
@@ -2104,6 +2145,85 @@ global.updateArgs = arrayOfArgs => {
 }
 
 global.updateArgs(process.argv.slice(2))
+
+export let appInstallMultiple = async (
+  packageNames: string[]
+) => {
+  let adjustedPackageNames = packageNames.map(
+    adjustPackageName
+  )
+
+  let i = 0
+  for await (let packageName of adjustedPackageNames) {
+    let placeholder = `${packageName} is required for this script`
+    setDescription(placeholder)
+    setName(" ")
+
+    let stripVersion = packageName.replace(
+      /(?<=.)(@|\^|~).*/g,
+      ""
+    )
+    let packageLink = `https://npmjs.com/package/${stripVersion}`
+
+    let response = null
+    try {
+      response = await get<{ downloads: number }>(
+        `https://api.npmjs.org/downloads/point/last-week/` +
+          stripVersion
+      )
+    } catch (error) {}
+
+    let downloads =
+      response?.data?.downloads || `an unknown number of`
+
+    let hint =
+      md(`A script requires the following packages. Do you trust them? 
+* ${adjustedPackageNames
+        .map((name, index) =>
+          index === i
+            ? `<span class="text-primary font-bold">${name}</span>`
+            : name
+        )
+        .join("\n* ")}
+
+---
+
+`)
+
+    let preview =
+      hint +
+      md(
+        `[${stripVersion}](${packageLink}) has had ${downloads} downloads from npm in the past week`
+      )
+
+    let trust = await global.arg({ placeholder }, [
+      {
+        name: `Abort`,
+        value: "false",
+        preview,
+      },
+      {
+        name: `Install ${packageName}`,
+        value: "true",
+        preview,
+      },
+    ])
+
+    if (trust === "false") {
+      echo(`Ok. Exiting...`)
+      exit()
+    }
+
+    i++
+  }
+
+  setHint(
+    `Installing ${adjustedPackageNames.join(", ")}...`
+  )
+
+  await global.cli("install", ...adjustedPackageNames)
+  console.clear()
+}
 
 export let appInstall = async packageName => {
   // don't try to install explicit built-in node modules
@@ -2645,7 +2765,7 @@ let verifyFullDiskAccess = async () => {
   return global.sendWait(Channel.VERIFY_FULL_DISK_ACCESS)
 }
 
-type PathConfig = PromptConfig & {
+type uzPathConfig = PromptConfig & {
   startPath?: string
   onlyDirs?: boolean
 }
@@ -2684,7 +2804,16 @@ let __pathSelector = async (
         dirFilter: dirFilter as (dirent: any) => true,
         onlyDirs,
       })
-
+      
+      choices.push({
+        name: "Doesn't exist, select anyway",
+        miss: true,
+        onSubmit: async input => {
+          submit(input)
+        },
+        enter: "Select",
+      })
+      
       if (!onlyDirs) {
         choices.push({
           name: `Create File "{base}"`,
@@ -2937,14 +3066,6 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       inputRegex: `[^\\${path.sep}]+$`,
       onInput,
       onTab,
-      onMenuToggle: async (input, state) => {
-        onMenuToggleDefault(input, state)
-
-        if (!state.flaggedValue) {
-          setInput(currentInput)
-          await lsCurrentDir(currentInput)
-        }
-      },
 
       alwaysOnTop: true,
       // onRight,
@@ -3033,7 +3154,20 @@ global.setFocused = (id: string) => {
 
 global.keyboard = {
   type: async (...textOrKeys: (string | Key)[]) => {
-    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys)
+    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys, 0)
+  },
+  typeDelayed: async (config: {
+    rate: number
+    textOrKeys: string | Key[]
+  }) => {
+    await sendWait(
+      Channel.KEYBOARD_TYPE_RATE,
+      {
+        rate: config?.rate || 600,
+        textOrKeys: config.textOrKeys,
+      },
+      0
+    )
   },
   pressKey: async (...keys: Key[]) => {
     await sendWait(Channel.KEYBOARD_PRESS_KEY, keys)
@@ -3043,6 +3177,10 @@ global.keyboard = {
   },
   config: async config => {
     send(Channel.KEYBOARD_CONFIG, config)
+  },
+  tap: async (...keys: Key[]) => {
+    await keyboard.pressKey(...keys)
+    await keyboard.releaseKey(...keys)
   },
 }
 
@@ -3400,9 +3538,6 @@ global.getAppState = async () => {
   return await sendWait(Channel.GET_APP_STATE)
 }
 
-global.formatDate = format
-global.formatDateToNow = formatDistanceToNow
-
 global.__kitAddErrorListeners = () => {
   if (process.listenerCount("unhandledRejection") === 0) {
     process.prependOnceListener(
@@ -3666,3 +3801,36 @@ global.setSelectedChoices = async (choices: Choice[]) => {
 global.getTheme = async () => {
   return await sendWait(Channel.GET_THEME)
 }
+
+global.prompt = {
+  closeActions: async () => {
+    return await sendWait(Channel.CLOSE_ACTIONS)
+  },
+  openActions: async () => {
+    return await sendWait(Channel.OPEN_ACTIONS)
+  },
+  close: async () => {
+    return exit()
+  },
+  setInput: (input: string) => {
+    return global.setInput(input)
+  },
+  focus: () => {
+    return global.focus()
+  },
+  blur: () => {
+    return global.blur()
+  },
+  hide: () => {
+    return global.hide()
+  },
+}
+
+global.screenshot = async () => {
+  return await sendWait(Channel.SCREENSHOT)
+}
+
+let { $, cd } = await import("zx")
+
+global.$ = $
+global.cd = cd

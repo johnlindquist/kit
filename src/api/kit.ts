@@ -27,7 +27,6 @@ import {
   Shortcut,
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
-import { isMainThread } from "worker_threads"
 
 import {
   kitPath,
@@ -590,7 +589,6 @@ global.onTabIndex = 0
 global.onTab = (name, tabFunction) => {
   let fn = async (...args) => {
     await tabFunction(...args)
-    finishScript()
   }
   global.onTabs.push({ name, fn })
   if (global.flag?.tab) {
@@ -812,9 +810,9 @@ global.prepFlags = (
     if (key === "order") continue
     if (key === "sortChoicesKey") continue
 
-    validFlags[key] = {
+    let validFlag = {
+      ...value,
       name: value?.name || key,
-      group: value?.group || "Actions",
       shortcut: value?.shortcut || "",
       description: value?.description || "",
       value: key,
@@ -822,20 +820,29 @@ global.prepFlags = (
       preview: value?.preview || "",
       hasAction: Boolean(value?.onAction),
     }
+    validFlags[key] = validFlag
+
+    if (value?.group) {
+      validFlags[key].group = value.group
+    }
   }
 
   global.kitFlagsAsChoices = currentFlags.map(
     ([key, value]) => {
-      return {
+      const choice = {
         id: key,
-        group: value?.group || "Actions",
         name: value?.name || key,
         value: key,
         description: value?.description || "",
         preview: value?.preview || `<div></div>`,
         shortcut: value?.shortcut || "",
         onAction: value?.onAction || null,
+      } as Choice
+
+      if (value?.group) {
+        choice.group = value.group
       }
+      return choice
     }
   )
 
@@ -846,23 +853,70 @@ global.setFlags = (flags: FlagsOptions) => {
   global.send(Channel.SET_FLAGS, global.prepFlags(flags))
 }
 
+function sortArrayByIndex(arr) {
+  const sortedArr = []
+  const indexedItems = []
+
+  // Separate indexed items from non-indexed items
+  arr.forEach((item, i) => {
+    if (item.hasOwnProperty("index")) {
+      indexedItems.push({ item, index: item.index })
+    } else {
+      sortedArr.push(item)
+    }
+  })
+
+  // Sort indexed items based on their index
+  indexedItems.sort((a, b) => a.index - b.index)
+
+  // Insert indexed items into the sorted array at their respective positions
+  indexedItems.forEach(({ item, index }) => {
+    sortedArr.splice(index, 0, item)
+  })
+
+  return sortedArr
+}
+
 export let getFlagsFromActions = (
   actions: PromptConfig["actions"]
 ) => {
   let flags: FlagsOptions = {}
+  let indices = new Set()
+  for (let a of actions as Action[]) {
+    if (a?.index) {
+      indices.add(a.index)
+    }
+  }
+  let groups = new Set()
   if (Array.isArray(actions)) {
-    for (let action of actions) {
+    actions = sortArrayByIndex(actions)
+    for (let i = 0; i < actions.length; i++) {
+      let action = actions[i]
       if (typeof action === "string") {
-        action = { name: action, flag: action }
+        action = {
+          name: action,
+          flag: action,
+        }
       }
-      flags[action.flag || action.name] = {
+      if (action?.group) {
+        groups.add(action.group)
+      }
+
+      let flagAction = {
         flag: action.flag || action.name,
+        index: i,
+        close: true,
         ...action,
         hasAction: action?.onAction ? true : false,
         bar: action?.visible ? "right" : "",
-      }
+      } as Action
+      flags[action.flag || action.name] = flagAction
     }
   }
+
+  flags.sortChoicesKey = Array.from(groups).map(
+    g => "index"
+  )
 
   return flags
 }
@@ -1063,7 +1117,6 @@ export let shortcuts: Shortcut[] = [
   },
   {
     name: "List Processes",
-    flag: "list-processes",
     key: `${cmd}+p`,
     onPress: async () => {
       let processes = await getProcesses()
@@ -1071,6 +1124,8 @@ export let shortcuts: Shortcut[] = [
         processes.filter(p => p?.scriptPath)?.length > 1
       ) {
         await run(kitPath("cli", "processes.js"))
+      } else {
+        toast("No running processes found...")
       }
     },
   },
@@ -1123,6 +1178,7 @@ export let shortcuts: Shortcut[] = [
         kitPath("cli", "open-script-log.js"),
         focused?.value?.filePath
       )
+      submit(false)
     },
   },
   {
@@ -1591,9 +1647,15 @@ let groupScripts = scripts => {
           typeof s?.pass === "string" &&
           s?.pass !== "true"
         ) {
-          s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${
-            s.pass
-          }`
+          if (s?.pass?.startsWith("/")) {
+            s.tag = `${s?.tag && ` ${s?.tag} `}pattern: ${
+              s.pass
+            }`
+          } else {
+            s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${
+              s.pass
+            }`
+          }
         }
 
         s.tag = s.tag.trim()
@@ -2317,37 +2379,5 @@ global.PROMPT = PROMPT
 global.preload = (scriptPath?: string) => {
   if (process.send) {
     send(Channel.PRELOAD, scriptPath || global.kitScript)
-  }
-}
-
-// global api for preloading main menu and removing listeners
-let done = false
-let executed = false
-let beforeExit = () => {
-  if (executed) return
-  if (global?.trace?.flush) {
-    global.trace.flush()
-  }
-  executed = true
-  send(Channel.BEFORE_EXIT)
-}
-global.finishScript = () => {
-  process.removeAllListeners("disconnect")
-  // Sometimes ends a script before a command like "open" can complete
-  // if (typeof global.finishPrompt === "function") {
-  //   global.finishPrompt()
-  // }
-  let activeMessageListeners =
-    process.listenerCount("message")
-
-  if (!done && activeMessageListeners === 0) {
-    // log(`🏁 Finish script`)
-    done = true
-    process.removeAllListeners()
-    beforeExit()
-  } else if (process?.env?.KIT_CONTEXT === "app") {
-    log(
-      `🏁 Reached the end of the script, but detected ${activeMessageListeners} active message listeners. Use "exit()" to force exit.`
-    )
   }
 }

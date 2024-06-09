@@ -134,7 +134,7 @@ let script = await mainMenu({
       !state?.focused?.exact
   },
   // footer: `Script Options: ${cmd}+k`,
-  onInputSubmit: {
+  shortcodes: {
     // "=": kitPath("handler", "equals-handler.js"),
     // ">": kitPath("handler", "greaterthan-handler.js"),
     // "/": kitPath("main", "browse.js"),

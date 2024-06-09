@@ -95,6 +95,12 @@ let app = await arg(
   },
   appsDb.choices
 )
+
+log(
+  `Opening ${input} with ${app} and ${
+    flag?.cmd ? "cmd" : "open"
+  }`
+)
 if (flag?.cmd) {
   await remove(kitPath("db", "apps.json"))
   await run(

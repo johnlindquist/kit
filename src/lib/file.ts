@@ -19,7 +19,11 @@ global.fileSearch = async (
   let results = []
 
   try {
-    results = (await global.exec(command)).stdout
+    results = (
+      await global.exec(command, {
+        windowsHide: true,
+      })
+    ).stdout
       .split("\n")
       .filter(Boolean)
   } catch (e) {

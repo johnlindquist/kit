@@ -41,10 +41,6 @@ process.title = `Kit Idle - Main Script`
 
 configEnv()
 
-process.once("disconnect", () => {
-  process.exit()
-})
-
 process.once("beforeExit", () => {
   send(Channel.BEFORE_EXIT)
 })

@@ -33,7 +33,7 @@ export interface Select {
     placeholderOrConfig?: string | PromptConfig,
     choices: Choices<T>,
     actions?: Action[]
-  )
+  ): Promise<T>
 }
 export interface EnvConfig extends PromptConfig {
   reset?: boolean
@@ -141,7 +141,9 @@ export interface Edit {
 }
 
 export interface Browse {
-  (url: string): ReturnType<typeof import("open")>
+  (url: string): ReturnType<
+    typeof import("@johnlindquist/open")
+  >
 }
 
 export interface Wait {
@@ -468,7 +470,6 @@ declare global {
 
   var preload: (scriptPath?: string) => void
 
-  var finishScript: (ignorePromptListener?: boolean) => void
   var setSelectedChoices: (
     choices: Choice[]
   ) => Promise<void>

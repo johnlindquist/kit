@@ -1,7 +1,10 @@
 // Description: Creates a script from an entered url
 
 import { highlightJavaScript } from "../api/kit.js"
-import { exists, stripMetadata } from "../core/utils.js"
+import {
+  checkIfCommandExists,
+  stripMetadata,
+} from "../core/utils.js"
 import { prependImport } from "./lib/utils.js"
 
 let url = await arg({
@@ -30,7 +33,7 @@ if (url.endsWith(".js")) {
 
 let name = await arg({
   placeholder: "Enter a name for your script:",
-  validate: exists,
+  validate: checkIfCommandExists,
   panel: await highlightJavaScript(contents),
 })
 

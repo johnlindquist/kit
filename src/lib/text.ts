@@ -1,16 +1,9 @@
 import { Channel } from "../core/enum.js"
-import { isMac } from "../core/utils.js"
 
 global.getSelectedText = async () => {
   await global.hide()
 
-  let copyKeys = [
-    isMac ? Key.LeftSuper : Key.LeftControl,
-    Key.C,
-  ]
-
-  await keyboard.pressKey(...copyKeys)
-  await keyboard.releaseKey(...copyKeys)
+  await sendWait(Channel.KEYBOARD_COPY)
 
   return await global.paste()
 }

@@ -347,7 +347,7 @@ global.edit = async (f, dir, line = 0, col = 0) => {
       await mainScript()
     }
   } else {
-    hide()
+    await hide()
 
     let execEditor = async (file: string) => {
       let editCommand = `"${KIT_EDITOR}" "${file}"`

@@ -1,6 +1,6 @@
 import { getLogFromScriptPath } from "../core/utils.js"
 
-let { filePath, command } = await selectScript(
+let { filePath } = await selectScript(
   `Open log for which script?`
 )
 

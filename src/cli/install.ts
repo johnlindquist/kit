@@ -29,10 +29,9 @@ let install = async packageNames => {
     toolPath = `npm`
   }
 
+  let packages = packageNames.join(" ")
   let command =
-    `${toolPath} ${toolArgs} -D ${packageNames.join(
-      " "
-    )}`.trim()
+    `${toolPath} ${toolArgs} -D ${packages}`.trim()
 
   return await term({
     name: `npm install`,
@@ -89,6 +88,6 @@ let packages = await arg(
 
 let installNames = [...packages.split(" ")]
 if (process?.send) global.setChoices([])
-await install([...installNames, ...argOpts])
+await install([...installNames, ...args, ...argOpts])
 
 export { packages }

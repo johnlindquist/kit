@@ -3,8 +3,7 @@
 // Keyword: kw
 // Enter: Focus
 
-import { Choice } from "@johnlindquist/kit"
-import { KitWindow } from "../types/platform"
+import type { Choice } from "../types/core"
 
 let windows = await getKitWindows()
 windows = windows.filter(w => !w.isFocused)

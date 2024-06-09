@@ -6,14 +6,18 @@ global.playAudioFile = async (
     rate: 1.0,
   }
 ) => {
-  return await sendWait(Channel.PLAY_AUDIO, {
-    filePath,
-    ...options,
-  })
+  return await sendWait(
+    Channel.PLAY_AUDIO,
+    {
+      filePath,
+      ...options,
+    },
+    0
+  )
 }
 
 global.stopAudioFile = async () => {
-  return await sendWait(Channel.STOP_AUDIO)
+  return await sendWait(Channel.STOP_AUDIO, undefined, 0)
 }
 
 global.say = async (
@@ -23,10 +27,14 @@ global.say = async (
     name: "Daniel",
   }
 ) => {
-  await sendWait(Channel.SPEAK_TEXT, {
-    text,
-    ...options,
-  })
+  await sendWait(
+    Channel.SPEAK_TEXT,
+    {
+      text,
+      ...options,
+    },
+    0
+  )
 
   return text
 }

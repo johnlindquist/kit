@@ -54,7 +54,7 @@ export interface Choice<Value = any> {
   height?: number
   skip?: boolean
   miss?: boolean
-  pass?: boolean
+  pass?: boolean | string
   group?: string
   userGrouped?: boolean
   choices?: (Omit<Choice<any>, "choices"> | string)[]
@@ -195,7 +195,7 @@ export type Shortcut = {
   onPress?: (
     input: string,
     state: AppState
-  ) => void | Promise<void>
+  ) => unknown | Promise<unknown>
   bar?: "right" | "left" | ""
   flag?: string
   visible?: boolean
@@ -231,7 +231,7 @@ export interface PromptData {
   resize: boolean
   placeholderOnly: boolean
   scripts: boolean
-  onInputSubmit: { [key: string]: any }
+  shortcodes: { [key: string]: any }
   defaultChoiceId: string
   focusedId: string
   footer: string
@@ -350,10 +350,13 @@ export type Action = {
   enter?: string
   onAction?: ChannelHandler
   condition?: Shortcut["condition"]
+  close?: boolean
+  index?: number
 }
 
 export interface AppState {
   input?: string
+  actionsInput?: string
   inputChanged?: boolean
   flaggedValue?: any
   flag?: string
@@ -394,7 +397,7 @@ export interface SubmitHandler {
 
 export type PromptConfig = {
   validate?: (
-    choice: string
+    input: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   actions?: Action[] | Panel
@@ -423,7 +426,7 @@ export type PromptConfig = {
   onTab?: ChannelHandler
   onKeyword?: ChannelHandler
   onInput?: ChannelHandler
-  onFlagInput?: ChannelHandler
+  onActionsInput?: ChannelHandler
   onChange?: ChannelHandler
   onBlur?: ChannelHandler
   onSelected?: ChannelHandler
@@ -442,7 +445,7 @@ export type PromptConfig = {
   debounceInput?: number
   debounceChoiceFocus?: number
   keyword?: string
-  onInputSubmit?: {
+  shortcodes?: {
     [key: string]: any
   }
   env?: any
@@ -10028,8 +10031,12 @@ export type kenvEnv = {
   KIT_DEBUG_PROMPT?: string | undefined
   KIT_DISABLE_ALWAYS_ON_TOP?: string | undefined
   KIT_DISABLE_AUTO_UPDATE?: string | undefined
+  KIT_DISABLE_BACKGROUND_THROTTLE?: string | undefined
+  KIT_DISABLE_SHADOW?: string | undefined
   KIT_DISABLE_BLUR?: string | undefined
   KIT_DISABLE_GPU?: string | undefined
+  KIT_ENABLE_FRAME?: string | undefined
+  KIT_ENABLE_TRANSPARENT?: string | undefined
   KIT_DISPLAY?: string | undefined
   KIT_EMOJI_SHORTCUT?: string | undefined
   KIT_IDLE_PROCESSES?: string | undefined
@@ -10042,6 +10049,10 @@ export type kenvEnv = {
   KIT_NO_PREVIEW?: string | undefined
   KIT_OPEN_AT_LOGIN?: string | undefined
   KIT_OPEN_IN?: string | undefined
+  KIT_PROMPT_INITIAL_HIDE_TIMEOUT?: string | undefined
+  KIT_PROMPT_INITIAL_SHOW?: string | undefined
+  KIT_PROMPT_INITIAL_X?: string | undefined
+  KIT_PROMPT_INITIAL_Y?: string | undefined
   KIT_SANS_FONT?: string | undefined
   KIT_SEARCH_DEBOUNCE?: string | undefined
   KIT_SERIF_FONT?: string | undefined
@@ -10053,8 +10064,12 @@ export type kenvEnv = {
   KIT_TRANSPARENT?: string | undefined
   KIT_TRAY?: string | undefined
   KIT_TYPED_LIMIT?: string | undefined
+  KIT_TYPING_RATE?: string | undefined
   KIT_WEBCAM?: string | undefined
   KIT_WIDTH?: string | undefined
+  KIT_WINDOWS_PRERENDER_SHOW_INACTIVE_TIMEOUT?:
+    | string
+    | undefined
   KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
   KIT_SEARCH_MIN_SCORE?: string | undefined
   KIT_SEARCH_MAX_ITERATIONS?: string | undefined
@@ -10333,7 +10348,7 @@ export interface Select {
     placeholderOrConfig?: string | PromptConfig,
     choices: Choices<T>,
     actions?: Action[]
-  )
+  ): Promise<T>
 }
 export interface EnvConfig extends PromptConfig {
   reset?: boolean
@@ -10441,7 +10456,9 @@ export interface Edit {
 }
 
 export interface Browse {
-  (url: string): ReturnType<typeof import("open")>
+  (url: string): ReturnType<
+    typeof import("@johnlindquist/open")
+  >
 }
 
 export interface Wait {
@@ -10768,7 +10785,6 @@ declare global {
 
   var preload: (scriptPath?: string) => void
 
-  var finishScript: (ignorePromptListener?: boolean) => void
   var setSelectedChoices: (
     choices: Choice[]
   ) => Promise<void>
@@ -10777,6 +10793,8 @@ declare global {
 }
 
 
+
+import core from "./core/enum"
 
 
 
@@ -10850,6 +10868,16 @@ export type Toast = {
   (toast: string, options?: any): void
 }
 
+export type Prompt = {
+  closeActions(): Promise<void>
+  close(): Promise<void>
+  openActions(): Promise<void>
+  setInput(input: string): Promise<void>
+  focus(): Promise<void>
+  blur(): Promise<void>
+  hide(): Promise<void>
+}
+
 export type Mic = {
   (config?: MicConfig): Promise<Buffer>
 } & {
@@ -10864,6 +10892,13 @@ export type WebCam = {
 
 export type Speech = {
   (config?: PromptConfig): Promise<string>
+}
+
+export type Screenshot = {
+  (
+    displayId?: number,
+    bounds?: ScreenShotBounds
+  ): Promise<Buffer>
 }
 
 export type GetMediaDevices = {
@@ -11052,10 +11087,6 @@ export interface KeyData {
 }
 export interface Hotkey {
   (placeholder?: string | PromptConfig): Promise<KeyData>
-}
-
-export interface AppleScript {
-  (script: string, options?: any): Promise<string>
 }
 
 type SetImage = string | { src: string }
@@ -11378,8 +11409,12 @@ export interface ChannelMap {
 
   [Channel.KEYBOARD_CONFIG]: { autoDelayMs: number }
   [Channel.KEYBOARD_TYPE]: string
-  [Channel.KEYBOARD_PRESS_KEY]: KeyboardEnum[]
-  [Channel.KEYBOARD_RELEASE_KEY]: KeyboardEnum[]
+  [Channel.KEYBOARD_PRESS_KEY]: Key[]
+  [Channel.KEYBOARD_RELEASE_KEY]: Key[]
+
+  [Channel.SCRIPT_CHANGED]: Script
+  [Channel.SCRIPT_REMOVED]: Script
+  [Channel.SCRIPT_ADDED]: Script
 
   [Channel.TRASH]: {
     input: Parameters<Trash>[0]
@@ -11395,6 +11430,18 @@ export interface ChannelMap {
   [Channel.PRELOAD]: string
   [Channel.MIC_STREAM]: boolean
   [Channel.START_MIC]: MicConfig
+  [Channel.SCREENSHOT]: {
+    displayId?: Screenshot["displayId"]
+    bounds?: Screenshot["bounds"]
+  }
+  [Channel.SYSTEM_CLICK]: boolean
+  [Channel.SYSTEM_MOVE]: boolean
+  [Channel.SYSTEM_KEYDOWN]: boolean
+  [Channel.SYSTEM_KEYUP]: boolean
+  [Channel.SYSTEM_MOUSEDOWN]: boolean
+  [Channel.SYSTEM_MOUSEUP]: boolean
+  [Channel.SYSTEM_MOUSEMOVE]: boolean
+  [Channel.SYSTEM_WHEEL]: boolean
 }
 export interface Send {
   (channel: Channel | GetAppData | SendNoOptions): void
@@ -11556,12 +11603,71 @@ export interface ClipboardItem {
   preview?: string
 }
 
+export interface System {
+  onClick: typeof global.onClick
+  onMousedown: typeof global.onMousedown
+  onMouseup: typeof global.onMouseup
+  onWheel: typeof global.onWheel
+  onKeydown: typeof global.onKeydown
+  onKeyup: typeof global.onKeyup
+}
+/**
+ * A handler for a script event. Receives the full path to the script that was affected
+ * @param script The script that was added, changed, or removed.
+ */
+type ScriptHandler = (scriptPath: string) => void
+type ScriptEventHandler = (
+  handler: ScriptHandler
+) => removeListener
+
+export type App = {
+  /**
+   * A handler for a script event. Receives the full path to the script that was added.
+   * @param scriptPath The full path to the script that was added
+   */
+  onScriptAdded?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was changed.
+   * @param scriptPath The full path to the script that was changed
+   */
+  onScriptChanged?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was removed.
+   * @param scriptPath The full path to the script that was removed
+   */
+  onScriptRemoved?: ScriptEventHandler
+}
+
 export interface Keyboard {
-  type: (
-    ...text: (string | KeyboardEnum)[]
-  ) => Promise<void>
-  pressKey: (...keys: KeyboardEnum[]) => Promise<void>
-  releaseKey: (...keys: KeyboardEnum[]) => Promise<void>
+  type: (...text: (string | Key)[]) => Promise<void>
+  /**
+   * Types text or keys with a delay between each keystroke.
+   * @param config Configuration object for typing.
+   * @param config.rate The delay in milliseconds between keystrokes. Note: values less than 700 can give weird results.
+   * @param config.textOrKeys The text or keys to type.
+   */
+  typeDelayed: (config: {
+    rate?: number
+    textOrKeys: string | Key[]
+  }) => Promise<void>
+  /**
+   * Presses a key.
+   * @param keys The keys to press.
+   */
+  pressKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Releases a key.
+   * @param keys The keys to release.
+   */
+  releaseKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Taps a key.
+   * @param keys The keys to tap.
+   */
+  tap: (...keys: Key[]) => Promise<void>
+  /**
+   * @deprecated Use `keyboard.typeDelayed` or set `KIT_TYPING_RATE` and use `keyboard.type` instead.
+   */
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
@@ -11645,6 +11751,7 @@ export interface AppApi {
   emoji: Emoji
   div: Div
   hotkey: Hotkey
+  prompt: Prompt
 
   kitPrompt: (promptConfig: PromptConfig) => Promise<any>
   send: Send
@@ -11719,7 +11826,7 @@ export interface AppApi {
   ) => Promise<void>
 
   appKeystroke: SendKeystroke
-  Key: typeof KeyboardEnum
+  Key: typeof core.Key
 
   log: typeof console.log
   warn: typeof console.warn
@@ -11753,7 +11860,6 @@ export interface Schedule extends Choice {
 export interface HideOptions {
   preloadScript?: string
 }
-
 declare global {
   var textarea: TextArea
   var drop: Drop
@@ -11830,7 +11936,7 @@ declare global {
   ) => Promise<void>
 
   var appKeystroke: SendKeystroke
-  var Key: typeof KeyboardEnum
+  var Key: typeof core.Key
 
   var log: typeof console.log
   var warn: typeof console.warn
@@ -11862,34 +11968,73 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
+  /**
+   * Captures a screenshot. Defaults to the display where the current mouse cursor is located and captures the full screen if no bounds are specified.
+   * @param displayId - The identifier for the display to capture. If not provided, captures the display with the current mouse cursor.
+   * @param bounds - The specific area of the screen to capture. If not provided, captures the entire screen.
+   * @returns A Promise that resolves to a Buffer containing the screenshot data.
+   */
+  var screenshot: Screenshot
   var webcam: WebCam
+  var prompt: Prompt
   var getMediaDevices: GetMediaDevices
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
   var preventSubmit: Symbol
 
+  type removeListener = () => void
+  /**
+   * Registers a global system onClick event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onClick: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => removeListener
 
+  /**
+   * Registers a global system onMousedown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMousedown: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => removeListener
+  /**
+   * Registers a global system onMouseup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMouseup: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onWheel event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onWheel: (
     callback: (event: UiohookWheelEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onKeydown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeydown: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onKeyup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeyup: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
+  ) => removeListener
+
+  var system: System
+  var app: App
 
   var getTheme: () => Promise<KitTheme>
 }

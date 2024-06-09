@@ -12,8 +12,13 @@ import {
 } from "../types/core"
 import { platform, homedir } from "os"
 import { lstatSync, PathLike, realpathSync } from "fs"
-import { lstat, readdir, readFile } from "fs/promises"
-
+import {
+  access,
+  lstat,
+  readdir,
+  readFile,
+} from "fs/promises"
+import { constants } from "fs"
 import { execSync } from "child_process"
 
 import { ProcessType, Channel, PROMPT } from "./enum.js"
@@ -42,8 +47,9 @@ export let isFile = async (
   file: string
 ): Promise<boolean> => {
   try {
-    let stats = await lstat(file)
-    return stats.isFile()
+    await access(file, constants.F_OK)
+    let stats = await lstat(file).catch(() => null)
+    return stats?.isFile()
   } catch {
     return false
   }
@@ -73,7 +79,11 @@ export let isBin = async (
 ): Promise<boolean> => {
   if (jsh) return false
   try {
-    return Boolean(execSync(`command -v ${bin}`))
+    const result = spawnSync("command", ["-v", bin], {
+      stdio: "ignore",
+      windowsHide: true,
+    })
+    return result.status === 0
   } catch {
     return false
   }
@@ -714,7 +724,7 @@ export let stripName = (name: string) => {
 }
 
 //validator
-export let exists = async (input: string) => {
+export let checkIfCommandExists = async (input: string) => {
   if (await isBin(kenvPath("bin", input))) {
     return global.chalk`{red.bold ${input}} already exists. Try again:`
   }
@@ -825,15 +835,6 @@ export let run = async (
   )
 
   global.flag.tab = ""
-
-  if (
-    kitLocalRunCount === kitGlobalRunCount &&
-    // Without this, the TODOs example auto-exits
-    typeof global?.onTabs?.length !== "undefined" &&
-    global?.onTabs?.length === 0
-  ) {
-    global.finishScript()
-  }
 
   return result
 }
@@ -1119,6 +1120,16 @@ export let terminateProcessShortcut: Shortcut = {
   visible: true,
 }
 
+export let terminateAllProcessesShortcut: Shortcut = {
+  name: "Terminate All Processes",
+  key: `${cmd}+shift+enter`,
+  onPress: async () => {
+    await sendWait(Channel.TERMINATE_ALL_PROCESSES)
+  },
+  bar: "right",
+  visible: true,
+}
+
 export let smallShortcuts: Shortcut[] = [
   // escapeShortcut,
   closeShortcut,
@@ -1298,6 +1309,17 @@ export const debounce = <T extends Procedure>(
       func(...args)
     }
   }
+}
+
+export const range = (
+  start: number,
+  end: number,
+  step = 1
+): number[] => {
+  return Array.from(
+    { length: Math.ceil((end - start) / step) },
+    (_, i) => start + i * step
+  )
 }
 
 type Iteratee<T> = ((item: T) => any) | keyof T

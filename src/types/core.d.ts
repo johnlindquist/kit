@@ -52,7 +52,7 @@ export interface Choice<Value = any> {
   height?: number
   skip?: boolean
   miss?: boolean
-  pass?: boolean
+  pass?: boolean | string
   group?: string
   userGrouped?: boolean
   choices?: (Omit<Choice<any>, "choices"> | string)[]
@@ -193,7 +193,7 @@ export type Shortcut = {
   onPress?: (
     input: string,
     state: AppState
-  ) => void | Promise<void>
+  ) => unknown | Promise<unknown>
   bar?: "right" | "left" | ""
   flag?: string
   visible?: boolean
@@ -229,7 +229,7 @@ export interface PromptData {
   resize: boolean
   placeholderOnly: boolean
   scripts: boolean
-  onInputSubmit: { [key: string]: any }
+  shortcodes: { [key: string]: any }
   defaultChoiceId: string
   focusedId: string
   footer: string
@@ -348,10 +348,13 @@ export type Action = {
   enter?: string
   onAction?: ChannelHandler
   condition?: Shortcut["condition"]
+  close?: boolean
+  index?: number
 }
 
 export interface AppState {
   input?: string
+  actionsInput?: string
   inputChanged?: boolean
   flaggedValue?: any
   flag?: string
@@ -392,7 +395,7 @@ export interface SubmitHandler {
 
 export type PromptConfig = {
   validate?: (
-    choice: string
+    input: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   actions?: Action[] | Panel
@@ -421,7 +424,7 @@ export type PromptConfig = {
   onTab?: ChannelHandler
   onKeyword?: ChannelHandler
   onInput?: ChannelHandler
-  onFlagInput?: ChannelHandler
+  onActionsInput?: ChannelHandler
   onChange?: ChannelHandler
   onBlur?: ChannelHandler
   onSelected?: ChannelHandler
@@ -440,7 +443,7 @@ export type PromptConfig = {
   debounceInput?: number
   debounceChoiceFocus?: number
   keyword?: string
-  onInputSubmit?: {
+  shortcodes?: {
     [key: string]: any
   }
   env?: any
