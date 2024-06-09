@@ -210,12 +210,26 @@ export let addPreview = async (
   return [...enhancedChoices, ...docOnlyChoices]
 }
 
-export let prependImport = contents => {
-  let foundImport = contents.match(
-    /import.*('|")@johnlindquist\/kit('|")/
-  )
+export let prependImport = (
+  contents: string,
+  { force = false }: { force?: boolean } = {}
+) => {
+  let insert = true
+  
+  if (force) {
+    contents = contents.replaceAll(
+      /^import\s+['"]@johnlindquist\/kit['"]\s*\n?/gm, ''
+    )
+  } else {
+    let foundImport = contents.match(
+      /import\s+['"]@johnlindquist\/kit['"]/
+    )
+    if (foundImport) {
+      insert = false
+    }
+  }
 
-  if (!foundImport) {
+  if (insert) {
     return `import "@johnlindquist/kit"
     
 ${contents}`

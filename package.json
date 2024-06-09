@@ -59,6 +59,8 @@
     "@types/node-notifier": "8.0.5",
     "@types/shelljs": "0.8.15",
     "@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2",
+    "acorn": "^8.11.3",
+    "acorn-typescript": "^1.4.13",
     "advanced-calculator": "1.1.1",
     "body-parser": "^1.20.2",
     "chrome-trace-event": "^1.0.4",
