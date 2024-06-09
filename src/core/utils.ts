@@ -378,7 +378,9 @@ ${contents}`.trim()
   return contents
 }
 
-const getMetadataFromComments = (contents: string) : Record<string, string> => {
+const getMetadataFromComments = (
+  contents: string
+): Record<string, string> => {
   const lines = contents.split("\n")
   const metadata = {}
   let commentStyle = null
@@ -404,10 +406,10 @@ const getMetadataFromComments = (contents: string) : Record<string, string> => {
       multilineCommentEnd = line.trim().startsWith("/*")
         ? "*/"
         : line.trim().startsWith(": '")
-          ? "'"
-          : line.trim().startsWith("'''")
-            ? "'''"
-            : '"""'
+        ? "'"
+        : line.trim().startsWith("'''")
+        ? "'''"
+        : '"""'
     }
 
     // Check for the end of a multiline comment block
@@ -467,15 +469,15 @@ const getMetadataFromComments = (contents: string) : Record<string, string> => {
       continue
     }
 
-    let parsedValue: string | boolean | number;
+    let parsedValue: string | boolean | number
     switch (true) {
-      case value.toLowerCase() === 'true':
+      case value.toLowerCase() === "true":
         parsedValue = true
         break
-      case value.toLowerCase() === 'false':
+      case value.toLowerCase() === "false":
         parsedValue = false
         break
-      case key.toLowerCase() === 'timeout':
+      case key.toLowerCase() === "timeout":
         parsedValue = parseInt(value, 10)
         break
       default:
@@ -491,32 +493,50 @@ const getMetadataFromComments = (contents: string) : Record<string, string> => {
   return metadata
 }
 
-
 function parseTypeScript(code: string) {
-  // @ts-expect-error Somehow these are not 100% compatible
-  const parser = Parser.extend(tsPlugin({ allowSatisfies: true }))
-  return parser.parse(code, { sourceType: "module", ecmaVersion: "latest" })
+  const parser = Parser.extend(
+    // @ts-expect-error Somehow these are not 100% compatible
+    tsPlugin({ allowSatisfies: true })
+  )
+  return parser.parse(code, {
+    sourceType: "module",
+    ecmaVersion: "latest",
+  })
 }
 
-function getMetadataFromExport(ast: Program): Partial<Metadata> {
-  function isOfType<T extends { type: string }, TType extends string>(node: T, type: TType): node is T & { type: TType } {
+function getMetadataFromExport(
+  ast: Program
+): Partial<Metadata> {
+  function isOfType<
+    T extends { type: string },
+    TType extends string
+  >(node: T, type: TType): node is T & { type: TType } {
     return node.type === type
   }
 
   for (const node of ast.body) {
-    if (!isOfType(node, "ExportNamedDeclaration") || !node.declaration) {
+    if (
+      !isOfType(node, "ExportNamedDeclaration") ||
+      !node.declaration
+    ) {
       continue
     }
 
     const declaration = node.declaration
 
-    if (declaration.type !== "VariableDeclaration" || !declaration.declarations[0]) {
+    if (
+      declaration.type !== "VariableDeclaration" ||
+      !declaration.declarations[0]
+    ) {
       continue
     }
 
     const namedExport = declaration.declarations[0]
 
-    if (!("name" in namedExport.id) || namedExport.id.name !== "metadata") {
+    if (
+      !("name" in namedExport.id) ||
+      namedExport.id.name !== "metadata"
+    ) {
       continue
     }
 
@@ -539,7 +559,9 @@ function getMetadataFromExport(ast: Program): Partial<Metadata> {
       }
 
       if (!isOfType(value, "Literal")) {
-        throw Error(`value is not a Literal, but a ${value.type}`)
+        throw Error(
+          `value is not a Literal, but a ${value.type}`
+        )
       }
 
       acc[key.name] = value.value
@@ -563,7 +585,7 @@ export let getMetadata = (contents: string): Metadata => {
   let ast: Program
   try {
     ast = parseTypeScript(contents)
-  } catch(err) {
+  } catch (err) {
     // TODO: May wanna introduce some error handling here. In my script version, I automatically added an error
     //  message near the top of the user's file, indicating that their input couldn't be parsed...
     //  acorn-typescript unfortunately doesn't support very modern syntax, like `const T` generics.
@@ -573,8 +595,8 @@ export let getMetadata = (contents: string): Metadata => {
 
   try {
     const fromExport = getMetadataFromExport(ast)
-    return {...fromComments, ...fromExport}
-  } catch(err) {
+    return { ...fromComments, ...fromExport }
+  } catch (err) {
     return fromComments
   }
 }
@@ -596,9 +618,7 @@ export let postprocessMetadata = (
   const result: Partial<ScriptMetadata> = { ...metadata }
 
   if (metadata.shortcut) {
-    result.shortcut = shortcutNormalizer(
-      metadata.shortcut
-    )
+    result.shortcut = shortcutNormalizer(metadata.shortcut)
 
     result.friendlyShortcut = friendlyShortcut(
       metadata.shortcut
@@ -606,7 +626,9 @@ export let postprocessMetadata = (
   }
 
   if (metadata.shortcode) {
-    result.shortcode = metadata.shortcode?.trim()?.toLowerCase()
+    result.shortcode = metadata.shortcode
+      ?.trim()
+      ?.toLowerCase()
   }
 
   if (metadata.trigger) {
@@ -1704,10 +1726,11 @@ export let formatChoices = (
           }
         }
 
-        let hasPreview = Boolean(choice?.preview)
+        let hasPreview = Boolean(
+          choice?.preview || choice?.hasPreview
+        )
         let slicedName = choice?.name?.slice(0, 63) || ""
         let properChoice = {
-          hasPreview,
           id: choice?.id || `${index}-${slicedName || ""}`,
           name: choice?.name || "",
           slicedName,
@@ -1722,6 +1745,7 @@ export let formatChoices = (
               : className,
 
           ...choice,
+          hasPreview,
         }
 
         if (properChoice.height > PROMPT.ITEM.HEIGHT.XXL) {
@@ -1777,8 +1801,10 @@ export let formatChoices = (
               id: subChoice?.id || uuid(),
               group: choice?.name,
               className,
-              hasPreview: Boolean(subChoice?.preview),
               ...subChoice,
+              hasPreview: Boolean(
+                subChoice?.preview || subChoice?.hasPreview
+              ),
             })
           } else {
             groupedChoices.push({

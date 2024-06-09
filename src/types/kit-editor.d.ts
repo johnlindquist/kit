@@ -661,9 +661,7 @@ export class Uri implements UriComponents {
      *
      * ```ts
         const u = Uri.parse('file://server/c$/folder/file.txt')
-        u.authority 
-        
-        'server'
+        u.authority === 'server'
         u.path === '/shares/c$/file.txt'
         u.fsPath === '\\server\c$\folder\file.txt'
     ```
@@ -10394,24 +10392,9 @@ declare class UiohookNapi extends EventEmitter {
 export declare const uIOhook: UiohookNapi
 
 
-import {
-  format,
-  formatDistanceToNow,
-} from "@johnlindquist/kit-internal/date-fns"
 
-import {
-  Action,
-  ChannelHandler,
-  Choice,
-  Choices,
-  FlagsOptions,
-  Panel,
-  Preview,
-  PromptConfig,
-  ScoredChoice,
-  Script,
-  Shortcut,
-} from "./core"
+
+
 
 
 export interface Arg {
@@ -10874,43 +10857,18 @@ declare global {
 
 
 
-
-import {
-  Key as KeyboardEnum,
-  Channel,
-  Mode,
-  statuses,
-  PROMPT as PROMPT_OBJECT,
-} from "../core/enum"
-
 import core from "./core/enum"
 
-import {
-  AppState,
-  ChannelHandler,
-  Choice,
-  Choices,
-  FlagsOptions,
-  PromptConfig,
-  PromptData,
-  ScoredChoice,
-  Script,
-  Shortcut,
-} from "./core"
-import {
-  BrowserWindowConstructorOptions,
-  Display,
-  Rectangle,
-} from "./electron"
 
 
 
 
-import {
-  UiohookKeyboardEvent,
-  UiohookMouseEvent,
-  UiohookWheelEvent,
-} from "./io"
+
+
+
+
+
+
 
 
 
@@ -12144,15 +12102,7 @@ declare global {
 }
 
 import * as shelljs from "shelljs/index"
-import {
-  add,
-  clone,
-  commit,
-  init,
-  pull,
-  push,
-  addRemote,
-} from "isomorphic-git"
+
 
 export type Trash = (
   input: string | readonly string[],
@@ -12796,11 +12746,7 @@ declare global {
 
 
 
-import {
-  BrowserWindowConstructorOptions,
-  Display,
-  Rectangle,
-} from "./electron"
+
 
 export type WidgetOptions =
   BrowserWindowConstructorOptions & {
