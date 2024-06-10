@@ -2295,7 +2295,7 @@ export let setEnvVar = async (
 
 export let getEnvVar = async (
   key: string,
-  fallback: string
+  fallback: string = ""
 ) => {
   let kenvEnv = dotenv.parse(
     await readFile(kenvPath(".env"), "utf8")

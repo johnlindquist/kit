@@ -13,7 +13,7 @@ export type GlobalApi = Omit<GlobalsApi, "path"> &
   ProAPI
 
 declare global {
-  type Metadata = import("./core").Metadata;
+  type Metadata = import("./core").Metadata
 
   var kit: GlobalApi & Run
 
@@ -23,4 +23,6 @@ declare global {
 }
 
 export * from "./core"
+export * from "../core/utils"
+
 export default kit

@@ -42,7 +42,6 @@ ava.serial(`All globals exist`, async t => {
   await import(kitPath("index.js"))
 
   let files = await readdir(kitPath("types"))
-  files = files.filter(f => !f.includes("kit-editor"))
   let content = ``
   for await (let f of files) {
     content += await readFile(kitPath("types", f), "utf-8")

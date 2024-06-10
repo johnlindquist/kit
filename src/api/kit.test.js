@@ -114,17 +114,23 @@ ava.serial(
     let defaultValue = "true"
 
     // Import the methods
+
+    /** @type {import("./kit.js")} */
     let { setEnvVar, toggleEnvVar, getEnvVar } =
       await import(kitPath("api", "kit.js"))
 
     // Set the environment variable to the default value
     await setEnvVar(key, defaultValue)
 
+    let toggledValue = await getEnvVar(key, "")
+
+    t.is(toggledValue, "true")
+
     // Toggle the environment variable
     await toggleEnvVar(key)
 
     // Retrieve the toggled value
-    let toggledValue = await getEnvVar(key, "")
+    toggledValue = await getEnvVar(key, "")
 
     // Check if the value has been toggled from "true" to "false"
     t.is(toggledValue, "false")

@@ -4,9 +4,7 @@ let kitContent = ``
 
 // exclude itself 😇
 
-let kitDefs = (
-  await readdir(path.resolve("src", "types"))
-).filter(f => !f.includes("kit-editor"))
+let kitDefs = await readdir(path.resolve("src", "types"))
 
 for (let def of kitDefs) {
   kitContent += await readFile(
@@ -53,10 +51,9 @@ declare module '@johnlindquist/kit' {
 }
 `
 
-await writeFile(
-  "./src/types/kit-editor.d.ts",
-  nodeContent + kitContent,
-  "utf8"
-)
+let filePath = "./src/editor/types/kit-editor.d.ts"
+
+await ensureDir(path.dirname(filePath))
+await writeFile(filePath, nodeContent + kitContent, "utf8")
 
 export {}

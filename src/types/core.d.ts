@@ -104,7 +104,7 @@ export interface ScriptMetadata {
   schedule?: string
   system?: string
   watch?: string
-  background?: boolean
+  background?: boolean | "auto"
   type: ProcessType
   timeout?: number
   tabs?: string[]
@@ -129,7 +129,6 @@ export interface ScriptMetadata {
   preview?: Choice["preview"]
   previewPath?: string
   debug?: boolean
-  verbose?: boolean
   cache?: boolean
   note?: string
   group?: string
@@ -493,12 +492,10 @@ export interface Metadata {
   exclude?: boolean
   /** Specifies a file or directory to watch for changes, triggering the script upon modifications. */
   watch?: string
-  /** Indicates whether to elevate the log level during script execution */
-  verbose?: boolean
   /** Indicates whether to disable logs */
   log?: boolean
   /** Designates the script as a background process, running continuously in the background. */
-  background?: boolean
+  background?: boolean | "auto"
   /** Defines the number of seconds after which the script will be terminated */
   timeout?: number
   /** Associates the script with system events such as sleep, wake, or shutdown. */
@@ -512,7 +509,7 @@ export interface Metadata {
     | "unlock-screen"
     | "user-did-become-active"
     | "user-did-resign-active"
-    | string
+
   /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
   schedule?: CronExpression
 }

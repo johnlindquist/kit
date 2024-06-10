@@ -2804,7 +2804,7 @@ let __pathSelector = async (
         dirFilter: dirFilter as (dirent: any) => true,
         onlyDirs,
       })
-      
+
       choices.push({
         name: "Doesn't exist, select anyway",
         miss: true,
@@ -2813,7 +2813,7 @@ let __pathSelector = async (
         },
         enter: "Select",
       })
-      
+
       if (!onlyDirs) {
         choices.push({
           name: `Create File "{base}"`,
@@ -3444,7 +3444,7 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
   })
 
   let content = await readFile(
-    kitPath("types", "kit-editor.d.ts"),
+    kitPath("editor", "types", "kit-editor.d.ts"),
     "utf8"
   )
   extraLibs.push({

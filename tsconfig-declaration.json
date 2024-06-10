@@ -11,5 +11,5 @@
     "emitDeclarationOnly": true,
     "skipLibCheck": true
   },
-  "include": ["./src/index.ts", "./src/core/*"]
+  "include": ["./src/core/*"]
 }

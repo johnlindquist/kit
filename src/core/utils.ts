@@ -50,7 +50,11 @@ export let isFile = async (
 ): Promise<boolean> => {
   try {
     await access(file, constants.F_OK)
-    let stats = await lstat(file).catch(() => null)
+    let stats = await lstat(file).catch(() => {
+      return {
+        isFile: () => false,
+      }
+    })
     return stats?.isFile()
   } catch {
     return false
@@ -63,9 +67,13 @@ export let isDir = async (
 ): Promise<boolean> => {
   try {
     try {
-      let stats = await lstat(dir)
+      let stats = await lstat(dir).catch(() => {
+        return {
+          isDirectory: () => false,
+        }
+      })
 
-      return stats.isDirectory()
+      return stats?.isDirectory()
     } catch (error) {
       log(error)
     }
@@ -470,14 +478,16 @@ const getMetadataFromComments = (
     }
 
     let parsedValue: string | boolean | number
+    let lowerValue = value.toLowerCase()
+    let lowerKey = key.toLowerCase()
     switch (true) {
-      case value.toLowerCase() === "true":
+      case lowerValue === "true":
         parsedValue = true
         break
-      case value.toLowerCase() === "false":
+      case lowerValue === "false":
         parsedValue = false
         break
-      case key.toLowerCase() === "timeout":
+      case lowerKey === "timeout":
         parsedValue = parseInt(value, 10)
         break
       default:
@@ -578,18 +588,22 @@ export let getMetadata = (contents: string): Metadata => {
   const fromComments = getMetadataFromComments(contents)
 
   if (!/(const|var|let) metadata/g.test(contents)) {
+    console.log("No metadata found in file")
     // No named export in file, return early
     return fromComments
   }
 
   let ast: Program
   try {
+    console.log("Parsing TypeScript")
     ast = parseTypeScript(contents)
+    console.log("Parsed TypeScript", typeof ast)
   } catch (err) {
     // TODO: May wanna introduce some error handling here. In my script version, I automatically added an error
     //  message near the top of the user's file, indicating that their input couldn't be parsed...
     //  acorn-typescript unfortunately doesn't support very modern syntax, like `const T` generics.
     //  But it works in most cases.
+    console.log("Error parsing TypeScript", err)
     return fromComments
   }
 
@@ -663,15 +677,12 @@ export let postprocessMetadata = (
     result.tabs = tabs
   }
 
-  result.hasFlags = Boolean(
-    fileContents.match(
-      new RegExp(`(?<=^setFlags).*`, "gim")
-    )
-  )
-
-  result.hasPreview = Boolean(
+  let hasPreview = Boolean(
     fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0]
   )
+  if (hasPreview) {
+    result.hasPreview = true
+  }
 
   return result as unknown as ScriptMetadata
 }
@@ -681,7 +692,13 @@ export let parseMetadata = (
   fileContents: string
 ): ScriptMetadata => {
   let metadata: Metadata = getMetadata(fileContents)
-  return postprocessMetadata(metadata, fileContents)
+
+  let processedMetadata = postprocessMetadata(
+    metadata,
+    fileContents
+  )
+
+  return processedMetadata
 }
 
 //app
