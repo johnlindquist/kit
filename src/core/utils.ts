@@ -588,22 +588,18 @@ export let getMetadata = (contents: string): Metadata => {
   const fromComments = getMetadataFromComments(contents)
 
   if (!/(const|var|let) metadata/g.test(contents)) {
-    console.log("No metadata found in file")
     // No named export in file, return early
     return fromComments
   }
 
   let ast: Program
   try {
-    console.log("Parsing TypeScript")
     ast = parseTypeScript(contents)
-    console.log("Parsed TypeScript", typeof ast)
   } catch (err) {
     // TODO: May wanna introduce some error handling here. In my script version, I automatically added an error
     //  message near the top of the user's file, indicating that their input couldn't be parsed...
     //  acorn-typescript unfortunately doesn't support very modern syntax, like `const T` generics.
     //  But it works in most cases.
-    console.log("Error parsing TypeScript", err)
     return fromComments
   }
 
