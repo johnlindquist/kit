@@ -953,7 +953,11 @@ export let updateEnv = (scriptProjectPath: string) => {
   }
 
   if (error) {
-    console.log(error)
+    let isCwdKenv =
+      path.normalize(cwd()) === path.normalize(kenvPath())
+    if (isCwdKenv) {
+      console.log(error.message)
+    }
   }
 }
 
@@ -963,6 +967,14 @@ export let configEnv = () => {
     path: process.env.KIT_DOTENV_PATH || kenvPath(),
     silent: true,
   })
+
+  if (error) {
+    let isCwdKenv =
+      path.normalize(cwd()) === path.normalize(kenvPath())
+    if (isCwdKenv) {
+      console.log(error.message)
+    }
+  }
 
   process.env.PATH_FROM_DOTENV = combinePath([
     parsed?.PATH || process.env.PATH,
