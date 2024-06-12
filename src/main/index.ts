@@ -10,10 +10,9 @@ import { Channel, Value } from "../core/enum.js"
 import {
   run,
   cmd,
-  isMac,
   getMainScriptPath,
 } from "../core/utils.js"
-import { FlagsOptions, Script } from "../types/core.js"
+import { Script } from "../types/core.js"
 import {
   mainMenu,
   scriptFlags,
