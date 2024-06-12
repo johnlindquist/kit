@@ -4,7 +4,6 @@ import {
   getGroupedScripts,
   processScriptPreview,
   scriptFlags,
-  shortcuts,
 } from "../api/kit.js"
 import { Channel } from "../core/enum.js"
 import { formatChoices } from "../core/utils.js"
@@ -63,12 +62,12 @@ parentPort?.on("message", async stamp => {
 
   let groupedScripts = await getGroupedScripts(false)
   let scripts = formatChoices(groupedScripts)
-  let firstScript = scripts.find(
-    script => !script.skip
-  )
+  let firstScript = scripts.find(script => !script.skip)
   let preview = ``
   try {
-    preview = await processScriptPreview(firstScript as unknown as Script)()
+    preview = await processScriptPreview(
+      firstScript as unknown as Script
+    )()
   } catch (error) {
     console.error(error)
   }
@@ -93,17 +92,10 @@ parentPort?.on("message", async stamp => {
     return s
   })
 
-  const sanitizedShortcuts = shortcuts.map(s => {
-    s.onPress = undefined
-    s.condition = undefined
-    return s
-  })
-
   const message = {
     channel: Channel.CACHE_SCRIPTS,
     scripts: sanitizedScripts,
     scriptFlags: sanitizedScriptFlags,
-    shortcuts: sanitizedShortcuts,
     preview,
   }
 

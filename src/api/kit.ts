@@ -850,6 +850,7 @@ global.prepFlags = (
 }
 
 global.setFlags = (flags: FlagsOptions) => {
+  log({ flags })
   global.send(Channel.SET_FLAGS, global.prepFlags(flags))
 }
 
@@ -1074,6 +1075,7 @@ export let highlightJavaScript = async (
 
 let order = [
   "Script Actions",
+  "New",
   "Copy",
   "Debug",
   "Kenv",
@@ -1084,7 +1086,7 @@ let order = [
   "Run",
 ]
 
-export let shortcuts: Shortcut[] = [
+export let actions: Action[] = [
   // {
   //   name: "New Menu",
   //   key: `${cmd}+shift+n`,
@@ -1094,31 +1096,37 @@ export let shortcuts: Shortcut[] = [
   // },
   {
     name: "New",
-    key: `${cmd}+n`,
-    bar: "left",
-    onPress: async () => {
+    description: "Create a new script",
+    shortcut: `${cmd}+n`,
+    onAction: async () => {
       await run(kitPath("cli", "new.js"))
     },
+    group: "New",
   },
   {
     name: "New Snippet",
-    key: `${cmd}+shift+n`,
-    onPress: async () => {
+    description: "Create a new snippet",
+    shortcut: `${cmd}+shift+n`,
+    onAction: async () => {
       await run(kitPath("cli", "new-snippet.js"))
     },
+    group: "New",
   },
   {
     name: "Sign In",
+    description: "Sign in to Script Kit",
     flag: "sign-in-to-script-kit",
-    key: `${cmd}+shift+opt+s`,
-    onPress: async () => {
+    shortcut: `${cmd}+shift+opt+s`,
+    onAction: async () => {
       await run(kitPath("main", "account-v2.js"))
     },
+    group: "Settings",
   },
   {
     name: "List Processes",
-    key: `${cmd}+p`,
-    onPress: async () => {
+    description: "List running processes",
+    shortcut: `${cmd}+p`,
+    onAction: async () => {
       let processes = await getProcesses()
       if (
         processes.filter(p => p?.scriptPath)?.length > 1
@@ -1128,48 +1136,54 @@ export let shortcuts: Shortcut[] = [
         toast("No running processes found...")
       }
     },
+    group: "Debug",
   },
   {
     name: "Find Script",
-    key: `${cmd}+f`,
-    onPress: async () => {
+    description: "Search for a script by contents",
+    shortcut: `${cmd}+f`,
+    onAction: async () => {
       global.setFlags({})
       await run(kitPath("cli", "find.js"))
     },
+    group: "Script Actions",
   },
   {
     name: "Reset Prompt",
-    key: `${cmd}+0`,
-    onPress: async () => {
+    shortcut: `${cmd}+0`,
+    onAction: async () => {
       await run(kitPath("cli", "kit-clear-prompt.js"))
     },
+    group: "Script Actions",
   },
-  {
-    name: "Share",
-    key: `${cmd}+s`,
-    condition: c => !c.needsDebugger,
-    onPress: async (input, { focused }) => {
-      let shareFlags = {}
-      for (let [k, v] of Object.entries(scriptFlags)) {
-        if (k.startsWith("share")) {
-          shareFlags[k] = v
-          delete shareFlags[k].group
-        }
-      }
-      await setFlags(shareFlags)
-      await setFlagValue(focused?.value)
-    },
-    bar: "right",
-  },
+  // TODO: Figure out why setFlags is being called twice and overridden here
+  // {
+  //   name: "Share",
+  //   description: "Share the selected script",
+  //   shortcut: `${cmd}+s`,
+  //   condition: c => !c.needsDebugger,
+  //   onAction: async (input, { focused }) => {
+  //     let shareFlags = {}
+  //     for (let [k, v] of Object.entries(scriptFlags)) {
+  //       if (k.startsWith("share")) {
+  //         shareFlags[k] = v
+  //         delete shareFlags[k].group
+  //       }
+  //     }
+  //     await setFlags(shareFlags)
+  //     await setFlagValue(focused?.value)
+  //   },
+  //   group: "Script Actions",
+  // },
   {
     name: "Debug",
-    key: `${cmd}+enter`,
+    shortcut: `${cmd}+enter`,
     condition: c => c.needsDebugger,
-    onPress: async (input, { focused }) => {
+    onAction: async (input, { focused }) => {
       flag.cmd = true
       submit(focused)
     },
-    bar: "right",
+    group: "Debug",
   },
 ]
 
@@ -1840,8 +1854,6 @@ export let getGroupedScripts = async (fromCache = true) => {
 export let mainMenu = async (
   message: string | PromptConfig = "Select a script"
 ): Promise<Script | string> => {
-  setShortcuts(shortcuts)
-
   // if (global.trace) {
   //   global.trace.addBegin({
   //     name: "buildScriptConfig",

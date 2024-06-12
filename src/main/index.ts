@@ -17,7 +17,7 @@ import { FlagsOptions, Script } from "../types/core.js"
 import {
   mainMenu,
   scriptFlags,
-  shortcuts,
+  actions,
   modifiers,
   errorPrompt,
 } from "../api/kit.js"
@@ -164,7 +164,7 @@ let script = await mainMenu({
     // "?": kitPath("handler", "question-handler.js"),
   },
 
-  shortcuts,
+  actions,
   input: arg?.input || "",
 })
 
