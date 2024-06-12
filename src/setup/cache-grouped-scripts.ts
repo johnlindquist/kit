@@ -5,7 +5,6 @@ import {
   getGroupedScripts,
   processScriptPreview,
   scriptFlags,
-  actions,
 } from "../api/kit.js"
 import { Channel } from "../core/enum.js"
 import { formatChoices } from "../core/utils.js"
@@ -25,7 +24,6 @@ process.send({
   scripts,
   preview,
   scriptFlags,
-  shortcuts: actions,
 })
 
 export {}
