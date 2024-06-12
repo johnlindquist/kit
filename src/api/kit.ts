@@ -850,7 +850,6 @@ global.prepFlags = (
 }
 
 global.setFlags = (flags: FlagsOptions) => {
-  log({ flags })
   global.send(Channel.SET_FLAGS, global.prepFlags(flags))
 }
 
