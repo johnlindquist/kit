@@ -1145,43 +1145,6 @@ export let shortcuts: Shortcut[] = [
     },
   },
   {
-    name: "Edit",
-    key: `${cmd}+o`,
-    onPress: async (input, { focused }) => {
-      if (process?.env?.KIT_EDITOR !== "kit") {
-        await hide()
-      }
-      await run(
-        kitPath("cli", "edit-script.js"),
-        focused.value.filePath
-      )
-      submit(false)
-    },
-    bar: "right",
-  },
-  {
-    name: "Create/Edit Doc",
-    key: `${cmd}+.`,
-    onPress: async (input, { focused }) => {
-      await run(
-        kitPath("cli", "edit-doc.js"),
-        focused.value.filePath
-      )
-      submit(false)
-    },
-  },
-  {
-    name: "Log",
-    key: `${cmd}+l`,
-    onPress: async (input, { focused }) => {
-      await run(
-        kitPath("cli", "open-script-log.js"),
-        focused?.value?.filePath
-      )
-      submit(false)
-    },
-  },
-  {
     name: "Share",
     key: `${cmd}+s`,
     condition: c => !c.needsDebugger,
@@ -1234,6 +1197,7 @@ export let scriptFlags: FlagsOptions = {
   // },
   ["edit-script"]: {
     name: "Edit",
+    shortcut: `${cmd}+o`,
     group: "Script Actions",
     description: "Open the selected script in your editor",
     preview: async (input, state) => {
@@ -1349,6 +1313,7 @@ ${lastRunBlock}
   ["edit-doc"]: {
     group: "Script Actions",
     name: "Create/Edit Doc",
+    shortcut: `${cmd}+.`,
     description:
       "Open the selected script's markdown in your editor",
   },
@@ -1526,6 +1491,7 @@ ${lastRunBlock}
     name: "Open Log File",
     description:
       "Open the log file for the selected script",
+    shortcut: `${cmd}+l`,
   },
   [modifiers.shift]: {
     group: "Run",
