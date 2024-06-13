@@ -1158,7 +1158,7 @@ export let actions: Action[] = [
   // TODO: Figure out why setFlags is being called twice and overridden here
   // {
   //   name: "Share",
-  //   description: "Share the selected script",
+  //   description: "Share {{name}}",
   //   shortcut: `${cmd}+s`,
   //   condition: c => !c.needsDebugger,
   //   onAction: async (input, { focused }) => {
@@ -1198,7 +1198,7 @@ export let scriptFlags: FlagsOptions = {
   sortChoicesKey: order.map(o => ""),
   // open: {
   //   name: "Script Actions",
-  //   description: "Open the selected script in your editor",
+  //   description: "Open {{name}} in your editor",
   //   shortcut: `${cmd}+o`,
   //   action: "right",
   // },
@@ -1212,7 +1212,7 @@ export let scriptFlags: FlagsOptions = {
     name: "Edit",
     shortcut: `${cmd}+o`,
     group: "Script Actions",
-    description: "Open the selected script in your editor",
+    description: "Open {{name}} in your editor",
     preview: async (input, state) => {
       let flaggedFilePath = state?.flaggedValue?.filePath
       if (!flaggedFilePath) return
@@ -1308,33 +1308,31 @@ ${lastRunBlock}
   [modifiers.opt]: {
     group: "Debug",
     name: "Open Log Window",
-    description: "Open a log window for selected script",
+    description: "Open a log window for {{name}}",
     shortcut: `alt+enter`,
     flag: modifiers.opt,
   },
   ["push-script"]: {
     group: "Git",
     name: "Push to Git Repo",
-    description: "Push the selected script to a git repo",
+    description: "Push {{name}} to a git repo",
   },
   ["pull-script"]: {
     group: "Git",
     name: "Pull from Git Repo",
-    description: "Pull the selected script from a git repo",
+    description: "Pull {{name}} from a git repo",
   },
 
   ["edit-doc"]: {
     group: "Script Actions",
     name: "Create/Edit Doc",
     shortcut: `${cmd}+.`,
-    description:
-      "Open the selected script's markdown in your editor",
+    description: "Open {{name}}'s markdown in your editor",
   },
   ["share-script-as-discussion"]: {
     group: "Share",
     name: "Post to Community Scripts",
-    description:
-      "Share the selected script on GitHub Discussions",
+    description: "Share {{name}} on GitHub Discussions",
   },
   ["share-script-as-link"]: {
     group: "Share",
@@ -1351,7 +1349,7 @@ ${lastRunBlock}
   ["share-script"]: {
     group: "Share",
     name: "Share as Gist",
-    description: "Share the selected script as a gist",
+    description: "Share {{name}} as a gist",
   },
   ["share-script-as-markdown"]: {
     group: "Share",
@@ -1380,26 +1378,25 @@ ${lastRunBlock}
   duplicate: {
     group: "Script Actions",
     name: "Duplicate",
-    description: "Duplicate the selected script",
+    description: "Duplicate {{name}}",
     shortcut: `${cmd}+d`,
   },
   rename: {
     group: "Script Actions",
     name: "Rename",
-    description: "Rename the selected script",
+    description: "Rename {{name}}",
     shortcut: `${cmd}+shift+r`,
   },
   remove: {
     group: "Script Actions",
     name: "Remove",
-    description: "Delete the selected script",
+    description: "Delete {{name}}",
     shortcut: `${cmd}+shift+backspace`,
   },
   ["remove-from-recent"]: {
     group: "Script Actions",
     name: "Remove from Recent",
-    description:
-      "Remove the selected script from the recent list",
+    description: "Remove {{name}} from the recent list",
   },
   ["clear-recent"]: {
     group: "Script Actions",
@@ -1409,19 +1406,19 @@ ${lastRunBlock}
   // ["open-script-database"]: {
   //   group: "DB",
   //   name: "Open Database",
-  //   description: "Open the db file for the selected script",
+  //   description: "Open the db file for {{name}}",
   //   shortcut: `${cmd}+b`,
   // },
   // ["clear-script-database"]: {
   //   group: "DB",
   //   name: "Delete Database",
   //   description:
-  //     "Delete the db file for the selected script",
+  //     "Delete the db file for {{name}}",
   // },
   ["reveal-script"]: {
     group: "Script Actions",
     name: "Reveal",
-    description: `Reveal the selected script in ${
+    description: `Reveal {{name}} in ${
       isMac ? "Finder" : "Explorer"
     }`,
     shortcut: `${cmd}+shift+f`,
@@ -1429,34 +1426,32 @@ ${lastRunBlock}
   ["kenv-term"]: {
     group: "Kenv",
     name: "Open Script Kenv in a  Terminal",
-    description:
-      "Open the selected script's kenv in a terminal",
+    description: "Open {{name}}'s kenv in a terminal",
   },
   ["kenv-trust"]: {
     group: "Kenv",
     name: "Trust Script Kenv",
-    description: "Trust the selected script's kenv",
+    description: "Trust {{name}}'s kenv",
   },
   ["kenv-view"]: {
     group: "Kenv",
     name: "View Script Kenv",
-    description: "View the selected script's kenv",
+    description: "View {{name}}'s kenv",
   },
   ["kenv-visit"]: {
     group: "Kenv",
     name: "Open Script Repo",
-    description:
-      "Visit the selected script's kenv in your browser",
+    description: "Visit {{name}}'s kenv in your browser",
   },
   // ["share"]: {
   //   name: "Share",
-  //   description: "Share the selected script",
+  //   description: "Share {{name}}",
   //   shortcut: `${cmd}+s`,
   //   bar: "right",
   // },
   // ["share-script"]: {
   //   name: "Share as Gist",
-  //   description: "Share the selected script as a gist",
+  //   description: "Share {{name}} as a gist",
   //   shortcut: `${cmd}+g`,
   // },
   // ["share-script-as-kit-link"]: {
@@ -1502,8 +1497,7 @@ ${lastRunBlock}
   ["open-script-log"]: {
     group: "Debug",
     name: "Open Log File",
-    description:
-      "Open the log file for the selected script",
+    description: "Open the log file for {{name}}",
     shortcut: `${cmd}+l`,
   },
   [modifiers.shift]: {

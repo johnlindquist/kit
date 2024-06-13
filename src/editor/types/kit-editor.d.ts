@@ -466,6 +466,8 @@ export interface Metadata {
   name?: string
   /** Provides a brief description of the script's functionality. */
   description?: string
+  /** The string displayed in the Enter button */
+  enter?: string
   /** Defines an alternative search term to find this script */
   alias?: string
   /** Defines the path to an image to be used for the script */
