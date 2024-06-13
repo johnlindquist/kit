@@ -63,7 +63,6 @@ import {
   formShortcuts,
   argShortcuts,
   smallShortcuts,
-  isMac,
   debounce,
   adjustPackageName,
   editorShortcuts,
@@ -78,6 +77,7 @@ import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
 import { pathToFileURL } from "url"
 import { PathConfig } from "../types/kit"
+import { isMac } from "../core/platform.js"
 
 interface DisplayChoicesProps
   extends Partial<PromptConfig> {

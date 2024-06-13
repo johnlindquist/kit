@@ -356,6 +356,7 @@ export interface Run {
 type Utils = typeof import("../core/utils")
 
 declare global {
+  var metadata: Metadata
   var path: PathSelector
   var edit: Edit
   var browse: Browse
@@ -440,6 +441,7 @@ declare global {
   var sortBy: Utils["sortBy"]
   var isUndefined: Utils["isUndefined"]
   var isString: Utils["isString"]
+  var parseScript: Utils["parseScript"]
 
   var createChoiceSearch: (
     choices: Choice[],

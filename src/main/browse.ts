@@ -5,9 +5,8 @@
 
 import {
   escapeShortcut,
-  isMac,
-  isWin,
 } from "../core/utils.js"
+import { isMac, isWin } from "../core/platform.js"
 
 let actionFlags: {
   name: string

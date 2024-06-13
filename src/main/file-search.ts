@@ -5,8 +5,8 @@
 
 import {
   keywordInputTransformer,
-  isMac,
 } from "../core/utils.js"
+import { isMac } from "../core/platform.js"
 
 let actionFlags: {
   name: string

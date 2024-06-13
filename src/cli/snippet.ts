@@ -10,7 +10,7 @@ import {
   prependImport,
 } from "./lib/utils.js"
 import { generate } from "@johnlindquist/kit-internal/project-name-generator"
-import { stripMetadata } from "../core/utils.js"
+import { stripMetadata } from "../core/metadata.js"
 
 let previewContent = ``
 if (arg?.content) {

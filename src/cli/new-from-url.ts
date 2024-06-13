@@ -3,9 +3,9 @@
 import { highlightJavaScript } from "../api/kit.js"
 import {
   checkIfCommandExists,
-  stripMetadata,
 } from "../core/utils.js"
 import { prependImport } from "./lib/utils.js"
+import { stripMetadata } from "../core/metadata.js"
 
 let url = await arg({
   placeholder: "Enter script url:",

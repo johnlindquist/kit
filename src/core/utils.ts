@@ -1,33 +1,16 @@
 import { randomUUID as uuid } from "crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import * as path from "path"
-import untildify from "untildify"
-import {
-  Script,
-  ScriptPathInfo,
-  ScriptMetadata,
-  Metadata,
-  Shortcut,
-  Choice,
-} from "../types/core"
-import { platform, homedir } from "os"
-import { lstatSync, PathLike, realpathSync } from "fs"
-import {
-  access,
-  lstat,
-  readdir,
-  readFile,
-} from "fs/promises"
-import { constants } from "fs"
+import { Choice, Script, ScriptPathInfo, Shortcut } from "../types/core"
+import { homedir } from "os"
+import { constants, lstatSync, realpathSync } from "fs"
+import { access, lstat, readdir, readFile } from "fs/promises"
 import { execSync } from "child_process"
 
-import { ProcessType, Channel, PROMPT } from "./enum.js"
-import { Parser, type Program } from "acorn"
-import tsPlugin from "acorn-typescript"
+import { Channel, PROMPT } from "./enum.js"
+import { parseMetadata } from "./metadata.js"
+import { isMac, isWin } from "./platform.js"
 
-export let isWin = platform().startsWith("win")
-export let isMac = platform().startsWith("darwin")
-export let isLinux = platform().startsWith("linux")
 export let cmd = isMac ? "cmd" : "ctrl"
 export let returnOrEnter = isMac ? "return" : "enter"
 
@@ -323,294 +306,6 @@ export let resolveScriptToCommand = (script: string) => {
     .replace(new RegExp(`\\${path.extname(script)}$`), "")
 }
 
-//app
-export const shortcutNormalizer = (shortcut: string) =>
-  shortcut
-    ? shortcut
-        .replace(
-          /(option|opt|alt)/i,
-          isMac ? "Option" : "Alt"
-        )
-        .replace(/(ctl|cntrl|ctrl|control)/, "Control")
-        .replace(
-          /(command|cmd)/i,
-          isMac ? "Command" : "Control"
-        )
-        .replace(/(shift|shft)/i, "Shift")
-        .split(/\s/)
-        .filter(Boolean)
-        .map(part =>
-          (part[0].toUpperCase() + part.slice(1)).trim()
-        )
-        .join("+")
-    : ""
-
-export const friendlyShortcut = (shortcut: string) => {
-  let f = ""
-  if (shortcut.includes("Command+")) f += "cmd+"
-  if (shortcut.match(/(?<!Or)Control\+/)) f += "ctrl+"
-  if (shortcut.includes("Alt+")) f += "alt+"
-  if (shortcut.includes("Option+")) f += "opt+"
-  if (shortcut.includes("Shift+")) f += "shift+"
-  if (shortcut.includes("+"))
-    f += shortcut.split("+").pop()?.toLowerCase()
-
-  return f
-}
-
-export let setMetadata = (
-  contents: string,
-  overrides: {
-    [key: string]: string
-  }
-) => {
-  Object.entries(overrides).forEach(([key, value]) => {
-    let k = key[0].toUpperCase() + key.slice(1)
-    // if not exists, then add
-    if (
-      !contents.match(
-        new RegExp(`^\/\/\\s*(${key}|${k}):.*`, "gm")
-      )
-    ) {
-      // uppercase first letter
-      contents = `// ${k}: ${value}
-${contents}`.trim()
-    } else {
-      // if exists, then replace
-      contents = contents.replace(
-        new RegExp(`^\/\/\\s*(${key}|${k}):.*$`, "gm"),
-        `// ${k}: ${value}`
-      )
-    }
-  })
-  return contents
-}
-
-const getMetadataFromComments = (
-  contents: string
-): Record<string, string> => {
-  const lines = contents.split("\n")
-  const metadata = {}
-  let commentStyle = null
-  let spaceRegex = null
-  let inMultilineComment = false
-  let multilineCommentEnd = null
-
-  const setCommentStyle = (style: string) => {
-    commentStyle = style
-    spaceRegex = new RegExp(`^${commentStyle} ?[^ ]`)
-  }
-
-  for (const line of lines) {
-    // Check for the start of a multiline comment block
-    if (
-      !inMultilineComment &&
-      (line.trim().startsWith("/*") ||
-        line.trim().startsWith("'''") ||
-        line.trim().startsWith('"""') ||
-        line.trim().match(/^: '/))
-    ) {
-      inMultilineComment = true
-      multilineCommentEnd = line.trim().startsWith("/*")
-        ? "*/"
-        : line.trim().startsWith(": '")
-        ? "'"
-        : line.trim().startsWith("'''")
-        ? "'''"
-        : '"""'
-    }
-
-    // Check for the end of a multiline comment block
-    if (
-      inMultilineComment &&
-      line.trim().endsWith(multilineCommentEnd)
-    ) {
-      inMultilineComment = false
-      multilineCommentEnd = null
-      continue // Skip the end line of a multiline comment block
-    }
-
-    // Skip lines that are part of a multiline comment block
-    if (inMultilineComment) continue
-
-    // Determine the comment style based on the first encountered comment line
-    if (commentStyle === null) {
-      if (
-        line.startsWith("//") &&
-        (line[2] === " " || /[a-zA-Z]/.test(line[2]))
-      ) {
-        setCommentStyle("//")
-      } else if (
-        line.startsWith("#") &&
-        (line[1] === " " || /[a-zA-Z]/.test(line[1]))
-      ) {
-        setCommentStyle("#")
-      }
-    }
-
-    // Skip lines that don't start with the determined comment style
-    if (
-      commentStyle === null ||
-      (commentStyle && !line.startsWith(commentStyle))
-    )
-      continue
-
-    // Check for 0 or 1 space after the comment style
-    if (!line.match(spaceRegex)) continue
-
-    // Find the index of the first colon
-    const colonIndex = line.indexOf(":")
-    if (colonIndex === -1) continue
-
-    // Extract key and value based on the colon index
-    let key = line
-      .substring(commentStyle.length, colonIndex)
-      .trim()
-
-    if (key?.length > 0) {
-      key = key[0].toLowerCase() + key.slice(1)
-    }
-    const value = line.substring(colonIndex + 1).trim()
-
-    // Skip empty keys or values
-    if (!key || !value) {
-      continue
-    }
-
-    let parsedValue: string | boolean | number
-    let lowerValue = value.toLowerCase()
-    let lowerKey = key.toLowerCase()
-    switch (true) {
-      case lowerValue === "true":
-        parsedValue = true
-        break
-      case lowerValue === "false":
-        parsedValue = false
-        break
-      case lowerKey === "timeout":
-        parsedValue = parseInt(value, 10)
-        break
-      default:
-        parsedValue = value
-    }
-
-    // Only assign if the key hasn't been assigned before
-    if (!(key in metadata)) {
-      metadata[key] = parsedValue
-    }
-  }
-
-  return metadata
-}
-
-function parseTypeScript(code: string) {
-  const parser = Parser.extend(
-    // @ts-expect-error Somehow these are not 100% compatible
-    tsPlugin({ allowSatisfies: true })
-  )
-  return parser.parse(code, {
-    sourceType: "module",
-    ecmaVersion: "latest",
-  })
-}
-
-function getMetadataFromExport(
-  ast: Program
-): Partial<Metadata> {
-  function isOfType<
-    T extends { type: string },
-    TType extends string
-  >(node: T, type: TType): node is T & { type: TType } {
-    return node.type === type
-  }
-
-  for (const node of ast.body) {
-    if (
-      !isOfType(node, "ExportNamedDeclaration") ||
-      !node.declaration
-    ) {
-      continue
-    }
-
-    const declaration = node.declaration
-
-    if (
-      declaration.type !== "VariableDeclaration" ||
-      !declaration.declarations[0]
-    ) {
-      continue
-    }
-
-    const namedExport = declaration.declarations[0]
-
-    if (
-      !("name" in namedExport.id) ||
-      namedExport.id.name !== "metadata"
-    ) {
-      continue
-    }
-
-    if (namedExport.init?.type !== "ObjectExpression") {
-      continue
-    }
-
-    const properties = namedExport.init?.properties
-
-    return properties.reduce((acc, prop) => {
-      if (!isOfType(prop, "Property")) {
-        throw Error("Not a Property")
-      }
-
-      const key = prop.key
-      const value = prop.value
-
-      if (!isOfType(key, "Identifier")) {
-        throw Error("Key is not an Identifier")
-      }
-
-      if (!isOfType(value, "Literal")) {
-        throw Error(
-          `value is not a Literal, but a ${value.type}`
-        )
-      }
-
-      acc[key.name] = value.value
-      return acc
-    }, {})
-  }
-
-  // Nothing found
-  return {}
-}
-
-//app
-export let getMetadata = (contents: string): Metadata => {
-  const fromComments = getMetadataFromComments(contents)
-
-  if (!/(const|var|let) metadata/g.test(contents)) {
-    // No named export in file, return early
-    return fromComments
-  }
-
-  let ast: Program
-  try {
-    ast = parseTypeScript(contents)
-  } catch (err) {
-    // TODO: May wanna introduce some error handling here. In my script version, I automatically added an error
-    //  message near the top of the user's file, indicating that their input couldn't be parsed...
-    //  acorn-typescript unfortunately doesn't support very modern syntax, like `const T` generics.
-    //  But it works in most cases.
-    return fromComments
-  }
-
-  try {
-    const fromExport = getMetadataFromExport(ast)
-    return { ...fromComments, ...fromExport }
-  } catch (err) {
-    return fromComments
-  }
-}
-
 const shebangRegex = /^#!(.+)/m
 
 export let getShebangFromContents = (
@@ -618,83 +313,6 @@ export let getShebangFromContents = (
 ): string | undefined => {
   let match = contents.match(shebangRegex)
   return match ? match[1].trim() : undefined
-}
-
-//app
-export let postprocessMetadata = (
-  metadata: Metadata,
-  fileContents: string
-): ScriptMetadata => {
-  const result: Partial<ScriptMetadata> = { ...metadata }
-
-  if (metadata.shortcut) {
-    result.shortcut = shortcutNormalizer(metadata.shortcut)
-
-    result.friendlyShortcut = friendlyShortcut(
-      metadata.shortcut
-    )
-  }
-
-  if (metadata.shortcode) {
-    result.shortcode = metadata.shortcode
-      ?.trim()
-      ?.toLowerCase()
-  }
-
-  if (metadata.trigger) {
-    result.trigger = metadata.trigger?.trim()?.toLowerCase()
-  }
-
-  // An alias brings the script to the top of the list
-  if (metadata.alias) {
-    result.alias = metadata.alias?.trim().toLowerCase()
-  }
-
-  if (metadata.image) {
-    result.img = untildify(metadata.image)
-  }
-
-  result.type = metadata.schedule
-    ? ProcessType.Schedule
-    : result?.watch
-    ? ProcessType.Watch
-    : result?.system
-    ? ProcessType.System
-    : result?.background
-    ? ProcessType.Background
-    : ProcessType.Prompt
-
-  let tabs =
-    fileContents.match(
-      new RegExp(`(?<=^onTab[(]['"]).+?(?=['"])`, "gim")
-    ) || []
-
-  if (tabs?.length) {
-    result.tabs = tabs
-  }
-
-  let hasPreview = Boolean(
-    fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0]
-  )
-  if (hasPreview) {
-    result.hasPreview = true
-  }
-
-  return result as unknown as ScriptMetadata
-}
-
-//app
-export let parseMetadata = (
-  fileContents: string
-): ScriptMetadata => {
-  let metadata: Metadata = getMetadata(fileContents)
-
-  let processedMetadata = postprocessMetadata(
-    metadata,
-    fileContents
-  )
-
-  return processedMetadata
 }
 
 //app
@@ -735,7 +353,7 @@ export let parseScript = async (
 
   let contents = await readFile(filePath, "utf8")
 
-  let metadata = parseMetadata(contents)
+  let metadata = parseMetadata(contents, filePath)
 
   let shebang = getShebangFromContents(contents)
 
@@ -791,28 +409,6 @@ export let getLogFromScriptPath = (filePath: string) => {
 }
 
 //new RegExp(`(^//([^(:|\W)]+
-
-export let stripMetadata = (
-  fileContents: string,
-  exclude: string[] = []
-) => {
-  let excludeWithCommon = [
-    `http`,
-    `https`,
-    `TODO`,
-    `FIXME`,
-    `NOTE`,
-  ].concat(exclude)
-
-  let negBehind = exclude.length
-    ? `(?<!(${excludeWithCommon.join("|")}))`
-    : ``
-
-  return fileContents.replace(
-    new RegExp(`(^//[^(:|\W|\n)]+${negBehind}:).+`, "gim"),
-    "$1"
-  )
-}
 
 export let stripName = (name: string) => {
   let strippedName = path.parse(name).name

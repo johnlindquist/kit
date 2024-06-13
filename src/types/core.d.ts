@@ -137,6 +137,7 @@ export interface ScriptMetadata {
   recent?: boolean
   img?: string
   postfix?: string
+  pass?: string | boolean
 }
 
 export type Script = ScriptMetadata &
@@ -487,7 +488,7 @@ export interface Metadata {
   /** Associates a keyword with the script for easier discovery in the main menu. */
   keyword?: string
   /** Indicates that user input in the main menu should be passed as an argument to the script. */
-  pass?: boolean
+  pass?: boolean | string | RegExp
   /** Assigns the script to a specific group for organization in the main menu. */
   group?: string
   /** Excludes the script from appearing in the main menu. */

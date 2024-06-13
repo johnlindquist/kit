@@ -10,6 +10,7 @@ import {
   knodePath,
   getLogFromScriptPath,
   createPathResolver,
+  parseScript
 } from "../core/utils.js"
 
 import { getScripts } from "../core/db.js"
@@ -19,8 +20,11 @@ import {
   formatDistanceToNow,
 } from "@johnlindquist/kit-internal/date-fns"
 
+global.metadata = {}
+
 global.actionFlag = ""
 global.getScripts = getScripts
+global.parseScript = parseScript
 
 performance.mark("run")
 

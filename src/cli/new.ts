@@ -2,7 +2,6 @@ import {
   checkIfCommandExists,
   stripName,
   kitMode,
-  stripMetadata,
   uniq,
   keywordInputTransformer,
 } from "../core/utils.js"
@@ -12,6 +11,7 @@ import {
 } from "./lib/utils.js"
 import { getUserDefaultMetadataMode } from "./metadata-mode.js"
 import { getEnvVar } from "../api/kit.js"
+import { stripMetadata } from "../core/metadata.js"
 
 let inputTransformer = keywordInputTransformer(arg?.keyword)
 

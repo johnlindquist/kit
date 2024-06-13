@@ -1,6 +1,6 @@
 // Description: Creates a new empty script you can invoke from the terminal
 
-import { parseMetadata } from "../core/utils.js"
+import { parseMetadata } from "../core/metadata.js"
 
 let content = await paste()
 

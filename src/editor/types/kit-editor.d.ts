@@ -139,6 +139,7 @@ export interface ScriptMetadata {
   recent?: boolean
   img?: string
   postfix?: string
+  pass?: string | boolean
 }
 
 export type Script = ScriptMetadata &
@@ -489,7 +490,7 @@ export interface Metadata {
   /** Associates a keyword with the script for easier discovery in the main menu. */
   keyword?: string
   /** Indicates that user input in the main menu should be passed as an argument to the script. */
-  pass?: boolean
+  pass?: boolean | string | RegExp
   /** Assigns the script to a specific group for organization in the main menu. */
   group?: string
   /** Excludes the script from appearing in the main menu. */
@@ -10393,9 +10394,24 @@ declare class UiohookNapi extends EventEmitter {
 export declare const uIOhook: UiohookNapi
 
 
+import {
+  format,
+  formatDistanceToNow,
+} from "@johnlindquist/kit-internal/date-fns"
 
-
-
+import {
+  Action,
+  ChannelHandler,
+  Choice,
+  Choices,
+  FlagsOptions,
+  Panel,
+  Preview,
+  PromptConfig,
+  ScoredChoice,
+  Script,
+  Shortcut,
+} from "./core"
 
 
 export interface Arg {
@@ -10735,6 +10751,7 @@ export interface Run {
 type Utils = typeof import("../core/utils")
 
 declare global {
+  var metadata: Metadata
   var path: PathSelector
   var edit: Edit
   var browse: Browse
@@ -10819,6 +10836,7 @@ declare global {
   var sortBy: Utils["sortBy"]
   var isUndefined: Utils["isUndefined"]
   var isString: Utils["isString"]
+  var parseScript: Utils["parseScript"]
 
   var createChoiceSearch: (
     choices: Choice[],
@@ -10859,17 +10877,42 @@ declare global {
 
 
 import core from "./core/enum"
+import {
+  Key,
+  Channel,
+  Mode,
+  statuses,
+  PROMPT as PROMPT_OBJECT,
+} from "../core/enum"
+
+
+
+import {
+  AppState,
+  ChannelHandler,
+  Choice,
+  Choices,
+  FlagsOptions,
+  PromptConfig,
+  PromptData,
+  ScoredChoice,
+  Script,
+  Shortcut,
+} from "./core"
+import {
+  BrowserWindowConstructorOptions,
+  Display,
+  Rectangle,
+} from "./electron"
 
 
 
 
-
-
-
-
-
-
-
+import {
+  UiohookKeyboardEvent,
+  UiohookMouseEvent,
+  UiohookWheelEvent,
+} from "./io"
 
 
 
@@ -12103,7 +12146,15 @@ declare global {
 }
 
 import * as shelljs from "shelljs/index"
-
+import {
+  add,
+  clone,
+  commit,
+  init,
+  pull,
+  push,
+  addRemote,
+} from "isomorphic-git"
 
 export type Trash = (
   input: string | readonly string[],
@@ -12747,7 +12798,11 @@ declare global {
 
 
 
-
+import {
+  BrowserWindowConstructorOptions,
+  Display,
+  Rectangle,
+} from "./electron"
 
 export type WidgetOptions =
   BrowserWindowConstructorOptions & {

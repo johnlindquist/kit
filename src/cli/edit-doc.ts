@@ -2,8 +2,8 @@ import {
   escapeShortcut,
   closeShortcut,
   cmd,
-  setMetadata,
 } from "../core/utils.js"
+
 let scriptPath = await arg()
 // TODO: centralize .ts/.js finding logic
 let { name, dir } = path.parse(scriptPath)
