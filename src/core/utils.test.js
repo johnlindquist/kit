@@ -1,5 +1,5 @@
 import ava from "ava"
-import "../../test-skd/config.js"
+import "../../test-sdk/config.js"
 
 console.log(`KENV ${process.env.KENV}`)
 

@@ -1,5 +1,5 @@
 import ava from "ava"
-import "../../test-skd/config.js"
+import "../../test-sdk/config.js"
 
 ava.serial("kit duplicate", async t => {
   let command = `browse-scriptkit`

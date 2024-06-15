@@ -1,6 +1,6 @@
 import ava from "ava"
 import os from "os"
-import "../../test-skd/config.js"
+import "../../test-sdk/config.js"
 
 /** @type {import("../core/utils")} */
 let { isFile, KIT_FIRST_PATH } = await import(

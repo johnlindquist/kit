@@ -37,14 +37,14 @@
     "dev": "tsc --watch --outDir ~/.kit",
     "declaration": "tsc -p ./tsconfig-declaration.json --watch",
     "pretest:core": "node ./scripts/test-pre.js",
-    "test:core": "NODE_NO_WARNINGS=1 ava --config ./test-sdk/ava.config.mjs ./src/core/*.test.js --no-worker-threads",
+    "test:core": "NODE_NO_WARNINGS=1 ava ./src/core/*.test.js --no-worker-threads",
     "pretest:kit": "node ./scripts/test-pre.js",
-    "test:kit": "NODE_NO_WARNINGS=1 ava --config ./test-sdk/ava.config.mjs ./src/api/kit.test.js --no-worker-threads",
+    "test:kit": "NODE_NO_WARNINGS=1 ava ./src/api/kit.test.js --no-worker-threads",
     "pretest:metadata": "node ./scripts/test-pre.js",
-    "test:metadata": "NODE_NO_WARNINGS=1 ava --config ./test-sdk/ava.config.mjs ./src/core/metadata.test.js --no-worker-threads",
+    "test:metadata": "NODE_NO_WARNINGS=1 ava ./src/core/metadata.test.js --no-worker-threads",
     "posttest:core": "node ./scripts/test-post.js",
     "pretest": "node ./scripts/test-pre.js",
-    "test": "NODE_NO_WARNINGS=1 ava --config ./test-sdk/ava.config.mjs --no-worker-threads",
+    "test": "NODE_NO_WARNINGS=1 ava --no-worker-threads",
     "posttest": "node ./scripts/test-post.js",
     "build-editor-types": "kit ./build/build-editor-types.ts",
     "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
@@ -103,9 +103,18 @@
     "semantic-release": "24.0.0",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
     "tsc-watch": "6.2.0",
-    "tsimp": "^2.0.11",
     "typescript": "5.4.5",
     "unzipper": "0.12.1"
+  },
+  "ava": {
+    "environmentVariables": {
+      "KIT_TEST": "true"
+    },
+    "verbose": true,
+    "files": [
+      "src/**/*.test.js",
+      "test/**/*.test.js"
+    ]
   },
   "release": {
     "branches": [

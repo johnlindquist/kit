@@ -1,7 +1,7 @@
 import ava from "ava"
 import os from "os"
 import fs from "fs-extra"
-import "../../test-skd/config.js"
+import "../../test-sdk/config.js"
 import dotenv from "dotenv"
 
 /** @type {import("./utils")} */

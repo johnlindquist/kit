@@ -1,5 +1,5 @@
 import ava from "ava"
-import "../../test-skd/config.js"
+import "../../test-sdk/config.js"
 
 let kenvName = `mock-kenv`
 ava.serial("kenv create", async t => {
