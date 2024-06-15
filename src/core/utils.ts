@@ -22,7 +22,16 @@ import { constants } from "fs"
 import { execSync } from "child_process"
 
 import { ProcessType, Channel, PROMPT } from "./enum.js"
-import { Parser, type Program } from "acorn"
+import {
+  AssignmentExpression,
+  Identifier,
+  MemberExpression,
+  Node,
+  ObjectExpression,
+  Parser,
+  Property,
+  type Program,
+} from "acorn"
 import tsPlugin from "acorn-typescript"
 
 export let isWin = platform().startsWith("win")
@@ -514,21 +523,74 @@ function parseTypeScript(code: string) {
   })
 }
 
+function isOfType<
+  T extends { type: string },
+  TType extends string
+>(node: T, type: TType): node is T & { type: TType } {
+  return node.type === type
+}
+
+function parseMetadataProperties(
+  properties: ObjectExpression["properties"]
+) {
+  return properties.reduce((acc, prop) => {
+    if (!isOfType(prop, "Property")) {
+      throw Error("Not a Property")
+    }
+
+    const key = prop.key
+    const value = prop.value
+
+    if (!isOfType(key, "Identifier")) {
+      throw Error("Key is not an Identifier")
+    }
+
+    if (!isOfType(value, "Literal")) {
+      throw Error(
+        `value is not a Literal, but a ${value.type}`
+      )
+    }
+
+    acc[key.name] = value.value
+    return acc
+  }, {})
+}
+
 function getMetadataFromExport(
   ast: Program
 ): Partial<Metadata> {
-  function isOfType<
-    T extends { type: string },
-    TType extends string
-  >(node: T, type: TType): node is T & { type: TType } {
-    return node.type === type
-  }
-
   for (const node of ast.body) {
-    if (
-      !isOfType(node, "ExportNamedDeclaration") ||
-      !node.declaration
-    ) {
+    const isExpressionStatement = isOfType(
+      node,
+      "ExpressionStatement"
+    )
+
+    if (isExpressionStatement) {
+      const expression =
+        node.expression as AssignmentExpression
+
+      const isMetadata =
+        (expression.left as Identifier).name === "metadata"
+      const isEquals = expression.operator === "="
+      const properties = (
+        expression.right as ObjectExpression
+      ).properties
+
+      const isGlobalMetadata = isMetadata && isEquals
+
+      if (isGlobalMetadata) {
+        return parseMetadataProperties(properties)
+      } else {
+        continue
+      }
+    }
+
+    const isExportNamedDeclaration = isOfType(
+      node,
+      "ExportNamedDeclaration"
+    )
+
+    if (!isExportNamedDeclaration || !node.declaration) {
       continue
     }
 
@@ -556,27 +618,7 @@ function getMetadataFromExport(
 
     const properties = namedExport.init?.properties
 
-    return properties.reduce((acc, prop) => {
-      if (!isOfType(prop, "Property")) {
-        throw Error("Not a Property")
-      }
-
-      const key = prop.key
-      const value = prop.value
-
-      if (!isOfType(key, "Identifier")) {
-        throw Error("Key is not an Identifier")
-      }
-
-      if (!isOfType(value, "Literal")) {
-        throw Error(
-          `value is not a Literal, but a ${value.type}`
-        )
-      }
-
-      acc[key.name] = value.value
-      return acc
-    }, {})
+    return parseMetadataProperties(properties)
   }
 
   // Nothing found
@@ -587,10 +629,13 @@ function getMetadataFromExport(
 export let getMetadata = (contents: string): Metadata => {
   const fromComments = getMetadataFromComments(contents)
 
-  if (!/(const|var|let) metadata/g.test(contents)) {
-    // No named export in file, return early
-    return fromComments
-  }
+  // if (
+  //   !/(const|var|let) metadata/g.test(contents) &&
+  //   !/^metadata = {/g.test(contents)
+  // ) {
+  //   // No named export in file, return early
+  //   return fromComments
+  // }
 
   let ast: Program
   try {
