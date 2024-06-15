@@ -1,6 +1,6 @@
 import ava from "ava"
 import fs from "fs"
-import "../../test/config.js"
+import "../../test-sdk/config.js"
 
 /** @type {import("./utils")} */
 let { resolveToScriptPath } = await import(

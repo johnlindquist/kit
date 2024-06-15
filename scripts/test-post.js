@@ -1,4 +1,4 @@
-await import("../test/config.js")
+await import("../test-sdk/config.js")
 
 if (test("-d", kitMockPath())) {
   await rm(kitMockPath())

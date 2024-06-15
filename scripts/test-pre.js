@@ -1,5 +1,5 @@
 /** @type {import("/Users/johnlindquist/.kit")} */
-await import("../test/config.js")
+await import("../test-sdk/config.js")
 console.log({ kenvTestPath })
 
 let escapePathPeriods = p => p.replace(/\./g, "\\.")
