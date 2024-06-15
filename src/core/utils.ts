@@ -956,7 +956,7 @@ export let updateEnv = (scriptProjectPath: string) => {
     let isCwdKenv =
       path.normalize(cwd()) === path.normalize(kenvPath())
     if (isCwdKenv) {
-      console.log(error.message)
+      global.log(error.message)
     }
   }
 }
@@ -972,7 +972,7 @@ export let configEnv = () => {
     let isCwdKenv =
       path.normalize(cwd()) === path.normalize(kenvPath())
     if (isCwdKenv) {
-      console.log(error.message)
+      global.log(error.message)
     }
   }
 

@@ -73,6 +73,7 @@ import { keyCodeFromKey } from "../core/keyboard.js"
 import {
   errorPrompt,
   getFlagsFromActions,
+  tmpPath,
 } from "../api/kit.js"
 import { Rectangle } from "../types/electron"
 import { Dirent } from "fs"
@@ -3720,7 +3721,7 @@ global.mic.stream = undefined
 
 global.mic.start = async (config: MicConfig) => {
   beginMicStream()
-  let filePath = global.tmpPath(
+  let filePath = tmpPath(
     global.formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss") +
       ".webm"
   )

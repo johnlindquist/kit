@@ -101,17 +101,26 @@
     "semantic-release": "24.0.0",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
     "tsc-watch": "6.2.0",
+    "tsimp": "^2.0.11",
     "typescript": "5.4.5",
     "unzipper": "0.12.1"
   },
   "ava": {
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--import=tsimp"
+    ],
     "environmentVariables": {
       "KIT_TEST": "true"
     },
     "verbose": true,
     "files": [
       "src/**/*.test.js",
-      "test/**/*.test.js"
+      "src/**/*.test.ts",
+      "test/**/*.test.js",
+      "test/**/*.test.ts"
     ]
   },
   "release": {

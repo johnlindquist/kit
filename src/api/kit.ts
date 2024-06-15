@@ -233,7 +233,7 @@ export let outputTmpFile = async (
   contents: string
 ) => {
   let outputPath = path.resolve(
-    global.tempdir(),
+    os.tmpdir(),
     "kit",
     fileName
   )
@@ -512,7 +512,7 @@ global.kenvTmpPath = (...parts) => {
   return scriptTmpDir
 }
 
-global.tmpPath = (...parts) => {
+export let tmpPath = (...parts: string[]) => {
   let command = global?.kitScript
     ? resolveScriptToCommand(global.kitScript)
     : ""
@@ -542,6 +542,8 @@ global.tmpPath = (...parts) => {
 
   return scriptTmpDir
 }
+
+global.tmpPath = tmpPath
 /**
  * @deprecated use `tmpPath` instead
  */
@@ -562,11 +564,11 @@ global.inspect = async (data, fileName) => {
   }
 
   if (fileName) {
-    tmpFullPath = global.tmpPath(fileName)
+    tmpFullPath = tmpPath(fileName)
   } else if (typeof data === "object") {
-    tmpFullPath = global.tmpPath(`${dashedDate()}.json`)
+    tmpFullPath = tmpPath(`${dashedDate()}.json`)
   } else {
-    tmpFullPath = global.tmpPath(`${dashedDate()}.txt`)
+    tmpFullPath = tmpPath(`${dashedDate()}.txt`)
   }
 
   await global.writeFile(tmpFullPath, formattedData)
