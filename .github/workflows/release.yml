@@ -37,14 +37,14 @@ jobs:
           mkdir -p ./.knode
           ./build/install-node.sh -v 20.11.1 -P ./.knode -y
 
-      - name: npm run ava
-        run: |
-          npm run ava
-
       - name: Build Kit
         run: |
           PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
           PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
+
+      - name: npm run ava
+        run: |
+          npm run ava
 
       - name: Set env vars
         run: |
