@@ -10149,8 +10149,6 @@ export type GlobalApi = Omit<GlobalsApi, "path"> &
   ProAPI
 
 declare global {
-  type Metadata = import("./core").Metadata
-
   var kit: GlobalApi & Run
 
   namespace NodeJS {
@@ -10854,6 +10852,9 @@ declare global {
   ) => Promise<void>
   var toggleAllSelectedChoices: () => Promise<void>
   var trace: Trace
+
+  type Metadata = import("./core").Metadata
+  var metadata: Metadata
 }
 
 

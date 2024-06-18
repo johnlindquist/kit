@@ -2354,3 +2354,5 @@ global.preload = (scriptPath?: string) => {
     send(Channel.PRELOAD, scriptPath || global.kitScript)
   }
 }
+
+global.metadata = {}

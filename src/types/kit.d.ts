@@ -475,4 +475,7 @@ declare global {
   ) => Promise<void>
   var toggleAllSelectedChoices: () => Promise<void>
   var trace: Trace
+
+  type Metadata = import("./core").Metadata
+  var metadata: Metadata
 }
