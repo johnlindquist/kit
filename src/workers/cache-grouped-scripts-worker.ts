@@ -1,5 +1,6 @@
 // Description: Clear Timestamps
 import type { Script } from "../types/core"
+import Bottleneck from "bottleneck"
 import {
   getGroupedScripts,
   processScriptPreview,
@@ -8,14 +9,14 @@ import {
 import { Channel } from "../core/enum.js"
 import { formatChoices } from "../core/utils.js"
 import { parentPort } from "worker_threads"
-import { getScriptsDb, getTimestamps } from "../core/db.js"
-import { Timestamp, scriptsSort } from "../core/utils.js"
+import {
+  Stamp,
+  getScriptsDb,
+  getTimestamps,
+} from "../core/db.js"
+import { scriptsSort } from "../core/utils.js"
 
-parentPort?.on("message", async stamp => {
-  console.log({
-    worker: "cache-grouped-scripts-worker",
-    stamp,
-  })
+const handleMessage = async (stamp: Stamp) => {
   if (stamp) {
     let timestampsDb = await getTimestamps()
     let index = timestampsDb.stamps.findIndex(
@@ -52,7 +53,7 @@ parentPort?.on("message", async stamp => {
 
     if (script) {
       scriptsDb.scripts = scriptsDb.scripts.sort(
-        scriptsSort(timestampsDb.stamps as Timestamp[])
+        scriptsSort(timestampsDb.stamps)
       )
       try {
         await scriptsDb.write()
@@ -100,4 +101,8 @@ parentPort?.on("message", async stamp => {
   }
 
   parentPort.postMessage(message)
-})
+}
+
+const limiter = new Bottleneck({ maxConcurrent: 1 })
+
+parentPort?.on("message", limiter.wrap(handleMessage))

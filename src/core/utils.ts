@@ -33,6 +33,7 @@ import {
   type Program,
 } from "acorn"
 import tsPlugin from "acorn-typescript"
+import { Stamp } from "./db"
 
 export let isWin = platform().startsWith("win")
 export let isMac = platform().startsWith("darwin")
@@ -1117,12 +1118,8 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
   }
 }
 
-export type Timestamp = {
-  filePath: string
-  timestamp: number
-}
 export let scriptsSort =
-  (timestamps: Timestamp[]) => (a: Script, b: Script) => {
+  (timestamps: Stamp[]) => (a: Script, b: Script) => {
     let aTimestamp = timestamps.find(
       t => t.filePath === a.filePath
     )

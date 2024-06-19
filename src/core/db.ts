@@ -12,7 +12,6 @@ import {
   scriptsDbPath,
   statsPath,
   userDbPath,
-  Timestamp,
   getScriptFiles,
   getKenvs,
   parseScript,
@@ -336,7 +335,7 @@ export let setScriptTimestamp = async (
 
   if (script) {
     scriptsDb.scripts = scriptsDb.scripts.sort(
-      scriptsSort(timestampsDb.stamps as Timestamp[])
+      scriptsSort(timestampsDb.stamps)
     )
     try {
       await scriptsDb.write()
