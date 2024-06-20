@@ -1,4 +1,4 @@
-import { getEnvVar, setEnvVar } from "../api/kit.js"
+import { setEnvVar } from "../api/kit.js"
 import { Env } from "../core/enum.js"
 
 export const METADATA_MODE_ENV_KEY =
@@ -11,21 +11,6 @@ export async function getUserDefaultMetadataMode(
     await setEnvVar(METADATA_MODE_ENV_KEY, Env.REMOVE)
   }
 
-  const tsOrJsCodeExample =
-    (await getEnvVar("KIT_MODE", "ts")) === "ts"
-      ? `
-export const metadata: Metadata = {
-  name: "My Script",
-  description: "A script that does something",
-}`
-      : `
-/** @type Metadata */
-export const metadata = {
-  name: "My Script",
-  description: "A script that does something",
-}
-`
-
   const COMMENT_BASED_EXPLANATION = `you specify your metadata in comments at the top of the script.
 <br>For example:<br>
 ~~~ts
@@ -35,33 +20,37 @@ export const metadata = {
 import "@johnlindquist/kit"
 ~~~
 
-This is the classic mode. You will not have any autocompletion, but it is a little less code to type and easier to 
-write a parser for.
-`
+This is the classic mode. You will not have any autocompletion, but may prefer it for its simplicity.
+`.trim()
 
   // TODO: Differentiate the text based on the JS/TS default setting and use jsdoc annotation
-  const CONVENTION_BASED_EXPLANATION = `you specify your metadata in an export named \`metadata\`.
+  const CONVENTION_BASED_EXPLANATION = `you specify your metadata in the strongly-typed \`metadata\` variable.
 <br>For example:<br>
 ~~~ts
 import "@johnlindquist/kit"
-${tsOrJsCodeExample}
+
+metadata = {
+  name: "My Script",
+  description: "A script that does something",
+}
 ~~~
 
-You will have autocompletion and type safety, but it is more difficult to write a parser for.`
+You will have autocompletion and type safety.`
 
   const buildPreview = (mode: "comment" | "convention") => {
     if (!mode) {
       return undefined
     }
+    const modeStr = `${mode}-based`
     return md(
       `There are two metadata modes: 
-  **Comment** based and **Convention** based.<br><br>
-  Using the ${mode}-based approach, ${
-        mode === "comment"
-          ? COMMENT_BASED_EXPLANATION
-          : CONVENTION_BASED_EXPLANATION
-      }
-  `
+Comment-based and convention-based.<br><br>
+Using the ${fmt.primary(modeStr)} approach, ${
+      mode === "comment"
+        ? COMMENT_BASED_EXPLANATION
+        : CONVENTION_BASED_EXPLANATION
+    }
+`.trim()
     )
   }
 

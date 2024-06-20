@@ -557,7 +557,7 @@ function parseMetadataProperties(
   }, {})
 }
 
-function getMetadataFromExport(
+function getMetadataFromGlobal(
   ast: Program
 ): Partial<Metadata> {
   for (const node of ast.body) {
@@ -581,45 +581,8 @@ function getMetadataFromExport(
 
       if (isGlobalMetadata) {
         return parseMetadataProperties(properties)
-      } else {
-        continue
       }
     }
-
-    const isExportNamedDeclaration = isOfType(
-      node,
-      "ExportNamedDeclaration"
-    )
-
-    if (!isExportNamedDeclaration || !node.declaration) {
-      continue
-    }
-
-    const declaration = node.declaration
-
-    if (
-      declaration.type !== "VariableDeclaration" ||
-      !declaration.declarations[0]
-    ) {
-      continue
-    }
-
-    const namedExport = declaration.declarations[0]
-
-    if (
-      !("name" in namedExport.id) ||
-      namedExport.id.name !== "metadata"
-    ) {
-      continue
-    }
-
-    if (namedExport.init?.type !== "ObjectExpression") {
-      continue
-    }
-
-    const properties = namedExport.init?.properties
-
-    return parseMetadataProperties(properties)
   }
 
   // Nothing found
@@ -629,14 +592,6 @@ function getMetadataFromExport(
 //app
 export let getMetadata = (contents: string): Metadata => {
   const fromComments = getMetadataFromComments(contents)
-
-  // if (
-  //   !/(const|var|let) metadata/g.test(contents) &&
-  //   !/^metadata = {/g.test(contents)
-  // ) {
-  //   // No named export in file, return early
-  //   return fromComments
-  // }
 
   let ast: Program
   try {
@@ -650,7 +605,7 @@ export let getMetadata = (contents: string): Metadata => {
   }
 
   try {
-    const fromExport = getMetadataFromExport(ast)
+    const fromExport = getMetadataFromGlobal(ast)
     return { ...fromComments, ...fromExport }
   } catch (err) {
     return fromComments
@@ -835,8 +790,6 @@ export let getLogFromScriptPath = (filePath: string) => {
 
   return path.resolve(kenvDir, "logs", `${name}.log`)
 }
-
-//new RegExp(`(^//([^(:|\W)]+
 
 export let stripMetadata = (
   fileContents: string,
