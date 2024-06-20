@@ -182,43 +182,51 @@ if (typeof script === "boolean" && !script) {
   exit()
 }
 
-// TODO: Help me clean up all these conditionals
-if (isApp && typeof script === "string") {
-  await Promise.all([
-    hide({
-      preloadScript: getMainScriptPath(),
-    }),
-    (open as unknown as Open)(script as string),
-  ])
-} else if (isPass || (script as Script)?.postfix) {
-  await run(
-    (script as Script)?.filePath,
-    `--pass`,
-    (script as any).postfix || input
-  )
-} else if (
-  script === Value.NoValue ||
-  typeof script === "undefined"
-) {
-  console.warn(`🤔 No script selected`, script)
-} else if (typeof script === "string") {
-  if (script === "kit-sponsor") {
-    await run(kitPath("main", "sponsor.js"))
-  } else {
+const runScript = async (script: Script | string) => {
+  if (isApp && typeof script === "string") {
+    return await Promise.all([
+      hide({
+        preloadScript: getMainScriptPath(),
+      }),
+      (open as unknown as Open)(script as string),
+    ])
+  }
+
+  if (isPass || (script as Script)?.postfix) {
+    return await run(
+      (script as Script)?.filePath,
+      `--pass`,
+      (script as any).postfix || input
+    )
+  }
+
+  if (
+    script === Value.NoValue ||
+    typeof script === "undefined"
+  ) {
+    console.warn(`🤔 No script selected`, script)
+    return
+  }
+
+  if (typeof script === "string") {
+    if (script === "kit-sponsor") {
+      return await run(kitPath("main", "sponsor.js"))
+    }
+
     let scriptPath = script as string
     let [maybeScript, numarg] = scriptPath.split(/\s(?=\d)/)
     if (await isFile(maybeScript)) {
-      await run(maybeScript, numarg)
-    } else {
-      await run(
-        `${kitPath("cli", "new")}.js`,
-        scriptPath.trim().replace(/\s/g, "-").toLowerCase(),
-        `--scriptName`,
-        scriptPath.trim()
-      )
+      return await run(maybeScript, numarg)
     }
+
+    return await run(
+      `${kitPath("cli", "new")}.js`,
+      scriptPath.trim().replace(/\s/g, "-").toLowerCase(),
+      `--scriptName`,
+      scriptPath.trim()
+    )
   }
-} else {
+
   let shouldEdit = flag?.open
 
   let selectedFlag: string | undefined = Object.keys(
@@ -226,54 +234,75 @@ if (isApp && typeof script === "string") {
   ).find(f => {
     return f && !modifiers[f]
   })
+
   if (selectedFlag && flag?.code) {
-    await exec(
+    return await exec(
       `open -a 'Visual Studio Code' '${path.dirname(
         path.dirname(script.filePath)
       )}'`
     )
-  } else if (selectedFlag && selectedFlag === "settings") {
-    await run(kitPath("main", "kit.js"))
-  } else if (
-    selectedFlag &&
-    selectedFlag?.startsWith("kenv")
-  ) {
+  }
+
+  if (selectedFlag && selectedFlag === "settings") {
+    return await run(kitPath("main", "kit.js"))
+  }
+  if (selectedFlag && selectedFlag?.startsWith("kenv")) {
     let k = script.kenv || "main"
     if (selectedFlag === "kenv-term") {
       k = path.dirname(path.dirname(script.filePath))
     }
 
-    await run(`${kitPath("cli", selectedFlag)}.js`, k)
-  } else if (
-    selectedFlag &&
-    selectedFlag?.endsWith("menu")
-  ) {
-    await run(`${kitPath("cli", selectedFlag)}.js`)
-  } else if (selectedFlag && !flag?.open) {
-    await run(
+    return await run(
+      `${kitPath("cli", selectedFlag)}.js`,
+      k
+    )
+  }
+
+  if (selectedFlag && selectedFlag?.endsWith("menu")) {
+    return await run(`${kitPath("cli", selectedFlag)}.js`)
+  }
+
+  if (selectedFlag && !flag?.open) {
+    return await run(
       `${kitPath("cli", selectedFlag)}.js`,
       script.filePath
     )
-  } else if (flag[modifiers.opt]) {
-    showLogWindow(script?.filePath)
-  } else if (script.background) {
-    await run(
+  }
+
+  if (flag[modifiers.opt]) {
+    return showLogWindow(script?.filePath)
+  }
+
+  if (script.background) {
+    return await run(
       kitPath("cli", "toggle-background.js"),
       script?.filePath
     )
-  } else if (shouldEdit) {
-    await edit(script.filePath, kenvPath())
-  } else if ((script as Script)?.shebang) {
-    await sendWait(Channel.SHEBANG, script)
-  } else if (script && script?.filePath) {
+  }
+
+  if (shouldEdit) {
+    return await edit(script.filePath, kenvPath())
+  }
+
+  if ((script as Script)?.shebang) {
+    return await sendWait(Channel.SHEBANG, script)
+  }
+
+  if (script?.group === "Links") {
+    return await open(script.value)
+  }
+
+  if (script && script?.filePath) {
     preload(script?.filePath)
     let runP = run(
       script.filePath,
       ...Object.keys(flag).map(f => `--${f}`)
     )
 
-    await runP
+    return await runP
   }
+
+  return await arg("How did you get here?")
 }
 
-export {}
+await runScript(script)

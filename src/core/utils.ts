@@ -1983,3 +1983,87 @@ export let processInBatches = async <T>(
   }
   return result
 }
+
+export let parseMarkdownAsScripts = async (
+  markdown: string
+): Promise<Script[]> => {
+  let lines = markdown.trim().split("\n")
+
+  let currentScript: Script
+  let scripts = [] as Script[]
+  let parsingMetadata = false
+  let parsingValues = false
+
+  for (const untrimmedLine of lines) {
+    let line = untrimmedLine?.length
+      ? untrimmedLine.trim()
+      : ""
+
+    if (line.startsWith("##") && !line.startsWith("###")) {
+      if (currentScript) {
+        scripts.push(currentScript)
+      }
+      currentScript = {
+        group: "Links",
+        name: line.replace("##", "").trim(),
+        preview: "",
+      } as Script
+      continue
+    }
+
+    if (currentScript) {
+      currentScript.preview += "\n" + line
+    }
+    if (line.startsWith("<!--")) {
+      parsingMetadata = true
+      continue
+    }
+    if (parsingMetadata && line.includes("-->")) {
+      parsingMetadata = false
+      continue
+    }
+
+    if (
+      line.startsWith("```submit") ||
+      line.startsWith("~~~submit")
+    ) {
+      parsingValues = true
+      continue
+    }
+
+    if (
+      (parsingValues && line.startsWith("```")) ||
+      line.startsWith("~~~")
+    ) {
+      parsingValues = false
+
+      continue
+    }
+
+    if (parsingMetadata || parsingValues) {
+      let indexOfColon = line.indexOf(":")
+      if (indexOfColon === -1) {
+        continue
+      }
+      let key = line.slice(0, indexOfColon).trim()
+      let value = line.slice(indexOfColon + 1).trim()
+      let lowerCaseKey = key.toLowerCase()
+      currentScript[lowerCaseKey] = value
+    }
+  }
+
+  scripts.push(currentScript)
+
+  for (let script of scripts) {
+    let preview = (script.preview as string).trim()
+
+    let highlightedPreview = md(`# ${script.name}
+${await global.highlight(preview, "")}`)
+
+    script.preview = highlightedPreview
+
+    script.filePath = kenvPath("kit.md")
+  }
+
+  return scripts
+}

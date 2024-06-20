@@ -40,6 +40,7 @@ import {
   formatChoices,
   parseScript,
   processInBatches,
+  parseMarkdownAsScripts,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -1827,6 +1828,21 @@ export let getGroupedScripts = async (fromCache = true) => {
   //   communityScripts
   // )
 
+  const hasLinks = await isFile(kenvPath("kit.md"))
+  if (hasLinks) {
+    let links = await readFile(kenvPath("kit.md"), "utf8")
+    let linksScripts = await parseMarkdownAsScripts(links)
+    let linksScriptsWithScriptValues = linksScripts.map(
+      s => {
+        s.value = Object.assign({}, s)
+        return s
+      }
+    )
+    processedscripts = processedscripts.concat(
+      linksScriptsWithScriptValues
+    )
+  }
+
   trace.begin({
     name: "groupScripts",
   })
@@ -1900,6 +1916,19 @@ export let selectScript = async (
   let scripts: Script[] = xf(
     await getScripts(fromCache, ignoreKenvPattern)
   )
+
+  const hasLinks = await isFile(kenvPath("kit.md"))
+  if (hasLinks) {
+    let links = await readFile(kenvPath("kit.md"), "utf8")
+    let linksScripts = await parseMarkdownAsScripts(links)
+    let linksScriptsWithScriptValues = linksScripts.map(
+      s => {
+        s.value = Object.assign({}, s)
+        return s
+      }
+    )
+    scripts = scripts.concat(linksScriptsWithScriptValues)
+  }
 
   let groupedScripts = groupScripts(scripts)
 

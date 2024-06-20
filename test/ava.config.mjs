@@ -1,8 +1,9 @@
 export default {
+  workerThreads: false,
   extensions: {
     ts: "module",
   },
-  nodeArguments: ["--import=tsimp"],
+  nodeArguments: ["--import=tsx"],
   environmentVariables: {
     KIT_TEST: "true",
   },

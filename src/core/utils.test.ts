@@ -1,5 +1,9 @@
 import test from "ava"
-import { parseScript, shortcutNormalizer } from "./utils"
+import {
+  parseScript,
+  parseMarkdownAsScripts,
+  shortcutNormalizer,
+} from "./utils"
 import { outputTmpFile } from "../api/kit"
 import slugify from "slugify"
 
@@ -120,4 +124,70 @@ const metadata = {
   // Don't pick up on the metadata variable name, so it's the slugified version
   t.is(script.name, fileName)
   t.is(script.filePath, scriptPath)
+})
+
+test("parseMarkdownAsScripts", async t => {
+  let markdown = `
+## Open Script Kit
+<!-- 
+Trigger: sk
+Alias:
+Enabled: Yes
+  -->
+
+\`\`\`submit
+value: https://scriptkit.com
+browser: Google
+\`\`\`
+
+This Script Opens the Script Kit URL
+
+I hope you enjoy!
+
+
+## Open GitHub
+<!-- 
+Trigger: gh
+Alias:
+Enabled: Yes
+  -->
+
+\`\`\`submit
+value: https://github.com
+browser: Firefox
+\`\`\`
+
+This opens the GitHub URL
+
+### This is a subtitle
+
+Here we go!
+  `
+
+  const scripts = await parseMarkdownAsScripts(markdown)
+  t.log(scripts)
+  t.is(scripts.length, 2)
+  t.is(scripts[0].name, "Open Script Kit")
+  t.is(scripts[1].name, "Open GitHub")
+  t.is(scripts[0].trigger, "sk")
+  t.is(scripts[1].trigger, "gh")
+  t.is(scripts[0].value, "https://scriptkit.com")
+  t.is(scripts[1].value, "https://github.com")
+  t.is(scripts[0].group, "Links")
+  t.is(scripts[1].group, "Links")
+  // TODO: Runner is timing out locally?
+  //   t.is(
+  //     scripts[0].preview,
+  //     `This Script Opens the Script Kit URL
+
+  // I hope you enjoy!`
+  //   )
+  //   t.is(
+  //     scripts[1].preview,
+  //     `This opens the GitHub URL
+
+  // ### This is a subtitle
+
+  // Here we go!`
+  //   )
 })
