@@ -1,6 +1,5 @@
 import { ChildProcess } from "child_process"
 import { ProcessType, UI, Mode } from "../core/enum.js"
-import { AppMessage, Field } from "./kitapp.js"
 
 export interface Choice<Value = any> {
   name: string
@@ -523,4 +522,9 @@ export interface ProcessInfo {
   type: ProcessType
   values: any[]
   date: number
+}
+
+export type ThemeHTMLFormatting = {
+  /** Returns an HTML string with the {@link text} formatted in the selected theme's primary color. */
+  primary: (text: string) => string
 }

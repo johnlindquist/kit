@@ -1,4 +1,3 @@
-import { Low } from "@johnlindquist/kit-internal/lowdb"
 import {
   format,
   formatDistanceToNow,
@@ -6,7 +5,7 @@ import {
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 import {
   Action,
-  ChannelHandler,
+  ThemeHTMLFormatting,
   Choice,
   Choices,
   FlagsOptions,
@@ -15,7 +14,7 @@ import {
   PromptConfig,
   ScoredChoice,
   Script,
-  Shortcut,
+  Shortcut
 } from "./core"
 import { ConfigOptions, Options } from "quick-score"
 
@@ -478,4 +477,6 @@ declare global {
 
   type Metadata = import("./core").Metadata
   var metadata: Metadata
+
+  var fmt: ThemeHTMLFormatting
 }

@@ -12,6 +12,8 @@ import {
   createPathResolver,
 } from "../core/utils.js"
 
+import { asPrimaryHTML } from "../core/formatting.js"
+
 import { getScripts } from "../core/db.js"
 import { PromptConfig } from "../types/core"
 import {
@@ -139,3 +141,7 @@ global.clearAllTimeouts = () => {
 
 global.formatDate = format
 global.formatDateToNow = formatDistanceToNow
+
+global.fmt = {
+  primary: asPrimaryHTML
+}
