@@ -23,6 +23,9 @@ if (scriptPath.endsWith(".mjs")) {
   )
 }
 
+// Remove the last anchor and following string until the end of the script path
+scriptPath = scriptPath.replace(/#.*$/, "");
+
 if (isApp && isKitEditor) {
   let value = await readFile(scriptPath, "utf-8")
   let extraLibs = await global.getExtraLibs()

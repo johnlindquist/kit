@@ -145,6 +145,11 @@ export type Script = ScriptMetadata &
   ScriptPathInfo &
   Choice
 
+export type Scrap = Script & {
+  group: "Scraps"
+  scrap: string
+}
+
 export type PromptBounds = {
   x?: number
   y?: number

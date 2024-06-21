@@ -1,7 +1,7 @@
 import test from "ava"
 import {
   parseScript,
-  parseMarkdownAsScripts,
+  parseMarkdownAsScraps,
   shortcutNormalizer,
 } from "./utils"
 import { outputTmpFile } from "../api/kit"
@@ -150,14 +150,14 @@ await appendFile(home("{File Name}.txt"), {Note})
 \`\`\`
 `
 
-  const scripts = await parseMarkdownAsScripts(markdown)
+  const scripts = await parseMarkdownAsScraps(markdown)
   t.log(scripts)
   // t.is(scripts.length, 2)
   t.is(scripts[0].name, "Open Script Kit")
   t.is(scripts[0].trigger, "sk")
   t.is(scripts[0].command, "bash")
   t.is(
-    scripts[0].value,
+    scripts[0].scrap,
     "open -a 'Google Chrome' https://scriptkit.com/{user}"
   )
   t.is(scripts[0].group, "Scraps")
@@ -166,7 +166,7 @@ await appendFile(home("{File Name}.txt"), {Note})
   t.is(scripts[1].name, "Append Note")
   t.is(scripts[1].command, "kit")
   t.is(
-    scripts[1].value,
+    scripts[1].scrap,
     'await appendFile(home("{File Name}.txt"), {Note})'
   )
   t.is(scripts[1].group, "Scraps")
@@ -197,14 +197,14 @@ await appendFile(home("{File Name}.txt"), {Note})
 \`\`\`
 `
 
-  const scripts = await parseMarkdownAsScripts(markdown)
+  const scripts = await parseMarkdownAsScraps(markdown)
   t.log(scripts)
   // t.is(scripts.length, 2)
   t.is(scripts[0].name, "Open Script Kit")
   t.is(scripts[0].trigger, "sk")
   t.is(scripts[0].command, "bash")
   t.is(
-    scripts[0].value,
+    scripts[0].scrap,
     "open -a 'Google Chrome' https://scriptkit.com/{user}"
   )
   t.is(scripts[0].group, "Scraps")
@@ -213,7 +213,7 @@ await appendFile(home("{File Name}.txt"), {Note})
   t.is(scripts[1].name, "Append Note")
   t.is(scripts[1].command, "kit")
   t.is(
-    scripts[1].value,
+    scripts[1].scrap,
     'await appendFile(home("{File Name}.txt"), {Note})'
   )
   t.is(scripts[1].group, "Scraps")

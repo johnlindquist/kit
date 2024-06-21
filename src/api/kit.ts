@@ -40,8 +40,6 @@ import {
   formatChoices,
   parseScript,
   processInBatches,
-  parseMarkdownAsScripts,
-  parseScraps,
 } from "../core/utils.js"
 import {
   getScripts,

@@ -752,18 +752,22 @@ let waitForPromptValue = ({
                   data.state.input,
                   data.state
                 )
+                return
               } else if (shortcut) {
-                submit(shortcut.value || shortcut.name)
+                let submitValue = shortcut.value || shortcut.name
+                submit(submitValue)
+                return
               }
 
               if (data.state.shortcut === "enter") {
                 if (data?.state?.multiple) {
                   submit(data?.state?.selected)
+                  return
                 } else {
-                  submit(
-                    data?.state?.focused?.value ||
-                      data?.state?.input
-                  )
+                  let value = data?.state?.focused?.value ||
+                  data?.state?.input
+                  submit(value)
+                  return
                 }
               }
 
@@ -3580,7 +3584,7 @@ global.registerShortcut = async (
       shortcut
     )
 
-    log({ result })
+    // log({ result })
     if (!result) {
       warn(
         `Shortcut ${shortcut} failed to register. Ending process. 😰`

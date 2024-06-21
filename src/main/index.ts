@@ -12,7 +12,7 @@ import {
   cmd,
   getMainScriptPath,
 } from "../core/utils.js"
-import { Choice, Script } from "../types/core.js"
+import { Choice, Scrap, Script } from "../types/core.js"
 import {
   mainMenu,
   scriptFlags,
@@ -292,30 +292,31 @@ const runScript = async (script: Script | string) => {
   }
 
   if (Array.isArray(script)) {
-    const scriptChoice = focused as Choice
-    const inputs = script as Script["inputs"]
-    const namedInputs = scriptChoice?.inputs
-    let result = scriptChoice?.value
+    const focusedScrap = focused as Scrap
+    
+    const inputs = script as Scrap["inputs"]
+    const namedInputs = focusedScrap?.inputs
+    let scrap = focusedScrap?.scrap
     for (let input of namedInputs) {
-      result = result.replace(`{${input}}`, inputs.shift())
+      scrap = scrap.replace(`{${input}}`, inputs.shift())
     }
 
-    send(Channel.STAMP_SCRIPT, scriptChoice as Script)
-    switch (scriptChoice.command) {
+    send(Channel.STAMP_SCRIPT, focusedScrap as Script)
+    switch (focusedScrap.command) {
       case "kit":
       case "ts":
       case "js":
         let quickPath = kenvPath("tmp", "quick.ts")
-        await writeFile(quickPath, result)
+        await writeFile(quickPath, scrap)
         return await run(quickPath)
       case "open":
-        return await open(result)
+        return await open(scrap)
       case "paste":
-        return await setSelectedText(result)
+        return await setSelectedText(scrap)
       case "type":
-        return await keyboard.type(result)
+        return await keyboard.type(scrap)
       default:
-        return await exec(result, { shell: true })
+        return await exec(scrap, { shell: true })
     }
   }
 

@@ -10,6 +10,7 @@ import {
   Metadata,
   Shortcut,
   Choice,
+  Scrap,
 } from "../types/core"
 import { platform, homedir } from "os"
 import { lstatSync, PathLike, realpathSync } from "fs"
@@ -1989,13 +1990,13 @@ export let processInBatches = async <T>(
   return result
 }
 
-export let parseMarkdownAsScripts = async (
+export let parseMarkdownAsScraps = async (
   markdown: string
-): Promise<Script[]> => {
+): Promise<Scrap[]> => {
   let lines = markdown.trim().split("\n")
 
-  let currentScript: Script
-  let scripts = [] as Script[]
+  let currentScrap: Scrap
+  let scraps = [] as Scrap[]
   let parsingMetadata = false
   let parsingValue = false
 
@@ -2005,20 +2006,20 @@ export let parseMarkdownAsScripts = async (
       : ""
 
     if (line.startsWith("##") && !line.startsWith("###")) {
-      if (currentScript) {
-        scripts.push(currentScript)
+      if (currentScrap) {
+        scraps.push(currentScrap)
       }
-      currentScript = {
+      currentScrap = {
         group: "Scraps",
+        scrap: "",
         name: line.replace("##", "").trim(),
         preview: "",
-        value: "",
-      } as Script
+      } as Scrap
       continue
     }
 
-    if (currentScript) {
-      currentScript.preview += "\n" + line
+    if (currentScrap) {
+      currentScrap.preview += "\n" + line
     }
     if (line.startsWith("<!--")) {
       parsingMetadata = true
@@ -2030,14 +2031,14 @@ export let parseMarkdownAsScripts = async (
     }
 
     if (line.startsWith("```") || line.startsWith("~~~")) {
-      if (!currentScript.command) {
+      if (!currentScrap.command) {
         let command = line
           .replace("```", "")
           .replace("~~~", "")
           .trim()
-        currentScript.command = command
+        currentScrap.command = command
 
-        currentScript.preview += `\n// ${command}`
+        currentScrap.preview += `\n// ${command}`
         parsingValue = true
       } else {
         parsingValue = false
@@ -2046,8 +2047,8 @@ export let parseMarkdownAsScripts = async (
     }
 
     if (parsingValue) {
-      currentScript.value = (
-        currentScript.value +
+      currentScrap.scrap = (
+        currentScrap.scrap +
         "\n" +
         line
       ).trim()
@@ -2061,27 +2062,27 @@ export let parseMarkdownAsScripts = async (
       let key = line.slice(0, indexOfColon).trim()
       let value = line.slice(indexOfColon + 1).trim()
       let lowerCaseKey = key.toLowerCase()
-      currentScript[lowerCaseKey] = value
+      currentScrap[lowerCaseKey] = value
     }
   }
 
-  scripts.push(currentScript)
+  scraps.push(currentScrap)
 
-  for (let script of scripts) {
-    let preview = (script.preview as string).trim()
+  for (let scrap of scraps) {
+    let preview = (scrap.preview as string).trim()
 
-    let highlightedPreview = md(`# ${script.name}
+    let highlightedPreview = md(`# ${scrap.name}
 ${await global.highlight(preview, "")}`)
 
-    script.preview = highlightedPreview
-    script.filePath = kenvPath("kit.md")
-    script.inputs =
-      script.value
+    scrap.preview = highlightedPreview
+    scrap.filePath = kenvPath("kit.md")
+    scrap.inputs =
+      scrap.scrap
         .match(/{.*?}/g)
         ?.map((x: string) => x.slice(1, -1)) || []
   }
 
-  return scripts
+  return scraps
 }
 
 export let parseScraps = async (): Promise<Script[]> => {
@@ -2095,11 +2096,12 @@ export let parseScraps = async (): Promise<Script[]> => {
   let allScraps: Script[] = []
   for (let scrapsPath of allScrapsPaths) {
     let fileContents = await readFile(scrapsPath, "utf8")
-    let scraps = await parseMarkdownAsScripts(fileContents)
+    let scraps = await parseMarkdownAsScraps(fileContents)
     for (let scrap of scraps) {
       scrap.filePath = `${scrapsPath}#${slugify(
         scrap.name
       )}`
+      scrap.value = Object.assign({}, scrap)
       allScraps.push(scrap)
     }
   }
