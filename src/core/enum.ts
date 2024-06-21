@@ -337,6 +337,7 @@ export enum Channel {
   SCRIPT_CHANGED = "SCRIPT_CHANGED",
   SCRIPT_ADDED = "SCRIPT_ADDED",
   SCRIPT_REMOVED = "SCRIPT_REMOVED",
+  STAMP_SCRIPT = "STAMP_SCRIPT",
 }
 
 export enum ProcessType {

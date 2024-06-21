@@ -41,6 +41,7 @@ import {
   parseScript,
   processInBatches,
   parseMarkdownAsScripts,
+  parseScraps,
 } from "../core/utils.js"
 import {
   getScripts,
@@ -1828,21 +1829,9 @@ export let getGroupedScripts = async (fromCache = true) => {
   //   communityScripts
   // )
 
-  const hasLinks = await isFile(kenvPath("kit.md"))
-  if (hasLinks) {
-    let links = await readFile(kenvPath("kit.md"), "utf8")
-    let linksScripts = await parseMarkdownAsScripts(links)
-    let linksScriptsWithScriptValues = linksScripts.map(
-      s => {
-        s.value = Object.assign({}, s)
-        return s
-      }
-    )
-    processedscripts = processedscripts.concat(
-      linksScriptsWithScriptValues
-    )
-  }
-
+  // let scraps = await parseScraps()
+  // processedscripts = processedscripts.concat(scraps)
+  
   trace.begin({
     name: "groupScripts",
   })
@@ -1917,18 +1906,8 @@ export let selectScript = async (
     await getScripts(fromCache, ignoreKenvPattern)
   )
 
-  const hasLinks = await isFile(kenvPath("kit.md"))
-  if (hasLinks) {
-    let links = await readFile(kenvPath("kit.md"), "utf8")
-    let linksScripts = await parseMarkdownAsScripts(links)
-    let linksScriptsWithScriptValues = linksScripts.map(
-      s => {
-        s.value = Object.assign({}, s)
-        return s
-      }
-    )
-    scripts = scripts.concat(linksScriptsWithScriptValues)
-  }
+  // let scraps = await parseScraps()
+  // let scriptsAndScraps = scripts.concat(scraps)
 
   let groupedScripts = groupScripts(scripts)
 
@@ -2013,7 +1992,9 @@ ${stamp.compileMessage}
 `
       }
     }
-    s.preview = processScriptPreview(s, infoBlock)
+    if (s?.group !== "Scraps") {
+      s.preview = processScriptPreview(s, infoBlock)
+    }
 
     return s
   }

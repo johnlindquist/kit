@@ -12,7 +12,7 @@ import {
   cmd,
   getMainScriptPath,
 } from "../core/utils.js"
-import { Script } from "../types/core.js"
+import { Choice, Script } from "../types/core.js"
 import {
   mainMenu,
   scriptFlags,
@@ -88,6 +88,7 @@ Create a script named <code>${scriptName}</code>
 let isApp = false
 let isPass = false
 let input = ""
+let focused: Choice | undefined
 
 trace.instant({
   args: "mainMenu",
@@ -131,6 +132,8 @@ let script = await mainMenu({
     isPass =
       state?.focused?.group === "Pass" &&
       !state?.focused?.exact
+
+    focused = state?.focused
   },
   // footer: `Script Options: ${cmd}+k`,
   shortcodes: {
@@ -288,8 +291,32 @@ const runScript = async (script: Script | string) => {
     return await sendWait(Channel.SHEBANG, script)
   }
 
-  if (script?.group === "Links") {
-    return await open(script.value)
+  if (Array.isArray(script)) {
+    const scriptChoice = focused as Choice
+    const inputs = script as Script["inputs"]
+    const namedInputs = scriptChoice?.inputs
+    let result = scriptChoice?.value
+    for (let input of namedInputs) {
+      result = result.replace(`{${input}}`, inputs.shift())
+    }
+
+    send(Channel.STAMP_SCRIPT, scriptChoice as Script)
+    switch (scriptChoice.command) {
+      case "kit":
+      case "ts":
+      case "js":
+        let quickPath = kenvPath("tmp", "quick.ts")
+        await writeFile(quickPath, result)
+        return await run(quickPath)
+      case "open":
+        return await open(result)
+      case "paste":
+        return await setSelectedText(result)
+      case "type":
+        return await keyboard.type(result)
+      default:
+        return await exec(result, { shell: true })
+    }
   }
 
   if (script && script?.filePath) {

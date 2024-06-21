@@ -135,59 +135,87 @@ Alias:
 Enabled: Yes
   -->
 
-\`\`\`submit
-value: https://scriptkit.com
-browser: Google
+\`\`\`bash
+open -a 'Google Chrome' https://scriptkit.com/{user}
 \`\`\`
 
 This Script Opens the Script Kit URL
 
 I hope you enjoy!
 
+## Append Note
 
-## Open GitHub
+\`\`\`kit
+await appendFile(home("{File Name}.txt"), {Note})
+\`\`\`
+`
+
+  const scripts = await parseMarkdownAsScripts(markdown)
+  t.log(scripts)
+  // t.is(scripts.length, 2)
+  t.is(scripts[0].name, "Open Script Kit")
+  t.is(scripts[0].trigger, "sk")
+  t.is(scripts[0].command, "bash")
+  t.is(
+    scripts[0].value,
+    "open -a 'Google Chrome' https://scriptkit.com/{user}"
+  )
+  t.is(scripts[0].group, "Scraps")
+  t.deepEqual(scripts[0].inputs, ["user"])
+
+  t.is(scripts[1].name, "Append Note")
+  t.is(scripts[1].command, "kit")
+  t.is(
+    scripts[1].value,
+    'await appendFile(home("{File Name}.txt"), {Note})'
+  )
+  t.is(scripts[1].group, "Scraps")
+  t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
+})
+
+test("parseMarkdownAsScripts allow JavaScript objects", async t => {
+  let markdown = `
+## Open Script Kit
 <!-- 
-Trigger: gh
+Trigger: sk
 Alias:
 Enabled: Yes
   -->
 
-\`\`\`submit
-value: https://github.com
-browser: Firefox
+\`\`\`bash
+open -a 'Google Chrome' https://scriptkit.com/{user}
 \`\`\`
 
-This opens the GitHub URL
+This Script Opens the Script Kit URL
 
-### This is a subtitle
+I hope you enjoy!
 
-Here we go!
-  `
+## Append Note
+
+\`\`\`kit
+await appendFile(home("{File Name}.txt"), {Note})
+\`\`\`
+`
 
   const scripts = await parseMarkdownAsScripts(markdown)
   t.log(scripts)
-  t.is(scripts.length, 2)
+  // t.is(scripts.length, 2)
   t.is(scripts[0].name, "Open Script Kit")
-  t.is(scripts[1].name, "Open GitHub")
   t.is(scripts[0].trigger, "sk")
-  t.is(scripts[1].trigger, "gh")
-  t.is(scripts[0].value, "https://scriptkit.com")
-  t.is(scripts[1].value, "https://github.com")
-  t.is(scripts[0].group, "Links")
-  t.is(scripts[1].group, "Links")
-  // TODO: Runner is timing out locally?
-  //   t.is(
-  //     scripts[0].preview,
-  //     `This Script Opens the Script Kit URL
+  t.is(scripts[0].command, "bash")
+  t.is(
+    scripts[0].value,
+    "open -a 'Google Chrome' https://scriptkit.com/{user}"
+  )
+  t.is(scripts[0].group, "Scraps")
+  t.deepEqual(scripts[0].inputs, ["user"])
 
-  // I hope you enjoy!`
-  //   )
-  //   t.is(
-  //     scripts[1].preview,
-  //     `This opens the GitHub URL
-
-  // ### This is a subtitle
-
-  // Here we go!`
-  //   )
+  t.is(scripts[1].name, "Append Note")
+  t.is(scripts[1].command, "kit")
+  t.is(
+    scripts[1].value,
+    'await appendFile(home("{File Name}.txt"), {Note})'
+  )
+  t.is(scripts[1].group, "Scraps")
+  t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })

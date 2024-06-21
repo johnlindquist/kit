@@ -16,6 +16,7 @@ import {
   getKenvs,
   parseScript,
   processInBatches,
+  parseScraps,
 } from "./utils.js"
 
 import {
@@ -288,9 +289,13 @@ export let getScriptsDb = async (
 
   let dbResult = await db(
     scriptsDbPath,
-    async () => ({
-      scripts: await parseScripts(ignoreKenvPattern),
-    }),
+    async () => {
+      let scripts = await parseScripts(ignoreKenvPattern)
+      let scraps = await parseScraps()
+      return {
+        scripts: scripts.concat(scraps),
+      }
+    },
     fromCache
   )
 

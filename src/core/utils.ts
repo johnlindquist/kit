@@ -2,6 +2,7 @@ import { randomUUID as uuid } from "crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import * as path from "path"
 import untildify from "untildify"
+import slugify from "slugify"
 import {
   Script,
   ScriptPathInfo,
@@ -33,6 +34,7 @@ import {
   type Program,
 } from "acorn"
 import tsPlugin from "acorn-typescript"
+import { globby } from "globby"
 import { Stamp } from "./db"
 
 export let isWin = platform().startsWith("win")
@@ -250,11 +252,14 @@ let fileExists = (path: string) => {
 
 //app
 export let resolveToScriptPath = (
-  script: string,
+  rawScript: string,
   cwd: string = process.cwd()
 ): string => {
-  let extensions = ["", ".js", ".ts"]
+  let extensions = ["", ".js", ".ts", ".md"]
   let resolvedScriptPath = ""
+
+  // Remove anchor from the end
+  let script = rawScript.replace(/\#.*$/, "")
 
   // if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
   if (fileExists(script)) return script
@@ -1992,7 +1997,7 @@ export let parseMarkdownAsScripts = async (
   let currentScript: Script
   let scripts = [] as Script[]
   let parsingMetadata = false
-  let parsingValues = false
+  let parsingValue = false
 
   for (const untrimmedLine of lines) {
     let line = untrimmedLine?.length
@@ -2004,9 +2009,10 @@ export let parseMarkdownAsScripts = async (
         scripts.push(currentScript)
       }
       currentScript = {
-        group: "Links",
+        group: "Scraps",
         name: line.replace("##", "").trim(),
         preview: "",
+        value: "",
       } as Script
       continue
     }
@@ -2023,24 +2029,31 @@ export let parseMarkdownAsScripts = async (
       continue
     }
 
-    if (
-      line.startsWith("```submit") ||
-      line.startsWith("~~~submit")
-    ) {
-      parsingValues = true
+    if (line.startsWith("```") || line.startsWith("~~~")) {
+      if (!currentScript.command) {
+        let command = line
+          .replace("```", "")
+          .replace("~~~", "")
+          .trim()
+        currentScript.command = command
+
+        currentScript.preview += `\n// ${command}`
+        parsingValue = true
+      } else {
+        parsingValue = false
+      }
       continue
     }
 
-    if (
-      (parsingValues && line.startsWith("```")) ||
-      line.startsWith("~~~")
-    ) {
-      parsingValues = false
-
-      continue
+    if (parsingValue) {
+      currentScript.value = (
+        currentScript.value +
+        "\n" +
+        line
+      ).trim()
     }
 
-    if (parsingMetadata || parsingValues) {
+    if (parsingMetadata) {
       let indexOfColon = line.indexOf(":")
       if (indexOfColon === -1) {
         continue
@@ -2061,9 +2074,35 @@ export let parseMarkdownAsScripts = async (
 ${await global.highlight(preview, "")}`)
 
     script.preview = highlightedPreview
-
     script.filePath = kenvPath("kit.md")
+    script.inputs =
+      script.value
+        .match(/{.*?}/g)
+        ?.map((x: string) => x.slice(1, -1)) || []
   }
 
   return scripts
+}
+
+export let parseScraps = async (): Promise<Script[]> => {
+  let scrapsPaths = await globby(kenvPath("scraps", "*.md"))
+  let nestedScrapsPaths = await globby(
+    kenvPath("kenvs", "*", "scraps", "*.md")
+  )
+
+  let allScrapsPaths = scrapsPaths.concat(nestedScrapsPaths)
+
+  let allScraps: Script[] = []
+  for (let scrapsPath of allScrapsPaths) {
+    let fileContents = await readFile(scrapsPath, "utf8")
+    let scraps = await parseMarkdownAsScripts(fileContents)
+    for (let scrap of scraps) {
+      scrap.filePath = `${scrapsPath}#${slugify(
+        scrap.name
+      )}`
+      allScraps.push(scrap)
+    }
+  }
+
+  return allScraps
 }

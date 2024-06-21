@@ -673,6 +673,7 @@ export interface ChannelMap {
   [Channel.SYSTEM_MOUSEUP]: boolean
   [Channel.SYSTEM_MOUSEMOVE]: boolean
   [Channel.SYSTEM_WHEEL]: boolean
+  [Channel.STAMP_SCRIPT]: Script
 }
 export interface Send {
   (channel: Channel | GetAppData | SendNoOptions): void
