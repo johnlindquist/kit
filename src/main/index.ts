@@ -294,12 +294,34 @@ const runScript = async (script: Script | string) => {
   if (Array.isArray(script)) {
     const focusedScrap = focused as Scrap
     
+
+    if(!focusedScrap.command) {
+      return await div(md(`# No command found for ${focusedScrap.value.name}
+
+~~~json
+${JSON.stringify(focusedScrap, null, 2)}
+~~~
+`))
+    }
+
+    let scrap = focusedScrap?.scrap
+    if(!scrap) {
+      return await div(md(`# No template found for ${focusedScrap.value.name}
+~~~json      
+${JSON.stringify(focusedScrap, null, 2)}
+~~~
+`))
+    }
+
     const inputs = script as Scrap["inputs"]
     const namedInputs = focusedScrap?.inputs
-    let scrap = focusedScrap?.scrap
+
     for (let input of namedInputs) {
       scrap = scrap.replace(`{${input}}`, inputs.shift())
     }
+
+
+
 
     send(Channel.STAMP_SCRIPT, focusedScrap as Script)
     switch (focusedScrap.command) {

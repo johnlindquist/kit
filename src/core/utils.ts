@@ -1,5 +1,7 @@
 import { randomUUID as uuid } from "crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
+import { md as globalMd, marked } from "@johnlindquist/globals"
+
 import * as path from "path"
 import untildify from "untildify"
 import slugify from "slugify"
@@ -1990,6 +1992,73 @@ export let processInBatches = async <T>(
   return result
 }
 
+export let md = (
+  content = "",
+  containerClasses = "p-5 prose prose-sm"
+) => {
+  return globalMd(content + "\n", containerClasses)
+}
+
+export let highlight = async (
+  markdown: string,
+  containerClass: string = "p-5 leading-loose",
+  injectStyles: string = ``
+) => {
+  let { default: highlight } =
+    global.__kitHighlight || (await import("highlight.js"))
+  if (!global.__kitHighlight)
+    global.__kitHighlight = { default: highlight }
+
+  let renderer = new marked.Renderer()
+  renderer.paragraph = p => {
+    // Convert a tag with href .mov, .mp4, or .ogg video links to video tags
+    if (p.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
+      let url = p.match(/href="(.*)"/)[1]
+      return `<video controls src="${url}" style="max-width: 100%;"></video>`
+    }
+
+    return `<p>${p}</p>`
+  }
+
+  renderer.text = text => {
+    return `<span>${text}</span>`
+  }
+  marked.setOptions({
+    renderer,
+    highlight: function (code, lang) {
+      const language = highlight.getLanguage(lang)
+        ? lang
+        : "plaintext"
+      return highlight.highlight(code, { language }).value
+    },
+    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
+    pedantic: false,
+    gfm: true,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false,
+    xhtml: false,
+  })
+
+  let highlightedMarkdown = marked(markdown)
+
+  let result = `<div class="${containerClass}">
+  <style>
+  p{
+    margin-bottom: 1rem;
+  }
+  li{
+    margin-bottom: .25rem;
+  }
+  ${injectStyles}
+  </style>
+  ${highlightedMarkdown}
+</div>`
+
+  return result
+}
+
 export let parseMarkdownAsScraps = async (
   markdown: string
 ): Promise<Scrap[]> => {
@@ -2014,6 +2083,7 @@ export let parseMarkdownAsScraps = async (
         scrap: "",
         name: line.replace("##", "").trim(),
         preview: "",
+        kenv: ""
       } as Scrap
       continue
     }
@@ -2072,13 +2142,13 @@ export let parseMarkdownAsScraps = async (
     let preview = (scrap.preview as string).trim()
 
     let highlightedPreview = md(`# ${scrap.name}
-${await global.highlight(preview, "")}`)
+${await highlight(preview, "")}`)
 
     scrap.preview = highlightedPreview
     scrap.filePath = kenvPath("kit.md")
     scrap.inputs =
       scrap.scrap
-        .match(/{.*?}/g)
+        .match(/{[a-zA-Z0-9 ]*?}/g)
         ?.map((x: string) => x.slice(1, -1)) || []
   }
 
@@ -2101,10 +2171,28 @@ export let parseScraps = async (): Promise<Script[]> => {
       scrap.filePath = `${scrapsPath}#${slugify(
         scrap.name
       )}`
+      scrap.kenv = getKenvFromPath(scrapsPath)
       scrap.value = Object.assign({}, scrap)
       allScraps.push(scrap)
     }
   }
 
   return allScraps
+}
+
+export let getKenvFromPath = (filePath: string): string => {
+  let normalizedPath = path.normalize(filePath);
+  let normalizedKenvPath = path.normalize(kenvPath());
+
+  if (!normalizedPath.startsWith(normalizedKenvPath)) {
+    throw new Error(`File path '${filePath}' is not in the expected directory '${kenvPath()}'.`);
+  }
+
+  let relativePath = normalizedPath.replace(normalizedKenvPath, "");
+  if (!relativePath.includes("kenvs")) {
+    return "";
+  }
+
+  let parts = relativePath.split("/");
+  return parts[2] || "";  // Safely return the kenv or an empty string if not found
 }

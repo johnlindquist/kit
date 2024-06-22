@@ -64,8 +64,6 @@ export interface Choice<Value = any> {
   actions?: Action[]
   exact?: boolean
   recent?: boolean
-  inputs?: string[]
-  command?: string
 }
 
 export interface ScoredChoice {
@@ -149,7 +147,10 @@ export type Script = ScriptMetadata &
 
 export type Scrap = Script & {
   group: "Scraps"
+  inputs: string[]
+  command: string
   scrap: string
+  value: Script
 }
 
 export type PromptBounds = {

@@ -3,6 +3,9 @@ import {
   parseScript,
   parseMarkdownAsScraps,
   shortcutNormalizer,
+  getKenvFromPath,
+  home,
+  kenvPath,
 } from "./utils"
 import { outputTmpFile } from "../api/kit"
 import slugify from "slugify"
@@ -218,4 +221,22 @@ await appendFile(home("{File Name}.txt"), {Note})
   )
   t.is(scripts[1].group, "Scraps")
   t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
+})
+
+
+test("getKenvFromPath - main kenv", async t => {
+  let scrapPath = kenvPath("scraps", "kit.md")
+  let kenv = getKenvFromPath(scrapPath)
+  t.is(kenv, "")
+})
+
+test("getKenvFromPath - sub kenv", async t => {
+  let scrapPath = kenvPath("kenvs", "test", "scraps", "kit.md")
+  let kenv = getKenvFromPath(scrapPath)
+  t.is(kenv, "test")
+})
+
+test("getKenvFromPath - no kenv, throw", async t => {
+  let scrapPath = home("kit.md")
+  t.throws(() => getKenvFromPath(scrapPath))
 })

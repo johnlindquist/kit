@@ -1,6 +1,5 @@
 import path from "path"
 import { existsSync, lstatSync } from "fs"
-import { md as globalMd } from "@johnlindquist/globals"
 import {
   readFile,
   readJson,
@@ -40,6 +39,8 @@ import {
   formatChoices,
   parseScript,
   processInBatches,
+  highlight,
+  md as mdUtil
 } from "../core/utils.js"
 import {
   getScripts,
@@ -2156,65 +2157,7 @@ export let selectKenv = async (
 
 global.selectKenv = selectKenv
 
-global.highlight = async (
-  markdown: string,
-  containerClass: string = "p-5 leading-loose",
-  injectStyles: string = ``
-) => {
-  let { default: highlight } =
-    global.__kitHighlight || (await import("highlight.js"))
-  if (!global.__kitHighlight)
-    global.__kitHighlight = { default: highlight }
-
-  let renderer = new marked.Renderer()
-  renderer.paragraph = p => {
-    // Convert a tag with href .mov, .mp4, or .ogg video links to video tags
-    if (p.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
-      let url = p.match(/href="(.*)"/)[1]
-      return `<video controls src="${url}" style="max-width: 100%;"></video>`
-    }
-
-    return `<p>${p}</p>`
-  }
-
-  renderer.text = text => {
-    return `<span>${text}</span>`
-  }
-  global.marked.setOptions({
-    renderer,
-    highlight: function (code, lang) {
-      const language = highlight.getLanguage(lang)
-        ? lang
-        : "plaintext"
-      return highlight.highlight(code, { language }).value
-    },
-    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
-    pedantic: false,
-    gfm: true,
-    breaks: false,
-    sanitize: false,
-    smartLists: true,
-    smartypants: false,
-    xhtml: false,
-  })
-
-  let highlightedMarkdown = global.marked(markdown)
-
-  let result = `<div class="${containerClass}">
-  <style>
-  p{
-    margin-bottom: 1rem;
-  }
-  li{
-    margin-bottom: .25rem;
-  }
-  ${injectStyles}
-  </style>
-  ${highlightedMarkdown}
-</div>`
-
-  return result
-}
+global.highlight = highlight
 
 global.setTab = async (tabName: string) => {
   let i = global.onTabs.findIndex(
@@ -2253,12 +2196,7 @@ global.clearTabs = () => {
   global.send(Channel.CLEAR_TABS)
 }
 
-global.md = (
-  content = "",
-  containerClasses = "p-5 prose prose-sm"
-) => {
-  return globalMd(content + "\n", containerClasses)
-}
+global.md = mdUtil
 
 export let isAuthenticated = async () => {
   let envPath = kenvPath(".kenv")
