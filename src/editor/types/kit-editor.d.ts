@@ -148,7 +148,7 @@ export type Script = ScriptMetadata &
 export type Scrap = Script & {
   group: "Scraps"
   inputs: string[]
-  command: string
+  tool: "kit" | "open" | "paste" | string
   scrap: string
   value: Script
 }

@@ -295,8 +295,8 @@ const runScript = async (script: Script | string) => {
     const focusedScrap = focused as Scrap
     
 
-    if(!focusedScrap.command) {
-      return await div(md(`# No command found for ${focusedScrap.value.name}
+    if(!focusedScrap.tool) {
+      return await div(md(`# No tool found for ${focusedScrap.value.name}
 
 ~~~json
 ${JSON.stringify(focusedScrap, null, 2)}
@@ -324,7 +324,7 @@ ${JSON.stringify(focusedScrap, null, 2)}
 
 
     send(Channel.STAMP_SCRIPT, focusedScrap as Script)
-    switch (focusedScrap.command) {
+    switch (focusedScrap.tool) {
       case "kit":
       case "ts":
       case "js":

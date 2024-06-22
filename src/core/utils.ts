@@ -2078,10 +2078,13 @@ export let parseMarkdownAsScraps = async (
       if (currentScrap) {
         scraps.push(currentScrap)
       }
+      let name = line.replace("##", "").trim()
       currentScrap = {
         group: "Scraps",
         scrap: "",
-        name: line.replace("##", "").trim(),
+        tool: "",
+        name,
+        command: slugify(name, { lower: true, trim: true, replacement: "-" }),
         preview: "",
         kenv: ""
       } as Scrap
@@ -2101,14 +2104,14 @@ export let parseMarkdownAsScraps = async (
     }
 
     if (line.startsWith("```") || line.startsWith("~~~")) {
-      if (!currentScrap.command) {
-        let command = line
+      if (!currentScrap.tool) {
+        let tool = line
           .replace("```", "")
           .replace("~~~", "")
           .trim()
-        currentScrap.command = command
+        currentScrap.tool = tool
 
-        currentScrap.preview += `\n// ${command}`
+        currentScrap.preview += `\n// ${tool}`
         parsingValue = true
       } else {
         parsingValue = false
@@ -2145,7 +2148,6 @@ export let parseMarkdownAsScraps = async (
 ${await highlight(preview, "")}`)
 
     scrap.preview = highlightedPreview
-    scrap.filePath = kenvPath("kit.md")
     scrap.inputs =
       scrap.scrap
         .match(/{[a-zA-Z0-9 ]*?}/g)

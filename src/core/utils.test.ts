@@ -158,7 +158,7 @@ await appendFile(home("{File Name}.txt"), {Note})
   // t.is(scripts.length, 2)
   t.is(scripts[0].name, "Open Script Kit")
   t.is(scripts[0].trigger, "sk")
-  t.is(scripts[0].command, "bash")
+  t.is(scripts[0].tool, "bash")
   t.is(
     scripts[0].scrap,
     "open -a 'Google Chrome' https://scriptkit.com/{user}"
@@ -167,7 +167,7 @@ await appendFile(home("{File Name}.txt"), {Note})
   t.deepEqual(scripts[0].inputs, ["user"])
 
   t.is(scripts[1].name, "Append Note")
-  t.is(scripts[1].command, "kit")
+  t.is(scripts[1].tool, "kit")
   t.is(
     scripts[1].scrap,
     'await appendFile(home("{File Name}.txt"), {Note})'
@@ -205,7 +205,7 @@ await appendFile(home("{File Name}.txt"), {Note})
   // t.is(scripts.length, 2)
   t.is(scripts[0].name, "Open Script Kit")
   t.is(scripts[0].trigger, "sk")
-  t.is(scripts[0].command, "bash")
+  t.is(scripts[0].tool, "bash")
   t.is(
     scripts[0].scrap,
     "open -a 'Google Chrome' https://scriptkit.com/{user}"
@@ -214,7 +214,7 @@ await appendFile(home("{File Name}.txt"), {Note})
   t.deepEqual(scripts[0].inputs, ["user"])
 
   t.is(scripts[1].name, "Append Note")
-  t.is(scripts[1].command, "kit")
+  t.is(scripts[1].tool, "kit")
   t.is(
     scripts[1].scrap,
     'await appendFile(home("{File Name}.txt"), {Note})'
