@@ -12,7 +12,7 @@ import {
   cmd,
   getMainScriptPath,
 } from "../core/utils.js"
-import { Choice, Scrap, Script } from "../types/core.js"
+import { Choice, Scriptlet, Script } from "../types/core.js"
 import {
   mainMenu,
   scriptFlags,
@@ -292,53 +292,52 @@ const runScript = async (script: Script | string) => {
   }
 
   if (Array.isArray(script)) {
-    const focusedScrap = focused as Scrap
+    const focusedScriptlet = focused as Scriptlet
     
 
-    if(!focusedScrap.tool) {
-      return await div(md(`# No tool found for ${focusedScrap.value.name}
+    if(!focusedScriptlet.tool) {
+      return await div(md(`# No tool found for ${focusedScriptlet.value.name}
 
 ~~~json
-${JSON.stringify(focusedScrap, null, 2)}
+${JSON.stringify(focusedScriptlet, null, 2)}
 ~~~
 `))
     }
 
-    let scrap = focusedScrap?.scrap
-    if(!scrap) {
-      return await div(md(`# No template found for ${focusedScrap.value.name}
+    let scriptlet = focusedScriptlet?.scriptlet
+    if(!scriptlet) {
+      return await div(md(`# No template found for ${focusedScriptlet.value.name}
 ~~~json      
-${JSON.stringify(focusedScrap, null, 2)}
+${JSON.stringify(focusedScriptlet, null, 2)}
 ~~~
 `))
     }
 
-    const inputs = script as Scrap["inputs"]
-    const namedInputs = focusedScrap?.inputs
+    const inputs = script as Scriptlet["inputs"]
+    const namedInputs = focusedScriptlet?.inputs
 
     for (let input of namedInputs) {
-      scrap = scrap.replace(`{${input}}`, inputs.shift())
+      scriptlet = scriptlet.replace(`{${input}}`, inputs.shift())
     }
 
 
-
-
-    send(Channel.STAMP_SCRIPT, focusedScrap as Script)
-    switch (focusedScrap.tool) {
+    send(Channel.STAMP_SCRIPT, focusedScriptlet as Script)
+    switch (focusedScriptlet.tool) {
       case "kit":
       case "ts":
       case "js":
-        let quickPath = kenvPath("tmp", "quick.ts")
-        await writeFile(quickPath, scrap)
+        let quickPath = kenvPath("tmp", `scriptlet-${focusedScriptlet.command}.ts`)
+        await writeFile(quickPath, scriptlet)
         return await run(quickPath)
       case "open":
-        return await open(scrap)
+        return await open(scriptlet)
       case "paste":
-        return await setSelectedText(scrap)
+        return await setSelectedText(scriptlet)
       case "type":
-        return await keyboard.type(scrap)
+        await hide()
+        return await keyboard.type(scriptlet)
       default:
-        return await exec(scrap, { shell: true })
+        return await exec(scriptlet, { shell: true })
     }
   }
 

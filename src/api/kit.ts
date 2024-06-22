@@ -23,6 +23,7 @@ import {
   PromptConfig,
   ScoredChoice,
   Script,
+  Scriptlet,
   Shortcut,
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
@@ -1991,7 +1992,7 @@ ${stamp.compileMessage}
 `
       }
     }
-    if (s?.group !== "Scraps") {
+    if (!(s as Scriptlet)?.scriptlet) {
       s.preview = processScriptPreview(s, infoBlock)
     }
 

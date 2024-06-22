@@ -1,7 +1,7 @@
 import test from "ava"
 import {
   parseScript,
-  parseMarkdownAsScraps,
+  parseMarkdownAsScriptlets,
   shortcutNormalizer,
   getKenvFromPath,
   home,
@@ -153,26 +153,26 @@ await appendFile(home("{File Name}.txt"), {Note})
 \`\`\`
 `
 
-  const scripts = await parseMarkdownAsScraps(markdown)
+  const scripts = await parseMarkdownAsScriptlets(markdown)
   t.log(scripts)
   // t.is(scripts.length, 2)
   t.is(scripts[0].name, "Open Script Kit")
   t.is(scripts[0].trigger, "sk")
   t.is(scripts[0].tool, "bash")
   t.is(
-    scripts[0].scrap,
+    scripts[0].scriptlet,
     "open -a 'Google Chrome' https://scriptkit.com/{user}"
   )
-  t.is(scripts[0].group, "Scraps")
+  t.is(scripts[0].group, "Scriptlets")
   t.deepEqual(scripts[0].inputs, ["user"])
 
   t.is(scripts[1].name, "Append Note")
   t.is(scripts[1].tool, "kit")
   t.is(
-    scripts[1].scrap,
+    scripts[1].scriptlet,
     'await appendFile(home("{File Name}.txt"), {Note})'
   )
-  t.is(scripts[1].group, "Scraps")
+  t.is(scripts[1].group, "Scriptlets")
   t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })
 
@@ -200,43 +200,43 @@ await appendFile(home("{File Name}.txt"), {Note})
 \`\`\`
 `
 
-  const scripts = await parseMarkdownAsScraps(markdown)
+  const scripts = await parseMarkdownAsScriptlets(markdown)
   t.log(scripts)
   // t.is(scripts.length, 2)
   t.is(scripts[0].name, "Open Script Kit")
   t.is(scripts[0].trigger, "sk")
   t.is(scripts[0].tool, "bash")
   t.is(
-    scripts[0].scrap,
+    scripts[0].scriptlet,
     "open -a 'Google Chrome' https://scriptkit.com/{user}"
   )
-  t.is(scripts[0].group, "Scraps")
+  t.is(scripts[0].group, "Scriptlets")
   t.deepEqual(scripts[0].inputs, ["user"])
 
   t.is(scripts[1].name, "Append Note")
   t.is(scripts[1].tool, "kit")
   t.is(
-    scripts[1].scrap,
+    scripts[1].scriptlet,
     'await appendFile(home("{File Name}.txt"), {Note})'
   )
-  t.is(scripts[1].group, "Scraps")
+  t.is(scripts[1].group, "Scriptlets")
   t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })
 
 
 test("getKenvFromPath - main kenv", async t => {
-  let scrapPath = kenvPath("scraps", "kit.md")
-  let kenv = getKenvFromPath(scrapPath)
+  let scriptletsPath = kenvPath("script", "kit.md")
+  let kenv = getKenvFromPath(scriptletsPath)
   t.is(kenv, "")
 })
 
 test("getKenvFromPath - sub kenv", async t => {
-  let scrapPath = kenvPath("kenvs", "test", "scraps", "kit.md")
-  let kenv = getKenvFromPath(scrapPath)
+  let scriptletsPath = kenvPath("kenvs", "test", "script", "kit.md")
+  let kenv = getKenvFromPath(scriptletsPath)
   t.is(kenv, "test")
 })
 
 test("getKenvFromPath - no kenv, throw", async t => {
-  let scrapPath = home("kit.md")
-  t.throws(() => getKenvFromPath(scrapPath))
+  let scriptletsPath = home("kit.md")
+  t.throws(() => getKenvFromPath(scriptletsPath))
 })

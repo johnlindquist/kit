@@ -145,11 +145,11 @@ export type Script = ScriptMetadata &
   ScriptPathInfo &
   Choice
 
-export type Scrap = Script & {
-  group: "Scraps"
+export type Scriptlet = Script & {
+  group: "Scriptlets"
   inputs: string[]
   tool: "kit" | "open" | "paste" | string
-  scrap: string
+  scriptlet: string
   value: Script
 }
 

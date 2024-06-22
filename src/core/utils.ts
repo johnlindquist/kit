@@ -12,7 +12,7 @@ import {
   Metadata,
   Shortcut,
   Choice,
-  Scrap,
+  Scriptlet,
 } from "../types/core"
 import { platform, homedir } from "os"
 import { lstatSync, PathLike, realpathSync } from "fs"
@@ -2059,13 +2059,13 @@ export let highlight = async (
   return result
 }
 
-export let parseMarkdownAsScraps = async (
+export let parseMarkdownAsScriptlets = async (
   markdown: string
-): Promise<Scrap[]> => {
+): Promise<Scriptlet[]> => {
   let lines = markdown.trim().split("\n")
 
-  let currentScrap: Scrap
-  let scraps = [] as Scrap[]
+  let currentScriptlet: Scriptlet
+  let scriptlets = [] as Scriptlet[]
   let parsingMetadata = false
   let parsingValue = false
 
@@ -2075,24 +2075,24 @@ export let parseMarkdownAsScraps = async (
       : ""
 
     if (line.startsWith("##") && !line.startsWith("###")) {
-      if (currentScrap) {
-        scraps.push(currentScrap)
+      if (currentScriptlet) {
+        scriptlets.push(currentScriptlet)
       }
       let name = line.replace("##", "").trim()
-      currentScrap = {
-        group: "Scraps",
-        scrap: "",
+      currentScriptlet = {
+        group: "Scriptlets",
+        scriptlet: "",
         tool: "",
         name,
         command: slugify(name, { lower: true, trim: true, replacement: "-" }),
         preview: "",
         kenv: ""
-      } as Scrap
+      } as Scriptlet
       continue
     }
 
-    if (currentScrap) {
-      currentScrap.preview += "\n" + line
+    if (currentScriptlet) {
+      currentScriptlet.preview += "\n" + line
     }
     if (line.startsWith("<!--")) {
       parsingMetadata = true
@@ -2104,14 +2104,14 @@ export let parseMarkdownAsScraps = async (
     }
 
     if (line.startsWith("```") || line.startsWith("~~~")) {
-      if (!currentScrap.tool) {
+      if (!currentScriptlet.tool) {
         let tool = line
           .replace("```", "")
           .replace("~~~", "")
           .trim()
-        currentScrap.tool = tool
+        currentScriptlet.tool = tool
 
-        currentScrap.preview += `\n// ${tool}`
+        currentScriptlet.preview += `\n// ${tool}`
         parsingValue = true
       } else {
         parsingValue = false
@@ -2120,8 +2120,8 @@ export let parseMarkdownAsScraps = async (
     }
 
     if (parsingValue) {
-      currentScrap.scrap = (
-        currentScrap.scrap +
+      currentScriptlet.scriptlet = (
+        currentScriptlet.scriptlet +
         "\n" +
         line
       ).trim()
@@ -2135,51 +2135,51 @@ export let parseMarkdownAsScraps = async (
       let key = line.slice(0, indexOfColon).trim()
       let value = line.slice(indexOfColon + 1).trim()
       let lowerCaseKey = key.toLowerCase()
-      currentScrap[lowerCaseKey] = value
+      currentScriptlet[lowerCaseKey] = value
     }
   }
 
-  scraps.push(currentScrap)
+  scriptlets.push(currentScriptlet)
 
-  for (let scrap of scraps) {
-    let preview = (scrap.preview as string).trim()
+  for (let scriptlet of scriptlets) {
+    let preview = (scriptlet.preview as string).trim()
 
-    let highlightedPreview = md(`# ${scrap.name}
+    let highlightedPreview = md(`# ${scriptlet.name}
 ${await highlight(preview, "")}`)
 
-    scrap.preview = highlightedPreview
-    scrap.inputs =
-      scrap.scrap
+    scriptlet.preview = highlightedPreview
+    scriptlet.inputs =
+      scriptlet.scriptlet
         .match(/{[a-zA-Z0-9 ]*?}/g)
         ?.map((x: string) => x.slice(1, -1)) || []
   }
 
-  return scraps
+  return scriptlets
 }
 
-export let parseScraps = async (): Promise<Script[]> => {
-  let scrapsPaths = await globby(kenvPath("scraps", "*.md"))
-  let nestedScrapsPaths = await globby(
-    kenvPath("kenvs", "*", "scraps", "*.md")
+export let parseScriptlets = async (): Promise<Script[]> => {
+  let scriptletsPaths = await globby(kenvPath("scriptlets", "*.md"))
+  let nestedScriptletPaths = await globby(
+    kenvPath("kenvs", "*", "scriptlets", "*.md")
   )
 
-  let allScrapsPaths = scrapsPaths.concat(nestedScrapsPaths)
+  let allScriptletsPaths = scriptletsPaths.concat(nestedScriptletPaths)
 
-  let allScraps: Script[] = []
-  for (let scrapsPath of allScrapsPaths) {
-    let fileContents = await readFile(scrapsPath, "utf8")
-    let scraps = await parseMarkdownAsScraps(fileContents)
-    for (let scrap of scraps) {
-      scrap.filePath = `${scrapsPath}#${slugify(
-        scrap.name
+  let allScriptlets: Script[] = []
+  for (let scriptletsPath of allScriptletsPaths) {
+    let fileContents = await readFile(scriptletsPath, "utf8")
+    let scriptlets = await parseMarkdownAsScriptlets(fileContents)
+    for (let scriptlet of scriptlets) {
+      scriptlet.filePath = `${scriptletsPath}#${slugify(
+        scriptlet.name
       )}`
-      scrap.kenv = getKenvFromPath(scrapsPath)
-      scrap.value = Object.assign({}, scrap)
-      allScraps.push(scrap)
+      scriptlet.kenv = getKenvFromPath(scriptletsPath)
+      scriptlet.value = Object.assign({}, scriptlet)
+      allScriptlets.push(scriptlet)
     }
   }
 
-  return allScraps
+  return allScriptlets
 }
 
 export let getKenvFromPath = (filePath: string): string => {
