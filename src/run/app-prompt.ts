@@ -1,11 +1,11 @@
 process.env.KIT_TARGET = "app-prompt"
 import { Channel, Trigger } from "../core/enum.js"
 
-let script = ""
+let script:any = ""
 let tooEarlyHandler = data => {
   if (data.channel === Channel.VALUE_SUBMITTED) {
     script =
-      data?.value?.script || data?.state?.value?.filePath
+      data?.value?.scriptlet ? data?.value : data?.value?.script || data?.state?.value?.filePath
     // const value = `${process.pid}: ${
     //   data?.channel
     // }: ${script} ${performance.now()}ms`
@@ -53,8 +53,11 @@ if (process.env.KIT_MEASURE) {
 }
 
 let trigger = ""
+let name = ""
 let args = []
 let result = null
+let choices = []
+let scriptlet = null
 process.title = `Kit Idle - App Prompt`
 process.send({
   channel: Channel.KIT_READY,
@@ -73,6 +76,12 @@ try {
       //   channel: Channel.CONSOLE_LOG,
       //   value: `Too early ${tooEarly}...`,
       // })
+
+      // TODO: Revisit what causes "too early" and the edge-cases here
+      if(script?.scriptlet){
+        resolve(script)
+        return
+      }
       resolve({
         script,
         args: [],
@@ -100,7 +109,7 @@ try {
   exit()
 }
 
-;({ script, args, trigger } = result)
+;({ script, args, trigger, choices, name, scriptlet } = result)
 
 process.env.KIT_TRIGGER = trigger
 
@@ -116,4 +125,23 @@ process.once("beforeExit", () => {
 })
 
 performance.mark("run")
-await run(script, ...args)
+
+
+if(choices?.length){
+  let inputs = await arg<string[]>({
+    name,
+    scriptlet: true,
+    resize: true,
+    onEscape: () => {
+      exit()
+    }
+  }, choices)
+  let { runScriptlet } = await import("../main/scriptlet.js")
+  await runScriptlet(scriptlet, inputs)
+}else{
+  if(script.includes('.md')){
+    log({script, ugh: "❌"})
+    exit()
+  }
+  await run(script, ...args)
+}

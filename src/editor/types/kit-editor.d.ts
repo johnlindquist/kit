@@ -277,6 +277,7 @@ export interface PromptData {
   multiple?: boolean
   searchKeys?: string[]
   show?: boolean
+  scriptlet?: boolean
 }
 
 export interface GenerateChoices {

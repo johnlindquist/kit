@@ -1866,11 +1866,12 @@ global.basePrompt = async (
   }
 
   let height = PROMPT.HEIGHT.BASE
-  if (!choices)
+  if (!choices){
     height =
       PROMPT.HEIGHT.HEADER +
       PROMPT.INPUT.HEIGHT.SM +
       PROMPT.HEIGHT.FOOTER
+    }
   if (typeof placeholderOrConfig === "object") {
     let {
       headerClassName = "",

@@ -2157,6 +2157,20 @@ ${await highlight(preview, "")}`)
   return scriptlets
 }
 
+export let parseScriptletsFromPath = async (filePath: string): Promise<Script[]> => {
+  let allScriptlets: Script[] = [];
+  let fileContents = await readFile(filePath, "utf8");
+  let scriptlets = await parseMarkdownAsScriptlets(fileContents);
+  for (let scriptlet of scriptlets) {
+    scriptlet.filePath = `${filePath}#${slugify(scriptlet.name)}`;
+    scriptlet.kenv = getKenvFromPath(filePath);
+    scriptlet.value = Object.assign({}, scriptlet);
+    allScriptlets.push(scriptlet);
+  }
+
+  return allScriptlets;
+}
+
 export let parseScriptlets = async (): Promise<Script[]> => {
   let scriptletsPaths = await globby(kenvPath("scriptlets", "*.md"))
   let nestedScriptletPaths = await globby(
