@@ -2139,7 +2139,9 @@ export let parseMarkdownAsScriptlets = async (
     }
   }
 
-  scriptlets.push(currentScriptlet)
+  if(currentScriptlet){
+    scriptlets.push(currentScriptlet)
+  }
 
   for (let scriptlet of scriptlets) {
     let preview = (scriptlet.preview as string).trim()

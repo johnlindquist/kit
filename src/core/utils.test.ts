@@ -223,6 +223,11 @@ await appendFile(home("{File Name}.txt"), {Note})
   t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })
 
+test("parseScriptlets doesn't error on empty string", async t => {
+  let scriptlets = await parseMarkdownAsScriptlets("")
+  t.is(scriptlets.length, 0)
+})
+
 
 test("getKenvFromPath - main kenv", async t => {
   let scriptletsPath = kenvPath("script", "kit.md")
