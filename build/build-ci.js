@@ -43,4 +43,11 @@ try {
   exit(1)
 }
 
+try{
+  await exec(`npx tsx ./build/build-editor-types.ts`)
+} catch (e) {
+  console.log(e)
+  exit(1)
+}
+
 cd(kitPath())

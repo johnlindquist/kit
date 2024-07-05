@@ -1,4 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-npm run build-editor-types
-git add ./src/editor/types/kit-editor.d.ts || exit 0
