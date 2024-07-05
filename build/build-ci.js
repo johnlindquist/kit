@@ -43,8 +43,10 @@ try {
   exit(1)
 }
 
+console.log(`Building editor types to ${kitPath()}`)
 try{
-  await exec(`npx tsx ./build/build-editor-types.ts`)
+  let editorTypes = await exec(`npx tsx ./build/build-editor-types.ts`)
+  console.log(editorTypes)
 } catch (e) {
   console.log(e)
   exit(1)
