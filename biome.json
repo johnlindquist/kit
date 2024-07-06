@@ -1,0 +1,20 @@
+{
+	"javascript": {
+		"formatter": {
+			"semicolons": "asNeeded",
+			"trailingCommas": "none"
+		}
+	},
+	"linter": {
+		"rules": {
+			"suspicious": {
+				"noExplicitAny": "off"
+			},
+			"style": {
+				"useConst": {
+					"level": "off"
+				}
+			}
+		}
+	}
+}

@@ -253,13 +253,19 @@ let fileExists = (path: string) => {
   }
 }
 
+export let isScriptletPath = (filePath:unknown) => {
+  return typeof filePath === 'string' && filePath.includes('.md#')
+}
+
 //app
 export let resolveToScriptPath = (
   rawScript: string,
   cwd: string = process.cwd()
 ): string => {
+
   let extensions = ["", ".js", ".ts", ".md"]
   let resolvedScriptPath = ""
+
 
   // Remove anchor from the end
   let script = rawScript.replace(/\#.*$/, "")

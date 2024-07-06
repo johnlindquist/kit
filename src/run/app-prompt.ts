@@ -1,55 +1,55 @@
 process.env.KIT_TARGET = "app-prompt"
 import { Channel, Trigger } from "../core/enum.js"
+import os from "node:os"
+import { configEnv, run } from "../core/utils.js"
 
-let script:any = ""
-let tooEarlyHandler = data => {
-  if (data.channel === Channel.VALUE_SUBMITTED) {
-    script =
-      data?.value?.scriptlet ? data?.value : data?.value?.script || data?.state?.value?.filePath
-    // const value = `${process.pid}: ${
-    //   data?.channel
-    // }: ${script} ${performance.now()}ms`
-    // process.send({
-    //   channel: Channel.CONSOLE_LOG,
-    //   value,
-    // });
-  }
+// TODO: Fix the types around accepting an early Scriptlet
+let script: any = ""
+let tooEarlyHandler = (data) => {
+	if (data.channel === Channel.VALUE_SUBMITTED) {
+		script = data?.value?.scriptlet
+			? data?.value
+			: data?.value?.script || data?.state?.value?.filePath
+		// const value = `${process.pid}: ${
+		//   data?.channel
+		// }: ${script} ${performance.now()}ms`
+		// process.send({
+		//   channel: Channel.CONSOLE_LOG,
+		//   value,
+		// });
+	}
 }
 
 process.send({
-  channel: Channel.KIT_LOADING,
-  value: "app-prompt.ts",
+	channel: Channel.KIT_LOADING,
+	value: "app-prompt.ts",
 })
 
 process.on("message", tooEarlyHandler)
-import os from "os"
-import { configEnv, run } from "../core/utils.js"
 
 await import("../api/global.js")
 let { initTrace } = await import("../api/kit.js")
 await initTrace()
 await import("../api/pro.js")
 await import("../api/lib.js")
-await import(`../platform/base.js`)
+await import("../platform/base.js")
 
 let platform = os.platform()
 try {
-  await import(`../platform/${platform}.js`)
+	await import(`../platform/${platform}.js`)
 } catch (error) {
-  // console.log(`No ./platform/${platform}.js`)
+	// console.log(`No ./platform/${platform}.js`)
 }
 
 await import("../target/app.js")
 
 if (process.env.KIT_MEASURE) {
-  let { PerformanceObserver, performance } = await import(
-    "perf_hooks"
-  )
-  let obs = new PerformanceObserver(list => {
-    let entry = list.getEntries()[0]
-    log(`⌚️ [Perf] ${entry.name}: ${entry.duration}ms`)
-  })
-  obs.observe({ entryTypes: ["measure"] })
+	let { PerformanceObserver, performance } = await import("node:perf_hooks")
+	let obs = new PerformanceObserver((list) => {
+		let entry = list.getEntries()[0]
+		log(`⌚️ [Perf] ${entry.name}: ${entry.duration}ms`)
+	})
+	obs.observe({ entryTypes: ["measure"] })
 }
 
 let trigger = ""
@@ -58,57 +58,59 @@ let args = []
 let result = null
 let choices = []
 let scriptlet = null
-process.title = `Kit Idle - App Prompt`
+process.title = "Kit Idle - App Prompt"
 process.send({
-  channel: Channel.KIT_READY,
-  value: result,
+	channel: Channel.KIT_READY,
+	value: result,
 })
+
 try {
-  result = await new Promise<{
-    script: string
-    trigger: string
-    args: string[]
-  }>((resolve, reject) => {
-    process.off("message", tooEarlyHandler)
+	result = await new Promise((resolve, reject) => {
+		process.off("message", tooEarlyHandler)
 
-    if (script) {
-      // process.send({
-      //   channel: Channel.CONSOLE_LOG,
-      //   value: `Too early ${tooEarly}...`,
-      // })
+		if (script) {
+			// process.send({
+			//   channel: Channel.CONSOLE_LOG,
+			//   value: `Too early ${tooEarly}...`,
+			// })
 
-      // TODO: Revisit what causes "too early" and the edge-cases here
-      if(script?.scriptlet){
-        resolve(script)
-        return
-      }
-      resolve({
-        script,
-        args: [],
-        trigger: Trigger.Trigger,
-      })
-      return
-    }
-    let messageHandler = data => {
-      if (data.channel === Channel.HEARTBEAT) {
-        send(Channel.HEARTBEAT)
-      }
-      if (data.channel === Channel.VALUE_SUBMITTED) {
-        trace.instant({
-          name: "app-prompt.ts -> VALUE_SUBMITTED",
-          args: data,
-        })
-        process.off("message", messageHandler)
-        resolve(data.value)
-      }
-    }
-    process.on("message", messageHandler)
-  })
+			// TODO: Revisit what causes "too early" and the edge-cases here
+			if (script?.scriptlet) {
+				resolve(script)
+				return
+			}
+			resolve({
+				script,
+				args: [],
+				trigger: Trigger.Trigger,
+			})
+			return
+		}
+
+		type MessageData = {
+			channel: Channel
+			value: any
+		}
+
+		let messageHandler = (data: MessageData) => {
+			if (data.channel === Channel.HEARTBEAT) {
+				send(Channel.HEARTBEAT)
+			}
+			if (data.channel === Channel.VALUE_SUBMITTED) {
+				trace.instant({
+					name: "app-prompt.ts -> VALUE_SUBMITTED",
+					args: data,
+				})
+				process.off("message", messageHandler)
+				resolve(data.value)
+			}
+		}
+		process.on("message", messageHandler)
+	})
 } catch (e) {
-  global.warn(e)
-  exit()
+	global.warn(e)
+	exit()
 }
-
 ;({ script, args, trigger, choices, name, scriptlet } = result)
 
 process.env.KIT_TRIGGER = trigger
@@ -117,31 +119,33 @@ configEnv()
 process.title = `Kit - ${path.basename(script)}`
 
 process.once("beforeExit", () => {
-  if (global?.trace?.flush) {
-    global.trace.flush()
-    global.trace = null
-  }
-  send(Channel.BEFORE_EXIT)
+	if (global?.trace?.flush) {
+		global.trace.flush()
+		global.trace = null
+	}
+	send(Channel.BEFORE_EXIT)
 })
 
 performance.mark("run")
 
-
-if(choices?.length){
-  let inputs = await arg<string[]>({
-    name,
-    scriptlet: true,
-    resize: true,
-    onEscape: () => {
-      exit()
-    }
-  }, choices)
-  let { runScriptlet } = await import("../main/scriptlet.js")
-  await runScriptlet(scriptlet, inputs)
-}else{
-  if(script.includes('.md')){
-    log({script, ugh: "❌"})
-    exit()
-  }
-  await run(script, ...args)
+if (choices?.length) {
+	let inputs = await arg<string[]>(
+		{
+			name,
+			scriptlet: true,
+			resize: true,
+			onEscape: () => {
+				exit()
+			},
+		},
+		choices,
+	)
+	let { runScriptlet } = await import("../main/scriptlet.js")
+	await runScriptlet(scriptlet, inputs)
+} else {
+	if (script.includes(".md")) {
+		log({ script, ugh: "❌" })
+		exit()
+	}
+	await run(script, ...args)
 }
