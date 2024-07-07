@@ -1,4 +1,15 @@
 {
+	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
+		"defaultBranch": "main"
+	},
+	"organizeImports": {
+		"ignore": ["assets"],
+		"enabled": true
+	},
 	"javascript": {
 		"formatter": {
 			"semicolons": "asNeeded",
