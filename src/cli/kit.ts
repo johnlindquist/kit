@@ -174,11 +174,6 @@ export let runCli = async () => {
 			let scriptlets = await parseScriptletsFromPath(script)
 			let scriptlet = scriptlets.find((s) => s.filePath === script) as Scriptlet
 
-			console.log({
-				scriptlets,
-				scriptlet
-			})
-
 			if (scriptlet) {
 				let { runScriptlet } = await import("../main/scriptlet.js")
 				await runScriptlet(scriptlet, [])
