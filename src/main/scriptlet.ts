@@ -63,7 +63,7 @@ export let runScriptlet = async (
 			for (let i = 0; i < inputs.length; i++) {
 				insertedArgsScriptlet = insertedArgsScriptlet.replace(
 					new RegExp(`\\$\\{?${i + 1}\\}?`, "g"),
-					`"${inputs[i]}"`
+					inputs[i]
 				)
 			}
 			return await exec(insertedArgsScriptlet, {
