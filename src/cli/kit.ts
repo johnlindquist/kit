@@ -176,7 +176,7 @@ export let runCli = async () => {
 
 			if (scriptlet) {
 				let { runScriptlet } = await import("../main/scriptlet.js")
-				await runScriptlet(scriptlet, [])
+				await runScriptlet(scriptlet, args)
 				return
 			}
 			console.error(chalk`{red.bold Scriptlet ${script} not found}. Exiting...`)

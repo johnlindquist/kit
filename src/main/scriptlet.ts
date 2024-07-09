@@ -37,14 +37,14 @@ export let runScriptlet = async (
 	switch (focusedScriptlet.tool) {
 		case "kit":
 		case "ts":
-		case "js":
-			// biome-ignore lint/correctness/noSwitchDeclarations: Allow fall through
+		case "js": {
 			let quickPath = kenvPath(
 				"tmp",
 				`scriptlet-${focusedScriptlet.command}.ts`
 			)
 			await writeFile(quickPath, scriptlet)
 			return await run(quickPath)
+		}
 		case "open":
 			return await open(scriptlet)
 		case "paste":
@@ -52,7 +52,24 @@ export let runScriptlet = async (
 		case "type":
 			await hide()
 			return await keyboard.type(scriptlet)
-		default:
-			return await exec(scriptlet, { shell: true, stdio: "inherit" })
+		default: {
+			let insertedArgsScriptlet = scriptlet
+			// Replace $@ with all arguments, each surrounded by quotes
+			insertedArgsScriptlet = insertedArgsScriptlet.replace(
+				"$@",
+				inputs.map((arg) => `"${arg}"`).join(" ")
+			)
+			// Replace all the $1, $2, etc with the quoted values from the inputs array
+			for (let i = 0; i < inputs.length; i++) {
+				insertedArgsScriptlet = insertedArgsScriptlet.replace(
+					new RegExp(`\\$\\{?${i + 1}\\}?`, "g"),
+					`"${inputs[i]}"`
+				)
+			}
+			return await exec(insertedArgsScriptlet, {
+				shell: true,
+				stdio: "inherit"
+			})
+		}
 	}
 }

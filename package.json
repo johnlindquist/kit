@@ -117,11 +117,7 @@
 			"KIT_TEST": "true"
 		},
 		"verbose": true,
-		"files": [
-			"src/**/*.test.js",
-			"test/**/*.test.js",
-			"test-sdk/**/*.test.js"
-		]
+		"files": ["src/**/*.test.js", "test/**/*.test.js", "test-sdk/**/*.test.js"]
 	},
 	"release": {
 		"branches": [
@@ -149,9 +145,7 @@
 			[
 				"semantic-release-plugin-update-version-in-files",
 				{
-					"files": [
-						"./.kit/package.json"
-					]
+					"files": ["./.kit/package.json"]
 				}
 			]
 		]

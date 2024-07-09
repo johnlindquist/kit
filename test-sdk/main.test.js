@@ -1,4 +1,5 @@
 import ava from "ava"
+import slugify from "slugify"
 import { Channel, KIT_APP_PROMPT } from "./config.js"
 
 process.env.NODE_NO_WARNINGS = 1
@@ -407,19 +408,88 @@ ava.serial("Run a scriptlet from a .md file", async (t) => {
 	let scriptletPath = kenvPath("scriptlets", `${scriptlet}.md`)
 	let testFilePath = kenvPath("test.md")
 	let testFilePathContents = "Success!"
+	let scriptletName = "Test Scriptlet"
+	let scriptletNameSlug = slugify(scriptletName)
 	await ensureDir(kenvPath("scriptlets"))
+
 	await writeFile(
 		scriptletPath,
 		`
-## Test Scriptlet
+## ${scriptletName}
 
 \`\`\`ts
 await writeFile("${testFilePath}", "${testFilePathContents}")
 \`\`\`
   `
 	)
-	await $`kit ${scriptletPath}#Test-Scriptlet`
+	await $`kit ${scriptletPath}#${scriptletNameSlug}`
 
 	let testFilePathFinalContents = await readFile(testFilePath, "utf8")
 	t.is(testFilePathFinalContents, testFilePathContents)
+})
+
+ava.serial("Run a scriptlet from a .md file with args", async (t) => {
+	let scriptlet = "mock-scriptlet-from-md-file-with-args"
+	let scriptletPath = kenvPath("scriptlets", `${scriptlet}.md`)
+
+	let scriptletDir = path.parse(scriptletPath).dir
+	t.log
+	await ensureDir(scriptletDir)
+	let scriptletName = "Test Scriptlet With Args"
+	t.log(`Slugifying ${scriptletName}`)
+	let scriptletNameSlug = slugify(scriptletName)
+
+	t.log(`Writing file: ${scriptletPath}`)
+	let scriptletContent = `
+## ${scriptletName}
+
+\`\`\`ts
+let scope = await arg("scope")
+let message = await arg("message")
+console.log(scope + ": " + message)
+\`\`\`
+	  `.trim()
+	t.log({ scriptletPath, scriptletNameSlug, scriptletContent })
+	try {
+		await writeFile(scriptletPath, scriptletContent)
+	} catch (error) {
+		t.log(error)
+	}
+
+	let fullCommand = `kit ${scriptletPath}#${scriptletNameSlug} test "Hello, world!"`
+	t.log({ fullCommand })
+	let { stdout } = await exec(fullCommand)
+
+	t.is(stdout, "test: Hello, world!")
+})
+
+ava.serial("Run a bash scriptlet from a .md file with args", async (t) => {
+	let scriptlet = "mock-bash-scriptlet-from-md-file-with-args"
+	let scriptletPath = kenvPath("scriptlets", `${scriptlet}.md`)
+
+	let scriptletDir = path.parse(scriptletPath).dir
+	t.log
+	await ensureDir(scriptletDir)
+	let scriptletName = "Test Bash Scriptlet With Args"
+	let scriptletNameSlug = slugify(scriptletName)
+
+	let scriptletContent = `
+## ${scriptletName}
+
+\`\`\`bash
+echo "fix($1): $2"
+\`\`\`
+	  `.trim()
+	t.log({ scriptletPath, scriptletNameSlug, scriptletContent })
+	try {
+		await writeFile(scriptletPath, scriptletContent)
+	} catch (error) {
+		t.log(error)
+	}
+
+	let fullCommand = `kit ${scriptletPath}#${scriptletNameSlug} test "Hello, world!"`
+	t.log({ fullCommand })
+	let { stdout } = await exec(fullCommand)
+
+	t.is(stdout, "fix(test): Hello, world!")
 })
