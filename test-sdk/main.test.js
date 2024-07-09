@@ -464,6 +464,11 @@ console.log(scope + ": " + message)
 })
 
 ava.serial("Run a bash scriptlet from a .md file with args", async (t) => {
+	if (process.platform === "win32") {
+		t.pass("Skipping test on Windows")
+		return
+	}
+
 	let scriptlet = "mock-bash-scriptlet-from-md-file-with-args"
 	let scriptletPath = kenvPath("scriptlets", `${scriptlet}.md`)
 
