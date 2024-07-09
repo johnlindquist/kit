@@ -56,15 +56,18 @@ export let runScriptlet = async (
 			let insertedArgsScriptlet = scriptlet
 			// Replace $@ with all arguments, each surrounded by quotes
 			insertedArgsScriptlet = insertedArgsScriptlet.replace(
-				"$@",
+				/\$@|%\*/g,
 				inputs.map((arg) => `"${arg}"`).join(" ")
 			)
 			// Replace all the $1, $2, etc with the quoted values from the inputs array
 			for (let i = 0; i < inputs.length; i++) {
-				insertedArgsScriptlet = insertedArgsScriptlet.replace(
-					new RegExp(`\\$\\{?${i + 1}\\}?`, "g"),
-					inputs[i]
-				)
+				const index = i + 1
+				const unixPattern = new RegExp(`\\$\\{?${index}\\}?`, "g")
+				const windowsPattern = new RegExp(`%${index}`, "g")
+				const replacement = inputs[i]
+				insertedArgsScriptlet = insertedArgsScriptlet
+					.replace(unixPattern, replacement)
+					.replace(windowsPattern, replacement)
 			}
 			return await exec(insertedArgsScriptlet, {
 				shell: true,
