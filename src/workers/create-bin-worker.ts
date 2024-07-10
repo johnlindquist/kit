@@ -4,13 +4,8 @@ import { createBinFromScript } from "../cli/lib/utils.js"
 import { parentPort } from "node:worker_threads"
 import type { Script } from "../types/core"
 
-parentPort?.on("message", async (filePath) => {
-	let command = ""
+parentPort?.on("message", async ({ command, filePath }) => {
 	try {
-		let parsedPath = path.parse(filePath)
-		command = filePath.includes("#")
-			? filePath.split("#").pop().toLowerCase()
-			: parsedPath.name
 		await createBinFromScript(Bin.scripts, {
 			filePath,
 			command
