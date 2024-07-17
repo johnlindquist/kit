@@ -66,7 +66,7 @@
 		"@octokit/plugin-paginate-rest": "11.3.3",
 		"@octokit/plugin-rest-endpoint-methods": "13.2.4",
 		"@octokit/plugin-retry": "7.1.1",
-		"@octokit/plugin-throttling": "9.3.0",
+		"@octokit/plugin-throttling": "9.3.1",
 		"@types/node-notifier": "8.0.5",
 		"@types/shelljs": "0.8.15",
 		"@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2",
@@ -80,16 +80,16 @@
 		"esbuild": "0.23.0",
 		"express": "^4.19.2",
 		"file-icon": "5.1.1",
-		"filesize": "10.1.2",
+		"filesize": "10.1.4",
 		"fs-extra": "^11.2.0",
 		"globby": "^14.0.2",
 		"highlight.js": "^11.10.0",
-		"isomorphic-git": "1.27.0",
+		"isomorphic-git": "1.27.1",
 		"keyv": "^4.5.4",
 		"keyv-file": "^0.3.1",
 		"node-notifier": "10.0.1",
 		"quick-score": "^0.2.0",
-		"rimraf": "5.0.8",
+		"rimraf": "6.0.1",
 		"safe-stable-stringify": "^2.4.3",
 		"shelljs": "0.8.5",
 		"slugify": "1.6.6",
@@ -110,7 +110,7 @@
 		"tsc-watch": "6.2.0",
 		"tsx": "^4.16.2",
 		"typescript": "5.5.3",
-		"unzipper": "0.12.1"
+		"unzipper": "0.12.2"
 	},
 	"ava": {
 		"environmentVariables": {

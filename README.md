@@ -1,4 +1,4 @@
-# Script Kit v2
+# Script Kit v3
 
 [https://scriptkit.com/](https://scriptkit.com/)
 
@@ -82,21 +82,11 @@ Clone:
 
 The build command builds the SDK to ~/.kit
 
-#### yarn link (First run only)
+#### npm link (First run only)
 
 1. cd to ~/.kit
-2. yarn link
+2. npm link
 3. cd to wherever you cloned kitapp
-4. yarn link @johnlindquist/kit
+4. npm link @johnlindquist/kit
 
 This will force the App to use the SDK so you can work on both simultaneously
-
-### Building the App
-
-```bash
-yarn webpack-dev
-yarn install-electron-deps
-yarn start
-```
-
-Assuming everything went well, the app should start up.

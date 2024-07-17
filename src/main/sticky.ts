@@ -13,8 +13,8 @@ Notes are saved to `~/.kenv/sticky.md`.
 
 let stickyPath = kenvPath("sticky.md")
 let contents = await ensureReadFile(
-  stickyPath,
-  `
+	stickyPath,
+	`
 # Sticky Notes
 `.trim()
 )
@@ -22,37 +22,37 @@ let contents = await ensureReadFile(
 let changed = false
 
 if (arg?.pass) {
-  contents = `${contents}
+	contents = `${contents}
 ${arg?.pass}`
 }
 
 contents = await editor({
-  value: contents,
-  scrollTo: "bottom",
-  // footer: `Escape to save to ${stickyPath}`,
-  shortcuts: [
-    {
-      name: "Save and Close",
-      key: "escape",
-      onPress: async (input, { inputChanged }) => {
-        changed = inputChanged
-        await hide()
-        await submit(input)
-      },
-      bar: "right",
-    },
-  ],
-  onAbandon: async (input, { inputChanged }) => {
-    changed = inputChanged
-    submit(input)
-  },
-  onInput: async () => {
-    changed = true
-  },
+	value: contents,
+	scrollTo: "bottom",
+	// footer: `Escape to save to ${stickyPath}`,
+	shortcuts: [
+		{
+			name: "Save and Close",
+			key: "escape",
+			onPress: async (input, { inputChanged }) => {
+				changed = inputChanged
+				await hide()
+				await submit(input)
+			},
+			bar: "right"
+		}
+	],
+	onAbandon: async (input, { inputChanged }) => {
+		changed = inputChanged
+		submit(input)
+	},
+	onInput: async () => {
+		changed = true
+	}
 })
 
 if (changed || arg?.pass) {
-  await writeFile(stickyPath, contents + "\n")
+	await writeFile(stickyPath, contents + "\n")
 }
 
 export {}
