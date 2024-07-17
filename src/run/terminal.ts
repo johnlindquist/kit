@@ -1,6 +1,33 @@
 process.env.KIT_CONTEXT = "terminal"
 process.env.KIT_TARGET = "terminal"
 
+process.on("uncaughtException", (error) => {
+	console.error("Uncaught Exception:")
+	console.error(formatError(error))
+	process.exit(1)
+})
+
+process.on("unhandledRejection", (reason, promise) => {
+	console.error("Unhandled Rejection at:", promise)
+	console.error("Reason:", formatError(reason))
+})
+
+function formatError(error) {
+	if (error instanceof Error) {
+		const lines = error.stack.split("\n")
+		const filteredLines = lines.filter(
+			(line) => !line.includes("node_modules") && !isMinifiedCode(line)
+		)
+		return filteredLines.join("\n")
+	}
+	return String(error)
+}
+
+function isMinifiedCode(line) {
+	// This is a simple heuristic. Adjust as needed.
+	return line.length > 200 || line.split(",").length > 10
+}
+
 import os from "node:os"
 import { configEnv } from "../core/utils.js"
 

@@ -22,7 +22,7 @@ let tooEarlyHandler = (data) => {
 
 process.send({
 	channel: Channel.KIT_LOADING,
-	value: "app-prompt.ts",
+	value: "app-prompt.ts"
 })
 
 process.on("message", tooEarlyHandler)
@@ -61,7 +61,7 @@ let scriptlet = null
 process.title = "Kit Idle - App Prompt"
 process.send({
 	channel: Channel.KIT_READY,
-	value: result,
+	value: result
 })
 
 try {
@@ -82,7 +82,7 @@ try {
 			resolve({
 				script,
 				args: [],
-				trigger: Trigger.Trigger,
+				trigger: Trigger.Trigger
 			})
 			return
 		}
@@ -99,7 +99,7 @@ try {
 			if (data.channel === Channel.VALUE_SUBMITTED) {
 				trace.instant({
 					name: "app-prompt.ts -> VALUE_SUBMITTED",
-					args: data,
+					args: data
 				})
 				process.off("message", messageHandler)
 				resolve(data.value)
@@ -129,17 +129,21 @@ process.once("beforeExit", () => {
 performance.mark("run")
 
 if (choices?.length) {
-	let inputs = await arg<string[]>(
-		{
-			name,
-			scriptlet: true,
-			resize: true,
-			onEscape: () => {
-				exit()
+	let inputs = []
+
+	if (choices[0].inputs?.length) {
+		inputs = await arg<string[]>(
+			{
+				name,
+				scriptlet: true,
+				resize: true,
+				onEscape: () => {
+					exit()
+				}
 			},
-		},
-		choices,
-	)
+			choices
+		)
+	}
 	let { runScriptlet } = await import("../main/scriptlet.js")
 	await runScriptlet(scriptlet, inputs)
 } else {

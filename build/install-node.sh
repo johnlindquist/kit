@@ -57,6 +57,11 @@ complete() {
   printf "${GREEN}✓${NO_COLOR} $@\n"
 }
 
+# Add a new function for logging curl requests
+log_curl_request() {
+  info "Making curl request to: $1"
+}
+
 # Currently known to support:
 #   - win (Git Bash)
 #   - darwin
@@ -129,7 +134,25 @@ confirm() {
 }
 
 check_prefix() {
-  local bin="$1/bin"
+  # Remove any surrounding quotes from the input
+  local cleaned_prefix=$(echo "$1" | sed "s/^['\"]\(.*\)['\"]$/\1/")
+  local bin="${cleaned_prefix}/bin"
+  
+  info "Checking prefix: '${cleaned_prefix}'"
+  info "Bin directory: '${bin}'"
+  info "Current working directory: $(pwd)"
+  
+  if [ ! -d "${cleaned_prefix}" ]; then
+    error "Directory '${cleaned_prefix}' does not exist"
+    ls -ld "${cleaned_prefix}" 2>/dev/null || echo "Cannot list directory"
+    exit 1
+  fi
+  
+  if [ ! -w "${cleaned_prefix}" ]; then
+    error "Cannot write to directory '${cleaned_prefix}'"
+    ls -ld "${cleaned_prefix}"
+    exit 1
+  fi
 
   # https://stackoverflow.com/a/11655875
   local good=$( IFS=:
@@ -187,6 +210,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 # Resolve the requested version tag into an existing Node.js version
+log_curl_request "https://resolve-node.vercel.app/?tag=${VERSION}&platform=${PLATFORM}&arch=${ARCH}"
 HEADERS="$(curl -sfLSI "https://resolve-node.vercel.app/?tag=${VERSION}&platform=${PLATFORM}&arch=${ARCH}")"
 RESOLVED="$(echo "$HEADERS" | grep "x-node-version" | awk 'BEGIN{RS="\r\n";} /^x-node-version/{print $2}')"
 PLATFORM="$(echo "$HEADERS" | grep "x-platform" | awk 'BEGIN{RS="\r\n";} /^x-platform/{print $2}')"
@@ -224,12 +248,26 @@ confirm "Install Node.js ${GREEN}${RESOLVED}${NO_COLOR} to ${BOLD}${GREEN}${PREF
 
 info "Installing Node.js, please wait…"
 
+info "About to extract to: '${PREFIX}'"
+ls -ld "${PREFIX}" || echo "Cannot list directory"
+
+log_curl_request "${URL}"
+# Modify the curl | tar command to use the cleaned prefix
+cleaned_prefix=$(echo "${PREFIX}" | sed "s/^['\"]\(.*\)['\"]$/\1/")
 curl -sfLS "${URL}" \
   | tar xzf${VERBOSE} - \
     --exclude CHANGELOG.md \
     --exclude LICENSE \
     --exclude README.md \
     --strip-components 1 \
-    -C "${PREFIX}"
+    -C "${cleaned_prefix}"
+
+# Add error checking after the curl | tar command
+if [ $? -ne 0 ]; then
+  error "Failed to download or extract Node.js"
+  error "Curl exit code: $?"
+  error "Tar exit code: ${PIPESTATUS[1]}"
+  exit 1
+fi
 
 complete "Done"

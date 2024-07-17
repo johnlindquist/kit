@@ -6,7 +6,34 @@ import { homedir, platform } from "node:os"
 import { existsSync } from "node:fs"
 import { rimraf } from "rimraf"
 
-let knodeVersion = "20.11.1"
+process.on("uncaughtException", (error) => {
+	console.error("Uncaught Exception:")
+	console.error(formatError(error))
+	process.exit(1)
+})
+
+process.on("unhandledRejection", (reason, promise) => {
+	console.error("Unhandled Rejection at:", promise)
+	console.error("Reason:", formatError(reason))
+})
+
+function formatError(error) {
+	if (error instanceof Error) {
+		const lines = error.stack.split("\n")
+		const filteredLines = lines.filter(
+			(line) => !line.includes("node_modules") && !isMinifiedCode(line)
+		)
+		return filteredLines.join("\n")
+	}
+	return String(error)
+}
+
+function isMinifiedCode(line) {
+	// This is a simple heuristic. Adjust as needed.
+	return line.length > 200 || line.split(",").length > 10
+}
+
+let knodeVersion = "20.15.0"
 
 let originalDir = process.cwd()
 
@@ -56,9 +83,7 @@ let extractNode = async (file) => {
 }
 
 let installNodeWin = async () => {
-	let arch = process.arch === "x64" ? "x64" : "x86"
-
-	let url = `https://nodejs.org/dist/v${knodeVersion}/node-v${knodeVersion}-win-${arch}.zip`
+	let url = `https://nodejs.org/dist/v${knodeVersion}/node-v${knodeVersion}-win-${process.arch}.zip`
 	let buffer = await download(url)
 
 	let nodeZipFilePath = path.join(os.tmpdir(), path.basename(url))
@@ -69,11 +94,13 @@ let installNodeWin = async () => {
 }
 
 let installNodeMac = async () => {
-	let arch = process.arch === "x64" ? "x64" : "x86"
 	await ensureDir(knodePath())
-	let command = `./build/install-node.sh -v ${knodeVersion} -P '${knodePath()}' -y`
-	console.log(command)
-	await exec(command)
+	let command = `./build/install-node.sh -v ${knodeVersion} -P ${knodePath()} -a ${process.arch} -y`
+	console.log("Command to be executed:", command)
+	console.log("Checking if .knode exists:", existsSync(knodePath()))
+	await exec(command, {
+		stdio: "inherit"
+	})
 }
 
 let installNode = async () => {
@@ -102,7 +129,7 @@ if (nodeExists) {
 		`Current knode version: ${nodeVersion}. Required version ${knodeVersion}`
 	)
 	if (nodeVersion.endsWith(knodeVersion)) {
-		console.log(`Version match. Skipping re-install.`)
+		console.log("Version match. Skipping re-install.")
 	} else {
 		await rimraf(knodePath(), { recursive: true, force: true })
 		console.log(`Installing node to ${knodePath()}...`)
