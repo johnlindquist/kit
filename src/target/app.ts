@@ -2371,6 +2371,10 @@ global.mainScript = async (input: string = "", tab: string) => {
 			await wait(200)
 			setTab(tab)
 		}
+
+		setTimeout(() => {
+			focus()
+		}, 200)
 		await m
 	}
 }

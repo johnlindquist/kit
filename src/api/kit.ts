@@ -975,7 +975,7 @@ export let actions: Action[] = [
 	//   },
 	// },
 	{
-		name: "New",
+		name: "New Script",
 		description: "Create a new script",
 		shortcut: `${cmd}+n`,
 		onAction: async () => {
@@ -984,9 +984,18 @@ export let actions: Action[] = [
 		group: "New"
 	},
 	{
+		name: "New Scriptlet",
+		description: "Create a new scriptlet",
+		shortcut: `${cmd}+shift+n`,
+		onAction: async () => {
+			await run(kitPath("cli", "new-scriptlet.js"))
+		},
+		group: "New"
+	},
+	{
 		name: "New Snippet",
 		description: "Create a new snippet",
-		shortcut: `${cmd}+shift+n`,
+		shortcut: `${cmd}+opt+n`,
 		onAction: async () => {
 			await run(kitPath("cli", "new-snippet.js"))
 		},
@@ -1535,6 +1544,7 @@ export let getGroupedScripts = async (fromCache = true) => {
 	let kitScripts = [
 		// kitPath("cli", "new.js"),
 		kitPath("cli", "new-menu.js"),
+		kitPath("cli", "new-scriptlet.js"),
 		kitPath("cli", "new-snippet.js"),
 		kitPath("cli", "share.js"),
 		kitPath("cli", "find.js"),

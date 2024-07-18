@@ -1,4 +1,4 @@
 await ensureDir(kenvPath("scriptlets"))
-await ensureFile(kenvPath("scriptlets", "main.md"))
+await ensureFile(kenvPath("scriptlets", "scriptlets.md"))
 
 export {}

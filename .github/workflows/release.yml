@@ -24,7 +24,10 @@ jobs:
 
       - name: Get Time
         id: time
-        run: echo "time=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
+        uses: nanzm/get-time-action@v1.1
+        with:
+          timeZone: 8
+          format: "YYYY-MM-DD-HH-mm-ss"
 
       - name: Checkout kit
         uses: actions/checkout@master
@@ -94,12 +97,13 @@ jobs:
           path: ".kit"
 
       - name: Create Draft Release
-        uses: elgohr/Github-Release-Action@v5
+        id: create_release
+        uses: actions/create-release@v1
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          title: ${{ env.release_channel }}
-          tag: ${{ steps.time.outputs.time }}
+          tag_name: ${{ steps.time.outputs.time }}
+          release_name: ${{ env.release_channel }}
           draft: true
           prerelease: false
 
