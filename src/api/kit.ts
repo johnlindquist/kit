@@ -15,7 +15,7 @@ import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import {
 	Action,
 	Choice,
-	FlagsOptions,
+	FlagsObject,
 	FlagsWithKeys,
 	PromptConfig,
 	ScoredChoice,
@@ -683,7 +683,7 @@ global.setChoices = async (choices, config) => {
 }
 
 global.flag ||= {}
-global.prepFlags = (flagsOptions: FlagsOptions): FlagsOptions => {
+global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
 	global.kitFlagsAsChoices = []
 	for (let key of Object.keys(global?.flag)) {
 		delete global?.flag?.[key]
@@ -739,8 +739,14 @@ global.prepFlags = (flagsOptions: FlagsOptions): FlagsOptions => {
 	return validFlags
 }
 
-global.setFlags = (flags: FlagsOptions) => {
-	global.send(Channel.SET_FLAGS, global.prepFlags(flags))
+global.setFlags = async (flags: FlagsObject, options = {}) => {
+	await global.sendWait(Channel.SET_FLAGS, {
+		flags: global.prepFlags(flags),
+		options: {
+			name: options?.name || "",
+			placeholder: options?.placeholder || ""
+		}
+	})
 }
 
 function sortArrayByIndex(arr) {
@@ -760,15 +766,15 @@ function sortArrayByIndex(arr) {
 	indexedItems.sort((a, b) => a.index - b.index)
 
 	// Insert indexed items into the sorted array at their respective positions
-	indexedItems.forEach(({ item, index }) => {
+	for (const { item, index } of indexedItems) {
 		sortedArr.splice(index, 0, item)
-	})
+	}
 
 	return sortedArr
 }
 
 export let getFlagsFromActions = (actions: PromptConfig["actions"]) => {
-	let flags: FlagsOptions = {}
+	let flags: FlagsObject = {}
 	let indices = new Set()
 	for (let a of actions as Action[]) {
 		if (a?.index) {
@@ -777,9 +783,9 @@ export let getFlagsFromActions = (actions: PromptConfig["actions"]) => {
 	}
 	let groups = new Set()
 	if (Array.isArray(actions)) {
-		actions = sortArrayByIndex(actions)
-		for (let i = 0; i < actions.length; i++) {
-			let action = actions[i]
+		const sortedActions = sortArrayByIndex(actions)
+		for (let i = 0; i < sortedActions.length; i++) {
+			let action = sortedActions[i]
 			if (typeof action === "string") {
 				action = {
 					name: action,
@@ -795,7 +801,7 @@ export let getFlagsFromActions = (actions: PromptConfig["actions"]) => {
 				index: i,
 				close: true,
 				...action,
-				hasAction: action?.onAction ? true : false,
+				hasAction: !!action?.onAction,
 				bar: action?.visible ? "right" : ""
 			} as Action
 			flags[action.flag || action.name] = flagAction
@@ -807,9 +813,17 @@ export let getFlagsFromActions = (actions: PromptConfig["actions"]) => {
 	return flags
 }
 
-global.setActions = (actions: Action[]) => {
+global.setActions = (actions: Action[], options = {}) => {
 	let flags = getFlagsFromActions(actions)
-	setFlags(flags)
+	setFlags(flags, options)
+}
+
+global.openActions = async () => {
+	await sendWait(Channel.OPEN_ACTIONS)
+}
+
+global.closeActions = async () => {
+	await sendWait(Channel.CLOSE_ACTIONS)
 }
 
 global.setFlagValue = (value: any) => {
@@ -966,6 +980,23 @@ let order = [
 	"Run"
 ]
 
+let helpActions: Action[] = [
+	{
+		name: "Ask a Question",
+		description: "Open GitHub Discussions",
+		onAction: async () => {
+			await open(`https://github.com/johnlindquist/kit/discussions`)
+		}
+	},
+	{
+		name: "Report a Bug",
+		description: "Open GitHub Issues",
+		onAction: async () => {
+			await open(`https://github.com/johnlindquist/kit/issues`)
+		}
+	}
+]
+
 export let actions: Action[] = [
 	// {
 	//   name: "New Menu",
@@ -1071,6 +1102,18 @@ export let actions: Action[] = [
 			submit(focused)
 		},
 		group: "Debug"
+	},
+	{
+		name: "Help",
+		shortcut: `${cmd}+shift+h`,
+		onAction: async () => {
+			await setActions(helpActions, {
+				name: `Script Kit ${process.env.KIT_APP_VERSION}`,
+				placeholder: "Help"
+			})
+			openActions()
+		},
+		group: "Debug"
 	}
 ]
 
@@ -1081,7 +1124,7 @@ export let modifiers = {
 	ctrl: "ctrl"
 }
 
-export let scriptFlags: FlagsOptions = {
+export let scriptFlags: FlagsObject = {
 	order,
 	sortChoicesKey: order.map((o) => ""),
 	// open: {

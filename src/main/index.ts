@@ -14,7 +14,8 @@ import {
 	scriptFlags,
 	actions,
 	modifiers,
-	errorPrompt
+	errorPrompt,
+	getFlagsFromActions
 } from "../api/kit.js"
 import type { Open } from "../types/packages.js"
 
@@ -98,7 +99,11 @@ let script = await mainMenu({
 	flags: scriptFlags,
 	onMenuToggle: async (input, state) => {
 		if (!state?.flag) {
-			setFlags(scriptFlags)
+			let menuFlags = {
+				...(scriptFlags as object),
+				...getFlagsFromActions(actions)
+			}
+			setFlags(menuFlags)
 		}
 	},
 	onKeyword: async (input, state) => {

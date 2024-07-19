@@ -17,7 +17,7 @@ import {
 	ChannelHandler,
 	type Choice,
 	Choices,
-	type FlagsOptions,
+	type FlagsObject,
 	type PromptConfig,
 	type PromptData,
 	type ScoredChoice,
@@ -565,7 +565,7 @@ export interface ChannelMap {
 	[Channel.APPEND_EDITOR_VALUE]: string
 	[Channel.SET_ENTER]: string
 	[Channel.SET_FIELDS]: Field[]
-	[Channel.SET_FLAGS]: FlagsOptions
+	[Channel.SET_FLAGS]: FlagsObject
 	[Channel.SET_FLAG_VALUE]: any
 	[Channel.SET_FORM_HTML]: { html: string; formData: any }
 	[Channel.SET_FORM]: PromptConfig[]

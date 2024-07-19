@@ -8,6 +8,7 @@ import type {
 	Action,
 	Choice,
 	Choices,
+	FlagsObject,
 	FlagsOptions,
 	Panel,
 	Preview,
@@ -126,9 +127,9 @@ export type PathResolver = (dir: string) => (...pathParts: string[]) => string
 
 export type GetScripts = (fromCache?: boolean) => Promise<Script[]>
 
-export type FlagFn = (flags: FlagsOptions) => void
-export type ActionsFn = (actions: Action[]) => void
-export type PrepFlags = (flags: FlagsOptions) => FlagsOptions
+export type FlagFn = (flags: FlagsObject, options?: FlagsOptions) => void
+export type ActionsFn = (actions: Action[], options?: FlagsOptions) => void
+export type PrepFlags = (flags: FlagsObject) => FlagsObject
 export type Flags = {
 	[key: string]: boolean | string
 	cmd?: boolean | string
@@ -365,6 +366,8 @@ declare global {
 	var actionFlag: string
 	var setFlags: FlagFn
 	var setActions: ActionsFn
+	var openActions: () => Promise<void>
+	var closeActions: () => Promise<void>
 	var setFlagValue: (value: any) => Promise<void>
 	var prepFlags: PrepFlags
 
