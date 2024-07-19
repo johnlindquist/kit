@@ -740,13 +740,16 @@ global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
 }
 
 global.setFlags = async (flags: FlagsObject, options = {}) => {
-	await global.sendWait(Channel.SET_FLAGS, {
+	let flagsMessage = {
 		flags: global.prepFlags(flags),
 		options: {
 			name: options?.name || "",
-			placeholder: options?.placeholder || ""
+			placeholder: options?.placeholder || "",
+			active: options?.active || "Actions"
 		}
-	})
+	}
+	// TODO: Move props from FlagsObject like "order", "sortChoicesKey" to the options
+	await global.sendWait(Channel.SET_FLAGS, flagsMessage)
 }
 
 function sortArrayByIndex(arr) {
@@ -980,23 +983,6 @@ let order = [
 	"Run"
 ]
 
-let helpActions: Action[] = [
-	{
-		name: "Ask a Question",
-		description: "Open GitHub Discussions",
-		onAction: async () => {
-			await open(`https://github.com/johnlindquist/kit/discussions`)
-		}
-	},
-	{
-		name: "Report a Bug",
-		description: "Open GitHub Issues",
-		onAction: async () => {
-			await open(`https://github.com/johnlindquist/kit/issues`)
-		}
-	}
-]
-
 export let actions: Action[] = [
 	// {
 	//   name: "New Menu",
@@ -1104,12 +1090,58 @@ export let actions: Action[] = [
 		group: "Debug"
 	},
 	{
-		name: "Help",
+		name: "Support",
 		shortcut: `${cmd}+shift+h`,
 		onAction: async () => {
+			let userJson = await getUserJson()
+			let loggedIn = userJson?.login
+			let helpActions: Action[] = [
+				...(loggedIn
+					? []
+					: [
+							{
+								name: "Sign In",
+								description: "Sign in to Script Kit",
+								onAction: async () => {
+									await run(kitPath("main", "account-v2.js"))
+								}
+							}
+						]),
+				{
+					name: "Read Docs",
+					description: "Read the docs",
+					onAction: async () => {
+						await open("https://scriptkit.com/docs")
+					}
+				},
+				{
+					name: "Ask a Question",
+					description: "Open GitHub Discussions",
+					onAction: async () => {
+						await open(`https://github.com/johnlindquist/kit/discussions`)
+					}
+				},
+				{
+					name: "Report a Bug",
+					description: "Open GitHub Issues",
+					onAction: async () => {
+						await open(`https://github.com/johnlindquist/kit/issues`)
+					}
+				},
+				{
+					name: "Join Discord Server",
+					description: "Hang out on Discord",
+					onAction: async () => {
+						let response = await get("https://scriptkit.com/api/discord-invite")
+						await open(response.data)
+						exit()
+					}
+				}
+			]
 			await setActions(helpActions, {
 				name: `Script Kit ${process.env.KIT_APP_VERSION}`,
-				placeholder: "Help"
+				placeholder: "Support",
+				active: "Script Kit Support"
 			})
 			openActions()
 		},

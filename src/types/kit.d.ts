@@ -9,7 +9,7 @@ import type {
 	Choice,
 	Choices,
 	FlagsObject,
-	FlagsOptions,
+	ActionsConfig,
 	Panel,
 	Preview,
 	PromptConfig,
@@ -127,8 +127,8 @@ export type PathResolver = (dir: string) => (...pathParts: string[]) => string
 
 export type GetScripts = (fromCache?: boolean) => Promise<Script[]>
 
-export type FlagFn = (flags: FlagsObject, options?: FlagsOptions) => void
-export type ActionsFn = (actions: Action[], options?: FlagsOptions) => void
+export type FlagFn = (flags: FlagsObject, options?: ActionsConfig) => void
+export type ActionsFn = (actions: Action[], options?: ActionsConfig) => void
 export type PrepFlags = (flags: FlagsObject) => FlagsObject
 export type Flags = {
 	[key: string]: boolean | string

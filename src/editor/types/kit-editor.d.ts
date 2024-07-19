@@ -198,7 +198,7 @@ declare module "@johnlindquist/kit" {
 		key: string
 		scriptPath: string
 		description: string
-		flags: FlagsOptions
+		flags: FlagsObject
 		hasPreview: boolean
 		keepPreview?: boolean
 		hint: string
@@ -324,7 +324,11 @@ declare module "@johnlindquist/kit" {
 		sortChoicesKey?: string[]
 		order?: string[]
 	}
-	export type FlagsOptions = FlagsWithKeys | boolean
+	export type FlagsObject = FlagsWithKeys | boolean
+	export type ActionsConfig = {
+		name?: string
+		placeholder?: string
+	}
 
 	export type Action = {
 		name: string
@@ -387,7 +391,7 @@ declare module "@johnlindquist/kit" {
 		html?: string
 		formData?: any
 		className?: string
-		flags?: FlagsOptions
+		flags?: FlagsObject
 		actions?: Action[]
 		preview?:
 			| string
@@ -9860,7 +9864,8 @@ declare module "@johnlindquist/kit" {
 		Action,
 		Choice,
 		Choices,
-		FlagsOptions,
+		FlagsObject,
+		ActionsConfig,
 		Panel,
 		Preview,
 		PromptConfig,
@@ -9978,9 +9983,9 @@ declare module "@johnlindquist/kit" {
 
 	export type GetScripts = (fromCache?: boolean) => Promise<Script[]>
 
-	export type FlagFn = (flags: FlagsOptions) => void
-	export type ActionsFn = (actions: Action[]) => void
-	export type PrepFlags = (flags: FlagsOptions) => FlagsOptions
+	export type FlagFn = (flags: FlagsObject, options?: ActionsConfig) => void
+	export type ActionsFn = (actions: Action[], options?: ActionsConfig) => void
+	export type PrepFlags = (flags: FlagsObject) => FlagsObject
 	export type Flags = {
 		[key: string]: boolean | string
 		cmd?: boolean | string
@@ -10217,6 +10222,8 @@ declare module "@johnlindquist/kit" {
 		var actionFlag: string
 		var setFlags: FlagFn
 		var setActions: ActionsFn
+		var openActions: () => Promise<void>
+		var closeActions: () => Promise<void>
 		var setFlagValue: (value: any) => Promise<void>
 		var prepFlags: PrepFlags
 
@@ -10276,7 +10283,28 @@ declare module "@johnlindquist/kit" {
 		var metadata: Metadata
 	}
 
-	import core from "./core/enum"
+	import type { editor } from "./editor.api"
+
+	import type core from "./core/enum"
+
+	import type { KeyEnum } from "../core/keyboard.js"
+	import type { AppDb } from "../core/db.js"
+
+	import type {
+		BrowserWindowConstructorOptions,
+		Display,
+		Rectangle
+	} from "./electron"
+
+	import type { Trash } from "./packages"
+	import type { marked } from "@johnlindquist/globals/types/marked"
+	import type { ChildProcess } from "node:child_process"
+	import type {
+		UiohookKeyboardEvent,
+		UiohookMouseEvent,
+		UiohookWheelEvent
+	} from "./io"
+	import type { FileSearchOptions } from "./platform"
 
 	export type Status = (typeof statuses)[number]
 
@@ -10332,9 +10360,45 @@ declare module "@johnlindquist/kit" {
 		pushToken?: (token: string) => Promise<void>
 	}
 
-	export type Toast = {
-		(toast: string, options?: any): void
+	interface ToastOptions {
+		/**
+		 * Pause the timer when the mouse hover the toast.
+		 * `Default: true`
+		 */
+		pauseOnHover?: boolean
+		/**
+		 * Pause the toast when the window loses focus.
+		 * `Default: true`
+		 */
+		pauseOnFocusLoss?: boolean
+		/**
+		 * Remove the toast when clicked.
+		 * `Default: true`
+		 */
+		closeOnClick?: boolean
+		/**
+		 * Set the delay in ms to close the toast automatically.
+		 * Use `false` to prevent the toast from closing.
+		 * `Default: 5000`
+		 */
+		autoClose?: number | false
+		/**
+		 * Hide or show the progress bar.
+		 * `Default: false`
+		 */
+		hideProgressBar?: boolean
+		/**
+		 * Allow toast to be draggable
+		 * `Default: 'touch'`
+		 */
+		draggable?: boolean | "mouse" | "touch"
+		/**
+		 * The percentage of the toast's width it takes for a drag to dismiss a toast
+		 * `Default: 80`
+		 */
+		draggablePercent?: number
 	}
+	export type Toast = (toast: string, options?: ToastOptions) => void
 
 	export type Prompt = {
 		closeActions(): Promise<void>
@@ -10346,44 +10410,33 @@ declare module "@johnlindquist/kit" {
 		hide(): Promise<void>
 	}
 
-	export type Mic = {
-		(config?: MicConfig): Promise<Buffer>
-	} & {
+	export type Mic = ((config?: MicConfig) => Promise<Buffer>) & {
 		stop?: () => Promise<Buffer>
 		start?: (config?: MicConfig) => Promise<string>
 		stream?: Readable
 	}
 
-	export type WebCam = {
-		(config?: PromptConfig): Promise<string>
-	}
+	export type WebCam = (config?: PromptConfig) => Promise<string>
 
-	export type Speech = {
-		(config?: PromptConfig): Promise<string>
-	}
+	export type Speech = (config?: PromptConfig) => Promise<string>
 
-	export type Screenshot = {
-		(displayId?: number, bounds?: ScreenShotBounds): Promise<Buffer>
-	}
+	export type Screenshot = (
+		displayId?: number,
+		bounds?: ScreenShotBounds
+	) => Promise<Buffer>
 
-	export type GetMediaDevices = {
-		(): Promise<MediaDeviceInfo[]>
-	}
+	export type GetMediaDevices = () => Promise<MediaDeviceInfo[]>
 
-	export type GetTypedText = {
-		(): Promise<string>
-	}
+	export type GetTypedText = () => Promise<string>
 
-	export type Find = {
-		(
-			placeholderOrConfig?: string | PromptConfig,
-			options?: FileSearchOptions
-		): Promise<string>
-	}
+	export type Find = (
+		placeholderOrConfig?: string | PromptConfig,
+		options?: FileSearchOptions
+	) => Promise<string>
 
-	export type Editor = {
-		(config?: EditorConfig & { hint?: string }): Promise<string>
-	} & {
+	export type Editor = ((
+		config?: EditorConfig & { hint?: string }
+	) => Promise<string>) & {
 		setSuggestions?: (suggestions: string[]) => Promise<void>
 		setConfig?: (config: EditorConfig) => Promise<void>
 		append?: (text: string) => Promise<void>
@@ -10448,31 +10501,29 @@ declare module "@johnlindquist/kit" {
 		}
 	}
 
-	export interface TextArea {
-		(placeholderOrOptions?: string | TextareaConfig): Promise<string | void>
-	}
+	export type TextArea = (
+		placeholderOrOptions?: string | TextareaConfig
+	) => Promise<string | void>
 
-	export interface Drop {
-		(placeholder?: string | PromptConfig): Promise<any>
-	}
-	export interface Template {
-		(template: string, config?: EditorConfig): Promise<string>
-	}
-	export interface OldForm {
-		(
-			html?:
-				| string
-				| {
-						html?: string
-						hint?: string
-				  },
-			formData?: any
-		): Promise<any>
-	}
+	export type Drop = (placeholder?: string | PromptConfig) => Promise<any>
+	export type Template = (
+		template: string,
+		config?: EditorConfig
+	) => Promise<string>
+	export type OldForm = (
+		html?:
+			| string
+			| {
+					html?: string
+					hint?: string
+			  },
+		formData?: any
+	) => Promise<any>
 
-	export interface Form {
-		(html: string | PromptConfig, formData?: any): Promise<any>
-	}
+	export type Form = (
+		html: string | PromptConfig,
+		formData?: any
+	) => Promise<any>
 
 	type Field =
 		| {
@@ -10489,9 +10540,9 @@ declare module "@johnlindquist/kit" {
 		  }
 		| string
 
-	export interface Fields {
-		(fields: Field[] | (PromptConfig & { fields: Field[] })): Promise<string[]>
-	}
+	export type Fields = (
+		fields: Field[] | (PromptConfig & { fields: Field[] })
+	) => Promise<string[]>
 
 	export type AudioOptions = {
 		filePath: string
@@ -10506,9 +10557,7 @@ declare module "@johnlindquist/kit" {
 		unifiedWithoutSkinTone: string
 	}
 
-	export interface Emoji {
-		(config?: PromptConfig): Promise<EmojiObject>
-	}
+	export type Emoji = (config?: PromptConfig) => Promise<EmojiObject>
 
 	export interface DivConfig extends PromptConfig {
 		html: string
@@ -10517,9 +10566,10 @@ declare module "@johnlindquist/kit" {
 		footer?: string
 	}
 
-	export interface Div {
-		(html?: string | DivConfig, containerClass?: string): Promise<any>
-	}
+	export type Div = (
+		html?: string | DivConfig,
+		containerClass?: string
+	) => Promise<any>
 
 	export interface KeyData {
 		key: KeyEnum
@@ -10541,29 +10591,21 @@ declare module "@johnlindquist/kit" {
 
 	type SetImage = string | { src: string }
 
-	interface AddChoice {
-		(choice: string | Choice): Promise<void>
-	}
+	type AddChoice = (choice: string | Choice) => Promise<void>
 
-	interface SetChoices {
-		(
-			choices: (Choice | string)[],
-			config?: {
-				className?: string
-				skipInitialSearch?: boolean
-				inputRegex?: string
-				generated?: boolean
-			}
-		): Promise<void>
-	}
+	type SetChoices = (
+		choices: (Choice | string)[],
+		config?: {
+			className?: string
+			skipInitialSearch?: boolean
+			inputRegex?: string
+			generated?: boolean
+		}
+	) => Promise<void>
 
-	interface SetFormData {
-		(formData: any): Promise<void>
-	}
+	type SetFormData = (formData: any) => Promise<void>
 
-	interface AppendChoices {
-		(choices: Choice[]): Promise<void>
-	}
+	type AppendChoices = (choices: Choice[]) => Promise<void>
 
 	type SetTextAreaOptions = {
 		value?: string
@@ -10791,7 +10833,7 @@ declare module "@johnlindquist/kit" {
 		[Channel.APPEND_EDITOR_VALUE]: string
 		[Channel.SET_ENTER]: string
 		[Channel.SET_FIELDS]: Field[]
-		[Channel.SET_FLAGS]: { flags: Flags; options: FlagsOptions }
+		[Channel.SET_FLAGS]: FlagsObject
 		[Channel.SET_FLAG_VALUE]: any
 		[Channel.SET_FORM_HTML]: { html: string; formData: any }
 		[Channel.SET_FORM]: PromptConfig[]
@@ -10911,52 +10953,30 @@ declare module "@johnlindquist/kit" {
 
 	export type GenericSendData = SendData<keyof ChannelMap>
 
-	export interface SetHint {
-		(hint: string): void
-	}
+	export type SetHint = (hint: string) => void
 
-	export interface SetName {
-		(name: string): void
-	}
+	export type SetName = (name: string) => void
 
-	export interface SetDescription {
-		(description: string): void
-	}
+	export type SetDescription = (description: string) => void
 
-	export interface SetInput {
-		(input: string): Promise<void>
-	}
+	export type SetInput = (input: string) => Promise<void>
 
-	export interface ScrollTo {
-		(location: "top" | "bottom" | "center"): Promise<void>
-	}
+	export type ScrollTo = (
+		location: "top" | "bottom" | "center"
+	) => Promise<void>
 
-	export interface SetTextareaValue {
-		(value: string): void
-	}
+	export type SetTextareaValue = (value: string) => void
 
-	export interface SetFocused {
-		(id: string): void
-	}
+	export type SetFocused = (id: string) => void
 
-	export interface SetResize {
-		(resize: boolean): void
-	}
+	export type SetResize = (resize: boolean) => void
 
-	export interface SetLoading {
-		(loading: boolean): void
-	}
+	export type SetLoading = (loading: boolean) => void
 
-	export interface SetProgress {
-		(progress: number): void
-	}
-	export interface ShowDeprecated {
-		(message: string): Promise<void>
-	}
+	export type SetProgress = (progress: number) => void
+	export type ShowDeprecated = (message: string) => Promise<void>
 
-	export interface SetStatus {
-		(status: KitStatus): void
-	}
+	export type SetStatus = (status: KitStatus) => void
 
 	export interface KitTheme {
 		"--color-primary-light": string
@@ -10974,59 +10994,33 @@ declare module "@johnlindquist/kit" {
 		ui: string
 		opacity: string
 	}
-	export interface SetTheme {
-		(theme: Partial<KitTheme>): Promise<void>
-	}
+	export type SetTheme = (theme: Partial<KitTheme>) => Promise<void>
 
-	export interface SetPlaceholder {
-		(placeholder: string): void
-	}
+	export type SetPlaceholder = (placeholder: string) => void
 
-	export interface SetEnter {
-		(text: string): void
-	}
+	export type SetEnter = (text: string) => void
 
-	export interface SetPanel {
-		(html: string, containerClasses?: string): void
-	}
+	export type SetPanel = (html: string, containerClasses?: string) => void
 
-	export interface SetFooter {
-		(footer: string): void
-	}
+	export type SetFooter = (footer: string) => void
 
-	export interface SetPrompt {
-		(config: Partial<PromptData>): void
-	}
-	export interface SetPreview {
-		(html: string, containerClasses?: string): void
-	}
-	export interface SetBounds {
-		(bounds: Partial<Rectangle>): void
-	}
+	export type SetPrompt = (config: Partial<PromptData>) => void
+	export type SetPreview = (html: string, containerClasses?: string) => void
+	export type SetBounds = (bounds: Partial<Rectangle>) => void
 
-	export interface SendKeystroke {
-		(keyData: Partial<KeyData>): void
-	}
+	export type SendKeystroke = (keyData: Partial<KeyData>) => void
 
-	export interface GetBounds {
-		(): Promise<Rectangle>
-	}
-	export interface GetBounds {
-		(): Promise<Rectangle>
-	}
+	export type GetBounds = () => Promise<Rectangle>
+	export type GetBounds = () => Promise<Rectangle>
 
-	export interface GetActiveScreen {
-		(): Promise<Display>
-	}
+	export type GetActiveScreen = () => Promise<Display>
 
-	export interface GetEditorHistory {
-		(): Promise<
-			{
-				content: string
-				timestamp: string
-			}[]
-		>
-	}
+	export type GetEditorHistory = () => Promise<
+		{
+			content: string
+			timestamp: string
+		}[]
+	>
 
 	export interface Submit {
 		(value: any): Promise<void>
@@ -11152,13 +11146,12 @@ declare module "@johnlindquist/kit" {
 		clear: () => Promise<void>
 	}
 
-	export interface RegisterShortcut {
-		(shortcut: string, callback: () => void): Promise<void>
-	}
+	export type RegisterShortcut = (
+		shortcut: string,
+		callback: () => void
+	) => Promise<void>
 
-	export interface UnregisterShortcut {
-		(shortcut: string): Promise<void>
-	}
+	export type UnregisterShortcut = (shortcut: string) => Promise<void>
 
 	export type GuideSection = {
 		name: string
@@ -11168,21 +11161,20 @@ declare module "@johnlindquist/kit" {
 			[key: string]: string
 		}
 	}
-	export interface Docs<T = any> {
-		(
-			markdownPath: string,
-			options?:
-				| Partial<PromptConfig>
-				| ((
-						sections?: GuideSection[],
-						tokens?: marked.Token[]
-				  ) => Promise<Partial<PromptConfig>>)
-		): Promise<T>
-	}
+	export type Docs<T = any> = (
+		markdownPath: string,
+		options?:
+			| Partial<PromptConfig>
+			| ((
+					sections?: GuideSection[],
+					tokens?: marked.Token[]
+			  ) => Promise<Partial<PromptConfig>>)
+	) => Promise<T>
 
-	export interface ExecLog {
-		(command: string, logger?: typeof console.log): ChildProcess
-	}
+	export type ExecLog = (
+		command: string,
+		logger?: typeof console.log
+	) => ChildProcess
 
 	export interface AppApi {
 		textarea: TextArea

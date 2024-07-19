@@ -866,10 +866,16 @@ global.setPrompt = (data: Partial<PromptData>) => {
 	// let id = uuid()
 	let id = `${global.kitScript}-${promptId}`
 	global.__kitPromptId = id
+	let actionsConfig = {
+		name: data?.actionsConfig?.name || "Actions",
+		placeholder: data?.actionsConfig?.placeholder || "Actions",
+		active: data?.actionsConfig?.active || "Actions"
+	}
 	global.send(Channel.SET_PROMPT_DATA, {
 		id,
 		scriptPath: global.kitScript,
 		flags: prepFlags(data?.flags),
+		actionsConfig,
 		hint: "",
 		input: "",
 		kitScript: global.kitScript,

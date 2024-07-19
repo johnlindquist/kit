@@ -260,15 +260,14 @@ export interface PromptData {
 	searchKeys?: string[]
 	show?: boolean
 	scriptlet?: boolean
+	actionsConfig?: ActionsConfig
 }
 
-export interface GenerateChoices {
-	(input: string): Choice<any>[] | Promise<Choice<any>[]>
-}
+export type GenerateChoices = (
+	input: string
+) => Choice<any>[] | Promise<Choice<any>[]>
 
-export interface GenerateActions {
-	(input: string): Action[] | Promise<Action[]>
-}
+export type GenerateActions = (input: string) => Action[] | Promise<Action[]>
 
 export type Choices<Value> = (
 	| (string | Choice)[]
@@ -328,9 +327,10 @@ export type FlagsWithKeys = {
 	order?: string[]
 }
 export type FlagsObject = FlagsWithKeys | boolean
-export type FlagsOptions = {
+export type ActionsConfig = {
 	name?: string
 	placeholder?: string
+	active?: string
 }
 
 export type Action = {
