@@ -1112,6 +1112,7 @@ export let actions: Action[] = [
 					description: "Read the docs",
 					onAction: async () => {
 						await open("https://scriptkit.com/docs")
+						exit()
 					}
 				},
 				{
@@ -1119,6 +1120,7 @@ export let actions: Action[] = [
 					description: "Open GitHub Discussions",
 					onAction: async () => {
 						await open(`https://github.com/johnlindquist/kit/discussions`)
+						exit()
 					}
 				},
 				{
@@ -1126,6 +1128,7 @@ export let actions: Action[] = [
 					description: "Open GitHub Issues",
 					onAction: async () => {
 						await open(`https://github.com/johnlindquist/kit/issues`)
+						exit()
 					}
 				},
 				{
