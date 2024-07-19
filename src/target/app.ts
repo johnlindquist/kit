@@ -1074,6 +1074,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 	}
 
 	config.shortcuts ||= []
+	config.choices ||= config.panel
 	config.width ||= PROMPT.WIDTH.BASE
 
 	// if (!config.shortcuts.find(s => s.key === `escape`)) {
