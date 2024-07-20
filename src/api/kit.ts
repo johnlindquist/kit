@@ -1091,7 +1091,8 @@ export let actions: Action[] = [
 	},
 	{
 		name: "Support",
-		shortcut: `${cmd}+shift+h`,
+		shortcut: `${cmd}+i`,
+		close: false,
 		onAction: async () => {
 			let userJson = await getUserJson()
 			let loggedIn = userJson?.login
@@ -1148,7 +1149,7 @@ export let actions: Action[] = [
 			})
 			openActions()
 		},
-		group: "Debug"
+		group: "Support"
 	}
 ]
 
@@ -1459,7 +1460,7 @@ ${lastRunBlock}
 		flag: "ctrl"
 	},
 	["settings"]: {
-		group: "Run",
+		group: "Settings",
 		name: "Settings",
 		description: "Open the settings menu",
 		shortcut: `${cmd}+,`
