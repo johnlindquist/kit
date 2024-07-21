@@ -10,7 +10,7 @@ parentPort?.on("message", async ({ command, filePath }) => {
 			filePath,
 			command
 		} as Script)
-		console.log(`Worker: Created bin from script: ${filePath} -> ${command}`)
+		// console.log(`Worker: Created bin from script: ${filePath} -> ${command}`)
 	} catch (error) {
 		console.log(
 			`Worker: Error creating bin from script: ${filePath} -> ${command}`,

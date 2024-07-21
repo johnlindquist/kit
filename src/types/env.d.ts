@@ -1,4 +1,5 @@
 export type kenvEnv = {
+	KIT_AUTO_INSTALL?: string | undefined
 	KIT_AUTO_UPDATE?: string | undefined
 	KIT_BACKGROUND_COLOR?: string | undefined
 	KIT_BACKGROUND_MATERIAL?: string | undefined
@@ -7,14 +8,14 @@ export type kenvEnv = {
 	KIT_CONVERT_KEY?: string | undefined
 	KIT_CWD?: string | undefined
 	KIT_DEBUG_PROMPT?: string | undefined
-	KIT_DISABLE_ALWAYS_ON_TOP?: string | undefined
-	KIT_DISABLE_AUTO_UPDATE?: string | undefined
-	KIT_DISABLE_BACKGROUND_THROTTLE?: string | undefined
-	KIT_DISABLE_SHADOW?: string | undefined
-	KIT_DISABLE_BLUR?: string | undefined
-	KIT_DISABLE_GPU?: string | undefined
-	KIT_ENABLE_FRAME?: string | undefined
-	KIT_ENABLE_TRANSPARENT?: string | undefined
+	KIT_ALWAYS_ON_TOP?: string | undefined
+	KIT_AUTO_UPDATE?: string | undefined
+	KIT_BACKGROUND_THROTTLE?: string | undefined
+	KIT_SHADOW?: string | undefined
+	KIT_BLUR?: string | undefined
+	KIT_GPU?: string | undefined
+	KIT_FRAME?: string | undefined
+	KIT_TRANSPARENT?: string | undefined
 	KIT_DISPLAY?: string | undefined
 	KIT_EMOJI_SHORTCUT?: string | undefined
 	KIT_IDLE_PROCESSES?: string | undefined
@@ -37,6 +38,7 @@ export type kenvEnv = {
 	KIT_SERIF_FONT?: string | undefined
 	KIT_STDIO?: string | undefined
 	KIT_SUSPEND_WATCHERS?: string | undefined
+	KIT_TELEMETRY?: string | undefined
 	KIT_TERM_FONT?: string | undefined
 	KIT_THEME_DARK?: string | undefined
 	KIT_THEME_LIGHT?: string | undefined
