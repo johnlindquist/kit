@@ -8,8 +8,23 @@ Opens ~/.kenv/scriptlets/scriptlets.md in your selected editor
 
 // Name: New Scriptlet
 // Description: Create a new scriptlet
+// Pass: true
 // Log: false
 
-await edit(kenvPath("scriptlets", "scriptlets.md"))
+let scriptletsPath = kenvPath("scriptlets", "scriptlets.md")
+if (arg?.pass) {
+	await appendFile(
+		scriptletsPath,
+		`
+    
+## ${arg?.pass}
+
+\`\`\`
+
+\`\`\`
+`
+	)
+}
+await edit(scriptletsPath)
 exit()
 export {}

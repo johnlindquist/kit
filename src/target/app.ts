@@ -1,9 +1,10 @@
-import fs from "fs"
-import { unlink } from "fs/promises"
+import fs from "node:fs"
+import { unlink } from "node:fs/promises"
 import { filesize } from "filesize"
-import util from "util"
-import path from "path"
-import {
+import util from "node:util"
+import path from "node:path"
+import type {
+	Action,
 	AppState,
 	ChannelHandler,
 	Choice,
@@ -11,7 +12,7 @@ import {
 	PromptData
 } from "../types/core"
 
-import {
+import type {
 	GetAppData,
 	KeyData,
 	AppMessage,
@@ -1221,13 +1222,17 @@ global.kitPrompt = async (config: PromptConfig) => {
 	return value
 }
 
-global.drop = async (placeholder = "Drop something here...") => {
+global.drop = async (
+	placeholder = "Drop something here...",
+	actions?: Action[]
+) => {
 	let config: Partial<PromptConfig> =
 		typeof placeholder === "string" ? { placeholder } : placeholder
 
 	return await global.kitPrompt({
 		ui: UI.drop,
 		enter: "",
+		actions,
 		width: config?.preview ? PROMPT.WIDTH.BASE : PROMPT.WIDTH.XXS,
 		height: PROMPT.WIDTH.XXS,
 		shortcuts: [escapeShortcut, closeShortcut],
@@ -1251,7 +1256,7 @@ global.showEmojiPanel = () => {
 	send(Channel.SHOW_EMOJI_PANEL)
 }
 
-global.fields = async (formFields) => {
+global.fields = async (formFields, actions?: Action[]) => {
 	let config: Parameters<Fields>[0] = []
 	let f = []
 	if (
@@ -1318,6 +1323,7 @@ ${inputs}
 </div>
 </div>`
 	;(config as PromptConfig).shortcuts = formShortcuts
+	;(config as PromptConfig).actions = actions
 
 	if (typeof (config as PromptConfig).enter !== "string") {
 		;(config as PromptConfig).enter = "Submit"
@@ -1335,7 +1341,7 @@ global.setFormData = async (formData = {}) => {
 	await sendWait(Channel.SET_FORM_DATA, formData)
 }
 
-global.form = async (html = "", formData = {}) => {
+global.form = async (html = "", formData = {}, actions?: Action[]) => {
 	let config: PromptConfig = {}
 	if ((html as PromptConfig)?.html) {
 		config = html as PromptConfig
@@ -1352,6 +1358,7 @@ global.form = async (html = "", formData = {}) => {
 		config.enter = "Submit"
 	}
 	config.shortcuts ||= formShortcuts
+	config.actions ||= actions
 
 	return await global.kitPrompt(config)
 }
@@ -1528,7 +1535,7 @@ global.docs = async (filePath: string, options = {}) => {
 	)
 }
 
-global.editor = async (options?: EditorOptions) => {
+global.editor = async (options?: EditorOptions, actions?: Action[]) => {
 	if (options?.language) {
 		let fileTypes = {
 			css: "css",
@@ -1572,6 +1579,7 @@ global.editor = async (options?: EditorOptions) => {
 		shortcuts: editorShortcuts,
 		height: PROMPT.HEIGHT.XL,
 		...editorOptions,
+		actions,
 		enter: "",
 		choices: [],
 		hideOnEscape: false
@@ -1615,12 +1623,14 @@ global.editor.insertText = async (text: string) => {
 // }
 
 global.template = async (
-	template: string = "",
-	options: EditorOptions = { language: "plaintext" }
+	template = "",
+	options: EditorOptions = { language: "plaintext" },
+	actions?: Action[]
 ) => {
 	return global.editor({
 		template,
 		...options,
+		actions,
 		enter: ""
 	})
 }
@@ -1834,7 +1844,7 @@ global.micro = async (
 global.arg =
 	process?.env?.KIT_MAIN_SCRIPT === "v1" ? global.basePrompt : global.mini
 
-global.chat = async (options = {}) => {
+global.chat = async (options = {}, actions: Action[] = []) => {
 	let messages = await global.kitPrompt({
 		placeholder: "",
 		strict: true,
@@ -1854,7 +1864,8 @@ global.chat = async (options = {}) => {
 				bar: "right"
 			}
 		],
-		...options
+		...options,
+		actions
 	})
 
 	return messages
@@ -2520,7 +2531,7 @@ type uzPathConfig = PromptConfig & {
 
 let __pathSelector = async (
 	config: string | PathConfig = home(),
-	{ showHidden } = { showHidden: false }
+	actions?: Action[]
 ) => {
 	let startPath = ``
 	let focusOn = ``
@@ -2808,6 +2819,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
 			inputRegex: `[^\\${path.sep}]+$`,
 			onInput,
 			onTab,
+			actions,
 
 			alwaysOnTop: true,
 			// onRight,

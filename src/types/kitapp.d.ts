@@ -85,9 +85,10 @@ export interface IMessage extends BaseMessage {
 
 export type Message = string | Partial<IMessage>
 
-export type Chat = {
-	(config?: PromptConfig): Promise<Message[]>
-} & {
+export type Chat = ((
+	config?: PromptConfig,
+	actions?: Action[]
+) => Promise<Message[]>) & {
 	addMessage?: (message: Message) => void
 	setMessage?: (index: number, message: Message) => void
 	getMessages?: () => Promise<BaseMessage[]>
@@ -170,7 +171,8 @@ export type Find = (
 ) => Promise<string>
 
 export type Editor = ((
-	config?: EditorConfig & { hint?: string }
+	config?: EditorConfig & { hint?: string },
+	actions?: Action[]
 ) => Promise<string>) & {
 	setSuggestions?: (suggestions: string[]) => Promise<void>
 	setConfig?: (config: EditorConfig) => Promise<void>
@@ -240,10 +242,14 @@ export type TextArea = (
 	placeholderOrOptions?: string | TextareaConfig
 ) => Promise<string | void>
 
-export type Drop = (placeholder?: string | PromptConfig) => Promise<any>
+export type Drop = (
+	placeholder?: string | PromptConfig,
+	actions?: Action[]
+) => Promise<any>
 export type Template = (
 	template: string,
-	config?: EditorConfig
+	config?: EditorConfig,
+	actions?: Action[]
 ) => Promise<string>
 export type OldForm = (
 	html?:
@@ -255,7 +261,11 @@ export type OldForm = (
 	formData?: any
 ) => Promise<any>
 
-export type Form = (html: string | PromptConfig, formData?: any) => Promise<any>
+export type Form = (
+	html: string | PromptConfig,
+	formData?: any,
+	actions?: Action[]
+) => Promise<any>
 
 type Field =
 	| {
@@ -273,7 +283,8 @@ type Field =
 	| string
 
 export type Fields = (
-	fields: Field[] | (PromptConfig & { fields: Field[] })
+	fields: Field[] | (PromptConfig & { fields: Field[] }),
+	actions?: Action[]
 ) => Promise<string[]>
 
 export type AudioOptions = {

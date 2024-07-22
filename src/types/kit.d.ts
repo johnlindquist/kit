@@ -158,24 +158,27 @@ export interface Kenv {
 	name: string
 	dirPath: string
 }
-export interface SelectKenv {
-	(config?: PromptConfig, ignorePattern?: RegExp): Promise<Kenv>
-}
+export type SelectKenv = (
+	config?: PromptConfig,
+	ignorePattern?: RegExp
+) => Promise<Kenv>
 
-export interface Highlight {
-	(
-		markdown: string,
-		containerClass?: string,
-		injectStyles?: string
-	): Promise<string>
-}
+export type Highlight = (
+	markdown: string,
+	containerClass?: string,
+	injectStyles?: string
+) => Promise<string>
 
 interface PathConfig extends PromptConfig {
 	startPath?: string
 	onlyDirs?: boolean
+	showHidden?: boolean
 }
 
-type PathPicker = (config?: string | PathConfig) => Promise<string>
+type PathPicker = (
+	config?: string | PathConfig,
+	actions?: Action[]
+) => Promise<string>
 export type PathSelector = typeof import("path") & PathPicker
 
 type GistOptions = {
@@ -183,16 +186,12 @@ type GistOptions = {
 	description?: string
 	isPublic?: boolean
 }
-export interface CreateGist {
-	(
-		content: string,
-		options?: GistOptions
-	): Promise<RestEndpointMethodTypes["gists"]["create"]["response"]["data"]>
-}
+export type CreateGist = (
+	content: string,
+	options?: GistOptions
+) => Promise<RestEndpointMethodTypes["gists"]["create"]["response"]["data"]>
 
-export interface SetShortcuts {
-	(shortcuts: Shortcut[]): Promise<void>
-}
+export type SetShortcuts = (shortcuts: Shortcut[]) => Promise<void>
 export interface KitApi {
 	path: PathSelector
 	db: DB

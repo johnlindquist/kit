@@ -1818,7 +1818,7 @@ export let parseMarkdownAsScriptlets = async (
 		}
 
 		if (currentScriptlet) {
-			currentScriptlet.preview += "\n" + line
+			currentScriptlet.preview += `\n${line}`
 		}
 		if (line.startsWith("<!--")) {
 			parsingMetadata = true
@@ -1831,7 +1831,7 @@ export let parseMarkdownAsScriptlets = async (
 
 		if (line.startsWith("```") || line.startsWith("~~~")) {
 			if (!currentScriptlet.tool) {
-				let tool = line.replace("```", "").replace("~~~", "").trim()
+				let tool = line.replace("```", "").replace("~~~", "").trim() || "ts"
 				currentScriptlet.tool = tool
 
 				currentScriptlet.preview += `\n// ${tool}`
@@ -1843,11 +1843,8 @@ export let parseMarkdownAsScriptlets = async (
 		}
 
 		if (parsingValue) {
-			currentScriptlet.scriptlet = (
-				currentScriptlet.scriptlet +
-				"\n" +
-				line
-			).trim()
+			currentScriptlet.scriptlet =
+				`${currentScriptlet.scriptlet}\n${line}`.trim()
 		}
 
 		if (parsingMetadata) {
