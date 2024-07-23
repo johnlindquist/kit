@@ -39,8 +39,8 @@ jobs:
 
       - name: Build Kit
         run: |
-          PATH="./.knode/bin:$PATH" CI=true npm i && PATH="./.knode/bin:$PATH" CI=true npm dedupe
-          PATH="./.knode/bin:$PATH" KIT=./.kit CI=true node ./build/build-ci.js
+          PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
+          PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
 
       - name: Set env vars
         run: |
@@ -70,8 +70,6 @@ jobs:
         run: |
           cd "${{ env.wd_path }}"
           npm i
-        env:
-          CI: true
 
       - name: npm run ava
         run: |
@@ -91,7 +89,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          CI: true
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master

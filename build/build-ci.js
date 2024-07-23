@@ -22,15 +22,10 @@ console.log({ nodeVersion })
 let { stdout: npmVersion } = await exec(`npm --version`)
 console.log({ npmVersion })
 
-let env = {
-  CI: true,
-  ...process.env
-}
-
 console.log(`Building ESM to ${kitPath()}`)
 try {
-  await exec(`npm i`, { env })
-  let esm = await exec(`npx tsc --outDir ${kitPath()}`, { env })
+  await exec(`npm i`)
+  let esm = await exec(`npx tsc --outDir ${kitPath()}`)
   console.log(esm)
 } catch (e) {
   console.log(e)
@@ -40,8 +35,7 @@ try {
 console.log(`Building declarations to ${kitPath()}`)
 try {
   let dec = await exec(
-    `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`,
-    { env }
+    `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
   )
   console.log(dec)
 } catch (e) {
@@ -50,8 +44,8 @@ try {
 }
 
 console.log(`Building editor types to ${kitPath()}`)
-try {
-  let editorTypes = await exec(`npx tsx ./build/build-editor-types.ts`, { env })
+try{
+  let editorTypes = await exec(`npx tsx ./build/build-editor-types.ts`)
   console.log(editorTypes)
 } catch (e) {
   console.log(e)
