@@ -11,7 +11,9 @@ console.log(`Run postinstall on ${kitPath()}`)
 
 let binFileToRemove = platform() === "win32" ? "kit" : "kit.bat"
 
-if(existsSync(kitPath("bin", binFileToRemove))){
-    console.log(`Removing ${kitPath("bin", binFileToRemove)} so it doesn't interfere with kit.bat`)
-	await rimraf(kitPath("bin", binFileToRemove))
+if (!process.env.CI) {
+    if (existsSync(kitPath("bin", binFileToRemove))) {
+        console.log(`Removing ${kitPath("bin", binFileToRemove)} so it doesn't interfere with kit.bat`)
+        await rimraf(kitPath("bin", binFileToRemove))
+    }
 }
