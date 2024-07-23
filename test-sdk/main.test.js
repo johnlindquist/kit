@@ -204,13 +204,12 @@ ava.serial("kit new, run, and rm", async (t) => {
   console.log(\`${command} \${value} 🎉!\`)
 `
 
-	let { stdout, stderr } =
-		await exec(`kit new ${command} main --no-edit`, {
-			env: {
-				...process.env,
-				KIT_MODE: "js"
-			}
-		})
+	let { stdout, stderr } = await exec(`kit new ${command} main --no-edit`, {
+		env: {
+			...process.env,
+			KIT_MODE: "js"
+		}
+	})
 
 	let scriptPath = kenvPath("scripts", `${command}.js`)
 	let binPath = kenvPath("bin", `${command}`)
@@ -226,17 +225,19 @@ ava.serial("kit new, run, and rm", async (t) => {
 	t.true(test("-f", binPath), "bin created")
 
 	let message = "success"
-		;({ stdout, stderr } = await exec(`${binPath} ${message}`))
+	;({ stdout, stderr } = await exec(`${binPath} ${message}`))
 
 	t.true(stdout.includes(message), `stdout includes ${message}`)
 
-	let { stdout: rmStdout, stderr: rmStderr } = await exec(`kit rm ${command} --confirm`)
+	let { stdout: rmStdout, stderr: rmStderr } = await exec(
+		`kit rm ${command} --confirm`
+	)
 
 	let scripts = await readdir(kenvPath("scripts"))
 	let bins = await readdir(kenvPath("bin"))
-	t.log({scripts, bins, rmStdout, rmStderr})
+	t.log({ scripts, bins, rmStdout, rmStderr })
 
-	let fileRmed = !(scripts.includes(command))
+	let fileRmed = !scripts.includes(command)
 	let binRmed = !(await isFile(binPath))
 
 	t.true(fileRmed)
@@ -265,7 +266,7 @@ ava.serial("kit script-output-hello", async (t) => {
 
 	let { stdout } = await exec(`kit ${script} "hello"`)
 
-	t.log({stdout})
+	t.log({ stdout })
 
 	t.true(stdout.includes("hello"))
 })
@@ -289,7 +290,7 @@ ava.serial("kit script in random dir", async (t) => {
 	}
 
 	// Verify the file contents
-	let actualContents = await readFile(scriptPath, 'utf-8')
+	let actualContents = await readFile(scriptPath, "utf-8")
 	t.is(actualContents, contents, "Script file contents should match")
 })
 
@@ -297,13 +298,13 @@ ava.serial("Run both JS and TS scripts", async (t) => {
 	let jsCommand = "mock-js-script"
 	let tsCommand = "mock-ts-script"
 
-	await exec(`kit new ${jsCommand} main --no-edit`, {
+	let newJSCommandResult = await exec(`kit new ${jsCommand} main --no-edit`, {
 		env: {
 			...process.env,
 			KIT_MODE: "js"
 		}
 	})
-	await exec(`kit new ${tsCommand} main --no-edit`, {
+	let newTSCommandResult = await exec(`kit new ${tsCommand} main --no-edit`, {
 		env: {
 			...process.env,
 			KIT_MODE: "ts"
@@ -312,11 +313,18 @@ ava.serial("Run both JS and TS scripts", async (t) => {
 
 	process.env.PATH = `${kenvPath("bin")}${path.delimiter}${process.env.PATH}`
 
-	let { stderr: jsErr } = await exec(`${jsCommand}`)
-	let { stderr: tsErr } = await exec(`${tsCommand}`)
+	let jsCommandResult = await exec(`${jsCommand}`)
+	let tsCommandResult = await exec(`${tsCommand}`)
 
-	t.is(jsErr, "")
-	t.is(tsErr, "")
+	t.log({
+		newJSCommandResult,
+		newTSCommandResult,
+		jsCommandResult,
+		tsCommandResult
+	})
+
+	t.is(jsCommandResult.stderr, "")
+	t.is(tsCommandResult.stderr, "")
 })
 
 ava.serial("Run kit from package.json", async (t) => {
@@ -422,7 +430,9 @@ if(flag.one === "one" && flag.two === "two"){
 		)
 
 		cd(kenvPath())
-		let { stdout, stderr } = await exec(`kit ${command} hello --one one --two two`)
+		let { stdout, stderr } = await exec(
+			`kit ${command} hello --one one --two two`
+		)
 
 		t.is(stderr, "")
 		t.regex(stdout, new RegExp(success))
@@ -457,7 +467,9 @@ if(flag.one === "one" && flag.two === "two"){
 		)
 
 		cd(kenvPath())
-		;({ stdout, stderr } = await exec(`kit ${command} hello --one one --two three`))
+		;({ stdout, stderr } = await exec(
+			`kit ${command} hello --one one --two three`
+		))
 
 		t.is(stderr, "")
 		t.regex(stdout, new RegExp(fail))
@@ -480,11 +492,10 @@ await writeFile(kenvPath("test.md"), "${testFilePathContents}")
 \`\`\`
 `.trim()
 
-	await writeFile(
-		scriptletPath,
-		content
+	await writeFile(scriptletPath, content)
+	let { stdout, stderr } = await exec(
+		`kit "${scriptletPath}#${scriptletNameSlug}"`
 	)
-	let { stdout, stderr } = await exec(`kit "${scriptletPath}#${scriptletNameSlug}"`)
 	t.log({ stdout, stderr, content })
 	let testFilePathFinalContents = await readFile(kenvPath("test.md"), "utf8")
 	t.is(testFilePathFinalContents, testFilePathContents)
