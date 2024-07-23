@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 NODE_NO_WARNINGS=1 \
-KENV=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &> /dev/null && pwd) \
+KENV=$(cd "$(dirname "$0")"/.. &> /dev/null && pwd) \
 {{KNODE}}/bin/node \
 --loader {{KIT}}/build/loader.js \
 {{KIT}}/run/terminal.js \

@@ -5,13 +5,9 @@ import { existsSync } from "node:fs"
 
 let isCI = process.env.CI === "true"
 if (isCI) {
-	console.log("Running in CI, skipping postinstall")
+	console.log("Running in CI, skipping preinstall")
 } else {
-	let kitPath = (...pathParts) =>
-		path.resolve(
-			process.cwd(),
-			...pathParts
-		)
+	let kitPath = (...pathParts) => path.resolve(process.cwd(), ...pathParts)
 
 	if (platform() === "win32") {
 		let binFileToRemove = "kit"
@@ -23,7 +19,6 @@ if (isCI) {
 				`Removing ${kitPath("bin", binFileToRemove)} so it doesn't interfere with kit.bat`
 			)
 			await rimraf(kitPath("bin", binFileToRemove))
-
 		} else {
 			console.log(`${binFilePathToRemove} does not exist. Skipping...`)
 		}

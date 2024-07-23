@@ -8,8 +8,8 @@ import {
 	writeFile
 } from "@johnlindquist/kit-internal/fs-extra"
 
-import { Bin } from "../../core/enum"
-import { Choice, Script } from "../../types/core"
+import type { Bin } from "../../core/enum"
+import type { Choice, Script } from "../../types/core"
 
 export let jsh = process.env?.SHELL?.includes("jsh")
 
