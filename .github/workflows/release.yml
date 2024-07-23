@@ -158,8 +158,8 @@ jobs:
 
       - name: Check node $PATH version
         run: |
-        node --version
-        npm --version
+          node --version
+          npm --version
 
       - name: Semantic Release      
         run: |
