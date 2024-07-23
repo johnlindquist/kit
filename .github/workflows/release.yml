@@ -28,11 +28,6 @@ jobs:
           node --version
           npm --version
 
-      - name: Log ./.kit
-        shell: bash
-        run: |
-          ls ./.kit/*/*
-
       - name: npm i
         shell: bash
         run: |
