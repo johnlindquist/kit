@@ -1940,6 +1940,7 @@ export let getKenvFromPath = (filePath: string): string => {
 		return ""
 	}
 
-	let parts = relativePath.split("/")
-	return parts[2] || "" // Safely return the kenv or an empty string if not found
+	let parts = relativePath.split(path.sep)
+	let kenvIndex = parts.indexOf('kenvs')
+	return kenvIndex !== -1 && parts[kenvIndex + 1] ? parts[kenvIndex + 1] : ""
 }
