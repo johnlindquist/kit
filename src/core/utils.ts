@@ -867,7 +867,7 @@ export let updateEnv = (scriptProjectPath: string) => {
 
 	if (error) {
 		let isCwdKenv = path.normalize(cwd()) === path.normalize(kenvPath())
-		if (isCwdKenv) {
+		if (isCwdKenv && !error?.message?.includes("files matching pattern")) {
 			global.log(error.message)
 		}
 	}
@@ -882,7 +882,7 @@ export let configEnv = () => {
 
 	if (error) {
 		let isCwdKenv = path.normalize(cwd()) === path.normalize(kenvPath())
-		if (isCwdKenv) {
+		if (isCwdKenv && !error?.message?.includes("files matching pattern")) {
 			global.log(error.message)
 		}
 	}

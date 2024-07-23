@@ -22,6 +22,8 @@ ava.serial("env should work with different params", async (t) => {
 		name += ".cmd"
 	}
 
+	let p = exec(`${kenvPath("bin", name)}`)
+
 	p.stdin.write("Some value\n")
 
 	let { stdout } = await p

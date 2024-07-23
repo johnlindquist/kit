@@ -48,14 +48,8 @@ jobs:
           KIT: ${{ env.kit_path }}
           KNODE: ${{ env.knode_path }}
 
-  release:
-    needs: test-windows
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest]
-
+  test-mac:
+    runs-on: macos-latest
     steps:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
@@ -120,7 +114,54 @@ jobs:
           KIT: ${{ env.kit_path }}
           KNODE: ${{ env.knode_path }}
 
-      - name: Semantic Release
+  release:
+    runs-on: macos-latest
+    needs: [test-windows, test-mac]
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
+
+      - name: Get Time
+        id: time
+        uses: nanzm/get-time-action@v1.1
+        with:
+          timeZone: 8
+          format: "YYYY-MM-DD-HH-mm-ss"
+
+      - name: Checkout kit
+        uses: actions/checkout@master
+
+      - name: Install Node
+        run: |
+          mkdir -p ./.knode
+          ./build/install-node.sh -v 20.15.1 -P ./.knode -y
+
+      - name: Build Kit
+        run: |
+          PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
+          PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
+
+      - name: Set env vars
+        run: |
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "knode_path=$PWD/.knode" >> $GITHUB_ENV
+          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
+
+      - name: Add node and kit to PATH
+        run: |
+          echo "${{ env.knode_path }}/bin" >> $GITHUB_PATH
+          echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
+          echo "---"
+          echo "$GITHUB_PATH"
+          echo "$PATH"
+
+      - name: Check node $PATH version
+        run: |
+        node --version
+        npm --version
+
+      - name: Semantic Release      
         run: |
           cd "${{ env.wd_path }}"
           npx semantic-release
