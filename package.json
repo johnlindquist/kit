@@ -58,7 +58,6 @@
 		"build-editor-types": "tsx ./build/build-editor-types.ts",
 		"rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
 		"lazy-install": "npm i esbuild@0.21.4 --save-exact --production --prefer-dedupe --loglevel=verbose",
-		"postinstall": "node ./build/postinstall.js"
 	},
 	"author": "John Lindquist (https://johnlindquist.com)",
 	"license": "ISC",

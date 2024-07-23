@@ -16,11 +16,15 @@ if (isCI) {
 	console.log(`Run postinstall on ${kitPath()}`)
 
 	let binFileToRemove = platform() === "win32" ? "kit" : "kit.bat"
-
-	if (existsSync(kitPath("bin", binFileToRemove))) {
+	let binFilePathToRemove = kitPath("bin", binFileToRemove)
+	console.log(`Checking if ${binFilePathToRemove} exists...`)
+	
+	if (existsSync(binFilePathToRemove)) {
 		console.log(
 			`Removing ${kitPath("bin", binFileToRemove)} so it doesn't interfere with kit.bat`
 		)
 		await rimraf(kitPath("bin", binFileToRemove))
+	} else {
+		console.log(`${binFilePathToRemove} does not exist. Skipping...`)
 	}
 }
