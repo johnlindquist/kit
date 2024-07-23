@@ -70,6 +70,8 @@ jobs:
         run: |
           cd "${{ env.wd_path }}"
           npm i
+        env:
+          CI: true
 
       - name: npm run ava
         run: |
@@ -89,6 +91,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          CI: true
 
       - name: Archive Release
         uses: thedoctor0/zip-release@master
