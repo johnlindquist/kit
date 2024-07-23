@@ -48,8 +48,11 @@ jobs:
           KIT: ${{ env.kit_path }}
           KNODE: ${{ env.knode_path }}
 
-  test-mac:
-    runs-on: macos-latest
+  test-mac-and-ubuntu:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
@@ -116,7 +119,7 @@ jobs:
 
   release:
     runs-on: macos-latest
-    needs: [test-windows, test-mac]
+    needs: [test-windows, test-mac-and-ubuntu]
     steps:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
