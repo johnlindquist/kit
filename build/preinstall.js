@@ -9,7 +9,7 @@ if (isCI) {
 } else {
 	let kitPath = (...pathParts) =>
 		path.resolve(
-			process.env.KIT || path.resolve(homedir(), ".kit"),
+			process.cwd(),
 			...pathParts
 		)
 
@@ -17,12 +17,22 @@ if (isCI) {
 		let binFileToRemove = "kit"
 		let binFilePathToRemove = kitPath("bin", binFileToRemove)
 		console.log(`Checking if ${binFilePathToRemove} exists...`)
-		
+
 		if (existsSync(binFilePathToRemove)) {
 			console.log(
 				`Removing ${kitPath("bin", binFileToRemove)} so it doesn't interfere with kit.bat`
 			)
 			await rimraf(kitPath("bin", binFileToRemove))
+
+			let kitBatPath = kitPath("bin", "kit.bat")
+			let kitBinPath = kitPath("bin", "kit")
+
+			if (existsSync(kitBatPath)) {
+				console.log(`Renaming ${kitBatPath} to ${kitBinPath}`)
+				await fs.promises.rename(kitBatPath, kitBinPath)
+			} else {
+				console.log(`${kitBatPath} does not exist. Skipping rename...`)
+			}
 		} else {
 			console.log(`${binFilePathToRemove} does not exist. Skipping...`)
 		}
