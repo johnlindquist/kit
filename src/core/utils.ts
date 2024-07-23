@@ -595,8 +595,7 @@ export let postprocessMetadata = (
 
 	if (metadata.shortcut) {
 		result.shortcut = shortcutNormalizer(metadata.shortcut)
-
-		result.friendlyShortcut = friendlyShortcut(metadata.shortcut)
+		result.friendlyShortcut = friendlyShortcut(result.shortcut)
 	}
 
 	if (metadata.shortcode) {

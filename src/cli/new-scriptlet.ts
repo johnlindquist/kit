@@ -11,6 +11,7 @@ Opens ~/.kenv/scriptlets/scriptlets.md in your selected editor
 // Pass: true
 // Log: false
 
+await ensureDir(kenvPath("scriptlets"))
 let scriptletsPath = kenvPath("scriptlets", "scriptlets.md")
 if (arg?.pass) {
 	await appendFile(
