@@ -275,19 +275,21 @@ const runScript = async (script: Script | string) => {
 		return await sendWait(Channel.SHEBANG, script)
 	}
 
-	
 	const isSnippet = (script: Script): script is Snippet => {
-		return "snippet" in script
+		return "text" in script
 	}
 
 	if (isSnippet(script)) {
-		return await run(kitPath("app", "paste-snippet.js"), "--filePath", script.filePath)
+		return await run(
+			kitPath("app", "paste-snippet.js"),
+			"--filePath",
+			script.filePath
+		)
 	}
 
 	const isScriptlet = (script: Script | Scriptlet): script is Scriptlet => {
 		return "scriptlet" in script
 	}
-
 
 	if (isScriptlet(script)) {
 		let { runScriptlet } = await import("./scriptlet.js")

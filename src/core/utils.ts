@@ -1,39 +1,40 @@
-import { randomUUID as uuid } from "crypto"
+import { randomUUID as uuid } from "node:crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import { md as globalMd, marked } from "@johnlindquist/globals"
 
-import * as path from "path"
+import * as path from "node:path"
 import untildify from "untildify"
 import slugify from "slugify"
-import {
+import type {
 	Script,
 	ScriptPathInfo,
 	ScriptMetadata,
 	Metadata,
 	Shortcut,
 	Choice,
-	Scriptlet
+	Scriptlet,
+	Snippet
 } from "../types/core"
-import { platform, homedir } from "os"
-import { lstatSync, PathLike, realpathSync } from "fs"
-import { access, lstat, readdir, readFile } from "fs/promises"
-import { constants } from "fs"
-import { execSync } from "child_process"
+import { platform, homedir } from "node:os"
+import { lstatSync, PathLike, realpathSync } from "node:fs"
+import { access, lstat, readdir, readFile } from "node:fs/promises"
+import { constants } from "node:fs"
+import { execSync } from "node:child_process"
 
 import { ProcessType, Channel, PROMPT } from "./enum.js"
 import {
-	AssignmentExpression,
-	Identifier,
+	type AssignmentExpression,
+	type Identifier,
 	MemberExpression,
 	Node,
-	ObjectExpression,
+	type ObjectExpression,
 	Parser,
 	Property,
 	type Program
 } from "acorn"
 import tsPlugin from "acorn-typescript"
 import { globby } from "globby"
-import { Stamp } from "./db"
+import type { Stamp } from "./db"
 
 export let isWin = platform().startsWith("win")
 export let isMac = platform().startsWith("darwin")
@@ -1860,6 +1861,12 @@ export let parseMarkdownAsScriptlets = async (
 			let key = line.slice(0, indexOfColon).trim()
 			let value = line.slice(indexOfColon + 1).trim()
 			let lowerCaseKey = key.toLowerCase()
+			let ignore = ["background", "schedule", "watch", "system"].includes(
+				lowerCaseKey
+			)
+			if (ignore) {
+				continue
+			}
 			currentScriptlet[lowerCaseKey] = value
 		}
 	}
@@ -1929,7 +1936,7 @@ export let getSnippet = (
 	return { metadata, snippet }
 }
 
-export let parseSnippets = async (): Promise<Script[]> => {
+export let parseSnippets = async (): Promise<Snippet[]> => {
 	let snippetPaths = await globby([
 		kenvPath("snippets", "**", "*.txt").replaceAll("\\", "/"),
 		kenvPath("kenvs", "*", "snippets", "**", "*.txt").replaceAll("\\", "/")
@@ -1946,7 +1953,7 @@ export let parseSnippets = async (): Promise<Script[]> => {
 			name: metadata?.name || s,
 			tag: metadata?.snippet || "",
 			description: s,
-			snippet: snippet.trim(),
+			text: snippet.trim(),
 			value: snippet.trim(),
 			preview: `<div class="p-4">${formattedSnippet}</div>`,
 			group: "Snippets",
@@ -1957,7 +1964,7 @@ export let parseSnippets = async (): Promise<Script[]> => {
 	return snippetChoices
 }
 
-export let parseScriptlets = async (): Promise<Script[]> => {
+export let parseScriptlets = async (): Promise<Scriptlet[]> => {
 	let scriptletsPaths = await globby(
 		kenvPath("scriptlets", "*.md").replace(/\\/g, "/")
 	)
@@ -1967,7 +1974,7 @@ export let parseScriptlets = async (): Promise<Script[]> => {
 
 	let allScriptletsPaths = scriptletsPaths.concat(nestedScriptletPaths)
 
-	let allScriptlets: Script[] = []
+	let allScriptlets: Scriptlet[] = []
 	for (let scriptletsPath of allScriptletsPaths) {
 		let fileContents = await readFile(scriptletsPath, "utf8")
 		let scriptlets = await parseMarkdownAsScriptlets(fileContents)

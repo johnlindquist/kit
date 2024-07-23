@@ -45,6 +45,18 @@ export let runScriptlet = async (
 			await writeFile(quickPath, scriptlet)
 			return await run(quickPath)
 		}
+		case "transform": {
+			let quickPath = kenvPath(
+				"tmp",
+				`scriptlet-${focusedScriptlet.command}.ts`
+			)
+
+			let content = `let text = await getSelectedText()
+let result = ${scriptlet}
+await setSelectedText(result)`
+			await writeFile(quickPath, content)
+			return await run(quickPath)
+		}
 		case "open":
 			return await open(scriptlet)
 		case "paste":
