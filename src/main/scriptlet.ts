@@ -59,6 +59,8 @@ await setSelectedText(result)`
 		}
 		case "open":
 			return await open(scriptlet)
+		case "edit":
+			return await edit(scriptlet)
 		case "paste":
 			return await setSelectedText(scriptlet)
 		case "type":
