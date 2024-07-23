@@ -6,66 +6,12 @@
 import "@johnlindquist/kit"
 import { globby } from "globby"
 import slugify from "slugify"
-import { closeShortcut, escapeHTML } from "../core/utils.js"
-let snippetPaths = await globby([
-  kenvPath("snippets", "**", "*.txt").replaceAll("\\", "/"),
-  kenvPath(
-    "kenvs",
-    "*",
-    "snippets",
-    "**",
-    "*.txt"
-  ).replaceAll("\\", "/"),
-])
+import { closeShortcut, escapeHTML, parseSnippets, getSnippet } from "../core/utils.js"
+import type { Script } from "../types/core.js"
 
+let snippetChoices = await parseSnippets()
 let defaultSnippetTemplate = `// Name: \${1:Required}
 \${0}`
-
-let getSnippet = (
-  contents: string
-): {
-  metadata: Record<string, string>
-  snippet: string
-} => {
-  let lines = contents.split("\n")
-  let metadata = {}
-  let contentStartIndex = lines.length
-
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i]
-    let match = line.match(
-      /(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/
-    )
-
-    if (match) {
-      let [, key, value] = match
-      if (value) {
-        metadata[key.trim().toLowerCase()] = value.trim()
-      }
-    } else {
-      contentStartIndex = i
-      break
-    }
-  }
-
-  let snippet = lines.slice(contentStartIndex).join("\n")
-  return { metadata, snippet }
-}
-
-let snippetChoices = []
-for await (let s of snippetPaths) {
-  let contents = await readFile(s, "utf8")
-  let { metadata, snippet } = getSnippet(contents)
-  let formattedSnippet = escapeHTML(snippet)
-
-  snippetChoices.push({
-    name: metadata?.name || s,
-    tag: metadata?.snippet || "",
-    description: s,
-    value: snippet.trim(),
-    preview: `<div class="p-4">${formattedSnippet}</div>`,
-  })
-}
 
 // TODO: Check "exclude" metadata isn't filtering out snippets
 let snippet = await arg(
@@ -128,7 +74,7 @@ let snippet = await arg(
     name: "No snippets found...",
     miss: true,
     nameClassName: "text-primary",
-  })
+  } as Script)
 )
 
 snippet = snippet.replaceAll("\\$", "$")

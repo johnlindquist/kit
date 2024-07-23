@@ -1521,7 +1521,7 @@ let groupScripts = (scripts) => {
 			? process?.env?.KIT_MAIN_ORDER?.split(",")
 					.filter(Boolean)
 					.map((s) => s.trim())
-			: ["Favorite", "Main", "Scriptlets", "Apps"],
+			: ["Favorite", "Main", "Scriptlets", "Snippets", "Apps"],
 		endOrder: process?.env?.KIT_MAIN_END_ORDER
 			? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(Boolean)
 			: ["Pass"],

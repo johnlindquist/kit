@@ -1902,10 +1902,68 @@ export let parseScriptletsFromPath = async (
 	return allScriptlets
 }
 
+export let getSnippet = (
+	contents: string
+): {
+	metadata: Record<string, string>
+	snippet: string
+} => {
+	let lines = contents.split("\n")
+	let metadata = {}
+	let contentStartIndex = lines.length
+
+	for (let i = 0; i < lines.length; i++) {
+		let line = lines[i]
+		let match = line.match(/(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/)
+
+		if (match) {
+			let [, key, value] = match
+			if (value) {
+				metadata[key.trim().toLowerCase()] = value.trim()
+			}
+		} else {
+			contentStartIndex = i
+			break
+		}
+	}
+	let snippet = lines.slice(contentStartIndex).join("\n")
+	return { metadata, snippet }
+}
+
+export let parseSnippets = async (): Promise<Script[]> => {
+	let snippetPaths = await globby([
+		kenvPath("snippets", "**", "*.txt").replaceAll("\\", "/"),
+		kenvPath("kenvs", "*", "snippets", "**", "*.txt").replaceAll("\\", "/")
+	])
+
+	let snippetChoices = []
+	for await (let s of snippetPaths) {
+		let contents = await readFile(s, "utf8")
+		let { metadata, snippet } = getSnippet(contents)
+		let formattedSnippet = escapeHTML(snippet)
+
+		snippetChoices.push({
+			filePath: s,
+			name: metadata?.name || s,
+			tag: metadata?.snippet || "",
+			description: s,
+			snippet: snippet.trim(),
+			value: snippet.trim(),
+			preview: `<div class="p-4">${formattedSnippet}</div>`,
+			group: "Snippets",
+			kenv: getKenvFromPath(s)
+		})
+	}
+
+	return snippetChoices
+}
+
 export let parseScriptlets = async (): Promise<Script[]> => {
-	let scriptletsPaths = await globby(kenvPath("scriptlets", "*.md"))
+	let scriptletsPaths = await globby(
+		kenvPath("scriptlets", "*.md").replace(/\\/g, "/")
+	)
 	let nestedScriptletPaths = await globby(
-		kenvPath("kenvs", "*", "scriptlets", "*.md")
+		kenvPath("kenvs", "*", "scriptlets", "*.md").replace(/\\/g, "/")
 	)
 
 	let allScriptletsPaths = scriptletsPaths.concat(nestedScriptletPaths)
@@ -1941,6 +1999,6 @@ export let getKenvFromPath = (filePath: string): string => {
 	}
 
 	let parts = relativePath.split(path.sep)
-	let kenvIndex = parts.indexOf('kenvs')
+	let kenvIndex = parts.indexOf("kenvs")
 	return kenvIndex !== -1 && parts[kenvIndex + 1] ? parts[kenvIndex + 1] : ""
 }
