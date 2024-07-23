@@ -42,6 +42,7 @@ jobs:
       - name: npm run test
         shell: bash
         run: |
+          npm run build-kit
           npm run test
         env:
           KIT: ${{ env.kit_path }}
