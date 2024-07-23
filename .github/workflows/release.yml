@@ -11,6 +11,71 @@ on:
       - "*"
 
 jobs:
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout kit
+        uses: actions/checkout@master
+
+      - name: Install Node
+        shell: bash
+        run: |
+          mkdir -p ./.knode
+          ./build/install-node.sh -v 20.15.1 -P ./.knode -y
+
+      - name: Build Kit
+        shell: bash
+        run: |
+          PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
+          PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
+
+      - name: Set env vars
+        shell: bash
+        run: |
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "knode_path=$PWD/.knode" >> $GITHUB_ENV
+          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
+
+      - name: Add node and kit to PATH
+        shell: bash
+        run: |
+          echo "${{ env.knode_path }}/bin" >> $GITHUB_PATH
+          echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
+          echo "---"
+          echo "$GITHUB_PATH"
+          echo "$PATH"
+
+      - name: Check node $PATH version
+        shell: bash
+        run: |
+          node --version
+          npm --version
+
+      - name: Log ./.kit
+        shell: bash
+        run: |
+          ls ./.kit/*/*
+
+      - name: npm i
+        shell: bash
+        run: |
+          cd "${{ env.wd_path }}"
+          npm i
+
+      - name: npm run ava
+        shell: bash
+        run: |
+          npm run ava
+
+      - name: npm run test
+        shell: bash
+        run: |
+          npm run test
+        env:
+          KIT: ${{ env.kit_path }}
+          KNODE: ${{ env.knode_path }}
+
   release:
     runs-on: ${{ matrix.os }}
 
