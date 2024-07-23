@@ -1,6 +1,6 @@
 import path from "node:path"
 import { rimraf } from "rimraf"
-import { homedir, platform } from "node:os"
+import { platform } from "node:os"
 import { existsSync } from "node:fs"
 
 let isCI = process.env.CI === "true"
@@ -24,15 +24,6 @@ if (isCI) {
 			)
 			await rimraf(kitPath("bin", binFileToRemove))
 
-			let kitBatPath = kitPath("bin", "kit.bat")
-			let kitBinPath = kitPath("bin", "kit")
-
-			if (existsSync(kitBatPath)) {
-				console.log(`Renaming ${kitBatPath} to ${kitBinPath}`)
-				await fs.promises.rename(kitBatPath, kitBinPath)
-			} else {
-				console.log(`${kitBatPath} does not exist. Skipping rename...`)
-			}
 		} else {
 			console.log(`${binFilePathToRemove} does not exist. Skipping...`)
 		}
