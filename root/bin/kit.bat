@@ -4,6 +4,7 @@ setlocal
 
 REM Get the parent directory of the script file
 set "KIT=%~dp0.."
+set "KIT_TARGET=terminal"
 
 REM Check if the script file is in the "node_modules" directory
 echo %~dp0 | findstr /C:"node_modules" >nul

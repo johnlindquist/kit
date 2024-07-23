@@ -1,20 +1,34 @@
 import ava from "ava"
-import os from "os"
+import os from "node:os"
 import fs from "fs-extra"
 import "../../test-sdk/config.js"
 import dotenv from "dotenv"
+import { pathToFileURL } from "node:url"
+
+let importKit = async (...parts) => {
+  let partsPath = path.resolve(process.env.KIT, ...parts)
+  return await import(pathToFileURL(partsPath).href)
+}
 
 /** @type {import("./utils")} */
-let { resolveToScriptPath } = await import(
-  kitPath("core", "utils.js")
-)
+await importKit("core", "utils.js")
 
 ava.serial(`testing "run" is global`, async t => {
-  let otherScript = `mock-other-script`
-  let mainScript = `mock-main-run-script`
+  let otherScript = "mock-other-script"
+  let mainScript = "mock-main-run-script"
 
-  await $`KIT_MODE=js kit new ${otherScript} main --no-edit`
-  await $`KIT_MODE=js kit new ${mainScript} main --no-edit`
+  await exec(`kit new ${otherScript} main --no-edit`, {
+    env: {
+      ...process.env,
+      KIT_MODE: "js"
+    }
+  })
+  await exec(`kit new ${mainScript} main --no-edit`, {
+    env: {
+      ...process.env,
+      KIT_MODE: "js"
+    }
+  })
 
   await appendFile(
     kenvPath("scripts", `${mainScript}.js`),
@@ -23,16 +37,25 @@ ava.serial(`testing "run" is global`, async t => {
     `
   )
 
-  let { stdout, stderr } = await $`${kenvPath(
+  if (process.platform === "win32") {
+    mainScript += ".cmd"
+  }
+
+  let { stdout, stderr } = await exec(`${kenvPath(
     "bin",
     mainScript
-  )}`
+  )}`)
+
+  t.log({
+    stdout,
+    stderr
+  })
 
   t.is(stderr, "")
 })
 
-ava.serial(`tmpPath generates a tmp path`, async t => {
-  let script = `mock-tmp-path`
+ava.serial("tmpPath generates a tmp path", async t => {
+  let script = "mock-tmp-path"
   let file = "taco.txt"
 
   let { stdout, stderr } = await testScript(
@@ -43,9 +66,12 @@ ava.serial(`tmpPath generates a tmp path`, async t => {
   )
 
   t.true(await pathExists(kenvPath("tmp", script)))
+  let result = pathToFileURL(stdout.trim()).href
+  let testTmpPath = pathToFileURL(path.resolve(os.tmpdir(), "kit", script, file)).href
+  t.log({result, testTmpPath})
   t.is(
-    stdout.trim(),
-    path.resolve(os.tmpdir(), "kit", script, file)
+    result,
+    testTmpPath
   )
   t.is(stderr, "")
 })
@@ -55,9 +81,8 @@ ava.serial(
   async t => {
     const key = "KIT_TEST_ENV_VAR"
     const value = "hello"
-    const { setEnvVar } = await import(
-      kitPath("api", "kit.js")
-    )
+    
+    const { setEnvVar } = await importKit("api", "kit.js")
     await setEnvVar(key, value)
 
     let kenvEnvPath = kenvPath(".env")
@@ -76,9 +101,8 @@ ava.serial(
     let fallback = "default"
     let expectedValue = "hello"
 
-    // Assuming setEnvVar works as expected, we set an environment variable first
-    let { setEnvVar, getEnvVar } = await import(
-      kitPath("api", "kit.js")
+    let { setEnvVar, getEnvVar } = await importKit(
+      "api", "kit.js"
     )
     await setEnvVar(key, expectedValue)
 
@@ -96,10 +120,7 @@ ava.serial(
     let key = "NON_EXISTENT_ENV_VAR"
     let fallback = "default"
 
-    // We attempt to retrieve a non-existent environment variable
-    let { getEnvVar } = await import(
-      kitPath("api", "kit.js")
-    )
+    let { getEnvVar } = await importKit("api", "kit.js")
     let value = await getEnvVar(key, fallback)
 
     // Check if the fallback value is returned
@@ -116,8 +137,10 @@ ava.serial(
     // Import the methods
 
     /** @type {import("./kit.js")} */
+    let result = await importKit("api", "kit.js")
+
     let { setEnvVar, toggleEnvVar, getEnvVar } =
-      await import(kitPath("api", "kit.js"))
+      await importKit("api", "kit.js")
 
     // Set the environment variable to the default value
     await setEnvVar(key, defaultValue)

@@ -908,6 +908,12 @@ export let trashScriptBin = async (script: Script) => {
 	let { name, dir } = path.parse(filePath)
 	let commandBinPath = path.resolve(path.dirname(dir), "bin", name)
 
+	if (process.platform === "win32") {
+		if (!commandBinPath.endsWith(".cmd")) {
+			commandBinPath += ".cmd"
+		}
+	}
+
 	if (binJS) {
 		let binPath = jsh
 			? kenvPath("node_modules", ".bin", command)

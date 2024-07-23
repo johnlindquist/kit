@@ -1,11 +1,6 @@
 import ava from "ava"
-import fs from "fs"
 import "../../test-sdk/config.js"
-
-/** @type {import("./utils")} */
-let { resolveToScriptPath } = await import(
-  kitPath("core", "utils.js")
-)
+import { pathToFileURL } from "node:url"
 
 ava.serial(
   `env should work with different params`,
@@ -16,14 +11,19 @@ ava.serial(
     `
     let type = "js"
 
-    await $`KIT_MODE=${type} kit new ${name} main --no-edit`
+    await exec(`kit new ${name} main --no-edit`, {
+      env: {
+        ...process.env,
+        KIT_MODE: type
+      }
+    })
 
     await appendFile(
       kenvPath("scripts", `${name}.js`),
       content
     )
 
-    let p = $`${kenvPath("bin", name)}`
+    let p = exec(`${kenvPath("bin", name)}`)
 
     p.stdin.write("Some value\n")
 
@@ -36,10 +36,10 @@ ava.serial(
 ava.serial(`All globals exist`, async t => {
   // TODO: Make platform independent...
   /** @type {import("../platform/darwin")} */
-  await import(kitPath("platform", "darwin.js"))
-  await import(kitPath("target", "app.js"))
-  await import(kitPath("api", "pro.js"))
-  await import(kitPath("index.js"))
+  await import(pathToFileURL(kitPath("platform", "darwin.js")).href)
+  await import(pathToFileURL(kitPath("target", "app.js")).href)
+  await import(pathToFileURL(kitPath("api", "pro.js")).href)
+  await import(pathToFileURL(kitPath("index.js")).href)
 
   let files = await readdir(kitPath("types"))
   let content = ``

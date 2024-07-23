@@ -1,6 +1,7 @@
 import { globby } from "globby"
 import { Channel } from "../../core/enum.js"
-import fs from "fs"
+import fs from "node:fs"
+import { rimraf } from "rimraf"
 
 export interface Options {
   readonly glob?: boolean
@@ -15,7 +16,7 @@ export default async function trash(
 
   // Use globby to match files if glob option is enabled
   const pathsToTrash = options.glob
-    ? await globby(inputs)
+    ? await globby(inputs.map((input) => input.replace(/\\/g, "/")))
     : inputs
 
   if (process.env.KIT_CONTEXT === "app") {
@@ -33,7 +34,7 @@ export default async function trash(
     // Check if the path is a directory or a file
     if (stats.isDirectory()) {
       // Delete directory and its content
-      await fs.promises.rm(item, { recursive: true })
+      await rimraf(item)
     } else {
       // Delete file
       await fs.promises.unlink(item)

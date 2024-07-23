@@ -1,5 +1,6 @@
-import path from "path"
-import os from "os"
+import path from "node:path"
+import os from "node:os"
+import { pathToFileURL } from "node:url"
 
 process.env.KIT =
   process.env.KIT || path.resolve(os.homedir(), ".kit")
@@ -7,8 +8,10 @@ process.env.KIT =
 process.env.KNODE =
   process.env.KNODE || path.resolve(os.homedir(), ".knode")
 
-let importKit = async (...parts) =>
-  await import(path.resolve(process.env.KIT, ...parts))
+let importKit = async (...parts) => {
+  let partsPath = path.resolve(process.env.KIT, ...parts)
+  await import(pathToFileURL(partsPath).href)
+}
 
 await importKit("api/global.js")
 await importKit("api/kit.js")
@@ -34,11 +37,11 @@ process.env.KENV = kenvTestPath
 /** @type {import("../src/core/utils.js")} */
 let { KIT_APP, KIT_APP_PROMPT, KIT_FIRST_PATH } =
   await import(
-    path.resolve(`${process.env.KIT}`, "core", "utils.js")
+    pathToFileURL(path.resolve(`${process.env.KIT}`, "core", "utils.js")).href
   )
 /** @type {import("../src/core/enum.js")} */
 let { Channel } = await import(
-  path.resolve(`${process.env.KIT}`, "core", "enum.js")
+  pathToFileURL(path.resolve(`${process.env.KIT}`, "core", "enum.js")).href
 )
 
 process.env.PATH = KIT_FIRST_PATH
@@ -54,15 +57,20 @@ global.kitMockPath = kitMockPath
 global.execOptions = execOptions
 
 let testScript = async (name, content, type = "js") => {
-  await $`KIT_MODE=${type} kit new ${name} main --no-edit`
+  await exec(`kit new ${name} main --no-edit`, {
+    env: {
+      ...process.env,
+      KIT_MODE: type,
+    },
+  })
 
   let scriptPath = kenvPath("scripts", `${name}.js`)
   await appendFile(scriptPath, content)
 
-  let { stdout, stderr } = await $`${kenvPath(
+  let { stdout, stderr } = await exec(`${kenvPath(
     "bin",
     name
-  )} --trust`
+  )} --trust`)
 
   return { stdout, stderr, scriptPath }
 }

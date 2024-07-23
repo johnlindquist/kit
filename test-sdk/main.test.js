@@ -1,6 +1,7 @@
 import ava from "ava"
 import slugify from "slugify"
 import { Channel, KIT_APP_PROMPT } from "./config.js"
+import { pathToFileURL } from "url"
 
 process.env.NODE_NO_WARNINGS = 1
 
@@ -15,7 +16,7 @@ ava.serial("app-prompt.js", async (t) => {
 	let contents = `
     await arg("${placeholder}")
     `
-	await $`kit new ${script} main --no-edit`
+	await exec(`kit new ${script} main --no-edit`)
 	await writeFile(scriptPath, contents)
 
 	t.log("Starting app-prompt.js...")
@@ -83,10 +84,10 @@ ava.serial("kit setup", async (t) => {
 
 ava("TypeScript support", async (t) => {
 	let tsScript = "mock-typescript-script"
-	await $`kit set-env-var KIT_MODE ts`
+	await exec(`kit set-env-var KIT_MODE ts`)
 	await wait(100)
 
-	await $`kit new ${tsScript} main --no-edit`
+	await exec(`kit new ${tsScript} main --no-edit`)
 
 	let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
 
@@ -105,7 +106,7 @@ console.log(await arg())`
 	)
 
 	let message = "success"
-	let { stdout, stderr } = await $`kit ${tsScript} ${message}`
+	let { stdout, stderr } = await exec(`kit ${tsScript} ${message}`)
 
 	t.is(stderr, "")
 
@@ -129,8 +130,8 @@ console.log(await arg())`
 
 ava("TypeScript import from lib", async (t) => {
 	let tsScript = "mock-typescript-script-load-lib"
-	await $`kit set-env-var KIT_MODE ts`
-	await $`kit new ${tsScript} main --no-edit`
+	await exec(`kit set-env-var KIT_MODE ts`)
+	await exec(`kit new ${tsScript} main --no-edit`)
 
 	let tsScriptPath = kenvPath("scripts", `${tsScript}.ts`)
 
@@ -159,7 +160,7 @@ console.log(await go())`
 	)
 
 	let message = "success"
-	let { stdout, stderr } = await $`kit ${tsScript} ${message}`
+	let { stdout, stderr } = await exec(`kit ${tsScript} ${message}`)
 
 	t.is(stderr, "")
 
@@ -172,7 +173,12 @@ console.log(await go())`
 
 ava.serial("JavaScript support", async (t) => {
 	let script = "mock-javascript-script"
-	await $`KIT_MODE=js kit new ${script} main --no-edit`
+	await exec(`kit new ${script} main --no-edit`, {
+		env: {
+			...process.env,
+			KIT_MODE: "js"
+		}
+	})
 
 	let scriptPath = kenvPath("scripts", `${script}.js`)
 
@@ -199,10 +205,19 @@ ava.serial("kit new, run, and rm", async (t) => {
 `
 
 	let { stdout, stderr } =
-		await $`KIT_MODE=js kit new ${command} main --no-edit`
+		await exec(`kit new ${command} main --no-edit`, {
+			env: {
+				...process.env,
+				KIT_MODE: "js"
+			}
+		})
 
 	let scriptPath = kenvPath("scripts", `${command}.js`)
 	let binPath = kenvPath("bin", `${command}`)
+
+	if (process.platform === "win32") {
+		binPath += ".cmd"
+	}
 
 	t.true(stderr === "", "kit new errored out")
 	t.true(test("-f", scriptPath), "script created")
@@ -211,14 +226,18 @@ ava.serial("kit new, run, and rm", async (t) => {
 	t.true(test("-f", binPath), "bin created")
 
 	let message = "success"
-	;({ stdout, stderr } = await $`${kenvPath("bin", command)} ${message}`)
+		;({ stdout, stderr } = await exec(`${binPath} ${message}`))
 
 	t.true(stdout.includes(message), `stdout includes ${message}`)
 
-	await $`kit rm ${command} --confirm`
+	let { stdout: rmStdout, stderr: rmStderr } = await exec(`kit rm ${command} --confirm`)
 
-	let fileRmed = !test("-f", scriptPath)
-	let binRmed = !test("-f", binPath)
+	let scripts = await readdir(kenvPath("scripts"))
+	let bins = await readdir(kenvPath("bin"))
+	t.log({scripts, bins, rmStdout, rmStderr})
+
+	let fileRmed = !(scripts.includes(command))
+	let binRmed = !(await isFile(binPath))
 
 	t.true(fileRmed)
 	t.true(binRmed)
@@ -229,11 +248,11 @@ ava.serial("kit hook", async (t) => {
 	let contents = `
   export let value = await arg()
   `
-	await $`kit new ${script} main --no-edit`
+	await exec(`kit new ${script} main --no-edit`)
 	await writeFile(kenvPath("scripts", `${script}.js`), contents)
 
 	let message = "hello"
-	await import(kitPath("index.js"))
+	await import(pathToFileURL(kitPath("index.js")).href)
 	let result = await kit(`${script} ${message}`)
 	t.is(result.value, message)
 })
@@ -241,10 +260,12 @@ ava.serial("kit hook", async (t) => {
 ava.serial("kit script-output-hello", async (t) => {
 	let script = "mock-script-output-hello"
 	let contents = "console.log(await arg())"
-	await $`kit new ${script} main --no-edit`
+	await exec(`kit new ${script} main --no-edit`)
 	await writeFile(kenvPath("scripts", `${script}.js`), contents)
 
-	let { stdout } = await $`kit ${script} "hello"`
+	let { stdout } = await exec(`kit ${script} "hello"`)
+
+	t.log({stdout})
 
 	t.true(stdout.includes("hello"))
 })
@@ -256,23 +277,43 @@ ava.serial("kit script in random dir", async (t) => {
 	let scriptPath = path.resolve(someRandomDir, `${script}.js`)
 	await outputFile(scriptPath, contents)
 
-	let { stdout, stderr } = await $`kit ${scriptPath} "hello"`
-	// t.log({ stdout, stderr, scriptPath })
+	try {
+		let command = `kit "${scriptPath}" "hello"`
+		let { stdout, stderr } = await exec(command)
+		t.log({ stdout, stderr, scriptPath, contents, command })
 
-	t.true(stdout.includes("hello"))
+		t.true(stdout.includes("hello"), "Expected 'hello' in stdout")
+	} catch (error) {
+		t.log({ error: error.message, scriptPath, contents })
+		t.fail(`Error executing script: ${error.message}`)
+	}
+
+	// Verify the file contents
+	let actualContents = await readFile(scriptPath, 'utf-8')
+	t.is(actualContents, contents, "Script file contents should match")
 })
 
 ava.serial("Run both JS and TS scripts", async (t) => {
 	let jsCommand = "mock-js-script"
 	let tsCommand = "mock-ts-script"
 
-	await $`KIT_MODE=js kit new ${jsCommand} main --no-edit`
-	await $`KIT_MODE=ts kit new ${tsCommand} main --no-edit`
+	await exec(`kit new ${jsCommand} main --no-edit`, {
+		env: {
+			...process.env,
+			KIT_MODE: "js"
+		}
+	})
+	await exec(`kit new ${tsCommand} main --no-edit`, {
+		env: {
+			...process.env,
+			KIT_MODE: "ts"
+		}
+	})
 
-	process.env.PATH = `${kenvPath("bin")}:${process.env.PATH}`
+	process.env.PATH = `${kenvPath("bin")}${path.delimiter}${process.env.PATH}`
 
-	let { stderr: jsErr } = await $`${jsCommand}`
-	let { stderr: tsErr } = await $`${tsCommand}`
+	let { stderr: jsErr } = await exec(`${jsCommand}`)
+	let { stderr: tsErr } = await exec(`${tsCommand}`)
 
 	t.is(jsErr, "")
 	t.is(tsErr, "")
@@ -281,7 +322,12 @@ ava.serial("Run both JS and TS scripts", async (t) => {
 ava.serial("Run kit from package.json", async (t) => {
 	let command = "mock-pkg-json-script"
 	let scriptPath = kenvPath("scripts", `${command}.js`)
-	await $`KIT_MODE=js kit new ${command} main --no-edit`
+	await exec(`kit new ${command} main --no-edit`, {
+		env: {
+			...process.env,
+			KIT_MODE: "js"
+		}
+	})
 
 	await appendFile(
 		scriptPath,
@@ -307,7 +353,7 @@ console.log(value)
 	t.log(pkgJson)
 
 	cd(kenvPath())
-	let { stdout, stderr } = await $`npm run ${npmScript}`
+	let { stdout, stderr } = await exec(`npm run ${npmScript}`)
 
 	t.is(stderr, "")
 	t.regex(stdout, new RegExp(`${message}`))
@@ -318,7 +364,12 @@ ava.serial(
 	async (t) => {
 		let command = "mock-boolean-flag-values-pass-hello-instead-of-one-and-two"
 		let scriptPath = kenvPath("scripts", `${command}.js`)
-		await $`KIT_MODE=js kit new ${command} main --no-edit`
+		await exec(`kit new ${command} main --no-edit`, {
+			env: {
+				...process.env,
+				KIT_MODE: "js"
+			}
+		})
 
 		let success = "success"
 		let fail = "fail"
@@ -336,7 +387,7 @@ if(flag.one === "one" && flag.two === "two"){
 		)
 
 		cd(kenvPath())
-		;({ stdout, stderr } = await $`kit ${command} hello`)
+		;({ stdout, stderr } = await exec(`kit ${command} hello`))
 
 		t.is(stderr, "")
 		t.regex(stdout, new RegExp(fail))
@@ -348,7 +399,12 @@ ava.serial(
 	async (t) => {
 		let command = "mock-boolean-flag-values-ones-and-twos-match"
 		let scriptPath = kenvPath("scripts", `${command}.js`)
-		await $`KIT_MODE=js kit new ${command} main --no-edit`
+		await exec(`kit new ${command} main --no-edit`, {
+			env: {
+				...process.env,
+				KIT_MODE: "js"
+			}
+		})
 
 		let success = "success"
 		let fail = "fail"
@@ -366,7 +422,7 @@ if(flag.one === "one" && flag.two === "two"){
 		)
 
 		cd(kenvPath())
-		let { stdout, stderr } = await $`kit ${command} hello --one one --two two`
+		let { stdout, stderr } = await exec(`kit ${command} hello --one one --two two`)
 
 		t.is(stderr, "")
 		t.regex(stdout, new RegExp(success))
@@ -378,7 +434,12 @@ ava.serial(
 	async (t) => {
 		let command = "mock-boolean-flag-values-ones-match-twos-mismatch"
 		let scriptPath = kenvPath("scripts", `${command}.js`)
-		await $`KIT_MODE=js kit new ${command} main --no-edit`
+		await exec(`kit new ${command} main --no-edit`, {
+			env: {
+				...process.env,
+				KIT_MODE: "js"
+			}
+		})
 
 		let success = "success"
 		let fail = "fail"
@@ -396,7 +457,7 @@ if(flag.one === "one" && flag.two === "two"){
 		)
 
 		cd(kenvPath())
-		;({ stdout, stderr } = await $`kit ${command} hello --one one --two three`)
+		;({ stdout, stderr } = await exec(`kit ${command} hello --one one --two three`))
 
 		t.is(stderr, "")
 		t.regex(stdout, new RegExp(fail))
@@ -406,25 +467,26 @@ if(flag.one === "one" && flag.two === "two"){
 ava.serial("Run a scriptlet from a .md file", async (t) => {
 	let scriptlet = "mock-scriptlet-from-md-file"
 	let scriptletPath = kenvPath("scriptlets", `${scriptlet}.md`)
-	let testFilePath = kenvPath("test.md")
 	let testFilePathContents = "Success!"
 	let scriptletName = "Test Scriptlet"
 	let scriptletNameSlug = slugify(scriptletName)
 	await ensureDir(kenvPath("scriptlets"))
 
+	let content = `
+## ${scriptletName}
+	
+\`\`\`ts
+await writeFile(kenvPath("test.md"), "${testFilePathContents}")
+\`\`\`
+`.trim()
+
 	await writeFile(
 		scriptletPath,
-		`
-## ${scriptletName}
-
-\`\`\`ts
-await writeFile("${testFilePath}", "${testFilePathContents}")
-\`\`\`
-  `
+		content
 	)
-	await $`kit ${scriptletPath}#${scriptletNameSlug}`
-
-	let testFilePathFinalContents = await readFile(testFilePath, "utf8")
+	let { stdout, stderr } = await exec(`kit "${scriptletPath}#${scriptletNameSlug}"`)
+	t.log({ stdout, stderr, content })
+	let testFilePathFinalContents = await readFile(kenvPath("test.md"), "utf8")
 	t.is(testFilePathFinalContents, testFilePathContents)
 })
 

@@ -1,10 +1,11 @@
 import ava from "ava"
-import os from "os"
+import os from "node:os"
 import "../../test-sdk/config.js"
+import { pathToFileURL } from "node:url"
 
 /** @type {import("../core/utils")} */
 let { isFile, KIT_FIRST_PATH } = await import(
-  kitPath("core", "utils.js")
+  pathToFileURL(kitPath("core", "utils.js")).href
 )
 
 let KIT = kitPath()
@@ -37,9 +38,11 @@ ava.before(`Run setup script`, t => {
 })
 
 ava.serial("env was created", async t => {
-  let checkEnv = await isFile(kenvSetupMockPath(".env"))
+  let envPath = kenvSetupMockPath(".env")
+  t.log({envPath})
+  let checkEnv = await isFile(envPath)
   let contents = await readFile(
-    kenvSetupMockPath(".env"),
+    envPath,
     "utf-8"
   )
 
@@ -72,8 +75,13 @@ ava.serial("kenv degit", async t => {
 })
 
 ava.serial("chmod", async t => {
-  let { access } = await import("fs/promises")
-  let { constants } = await import("fs")
+  if (process.platform === 'win32') {
+    t.pass('Skipping chmod test on Windows');
+    return;
+  }
+
+  let { access } = await import("node:fs/promises")
+  let { constants } = await import("node:fs")
 
   let bins = [
     "scripts",
@@ -87,7 +95,7 @@ ava.serial("chmod", async t => {
     let binPath = kitPath(...b.split(" "))
     t.log(binPath)
     let result = await access(binPath, constants.X_OK)
-    t.true(isUndefined(result), `bins can be executed`)
+    t.true(isUndefined(result), "bins can be executed")
   }
 })
 

@@ -1,5 +1,13 @@
 import ava from "ava"
 import "../../test-sdk/config.js"
+import { pathToFileURL } from "node:url"
+
+let importKit = async (...parts) => {
+  let partsPath = path.resolve(process.env.KIT, ...parts)
+  let importPath = pathToFileURL(partsPath).href
+  console.log({importPath})
+  return await import(importPath)
+}
 
 /** @type {import("./utils")} */
 let {
@@ -7,12 +15,10 @@ let {
   parseMetadata,
   postprocessMetadata,
   stripMetadata,
-} = await import(kitPath("core", "utils.js"))
+} = await importKit("core", "utils.js")
 
 /** @type {import("./enum.js")} */
-let { ProcessType, UI } = await import(
-  kitPath("core", "enum.js")
-)
+let { ProcessType, UI } = await importKit("core", "enum.js")
 
 ava.serial(`Get metadata from a string`, t => {
   let name = `Eat a Taco`
@@ -258,7 +264,13 @@ ava.serial(
       await unlink(scriptPath)
     }
 
-    await $`KIT_MODE=ts KIT_METADATA_MODE=convention kit new ${name} main --no-edit`
+    await exec(`kit new ${name} main --no-edit`, {
+      env: {
+        ...process.env,
+        KIT_MODE: "ts",
+        KIT_METADATA_MODE: "convention"
+      }
+    })
 
     t.log(`Getting script path and testing`)
 

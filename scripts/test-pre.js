@@ -1,29 +1,44 @@
 /** @type {import("/Users/johnlindquist/.kit")} */
-await import("../test-sdk/config.js")
+
+import { pathToFileURL } from 'node:url'
+import { rimraf } from 'rimraf'
+
+async function importRelativePath(relativePath) {
+  const path = await import("node:path")
+  const { fileURLToPath, pathToFileURL } = await import("node:url")
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const absolutePath = path.join(__dirname, relativePath);
+  const fileURL = pathToFileURL(absolutePath).href;
+  return import(fileURL);
+}
+
+await importRelativePath("../test-sdk/config.js");
 console.log({ kenvTestPath })
 
 let escapePathPeriods = p => p.replace(/\./g, "\\.")
 
 let userKenv = (...parts) => {
-  return home(".kenv", ...parts.filter(Boolean))
+  return pathToFileURL(home(".kenv", ...parts.filter(Boolean))).href
 }
 let userBinPath = userKenv("bin")
 if (await isDir(userBinPath)) {
   let staleMocks = userKenv("bin", "mock*")
   console.log(`Removing stale mocks: ${staleMocks}`)
-  await rm(escapePathPeriods(staleMocks))
+  await rimraf(escapePathPeriods(staleMocks))
 }
 
 if (await isDir("-d", kitMockPath())) {
-  await rm(escapePathPeriods(kitMockPath()))
+  await rimraf(escapePathPeriods(kitMockPath()))
 }
 
 if (await isDir(kenvTestPath)) {
   console.log(`Clearing ${kenvTestPath}`)
-  await rm(escapePathPeriods(kenvTestPath))
+  await rimraf(escapePathPeriods(kenvTestPath))
 }
+
 let { stdout: branch, stderr } =
-  await $`git branch --show-current`
+  await exec("git branch --show-current")
 
 if (stderr || !branch.match(/main|beta|alpha|next/)) exit(1)
 
@@ -43,11 +58,11 @@ await degit(repo, {
 }).clone(kenvSetupPath)
 
 process.env.KENV = kenvTestPath
-await rm(escapePathPeriods(kitPath("db", "scripts.json")))
-await $`kit ${kitPath("setup", "setup.js")} --no-edit`
+await rimraf(escapePathPeriods(kitPath("db", "scripts.json")))
+await exec(`kit "${kitPath("setup", "setup.js")}" --no-edit`)
 // console.log(
 //   await readFile(kenvPath("package.json"), "utf-8")
 // )
-await $`kit ${kitPath("cli", "refresh-scripts-db.js")}`
+await exec(`kit "${kitPath("cli", "refresh-scripts-db.js")}"`)
 
 export {}

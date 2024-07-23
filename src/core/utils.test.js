@@ -1,11 +1,12 @@
 import ava from "ava"
 import "../../test-sdk/config.js"
+import { pathToFileURL } from "node:url"
 
 console.log(`KENV ${process.env.KENV}`)
 
 /** @type {import("./utils")} */
 let { resolveToScriptPath, run } = await import(
-  kitPath("core", "utils.js")
+  pathToFileURL(kitPath("core", "utils.js")).href
 )
 
 let testingFindMe = `testing-find-me`
@@ -21,7 +22,12 @@ let mockMjsFile = kitMockPath(
 let prevCwd = cwd()
 
 ava.before(async () => {
-  await $`KIT_MODE=js kit new ${testingFindMe} main --no-edit`
+  await exec(`kit new ${testingFindMe} main --no-edit`, {
+    env: {
+      ...process.env,
+      KIT_MODE: "js"
+    }
+  })
 })
 
 ava.serial("resolve full path", async t => {

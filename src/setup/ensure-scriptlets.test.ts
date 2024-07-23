@@ -3,12 +3,13 @@ import { readFile, rm } from "node:fs/promises"
 import { ensureDir } from "fs-extra"
 import { tmpPath } from "../api/kit"
 import { kenvPath, isFile } from "../core/utils"
+import { rimraf } from "rimraf"
 
 test("ensure-scriptlets creates a scriptlets.md in kenv if it doesn't exist", async (t) => {
 	const kenvMockPath = tmpPath(".kenv-mock")
 	process.env.KENV = kenvMockPath
 
-	await rm(kenvMockPath, { recursive: true, force: true })
+	await rimraf(kenvMockPath)
 
 	let mainMdPath = kenvPath("scriptlets", "scriptlets.md")
 	const before = await isFile(mainMdPath)

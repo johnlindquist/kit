@@ -1,26 +1,26 @@
-import path from "path"
-import { existsSync, lstatSync } from "fs"
+import path from "node:path"
+import { existsSync, lstatSync } from "node:fs"
 import { readFile, readJson } from "@johnlindquist/kit-internal/fs-extra"
-import * as os from "os"
-import { pathToFileURL } from "url"
+import * as os from "node:os"
+import { pathToFileURL } from "node:url"
 import * as JSONSafe from "safe-stable-stringify"
 import {
 	QuickScore,
 	quickScore,
 	createConfig,
-	Options,
-	ConfigOptions
+	type Options,
+	type ConfigOptions
 } from "quick-score"
 import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
 import {
-	Action,
-	Choice,
-	FlagsObject,
-	FlagsWithKeys,
-	PromptConfig,
-	ScoredChoice,
-	Script,
-	Scriptlet,
+	type Action,
+	type Choice,
+	type FlagsObject,
+	type FlagsWithKeys,
+	type PromptConfig,
+	type ScoredChoice,
+	type Script,
+	type Scriptlet,
 	Shortcut
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
@@ -45,16 +45,16 @@ import {
 	getScriptFromString,
 	getUserJson,
 	getTimestamps,
-	Stamp,
+	type Stamp,
 	setUserJson
 } from "../core/db.js"
 
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
-import { Kenv } from "../types/kit"
-import { Fields as TraceFields } from "chrome-trace-event"
+import type { Kenv } from "../types/kit"
+import type { Fields as TraceFields } from "chrome-trace-event"
 import dotenv from "dotenv"
-import { kenvEnv } from "../types/env"
+import type { kenvEnv } from "../types/env"
 
 export async function initTrace() {
 	if (
@@ -158,8 +158,8 @@ export let errorPrompt = async (error: Error) => {
 		global.warn(stackWithoutId)
 
 		let errorFile = global.kitScript
-		let line: string = "1"
-		let col: string = "1"
+		let line = "1"
+		let col = "1"
 
 		let secondLine = stackWithoutId.split("\n")?.[1] || ""
 
@@ -2080,7 +2080,7 @@ export let setEnvVar = async (key: string, value: string) => {
 	await global.cli("set-env-var", key, value)
 }
 
-export let getEnvVar = async (key: string, fallback: string = "") => {
+export let getEnvVar = async (key: string, fallback = "") => {
 	let kenvEnv = dotenv.parse(
 		await readFile(kenvPath(".env"), "utf8")
 	) as kenvEnv
