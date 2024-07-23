@@ -64,7 +64,7 @@ Path to this script: ${process.argv[1]}
 let extractNode = async (file) => {
 	// Install node-stream-zip if it's not already installed
 	if (!existsSync("node_modules/node-stream-zip")) {
-		await exec("npm i node-stream-zip")
+		await exec("npm i -D node-stream-zip")
 	}
 
 	let { default: StreamZip } = await import("node-stream-zip")
@@ -118,7 +118,7 @@ if (existsSync(kitPath())) {
 }
 await ensureDir(kitPath())
 
-let nodeExists = existsSync(knodePath("bin", "node"))
+let nodeExists = platform() === "win32" ? existsSync(knodePath("bin", "node.exe")) : existsSync(knodePath("bin", "node"))
 if (nodeExists) {
 	console.log(`Found node at ${knodePath("bin", "node")}`)
 	// Check node version
@@ -202,7 +202,7 @@ await dec
 
 console.log(`Install deps`)
 
-await exec(`${knodePath("bin", "npm")} i --production`, options)
+await exec(`${knodePath("bin", "npm")} i --omit-dev`, options)
 
 // console.log(`Install app deps`)
 // await exec(`${npm} i @johnlindquist/kitdeps@0.1.1`)
