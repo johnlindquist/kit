@@ -17,34 +17,10 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
-      - name: Install Node
-        shell: bash
-        run: |
-          mkdir -p ./.knode
-          ./build/install-node.sh -v 20.15.1 -P ./.knode -y
-
-      - name: Build Kit
-        shell: bash
-        run: |
-          PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
-          PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
-
-      - name: Set env vars
-        shell: bash
-        run: |
-          echo "wd_path=$PWD" >> $GITHUB_ENV
-          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
-          echo "knode_path=$PWD/.knode" >> $GITHUB_ENV
-          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
-
-      - name: Add node and kit to PATH
-        shell: bash
-        run: |
-          echo "${{ env.knode_path }}/bin" >> $GITHUB_PATH
-          echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
-          echo "---"
-          echo "$GITHUB_PATH"
-          echo "$PATH"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.15.1'
 
       - name: Check node $PATH version
         shell: bash
@@ -77,6 +53,7 @@ jobs:
           KNODE: ${{ env.knode_path }}
 
   release:
+    needs: test-windows
     runs-on: ${{ matrix.os }}
 
     strategy:
