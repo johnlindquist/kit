@@ -38,7 +38,8 @@ import {
 	parseScript,
 	processInBatches,
 	highlight,
-	md as mdUtil
+	md as mdUtil,
+	tagger
 } from "../core/utils.js"
 import {
 	getScripts,
@@ -1531,36 +1532,7 @@ let groupScripts = (scripts) => {
 			? parseInt(process.env.KIT_RECENT_LIMIT, 10)
 			: 3,
 		hideWithoutInput: ["Apps"],
-		tagger: (s: any) => {
-			if (!s.tag) {
-				s.tag = ``
-				if (s?.friendlyShortcut) {
-					s.tag = s.friendlyShortcut
-				}
-
-				if (s?.trigger) {
-					s.tag = `${s?.tag && ` ${s?.tag} `}trigger: ${s.trigger}`
-				}
-
-				if (s?.keyword) {
-					s.tag = `${s?.tag && ` ${s?.tag} `}keyword: ${s.keyword}`
-				}
-
-				if (s.snippet) {
-					s.tag = `${s?.tag && ` ${s?.tag} `}snippet ${s.snippet}`
-				}
-
-				if (typeof s?.pass === "string" && s?.pass !== "true") {
-					if (s?.pass?.startsWith("/")) {
-						s.tag = `${s?.tag && ` ${s?.tag} `}pattern: ${s.pass}`
-					} else {
-						s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${s.pass}`
-					}
-				}
-
-				s.tag = s.tag.trim()
-			}
-		}
+		tagger
 	})
 }
 

@@ -1348,8 +1348,9 @@ export let groupChoices = (choices: Choice[], options = {}) => {
 	}
 
 	// A group is a choice with a group key and "choices" array
-	let groups = []
-	let missingGroup
+	type Group = Choice & { name: string; group: string; choices: Choice[] }
+	let groups: Group[] = []
+	let missingGroup: Group | undefined
 
 	let recentGroup = {
 		// Initialize the Recent group
@@ -1358,7 +1359,7 @@ export let groupChoices = (choices: Choice[], options = {}) => {
 		name: "Recent",
 		value: "Recent",
 		choices: []
-	}
+	} as Group
 
 	let passGroup = {
 		skip: true,
@@ -1367,7 +1368,7 @@ export let groupChoices = (choices: Choice[], options = {}) => {
 		value: "Pass",
 		name: 'Pass "{input}" to...',
 		choices: []
-	}
+	} as Group
 
 	let putIntoGroups = (choice: Choice) => {
 		if (tagger) tagger(choice)
@@ -1381,10 +1382,10 @@ export let groupChoices = (choices: Choice[], options = {}) => {
 		if (choice?.pass) {
 			choice.group = "Pass"
 			if (!choice.previewPath) {
-				choice.preview = `<div></div>`
+				choice.preview = "<div></div>"
 			}
 			passGroup.choices.push(choice)
-		} else if (!Boolean(choice?.group) && !Boolean(choice?.[groupKey])) {
+		} else if (!choice?.group && !choice?.[groupKey]) {
 			choice.group = missingGroupName
 			if (missingGroup) {
 				missingGroup.choices.push(choice)
@@ -1400,13 +1401,13 @@ export let groupChoices = (choices: Choice[], options = {}) => {
 				groups.push(missingGroup)
 			}
 		} else {
-			let groupParent: { choices: Choice[] }
+			let groupParent: Group | undefined
 			if (choice?.group) {
 				groupParent = groups.find((g) => g?.group === choice?.group)
 			} else {
 				groupParent = groups.find((g) => g?.group === choice?.[groupKey])
 			}
-			let userGrouped = choice?.group ? true : false
+			let userGrouped = !!choice?.group
 			choice.group ||= choice[groupKey]
 			let group = choice.group
 
@@ -1447,18 +1448,18 @@ export let groupChoices = (choices: Choice[], options = {}) => {
 			return 0
 		})
 
-		let unrecentGroup
+		let unrecentChoices: Choice[]
 		if (recentGroup.choices.length > recentLimit) {
 			// If recentGroup.choices is longer than recentLimit
 			// split into recentGroup and unrecentGroup
-			unrecentGroup = recentGroup.choices.splice(
+			unrecentChoices = (recentGroup.choices as Choice[]).splice(
 				recentLimit,
 				recentGroup.choices.length - recentLimit
 			)
 		}
 
-		if (unrecentGroup) {
-			for (let unrecentChoice of unrecentGroup) {
+		if (unrecentChoices) {
+			for (let unrecentChoice of unrecentChoices) {
 				putIntoGroups(unrecentChoice)
 			}
 		}
@@ -1524,7 +1525,7 @@ export let groupChoices = (choices: Choice[], options = {}) => {
 			})
 		}
 
-		if (Boolean(g?.choices?.[0]?.preview)) {
+		if (g?.choices?.[0]?.preview) {
 			g.preview = g.choices[0].preview
 			g.hasPreview = true
 		}
@@ -1578,7 +1579,7 @@ export let formatChoices = (choices: Choice[], className = ""): Choice[] => {
 				slicedDescription: choice?.description?.slice(0, 63) || "",
 				value: choice?.value || choice,
 				nameClassName: choice?.info ? "text-primary" : "",
-				skip: choice?.info ? true : false,
+				skip: !!choice?.info,
 				className: choice?.className || choice?.choices ? "" : className,
 
 				...choice,
@@ -1649,7 +1650,9 @@ export let formatChoices = (choices: Choice[], className = ""): Choice[] => {
 
 			return groupedChoices
 		})
-	} else if (Boolean(choices)) {
+	}
+
+	if (choices) {
 		throw new Error(`Choices must be an array. Received ${typeof choices}`)
 	}
 }
@@ -1791,6 +1794,32 @@ export let highlight = async (
 </div>`
 
 	return result
+}
+
+export let tagger = (script: Script) => {
+	if (!script.tag) {
+		let tags = []
+
+		if (script.friendlyShortcut) {
+			tags.push(script.friendlyShortcut)
+		} else if (script.shortcut) {
+			tags.push(friendlyShortcut(shortcutNormalizer(script.shortcut)))
+		}
+
+		if (script.trigger) tags.push(`trigger: ${script.trigger}`)
+		if (script.keyword) tags.push(`keyword: ${script.keyword}`)
+		if (script.snippet) tags.push(`snippet ${script.snippet}`)
+
+		if (typeof script.pass === "string" && script.pass !== "true") {
+			tags.push(
+				script.pass.startsWith("/")
+					? `pattern: ${script.pass}`
+					: `postfix: ${script.pass}`
+			)
+		}
+
+		script.tag = tags.join(" ")
+	}
 }
 
 export let parseMarkdownAsScriptlets = async (

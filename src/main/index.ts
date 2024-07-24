@@ -280,6 +280,8 @@ const runScript = async (script: Script | string) => {
 	}
 
 	if (isSnippet(script)) {
+		send(Channel.STAMP_SCRIPT, script as Script)
+
 		return await run(
 			kitPath("app", "paste-snippet.js"),
 			"--filePath",
