@@ -1489,9 +1489,8 @@ async function getScriptResult(
 		(typeof message === "string" || message?.strict === true)
 	) {
 		return await getScriptFromString(script)
-	} else {
-		return script as Script //hmm...
 	}
+	return script as Script //hmm...
 }
 
 export let getApps = async () => {
@@ -1786,13 +1785,17 @@ export let selectScript = async (
 	ignoreKenvPattern = /^ignore$/
 ): Promise<Script> => {
 	let scripts: Script[] = xf(await getScripts(fromCache, ignoreKenvPattern))
+	let scriptsConfig = buildScriptConfig(message)
 
 	// let scraps = await parseScraps()
 	// let scriptsAndScraps = scripts.concat(scraps)
 
+	if (process.env.KIT_CONTEXT === "terminal") {
+		let script = await global.arg(scriptsConfig, scripts)
+		return await getScriptResult(script, message)
+	}
 	let groupedScripts = groupScripts(scripts)
 
-	let scriptsConfig = buildScriptConfig(message)
 	scriptsConfig.keepPreview = true
 
 	let script = await global.arg(scriptsConfig, groupedScripts)

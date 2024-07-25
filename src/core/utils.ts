@@ -510,8 +510,6 @@ function getMetadataFromExport(ast: Program): Partial<Metadata> {
 
 			if (isGlobalMetadata) {
 				return parseMetadataProperties(properties)
-			} else {
-				continue
 			}
 		}
 
@@ -1983,7 +1981,6 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
 			tag: metadata?.snippet || "",
 			description: s,
 			text: snippet.trim(),
-			value: snippet.trim(),
 			preview: `<div class="p-4">${formattedSnippet}</div>`,
 			group: "Snippets",
 			kenv: getKenvFromPath(s)
@@ -2036,4 +2033,12 @@ export let getKenvFromPath = (filePath: string): string => {
 	let parts = relativePath.split(path.sep)
 	let kenvIndex = parts.indexOf("kenvs")
 	return kenvIndex !== -1 && parts[kenvIndex + 1] ? parts[kenvIndex + 1] : ""
+}
+
+export let isScriptlet = (script: Script | Scriptlet): script is Scriptlet => {
+	return "scriptlet" in script
+}
+
+export let isSnippet = (script: Script): script is Snippet => {
+	return "text" in script
 }

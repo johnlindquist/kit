@@ -477,8 +477,10 @@ export interface Metadata {
 	 * immediately executes the script.
 	 */
 	trigger?: string
-	/** Designates the script as a text expansion snippet and specifies the trigger text. */
+	/** @deprecated Use `expand` instead. Designates the script as a text expansion snippet and specifies the trigger text. */
 	snippet?: string
+	/** Designates the script as a text expansion snippet and specifies the trigger text. */
+	expand?: string
 	/** Associates a keyword with the script for easier discovery in the main menu. */
 	keyword?: string
 	/** Indicates that user input in the main menu should be passed as an argument to the script. */

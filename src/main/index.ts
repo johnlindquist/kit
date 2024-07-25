@@ -7,7 +7,13 @@
 performance.measure("index", "run")
 
 import { Channel, Value } from "../core/enum.js"
-import { run, cmd, getMainScriptPath } from "../core/utils.js"
+import {
+	run,
+	cmd,
+	getMainScriptPath,
+	isScriptlet,
+	isSnippet
+} from "../core/utils.js"
 import type { Choice, Scriptlet, Script, Snippet } from "../types/core.js"
 import {
 	mainMenu,
@@ -275,10 +281,6 @@ const runScript = async (script: Script | string) => {
 		return await sendWait(Channel.SHEBANG, script)
 	}
 
-	const isSnippet = (script: Script): script is Snippet => {
-		return "text" in script
-	}
-
 	if (isSnippet(script)) {
 		send(Channel.STAMP_SCRIPT, script as Script)
 
@@ -287,10 +289,6 @@ const runScript = async (script: Script | string) => {
 			"--filePath",
 			script.filePath
 		)
-	}
-
-	const isScriptlet = (script: Script | Scriptlet): script is Scriptlet => {
-		return "scriptlet" in script
 	}
 
 	if (isScriptlet(script)) {
