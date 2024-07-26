@@ -1911,8 +1911,9 @@ ${await highlight(preview, "")}`)
 		scriptlet.preview = highlightedPreview
 		scriptlet.inputs =
 			scriptlet.scriptlet
-				.match(/{[a-zA-Z0-9 ]*?}/g)
+				.match(/(?<!import |export |\$|`\${|=\s*){[a-zA-Z0-9 ]*?}/g)
 				?.map((x: string) => x.slice(1, -1)) || []
+		tagger(scriptlet)
 	}
 
 	return scriptlets

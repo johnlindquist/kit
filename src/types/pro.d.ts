@@ -5,6 +5,12 @@ import { BrowserWindowConstructorOptions, Display, Rectangle } from "./electron"
 
 export type WidgetOptions = BrowserWindowConstructorOptions & {
 	state?: any
+
+	/**
+	 * Important: This property determines whether the widget can be dragged.
+	 * To enable dragging, ensure that the "draggable" class is added to any element
+	 * intended for dragging the widget. This is essential for user interaction.
+	 */
 	draggable?: boolean
 	unpkg?: string[]
 	title?: string
@@ -33,9 +39,7 @@ export interface WidgetMessage {
 	}
 }
 
-export interface WidgetHandler {
-	(data: WidgetMessage): void
-}
+export type WidgetHandler = (data: WidgetMessage) => void
 
 export interface WidgetAPI {
 	setState: (state: any) => void
@@ -45,6 +49,7 @@ export interface WidgetAPI {
 	setSize: (width: number, height: number) => void
 	setPosition: (x: number, y: number) => void
 	call: (name: string, ...args: any[]) => void
+	on: (event: string, handler: WidgetHandler) => void
 	onCustom: (handler: WidgetHandler) => void
 	onClick: (handler: WidgetHandler) => void
 	onDrop: (handler: WidgetHandler) => void
@@ -66,13 +71,12 @@ export interface WidgetAPI {
 	setAlwaysOnTop: (flag: boolean) => void
 }
 
-export interface Widget {
-	(html: string, options?: WidgetOptions): Promise<WidgetAPI>
-}
+export type Widget = (
+	html: string,
+	options?: WidgetOptions
+) => Promise<WidgetAPI>
 
-export interface Menubar {
-	(text: string, scripts?: string[]): Promise<void>
-}
+export type Menubar = (text: string, scripts?: string[]) => Promise<void>
 
 export interface TerminalOptions extends PromptConfig {
 	command?: string

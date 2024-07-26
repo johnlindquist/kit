@@ -118,7 +118,10 @@ if (existsSync(kitPath())) {
 }
 await ensureDir(kitPath())
 
-let nodeExists = platform() === "win32" ? existsSync(knodePath("bin", "node.exe")) : existsSync(knodePath("bin", "node"))
+let nodeExists =
+	platform() === "win32"
+		? existsSync(knodePath("bin", "node.exe"))
+		: existsSync(knodePath("bin", "node"))
 if (nodeExists) {
 	console.log(`Found node at ${knodePath("bin", "node")}`)
 	// Check node version
@@ -222,3 +225,9 @@ await exec(
 console.log(`Write .kitignore`)
 await writeFile(kitPath(".kitignore"), "*")
 cd(originalDir)
+
+try {
+	await import(kitPath("setup", "chmod-helpers.js"))
+} catch (e) {
+	console.error(e)
+}

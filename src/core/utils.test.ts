@@ -1,4 +1,4 @@
-import test from "ava"
+import ava from "ava"
 import {
 	parseScript,
 	parseMarkdownAsScriptlets,
@@ -16,7 +16,7 @@ import slugify from "slugify"
  * They each need unique names or tests will fail
  */
 
-test("parseScript name comment metadata", async (t) => {
+ava("parseScript name comment metadata", async (t) => {
 	let name = "Testing Parse Script Comment"
 	let fileName = slugify(name, { lower: true })
 	let scriptContent = `
@@ -32,7 +32,7 @@ import "@johnlindquist/kit"
 	t.is(script.filePath, scriptPath)
 })
 
-test("parseScript comment full metadata", async (t) => {
+ava("parseScript comment full metadata", async (t) => {
 	let name = "Testing Parse Script Comment Full Metadata"
 	let description = "This is a test description"
 	let schedule = "0 0 * * *"
@@ -58,7 +58,7 @@ import "@johnlindquist/kit"
 	t.is(script.shortcut, normalizedShortcut)
 })
 
-test("parseScript export convention metadata name", async (t) => {
+ava("parseScript export convention metadata name", async (t) => {
 	let name = "Testing Parse Script Convention"
 	let fileName = slugify(name, { lower: true })
 	let scriptContent = `
@@ -76,7 +76,7 @@ export const metadata = {
 	t.is(script.filePath, scriptPath)
 })
 
-test("parseScript global convention metadata name", async (t) => {
+ava("parseScript global convention metadata name", async (t) => {
 	let name = "Testing Parse Script Convention Global"
 	let fileName = slugify(name, { lower: true })
 	let scriptContent = `
@@ -94,7 +94,7 @@ metadata = {
 	t.is(script.filePath, scriptPath)
 })
 
-test("parseScript ignore metadata variable name", async (t) => {
+ava("parseScript ignore metadata variable name", async (t) => {
 	let name = "Testing Parse Script Convention Ignore Metadata Variable Name"
 	let fileName = slugify(name, { lower: true })
 	let scriptContent = `
@@ -113,7 +113,7 @@ const metadata = {
 	t.is(script.filePath, scriptPath)
 })
 
-test("parseMarkdownAsScripts", async (t) => {
+ava("parseMarkdownAsScripts", async (t) => {
 	let markdown = `
 ## Open Script Kit
 <!-- 
@@ -138,7 +138,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 `
 
 	const scripts = await parseMarkdownAsScriptlets(markdown)
-	t.log(scripts)
+	// t.log(scripts)
 	// t.is(scripts.length, 2)
 	t.is(scripts[0].name, "Open Script Kit")
 	t.is(scripts[0].trigger, "sk")
@@ -160,7 +160,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 	t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })
 
-test("parseMarkdownAsScripts allow JavaScript objects", async (t) => {
+ava("parseMarkdownAsScripts allow JavaScript objects", async (t) => {
 	let markdown = `
 ## Open Script Kit
 <!-- 
@@ -185,7 +185,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 `
 
 	const scripts = await parseMarkdownAsScriptlets(markdown)
-	t.log(scripts)
+	// t.log(scripts)
 	// t.is(scripts.length, 2)
 	t.is(scripts[0].name, "Open Script Kit")
 	t.is(scripts[0].trigger, "sk")
@@ -207,24 +207,100 @@ await appendFile(home("{File Name}.txt"), {Note})
 	t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })
 
-test("parseScriptlets doesn't error on empty string", async (t) => {
+ava.only(
+	"parseMarkdownAsScripts allow JavaScript imports, exports, ${",
+	async (t) => {
+		let markdown = `
+## Open Script Kit
+<!-- 
+Trigger: sk
+Alias:
+Enabled: Yes
+  -->
+
+\`\`\`bash
+open -a 'Google Chrome' https://scriptkit.com/{user}
+\`\`\`
+
+This Script Opens the Script Kit URL
+
+I hope you enjoy!
+
+## Append Note
+
+<!-- 
+Shortcut: cmd o
+cwd: ~/Downloads
+prepend: PATH=/usr/local/bin
+append: | grep "foo"
+-->
+
+\`\`\`kit
+import { appendFile } from "fs"
+let note = "This is a note"
+await exec(\`echo "\${note}" >> foo.txt\`)
+await appendFile(home("{File Name}.txt"), {Note})
+export { note }
+\`\`\`
+`
+
+		const scripts = await parseMarkdownAsScriptlets(markdown)
+		// t.log(scripts)
+		// t.is(scripts.length, 2)
+		t.is(scripts[0].name, "Open Script Kit")
+		t.is(scripts[0].trigger, "sk")
+		t.is(scripts[0].tool, "bash")
+		t.is(scripts[0].tag, "trigger: sk")
+		t.is(
+			scripts[0].scriptlet,
+			"open -a 'Google Chrome' https://scriptkit.com/{user}"
+		)
+		t.is(scripts[0].group, "Scriptlets")
+		t.deepEqual(scripts[0].inputs, ["user"])
+
+		t.is(scripts[1].name, "Append Note")
+		t.is(scripts[1].tool, "kit")
+		t.is(scripts[1].cwd, "~/Downloads")
+		t.is(scripts[1].prepend, "PATH=/usr/local/bin")
+		t.is(scripts[1].append, '| grep "foo"')
+		if (process.platform === "darwin") {
+			t.is(scripts[1].tag, "cmd+o")
+		} else {
+			t.is(scripts[1].tag, "ctrl+o")
+		}
+		t.is(
+			scripts[1].scriptlet,
+			`
+import { appendFile } from "fs"
+let note = "This is a note"
+await exec(\`echo "\${note}" >> foo.txt\`)
+await appendFile(home("{File Name}.txt"), {Note})
+export { note }
+		`.trim()
+		)
+		t.is(scripts[1].group, "Scriptlets")
+		t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
+	}
+)
+
+ava("parseScriptlets doesn't error on empty string", async (t) => {
 	let scriptlets = await parseMarkdownAsScriptlets("")
 	t.is(scriptlets.length, 0)
 })
 
-test("getKenvFromPath - main kenv", async (t) => {
+ava("getKenvFromPath - main kenv", async (t) => {
 	let scriptletsPath = kenvPath("script", "kit.md")
 	let kenv = getKenvFromPath(scriptletsPath)
 	t.is(kenv, "")
 })
 
-test("getKenvFromPath - sub kenv", async (t) => {
+ava("getKenvFromPath - sub kenv", async (t) => {
 	let scriptletsPath = kenvPath("kenvs", "test", "script", "kit.md")
 	let kenv = getKenvFromPath(scriptletsPath)
 	t.is(kenv, "test")
 })
 
-test("getKenvFromPath - no kenv, throw", async (t) => {
+ava("getKenvFromPath - no kenv, throw", async (t) => {
 	let scriptletsPath = home("kit.md")
 	t.throws(() => getKenvFromPath(scriptletsPath))
 })

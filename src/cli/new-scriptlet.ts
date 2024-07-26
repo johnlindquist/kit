@@ -10,15 +10,20 @@ Opens ~/.kenv/scriptlets/scriptlets.md in your selected editor
 // Description: Create a new scriptlet
 // Pass: true
 // Log: false
+// Keyword: np
 
 await ensureDir(kenvPath("scriptlets"))
 let scriptletsPath = kenvPath("scriptlets", "scriptlets.md")
 if (arg?.pass) {
+	let content = await readFile(scriptletsPath, "utf-8")
+	let whitespace = ""
+	if (content.trim() !== "") {
+		whitespace = "\n\n"
+	}
+
 	await appendFile(
 		scriptletsPath,
-		`
-    
-## ${arg?.pass}
+		`${whitespace}## ${arg?.pass}
 
 \`\`\`
 

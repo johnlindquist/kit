@@ -112,7 +112,6 @@
 		"cz-conventional-changelog": "^3.3.0",
 		"debug": "4.3.5",
 		"node-stream-zip": "^1.15.0",
-
 		"semantic-release": "24.0.0",
 		"semantic-release-plugin-update-version-in-files": "1.1.0",
 		"tsc-watch": "6.2.0",

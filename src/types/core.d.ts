@@ -141,6 +141,9 @@ export type Scriptlet = Script & {
 	tool: "kit" | "open" | "paste" | string
 	scriptlet: string
 	value: Script
+	cwd?: string
+	prepend?: string
+	append?: string
 }
 
 export type Snippet = Script & {

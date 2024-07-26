@@ -12,11 +12,39 @@ import type {
 let widget: Widget = async (html, options = {}) => {
 	// hide()
 
+	let url = ""
+	if (html.endsWith(".tsx")) {
+		let { name } = path.parse(html)
+		let root = kenvPath(".widgets", name)
+		let widgetDirExists = await pathExists(root)
+		if (!widgetDirExists) {
+			await ensureDir(root)
+			await exec(
+				`npm create vite "${root}" -- --template template-vite-react-ts-tailwind`,
+				{
+					cwd: kenvPath(".widgets")
+				}
+			)
+			await exec("npm i", {
+				cwd: root
+			})
+		}
+
+		const { createServer } = await import("vite")
+		const server = await createServer({
+			root,
+			mode: "development"
+		})
+		let viteServer = await server.listen()
+		log({ viteServer })
+		url = `http://localhost:${viteServer.config.server.port}`
+	}
+
 	let { widgetId } = await global.getDataFromApp(
 		Channel.WIDGET_GET,
 		{
 			command: global.kitCommand,
-			html,
+			html: url || html,
 			options: {
 				containerClass:
 					"overflow-auto flex justify-center items-center v-screen h-screen",
@@ -41,6 +69,7 @@ let widget: Widget = async (html, options = {}) => {
 	let resizedHandler: WidgetHandler = () => {}
 	let movedHandler: WidgetHandler = () => {}
 	let initHandler: WidgetHandler = () => {}
+	let onHandler: Map<string, WidgetHandler> = new Map()
 
 	let api: WidgetAPI = {
 		capturePage: async () => {
@@ -183,6 +212,9 @@ let widget: Widget = async (html, options = {}) => {
 		onInit: (handler: WidgetHandler) => {
 			initHandler = handler
 		},
+		on: (event: string, handler: WidgetHandler) => {
+			onHandler.set(event, handler)
+		},
 		executeJavaScript: async (js) => {
 			return await global.sendWaitLong(Channel.WIDGET_EXECUTE_JAVASCRIPT, {
 				widgetId,
@@ -192,35 +224,42 @@ let widget: Widget = async (html, options = {}) => {
 	}
 
 	let messageHandler = (data: WidgetMessage) => {
-		if (data.channel == Channel.WIDGET_CUSTOM && data.widgetId == widgetId) {
+		if (data.channel === Channel.WIDGET_CUSTOM && data.widgetId === widgetId) {
 			customHandler(data)
+			return
 		}
 
-		if (data.channel == Channel.WIDGET_CLICK && data.widgetId == widgetId) {
+		if (data.channel === Channel.WIDGET_CLICK && data.widgetId === widgetId) {
 			clickHandler(data)
+			return
 		}
 
-		if (data.channel == Channel.WIDGET_DROP && data.widgetId == widgetId) {
+		if (data.channel === Channel.WIDGET_DROP && data.widgetId === widgetId) {
 			dropHandler(data)
+			return
 		}
 
 		if (
-			data.channel == Channel.WIDGET_MOUSE_DOWN &&
-			data.widgetId == widgetId
+			data.channel === Channel.WIDGET_MOUSE_DOWN &&
+			data.widgetId === widgetId
 		) {
 			mouseDownHandler(data)
+			return
 		}
 
-		if (data.channel == Channel.WIDGET_INPUT && data.widgetId == widgetId) {
+		if (data.channel === Channel.WIDGET_INPUT && data.widgetId === widgetId) {
 			inputHandler(data)
+			return
 		}
 
-		if (data.channel == Channel.WIDGET_RESIZED && data.widgetId == widgetId) {
+		if (data.channel === Channel.WIDGET_RESIZED && data.widgetId === widgetId) {
 			resizedHandler(data)
+			return
 		}
 
-		if (data.channel == Channel.WIDGET_MOVED && data.widgetId == widgetId) {
+		if (data.channel === Channel.WIDGET_MOVED && data.widgetId === widgetId) {
 			movedHandler(data)
+			return
 		}
 
 		if (data.channel === Channel.WIDGET_END) {
@@ -230,9 +269,17 @@ let widget: Widget = async (html, options = {}) => {
 			}
 		}
 
-		if (data.channel == Channel.WIDGET_INIT && data.widgetId == widgetId) {
+		if (data.channel === Channel.WIDGET_INIT && data.widgetId === widgetId) {
 			initHandler(data)
+			return
 		}
+
+		if (onHandler.has(data.channel)) {
+			onHandler.get(data.channel)?.(data)
+			return
+		}
+
+		global.warn(`No handler for ${data.channel}`)
 	}
 
 	process.on("message", messageHandler)
