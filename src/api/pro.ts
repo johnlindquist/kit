@@ -405,6 +405,7 @@ global.term.write = async (text: string) => {
 
 global.widget = widget
 global.menu = menu
+global.vite = vite
 
 global.showLogWindow = async (scriptPath = "") => {
 	await sendWait(Channel.SHOW_LOG_WINDOW, scriptPath)
