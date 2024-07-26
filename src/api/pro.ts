@@ -3,75 +3,18 @@ import { KIT_FIRST_PATH } from "../core/utils.js"
 import type { Action } from "../types/core.js"
 import type {
 	TerminalOptions as TerminalConfig,
+	ViteAPI,
+	ViteHandler,
+	ViteMessage,
+	ViteWidget,
 	Widget,
 	WidgetAPI,
+	WidgetHandler,
 	WidgetMessage
 } from "../types/pro.js"
 
-// TODO: Support urls. Make sure urls handle "widgetId" for sending messages
-let widget: Widget = async (html, options = {}) => {
-	// hide()
-
-	let url = ""
-	if (html.endsWith(".tsx")) {
-		let { name } = path.parse(html)
-		let root = kenvPath(".widgets", name)
-		let widgetDirExists = await pathExists(root)
-		if (!widgetDirExists) {
-			await ensureDir(root)
-			await exec(
-				`npm create vite "${root}" -- --template template-vite-react-ts-tailwind`,
-				{
-					cwd: kenvPath(".widgets")
-				}
-			)
-			await exec("npm i", {
-				cwd: root
-			})
-		}
-
-		const { createServer } = await import("vite")
-		const server = await createServer({
-			root,
-			mode: "development"
-		})
-		let viteServer = await server.listen()
-		log({ viteServer })
-		url = `http://localhost:${viteServer.config.server.port}`
-	}
-
-	let { widgetId } = await global.getDataFromApp(
-		Channel.WIDGET_GET,
-		{
-			command: global.kitCommand,
-			html: url || html,
-			options: {
-				containerClass:
-					"overflow-auto flex justify-center items-center v-screen h-screen",
-				draggable: true,
-				resizable: true,
-				...options
-			}
-		},
-		false
-	)
-
-	type WidgetHandler = (message: WidgetMessage) => void
-
-	let customHandler: WidgetHandler = () => {}
-	let clickHandler: WidgetHandler = () => {}
-	let dropHandler: WidgetHandler = () => {}
-	let mouseDownHandler: WidgetHandler = () => {}
-	let inputHandler: WidgetHandler = () => {}
-	let closeHandler: WidgetHandler = () => {
-		process.exit()
-	}
-	let resizedHandler: WidgetHandler = () => {}
-	let movedHandler: WidgetHandler = () => {}
-	let initHandler: WidgetHandler = () => {}
-	let onHandler: Map<string, WidgetHandler> = new Map()
-
-	let api: WidgetAPI = {
+let createBaseWidgetAPI = (widgetId: number) => {
+	let api = {
 		capturePage: async () => {
 			return (
 				await global.getDataFromApp(
@@ -185,36 +128,6 @@ let widget: Widget = async (html, options = {}) => {
 				args
 			})
 		},
-		onCustom: (handler: WidgetHandler) => {
-			customHandler = handler
-		},
-		onClick: (handler: WidgetHandler) => {
-			clickHandler = handler
-		},
-		onDrop: (handler: WidgetHandler) => {
-			dropHandler = handler
-		},
-		onMouseDown: (handler: WidgetHandler) => {
-			mouseDownHandler = handler
-		},
-		onInput: (handler: WidgetHandler) => {
-			inputHandler = handler
-		},
-		onClose: (handler: WidgetHandler) => {
-			closeHandler = handler
-		},
-		onResized: (handler: WidgetHandler) => {
-			resizedHandler = handler
-		},
-		onMoved: (handler: WidgetHandler) => {
-			movedHandler = handler
-		},
-		onInit: (handler: WidgetHandler) => {
-			initHandler = handler
-		},
-		on: (event: string, handler: WidgetHandler) => {
-			onHandler.set(event, handler)
-		},
 		executeJavaScript: async (js) => {
 			return await global.sendWaitLong(Channel.WIDGET_EXECUTE_JAVASCRIPT, {
 				widgetId,
@@ -222,6 +135,42 @@ let widget: Widget = async (html, options = {}) => {
 			})
 		}
 	}
+
+	return api
+}
+
+let createViteAPI = (widgetId: number): ViteAPI => {
+	let onHandler: Map<string, ViteHandler> = new Map()
+
+	let messageHandler = (data: ViteMessage) => {
+		if (onHandler.has(data.channel)) {
+			onHandler.get(data.channel)?.(data)
+			return
+		}
+	}
+
+	process.on("message", messageHandler)
+
+	return {
+		...createBaseWidgetAPI(widgetId),
+		on: (channel: string, handler: ViteHandler) => {
+			onHandler.set(channel, handler)
+		}
+	}
+}
+
+let createWidgetAPI = (widgetId: number) => {
+	let customHandler: WidgetHandler = () => {}
+	let clickHandler: WidgetHandler = () => {}
+	let dropHandler: WidgetHandler = () => {}
+	let mouseDownHandler: WidgetHandler = () => {}
+	let inputHandler: WidgetHandler = () => {}
+	let closeHandler: WidgetHandler = () => {
+		process.exit()
+	}
+	let resizedHandler: WidgetHandler = () => {}
+	let movedHandler: WidgetHandler = () => {}
+	let initHandler: WidgetHandler = () => {}
 
 	let messageHandler = (data: WidgetMessage) => {
 		if (data.channel === Channel.WIDGET_CUSTOM && data.widgetId === widgetId) {
@@ -274,17 +223,112 @@ let widget: Widget = async (html, options = {}) => {
 			return
 		}
 
-		if (onHandler.has(data.channel)) {
-			onHandler.get(data.channel)?.(data)
-			return
-		}
-
 		global.warn(`No handler for ${data.channel}`)
 	}
 
-	process.on("message", messageHandler)
+	let api: WidgetAPI = {
+		onCustom: (handler: WidgetHandler) => {
+			customHandler = handler
+		},
+		onClick: (handler: WidgetHandler) => {
+			clickHandler = handler
+		},
+		onDrop: (handler: WidgetHandler) => {
+			dropHandler = handler
+		},
+		onMouseDown: (handler: WidgetHandler) => {
+			mouseDownHandler = handler
+		},
+		onInput: (handler: WidgetHandler) => {
+			inputHandler = handler
+		},
+		onClose: (handler: WidgetHandler) => {
+			closeHandler = handler
+		},
+		onResized: (handler: WidgetHandler) => {
+			resizedHandler = handler
+		},
+		onMoved: (handler: WidgetHandler) => {
+			movedHandler = handler
+		},
+		onInit: (handler: WidgetHandler) => {
+			initHandler = handler
+		},
 
+		...createBaseWidgetAPI(widgetId)
+	}
+
+	process.on("message", messageHandler)
 	return api
+}
+
+let vite: ViteWidget = async (dir, options = {}) => {
+	let root = kenvPath("vite", dir)
+	let widgetDirExists = await pathExists(root)
+	if (!widgetDirExists) {
+		await ensureDir(root)
+		await exec(
+			`npm create vite "${root}" -- --template template-vite-react-ts-tailwind`,
+			{
+				cwd: kenvPath(".widgets")
+			}
+		)
+		await exec("npm i", {
+			cwd: root
+		})
+	}
+
+	const { createServer } = await import("vite")
+	const server = await createServer({
+		root,
+		mode: options?.mode || "development"
+	})
+	let viteServer = await server.listen(options?.port)
+
+	let url = `http://localhost:${viteServer.config.server.port}`
+
+	log(`Starting vite server at ${url}`)
+
+	let { widgetId } = await global.getDataFromApp(
+		Channel.WIDGET_GET,
+		{
+			command: global.kitCommand,
+			html: url,
+			options: {
+				containerClass:
+					"overflow-auto flex justify-center items-center v-screen h-screen",
+				draggable: true,
+				resizable: true,
+				...options
+			}
+		},
+		false
+	)
+
+	let api = createViteAPI(widgetId)
+	return api
+}
+
+// TODO: Support urls. Make sure urls handle "widgetId" for sending messages
+let widget: Widget = async (html, options = {}) => {
+	// hide()
+	let { widgetId } = await global.getDataFromApp(
+		Channel.WIDGET_GET,
+		{
+			command: global.kitCommand,
+			html,
+			options: {
+				containerClass:
+					"overflow-auto flex justify-center items-center v-screen h-screen",
+				draggable: true,
+				resizable: true,
+				...options
+			}
+		},
+		false
+	)
+
+	return createWidgetAPI(widgetId)
 }
 
 let menu = async (label: string, scripts: string[] = []) => {

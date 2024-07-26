@@ -1,27 +1,37 @@
-import { ForkOptions } from "child_process"
-import { Channel } from "../core/enum"
-import { PromptConfig } from "./core"
-import { BrowserWindowConstructorOptions, Display, Rectangle } from "./electron"
+import type { ForkOptions } from "node:child_process"
+import type { Channel } from "../core/enum"
+import type { PromptConfig } from "./core"
+import type {
+	BrowserWindowConstructorOptions,
+	Display,
+	Rectangle
+} from "./electron"
 
-export type WidgetOptions = BrowserWindowConstructorOptions & {
-	state?: any
-
+export type BaseWidgetOptions = BrowserWindowConstructorOptions & {
 	/**
 	 * Important: This property determines whether the widget can be dragged.
 	 * To enable dragging, ensure that the "draggable" class is added to any element
 	 * intended for dragging the widget. This is essential for user interaction.
 	 */
 	draggable?: boolean
-	unpkg?: string[]
 	title?: string
 	ignoreMouse?: boolean
 	ttl?: number
 	center?: boolean
-	containerClass?: string
-	preventEscape?: boolean
-	experimental?: boolean
+	preventEscape?: boolea
 	css?: string
 	body?: string
+}
+
+export type WidgetOptions = BaseWidgetOptions & {
+	state?: any
+	unpkg?: string[]
+	containerClass?: string
+}
+
+export type ViteOptions = BaseWidgetOptions & {
+	mode?: "development" | "production" | string
+	port?: number
 }
 
 export interface WidgetMessage {
@@ -39,27 +49,14 @@ export interface WidgetMessage {
 	}
 }
 
-export type WidgetHandler = (data: WidgetMessage) => void
+export interface ViteMessage extends WidgetMessage {
+	channel: string
+}
 
-export interface WidgetAPI {
-	setState: (state: any) => void
-	capturePage: () => Promise<string>
-	close: () => void
-	fit: () => void
-	setSize: (width: number, height: number) => void
-	setPosition: (x: number, y: number) => void
-	call: (name: string, ...args: any[]) => void
-	on: (event: string, handler: WidgetHandler) => void
-	onCustom: (handler: WidgetHandler) => void
-	onClick: (handler: WidgetHandler) => void
-	onDrop: (handler: WidgetHandler) => void
-	onMouseDown: (handler: WidgetHandler) => void
-	onInput: (handler: WidgetHandler) => void
-	onClose: (handler: WidgetHandler) => void
-	onResized: (handler: WidgetHandler) => void
-	onMoved: (handler: WidgetHandler) => void
-	onInit: (handler: WidgetHandler) => void
-	executeJavaScript: (js: string) => Promise<any>
+export type WidgetHandler = (data: WidgetMessage) => void
+export type ViteHandler = (data: ViteMessage) => void
+
+export interface BaseWidgetApi {
 	show: () => void
 	showInactive: () => void
 	hide: () => void
@@ -69,12 +66,41 @@ export interface WidgetAPI {
 	maximize: () => void
 	restore: () => void
 	setAlwaysOnTop: (flag: boolean) => void
+	close: () => void
+	setSize: (width: number, height: number) => void
+	setPosition: (x: number, y: number) => void
+	call: (name: string, ...args: any[]) => void
+	executeJavaScript: (js: string) => Promise<any>
+	capturePage: () => Promise<string>
+}
+
+export interface WidgetAPI extends BaseWidgetApi {
+	setState: (state: any) => void
+	fit: () => void
+	onCustom: (handler: WidgetHandler) => void
+	onClick: (handler: WidgetHandler) => void
+	onDrop: (handler: WidgetHandler) => void
+	onMouseDown: (handler: WidgetHandler) => void
+	onInput: (handler: WidgetHandler) => void
+	onClose: (handler: WidgetHandler) => void
+	onResized: (handler: WidgetHandler) => void
+	onMoved: (handler: WidgetHandler) => void
+	onInit: (handler: WidgetHandler) => void
+}
+
+export interface ViteAPI extends BaseWidgetApi {
+	on: (event: string, handler: ViteHandler) => void
 }
 
 export type Widget = (
 	html: string,
 	options?: WidgetOptions
 ) => Promise<WidgetAPI>
+
+export type ViteWidget = (
+	dir: string,
+	options?: ViteOptions
+) => Promise<ViteAPI>
 
 export type Menubar = (text: string, scripts?: string[]) => Promise<void>
 
@@ -103,12 +129,11 @@ export interface ProAPI {
 	term: Terminal
 }
 
-export interface ShowLogWindow {
-	(scriptPath?: string): Promise<void>
-}
+export type ShowLogWindow = (scriptPath?: string) => Promise<void>
 
 declare global {
 	var widget: Widget
+	var vite: ViteWidget
 	var menu: Menubar
 	var term: Terminal
 	var showLogWindow: ShowLogWindow

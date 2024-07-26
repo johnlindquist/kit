@@ -99,6 +99,7 @@
 		"shelljs": "0.8.5",
 		"slugify": "1.6.6",
 		"suggestion": "2.1.2",
+		"vite": "5.3.5",
 		"zx": "^8.1.4"
 	},
 	"devDependencies": {

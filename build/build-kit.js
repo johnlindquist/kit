@@ -5,6 +5,7 @@ import os from "node:os"
 import { homedir, platform } from "node:os"
 import { existsSync } from "node:fs"
 import { rimraf } from "rimraf"
+import { chmod as fsChmod } from "node:fs/promises"
 
 process.on("uncaughtException", (error) => {
 	console.error("Uncaught Exception:")
@@ -227,7 +228,16 @@ await writeFile(kitPath(".kitignore"), "*")
 cd(originalDir)
 
 try {
-	await import(kitPath("setup", "chmod-helpers.js"))
+	if (process.platform !== "win32") {
+		await Promise.all([
+			fsChmod(kitPath("script"), 0o755),
+			fsChmod(kitPath("kar"), 0o755),
+			fsChmod(kitPath("bin", "k"), 0o755),
+			fsChmod(kitPath("bin", "kit"), 0o755),
+			fsChmod(kitPath("bin", "sk"), 0o755),
+			fsChmod(kitPath("override", "code", "python"), 0o755)
+		])
+	}
 } catch (e) {
 	console.error(e)
 }
