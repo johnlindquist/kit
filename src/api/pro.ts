@@ -13,7 +13,7 @@ import type {
 	WidgetMessage
 } from "../types/pro.js"
 
-let createBaseWidgetAPI = (widgetId: number) => {
+let createBaseWidgetAPI = (widgetId: number, off: () => void) => {
 	let api = {
 		capturePage: async () => {
 			return (
@@ -39,6 +39,7 @@ let createBaseWidgetAPI = (widgetId: number) => {
 		},
 		close: () => {
 			global.send(Channel.WIDGET_END, { widgetId })
+			off()
 		},
 		fit: () => {
 			global.send(Channel.WIDGET_FIT, { widgetId })
@@ -143,18 +144,30 @@ let createViteAPI = (widgetId: number): ViteAPI => {
 	let onHandler: Map<string, ViteHandler> = new Map()
 
 	let messageHandler = (data: ViteMessage) => {
-		if (onHandler.has(data.channel)) {
-			onHandler.get(data.channel)?.(data)
-			return
+		if (onHandler.has(data.widgetChannel)) {
+			onHandler.get(data.widgetChannel)?.(data?.widgetData)
 		}
 	}
 
-	process.on("message", messageHandler)
-
+	process.on("message", (data: ViteMessage) => {
+		if (data.channel === Channel.VITE_WIDGET_SEND) {
+			messageHandler(data)
+		}
+	})
+	let off = () => {
+		process.off("message", messageHandler)
+	}
 	return {
-		...createBaseWidgetAPI(widgetId),
+		...createBaseWidgetAPI(widgetId, off),
 		on: (channel: string, handler: ViteHandler) => {
 			onHandler.set(channel, handler)
+		},
+		send: (channel: string, data: any) => {
+			global.send(Channel.VITE_WIDGET_SEND, {
+				channel,
+				widgetId,
+				data
+			})
 		}
 	}
 }
@@ -226,6 +239,11 @@ let createWidgetAPI = (widgetId: number) => {
 		global.warn(`No handler for ${data.channel}`)
 	}
 
+	process.on("message", messageHandler)
+	let off = () => {
+		process.off("message", messageHandler)
+	}
+
 	let api: WidgetAPI = {
 		onCustom: (handler: WidgetHandler) => {
 			customHandler = handler
@@ -255,10 +273,9 @@ let createWidgetAPI = (widgetId: number) => {
 			initHandler = handler
 		},
 
-		...createBaseWidgetAPI(widgetId)
+		...createBaseWidgetAPI(widgetId, off)
 	}
 
-	process.on("message", messageHandler)
 	return api
 }
 
@@ -267,23 +284,70 @@ let vite: ViteWidget = async (dir, options = {}) => {
 	let widgetDirExists = await pathExists(root)
 	if (!widgetDirExists) {
 		await ensureDir(root)
-		await exec(
-			`npm create vite "${root}" -- --template template-vite-react-ts-tailwind`,
-			{
-				cwd: kenvPath(".widgets")
-			}
-		)
-		await exec("npm i", {
-			cwd: root
+		const clearCommand = process.platform === "win32" ? "cls" : "clear"
+		await global.term({
+			preview: md(
+				`
+# Creating ${dir} Project
+
+Please follow the prompts then wait while vite automatically creates your project.
+
+Your project will be avaiable here:
+
+~~~
+${root}
+~~~
+				`.trim()
+			),
+			command: `npm create vite "${dir}" && ${clearCommand} && cd "${dir}" && npm i && exit`,
+			cwd: kenvPath("vite"),
+			shortcuts: [
+				{
+					name: "Exit",
+					key: `${cmd}+w`,
+					bar: "right",
+					onPress: () => {
+						exit()
+					}
+				}
+			]
 		})
+		hide()
+
+		let sourcePath = path.resolve(root, "src")
+		if (await pathExists(sourcePath)) {
+			let dTsContents = `
+declare global {
+	function on(event: string, callback: (data?: any) => void): void;
+	function send(event: string, data?: any): void;
+}
+
+export {};
+			`.trim()
+			await writeFile(path.resolve(sourcePath, "global.d.ts"), dTsContents)
+		}
 	}
 
 	const { createServer } = await import("vite")
-	const server = await createServer({
+	global.log(`Setting vite server root to ${root}`)
+	let server = await createServer({
 		root,
 		mode: options?.mode || "development"
 	})
 	let viteServer = await server.listen(options?.port)
+
+	const closeServer = () => {
+		if (server) {
+			global.log(`Closing vite server on port ${viteServer.config.server.port}`)
+			server.close()
+			server = null
+		}
+	}
+
+	process.once("exit", closeServer)
+	process.once("SIGINT", closeServer)
+	process.once("SIGTERM", closeServer)
+	process.once("uncaughtException", closeServer)
 
 	let url = `http://localhost:${viteServer.config.server.port}`
 
@@ -383,7 +447,7 @@ global.term = async (
 	if (global.__kitCurrentUI === UI.term) {
 		// Hack to clear the terminal when it's already open
 		await div({
-			html: ``,
+			html: "",
 			height: PROMPT.HEIGHT.BASE,
 			onInit: async () => {
 				await wait(100)

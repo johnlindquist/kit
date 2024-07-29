@@ -12,15 +12,15 @@ import {
 	type ConfigOptions
 } from "quick-score"
 import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
-import {
-	type Action,
-	type Choice,
-	type FlagsObject,
-	type FlagsWithKeys,
-	type PromptConfig,
-	type ScoredChoice,
-	type Script,
-	type Scriptlet,
+import type {
+	Action,
+	Choice,
+	FlagsObject,
+	FlagsWithKeys,
+	PromptConfig,
+	ScoredChoice,
+	Script,
+	Scriptlet,
 	Shortcut
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
@@ -56,6 +56,8 @@ import type { Kenv } from "../types/kit"
 import type { Fields as TraceFields } from "chrome-trace-event"
 import dotenv from "dotenv"
 import type { kenvEnv } from "../types/env"
+
+global.__kitActionsMap = new Map<string, Action | Shortcut>()
 
 export async function initTrace() {
 	if (
@@ -685,7 +687,6 @@ global.setChoices = async (choices, config) => {
 
 global.flag ||= {}
 global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
-	global.kitFlagsAsChoices = []
 	for (let key of Object.keys(global?.flag)) {
 		delete global?.flag?.[key]
 	}
@@ -720,13 +721,13 @@ global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
 		}
 	}
 
-	global.kitFlagsAsChoices = currentFlags.map(([key, value]) => {
+	for (const [key, value] of currentFlags) {
 		const choice = {
 			id: key,
 			name: value?.name || key,
 			value: key,
 			description: value?.description || "",
-			preview: value?.preview || `<div></div>`,
+			preview: value?.preview || "<div></div>",
 			shortcut: value?.shortcut || "",
 			onAction: value?.onAction || null
 		} as Choice
@@ -734,8 +735,9 @@ global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
 		if (value?.group) {
 			choice.group = value.group
 		}
-		return choice
-	})
+
+		global.__kitActionsMap.set(value?.name || key, choice)
+	}
 
 	return validFlags
 }
@@ -1021,7 +1023,7 @@ export let actions: Action[] = [
 	},
 	{
 		name: "Sign In",
-		description: "Sign in to Script Kit",
+		description: "Log in to GitHub to Script Kit",
 		flag: "sign-in-to-script-kit",
 		shortcut: `${cmd}+shift+opt+s`,
 		onAction: async () => {

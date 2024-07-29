@@ -50,7 +50,8 @@ export interface WidgetMessage {
 }
 
 export interface ViteMessage extends WidgetMessage {
-	channel: string
+	widgetChannel: string
+	widgetData?: any
 }
 
 export type WidgetHandler = (data: WidgetMessage) => void
@@ -88,8 +89,16 @@ export interface WidgetAPI extends BaseWidgetApi {
 	onInit: (handler: WidgetHandler) => void
 }
 
+type ViteWidgetSendMessage = {
+	channel: string
+	pid: number
+	targetId: string
+	widgetId: number
+	[key: string]: any
+}
 export interface ViteAPI extends BaseWidgetApi {
 	on: (event: string, handler: ViteHandler) => void
+	send: (channel: string, data: any) => void
 }
 
 export type Widget = (

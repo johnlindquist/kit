@@ -1029,34 +1029,6 @@ export let closeShortcut: Shortcut = {
 	}
 }
 
-export let shortcutsShortcut: Shortcut = {
-	name: "Display Shortcuts",
-	key: `${cmd}+/`,
-	bar: "right",
-	onPress: async () => {
-		setAlwaysOnTop(true)
-		let shortcutsList = ``
-		;(global?.kitShortcutsMap || new Map()).forEach((name, shortcut) => {
-			shortcutsList += `<div><span class="justify-center rounded py-0.5 px-1.5 text-sm text-primary text-opacity-90 bg-text-base bg-opacity-0 bg-opacity-10 font-medium">${shortcut}</span> - ${name}<div>`
-		})
-
-		if (shortcutsList) {
-			await widget(
-				md(`## Shortcuts
-      
-${shortcutsList}`),
-				{
-					width: 274,
-					draggable: true,
-					containerClass: `bg-bg-base`,
-					resizable: true,
-					transparent: true
-				}
-			)
-		}
-	}
-}
-
 export let editScriptShortcut: Shortcut = {
 	name: "Edit Script",
 	key: `${cmd}+o`,

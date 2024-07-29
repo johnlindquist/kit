@@ -678,6 +678,7 @@ export interface ChannelMap {
 	[Channel.SYSTEM_MOUSEMOVE]: boolean
 	[Channel.SYSTEM_WHEEL]: boolean
 	[Channel.STAMP_SCRIPT]: Script
+	[Channel.VITE_WIDGET_SEND]: any
 }
 export interface Send {
 	(channel: Channel | GetAppData | SendNoOptions): void

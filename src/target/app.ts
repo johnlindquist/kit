@@ -9,7 +9,8 @@ import type {
 	ChannelHandler,
 	Choice,
 	PromptConfig,
-	PromptData
+	PromptData,
+	Shortcut
 } from "../types/core"
 
 import type {
@@ -60,15 +61,43 @@ import {
 	isMac,
 	debounce,
 	adjustPackageName,
-	editorShortcuts,
-	shortcutsShortcut
+	editorShortcuts
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { errorPrompt, getFlagsFromActions, tmpPath } from "../api/kit.js"
-import { Rectangle } from "../types/electron"
-import { Dirent } from "fs"
-import { pathToFileURL } from "url"
-import { PathConfig } from "../types/kit"
+import type { Rectangle } from "../types/electron"
+import type { Dirent } from "node:fs"
+import { pathToFileURL } from "node:url"
+import type { PathConfig } from "../types/kit"
+
+export let shortcutsShortcut: Shortcut = {
+	name: "Display Shortcuts",
+	key: `${cmd}+/`,
+	bar: "right",
+	onPress: async () => {
+		setAlwaysOnTop(true)
+		let shortcutsList = ""
+		for (const [name, action] of global.__kitActionsMap.entries()) {
+			const shortcut = (action as Action)?.shortcut || (action as Shortcut)?.key
+			shortcutsList += `<div><span class="justify-center rounded py-0.5 px-1.5 text-sm text-primary text-opacity-90 bg-text-base bg-opacity-0 bg-opacity-10 font-medium">${shortcut}</span> - ${name}<div>`
+		}
+
+		if (shortcutsList) {
+			await widget(
+				md(`## Shortcuts
+      
+${shortcutsList}`),
+				{
+					width: 274,
+					draggable: true,
+					containerClass: "bg-bg-base",
+					resizable: true,
+					transparent: true
+				}
+			)
+		}
+	}
+}
 
 interface DisplayChoicesProps extends Partial<PromptConfig> {
 	className: string
@@ -298,7 +327,7 @@ let createOnChoiceFocusDefault = (
 			let { id } = focused
 
 			let currentChoices = (global?.kitPrevChoices || []).concat(
-				global?.kitFlagsAsChoices || []
+				Array.from(global.__kitActionsMap.values()) || []
 			)
 			let choice = currentChoices.find((c: Choice) => c?.id === id)
 
@@ -310,7 +339,7 @@ let createOnChoiceFocusDefault = (
 				}
 			}
 
-			if (choice && choice?.preview && typeof choice?.preview === "function") {
+			if (choice?.preview && typeof choice?.preview === "function") {
 				;(choice as any).index = index
 				;(choice as any).input = input
 
@@ -347,7 +376,7 @@ let createOnChoiceFocusDefault = (
 let onTabChanged = (input, state) => {
 	let { tab } = state
 	let tabIndex = global.onTabs.findIndex(({ name }) => {
-		return name == tab
+		return name === tab
 	})
 
 	global.onTabIndex = tabIndex
@@ -369,16 +398,34 @@ export let inspectPromptPromises = () => {
 	dev(result)
 }
 
-let findAction = async (data: AppMessage) => {
-	if (data?.state?.action?.name) {
-		let f = global.kitFlagsAsChoices?.find(
-			(f) => f?.name === data?.state?.action?.name
-		)
-		if (f?.onAction) {
-			await f?.onAction(data?.state?.input, data.state)
-			return true
+let runAction = async (data: AppMessage) => {
+	let action: Action | Shortcut
+	if (global.__kitActionsMap.has(data?.state?.action?.name)) {
+		action = global.__kitActionsMap.get(data?.state?.action?.name)
+	} else if (data?.state?.shortcut) {
+		for (let [key, value] of global.__kitActionsMap.entries()) {
+			if (
+				value?.shortcut === data.state.shortcut ||
+				value?.key === data.state.shortcut
+			) {
+				action = value
+				break
+			}
 		}
 	}
+
+	if (action) {
+		let actionFunction =
+			typeof (action as Action)?.onAction === "function"
+				? (action as Action).onAction
+				: typeof (action as Shortcut).onPress === "function"
+					? (action as Shortcut).onPress
+					: null
+		if (actionFunction) {
+			return await actionFunction(data?.state?.input, data?.state)
+		}
+	}
+
 	return false
 }
 
@@ -534,12 +581,10 @@ let waitForPromptValue = ({
 						send(Channel.VALUE_INVALID, validateMessage)
 
 						return invalid
-					} else {
-						return value
 					}
-				} else {
 					return value
 				}
+				return value
 			}),
 			filter((value) => value !== invalid && value !== preventSubmit),
 			take(1),
@@ -583,8 +628,7 @@ let waitForPromptValue = ({
 						break
 
 					case Channel.ACTION:
-						findAction(data)
-
+						await runAction(data)
 						break
 
 					case Channel.ACTIONS_INPUT:
@@ -658,39 +702,7 @@ let waitForPromptValue = ({
 						break
 
 					case Channel.SHORTCUT:
-						let foundAction = await findAction(data)
-						if (foundAction) return
-
-						if (data?.state?.flag) {
-							global.flag[data.state.flag] = true
-							global.actionFlag = data.state.flag || ""
-						}
-						const shortcut = (
-							global.__currentPromptConfig?.shortcuts || []
-						)?.find(({ key }) => {
-							return key === data?.state?.shortcut
-						})
-
-						if (shortcut?.onPress) {
-							shortcut.onPress?.(data.state.input, data.state)
-							return
-						} else if (shortcut) {
-							let submitValue = shortcut.value || shortcut.name
-							submit(submitValue)
-							return
-						}
-
-						if (data.state.shortcut === "enter") {
-							if (data?.state?.multiple) {
-								submit(data?.state?.selected)
-								return
-							} else {
-								let value = data?.state?.focused?.value || data?.state?.input
-								submit(value)
-								return
-							}
-						}
-
+						await runAction(data)
 						break
 
 					case Channel.ON_PASTE:
@@ -901,14 +913,13 @@ global.setPrompt = (data: Partial<PromptData>) => {
 	performance.measure("SET_PROMPT_DATA", "run")
 }
 
-global.kitShortcutsMap = new Map()
-
 let prepPrompt = async (config: PromptConfig) => {
+	global.__kitActionsMap.clear()
 	let escapeDefault = Boolean(
 		!config?.onEscape || config?.onEscape === onEscapeDefault
 	)
 	let hasEscapeShortcut = Boolean(
-		(config?.shortcuts || []).find((s) => s.key === `escape`)
+		(config?.shortcuts || []).find((s) => s.key === "escape")
 	)
 
 	if (config?.actions) {
@@ -924,18 +935,17 @@ let prepPrompt = async (config: PromptConfig) => {
 		}
 	}
 
-	global.kitShortcutsMap.clear()
 	if (Array.isArray(config?.actions)) {
-		for (let action of config?.actions) {
-			if (action?.shortcut) {
-				global.kitShortcutsMap.set(action.shortcut, action.name)
+		for (let action of config.actions) {
+			if (action?.name && action?.onAction) {
+				global.__kitActionsMap.set(action.name, action)
 			}
 		}
 	}
 
 	for (let shortcut of config?.shortcuts || []) {
-		if (shortcut?.key) {
-			global.kitShortcutsMap.set(shortcut.key, shortcut.name)
+		if (shortcut?.name && shortcut?.onPress) {
+			global.__kitActionsMap.set(shortcut.name, shortcut)
 		}
 	}
 
