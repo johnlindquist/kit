@@ -722,6 +722,8 @@ global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
 	}
 
 	for (const [key, value] of currentFlags) {
+		if (key === "order") continue
+		if (key === "sortChoicesKey") continue
 		const choice = {
 			id: key,
 			name: value?.name || key,
@@ -1270,60 +1272,60 @@ ${lastRunBlock}
 		shortcut: `alt+enter`,
 		flag: modifiers.opt
 	},
-	["push-script"]: {
+	"push-script": {
 		group: "Git",
 		name: "Push to Git Repo",
 		description: "Push {{name}} to a git repo"
 	},
-	["pull-script"]: {
+	"pull-script": {
 		group: "Git",
 		name: "Pull from Git Repo",
 		description: "Pull {{name}} from a git repo"
 	},
 
-	["edit-doc"]: {
+	"edit-doc": {
 		group: "Script Actions",
 		name: "Create/Edit Doc",
 		shortcut: `${cmd}+.`,
 		description: "Open {{name}}'s markdown in your editor"
 	},
-	["share-script-as-discussion"]: {
+	"share-script-as-discussion": {
 		group: "Share",
 		name: "Post to Community Scripts",
 		description: "Share {{name}} on GitHub Discussions"
 	},
-	["share-script-as-link"]: {
+	"share-script-as-link": {
 		group: "Share",
 		name: "Create Install URL",
 		description: "Create a link which will install the script"
 	},
-	["share-script-as-kit-link"]: {
+	"share-script-as-kit-link": {
 		group: "Share",
 		name: "Share as private kit:// link",
 		description: "Create a private link which will install the script"
 	},
-	["share-script"]: {
+	"share-script": {
 		group: "Share",
 		name: "Share as Gist",
 		description: "Share {{name}} as a gist"
 	},
-	["share-script-as-markdown"]: {
+	"share-script-as-markdown": {
 		group: "Share",
 		name: "Share as Markdown",
 		description: "Copies script contents in fenced JS Markdown"
 	},
-	["share-copy"]: {
+	"share-copy": {
 		group: "Copy",
 		name: "Copy",
 		description: "Copy script contents to clipboard",
 		shortcut: `${cmd}+c`
 	},
-	["copy-path"]: {
+	"copy-path": {
 		group: "Copy",
 		name: "Copy Path",
 		description: "Copy full path of script to clipboard"
 	},
-	["paste-as-markdown"]: {
+	"paste-as-markdown": {
 		group: "Copy",
 		name: "Paste as Markdown",
 		description: "Paste the contents of the script as Markdown",
@@ -1347,12 +1349,12 @@ ${lastRunBlock}
 		description: "Delete {{name}}",
 		shortcut: `${cmd}+shift+backspace`
 	},
-	["remove-from-recent"]: {
+	"remove-from-recent": {
 		group: "Script Actions",
 		name: "Remove from Recent",
 		description: "Remove {{name}} from the recent list"
 	},
-	["clear-recent"]: {
+	"clear-recent": {
 		group: "Script Actions",
 		name: "Clear Recent",
 		description: "Clear the recent list of scripts"
@@ -1369,28 +1371,28 @@ ${lastRunBlock}
 	//   description:
 	//     "Delete the db file for {{name}}",
 	// },
-	["reveal-script"]: {
+	"reveal-script": {
 		group: "Script Actions",
 		name: "Reveal",
 		description: `Reveal {{name}} in ${isMac ? "Finder" : "Explorer"}`,
 		shortcut: `${cmd}+shift+f`
 	},
-	["kenv-term"]: {
+	"kenv-term": {
 		group: "Kenv",
 		name: "Open Script Kenv in a  Terminal",
 		description: "Open {{name}}'s kenv in a terminal"
 	},
-	["kenv-trust"]: {
+	"kenv-trust": {
 		group: "Kenv",
 		name: "Trust Script Kenv",
 		description: "Trust {{name}}'s kenv"
 	},
-	["kenv-view"]: {
+	"kenv-view": {
 		group: "Kenv",
 		name: "View Script Kenv",
 		description: "View {{name}}'s kenv"
 	},
-	["kenv-visit"]: {
+	"kenv-visit": {
 		group: "Kenv",
 		name: "Open Script Repo",
 		description: "Visit {{name}}'s kenv in your browser"
@@ -1429,7 +1431,7 @@ ${lastRunBlock}
 	//     "Copies script contents in fenced JS Markdown",
 	//   shortcut: `${cmd}+m`,
 	// },
-	["change-shortcut"]: {
+	"change-shortcut": {
 		group: "Script Actions",
 		name: "Change Shortcut",
 		description: "Prompts to pick a new shortcut for the script"
@@ -1439,12 +1441,12 @@ ${lastRunBlock}
 		name: "Move Script to Kenv",
 		description: "Move the script between Kit Environments"
 	},
-	["stream-deck"]: {
+	"stream-deck": {
 		group: "Export",
 		name: "Prepare Script for Stream Deck",
 		description: "Create a .sh file around the script for Stream Decks"
 	},
-	["open-script-log"]: {
+	"open-script-log": {
 		group: "Debug",
 		name: "Open Log File",
 		description: "Open the log file for {{name}}",
@@ -1462,7 +1464,7 @@ ${lastRunBlock}
 		shortcut: "ctrl+enter",
 		flag: "ctrl"
 	},
-	["settings"]: {
+	settings: {
 		group: "Settings",
 		name: "Settings",
 		description: "Open the settings menu",
@@ -1651,6 +1653,10 @@ export let getGroupedScripts = async (fromCache = true) => {
 		if (!Boolean(global?.env?.KIT_ACCESSIBILITY)) {
 			kitScripts.push(kitPath("main", "accessibility.js"))
 		}
+	}
+
+	if (process.env.KIT_HIDE_KIT_SCRIPTS) {
+		kitScripts = []
 	}
 
 	trace.begin({

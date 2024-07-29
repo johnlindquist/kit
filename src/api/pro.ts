@@ -312,7 +312,6 @@ ${root}
 				}
 			]
 		})
-		hide()
 
 		let sourcePath = path.resolve(root, "src")
 		if (await pathExists(sourcePath)) {
@@ -370,6 +369,8 @@ export {};
 	)
 
 	let api = createViteAPI(widgetId)
+
+	hide()
 	return api
 }
 

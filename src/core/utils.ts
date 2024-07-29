@@ -799,6 +799,11 @@ export let run = async (command: string, ...commandArgs: string[]) => {
 	let scriptArgs = []
 	let script = ""
 	let match
+	// This regex splits the command string into parts:
+	// - Matches single-quoted strings: '[^']+?'
+	// - Matches double-quoted strings: "[^"]+?"
+	// - Matches one or more whitespace characters: \s+
+	// This allows us to preserve quoted arguments as single units
 	let splitRegex = /('[^']+?')|("[^"]+?")|\s+/
 	let quoteRegex = /'|"/g
 	let parts = command.split(splitRegex).filter(Boolean)
@@ -1881,10 +1886,13 @@ export let parseMarkdownAsScriptlets = async (
 ${await highlight(preview, "")}`)
 
 		scriptlet.preview = highlightedPreview
-		scriptlet.inputs =
-			scriptlet.scriptlet
-				.match(/(?<!import |export |\$|`\${|=\s*){[a-zA-Z0-9 ]*?}/g)
-				?.map((x: string) => x.slice(1, -1)) || []
+		scriptlet.inputs = Array.from(
+			new Set(
+				scriptlet.scriptlet
+					.match(/(?<!import |export |\$|`\${|=\s*){[a-zA-Z0-9 ]*?}/g)
+					?.map((x: string) => x.slice(1, -1)) || []
+			)
+		)
 		tagger(scriptlet)
 	}
 

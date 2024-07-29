@@ -33,11 +33,11 @@ export let runScriptlet = async (
 	if (process.env.KIT_CONTEXT === "terminal") {
 		for (let input of namedInputs) {
 			let value = await arg(input)
-			scriptlet = scriptlet.replace(`{${input}}`, value)
+			scriptlet = scriptlet.replaceAll(`{${input}}`, value)
 		}
 	} else {
 		for (let input of namedInputs) {
-			scriptlet = scriptlet.replace(`{${input}}`, inputs.shift())
+			scriptlet = scriptlet.replaceAll(`{${input}}`, inputs.shift())
 		}
 	}
 

@@ -283,6 +283,51 @@ export { note }
 	}
 )
 
+ava.only(
+	"parseMarkdownAsScripts allow doesn't create multiple inputs for the same template variable",
+	async (t) => {
+		let markdown = `
+## Open Script Kit
+<!-- 
+Trigger: sk
+Alias:
+Enabled: Yes
+  -->
+
+\`\`\`bash
+open -a 'Google Chrome' https://scriptkit.com/{user} && echo "{user}"
+\`\`\`
+
+This Script Opens the Script Kit URL
+
+I hope you enjoy!
+
+## Append Note
+
+<!-- 
+Shortcut: cmd o
+cwd: ~/Downloads
+prepend: PATH=/usr/local/bin
+append: | grep "foo"
+-->
+
+\`\`\`kit
+import { appendFile } from "fs"
+let note = "This is a note"
+await exec(\`echo "\${note}" >> foo.txt\`)
+await appendFile(home("{File Name}.txt"), {Note})
+console.log("Creating {Note}")
+export { note }
+\`\`\`
+`
+
+		const scripts = await parseMarkdownAsScriptlets(markdown)
+
+		t.deepEqual(scripts[0].inputs, ["user"])
+		t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
+	}
+)
+
 ava("parseScriptlets doesn't error on empty string", async (t) => {
 	let scriptlets = await parseMarkdownAsScriptlets("")
 	t.is(scriptlets.length, 0)

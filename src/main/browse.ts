@@ -112,7 +112,7 @@ let actionFlags: {
 		value: "copy_to",
 		action: async (selectedFile) => {
 			let destination = await path({
-				hint: "Select destination",
+				hint: `Select destination for ${path.basename(selectedFile)}`,
 				startPath: home(),
 				onlyDirs: true,
 				shortcuts: [escapeShortcut]
@@ -127,8 +127,11 @@ let actionFlags: {
 		name: "Move",
 		value: "move",
 		action: async (selectedFile) => {
-			setHint("Select destination folder")
-			let destFolder = await path(path.dirname(selectedFile))
+			let destFolder = await path({
+				startPath: path.dirname(selectedFile),
+				hint: `Select destination for ${path.basename(selectedFile)}`,
+				onlyDirs: true
+			})
 			mv(selectedFile, destFolder)
 		}
 	},

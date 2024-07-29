@@ -200,15 +200,15 @@ const runScript = async (script: Script | string) => {
 	}
 
 	if (isPass || (script as Script)?.postfix) {
-		return await run(
-			(script as Script)?.filePath,
-			`--pass`,
-			(script as any).postfix || input
-		)
+		let hardPass = (script as any).postfix || input
+		if (typeof global?.flag === "object") {
+			global.flag.hardPass = hardPass
+		}
+		return await run((script as Script)?.filePath, "--pass", hardPass)
 	}
 
 	if (script === Value.NoValue || typeof script === "undefined") {
-		console.warn(`🤔 No script selected`, script)
+		console.warn("🤔 No script selected", script)
 		return
 	}
 

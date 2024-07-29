@@ -1945,7 +1945,7 @@ global.updateArgs = (arrayOfArgs) => {
 	let argv = minimist(arrayOfArgs)
 	global.args = [...argv._, ...global.args]
 	global.argOpts = Object.entries(argv)
-		.filter(([key]) => key != "_")
+		.filter(([key]) => key !== "_")
 		.flatMap(([key, value]) => {
 			if (typeof value === "boolean") {
 				if (value) return [`--${key}`]
@@ -1956,6 +1956,11 @@ global.updateArgs = (arrayOfArgs) => {
 
 	assignPropsTo(argv, global.arg)
 	global.flag = { ...argv, ...global.flag }
+	if (global.flag?.hardPass) {
+		global.flag.pass = global.flag.hardPass
+		global.arg.pass = global.flag.hardPass
+		delete global.flag.hardPass
+	}
 	delete global.flag._
 }
 
