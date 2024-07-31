@@ -1008,7 +1008,7 @@ export let isInDir = (parentDir: string) => (dir: string) => {
 }
 
 export let escapeShortcut: Shortcut = {
-	name: `Exit`,
+	name: `Escape`,
 	key: `escape`,
 	bar: "left",
 	onPress: async () => {

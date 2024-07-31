@@ -143,6 +143,13 @@ let actionFlags: {
 		}
 	},
 	{
+		name: "Paste Path",
+		value: "paste",
+		action: async (selectedFile) => {
+			await setSelectedText(selectedFile)
+		}
+	},
+	{
 		name: "Trash",
 		value: "trash",
 		action: async (selectedFile) => {

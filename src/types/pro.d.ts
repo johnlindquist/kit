@@ -73,6 +73,7 @@ export interface BaseWidgetApi {
 	call: (name: string, ...args: any[]) => void
 	executeJavaScript: (js: string) => Promise<any>
 	capturePage: () => Promise<string>
+	onClose: (handler: WidgetHandler) => void
 }
 
 export interface WidgetAPI extends BaseWidgetApi {
@@ -83,7 +84,6 @@ export interface WidgetAPI extends BaseWidgetApi {
 	onDrop: (handler: WidgetHandler) => void
 	onMouseDown: (handler: WidgetHandler) => void
 	onInput: (handler: WidgetHandler) => void
-	onClose: (handler: WidgetHandler) => void
 	onResized: (handler: WidgetHandler) => void
 	onMoved: (handler: WidgetHandler) => void
 	onInit: (handler: WidgetHandler) => void
@@ -97,7 +97,23 @@ type ViteWidgetSendMessage = {
 	[key: string]: any
 }
 export interface ViteAPI extends BaseWidgetApi {
-	on: (event: string, handler: ViteHandler) => void
+	/**
+	 * Registers an event handler for a specific channel.
+	 * @param event The channel name to listen for.
+	 * @param handler The function to be called when an event on this channel is received.
+	 * @returns A function that, when called, will remove the event handler.
+	 *
+	 * Example usage:
+	 * ```typescript
+	 * const removeHandler = v.on('myChannel', (data) => {
+	 *   console.log('Received data:', data);
+	 * });
+	 *
+	 * // Later, when you want to stop listening:
+	 * removeHandler();
+	 * ```
+	 */
+	on: (event: string, handler: ViteHandler) => () => void
 	send: (channel: string, data: any) => void
 }
 

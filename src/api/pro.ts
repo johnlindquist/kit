@@ -14,6 +14,10 @@ import type {
 } from "../types/pro.js"
 
 let createBaseWidgetAPI = (widgetId: number, off: () => void) => {
+	let closeHandler: WidgetHandler = () => {
+		process.exit()
+	}
+
 	let api = {
 		capturePage: async () => {
 			return (
@@ -134,8 +138,22 @@ let createBaseWidgetAPI = (widgetId: number, off: () => void) => {
 				widgetId,
 				value: js
 			})
+		},
+		onClose: (handler: WidgetHandler) => {
+			closeHandler = handler
 		}
 	}
+
+	let messageHandler = (data: ViteMessage) => {
+		if (data.channel === Channel.WIDGET_END) {
+			if (data.widgetId === widgetId) {
+				process.off("message", messageHandler)
+				closeHandler(data)
+			}
+		}
+	}
+
+	process.on("message", messageHandler)
 
 	return api
 }
@@ -161,6 +179,10 @@ let createViteAPI = (widgetId: number): ViteAPI => {
 		...createBaseWidgetAPI(widgetId, off),
 		on: (channel: string, handler: ViteHandler) => {
 			onHandler.set(channel, handler)
+			// Return a teardown function
+			return () => {
+				onHandler.delete(channel)
+			}
 		},
 		send: (channel: string, data: any) => {
 			global.send(Channel.VITE_WIDGET_SEND, {
@@ -178,9 +200,6 @@ let createWidgetAPI = (widgetId: number) => {
 	let dropHandler: WidgetHandler = () => {}
 	let mouseDownHandler: WidgetHandler = () => {}
 	let inputHandler: WidgetHandler = () => {}
-	let closeHandler: WidgetHandler = () => {
-		process.exit()
-	}
 	let resizedHandler: WidgetHandler = () => {}
 	let movedHandler: WidgetHandler = () => {}
 	let initHandler: WidgetHandler = () => {}
@@ -224,13 +243,6 @@ let createWidgetAPI = (widgetId: number) => {
 			return
 		}
 
-		if (data.channel === Channel.WIDGET_END) {
-			if (data.widgetId === widgetId) {
-				process.off("message", messageHandler)
-				closeHandler(data)
-			}
-		}
-
 		if (data.channel === Channel.WIDGET_INIT && data.widgetId === widgetId) {
 			initHandler(data)
 			return
@@ -259,9 +271,6 @@ let createWidgetAPI = (widgetId: number) => {
 		},
 		onInput: (handler: WidgetHandler) => {
 			inputHandler = handler
-		},
-		onClose: (handler: WidgetHandler) => {
-			closeHandler = handler
 		},
 		onResized: (handler: WidgetHandler) => {
 			resizedHandler = handler
@@ -300,7 +309,7 @@ ${root}
 				`.trim()
 			),
 			command: `npm create vite "${dir}" && ${clearCommand} && cd "${dir}" && npm i && exit`,
-			cwd: kenvPath("vite"),
+			cwd: root,
 			shortcuts: [
 				{
 					name: "Exit",
