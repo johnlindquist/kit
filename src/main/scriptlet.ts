@@ -199,7 +199,22 @@ await setSelectedText(result)`
 					? untildify(focusedScriptlet.cwd)
 					: undefined
 
-				if (process.env.KIT_CONTEXT === "app") {
+				let useExec = () => {
+					const shellTools = [
+						"bash",
+						"sh",
+						"zsh",
+						"fish",
+						"powershell",
+						"pwsh",
+						"cmd"
+					]
+					return (
+						shellTools.includes(focusedScriptlet.tool) && !focusedScriptlet.term
+					)
+				}
+
+				if (process.env.KIT_CONTEXT === "app" && !useExec()) {
 					return await term({
 						command,
 						cwd

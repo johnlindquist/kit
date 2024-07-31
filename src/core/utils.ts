@@ -1148,6 +1148,9 @@ export let proPane = () =>
 
 - Debugger
 - Script Log Window
+- Vite Widgets
+- Mic Capture
+- Webcam Capture
 - Support through Discord
 
 </div>
@@ -1158,11 +1161,8 @@ export let proPane = () =>
 
 - Sync Scripts to GitHub Repo
 - Run Script Remotely as GitHub Actions
-- Advanced Widgets
 - Screenshots
 - Screen Recording
-- Audio Recording
-- Webcam Capture
 - Desktop Color Picker
 - Measure Tool
 

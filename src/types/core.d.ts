@@ -144,6 +144,7 @@ export type Scriptlet = Script & {
 	cwd?: string
 	prepend?: string
 	append?: string
+	term?: undefined | boolean
 }
 
 export type Snippet = Script & {

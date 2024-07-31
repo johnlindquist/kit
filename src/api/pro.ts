@@ -289,27 +289,28 @@ let createWidgetAPI = (widgetId: number) => {
 }
 
 let vite: ViteWidget = async (dir, options = {}) => {
-	let root = kenvPath("vite", dir)
-	let widgetDirExists = await pathExists(root)
+	let viteRoot = kenvPath("vite")
+	let dirRoot = kenvPath("vite", dir)
+	let widgetDirExists = await pathExists(dirRoot)
 	if (!widgetDirExists) {
-		await ensureDir(root)
+		await ensureDir(viteRoot)
 		const clearCommand = process.platform === "win32" ? "cls" : "clear"
 		await global.term({
 			preview: md(
 				`
-# Creating ${dir} Project
+# Creating Project: "${dir}"
 
 Please follow the prompts then wait while vite automatically creates your project.
 
 Your project will be avaiable here:
 
 ~~~
-${root}
+${dirRoot}
 ~~~
 				`.trim()
 			),
 			command: `npm create vite "${dir}" && ${clearCommand} && cd "${dir}" && npm i && exit`,
-			cwd: root,
+			cwd: viteRoot,
 			shortcuts: [
 				{
 					name: "Exit",
@@ -322,7 +323,7 @@ ${root}
 			]
 		})
 
-		let sourcePath = path.resolve(root, "src")
+		let sourcePath = path.resolve(dirRoot, "src")
 		if (await pathExists(sourcePath)) {
 			let dTsContents = `
 declare global {
@@ -330,16 +331,16 @@ declare global {
 	function send(event: string, data?: any): void;
 }
 
-export {};
+export type {};
 			`.trim()
 			await writeFile(path.resolve(sourcePath, "global.d.ts"), dTsContents)
 		}
 	}
 
 	const { createServer } = await import("vite")
-	global.log(`Setting vite server root to ${root}`)
+	global.log(`Setting vite server root to ${dirRoot}`)
 	let server = await createServer({
-		root,
+		root: dirRoot,
 		mode: options?.mode || "development"
 	})
 	let viteServer = await server.listen(options?.port)

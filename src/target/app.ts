@@ -2169,7 +2169,9 @@ global.setValue = async (value) => {
 global.getDataFromApp = global.sendWait = async (
 	channel: GetAppData,
 	data?: any,
-	timeout: number = 1000
+	timeout = process?.env?.KIT_DEFAULT_APP_TIMEOUT
+		? Number.parseInt(process?.env?.KIT_DEFAULT_APP_TIMEOUT, 10)
+		: 1000
 ) => {
 	if (process?.send) {
 		return await new Promise((res, rej) => {
@@ -3417,7 +3419,7 @@ global.mic.stream = undefined
 global.mic.start = async (config: MicConfig) => {
 	beginMicStream()
 	let filePath = tmpPath(
-		global.formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss") + ".webm"
+		`${global.formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")}.webm`
 	)
 	await global.sendWait(Channel.START_MIC, {
 		filePath,
@@ -3436,7 +3438,7 @@ global.mic.stop = async () => {
 	return await readFile(filePath)
 }
 
-global.webcam = async () => {
+global.webcam = async (options?: PromptConfig) => {
 	return await global.kitPrompt({
 		ui: UI.webcam,
 		enter: "Capture",
@@ -3447,7 +3449,7 @@ global.webcam = async () => {
 			escapeShortcut,
 			{
 				key: `${cmd}+i`,
-				name: `Select Webcam`,
+				name: "Select Webcam",
 				onPress: async () => {
 					await run(kitPath("cli", "select-webcam.js"))
 					await mainScript()
@@ -3455,7 +3457,8 @@ global.webcam = async () => {
 				bar: "right"
 			},
 			closeShortcut
-		]
+		],
+		...options
 	})
 }
 
@@ -3519,7 +3522,8 @@ global.prompt = {
 }
 
 global.screenshot = async () => {
-	return await sendWait(Channel.SCREENSHOT)
+	let screenShotTmpPath = await sendWait(Channel.SCREENSHOT, true, 5000)
+	return await readFile(screenShotTmpPath)
 }
 
 let { $, cd } = await import("zx")
