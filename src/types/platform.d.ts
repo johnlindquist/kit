@@ -176,7 +176,7 @@ interface Screen {
 	height: number
 }
 type GetScreens = () => Promise<Display[]>
-type SelectDisplay = () => Promise<Display>
+type SelectDisplay = (includeThumbnails?: boolean) => Promise<Display>
 
 type TileWindow = (
 	app: string,

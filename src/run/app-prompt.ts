@@ -5,11 +5,14 @@ import { configEnv, run } from "../core/utils.js"
 
 // TODO: Fix the types around accepting an early Scriptlet
 let script: any = ""
+let args = []
 let tooEarlyHandler = (data) => {
 	if (data.channel === Channel.VALUE_SUBMITTED) {
 		script = data?.value?.scriptlet
 			? data?.value
 			: data?.value?.script || data?.state?.value?.filePath
+		args = data?.value?.args || data?.state?.value?.args || []
+
 		// const value = `${process.pid}: ${
 		//   data?.channel
 		// }: ${script} ${performance.now()}ms`
@@ -54,7 +57,6 @@ if (process.env.KIT_MEASURE) {
 
 let trigger = ""
 let name = ""
-let args = []
 let result = null
 let choices = []
 let scriptlet = null
@@ -81,7 +83,7 @@ try {
 			}
 			resolve({
 				script,
-				args: [],
+				args,
 				trigger: Trigger.Trigger
 			})
 			return

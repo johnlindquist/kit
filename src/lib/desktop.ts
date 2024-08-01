@@ -252,9 +252,13 @@ global.setWindowSize = async (process, title, x, y) => {
 global.getScreens = async () =>
 	(await global.getDataFromApp(Channel.GET_SCREENS_INFO)).displays
 
-global.selectDisplay = async () => {
+global.selectDisplay = async (includeThumbnails = true) => {
 	let displays = (
-		await global.getDataFromApp(Channel.GET_SCREENS_INFO, true, 5000)
+		await global.getDataFromApp(
+			Channel.GET_SCREENS_INFO,
+			includeThumbnails,
+			5000
+		)
 	).displays
 	return await arg(
 		"Select Display",

@@ -1269,7 +1269,7 @@ ${lastRunBlock}
 		group: "Debug",
 		name: "Open Log Window",
 		description: "Open a log window for {{name}}",
-		shortcut: `alt+enter`,
+		shortcut: "alt+enter",
 		flag: modifiers.opt
 	},
 	"push-script": {
