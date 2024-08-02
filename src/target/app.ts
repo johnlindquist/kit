@@ -61,7 +61,8 @@ import {
 	isMac,
 	debounce,
 	adjustPackageName,
-	editorShortcuts
+	editorShortcuts,
+	processPlatformSpecificTheme
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import { errorPrompt, getFlagsFromActions, tmpPath } from "../api/kit.js"
@@ -3048,11 +3049,13 @@ global.setStatus = async (status: KitStatus) => {
  * This allows for customization of colors, opacities, and fonts used in the application.
  */
 global.setTheme = async (theme: string) => {
-	await sendWait(Channel.SET_THEME, theme)
+	let processedTheme = processPlatformSpecificTheme(theme)
+	await sendWait(Channel.SET_THEME, processedTheme)
 }
 
 global.setScriptTheme = async (theme: string) => {
-	await sendWait(Channel.SET_TEMP_THEME, theme)
+	let processedTheme = processPlatformSpecificTheme(theme)
+	await sendWait(Channel.SET_TEMP_THEME, processedTheme)
 }
 
 global.setAlwaysOnTop = async (alwaysOnTop: boolean) => {

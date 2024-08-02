@@ -2023,3 +2023,40 @@ export let isScriptlet = (script: Script | Scriptlet): script is Scriptlet => {
 export let isSnippet = (script: Script): script is Snippet => {
 	return "text" in script
 }
+
+export let processPlatformSpecificTheme = (cssString: string): string => {
+	const platform = process.platform
+	const platformSuffix =
+		platform === "darwin" ? "-mac" : platform === "win32" ? "-win" : "-other"
+
+	// Split the CSS string into lines
+	const lines = cssString.split("\n")
+
+	// Process each line
+	const processedLines = lines.map((line) => {
+		// Check if the line contains a CSS variable
+		if (line.includes("--") && line.includes(":")) {
+			const parts = line.split(":")
+			const variableName = parts[0].trim()
+
+			// Check if the variable ends with a platform suffix
+			if (
+				variableName.endsWith("-mac") ||
+				variableName.endsWith("-win") ||
+				variableName.endsWith("-other")
+			) {
+				// If it matches the current platform, remove the suffix
+				if (variableName.endsWith(platformSuffix)) {
+					return `    ${variableName.slice(0, -platformSuffix.length)}: ${parts[1].trim()}`
+				}
+				// If it doesn't match, remove the line
+				return null
+			}
+		}
+		// If it's not a platform-specific variable, keep the line as is
+		return line
+	})
+
+	// Join the processed lines, filtering out null values
+	return processedLines.filter((line) => line !== null).join("\n")
+}

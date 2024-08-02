@@ -5,7 +5,8 @@ import {
 	shortcutNormalizer,
 	getKenvFromPath,
 	home,
-	kenvPath
+	kenvPath,
+	processPlatformSpecificTheme
 } from "./utils"
 import { outputTmpFile } from "../api/kit"
 import slugify from "slugify"
@@ -207,7 +208,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 	t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })
 
-ava.only(
+ava(
 	"parseMarkdownAsScripts allow JavaScript imports, exports, ${",
 	async (t) => {
 		let markdown = `
@@ -283,7 +284,7 @@ export { note }
 	}
 )
 
-ava.only(
+ava(
 	"parseMarkdownAsScripts allow doesn't create multiple inputs for the same template variable",
 	async (t) => {
 		let markdown = `
@@ -348,4 +349,88 @@ ava("getKenvFromPath - sub kenv", async (t) => {
 ava("getKenvFromPath - no kenv, throw", async (t) => {
 	let scriptletsPath = home("kit.md")
 	t.throws(() => getKenvFromPath(scriptletsPath))
+})
+
+ava("processPlatformSpecificTheme - Mac specific", (t) => {
+	const originalPlatform = process.platform
+	Object.defineProperty(process, "platform", { value: "darwin" })
+
+	const input = `
+    --color-primary-mac: #ff0000;
+    --color-secondary-win: #00ff00;
+    --color-tertiary-other: #0000ff;
+    --color-neutral: #cccccc;
+  `
+
+	const expected = `
+    --color-primary: #ff0000;
+    --color-neutral: #cccccc;
+  `
+
+	const result = processPlatformSpecificTheme(input)
+	t.is(result.trim(), expected.trim())
+
+	Object.defineProperty(process, "platform", { value: originalPlatform })
+})
+
+ava("processPlatformSpecificTheme - Windows specific", (t) => {
+	const originalPlatform = process.platform
+	Object.defineProperty(process, "platform", { value: "win32" })
+
+	const input = `
+    --color-primary-mac: #ff0000;
+    --color-secondary-win: #00ff00;
+    --color-tertiary-other: #0000ff;
+    --color-neutral: #cccccc;
+  `
+
+	const expected = `
+    --color-secondary: #00ff00;
+    --color-neutral: #cccccc;
+  `
+
+	const result = processPlatformSpecificTheme(input)
+	t.is(result.trim(), expected.trim())
+
+	Object.defineProperty(process, "platform", { value: originalPlatform })
+})
+
+ava("processPlatformSpecificTheme - Other platform", (t) => {
+	const originalPlatform = process.platform
+	Object.defineProperty(process, "platform", { value: "linux" })
+
+	const input = `
+    --color-primary-mac: #ff0000;
+    --color-secondary-win: #00ff00;
+    --color-tertiary-other: #0000ff;
+    --color-neutral: #cccccc;
+  `
+
+	const expected = `
+    --color-tertiary: #0000ff;
+    --color-neutral: #cccccc;
+  `
+
+	const result = processPlatformSpecificTheme(input)
+	t.is(result.trim(), expected.trim())
+
+	Object.defineProperty(process, "platform", { value: originalPlatform })
+})
+
+ava("processPlatformSpecificTheme - No platform-specific variables", (t) => {
+	const input = `
+    --color-primary: #ff0000;
+    --color-secondary: #00ff00;
+    --color-tertiary: #0000ff;
+    --color-neutral: #cccccc;
+  `
+
+	const result = processPlatformSpecificTheme(input)
+	t.is(result.trim(), input.trim())
+})
+
+ava("processPlatformSpecificTheme - Empty input", (t) => {
+	const input = ""
+	const result = processPlatformSpecificTheme(input)
+	t.is(result, "")
 })
