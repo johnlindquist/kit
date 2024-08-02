@@ -1,0 +1,17 @@
+html {
+  --name: "Night Owl Light";
+  --appearance: light;
+  --opacity: 0.9;
+  --color-text: #403f53;
+  --color-primary: #0c969b;
+  --color-secondary: #f0f0f0;
+  --color-background: #fbfbfb;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

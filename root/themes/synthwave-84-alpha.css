@@ -1,0 +1,17 @@
+html {
+  --name: "Synthwave 84 Alpha";
+  --appearance: dark;
+  --opacity: 0.85;
+  --color-text: #f0eff1;
+  --color-primary: #ff7edb;
+  --color-secondary: #241b2f;
+  --color-background: #2b213aaa;
+  --ui-bg-opacity: 0.5;
+  --ui-border-opacity: 0.7;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

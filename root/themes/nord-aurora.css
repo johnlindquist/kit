@@ -1,0 +1,17 @@
+html {
+  --name: "Nord Aurora";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #d8dee9;
+  --color-primary: #88c0d0;
+  --color-secondary: #4c566a;
+  --color-background: #2e3440;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

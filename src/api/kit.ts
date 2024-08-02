@@ -1024,6 +1024,14 @@ export let actions: Action[] = [
 		group: "New"
 	},
 	{
+		name: "New Theme",
+		description: "Create a new theme",
+		onAction: async () => {
+			await run(kitPath("cli", "new-theme.js"))
+		},
+		group: "New"
+	},
+	{
 		name: "Sign In",
 		description: "Log in to GitHub to Script Kit",
 		flag: "sign-in-to-script-kit",
@@ -1600,6 +1608,7 @@ export let getGroupedScripts = async (fromCache = true) => {
 		kitPath("cli", "new-menu.js"),
 		kitPath("cli", "new-scriptlet.js"),
 		kitPath("cli", "new-snippet.js"),
+		kitPath("cli", "new-theme.js"),
 		kitPath("cli", "share.js"),
 		kitPath("cli", "find.js"),
 		kitPath("main", "docs.js"),

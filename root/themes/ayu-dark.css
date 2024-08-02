@@ -1,0 +1,17 @@
+html {
+  --name: "Ayu Dark";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #b3b1ad;
+  --color-primary: #e6b450;
+  --color-secondary: #1a1f29;
+  --color-background: #0a0e14;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

@@ -1,0 +1,17 @@
+html {
+  --name: "Material Palenight";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #a6accd;
+  --color-primary: #c792ea;
+  --color-secondary: #4e5579;
+  --color-background: #292d3e;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

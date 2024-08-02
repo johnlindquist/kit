@@ -1,0 +1,17 @@
+html {
+    --name: "Script Kit Light";
+  --appearance: light;
+  --opacity: 0.9;
+  --color-text: #2C2C2C;
+  --color-primary: #2F86D3;
+  --color-secondary: #CCCCCC;
+  --color-background: #ffffff;
+  --ui-bg-opacity: 0.5;
+  --ui-border-opacity: 0.5;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

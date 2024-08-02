@@ -1,10 +1,21 @@
-// Name: Theme Selector
-// Description: Preview and Apply Themes
-// Keyword: theme
-// Cache: true
+/*
+# New Theme
 
-import "@johnlindquist/kit"
-import { globby } from "globby"
+Create a new theme based on the current theme
+*/
+
+// Name: New Theme
+// Description: Create a new snippet
+// Log: false
+// Pass: true
+// Keyword: nt
+
+await ensureDir(kenvPath("themes"))
+
+let name = arg?.pass || (await arg("Theme Name"))
+
+// convert name to dashed lowercase
+let dashed = name.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()
 
 let customThemePaths = await globby([
 	kenvPath("themes", "*.css").replaceAll("\\", "/")
@@ -91,32 +102,14 @@ for await (let cssPath of customThemePaths) {
 	themes.push(theme)
 }
 
-let RESET = "Reset to Defaults"
-
-if (env.KIT_THEME_LIGHT || env.KIT_THEME_DARK) {
-	themes.unshift({
-		group: "Kit",
-		name: RESET,
-		description: "Reset both light and dark themes to defaults",
-		value: RESET,
-		enter: "Reset",
-		preview: md(`# Reset to Defaults
-  
-  Clear both \`KIT_THEME_LIGHT\` and \`KIT_THEME_DARK\` environment variables to reset to defaults.
-  `)
-	})
-}
-
 themes = groupChoices(themes, {
-	order: ["Kit", "Default", "Custom", "Built-in"]
+	order: ["Default", "Custom", "Built-in"]
 })
 
 let cssPath = await arg(
 	{
-		placeholder: "Select Theme",
-		headerClassName: "",
-		footerClassName: "",
-		shortcuts: [],
+		placeholder: "Select a Theme to Copy",
+		hint: "Base New Theme on...",
 		onEscape: async () => {
 			await setScriptTheme("")
 			exit()
@@ -125,25 +118,14 @@ let cssPath = await arg(
 	themes
 )
 
-if (cssPath === RESET) {
-	await cli("remove-env-var", "KIT_THEME_LIGHT")
-	await cli("remove-env-var", "KIT_THEME_DARK")
-} else {
-	let appearance = await arg(`Use ${path.basename(cssPath)} When Appearance`, [
-		"Light",
-		"Dark",
-		"Both"
-	])
-	if (appearance === "Light" || appearance === "Both") {
-		await cli("set-env-var", "KIT_THEME_LIGHT", cssPath)
-	}
+let theme = await readFile(cssPath, "utf-8")
+// Replace the --name variable with the new theme name
+theme = theme.replace(/--name: ".*";/g, `--name: "${name}";`)
+let themePath = kenvPath("themes", `${dashed}.css`)
+await writeFile(themePath, theme)
+await cli("set-env-var", "KIT_THEME_LIGHT", themePath)
+await cli("set-env-var", "KIT_THEME_DARK", themePath)
 
-	if (appearance === "Dark" || appearance === "Both") {
-		await cli("set-env-var", "KIT_THEME_DARK", cssPath)
-	}
+await edit(themePath)
 
-	let theme = await readFile(cssPath, "utf-8")
-	await setTheme(theme)
-}
-await setInput("")
-await mainScript()
+export type {}

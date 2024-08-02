@@ -1,0 +1,17 @@
+html {
+  --name: "Cobalt2";
+  --appearance: light;
+  --opacity: 0.9;
+  --color-text: #f0f0f0ff;
+  --color-primary: #ff9d00ff;
+  --color-secondary: #193a59ff;
+  --color-background: #002240ff;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

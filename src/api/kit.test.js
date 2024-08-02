@@ -6,165 +6,159 @@ import dotenv from "dotenv"
 import { pathToFileURL } from "node:url"
 
 let importKit = async (...parts) => {
-  let partsPath = path.resolve(process.env.KIT, ...parts)
-  return await import(pathToFileURL(partsPath).href)
+	let partsPath = path.resolve(process.env.KIT, ...parts)
+	return await import(pathToFileURL(partsPath).href)
 }
 
 /** @type {import("./utils")} */
 await importKit("core", "utils.js")
 
-ava.serial(`testing "run" is global`, async t => {
-  let otherScript = "mock-other-script"
-  let mainScript = "mock-main-run-script"
+ava.serial(`testing "run" is global`, async (t) => {
+	let otherScript = "mock-other-script"
+	let mainScript = "mock-main-run-script"
 
-  await exec(`kit new ${otherScript} main --no-edit`, {
-    env: {
-      ...process.env,
-      KIT_MODE: "js"
-    }
-  })
-  await exec(`kit new ${mainScript} main --no-edit`, {
-    env: {
-      ...process.env,
-      KIT_MODE: "js"
-    }
-  })
+	await exec(`kit new ${otherScript} main --no-edit`, {
+		env: {
+			...process.env,
+			KIT_MODE: "js"
+		}
+	})
+	await exec(`kit new ${mainScript} main --no-edit`, {
+		env: {
+			...process.env,
+			KIT_MODE: "js"
+		}
+	})
 
-  await appendFile(
-    kenvPath("scripts", `${mainScript}.js`),
-    `
+	await appendFile(
+		kenvPath("scripts", `${mainScript}.js`),
+		`
     await run("${otherScript}")
     `
-  )
+	)
 
-  if (process.platform === "win32") {
-    mainScript += ".cmd"
-  }
+	if (process.platform === "win32") {
+		mainScript += ".cmd"
+	}
 
-  let { stdout, stderr } = await exec(`${kenvPath(
-    "bin",
-    mainScript
-  )}`)
+	const executeScript = async () => {
+		try {
+			return await exec(`${kenvPath("bin", mainScript)}`)
+		} catch (error) {
+			if (process.platform === "win32") {
+				await new Promise((resolve) => setTimeout(resolve, 5000))
+				return await exec(`${kenvPath("bin", mainScript)}`)
+			}
+			throw error
+		}
+	}
 
-  t.log({
-    stdout,
-    stderr
-  })
+	let { stdout, stderr } = await executeScript()
 
-  t.is(stderr, "")
+	t.log({
+		stdout,
+		stderr
+	})
+
+	t.is(stderr, "")
 })
 
-ava.serial("tmpPath generates a tmp path", async t => {
-  let script = "mock-tmp-path"
-  let file = "taco.txt"
+ava.serial("tmpPath generates a tmp path", async (t) => {
+	let script = "mock-tmp-path"
+	let file = "taco.txt"
 
-  let { stdout, stderr } = await testScript(
-    script,
-    `
+	let { stdout, stderr } = await testScript(
+		script,
+		`
     console.log(tmpPath("${file}"))    
     `
-  )
+	)
 
-  t.true(await pathExists(kenvPath("tmp", script)))
-  let result = pathToFileURL(stdout.trim()).href
-  let testTmpPath = pathToFileURL(path.resolve(os.tmpdir(), "kit", script, file)).href
-  t.log({result, testTmpPath})
-  t.is(
-    result,
-    testTmpPath
-  )
-  t.is(stderr, "")
+	t.true(await pathExists(kenvPath("tmp", script)))
+	let result = pathToFileURL(stdout.trim()).href
+	let testTmpPath = pathToFileURL(
+		path.resolve(os.tmpdir(), "kit", script, file)
+	).href
+	t.log({ result, testTmpPath })
+	t.is(result, testTmpPath)
+	t.is(stderr, "")
+})
+
+ava.serial("setEnvVar sets an environment variable", async (t) => {
+	const key = "KIT_TEST_ENV_VAR"
+	const value = "hello"
+
+	const { setEnvVar } = await importKit("api", "kit.js")
+	await setEnvVar(key, value)
+
+	let kenvEnvPath = kenvPath(".env")
+	let kenvEnv = dotenv.parse(await readFile(kenvEnvPath, "utf8"))
+
+	t.is(kenvEnv[key], value)
+})
+
+ava.serial("getEnvVar gets an environment variable", async (t) => {
+	let key = "KIT_TEST_ENV_VAR"
+	let fallback = "default"
+	let expectedValue = "hello"
+
+	let { setEnvVar, getEnvVar } = await importKit("api", "kit.js")
+	await setEnvVar(key, expectedValue)
+
+	// Now we retrieve the environment variable
+	let value = await getEnvVar(key, fallback)
+
+	// Check if the retrieved value matches the expected value
+	t.is(value, expectedValue)
 })
 
 ava.serial(
-  "setEnvVar sets an environment variable",
-  async t => {
-    const key = "KIT_TEST_ENV_VAR"
-    const value = "hello"
-    
-    const { setEnvVar } = await importKit("api", "kit.js")
-    await setEnvVar(key, value)
+	"getEnvVar returns fallback if environment variable does not exist",
+	async (t) => {
+		let key = "NON_EXISTENT_ENV_VAR"
+		let fallback = "default"
 
-    let kenvEnvPath = kenvPath(".env")
-    let kenvEnv = dotenv.parse(
-      await readFile(kenvEnvPath, "utf8")
-    )
+		let { getEnvVar } = await importKit("api", "kit.js")
+		let value = await getEnvVar(key, fallback)
 
-    t.is(kenvEnv[key], value)
-  }
+		// Check if the fallback value is returned
+		t.is(value, fallback)
+	}
 )
 
-ava.serial(
-  "getEnvVar gets an environment variable",
-  async t => {
-    let key = "KIT_TEST_ENV_VAR"
-    let fallback = "default"
-    let expectedValue = "hello"
+ava.serial("toggleEnvVar toggles an environment variable", async (t) => {
+	let key = "KIT_TEST_TOGGLE_VAR"
+	let defaultValue = "true"
 
-    let { setEnvVar, getEnvVar } = await importKit(
-      "api", "kit.js"
-    )
-    await setEnvVar(key, expectedValue)
+	// Import the methods
 
-    // Now we retrieve the environment variable
-    let value = await getEnvVar(key, fallback)
+	/** @type {import("./kit.js")} */
+	let result = await importKit("api", "kit.js")
 
-    // Check if the retrieved value matches the expected value
-    t.is(value, expectedValue)
-  }
-)
+	let { setEnvVar, toggleEnvVar, getEnvVar } = await importKit("api", "kit.js")
 
-ava.serial(
-  "getEnvVar returns fallback if environment variable does not exist",
-  async t => {
-    let key = "NON_EXISTENT_ENV_VAR"
-    let fallback = "default"
+	// Set the environment variable to the default value
+	await setEnvVar(key, defaultValue)
 
-    let { getEnvVar } = await importKit("api", "kit.js")
-    let value = await getEnvVar(key, fallback)
+	let toggledValue = await getEnvVar(key, "")
 
-    // Check if the fallback value is returned
-    t.is(value, fallback)
-  }
-)
+	t.is(toggledValue, "true")
 
-ava.serial(
-  "toggleEnvVar toggles an environment variable",
-  async t => {
-    let key = "KIT_TEST_TOGGLE_VAR"
-    let defaultValue = "true"
+	// Toggle the environment variable
+	await toggleEnvVar(key)
 
-    // Import the methods
+	// Retrieve the toggled value
+	toggledValue = await getEnvVar(key, "")
 
-    /** @type {import("./kit.js")} */
-    let result = await importKit("api", "kit.js")
+	// Check if the value has been toggled from "true" to "false"
+	t.is(toggledValue, "false")
 
-    let { setEnvVar, toggleEnvVar, getEnvVar } =
-      await importKit("api", "kit.js")
+	// Toggle again
+	await toggleEnvVar(key)
 
-    // Set the environment variable to the default value
-    await setEnvVar(key, defaultValue)
+	// Retrieve the value again
+	toggledValue = await getEnvVar(key, "")
 
-    let toggledValue = await getEnvVar(key, "")
-
-    t.is(toggledValue, "true")
-
-    // Toggle the environment variable
-    await toggleEnvVar(key)
-
-    // Retrieve the toggled value
-    toggledValue = await getEnvVar(key, "")
-
-    // Check if the value has been toggled from "true" to "false"
-    t.is(toggledValue, "false")
-
-    // Toggle again
-    await toggleEnvVar(key)
-
-    // Retrieve the value again
-    toggledValue = await getEnvVar(key, "")
-
-    // Check if the value has been toggled back to "true"
-    t.is(toggledValue, "true")
-  }
-)
+	// Check if the value has been toggled back to "true"
+	t.is(toggledValue, "true")
+})

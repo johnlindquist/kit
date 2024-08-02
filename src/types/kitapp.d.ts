@@ -736,7 +736,8 @@ export interface KitTheme {
 	ui: string
 	opacity: string
 }
-export type SetTheme = (theme: Partial<KitTheme>) => Promise<void>
+
+export type SetTheme = (theme: string) => Promise<void>
 
 export type SetPlaceholder = (placeholder: string) => void
 
@@ -752,7 +753,6 @@ export type SetBounds = (bounds: Partial<Rectangle>) => void
 
 export type SendKeystroke = (keyData: Partial<KeyData>) => void
 
-export type GetBounds = () => Promise<Rectangle>
 export type GetBounds = () => Promise<Rectangle>
 
 export type GetActiveScreen = () => Promise<Display>

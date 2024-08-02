@@ -3022,11 +3022,36 @@ global.setStatus = async (status: KitStatus) => {
 	await sendWait(Channel.SET_STATUS, status)
 }
 
-global.setTheme = async (theme: KitTheme) => {
+/**
+ * Sets the theme for the application.
+ * @param theme A string containing CSS variables that define the theme.
+ *
+ * The theme string should be in the following format:
+ *
+ * ```css
+ * html {
+ *   --color-text: #ffffffff;
+ *   --color-primary: #fbbf24ff;
+ *   --color-secondary: #343434ff;
+ *   --color-background: #0f0f0fff;
+ *   --ui-bg-opacity: 0.05;
+ *   --ui-border-opacity: 0.15;
+ *
+ *   --mono-font: JetBrains Mono;
+ *   --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+ *     'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+ *   --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+ *     'serif';
+ * }
+ * ```
+ *
+ * This allows for customization of colors, opacities, and fonts used in the application.
+ */
+global.setTheme = async (theme: string) => {
 	await sendWait(Channel.SET_THEME, theme)
 }
 
-global.setScriptTheme = async (theme: KitTheme) => {
+global.setScriptTheme = async (theme: string) => {
 	await sendWait(Channel.SET_TEMP_THEME, theme)
 }
 
