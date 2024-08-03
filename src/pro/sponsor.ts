@@ -19,7 +19,9 @@ let content = `# ${featureName} Requires Pro Account`
 await div({
 	html: md(content + proPane()),
 	enter: "Continue to Sponsorship Page",
-	shortcuts: [escapeShortcut]
+	shortcuts: [escapeShortcut],
+	width: 640,
+	height: 640
 })
 
 open(sponsorUrl)

@@ -16,7 +16,7 @@ import type {
 	Snippet
 } from "../types/core"
 import { platform, homedir } from "node:os"
-import { lstatSync, PathLike, realpathSync } from "node:fs"
+import { lstatSync, realpathSync } from "node:fs"
 import { access, lstat, readdir, readFile } from "node:fs/promises"
 import { constants } from "node:fs"
 import { execSync } from "node:child_process"
@@ -25,16 +25,14 @@ import { ProcessType, Channel, PROMPT } from "./enum.js"
 import {
 	type AssignmentExpression,
 	type Identifier,
-	MemberExpression,
-	Node,
 	type ObjectExpression,
 	Parser,
-	Property,
 	type Program
 } from "acorn"
 import tsPlugin from "acorn-typescript"
 import { globby } from "globby"
 import type { Stamp } from "./db"
+import { pathToFileURL } from "node:url"
 
 export let isWin = platform().startsWith("win")
 export let isMac = platform().startsWith("darwin")
@@ -1134,40 +1132,109 @@ export let cliShortcuts: Shortcut[] = [
 	closeShortcut
 ]
 
+let kitFilePath = (...paths: string[]) =>
+	pathToFileURL(kitPath("images", ...paths)).href
+let iconPath = kitFilePath("icon.svg")
+let kentPath = kitFilePath("kent.jpg")
+let mattPath = kitFilePath("matt.jpg")
+
+const checkmarkStyles = `
+  <style>
+    .checkmark-list {
+      list-style-type: none !important;
+      padding-left: 0 !important;
+    }
+    .checkmark-list li {
+      padding-left: 1.5em;
+      position: relative;
+    }
+    .checkmark-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--color-primary);
+    }
+    .checkmark-list li::marker {
+      content: none !important;
+    }
+  </style>
+`
 export let proPane = () =>
 	`
-<h2 class="pb-1 text-xl">⭐️ Pro Account</h2>
-<a href="submit:pro" class="shadow-xl shadow-primary/25 text-bg-base font-bold px-3 py-3 h-6 no-underline rounded bg-primary bg-opacity-100 hover:opacity-80">Unlock All Features ($7/m.)</a>
+  ${checkmarkStyles}
 
-<div class="py-1"></div>
-<div class="flex justify-evenly">
 
-<div class="list-inside">
+<svg width="0" height="0">
+  <defs>
+    <filter id="dropShadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="0" dy="3" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="1" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+  </defs>
+</svg>
 
-## Pro Features
-
-- Debugger
-- Script Log Window
-- Vite Widgets
-- Mic Capture
-- Webcam Capture
-- Support through Discord
-
+<div class="px-8">
+<div class="flex flex-col items-center">
+  <img src="${iconPath}" alt="Script Kit Pro" class="mx-auto mt-4 mb-3"  style="width: 50px; height: 50px; filter: url(#dropShadow);">
+  <h3 class="text-2xl font-bold my-1">Script Kit Pro</h3>
+  <p class="text-lg -mt-1">$7 / month</p>
+  <a href="submit:pro" class="shadow-lg shadow-primary/25 max-w-52 text-center text-bg-base font-bold px-3 py-3 h-12 no-underline rounded bg-primary bg-opacity-100 hover:opacity-80">Unlock All Features</a>
+  <p class="text-xs mt-3">Cancel anytime</p>
 </div>
 
-<div>
+<hr class="mt-4 -mb-2">
 
-## Upcoming Pro Features
+<div class="flex">
+  <div class="list-inside flex-1">
+    <h3 class="text-xl font-bold">Pro Features</h3>
+    <ul class="checkmark-list">
+    <li>Debugger</li>
+    <li>Unlimited Active Prompts</li>
+    <li>Script Log Window</li>
+    <li>Vite Widgets</li>
+      <li>Webcam Capture</li>
+      <li>Screenshots</li>
+      <li>Desktop Color Picker</li>
+      <li>Support through Discord</li>
+    </ul>
+  </div>
 
-- Sync Scripts to GitHub Repo
-- Run Script Remotely as GitHub Actions
-- Screenshots
-- Screen Recording
-- Desktop Color Picker
-- Measure Tool
-
+  <div class="list-inside flex-1">
+    <h3 class="text-xl font-bold">Planned Features...</h3>
+    <ul class="checkmark-list">
+      <li>Sync Scripts to GitHub Repo</li>
+      <li>Run Script Remotely as GitHub Actions</li>
+      <li>Screen Recording</li>      
+      <li>Measure Tool</li>
+    </ul>
+  </div>
 </div>
-</div>
+
+<hr class="my-4">
+
+<h3 class="text-xl font-bold">What the community is saying</h3>
+<div class="flex flex-row">
+  
+  <div class="flex flex-col w-1/2 pr-8">
+    <div class="flex flex-row items-center -mb-2">
+    <img src="${kentPath}" alt="Kent C. Dodds" class="rounded-full mx-auto" style="width: 40px; height: 40px;">
+    <p class="font-bold text-lg ml-2 mb-0">Kent C. Dodds</p>
+    </div>
+    <p class="text-sm text-left">I forgot that a lot of people don't know what Script Kit is. <strong>You're missing out!</strong> I use it to easily open projects in VSCode, start a zoom meeting and put the link in my clipboard, download Twitter images, upload images to cloudinary, and so much more!</p>
+  </div>
+
+
+  <div class="flex flex-col w-1/2">
+  <div class="flex flex-row items-center -mb-2">
+    <img src="${mattPath}" alt="Matt Pocock" class="rounded-full mx-auto" style="width: 40px; height: 40px;">
+    <p class="font-bold text-lg ml-2 mb-0">Matt Pocock</p>
+    </div>
+    <p class="text-sm text-left">So, <strong>Script Kit is AMAZING.</strong> Just spent a very happy morning figuring out a script where it takes my latest recording from OBS and trims the silence from the start and end with ffmpeg. Now, it's just a command palette action away.</p>
+  </div>
+  </div>
+  
+  </div>
 `
 
 export const getShellSeparator = () => {
