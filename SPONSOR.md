@@ -27,8 +27,12 @@
 
 <ul class="text-xs">
     <li>Debugger</li>
+    <li>Unlimited Active Prompts</li>
     <li>Script Log Window</li>
-    <li>Audio Recording</li>
+    <li>Vite Widgets</li>
+    <li>Webcam Capture</li>
+    <li>Screenshots</li>
+    <li>Desktop Color Picker</li>
     <li>Support through Discord</li>
 <ul>
 </div>
@@ -41,11 +45,7 @@
 <ul class="text-xs">
     <li>Sync Scripts to GitHub Repo</li>
     <li>Run Script Remotely as GitHub Actions</li>
-    <li>Advanced Widgets</li>
-    <li>Screenshots</li>
-    <li>Screen Recording</li>
-    <li>Webcam Capture</li>
-    <li>Desktop Color Picker</li>
+    <li>Screen Recording</li>      
     <li>Measure Tool</li>
 </ul>
 
