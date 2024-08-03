@@ -1,13 +1,16 @@
 let sponsorsDir = kenvPath("kenvs", "sponsors")
-$.verbose = false
+
 if (await isDir(sponsorsDir)) {
-  cd(sponsorsDir)
-  await exec(`git pull --rebase --autostash --stat`)
+	await exec("git pull --rebase --autostash --stat", {
+		cwd: sponsorsDir
+	})
 } else {
-  cd(kenvPath("kenvs"))
-  await exec(
-    `git clone https://github.com/johnlindquist/kit-sponsors sponsors`
-  )
+	await exec(
+		"git clone https://github.com/johnlindquist/kit-sponsors sponsors",
+		{
+			cwd: kenvPath("kenvs")
+		}
+	)
 }
 
 export {}
