@@ -137,9 +137,13 @@ global.arg = async (messageOrConfig = "Input", choices) => {
 	return input
 }
 
+global.grid = async (messageOrConfig, choices) => {
+	return await global.arg(messageOrConfig, choices)
+}
+
 global.select = async (messageOrConfig, choices) => {
 	let config: PromptConfig = {
-		multiple: true
+		grid: true
 	}
 	if (typeof messageOrConfig === "string") {
 		config.placeholder = messageOrConfig

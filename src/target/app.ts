@@ -1754,7 +1754,7 @@ global.basePrompt = async (
 }
 
 global.select = async (
-	placeholderOrConfig = "Type a value:",
+	placeholderOrConfig = "Type something...",
 	choices = [],
 	actions = []
 ) => {
@@ -1781,6 +1781,28 @@ global.select = async (
 				visible: true
 			}
 		]
+	}
+
+	if (typeof placeholderOrConfig === "string") {
+		config.placeholder = placeholderOrConfig
+	} else {
+		config = {
+			...config,
+			...(placeholderOrConfig as PromptConfig)
+		}
+	}
+
+	return await arg(config, choices, actions)
+}
+
+global.grid = async (
+	placeholderOrConfig = "Type something...",
+	choices = [],
+	actions = []
+) => {
+	let config: PromptConfig = {
+		grid: true,
+		enter: "Select"
 	}
 
 	if (typeof placeholderOrConfig === "string") {

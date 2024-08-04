@@ -450,6 +450,9 @@ export type PromptConfig = {
 	env?: any
 	shortcuts?: Shortcut[]
 	show?: boolean
+	grid?: boolean
+	columnWidth?: number
+	rowHeight?: number
 } & Partial<Omit<PromptData, "choices" | "id" | "script" | "preview">>
 
 export type CronExpression =

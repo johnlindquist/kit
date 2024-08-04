@@ -34,6 +34,13 @@ export type Select = <T = any[]>(
 	choices: Choices<T>,
 	actions?: Action[]
 ) => Promise<T>
+
+export type Grid = <T = any[]>(
+	placeholderOrConfig: string | PromptConfig,
+	choices: Choices<T>,
+	actions?: Action[]
+) => Promise<T>
+
 export interface EnvConfig extends PromptConfig {
 	reset?: boolean
 }
@@ -330,6 +337,7 @@ declare global {
 	var env: Env
 	var arg: Arg
 	var select: Select
+	var grid: Grid
 	var basePrompt: Arg
 	var mini: Arg
 	var micro: Arg
