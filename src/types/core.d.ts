@@ -43,6 +43,7 @@ export interface Choice<Value = any> {
 	disableSubmit?: boolean
 	info?: boolean
 	exclude?: boolean
+	width?: number
 	height?: number
 	skip?: boolean
 	miss?: boolean
