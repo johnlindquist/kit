@@ -13,4 +13,4 @@ if (await isDir(sponsorsDir)) {
 	)
 }
 
-export {}
+export type {}
