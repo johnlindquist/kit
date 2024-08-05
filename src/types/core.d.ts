@@ -451,6 +451,7 @@ export type PromptConfig = {
 	shortcuts?: Shortcut[]
 	show?: boolean
 	grid?: boolean
+	columns?: number
 	columnWidth?: number
 	rowHeight?: number
 } & Partial<Omit<PromptData, "choices" | "id" | "script" | "preview">>
