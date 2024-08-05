@@ -15,9 +15,13 @@ let findApps = async () => {
 	let manualUtilitiesDir = (await readdir(UTILITIES_DIR)).map(
 		(app) => `${UTILITIES_DIR}/${app}`
 	)
-	let chromeApps = (await readdir(CHROME_APPS_DIR)).map(
-		(app) => `${CHROME_APPS_DIR}/${app}`
-	)
+
+	let chromeApps = []
+	if (await isDir(CHROME_APPS_DIR)) {
+		chromeApps = (await readdir(CHROME_APPS_DIR)).map(
+			(app) => `${CHROME_APPS_DIR}/${app}`
+		)
+	}
 
 	let apps = manualAppDir
 		.concat(chromeApps, manualUtilitiesDir)
