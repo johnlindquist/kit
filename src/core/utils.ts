@@ -1179,7 +1179,7 @@ export let proPane = () =>
   <img src="${iconPath}" alt="Script Kit Pro" class="mx-auto mt-4 mb-3"  style="width: 50px; height: 50px; filter: url(#dropShadow);">
   <h3 class="text-2xl font-bold my-1">Script Kit Pro</h3>
   <p class="text-lg -mt-1">$7 / month</p>
-  <a href="submit:pro" class="shadow-lg shadow-primary/25 max-w-52 text-center text-bg-base font-bold px-3 py-3 h-12 no-underline rounded bg-primary bg-opacity-100 hover:opacity-80">Unlock All Features</a>
+  <a href="submit:pro" class="shadow-lg shadow-primary/25 max-w-52 text-center text-bg-base font-bold px-3 py-3 h-12 no-underline rounded bg-primary bg-opacity-100 hover:shadow-md hover:shadow-primary/10">Unlock All Features</a>
   <p class="text-xs mt-3">Cancel anytime</p>
 </div>
 

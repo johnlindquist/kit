@@ -24,15 +24,10 @@ let formatProcesses = async () => {
 			}
 		})
 
-	processes.push({
-		info: true,
-		miss: true,
-		name: "No running processes found..."
-	})
-
 	return processes
 }
-let id = setInterval(async () => {
+
+let checkProcesses = async () => {
 	let newProcesses = await formatProcesses()
 	let sameProcesses =
 		JSON.stringify(newProcesses) === JSON.stringify(currentProcesses)
@@ -40,6 +35,10 @@ let id = setInterval(async () => {
 		setChoices(newProcesses)
 		currentProcesses = newProcesses
 	}
+}
+
+let id = setInterval(async () => {
+	await checkProcesses()
 }, 1000)
 
 let currentProcesses = await formatProcesses()
@@ -48,9 +47,34 @@ let argPromise = arg(
 	{
 		placeholder: "Focus Prompt",
 		enter: "Focus",
-		shortcuts: [escapeShortcut, viewLogShortcut, terminateProcessShortcut],
+		shortcuts: [
+			escapeShortcut,
+			{
+				name: "Edit",
+				key: `${cmd}+o`,
+				onPress: async (input, state) => {
+					clearInterval(id)
+					await edit(state.focused.value.scriptPath)
+				},
+				bar: "right"
+			},
+			{
+				...viewLogShortcut,
+				onPress: async (input, state) => {
+					clearInterval(id)
+					await viewLogShortcut.onPress(input, state)
+				}
+			},
+			{
+				...terminateProcessShortcut,
+				onPress: async (input, state) => {
+					await terminateProcessShortcut.onPress(input, state)
+					await checkProcesses()
+				}
+			}
+		],
 		onAbandon: async () => {
-			clearTimeout(id)
+			clearInterval(id)
 			await mainScript()
 		}
 	},
