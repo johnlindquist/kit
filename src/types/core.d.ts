@@ -454,6 +454,8 @@ export type PromptConfig = {
 	columns?: number
 	columnWidth?: number
 	rowHeight?: number
+	gridGap?: number
+	gridPadding?: number
 } & Partial<Omit<PromptData, "choices" | "id" | "script" | "preview">>
 
 export type CronExpression =
