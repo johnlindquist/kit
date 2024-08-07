@@ -3,166 +3,7 @@
 // Cache: true
 // Trigger: /
 
-import { escapeShortcut, isMac, isWin } from "../core/utils.js"
-
-let actionFlags: {
-	name: string
-	description?: string
-	value: string
-	action?: (selectedFile: string) => Promise<void>
-}[] = [
-	{
-		name: "Open in Default App",
-		value: "open",
-		action: async (selectedFile) => {
-			await open(selectedFile)
-		}
-	},
-	{
-		name: "Open with...",
-		description: "Select from a list of apps to open the file with",
-		value: "open-with",
-		action: async (selectedFile) => {
-			await run(kitPath("main", "open-with.js"), selectedFile)
-		}
-	},
-	{
-		name: `Show in ${isMac ? "Finder" : "Explorer"}`,
-		description: `Reveal the file in ${isMac ? "Finder" : "Explorer"}`,
-		value: "finder",
-		action: async (selectedFile) => {
-			await revealFile(selectedFile)
-		}
-	},
-	{
-		name: "Show Info",
-		value: "info",
-		action: async (selectedFile) => {
-			await applescript(`
-  set aFile to (POSIX file "${selectedFile}") as alias
-  tell application "Finder" to open information window of aFile
-  `)
-		}
-	},
-	{
-		name: "Open Path in Kit Term",
-		value: "kit-term",
-		action: async (selectedFile) => {
-			await term({
-				command: `cd ${selectedFile}`,
-				description: selectedFile,
-				name: "Kit Term"
-			})
-		}
-	},
-	{
-		name: "Open in Terminal",
-		value: "terminal",
-		action: async (selectedFile) => {
-			if (isWin) {
-				await exec(`start cmd /k "cd ${selectedFile}"`)
-			} else {
-				await exec(`open -a Terminal '${selectedFile}'`)
-			}
-		}
-	},
-	{
-		name: "Open in Kit Editor",
-		value: "editor",
-		action: async (selectedFile) => {
-			try {
-				let content = await readFile(selectedFile, "utf-8")
-				content = await editor(content)
-				await writeFile(selectedFile, content)
-			} catch (error) {
-				console.log(`Error: ${error}`)
-			}
-		}
-	},
-	{
-		name: "Open in VS Code",
-		value: "vscode",
-		action: async (selectedFile) => {
-			hide()
-			if (isMac) {
-				await exec(`open -a 'Visual Studio Code' '${selectedFile}'`)
-			} else {
-				await exec(`code ${selectedFile}`)
-			}
-		}
-	},
-	...(process.env?.KIT_OPEN_IN
-		? [
-				{
-					name: `Open with ${process.env.KIT_OPEN_IN}`,
-					value: "open_in_custom",
-					action: async (selectedFile) => {
-						if (isMac) {
-							let command = `${process.env.KIT_OPEN_IN} '${selectedFile}'`
-							await exec(command)
-						} else {
-							await exec(`"${process.env.KIT_OPEN_IN}" ${selectedFile}`)
-						}
-					}
-				}
-			]
-		: []),
-	{
-		name: "Copy to...",
-		value: "copy_to",
-		action: async (selectedFile) => {
-			let destination = await path({
-				hint: `Select destination for ${path.basename(selectedFile)}`,
-				startPath: home(),
-				onlyDirs: true,
-				shortcuts: [escapeShortcut]
-			})
-			await copyFile(
-				selectedFile,
-				path.resolve(destination, path.basename(selectedFile))
-			)
-		}
-	},
-	{
-		name: "Move",
-		value: "move",
-		action: async (selectedFile) => {
-			let destFolder = await path({
-				startPath: path.dirname(selectedFile),
-				hint: `Select destination for ${path.basename(selectedFile)}`,
-				onlyDirs: true
-			})
-			mv(selectedFile, destFolder)
-		}
-	},
-	{
-		name: "Copy Path",
-		value: "copy",
-		action: async (selectedFile) => {
-			await copy(selectedFile)
-		}
-	},
-	{
-		name: "Paste Path",
-		value: "paste",
-		action: async (selectedFile) => {
-			await setSelectedText(selectedFile)
-		}
-	},
-	{
-		name: "Trash",
-		value: "trash",
-		action: async (selectedFile) => {
-			let yn = await arg({
-				placeholder: `Trash ${path.basename(selectedFile)}?`,
-				hint: "[y]/[n]"
-			})
-			if (yn === "y") {
-				await trash(selectedFile)
-			}
-		}
-	}
-]
+import { actionFlags } from "./common.js"
 
 let flags = {}
 for (let flag of actionFlags) {
@@ -201,7 +42,7 @@ let selectedPath = await path({
 			}
 
 			let pathChoice = {
-				img: kitPath("icons", type + ".svg"),
+				img: kitPath("icons", `${type}.svg`),
 				name: path.parse(selectedPath).base,
 				value: selectedPath
 			}
@@ -211,7 +52,7 @@ let selectedPath = await path({
 
 			return preventSubmit
 		}
-		if (!Boolean(state?.flag)) {
+		if (!state?.flag) {
 			await setFlagValue(state?.focused)
 			return preventSubmit
 		}

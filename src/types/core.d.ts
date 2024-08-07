@@ -1,6 +1,5 @@
-import { ChildProcess } from "child_process"
-import { ProcessType, UI, Mode } from "../core/enum.js"
-import { AppMessage, Field } from "./kitapp.js"
+import type { ChildProcess } from "node:child_process"
+import type { ProcessType, UI, Mode } from "../core/enum.js"
 
 export interface Choice<Value = any> {
 	name: string
@@ -116,11 +115,11 @@ export interface ScriptMetadata {
 	snippetdelay?: number
 	index?: string
 	template?: boolean
-	["color-text"]?: string
-	["color-primary"]?: string
-	["color-secondary"]?: string
-	["color-background"]?: string
-	["opacity"]?: string
+	"color-text"?: string
+	"color-primary"?: string
+	"color-secondary"?: string
+	"color-background"?: string
+	opacity?: string
 	preview?: Choice["preview"]
 	previewPath?: string
 	debug?: boolean
@@ -388,13 +387,15 @@ export interface AppState {
 	action?: Action
 }
 
-export interface ChannelHandler {
-	(input?: string, state?: AppState): void | Promise<void>
-}
+export type ChannelHandler = (
+	input?: string,
+	state?: AppState
+) => void | Promise<void>
 
-export interface SubmitHandler {
-	(input?: string, state?: AppState): void | Symbol | Promise<void | Symbol>
-}
+export type SubmitHandler = (
+	input?: string,
+	state?: AppState
+) => void | Symbol | Promise<void | Symbol>
 
 export type PromptConfig = {
 	validate?: (input: string) => boolean | string | Promise<boolean | string>
