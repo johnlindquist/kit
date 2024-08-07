@@ -13,72 +13,84 @@
 // keyword: g
 
 import "@johnlindquist/kit"
-import { keywordInputTransformer } from "../core/utils.js"
+import { infoPane, keywordInputTransformer } from "../core/utils.js"
 
 let GIPHY_API_KEY = await env("GIPHY_API_KEY", {
-  panel: md(
-    `## Get a [Giphy API Key](https://developers.giphy.com/dashboard/)`
-  ),
-  secret: true,
+	panel: md(
+		"## Get a [Giphy API Key](https://developers.giphy.com/dashboard/)"
+	),
+	secret: true
 })
+
+let css = `
+.focused {
+  background: color-mix(in srgb, var(--color-secondary) calc(var(--ui-bg-opacity)* 100%), transparent);
+}
+.focused > img {
+    border: 0.25rem solid var(--color-primary);        
+}
+`
 
 let transformer = keywordInputTransformer(arg?.keyword)
 
-let search = q =>
-  `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${q}&limit=10&offset=0&rating=g&lang=en`
+let search = (q) =>
+	`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${q}&limit=10&offset=0&rating=g&lang=en`
 
-let giphy = async input => {
-  input = transformer(input)
-  if (!input) {
-    return [
-      {
-        name: "Begin Typing to Search Giphy",
-        skip: true,
-        info: true,
-      },
-    ]
-  }
+let giphy = async (input) => {
+	input = transformer(input)
+	if (!input) {
+		return infoPane(
+			"Search Giphy",
+			"Search for a gif and paste it into your document."
+		)
+	}
+	let query = search(input)
+	let { data } = await get(query)
+	let result = data.data.map((gif) => {
+		return {
+			name: gif.title.trim() || gif.slug,
+			value: gif.images.original.url,
+			html: `<img class="w-full" src="${gif.images.downsized.url}" alt="">`,
+			focusedClassName: "focused"
+		}
+	})
 
-  let query = search(input)
-  let { data } = await get(query)
-
-  return data.data.map(gif => {
-    return {
-      name: gif.title.trim() || gif.slug,
-      value: gif.images.original.url,
-      preview: `<img class="w-full" src="${gif.images.downsized.url}" alt="">`,
-    }
-  })
+	if (result.length === 0) {
+		return infoPane("No results", "No results found for your search.")
+	}
+	return result
 }
 
-let formattedLink = await arg(
-  {
-    input: (flag?.pass as string) || "",
-    placeholder: "Search Giphy",
-    enter: "Paste URL",
-    preventCollapse: true,
-    shortcuts: [
-      {
-        name: "Paste Markdown Link",
-        key: `${cmd}+m`,
-        bar: "right",
-        onPress: (input, { focused }) => {
-          submit(`![${input}](${focused.value})`)
-        },
-      },
-      {
-        name: "HTML <img>",
-        key: `${cmd}+i`,
-        bar: "right",
-        onPress: (input, { focused }) => {
-          submit(
-            `<img src="${focused.value}" alt="${input}">`
-          )
-        },
-      },
-    ],
-  },
-  giphy
+let formattedLink = await grid<string>(
+	{
+		input: (flag?.pass as string) || "",
+		placeholder: "Search Giphy",
+		css,
+		columns: 3,
+		enter: "Paste URL",
+		preventCollapse: true,
+		shortcuts: [
+			{
+				name: "Paste Markdown",
+				key: `${cmd}+m`,
+				bar: "right",
+				onPress: (input, { focused }) => {
+					submit(`![${input}](${focused.value})`)
+				},
+				visible: true
+			},
+			{
+				name: "Paste <img>",
+				key: `${cmd}+i`,
+				bar: "right",
+				onPress: (input, { focused }) => {
+					submit(`<img src="${focused.value}" alt="${input}">`)
+				},
+				visible: true
+			}
+		]
+	},
+	giphy
 )
 
 await setSelectedText(formattedLink)

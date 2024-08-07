@@ -2127,3 +2127,12 @@ export let processPlatformSpecificTheme = (cssString: string): string => {
 	// Join the processed lines, filtering out null values
 	return processedLines.filter((line) => line !== null).join("\n")
 }
+
+export let infoPane = (title: string, description?: string) => {
+	return `<div class="w-full h-full flex items-center justify-center -mt-4">
+	<div class="text-center -mt-2">
+		<h1 class="text-2xl font-bold">${title}</h1>
+		<p class="text-sm text-secondary">${description}</p>
+	</div>
+</div>`
+}
