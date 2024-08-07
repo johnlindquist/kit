@@ -12,7 +12,7 @@ import { parentPort } from "node:worker_threads"
 import { type Stamp, getScriptsDb, getTimestamps } from "../core/db.js"
 import { scriptsSort } from "../core/utils.js"
 
-const handleMessage = async (stamp: Stamp) => {
+const parseMainMenu = async (stamp: Stamp = null) => {
 	if (stamp) {
 		let timestampsDb = await getTimestamps()
 		let index = timestampsDb.stamps.findIndex(
@@ -78,15 +78,63 @@ const handleMessage = async (stamp: Stamp) => {
 	})
 
 	const message = {
-		channel: Channel.CACHE_SCRIPTS,
+		channel: Channel.CACHE_MAIN_SCRIPTS,
 		scripts: sanitizedScripts,
 		scriptFlags: sanitizedScriptFlags,
 		preview
 	}
 
+	return message
+}
+
+const cacheMainScripts = async (stamp: Stamp) => {
+	const message = await parseMainMenu(stamp)
 	parentPort.postMessage(message)
 }
 
 const limiter = new Bottleneck({ maxConcurrent: 1 })
+const limitedCacheMainScripts = limiter.wrap(cacheMainScripts)
 
-parentPort?.on("message", limiter.wrap(handleMessage))
+const removeTimestamp = async (filePath: string) => {
+	const stampDb = await getTimestamps()
+	const stamp = stampDb.stamps.findIndex((s) => s.filePath === filePath)
+
+	stampDb.stamps.splice(stamp, 1)
+	await stampDb.write()
+
+	await limitedCacheMainScripts(null)
+}
+
+const clearTimestamps = async () => {
+	const stampDb = await getTimestamps()
+	stampDb.stamps = []
+	await stampDb.write()
+
+	await limitedCacheMainScripts(null)
+}
+
+parentPort?.on(
+	"message",
+	({
+		channel,
+		value
+	}: {
+		channel: Channel
+		value?: any
+	}) => {
+		if (channel === Channel.CACHE_MAIN_SCRIPTS) {
+			limitedCacheMainScripts(value)
+			return
+		}
+
+		if (channel === Channel.REMOVE_TIMESTAMP) {
+			removeTimestamp(value)
+			return
+		}
+
+		if (channel === Channel.CLEAR_TIMESTAMPS) {
+			clearTimestamps()
+			return
+		}
+	}
+)
