@@ -73,7 +73,17 @@ let snippet = await arg(
 	} as Snippet)
 )
 
-snippet = snippet.replaceAll("\\$", "$")
+let text = ""
+if (typeof snippet?.text === "string") {
+	text = snippet.text
+} else if (typeof snippet?.value === "string") {
+	text = snippet.value
+} else if (typeof snippet === "string") {
+	text === snippet
+} else {
+	throw new Error("Couldn't find snippet...")
+}
+snippet = text.replaceAll("\\$", "$")
 
 if (snippet.includes("$SELECTED_TEXT")) {
 	let selectedText = await getSelectedText()

@@ -2031,7 +2031,8 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
 			text: snippet.trim(),
 			preview: `<div class="p-4">${formattedSnippet}</div>`,
 			group: "Snippets",
-			kenv: getKenvFromPath(s)
+			kenv: getKenvFromPath(s),
+			value: snippet.trim()
 		})
 	}
 

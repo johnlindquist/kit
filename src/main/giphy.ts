@@ -25,9 +25,23 @@ let GIPHY_API_KEY = await env("GIPHY_API_KEY", {
 let css = `
 .focused {
   background: color-mix(in srgb, var(--color-secondary) calc(var(--ui-bg-opacity)* 100%), transparent);
+  padding: 0;
 }
 .focused > img {
     border: 0.25rem solid var(--color-primary);        
+}
+.gif-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.gif-container img {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: contain;
 }
 `
 
@@ -36,8 +50,8 @@ let transformer = keywordInputTransformer(arg?.keyword)
 let search = (q) =>
 	`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${q}&limit=10&offset=0&rating=g&lang=en`
 
-let giphy = async (input) => {
-	input = transformer(input)
+let giphy = async (initialInput: string) => {
+	const input = transformer(initialInput)
 	if (!input) {
 		return infoPane(
 			"Search Giphy",
@@ -50,7 +64,7 @@ let giphy = async (input) => {
 		return {
 			name: gif.title.trim() || gif.slug,
 			value: gif.images.original.url,
-			html: `<img class="w-full" src="${gif.images.downsized.url}" alt="">`,
+			html: `<div class="gif-container"><img src="${gif.images.downsized.url}" alt="${gif.title || gif.slug}"></div>`,
 			focusedClassName: "focused"
 		}
 	})

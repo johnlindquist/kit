@@ -67,14 +67,17 @@ await setSelectedText(result)`
 			return await run(quickPath)
 		}
 		case "open":
-			return await open(scriptlet)
 		case "edit":
-			return await edit(scriptlet)
 		case "paste":
-			return await setSelectedText(scriptlet)
 		case "type":
-			await hide()
-			return await keyboard.type(scriptlet)
+			hide()
+			if (focusedScriptlet.tool === "open") await open(scriptlet)
+			else if (focusedScriptlet.tool === "edit") await edit(scriptlet)
+			else if (focusedScriptlet.tool === "paste")
+				await setSelectedText(scriptlet)
+			else if (focusedScriptlet.tool === "type") await keyboard.type(scriptlet)
+			process.exit(0)
+			break
 		default: {
 			let insertedArgsScriptlet = scriptlet
 			// Replace $@ with all arguments, each surrounded by quotes
