@@ -70,12 +70,18 @@ await setSelectedText(result)`
 		case "edit":
 		case "paste":
 		case "type":
-			hide()
-			if (focusedScriptlet.tool === "open") await open(scriptlet)
-			else if (focusedScriptlet.tool === "edit") await edit(scriptlet)
-			else if (focusedScriptlet.tool === "paste")
+			await hide()
+			if (focusedScriptlet.tool === "open") {
+				await open(scriptlet)
+				await wait(1000)
+			} else if (focusedScriptlet.tool === "edit") {
+				await edit(scriptlet)
+				await wait(1000)
+			} else if (focusedScriptlet.tool === "paste") {
 				await setSelectedText(scriptlet)
-			else if (focusedScriptlet.tool === "type") await keyboard.type(scriptlet)
+			} else if (focusedScriptlet.tool === "type") {
+				await keyboard.type(scriptlet)
+			}
 			process.exit(0)
 			break
 		default: {

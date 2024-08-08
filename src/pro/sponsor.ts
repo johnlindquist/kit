@@ -21,7 +21,8 @@ await div({
 	enter: "Continue to Sponsorship Page",
 	shortcuts: [escapeShortcut],
 	width: 640,
-	height: 640
+	height: 640,
+	alwaysOnTop: true
 })
 
 open(sponsorUrl)
