@@ -136,7 +136,7 @@ export interface ScriptMetadata {
 export type Script = ScriptMetadata & ScriptPathInfo & Choice
 
 export type Scriptlet = Script & {
-	group: "Scriptlets"
+	group: string
 	inputs: string[]
 	tool: "kit" | "open" | "paste" | string
 	scriptlet: string

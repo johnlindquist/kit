@@ -270,13 +270,13 @@ type GetSelectedText = () => Promise<string>
 
 type CutText = () => Promise<string>
 
-type Lock = () => Promise<string>
+type Lock = () => Promise<unknown>
 
-type Logout = () => Promise<string>
-type Sleep = () => Promise<string>
-type Shutdown = () => Promise<string>
+type Logout = () => Promise<unknown>
+type Sleep = () => Promise<unknown>
+type Shutdown = () => Promise<unknown>
 
-type QuitAllApps = (appsToExclude?: string) => Promise<string>
+type QuitAllApps = (appsToExclude?: string) => Promise<unknown>
 
 type Say = (text: string, options?: any) => Promise<string>
 

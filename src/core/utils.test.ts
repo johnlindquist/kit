@@ -8,7 +8,8 @@ import {
 	home,
 	kenvPath,
 	processPlatformSpecificTheme,
-	parseSnippets
+	parseSnippets,
+	parseScriptletsFromPath
 } from "./utils"
 import { outputTmpFile } from "../api/kit"
 import slugify from "slugify"
@@ -149,7 +150,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 `
 
 	const scripts = await parseMarkdownAsScriptlets(markdown)
-	// t.log(scripts)
+	t.log(scripts)
 	// t.is(scripts.length, 2)
 	t.is(scripts[0].name, "Open Script Kit")
 	t.is(scripts[0].trigger, "sk")
@@ -344,6 +345,61 @@ ava("parseScriptlets doesn't error on empty string", async (t) => {
 	t.is(scriptlets.length, 0)
 })
 
+ava("parseScriptletsFromPath - valid markdown file", async (t) => {
+	const markdown = `
+## Test Scriptlet
+<!-- 
+Shortcut: cmd t
+-->
+
+\`\`\`js
+console.log("Hello, world!")
+\`\`\`
+`
+	const filePath = await outputTmpFile("test-scriptlet.md", markdown)
+	const scripts = await parseScriptletsFromPath(filePath)
+
+	t.log(scripts[0])
+	t.is(scripts.length, 1)
+	t.is(scripts[0].name, "Test Scriptlet")
+	if (process.platform === "darwin") {
+		t.is(scripts[0].friendlyShortcut, "cmd+t")
+	} else {
+		t.is(scripts[0].friendlyShortcut, "ctrl+t")
+	}
+	t.is(scripts[0].scriptlet.trim(), 'console.log("Hello, world!")')
+	t.is(scripts[0].group, "test-scriptlet")
+	t.is(scripts[0].filePath, `${filePath}#Test-Scriptlet`)
+	t.is(scripts[0].kenv, "")
+})
+
+ava("parseScriptletsFromPath - empty file", async (t) => {
+	const filePath = await outputTmpFile("empty-scriptlet.md", "")
+	const scripts = await parseScriptletsFromPath(filePath)
+
+	t.is(scripts.length, 0)
+})
+
+ava("parseScriptletsFromPath  me- file with multiple scriptlets", async (t) => {
+	const markdown = `
+## Scriptlet 1
+\`\`\`js
+console.log("Scriptlet 1")
+\`\`\`
+
+## Scriptlet 2
+\`\`\`js
+console.log("Scriptlet 2")
+\`\`\`
+`
+	const filePath = await outputTmpFile("multiple-scriptlets.md", markdown)
+	const scripts = await parseScriptletsFromPath(filePath)
+
+	t.is(scripts.length, 2)
+	t.is(scripts[0].name, "Scriptlet 1")
+	t.is(scripts[1].name, "Scriptlet 2")
+})
+
 ava("getKenvFromPath - main kenv", async (t) => {
 	let scriptletsPath = kenvPath("script", "kit.md")
 	let kenv = getKenvFromPath(scriptletsPath)
@@ -356,9 +412,9 @@ ava("getKenvFromPath - sub kenv", async (t) => {
 	t.is(kenv, "test")
 })
 
-ava("getKenvFromPath - no kenv, throw", async (t) => {
+ava("getKenvFromPath - no kenv, empty string", async (t) => {
 	let scriptletsPath = home("kit.md")
-	t.throws(() => getKenvFromPath(scriptletsPath))
+	t.is(getKenvFromPath(scriptletsPath), "")
 })
 
 ava("processPlatformSpecificTheme - Mac specific", (t) => {
@@ -446,89 +502,90 @@ ava("processPlatformSpecificTheme - Empty input", (t) => {
 })
 
 // TODO: Figure out process.env.KENV = on windows
-ava.skip("parseSnippets - basic snippet", async (t) => {
-	const content = `
+if (process.platform !== "win32") {
+	ava("parseSnippets - basic snippet", async (t) => {
+		const content = `
 // Name: Test Snippet
 // Snippet: test
 console.log("Hello, world!");
   `.trim()
 
-	await createTempSnippet("test-snippet.txt", content)
+		await createTempSnippet("test-snippet.txt", content)
 
-	const snippets = await parseSnippets()
-	const testSnippet = snippets.find((s) => s.name === "Test Snippet")
+		const snippets = await parseSnippets()
+		const testSnippet = snippets.find((s) => s.name === "Test Snippet")
 
-	t.truthy(testSnippet)
-	t.is(testSnippet.name, "Test Snippet")
-	t.is(testSnippet.tag, "test")
-	t.is(testSnippet.text.trim(), 'console.log("Hello, world!");')
-	t.is(testSnippet.group, "Snippets")
-	t.is(testSnippet.kenv, "")
-})
+		t.truthy(testSnippet)
+		t.is(testSnippet.name, "Test Snippet")
+		t.is(testSnippet.tag, "test")
+		t.is(testSnippet.text.trim(), 'console.log("Hello, world!");')
+		t.is(testSnippet.group, "Snippets")
+		t.is(testSnippet.kenv, "")
+	})
 
-ava.skip("parseSnippets - snippet without metadata", async (t) => {
-	const content = `console.log("No metadata");`
-	const filePath = await createTempSnippet("no-metadata-snippet.txt", content)
+	ava("parseSnippets - snippet without metadata", async (t) => {
+		const content = `console.log("No metadata");`
+		const filePath = await createTempSnippet("no-metadata-snippet.txt", content)
 
-	const snippets = await parseSnippets()
-	const testSnippet = snippets.find((s) => s.filePath === filePath)
+		const snippets = await parseSnippets()
+		const testSnippet = snippets.find((s) => s.filePath === filePath)
 
-	t.truthy(testSnippet)
-	t.is(testSnippet.name, filePath)
-	t.is(testSnippet.tag, "")
-	t.is(testSnippet.text.trim(), content)
-})
+		t.truthy(testSnippet)
+		t.is(testSnippet.name, filePath)
+		t.is(testSnippet.tag, "")
+		t.is(testSnippet.text.trim(), content)
+	})
 
-ava.skip("parseSnippets - snippet with HTML content", async (t) => {
-	const content = `
+	ava("parseSnippets - snippet with HTML content", async (t) => {
+		const content = `
 // Name: HTML Snippet
 <div>
   <h1>Hello, world!</h1>
 </div>
   `.trim()
 
-	await createTempSnippet("html-snippet.txt", content)
+		await createTempSnippet("html-snippet.txt", content)
 
-	const snippets = await parseSnippets()
-	const testSnippet = snippets.find((s) => s.name === "HTML Snippet")
+		const snippets = await parseSnippets()
+		const testSnippet = snippets.find((s) => s.name === "HTML Snippet")
 
-	t.truthy(testSnippet)
-	t.is(testSnippet.name, "HTML Snippet")
-	t.is(testSnippet.text.trim(), "<div>\n  <h1>Hello, world!</h1>\n</div>")
-	t.is(
-		testSnippet.preview,
-		'<div class="p-4">&lt;div&gt;<br/>  &lt;h1&gt;Hello, world!&lt;/h1&gt;<br/>&lt;/div&gt;</div>'
-	)
-})
+		t.truthy(testSnippet)
+		t.is(testSnippet.name, "HTML Snippet")
+		t.is(testSnippet.text.trim(), "<div>\n  <h1>Hello, world!</h1>\n</div>")
+		t.is(
+			testSnippet.preview,
+			'<div class="p-4">&lt;div&gt;<br/>  &lt;h1&gt;Hello, world!&lt;/h1&gt;<br/>&lt;/div&gt;</div>'
+		)
+	})
 
-ava.skip("parseSnippets - multiple snippets", async (t) => {
-	const snippet1 = `
+	ava("parseSnippets - multiple snippets", async (t) => {
+		const snippet1 = `
 // Name: Snippet 1
 // Snippet: s1
 console.log("Snippet 1");
   `.trim()
 
-	const snippet2 = `
+		const snippet2 = `
 // Name: Snippet 2
 // Snippet: s2
 console.log("Snippet 2");
   `.trim()
 
-	await createTempSnippet("snippet1.txt", snippet1)
-	await createTempSnippet("snippet2.txt", snippet2)
+		await createTempSnippet("snippet1.txt", snippet1)
+		await createTempSnippet("snippet2.txt", snippet2)
 
-	const snippets = await parseSnippets()
-	const testSnippets = snippets.filter(
-		(s) => s.name === "Snippet 1" || s.name === "Snippet 2"
-	)
+		const snippets = await parseSnippets()
+		const testSnippets = snippets.filter(
+			(s) => s.name === "Snippet 1" || s.name === "Snippet 2"
+		)
 
-	t.is(testSnippets.length, 2)
-	t.is(testSnippets[0].tag, "s1")
-	t.is(testSnippets[1].tag, "s2")
-	t.is(testSnippets[0].value, 'console.log("Snippet 1");')
-	t.is(testSnippets[1].value, 'console.log("Snippet 2");')
-})
-
+		t.is(testSnippets.length, 2)
+		t.is(testSnippets[0].tag, "s1")
+		t.is(testSnippets[1].tag, "s2")
+		t.is(testSnippets[0].value, 'console.log("Snippet 1");')
+		t.is(testSnippets[1].value, 'console.log("Snippet 2");')
+	})
+}
 // Clean up temporary files after all tests
 // ava.after.always(async () => {
 // 	const snippetDir = path.join(kenvPath(), "snippets")

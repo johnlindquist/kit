@@ -1870,6 +1870,7 @@ export let parseMarkdownAsScriptlets = async (
 	let lines = markdown.trim().split("\n")
 
 	let currentScriptlet: Scriptlet
+	let currentMetadata: Metadata
 	let scriptlets = [] as Scriptlet[]
 	let parsingMetadata = false
 	let parsingValue = false
@@ -1879,7 +1880,8 @@ export let parseMarkdownAsScriptlets = async (
 
 		if (line.startsWith("##") && !line.startsWith("###")) {
 			if (currentScriptlet) {
-				scriptlets.push(currentScriptlet)
+				let metadata = postprocessMetadata(currentMetadata, "")
+				scriptlets.push({ ...metadata, ...currentScriptlet })
 			}
 			let name = line.replace("##", "").trim()
 			currentScriptlet = {
@@ -1891,6 +1893,8 @@ export let parseMarkdownAsScriptlets = async (
 				preview: "",
 				kenv: ""
 			} as Scriptlet
+
+			currentMetadata = {}
 			continue
 		}
 
@@ -1938,12 +1942,13 @@ export let parseMarkdownAsScriptlets = async (
 			if (ignore) {
 				continue
 			}
-			currentScriptlet[lowerCaseKey] = value
+			currentMetadata[lowerCaseKey] = value
 		}
 	}
 
 	if (currentScriptlet) {
-		scriptlets.push(currentScriptlet)
+		let metadata = postprocessMetadata(currentMetadata, "")
+		scriptlets.push({ ...metadata, ...currentScriptlet })
 	}
 
 	for (let scriptlet of scriptlets) {
@@ -1968,12 +1973,13 @@ ${await highlight(preview, "")}`)
 
 export let parseScriptletsFromPath = async (
 	filePath: string
-): Promise<Script[]> => {
+): Promise<Scriptlet[]> => {
 	let filePathWithoutAnchor = filePath.split("#")[0]
-	let allScriptlets: Script[] = []
+	let allScriptlets: Scriptlet[] = []
 	let fileContents = await readFile(filePathWithoutAnchor, "utf8")
 	let scriptlets = await parseMarkdownAsScriptlets(fileContents)
 	for (let scriptlet of scriptlets) {
+		scriptlet.group = path.parse(filePathWithoutAnchor).name
 		scriptlet.filePath = `${filePathWithoutAnchor}#${slugify(scriptlet.name)}`
 		scriptlet.kenv = getKenvFromPath(filePathWithoutAnchor)
 		scriptlet.value = Object.assign({}, scriptlet)
@@ -2069,9 +2075,7 @@ export let getKenvFromPath = (filePath: string): string => {
 	let normalizedKenvPath = path.normalize(kenvPath())
 
 	if (!normalizedPath.startsWith(normalizedKenvPath)) {
-		throw new Error(
-			`File path '${filePath}' is not in the expected directory '${kenvPath()}'.`
-		)
+		return ""
 	}
 
 	let relativePath = normalizedPath.replace(normalizedKenvPath, "")

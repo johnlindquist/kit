@@ -47,6 +47,10 @@ jobs:
         env:
           KIT: ${{ env.kit_path }}
           KNODE: ${{ env.knode_path }}
+        uses: nick-invision/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 30
 
   test-mac-and-ubuntu:
     strategy:

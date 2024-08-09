@@ -229,7 +229,7 @@ export let buildWidget = async (scriptPath, outPath = "") => {
 	let outfile = outPath || scriptPath
 
 	let templateContent = await readFile(
-		kenvPath("templates", `widget.html`),
+		kenvPath("templates", "widget.html"),
 		"utf8"
 	)
 
