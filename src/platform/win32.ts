@@ -35,8 +35,8 @@ global.fileSearch = async (
 	name,
 	{ onlyin, kind } = { onlyin: home(), kind: "" }
 ) => {
-	let command = `where /r ${onlyin} *${name.replace(/\W/g, "*")}*`
-	let stdout = ``
+	const command = 'where /r "' + onlyin + '" *' + name.replace(/\W/g, "*") + "*"
+	let stdout = ""
 	try {
 		stdout = (await global.exec(command)).stdout
 	} catch (error) {
@@ -163,7 +163,7 @@ global.adjustVolume = async () => {
 	})
 
 	await exec(
-		`powershell -c "$volume = ${volume}/100; $obj = New-Object -ComObject WScript.Shell; $obj.SendKeys([char]0xAF); Start-Sleep -Milliseconds 50; $obj.SendKeys([char]0xAE); Start-Sleep -Milliseconds 50; $obj.SendKeys([char]0xAF); $obj.SendKeys('${volume * 50}')"`
+		`powershell -c "$volume = [int]${volume}/100; $obj = New-Object -ComObject WScript.Shell; $obj.SendKeys([char]0xAF); Start-Sleep -Milliseconds 50; $obj.SendKeys([char]0xAE); Start-Sleep -Milliseconds 50; $obj.SendKeys([char]0xAF); $obj.SendKeys([string]([int]($volume * 50)))"`
 	)
 }
 
