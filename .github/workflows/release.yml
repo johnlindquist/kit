@@ -54,7 +54,6 @@ jobs:
           timeout_minutes: 30
           command: |
             npm run test
-        shell: bash
         env:
           KIT: ${{ env.kit_path }}
           KNODE: ${{ env.knode_path }}
