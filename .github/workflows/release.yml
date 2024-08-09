@@ -39,11 +39,16 @@ jobs:
         run: |
           npm run ava
 
-      - name: npm run test
+      - name: npm run build-kit
         shell: bash
+        env:
+          KIT: ${{ env.kit_path }}
+          KNODE: ${{ env.knode_path }}
         run: |
           npm run build-kit
-          npm run test
+
+      - name: npm run test
+        shell: bash
         env:
           KIT: ${{ env.kit_path }}
           KNODE: ${{ env.knode_path }}
@@ -51,6 +56,8 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
+          command: |
+            npm run test
 
   test-mac-and-ubuntu:
     strategy:
