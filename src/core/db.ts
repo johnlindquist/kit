@@ -1,4 +1,4 @@
-import * as path from "path"
+import * as path from "node:path"
 import {
 	kitPath,
 	kenvPath,
@@ -14,11 +14,13 @@ import {
 	userDbPath,
 	getScriptFiles,
 	getKenvs,
-	parseScript,
 	processInBatches,
-	parseScriptlets,
 	parseSnippets
 } from "./utils.js"
+
+import { parseScript } from "./parser.js"
+
+import { parseScriptlets } from "./scriptlets.js"
 
 import { writeJson, readJson } from "@johnlindquist/kit-internal/fs-extra"
 

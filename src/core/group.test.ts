@@ -334,6 +334,8 @@ ava("groupChoices - benchmark performance", (t) => {
 	}
 
 	const averageTime = benchmarkGroupChoices()
-	t.log(`Average time per groupChoices call: ${averageTime.toFixed(3)} ms`)
+	t.log(
+		`Average time per groupChoices call with 1000 choices: ${averageTime.toFixed(3)} ms`
+	)
 	t.pass()
 })

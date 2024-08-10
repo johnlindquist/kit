@@ -3,7 +3,7 @@
 import type { CLI } from "../cli"
 import {
 	isScriptletPath,
-	jsh,
+	isJsh,
 	kitMode,
 	parseScriptletsFromPath,
 	resolveToScriptPath,
@@ -90,7 +90,7 @@ let cliScripts: CLIMenuItem[] = [
 		name: "new-from-url",
 		placeholder: "Create a script from a url"
 	},
-	...(jsh ? [] : shareScripts),
+	...(isJsh() ? [] : shareScripts),
 	{
 		name: "duplicate",
 		alias: "cp",
@@ -127,7 +127,7 @@ let cliScripts: CLIMenuItem[] = [
 	},
 	{ name: "open-log", placeholder: "Open kit.log" },
 
-	...(jsh ? [] : notJsh),
+	...(isJsh() ? [] : notJsh),
 
 	kitMode() === "ts"
 		? {

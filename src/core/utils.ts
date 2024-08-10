@@ -2,7 +2,6 @@ import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import { md as globalMd, marked } from "@johnlindquist/globals"
 
 import * as path from "node:path"
-import slugify from "slugify"
 import type {
 	Script,
 	Metadata,
@@ -10,10 +9,9 @@ import type {
 	Scriptlet,
 	Snippet
 } from "../types/core"
-import { platform, homedir } from "node:os"
+import { platform } from "node:os"
 import { lstatSync, realpathSync } from "node:fs"
-import { access, lstat, readdir, readFile } from "node:fs/promises"
-import { constants } from "node:fs"
+import { lstat, readdir } from "node:fs/promises"
 import { execSync } from "node:child_process"
 
 import { Channel } from "./enum.js"
@@ -25,24 +23,14 @@ import {
 	type Program
 } from "acorn"
 import tsPlugin from "acorn-typescript"
-import { globby } from "globby"
 import type { Stamp } from "./db"
 import { pathToFileURL } from "node:url"
 import { parseScript } from "./parser.js"
-import { parseMarkdownAsScriptlets } from "./scriptlets.js"
-
-export let isWin = platform().startsWith("win")
-export let isMac = platform().startsWith("darwin")
-export let isLinux = platform().startsWith("linux")
-export let cmd = isMac ? "cmd" : "ctrl"
-export let returnOrEnter = isMac ? "return" : "enter"
+import { kitPath, kenvPath, knodePath } from "./resolvers.js"
+import { cmd } from "./constants.js"
+import { isBin, isJsh, isDir, isWin, isMac } from "./is.js"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
-export let jsh = process.env?.SHELL?.includes("jsh")
-
-export let home = (...pathParts: string[]) => {
-	return path.resolve(homedir(), ...pathParts)
-}
 
 export let wait = async (time: number): Promise<void> =>
 	new Promise((res) => setTimeout(res, time))
@@ -51,100 +39,6 @@ export let checkProcess = (pid: string | number) => {
 	return execSync(`kill -0 ` + pid).buffer.toString()
 }
 
-export let isFile = async (file: string): Promise<boolean> => {
-	try {
-		await access(file, constants.F_OK)
-		let stats = await lstat(file).catch(() => {
-			return {
-				isFile: () => false
-			}
-		})
-		return stats?.isFile()
-	} catch {
-		return false
-	}
-}
-
-//app
-export let isDir = async (dir: string): Promise<boolean> => {
-	try {
-		try {
-			let stats = await lstat(dir).catch(() => {
-				return {
-					isDirectory: () => false
-				}
-			})
-
-			return stats?.isDirectory()
-		} catch (error) {
-			log(error)
-		}
-
-		return false
-	} catch {
-		return false
-	}
-}
-
-export let isBin = async (bin: string): Promise<boolean> => {
-	if (jsh) return false
-	try {
-		const result = spawnSync("command", ["-v", bin], {
-			stdio: "ignore",
-			windowsHide: true
-		})
-		return result.status === 0
-	} catch {
-		return false
-	}
-}
-
-export let createPathResolver =
-	(parentDir: string) =>
-	(...parts: string[]) => {
-		return path.resolve(parentDir, ...parts)
-	}
-
-//app
-export let kitPath = (...parts: string[]) =>
-	path.join(process.env.KIT || home(".kit"), ...parts.filter(Boolean))
-
-// //app
-export let kenvPath = (...parts: string[]) => {
-	return path.join(process.env.KENV || home(".kenv"), ...parts.filter(Boolean))
-}
-
-export let kitDotEnvPath = () => {
-	return process.env.KIT_DOTENV_PATH || kenvPath(".env")
-}
-
-export let knodePath = (...parts: string[]) =>
-	path.join(process.env.KNODE || home(".knode"), ...parts.filter(Boolean))
-
-export const scriptsDbPath = kitPath("db", "scripts.json")
-export const timestampsPath = kitPath("db", "timestamps.json")
-export const statsPath = kitPath("db", "stats.json")
-export const prefsPath = kitPath("db", "prefs.json")
-export const promptDbPath = kitPath("db", "prompt.json")
-export const themeDbPath = kitPath("db", "theme.json")
-export const userDbPath = kitPath("db", "user.json")
-export const tmpClipboardDir = kitPath("tmp", "clipboard")
-export const tmpDownloadsDir = kitPath("tmp", "downloads")
-
-export const getMainScriptPath = () => {
-	const version = process.env?.KIT_MAIN_SCRIPT
-	return kitPath("main", `index${version ? `-${version}` : ""}.js`)
-}
-export const execPath = knodePath("bin", `node${isWin ? `.exe` : ``}`)
-export const kitDocsPath = home(".kit-docs")
-
-export const KENV_SCRIPTS = kenvPath("scripts")
-export const KENV_APP = kenvPath("app")
-export const KENV_BIN = kenvPath("bin")
-
-export const KIT_APP = kitPath("run", "app.js")
-export const KIT_APP_PROMPT = kitPath("run", "app-prompt.js")
-export const KIT_APP_INDEX = kitPath("run", "app-index.js")
 export let combinePath = (arrayOfPaths: string[]): string => {
 	const pathSet = new Set<string>()
 
@@ -776,7 +670,7 @@ export let trashScriptBin = async (script: Script) => {
 	let { command, kenv, filePath } = script
 	let { pathExists } = await import("@johnlindquist/kit-internal/fs-extra")
 
-	let binJSPath = jsh
+	let binJSPath = isJsh()
 		? kenvPath("node_modules", ".bin", command + ".js")
 		: kenvPath(kenv && `kenvs/${kenv}`, "bin", command + ".js")
 
@@ -791,7 +685,7 @@ export let trashScriptBin = async (script: Script) => {
 	}
 
 	if (binJS) {
-		let binPath = jsh
+		let binPath = isJsh()
 			? kenvPath("node_modules", ".bin", command)
 			: commandBinPath
 
@@ -1254,7 +1148,7 @@ export let getCachePath = (filePath: string, type: string) => {
 	dashedName = dashedName.replace(/-+/g, "-")
 
 	// Append .json extension
-	return kitPath(`cache`, type, `${dashedName}.json`)
+	return kitPath("cache", type, `${dashedName}.json`)
 }
 
 export let adjustPackageName = (packageName: string) => {
@@ -1403,87 +1297,6 @@ export let tagger = (script: Script) => {
 	}
 }
 
-export let getSnippet = (
-	contents: string
-): {
-	metadata: Record<string, string>
-	snippet: string
-} => {
-	let lines = contents.split("\n")
-	let metadata = {}
-	let contentStartIndex = lines.length
-
-	for (let i = 0; i < lines.length; i++) {
-		let line = lines[i]
-		let match = line.match(/(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/)
-
-		if (match) {
-			let [, key, value] = match
-			if (value) {
-				metadata[key.trim().toLowerCase()] = value.trim()
-			}
-		} else {
-			contentStartIndex = i
-			break
-		}
-	}
-	let snippet = lines.slice(contentStartIndex).join("\n")
-	return { metadata, snippet }
-}
-
-export let parseSnippets = async (): Promise<Snippet[]> => {
-	let snippetPaths = await globby([
-		kenvPath("snippets", "**", "*.txt").replaceAll("\\", "/"),
-		kenvPath("kenvs", "*", "snippets", "**", "*.txt").replaceAll("\\", "/")
-	])
-
-	let snippetChoices = []
-	for await (let s of snippetPaths) {
-		let contents = await readFile(s, "utf8")
-		let { metadata, snippet } = getSnippet(contents)
-		let formattedSnippet = escapeHTML(snippet)
-
-		snippetChoices.push({
-			filePath: s,
-			name: metadata?.name || s,
-			tag: metadata?.snippet || "",
-			description: s,
-			text: snippet.trim(),
-			preview: `<div class="p-4">${formattedSnippet}</div>`,
-			group: "Snippets",
-			kenv: getKenvFromPath(s),
-			value: snippet.trim()
-		})
-	}
-
-	return snippetChoices
-}
-
-export let parseScriptlets = async (): Promise<Scriptlet[]> => {
-	let scriptletsPaths = await globby(
-		kenvPath("scriptlets", "*.md").replace(/\\/g, "/")
-	)
-	let nestedScriptletPaths = await globby(
-		kenvPath("kenvs", "*", "scriptlets", "*.md").replace(/\\/g, "/")
-	)
-
-	let allScriptletsPaths = scriptletsPaths.concat(nestedScriptletPaths)
-
-	let allScriptlets: Scriptlet[] = []
-	for (let scriptletsPath of allScriptletsPaths) {
-		let fileContents = await readFile(scriptletsPath, "utf8")
-		let scriptlets = await parseMarkdownAsScriptlets(fileContents)
-		for (let scriptlet of scriptlets) {
-			scriptlet.filePath = `${scriptletsPath}#${slugify(scriptlet.name)}`
-			scriptlet.kenv = getKenvFromPath(scriptletsPath)
-			scriptlet.value = Object.assign({}, scriptlet)
-			allScriptlets.push(scriptlet)
-		}
-	}
-
-	return allScriptlets
-}
-
 export let getKenvFromPath = (filePath: string): string => {
 	let normalizedPath = path.normalize(filePath)
 	let normalizedKenvPath = path.normalize(kenvPath())
@@ -1556,6 +1369,7 @@ export let infoPane = (title: string, description?: string) => {
 </div>`
 }
 
+// TODO: Clean-up re-exports
 export {
 	parseScript,
 	commandFromFilePath,
@@ -1575,5 +1389,44 @@ export {
 export { groupChoices } from "./group.js"
 export {
 	parseScriptletsFromPath,
-	parseMarkdownAsScriptlets
+	parseMarkdownAsScriptlets,
+	parseScriptlets
 } from "./scriptlets.js"
+
+export {
+	getSnippet,
+	parseSnippets
+} from "./snippets.js"
+
+export {
+	createPathResolver,
+	home,
+	kitPath,
+	kenvPath,
+	kitDotEnvPath,
+	knodePath
+} from "./resolvers.js"
+
+export { isBin, isFile, isJsh, isDir, isLinux, isMac, isWin } from "./is.js"
+export {
+	cmd,
+	returnOrEnter,
+	scriptsDbPath,
+	timestampsPath,
+	statsPath,
+	prefsPath,
+	promptDbPath,
+	themeDbPath,
+	userDbPath,
+	tmpClipboardDir,
+	tmpDownloadsDir,
+	getMainScriptPath,
+	execPath,
+	kitDocsPath,
+	KENV_SCRIPTS,
+	KENV_APP,
+	KENV_BIN,
+	KIT_APP,
+	KIT_APP_PROMPT,
+	KIT_APP_INDEX
+} from "./constants.js"

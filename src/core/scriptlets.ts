@@ -1,6 +1,8 @@
 import type { Scriptlet } from "../types"
 import slugify from "slugify"
+import { readFile } from "node:fs/promises"
 import { postprocessMetadata } from "./parser.js"
+import { kenvPath } from "./resolvers.js"
 import { getKenvFromPath, highlight, tagger } from "./utils.js"
 
 export let parseMarkdownAsScriptlets = async (
@@ -123,6 +125,31 @@ export let parseScriptletsFromPath = async (
 		scriptlet.kenv = getKenvFromPath(filePathWithoutAnchor)
 		scriptlet.value = Object.assign({}, scriptlet)
 		allScriptlets.push(scriptlet)
+	}
+
+	return allScriptlets
+}
+
+export let parseScriptlets = async (): Promise<Scriptlet[]> => {
+	let scriptletsPaths = await globby(
+		kenvPath("scriptlets", "*.md").replace(/\\/g, "/")
+	)
+	let nestedScriptletPaths = await globby(
+		kenvPath("kenvs", "*", "scriptlets", "*.md").replace(/\\/g, "/")
+	)
+
+	let allScriptletsPaths = scriptletsPaths.concat(nestedScriptletPaths)
+
+	let allScriptlets: Scriptlet[] = []
+	for (let scriptletsPath of allScriptletsPaths) {
+		let fileContents = await readFile(scriptletsPath, "utf8")
+		let scriptlets = await parseMarkdownAsScriptlets(fileContents)
+		for (let scriptlet of scriptlets) {
+			scriptlet.filePath = `${scriptletsPath}#${slugify(scriptlet.name)}`
+			scriptlet.kenv = getKenvFromPath(scriptletsPath)
+			scriptlet.value = Object.assign({}, scriptlet)
+			allScriptlets.push(scriptlet)
+		}
 	}
 
 	return allScriptlets
