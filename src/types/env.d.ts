@@ -8,6 +8,7 @@ export type kenvEnv = {
 	KIT_CONVERT_KEY?: string | undefined
 	KIT_CWD?: string | undefined
 	KIT_DEBUG_PROMPT?: string | undefined
+	KIT_DOCK?: string | undefined
 	KIT_ALWAYS_ON_TOP?: string | undefined
 	KIT_AUTO_UPDATE?: string | undefined
 	KIT_BACKGROUND_THROTTLE?: string | undefined

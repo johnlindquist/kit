@@ -22,9 +22,9 @@ import {
 
 import { writeJson, readJson } from "@johnlindquist/kit-internal/fs-extra"
 
-import { Choice, Script, PromptDb } from "../types/core"
+import type { Choice, Script, PromptDb } from "../types/core"
 import { Low, JSONFile } from "@johnlindquist/kit-internal/lowdb"
-import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
+import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 
 export const resolveKenv = (...parts: string[]) => {
 	if (global.kitScript) {

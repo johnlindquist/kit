@@ -1,17 +1,12 @@
-import { randomUUID as uuid } from "node:crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import { md as globalMd, marked } from "@johnlindquist/globals"
 
 import * as path from "node:path"
-import untildify from "untildify"
 import slugify from "slugify"
 import type {
 	Script,
-	ScriptPathInfo,
-	ScriptMetadata,
 	Metadata,
 	Shortcut,
-	Choice,
 	Scriptlet,
 	Snippet
 } from "../types/core"
@@ -21,7 +16,7 @@ import { access, lstat, readdir, readFile } from "node:fs/promises"
 import { constants } from "node:fs"
 import { execSync } from "node:child_process"
 
-import { ProcessType, Channel, PROMPT } from "./enum.js"
+import { Channel } from "./enum.js"
 import {
 	type AssignmentExpression,
 	type Identifier,
@@ -33,6 +28,8 @@ import tsPlugin from "acorn-typescript"
 import { globby } from "globby"
 import type { Stamp } from "./db"
 import { pathToFileURL } from "node:url"
+import { parseScript } from "./parser.js"
+import { parseMarkdownAsScriptlets } from "./scriptlets.js"
 
 export let isWin = platform().startsWith("win")
 export let isMac = platform().startsWith("darwin")
@@ -574,128 +571,6 @@ export let getMetadata = (contents: string): Metadata => {
 	} catch (err) {
 		return fromComments
 	}
-}
-
-const shebangRegex = /^#!(.+)/m
-
-export let getShebangFromContents = (contents: string): string | undefined => {
-	let match = contents.match(shebangRegex)
-	return match ? match[1].trim() : undefined
-}
-
-//app
-export let postprocessMetadata = (
-	metadata: Metadata,
-	fileContents: string
-): ScriptMetadata => {
-	const result: Partial<ScriptMetadata> = { ...metadata }
-
-	if (metadata.shortcut) {
-		result.shortcut = shortcutNormalizer(metadata.shortcut)
-		result.friendlyShortcut = friendlyShortcut(result.shortcut)
-	}
-
-	if (metadata.shortcode) {
-		result.shortcode = metadata.shortcode?.trim()?.toLowerCase()
-	}
-
-	if (metadata.trigger) {
-		result.trigger = metadata.trigger?.trim()?.toLowerCase()
-	}
-
-	// An alias brings the script to the top of the list
-	if (metadata.alias) {
-		result.alias = metadata.alias?.trim().toLowerCase()
-	}
-
-	if (metadata.image) {
-		result.img = untildify(metadata.image)
-	}
-
-	result.type = metadata.schedule
-		? ProcessType.Schedule
-		: result?.watch
-			? ProcessType.Watch
-			: result?.system
-				? ProcessType.System
-				: result?.background
-					? ProcessType.Background
-					: ProcessType.Prompt
-
-	let tabs =
-		fileContents.match(new RegExp(`(?<=^onTab[(]['"]).+?(?=['"])`, "gim")) || []
-
-	if (tabs?.length) {
-		result.tabs = tabs
-	}
-
-	let hasPreview = Boolean(fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0])
-	if (hasPreview) {
-		result.hasPreview = true
-	}
-
-	return result as unknown as ScriptMetadata
-}
-
-//app
-export let parseMetadata = (fileContents: string): ScriptMetadata => {
-	let metadata: Metadata = getMetadata(fileContents)
-
-	let processedMetadata = postprocessMetadata(metadata, fileContents)
-
-	return processedMetadata
-}
-
-//app
-export let commandFromFilePath = (filePath: string) =>
-	path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
-
-//app
-export let iconFromKenv = async (kenv: string) => {
-	let iconPath = kenv ? kenvPath("kenvs", kenv, "icon.png") : ""
-
-	return kenv && (await isFile(iconPath)) ? iconPath : ""
-}
-
-//app
-export let parseFilePath = async (
-	filePath: string
-): Promise<ScriptPathInfo> => {
-	let command = commandFromFilePath(filePath)
-	let kenv = kenvFromFilePath(filePath)
-	let icon = await iconFromKenv(kenv)
-
-	return {
-		id: filePath,
-		command,
-		filePath,
-		kenv,
-		icon
-	}
-}
-
-// app
-export let parseScript = async (filePath: string): Promise<Script> => {
-	let parsedFilePath = await parseFilePath(filePath)
-
-	let contents = await readFile(filePath, "utf8")
-
-	let metadata = parseMetadata(contents)
-
-	let shebang = getShebangFromContents(contents)
-
-	let needsDebugger = Boolean(contents.match(/^\s*debugger/gim))
-
-	let result = {
-		shebang,
-		...metadata,
-		...parsedFilePath,
-		needsDebugger,
-		name: metadata.name || metadata.menu || parsedFilePath.command,
-		description: metadata.description || ""
-	}
-
-	return result
 }
 
 export let getLastSlashSeparated = (string: string, count: number) => {
@@ -1363,342 +1238,6 @@ export let isString = (value: any): value is string => {
 	return typeof value === "string"
 }
 
-export let groupChoices = (choices: Choice[], options = {}) => {
-	let {
-		groupKey,
-		missingGroupName,
-		order,
-		endOrder,
-		sortChoicesKey,
-		recentKey,
-		recentLimit,
-		hideWithoutInput,
-		excludeGroups,
-		tagger
-	} = {
-		groupKey: "group",
-		missingGroupName: "No Group",
-		order: [],
-		endOrder: [],
-		sortChoicesKey: [],
-		hideWithoutInput: [],
-		recentKey: "",
-		recentLimit: 3,
-		excludeGroups: [],
-		tagger: null,
-		...options
-	}
-
-	// A group is a choice with a group key and "choices" array
-	type Group = Choice & { name: string; group: string; choices: Choice[] }
-	let groups: Group[] = []
-	let missingGroup: Group | undefined
-
-	let recentGroup = {
-		// Initialize the Recent group
-		skip: true,
-		group: "Recent",
-		name: "Recent",
-		value: "Recent",
-		choices: []
-	} as Group
-
-	let passGroup = {
-		skip: true,
-		pass: true,
-		group: "Pass",
-		value: "Pass",
-		name: 'Pass "{input}" to...',
-		choices: []
-	} as Group
-
-	let putIntoGroups = (choice: Choice) => {
-		if (tagger) tagger(choice)
-		if (
-			excludeGroups.find(
-				(c) => choice?.group === c || (choice as Script)?.kenv === c
-			)
-		) {
-			choice.exclude = true
-		}
-		if (choice?.pass) {
-			choice.group = "Pass"
-			if (!choice.previewPath) {
-				choice.preview = "<div></div>"
-			}
-			passGroup.choices.push(choice)
-		} else if (!choice?.group && !choice?.[groupKey]) {
-			choice.group = missingGroupName
-			if (missingGroup) {
-				missingGroup.choices.push(choice)
-			} else {
-				missingGroup = {
-					skip: true,
-					id: `group-${missingGroupName}-${choice.id}`,
-					group: missingGroupName,
-					name: missingGroupName,
-					value: missingGroupName,
-					choices: [choice]
-				}
-				groups.push(missingGroup)
-			}
-		} else {
-			let groupParent: Group | undefined
-			if (choice?.group) {
-				groupParent = groups.find((g) => g?.group === choice?.group)
-			} else {
-				groupParent = groups.find((g) => g?.group === choice?.[groupKey])
-			}
-			let userGrouped = !!choice?.group
-			choice.group ||= choice[groupKey]
-			let group = choice.group
-
-			choice.hideWithoutInput ||= hideWithoutInput.includes(group)
-			if (groupParent) {
-				groupParent.choices.push(choice)
-			} else {
-				groups.push({
-					skip: true,
-					userGrouped,
-					id: `group-${group}-${choice.id}`,
-					group,
-					name: group,
-					value: group,
-					choices: [choice],
-					hideWithoutInput: hideWithoutInput.includes(group)
-				})
-			}
-		}
-	}
-
-	for (let choice of choices) {
-		if (
-			choice[recentKey] &&
-			!choice.pass &&
-			!(typeof choice?.recent === "boolean" && choice?.recent === false)
-		) {
-			// TODO: Implement "recentLimit" number to the most recent choices
-			// If choice is recent, add to the Recent group
-			recentGroup.choices.push(choice)
-			continue // Skip to next iteration of loop
-		}
-
-		// sort recentGroup.choices by recentKey
-		recentGroup.choices = recentGroup.choices.sort((a, b) => {
-			if (a?.[recentKey] < b?.[recentKey]) return 1
-			if (a?.[recentKey] > b?.[recentKey]) return -1
-			return 0
-		})
-
-		let unrecentChoices: Choice[]
-		if (recentGroup.choices.length > recentLimit) {
-			// If recentGroup.choices is longer than recentLimit
-			// split into recentGroup and unrecentGroup
-			unrecentChoices = (recentGroup.choices as Choice[]).splice(
-				recentLimit,
-				recentGroup.choices.length - recentLimit
-			)
-		}
-
-		if (unrecentChoices) {
-			for (let unrecentChoice of unrecentChoices) {
-				putIntoGroups(unrecentChoice)
-			}
-		}
-
-		putIntoGroups(choice)
-	}
-
-	let lowerOrder = order.map((o) => o.toLowerCase())
-	let lowerEndOrder = endOrder.map((o) => o.toLowerCase())
-
-	groups.sort((a: Choice, b: Choice) => {
-		let aGroup = a.group.toLowerCase()
-		let bGroup = b.group.toLowerCase()
-		let aOrder = lowerOrder.indexOf(aGroup)
-		let bOrder = lowerOrder.indexOf(bGroup)
-		let endAOrder = lowerEndOrder.indexOf(aGroup)
-		let endBOrder = lowerEndOrder.indexOf(bGroup)
-
-		// If both elements are in the order array, sort them as per the order array
-		if (aOrder !== -1 && bOrder !== -1) return aOrder - bOrder
-
-		// If a is in the order array, or b is in the endOrder array, a comes first
-		if (aOrder !== -1 || endBOrder !== -1) return -1
-
-		// If b is in the order array, or a is in the endOrder array, b comes first
-		if (bOrder !== -1 || endAOrder !== -1) return 1
-
-		// If both elements are in the endOrder array, sort them as per the endOrder array
-		if (endAOrder !== -1 && endBOrder !== -1) return endAOrder - endBOrder
-
-		// Sort "userGrouped" "true" before "false"
-		if (a.userGrouped && !b.userGrouped) return -1
-		if (!a.userGrouped && b.userGrouped) return 1
-
-		// If neither are in the order or endOrder arrays, and not differentiated by userGrouped, sort them alphabetically
-		return aGroup.localeCompare(bGroup)
-	})
-
-	// if missingGroupName === "No Group", then move it to the end
-	if (missingGroupName === "No Group") {
-		let noGroupIndex = groups.findIndex((g) => g.name === missingGroupName)
-		if (noGroupIndex > -1) {
-			let noGroup = groups.splice(noGroupIndex, 1)
-			groups.push(noGroup[0])
-		}
-	}
-
-	groups = groups.map((g, i) => {
-		const maybeKey = sortChoicesKey?.[i]
-		const sortKey =
-			typeof maybeKey === "boolean" && maybeKey === false
-				? false
-				: typeof maybeKey === "string"
-					? maybeKey
-					: "name"
-
-		if (sortKey) {
-			g.choices = g.choices.sort((a, b) => {
-				if (a?.[sortKey] < b?.[sortKey]) return -1
-				if (a?.[sortKey] > b?.[sortKey]) return 1
-
-				return 0
-			})
-		}
-
-		if (g?.choices?.[0]?.preview) {
-			g.preview = g.choices[0].preview
-			g.hasPreview = true
-		}
-
-		return g
-	})
-
-	if (recentGroup.choices.length > 0) {
-		recentGroup.choices = recentGroup.choices.sort((a, b) => {
-			if (a?.[recentKey] < b?.[recentKey]) return 1
-			if (a?.[recentKey] > b?.[recentKey]) return -1
-			return 0
-		})
-		groups.unshift(recentGroup)
-	}
-
-	if (passGroup.choices.length > 0) {
-		groups.push(passGroup)
-	}
-
-	return groups
-}
-
-export let defaultGroupClassName = `border-t-1 border-t-ui-border`
-export let defaultGroupNameClassName = `font-medium text-xxs text-text-base/60 uppercase`
-
-export let formatChoices = (choices: Choice[], className = ""): Choice[] => {
-	if (Array.isArray(choices)) {
-		return (choices as Choice<any>[]).flatMap((choice, index) => {
-			const isChoiceObject = typeof choice === "object"
-
-			if (!isChoiceObject) {
-				let name = String(choice)
-				let slicedName = (choice as string).slice(0, 63)
-				return {
-					name,
-					slicedName,
-					value: choice,
-					id: `${index}-${slicedName}`,
-					hasPreview: false,
-					className
-				}
-			}
-
-			let hasPreview = Boolean(choice?.preview || choice?.hasPreview)
-			let slicedName = choice?.name?.slice(0, 63) || ""
-			let properChoice = {
-				id: choice?.id || `${index}-${slicedName || ""}`,
-				name: choice?.name || "",
-				slicedName,
-				slicedDescription: choice?.description?.slice(0, 63) || "",
-				value: choice?.value || choice,
-				nameClassName: choice?.info ? "text-primary" : "",
-				skip: !!choice?.info,
-				className: choice?.className || choice?.choices ? "" : className,
-
-				...choice,
-				hasPreview
-			}
-
-			if (properChoice.height > PROMPT.ITEM.HEIGHT.XXL) {
-				properChoice.height = PROMPT.ITEM.HEIGHT.XXL
-			}
-			if (properChoice.height < PROMPT.ITEM.HEIGHT.XXXS) {
-				properChoice.height = PROMPT.ITEM.HEIGHT.XXXS
-			}
-
-			const choiceChoices = properChoice?.choices
-			if (!choiceChoices) {
-				return properChoice
-			}
-
-			delete properChoice.choices
-
-			let isArray = Array.isArray(choiceChoices)
-			if (!isArray) {
-				throw new Error(
-					`Group choices must be an array. Received ${typeof choiceChoices}`
-				)
-			}
-
-			let groupedChoices = []
-
-			properChoice.group = properChoice.name
-			properChoice.skip =
-				typeof choice?.skip === "undefined" ? true : choice.skip
-			properChoice.className ||= defaultGroupClassName
-			properChoice.nameClassName ||= defaultGroupNameClassName
-			properChoice.height ||= PROMPT.ITEM.HEIGHT.XXXS
-
-			groupedChoices.push(properChoice)
-
-			choiceChoices.forEach((subChoice) => {
-				if (typeof subChoice === "undefined") {
-					throw new Error(`Undefined choice in ${properChoice.name}`)
-				}
-
-				if (typeof subChoice === "object") {
-					groupedChoices.push({
-						name: subChoice?.name,
-						slicedName: subChoice?.name?.slice(0, 63) || "",
-						slicedDescription: subChoice?.description?.slice(0, 63) || "",
-						value: subChoice?.value || subChoice,
-						id: subChoice?.id || uuid(),
-						group: choice?.name,
-						className,
-						...subChoice,
-						hasPreview: Boolean(subChoice?.preview || subChoice?.hasPreview)
-					})
-				} else {
-					groupedChoices.push({
-						name: String(subChoice),
-						value: String(subChoice),
-						slicedName: String(subChoice)?.slice(0, 63) || "",
-						slicedDescription: "",
-						group: choice?.name,
-						className,
-						id: uuid()
-					})
-				}
-			})
-
-			return groupedChoices
-		})
-	}
-
-	if (choices) {
-		throw new Error(`Choices must be an array. Received ${typeof choices}`)
-	}
-}
-
 export let getCachePath = (filePath: string, type: string) => {
 	// Normalize file path
 	const normalizedPath = path.normalize(filePath)
@@ -1864,131 +1403,6 @@ export let tagger = (script: Script) => {
 	}
 }
 
-export let parseMarkdownAsScriptlets = async (
-	markdown: string
-): Promise<Scriptlet[]> => {
-	let lines = markdown.trim().split("\n")
-
-	let currentScriptlet: Scriptlet
-	let currentMetadata: Metadata
-	let scriptlets = [] as Scriptlet[]
-	let parsingMetadata = false
-	let parsingValue = false
-
-	for (const untrimmedLine of lines) {
-		let line = untrimmedLine?.length ? untrimmedLine.trim() : ""
-
-		if (line.startsWith("##") && !line.startsWith("###")) {
-			if (currentScriptlet) {
-				let metadata = postprocessMetadata(currentMetadata, "")
-				scriptlets.push({ ...metadata, ...currentScriptlet })
-			}
-			let name = line.replace("##", "").trim()
-			currentScriptlet = {
-				group: "Scriptlets",
-				scriptlet: "",
-				tool: "",
-				name,
-				command: slugify(name, { lower: true, trim: true, replacement: "-" }),
-				preview: "",
-				kenv: ""
-			} as Scriptlet
-
-			currentMetadata = {}
-			continue
-		}
-
-		if (currentScriptlet) {
-			currentScriptlet.preview += `\n${line}`
-		}
-		if (line.startsWith("<!--")) {
-			parsingMetadata = true
-			continue
-		}
-		if (parsingMetadata && line.includes("-->")) {
-			parsingMetadata = false
-			continue
-		}
-
-		if (line.startsWith("```") || line.startsWith("~~~")) {
-			if (!currentScriptlet.tool) {
-				let tool = line.replace("```", "").replace("~~~", "").trim() || "ts"
-				currentScriptlet.tool = tool
-
-				currentScriptlet.preview += `\n// ${tool}`
-				parsingValue = true
-			} else {
-				parsingValue = false
-			}
-			continue
-		}
-
-		if (parsingValue) {
-			currentScriptlet.scriptlet =
-				`${currentScriptlet.scriptlet}\n${line}`.trim()
-		}
-
-		if (parsingMetadata) {
-			let indexOfColon = line.indexOf(":")
-			if (indexOfColon === -1) {
-				continue
-			}
-			let key = line.slice(0, indexOfColon).trim()
-			let value = line.slice(indexOfColon + 1).trim()
-			let lowerCaseKey = key.toLowerCase()
-			let ignore = ["background", "schedule", "watch", "system"].includes(
-				lowerCaseKey
-			)
-			if (ignore) {
-				continue
-			}
-			currentMetadata[lowerCaseKey] = value
-		}
-	}
-
-	if (currentScriptlet) {
-		let metadata = postprocessMetadata(currentMetadata, "")
-		scriptlets.push({ ...metadata, ...currentScriptlet })
-	}
-
-	for (let scriptlet of scriptlets) {
-		let preview = (scriptlet.preview as string).trim()
-
-		let highlightedPreview = md(`# ${scriptlet.name}
-${await highlight(preview, "")}`)
-
-		scriptlet.preview = highlightedPreview
-		scriptlet.inputs = Array.from(
-			new Set(
-				scriptlet.scriptlet
-					.match(/(?<!import |export |\$|`\${|=\s*){[a-zA-Z0-9 ]*?}/g)
-					?.map((x: string) => x.slice(1, -1)) || []
-			)
-		)
-		tagger(scriptlet)
-	}
-
-	return scriptlets
-}
-
-export let parseScriptletsFromPath = async (
-	filePath: string
-): Promise<Scriptlet[]> => {
-	let filePathWithoutAnchor = filePath.split("#")[0]
-	let allScriptlets: Scriptlet[] = []
-	let fileContents = await readFile(filePathWithoutAnchor, "utf8")
-	let scriptlets = await parseMarkdownAsScriptlets(fileContents)
-	for (let scriptlet of scriptlets) {
-		scriptlet.group = path.parse(filePathWithoutAnchor).name
-		scriptlet.filePath = `${filePathWithoutAnchor}#${slugify(scriptlet.name)}`
-		scriptlet.kenv = getKenvFromPath(filePathWithoutAnchor)
-		scriptlet.value = Object.assign({}, scriptlet)
-		allScriptlets.push(scriptlet)
-	}
-
-	return allScriptlets
-}
-
 export let getSnippet = (
 	contents: string
 ): {
@@ -2141,3 +1555,25 @@ export let infoPane = (title: string, description?: string) => {
 	</div>
 </div>`
 }
+
+export {
+	parseScript,
+	commandFromFilePath,
+	getShebangFromContents,
+	iconFromKenv,
+	parseFilePath,
+	parseMetadata,
+	postprocessMetadata
+} from "./parser.js"
+
+export {
+	defaultGroupClassName,
+	defaultGroupNameClassName,
+	formatChoices
+} from "./format.js"
+
+export { groupChoices } from "./group.js"
+export {
+	parseScriptletsFromPath,
+	parseMarkdownAsScriptlets
+} from "./scriptlets.js"
