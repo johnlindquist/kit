@@ -31,17 +31,7 @@
 
 > Note: This ain't pretty 😅
 
-Requirements: yarn 1
-
-### Why both npm and yarn?
-
-The App was created with https://github.com/electron-react-boilerplate/electron-react-boilerplate a long time ago. They require yarn and webpack.
-
-I have been unable to prioritize the time to switch over to another build system or keeping up with the boilerplate, especially with so many moving pieces.
-
-Thus, we use yarn to build the App and npm to build the SDK 🤦‍♂️
-
-> Note: A huge focus of v3 will be to clean up this mess and make it much, much easier to contribute.
+Requirements: npm
 
 ### Using node 20.15.1 from ~/.knode
 
