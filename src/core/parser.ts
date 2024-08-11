@@ -22,16 +22,15 @@ export let postprocessMetadata = (
 	}
 
 	if (metadata.shortcode) {
-		result.shortcode = metadata.shortcode?.trim()?.toLowerCase()
+		result.shortcode = metadata.shortcode.trim().toLowerCase()
 	}
 
 	if (metadata.trigger) {
-		result.trigger = metadata.trigger?.trim()?.toLowerCase()
+		result.trigger = metadata.trigger.trim().toLowerCase()
 	}
 
-	// An alias brings the script to the top of the list
 	if (metadata.alias) {
-		result.alias = metadata.alias?.trim().toLowerCase()
+		result.alias = metadata.alias.trim().toLowerCase()
 	}
 
 	if (metadata.image) {
@@ -40,27 +39,24 @@ export let postprocessMetadata = (
 
 	result.type = metadata.schedule
 		? ProcessType.Schedule
-		: result?.watch
+		: metadata.watch
 			? ProcessType.Watch
-			: result?.system
+			: metadata.system
 				? ProcessType.System
-				: result?.background
+				: metadata.background
 					? ProcessType.Background
 					: ProcessType.Prompt
 
-	let tabs =
-		fileContents.match(new RegExp(`(?<=^onTab[(]['"]).+?(?=['"])`, "gim")) || []
-
-	if (tabs?.length) {
-		result.tabs = tabs
+	const tabsMatch = fileContents.match(/(?<=^onTab\(['"])(.+?)(?=['"])/gim)
+	if (tabsMatch?.length) {
+		result.tabs = tabsMatch
 	}
 
-	let hasPreview = Boolean(fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0])
-	if (hasPreview) {
+	if (/preview(:|\s*=)/gi.test(fileContents)) {
 		result.hasPreview = true
 	}
 
-	return result as unknown as ScriptMetadata
+	return result as ScriptMetadata
 }
 
 export let parseMetadata = (fileContents: string): ScriptMetadata => {
