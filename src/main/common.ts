@@ -8,6 +8,22 @@ import {
 	uniq
 } from "../core/utils.js"
 
+let openConfigPath = kenvPath("config", "open.json")
+let openActions = []
+if (await isFile(openConfigPath)) {
+	let openConfig = await readJson(openConfigPath)
+	for (let item of openConfig) {
+		openActions.push({
+			name: item.name,
+			value: item.name,
+			shortcut: item?.shortcut || "",
+			action: async (selectedFile: string) => {
+				await exec(item.command.replace("${file}", selectedFile))
+			}
+		})
+	}
+}
+
 export let actionFlags: {
 	name: string
 	shortcut?: string
@@ -22,6 +38,7 @@ export let actionFlags: {
 			await open(selectedFile)
 		}
 	},
+	...openActions,
 	{
 		name: "Open with...",
 		description: "Select from a list of apps to open the file with",

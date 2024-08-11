@@ -936,6 +936,7 @@ let prepPrompt = async (config: PromptConfig) => {
 
 	for (let shortcut of config?.shortcuts || []) {
 		if (shortcut?.name && shortcut?.onPress) {
+			if (shortcut.key) shortcut.key = shortcut.key.toLowerCase()
 			global.__kitActionsMap.set(shortcut.name, shortcut)
 		}
 	}
@@ -1580,7 +1581,7 @@ global.editor = async (options?: EditorOptions, actions?: Action[]) => {
 		shortcuts: editorShortcuts,
 		height: PROMPT.HEIGHT.XL,
 		...editorOptions,
-		actions,
+		actions: actions || options?.actions,
 		enter: "",
 		choices: [],
 		hideOnEscape: false
@@ -1809,8 +1810,8 @@ global.grid = async (
 
 global.mini = async (
 	placeholderOrConfig = "Type a value:",
-	choices = ``,
-	actions = ``
+	choices = "",
+	actions = ""
 ) => {
 	let miniConfig = {
 		headerClassName: "hidden",
@@ -2806,6 +2807,10 @@ global.getExtraLibs = async (): Promise<ExtraLib[]> => {
 }
 
 global.setShortcuts = async (shortcuts) => {
+	shortcuts = shortcuts.map((shortcut) => {
+		if (shortcut.key) shortcut.key = shortcut.key.toLowerCase()
+		return shortcut
+	})
 	if (global.__currentPromptConfig) {
 		global.__currentPromptConfig.shortcuts = shortcuts
 	}
@@ -3081,6 +3086,10 @@ global.prompt = {
 global.screenshot = async () => {
 	let screenShotTmpPath = await sendWait(Channel.SCREENSHOT, true, 5000)
 	return await readFile(screenShotTmpPath)
+}
+
+global.notify = async (options) => {
+	await sendWait(Channel.NOTIFY, options)
 }
 
 let { $, cd } = await import("zx")

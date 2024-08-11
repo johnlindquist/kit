@@ -40,6 +40,7 @@ import type {
 } from "./io"
 import type { FileSearchOptions } from "./platform"
 import { ReadStream, WriteStream } from "node:fs"
+import type { NotificationConstructorOptions } from "./notify/notify"
 
 export type Status = (typeof statuses)[number]
 
@@ -84,6 +85,8 @@ export interface IMessage extends BaseMessage {
 }
 
 export type Message = string | Partial<IMessage>
+
+export type Notify = (options: NotificationConstructorOptions) => Promise<void>
 
 export type Chat = ((
 	config?: PromptConfig,
@@ -1196,4 +1199,6 @@ declare global {
 	var app: App
 
 	var getTheme: () => Promise<KitTheme>
+
+	var notify: Notify
 }
