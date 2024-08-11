@@ -17,8 +17,11 @@ ava("postprocessMetadata - basic metadata processing", (t) => {
 
 	if (process.platform === "darwin") {
 		t.is(result.shortcut, "Command+Shift+p")
+		t.is(result.friendlyShortcut, "cmd+shift+p")
+	} else {
+		t.is(result.shortcut, "Control+Shift+p")
+		t.is(result.friendlyShortcut, "ctrl+shift+p")
 	}
-	t.is(result.friendlyShortcut, "cmd+shift+p")
 	t.is(result.shortcode, "test")
 	t.is(result.trigger, "test_trigger")
 	t.is(result.alias, "test alias")
