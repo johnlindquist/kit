@@ -18,7 +18,9 @@ if (await isFile(openConfigPath)) {
 			value: item.name,
 			shortcut: item?.shortcut || "",
 			action: async (selectedFile: string) => {
+				hide()
 				await exec(item.command.replace("${file}", selectedFile))
+				process.exit(0)
 			}
 		})
 	}

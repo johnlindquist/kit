@@ -211,6 +211,7 @@ export type EditorOptions = editor.IStandaloneEditorConstructionOptions & {
 	extraLibs?: { content: string; filePath: string }[]
 	template?: string
 	suggestions?: string[]
+	actions?: Action[]
 }
 
 export type EditorConfig = string | (PromptConfig & EditorOptions)
