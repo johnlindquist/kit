@@ -1,8 +1,7 @@
 
 declare module '@johnlindquist/kit' {
-  
-
-
+  import type { ChildProcess } from "node:child_process"
+import type { ProcessType, UI, Mode } from "../core/enum.js"
 
 export interface Choice<Value = any> {
 	name: string
@@ -45,6 +44,7 @@ export interface Choice<Value = any> {
 	disableSubmit?: boolean
 	info?: boolean
 	exclude?: boolean
+	width?: number
 	height?: number
 	skip?: boolean
 	miss?: boolean
@@ -117,11 +117,11 @@ export interface ScriptMetadata {
 	snippetdelay?: number
 	index?: string
 	template?: boolean
-	["color-text"]?: string
-	["color-primary"]?: string
-	["color-secondary"]?: string
-	["color-background"]?: string
-	["opacity"]?: string
+	"color-text"?: string
+	"color-primary"?: string
+	"color-secondary"?: string
+	"color-background"?: string
+	opacity?: string
 	preview?: Choice["preview"]
 	previewPath?: string
 	debug?: boolean
@@ -138,11 +138,20 @@ export interface ScriptMetadata {
 export type Script = ScriptMetadata & ScriptPathInfo & Choice
 
 export type Scriptlet = Script & {
-	group: "Scriptlets"
+	group: string
 	inputs: string[]
 	tool: "kit" | "open" | "paste" | string
 	scriptlet: string
 	value: Script
+	cwd?: string
+	prepend?: string
+	append?: string
+	term?: undefined | boolean
+}
+
+export type Snippet = Script & {
+	group: "Snippets"
+	text: string
 }
 
 export type PromptBounds = {
@@ -380,13 +389,15 @@ export interface AppState {
 	action?: Action
 }
 
-export interface ChannelHandler {
-	(input?: string, state?: AppState): void | Promise<void>
-}
+export type ChannelHandler = (
+	input?: string,
+	state?: AppState
+) => void | Promise<void>
 
-export interface SubmitHandler {
-	(input?: string, state?: AppState): void | Symbol | Promise<void | Symbol>
-}
+export type SubmitHandler = (
+	input?: string,
+	state?: AppState
+) => void | Symbol | Promise<void | Symbol>
 
 export type PromptConfig = {
 	validate?: (input: string) => boolean | string | Promise<boolean | string>
@@ -442,6 +453,12 @@ export type PromptConfig = {
 	env?: any
 	shortcuts?: Shortcut[]
 	show?: boolean
+	grid?: boolean
+	columns?: number
+	columnWidth?: number
+	rowHeight?: number
+	gridGap?: number
+	gridPadding?: number
 } & Partial<Omit<PromptData, "choices" | "id" | "script" | "preview">>
 
 export type CronExpression =
@@ -474,8 +491,10 @@ export interface Metadata {
 	 * immediately executes the script.
 	 */
 	trigger?: string
-	/** Designates the script as a text expansion snippet and specifies the trigger text. */
+	/** @deprecated Use `expand` instead. Designates the script as a text expansion snippet and specifies the trigger text. */
 	snippet?: string
+	/** Designates the script as a text expansion snippet and specifies the trigger text. */
+	expand?: string
 	/** Associates a keyword with the script for easier discovery in the main menu. */
 	keyword?: string
 	/** Indicates that user input in the main menu should be passed as an argument to the script. */
@@ -10079,6 +10098,7 @@ export type kenvEnv = {
 	KIT_CONVERT_KEY?: string | undefined
 	KIT_CWD?: string | undefined
 	KIT_DEBUG_PROMPT?: string | undefined
+	KIT_DOCK?: string | undefined
 	KIT_ALWAYS_ON_TOP?: string | undefined
 	KIT_AUTO_UPDATE?: string | undefined
 	KIT_BACKGROUND_THROTTLE?: string | undefined
@@ -10125,26 +10145,26 @@ export type kenvEnv = {
 	KIT_SEARCH_MAX_ITERATIONS?: string | undefined
 	KIT_USE_EXEC_PATH?: string | undefined
 }
-
-
-
-
-
-
+import type { GlobalsApi } from "@johnlindquist/globals"
+import type { AppApi } from "./kitapp"
+import type { KitApi, Run } from "./kit"
+import type { PackagesApi } from "./packages"
+import type { PlatformApi } from "./platform"
+import type { ProAPI } from "./pro"
 
 export type GlobalApi = Omit<GlobalsApi, "path"> &
-  KitApi &
-  PackagesApi &
-  PlatformApi &
-  AppApi &
-  ProAPI
+	KitApi &
+	PackagesApi &
+	PlatformApi &
+	AppApi &
+	ProAPI
 
 declare global {
-  var kit: GlobalApi & Run
+	var kit: GlobalApi & Run
 
-  namespace NodeJS {
-    interface Global extends GlobalApi {}
-  }
+	namespace NodeJS {
+		interface Global extends GlobalApi {}
+	}
 }
 
 export * from "./core"
@@ -10417,6 +10437,13 @@ export type Select = <T = any[]>(
 	choices: Choices<T>,
 	actions?: Action[]
 ) => Promise<T>
+
+export type Grid = <T = any[]>(
+	placeholderOrConfig: string | PromptConfig,
+	choices: Choices<T>,
+	actions?: Action[]
+) => Promise<T>
+
 export interface EnvConfig extends PromptConfig {
 	reset?: boolean
 }
@@ -10541,24 +10568,27 @@ export interface Kenv {
 	name: string
 	dirPath: string
 }
-export interface SelectKenv {
-	(config?: PromptConfig, ignorePattern?: RegExp): Promise<Kenv>
-}
+export type SelectKenv = (
+	config?: PromptConfig,
+	ignorePattern?: RegExp
+) => Promise<Kenv>
 
-export interface Highlight {
-	(
-		markdown: string,
-		containerClass?: string,
-		injectStyles?: string
-	): Promise<string>
-}
+export type Highlight = (
+	markdown: string,
+	containerClass?: string,
+	injectStyles?: string
+) => Promise<string>
 
 interface PathConfig extends PromptConfig {
 	startPath?: string
 	onlyDirs?: boolean
+	showHidden?: boolean
 }
 
-type PathPicker = (config?: string | PathConfig) => Promise<string>
+type PathPicker = (
+	config?: string | PathConfig,
+	actions?: Action[]
+) => Promise<string>
 export type PathSelector = typeof import("path") & PathPicker
 
 type GistOptions = {
@@ -10566,16 +10596,12 @@ type GistOptions = {
 	description?: string
 	isPublic?: boolean
 }
-export interface CreateGist {
-	(
-		content: string,
-		options?: GistOptions
-	): Promise<RestEndpointMethodTypes["gists"]["create"]["response"]["data"]>
-}
+export type CreateGist = (
+	content: string,
+	options?: GistOptions
+) => Promise<RestEndpointMethodTypes["gists"]["create"]["response"]["data"]>
 
-export interface SetShortcuts {
-	(shortcuts: Shortcut[]): Promise<void>
-}
+export type SetShortcuts = (shortcuts: Shortcut[]) => Promise<void>
 export interface KitApi {
 	path: PathSelector
 	db: DB
@@ -10714,6 +10740,7 @@ declare global {
 	var env: Env
 	var arg: Arg
 	var select: Select
+	var grid: Grid
 	var basePrompt: Arg
 	var mini: Arg
 	var micro: Arg
@@ -10834,6 +10861,7 @@ import type {
 } from "./io"
 import type { FileSearchOptions } from "./platform"
 
+import type { NotificationConstructorOptions } from "./notify"
 
 export type Status = (typeof statuses)[number]
 
@@ -10879,9 +10907,12 @@ export interface IMessage extends BaseMessage {
 
 export type Message = string | Partial<IMessage>
 
-export type Chat = {
-	(config?: PromptConfig): Promise<Message[]>
-} & {
+export type Notify = (options: NotificationConstructorOptions) => Promise<void>
+
+export type Chat = ((
+	config?: PromptConfig,
+	actions?: Action[]
+) => Promise<Message[]>) & {
 	addMessage?: (message: Message) => void
 	setMessage?: (index: number, message: Message) => void
 	getMessages?: () => Promise<BaseMessage[]>
@@ -10964,7 +10995,8 @@ export type Find = (
 ) => Promise<string>
 
 export type Editor = ((
-	config?: EditorConfig & { hint?: string }
+	config?: EditorConfig & { hint?: string },
+	actions?: Action[]
 ) => Promise<string>) & {
 	setSuggestions?: (suggestions: string[]) => Promise<void>
 	setConfig?: (config: EditorConfig) => Promise<void>
@@ -11000,6 +11032,7 @@ export type EditorOptions = editor.IStandaloneEditorConstructionOptions & {
 	extraLibs?: { content: string; filePath: string }[]
 	template?: string
 	suggestions?: string[]
+	actions?: Action[]
 }
 
 export type EditorConfig = string | (PromptConfig & EditorOptions)
@@ -11034,10 +11067,14 @@ export type TextArea = (
 	placeholderOrOptions?: string | TextareaConfig
 ) => Promise<string | void>
 
-export type Drop = (placeholder?: string | PromptConfig) => Promise<any>
+export type Drop = (
+	placeholder?: string | PromptConfig,
+	actions?: Action[]
+) => Promise<any>
 export type Template = (
 	template: string,
-	config?: EditorConfig
+	config?: EditorConfig,
+	actions?: Action[]
 ) => Promise<string>
 export type OldForm = (
 	html?:
@@ -11049,7 +11086,11 @@ export type OldForm = (
 	formData?: any
 ) => Promise<any>
 
-export type Form = (html: string | PromptConfig, formData?: any) => Promise<any>
+export type Form = (
+	html: string | PromptConfig,
+	formData?: any,
+	actions?: Action[]
+) => Promise<any>
 
 type Field =
 	| {
@@ -11067,7 +11108,8 @@ type Field =
 	| string
 
 export type Fields = (
-	fields: Field[] | (PromptConfig & { fields: Field[] })
+	fields: Field[] | (PromptConfig & { fields: Field[] }),
+	actions?: Action[]
 ) => Promise<string[]>
 
 export type AudioOptions = {
@@ -11461,6 +11503,7 @@ export interface ChannelMap {
 	[Channel.SYSTEM_MOUSEMOVE]: boolean
 	[Channel.SYSTEM_WHEEL]: boolean
 	[Channel.STAMP_SCRIPT]: Script
+	[Channel.VITE_WIDGET_SEND]: any
 }
 export interface Send {
 	(channel: Channel | GetAppData | SendNoOptions): void
@@ -11518,7 +11561,8 @@ export interface KitTheme {
 	ui: string
 	opacity: string
 }
-export type SetTheme = (theme: Partial<KitTheme>) => Promise<void>
+
+export type SetTheme = (theme: string) => Promise<void>
 
 export type SetPlaceholder = (placeholder: string) => void
 
@@ -11534,7 +11578,6 @@ export type SetBounds = (bounds: Partial<Rectangle>) => void
 
 export type SendKeystroke = (keyData: Partial<KeyData>) => void
 
-export type GetBounds = () => Promise<Rectangle>
 export type GetBounds = () => Promise<Rectangle>
 
 export type GetActiveScreen = () => Promise<Display>
@@ -11978,764 +12021,790 @@ declare global {
 	var app: App
 
 	var getTheme: () => Promise<KitTheme>
+
+	var notify: Notify
+}
+export interface NotificationAction {
+	// Docs: https://electronjs.org/docs/api/structures/notification-action
+
+	/**
+	 * The label for the given action.
+	 */
+	text?: string
+	/**
+	 * The type of action, can be `button`.
+	 */
+	type: "button"
+}
+
+export interface NotificationConstructorOptions {
+	/**
+	 * A title for the notification, which will be displayed at the top of the
+	 * notification window when it is shown.
+	 */
+	title?: string
+	/**
+	 * A subtitle for the notification, which will be displayed below the title.
+	 *
+	 * @platform darwin
+	 */
+	subtitle?: string
+	/**
+	 * The body text of the notification, which will be displayed below the title or
+	 * subtitle.
+	 */
+	body?: string
+	/**
+	 * Whether or not to suppress the OS notification noise when showing the
+	 * notification.
+	 */
+	silent?: boolean
+	/**
+	 * An icon to use in the notification.
+	 */
+	icon?: string
+	/**
+	 * Whether or not to add an inline reply option to the notification.
+	 *
+	 * @platform darwin
+	 */
+	hasReply?: boolean
+	/**
+	 * The timeout duration of the notification. Can be 'default' or 'never'.
+	 *
+	 * @platform linux,win32
+	 */
+	timeoutType?: "default" | "never"
+	/**
+	 * The placeholder to write in the inline reply input field.
+	 *
+	 * @platform darwin
+	 */
+	replyPlaceholder?: string
+	/**
+	 * The name of the sound file to play when the notification is shown.
+	 *
+	 * @platform darwin
+	 */
+	sound?: string
+	/**
+	 * The urgency level of the notification. Can be 'normal', 'critical', or 'low'.
+	 *
+	 * @platform linux
+	 */
+	urgency?: "normal" | "critical" | "low"
+	/**
+	 * Actions to add to the notification. Please read the available actions and
+	 * limitations in the `NotificationAction` documentation.
+	 *
+	 * @platform darwin
+	 */
+	actions?: NotificationAction[]
+	/**
+	 * A custom title for the close button of an alert. An empty string will cause the
+	 * default localized text to be used.
+	 *
+	 * @platform darwin
+	 */
+	closeButtonText?: string
+	/**
+	 * A custom description of the Notification on Windows superseding all properties
+	 * above. Provides full customization of design and behavior of the notification.
+	 *
+	 * @platform win32
+	 */
+	toastXml?: string
 }
 
 import * as shelljs from "shelljs/index"
 
 
 export type Trash = (
-  input: string | readonly string[],
-  option?: {
-    glob?: boolean
-  }
+	input: string | readonly string[],
+	option?: {
+		glob?: boolean
+	}
 ) => Promise<void>
 
 export type Git = {
-  clone: (
-    repo: string,
-    dir: string,
-    options?: Partial<Parameters<typeof clone>[0]>
-  ) => ReturnType<typeof clone>
-  pull: (
-    dir: string,
-    options?: Partial<Parameters<typeof pull>[0]>
-  ) => ReturnType<typeof pull>
-  push: (
-    dir: string,
-    options?: Partial<Parameters<typeof push>[0]>
-  ) => ReturnType<typeof push>
-  add: (
-    dir: string,
-    glob: string,
-    options?: Partial<Parameters<typeof add>[0]>
-  ) => ReturnType<typeof add>
-  commit: (
-    dir: string,
-    message: string,
-    options?: Partial<Parameters<typeof commit>[0]>
-  ) => ReturnType<typeof commit>
-  init: (
-    dir: string,
-    options?: Partial<Parameters<typeof init>[0]>
-  ) => ReturnType<typeof init>
-  addRemote: (
-    dir: string,
-    remote: string,
-    url: string,
-    options?: Partial<Parameters<typeof addRemote>[0]>
-  ) => ReturnType<typeof addRemote>
+	clone: (
+		repo: string,
+		dir: string,
+		options?: Partial<Parameters<typeof clone>[0]>
+	) => ReturnType<typeof clone>
+	pull: (
+		dir: string,
+		options?: Partial<Parameters<typeof pull>[0]>
+	) => ReturnType<typeof pull>
+	push: (
+		dir: string,
+		options?: Partial<Parameters<typeof push>[0]>
+	) => ReturnType<typeof push>
+	add: (
+		dir: string,
+		glob: string,
+		options?: Partial<Parameters<typeof add>[0]>
+	) => ReturnType<typeof add>
+	commit: (
+		dir: string,
+		message: string,
+		options?: Partial<Parameters<typeof commit>[0]>
+	) => ReturnType<typeof commit>
+	init: (
+		dir: string,
+		options?: Partial<Parameters<typeof init>[0]>
+	) => ReturnType<typeof init>
+	addRemote: (
+		dir: string,
+		remote: string,
+		url: string,
+		options?: Partial<Parameters<typeof addRemote>[0]>
+	) => ReturnType<typeof addRemote>
 }
 export type Open = typeof import("open/index").default
 export type OpenApp = typeof import("open/index").openApp
 
-type NodeNotify =
-  typeof import("node-notifier/index").notify
-export interface Notify {
-  (...args: Parameters<NodeNotify>): ReturnType<NodeNotify>
-}
-
 export interface OnTab {
-  (name: string, fn: () => void): void
+	(name: string, fn: () => void): void
 }
 
 type Zx = typeof import("zx/build/index")
 
 export interface PackagesApi {
-  cd: Zx["cd"]
-  cp: typeof shelljs.cp
-  chmod: typeof shelljs.chmod
-  echo: typeof shelljs.echo
-  exit: typeof shelljs.exit
-  grep: typeof shelljs.grep
-  ln: typeof shelljs.ln
-  ls: typeof shelljs.ls
-  mkdir: typeof shelljs.mkdir
-  mv: typeof shelljs.mv
-  sed: typeof shelljs.sed
-  tempdir: typeof shelljs.tempdir
-  test: typeof shelljs.test
-  which: typeof shelljs.which
-  paste: () => Promise<string>
-  copy: (text: string) => Promise<void>
-  trash: Trash
-  open: Open
-  rm: Trash
-  notify: Notify
+	cd: Zx["cd"]
+	cp: typeof shelljs.cp
+	chmod: typeof shelljs.chmod
+	echo: typeof shelljs.echo
+	exit: typeof shelljs.exit
+	grep: typeof shelljs.grep
+	ln: typeof shelljs.ln
+	ls: typeof shelljs.ls
+	mkdir: typeof shelljs.mkdir
+	mv: typeof shelljs.mv
+	sed: typeof shelljs.sed
+	tempdir: typeof shelljs.tempdir
+	test: typeof shelljs.test
+	which: typeof shelljs.which
+	paste: () => Promise<string>
+	copy: (text: string) => Promise<void>
+	trash: Trash
+	open: Open
+	rm: Trash
 
-  $: Zx["$"]
+	$: Zx["$"]
 }
 
 export interface DegitOptions {
-  force?: boolean
+	force?: boolean
 }
 
 export interface IDegit {
-  repo: string
-  subdirectory: string | undefined
-  ref: string | undefined
-  options: DegitOptions
+	repo: string
+	subdirectory: string | undefined
+	ref: string | undefined
+	options: DegitOptions
 
-  clone(dest: string): Promise<void>
+	clone(dest: string): Promise<void>
 }
-type Degit = (
-  repo: string,
-  options?: DegitOptions
-) => IDegit
+type Degit = (repo: string, options?: DegitOptions) => IDegit
 
 declare global {
-  var cd: Zx["cd"]
-  var cp: typeof shelljs.cp
-  var chmod: typeof shelljs.chmod
-  var echo: typeof shelljs.echo
-  var exit: typeof shelljs.exit
-  var grep: typeof shelljs.grep
-  var ln: typeof shelljs.ln
-  var ls: typeof shelljs.ls
-  var mkdir: typeof shelljs.mkdir
-  var mv: typeof shelljs.mv
-  var pwd: typeof shelljs.pwd
-  var sed: typeof shelljs.sed
-  var tempdir: typeof shelljs.tempdir
-  var test: typeof shelljs.test
-  var which: typeof shelljs.which
+	var cd: Zx["cd"]
+	var cp: typeof shelljs.cp
+	var chmod: typeof shelljs.chmod
+	var echo: typeof shelljs.echo
+	var exit: typeof shelljs.exit
+	var grep: typeof shelljs.grep
+	var ln: typeof shelljs.ln
+	var ls: typeof shelljs.ls
+	var mkdir: typeof shelljs.mkdir
+	var mv: typeof shelljs.mv
+	var pwd: typeof shelljs.pwd
+	var sed: typeof shelljs.sed
+	var tempdir: typeof shelljs.tempdir
+	var test: typeof shelljs.test
+	var which: typeof shelljs.which
 
-  var paste: () => Promise<string>
-  var copy: (text: string) => Promise<void>
+	var paste: () => Promise<string>
+	var copy: (text: string) => Promise<void>
 
-  var trash: Trash
-  var open: Open
-  var openApp: OpenApp
-  var rm: Trash
-  var git: Git
-  var degit: Degit
+	var trash: Trash
+	var open: Open
+	var openApp: OpenApp
+	var rm: Trash
+	var git: Git
+	var degit: Degit
 
-  var notify: Notify
+	var memoryMap: Map<string, any>
 
-  var memoryMap: Map<string, any>
+	var onTabIndex: number
 
-  var onTabIndex: number
-
-  var $: Zx["$"]
+	var $: Zx["$"]
 }
-
-
+import type { ProcessInfo } from "./core"
+import type { Display, Point } from "./electron"
 import type {
-  BrowserContextOptions,
-  Page,
-  PageScreenshotOptions,
+	BrowserContextOptions,
+	Page,
+	PageScreenshotOptions
 } from "playwright"
 
-interface PlayAudioFile {
-  (path: string, options?: any): Promise<string>
-}
+type PlayAudioFile = (path: string, options?: any) => Promise<string>
 
-interface StopAudioFile {
-  (): Promise<void>
-}
+type StopAudioFile = () => Promise<void>
 
-interface CopyPathAsImage {
-  (path: string): Promise<string>
-}
+type CopyPathAsImage = (path: string) => Promise<string>
 
 interface FileSearchOptions {
-  onlyin?: string
-  kind?: string
-  kMDItemContentType?: string
+	onlyin?: string
+	kind?: string
+	kMDItemContentType?: string
 }
-interface FileSearch {
-  (
-    name: string,
-    fileSearchOptions?: FileSearchOptions
-  ): Promise<string[]>
-}
+type FileSearch = (
+	name: string,
+	fileSearchOptions?: FileSearchOptions
+) => Promise<string[]>
 
-type Browser =
-  | "Google Chrome"
-  | "Brave"
-  | "Firefox"
-  | "Edge"
+type Browser = "Google Chrome" | "Brave" | "Firefox" | "Edge"
 
-interface GetActiveTab {
-  (browser?: Browser): Promise<string>
-}
-interface GetTabs {
-  (browser?: Browser): Promise<
-    { url: string; title: string }[]
-  >
-}
+type GetActiveTab = (browser?: Browser) => Promise<string>
+type GetTabs = (browser?: Browser) => Promise<{ url: string; title: string }[]>
 
-interface FocusTab {
-  (url: string, browser?: Browser): Promise<string>
-}
+type FocusTab = (url: string, browser?: Browser) => Promise<string>
 
 interface ScrapeOptions {
-  headless?: boolean
-  timeout?: number
-  /**
-   * Playwright browser context options.
-   *
-   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
-   */
-  browserOptions?: BrowserContextOptions
+	headless?: boolean
+	timeout?: number
+	/**
+	 * Playwright browser context options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+	 */
+	browserOptions?: BrowserContextOptions
 }
 
-interface ScrapeSelector<T = any> {
-  (
-    url: string,
-    selector: string,
-    /**
-     * Transformation to apply to each DOM node that was selected.
-     * By default, `element.innerText` is returned.
-     */
-    transform?: (element: any) => T,
-    options?: ScrapeOptions
-  ): Promise<T[]>
-}
+type ScrapeSelector<T = any> = (
+	url: string,
+	selector: string,
+	/**
+	 * Transformation to apply to each DOM node that was selected.
+	 * By default, `element.innerText` is returned.
+	 */
+	transform?: (element: any) => T,
+	options?: ScrapeOptions
+) => Promise<T[]>
 
-interface ScrapeAttribute {
-  (
-    url: string,
-    selector: string,
-    attribute: string,
-    options?: ScrapeOptions
-  ): Promise<string | null>
-}
+type ScrapeAttribute = (
+	url: string,
+	selector: string,
+	attribute: string,
+	options?: ScrapeOptions
+) => Promise<string | null>
 interface ScreenshotFromWebpageOptions {
-  timeout?: number
-  /**
-   * Playwright browser context options.
-   *
-   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
-   */
-  browserOptions?: BrowserContextOptions
-  /**
-   * Playwright page screenshot options.
-   *
-   * {@link https://playwright.dev/docs/api/class-page#page-screenshot}
-   */
-  screenshotOptions?: PageScreenshotOptions
+	timeout?: number
+	/**
+	 * Playwright browser context options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+	 */
+	browserOptions?: BrowserContextOptions
+	/**
+	 * Playwright page screenshot options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-page#page-screenshot}
+	 */
+	screenshotOptions?: PageScreenshotOptions
 }
 
-interface GetScreenshotFromWebpage {
-  (
-    url: string,
-    options?: ScreenshotFromWebpageOptions
-  ): Promise<Buffer>
-}
+type GetScreenshotFromWebpage = (
+	url: string,
+	options?: ScreenshotFromWebpageOptions
+) => Promise<Buffer>
 
 interface WebpageAsPdfOptions {
-  timeout?: number
-  /**
-   * Playwright browser context options.
-   *
-   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
-   */
-  browserOptions?: BrowserContextOptions
-  /**
-   * Playwright page pdf options.
-   *
-   * {@link https://playwright.dev/docs/api/class-page#page-pdf}
-   */
-  pdfOptions?: Parameters<Page["pdf"]>[0]
-  /**
-   * Playwright page emulate media options.
-   *
-   * {@link https://playwright.dev/docs/api/class-page#page-emulate-media}
-   */
-  mediaOptions?: Parameters<Page["emulateMedia"]>[0]
+	timeout?: number
+	/**
+	 * Playwright browser context options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+	 */
+	browserOptions?: BrowserContextOptions
+	/**
+	 * Playwright page pdf options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-page#page-pdf}
+	 */
+	pdfOptions?: Parameters<Page["pdf"]>[0]
+	/**
+	 * Playwright page emulate media options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-page#page-emulate-media}
+	 */
+	mediaOptions?: Parameters<Page["emulateMedia"]>[0]
 }
 
-interface GetWebpageAsPdf {
-  (
-    url: string,
-    options?: WebpageAsPdfOptions
-  ): Promise<Buffer>
-}
+type GetWebpageAsPdf = (
+	url: string,
+	options?: WebpageAsPdfOptions
+) => Promise<Buffer>
 
 interface Window {
-  process: string
-  title: string
-  index: number
+	process: string
+	title: string
+	index: number
 }
-interface GetWindows {
-  (): Promise<Window[]>
-}
+type GetWindows = () => Promise<Window[]>
 
-interface FocusWindow {
-  (process: string, title: string): Promise<string>
-}
+type FocusWindow = (process: string, title: string) => Promise<string>
 
 interface WindowBounds {
-  process: string
-  name: string
-  position: { x: number; y: number }
-  size: { width: number; height: number }
-  fullscreen: boolean
+	process: string
+	name: string
+	position: { x: number; y: number }
+	size: { width: number; height: number }
+	fullscreen: boolean
 }
-interface GetWindowsBounds {
-  (): Promise<WindowBounds[]>
-}
-interface GetWindowPosition {
-  (
-    process: string,
-    title: string,
-    x: number,
-    y: number
-  ): Promise<string>
-}
+type GetWindowsBounds = () => Promise<WindowBounds[]>
+type GetWindowPosition = (
+	process: string,
+	title: string,
+	x: number,
+	y: number
+) => Promise<string>
 
-interface SetWindowPosition {
-  (
-    process: string,
-    title: string,
-    x: number,
-    y: number
-  ): Promise<string>
-}
-interface SetWindowSizeByIndex {
-  (
-    process: string,
-    index: number,
-    x: number,
-    y: number
-  ): Promise<string>
-}
-interface SetWindowBoundsByIndex {
-  (
-    process: string,
-    index: number,
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ): Promise<string>
-}
+type SetWindowPosition = (
+	process: string,
+	title: string,
+	x: number,
+	y: number
+) => Promise<string>
+type SetWindowSizeByIndex = (
+	process: string,
+	index: number,
+	x: number,
+	y: number
+) => Promise<string>
+type SetWindowBoundsByIndex = (
+	process: string,
+	index: number,
+	x: number,
+	y: number,
+	width: number,
+	height: number
+) => Promise<string>
 
-interface ScatterWindows {
-  (): Promise<string>
-}
+type ScatterWindows = () => Promise<string>
 
-interface OrganizeWindows {
-  (): Promise<void>
-}
+type OrganizeWindows = () => Promise<void>
 
-interface SetWindowPositionByIndex {
-  (
-    process: string,
-    index: number,
-    x: number,
-    y: number
-  ): Promise<string>
-}
+type SetWindowPositionByIndex = (
+	process: string,
+	index: number,
+	x: number,
+	y: number
+) => Promise<string>
 
-interface SetWindowSize {
-  (
-    process: string,
-    title: string,
-    x: number,
-    y: number
-  ): Promise<string>
-}
+type SetWindowSize = (
+	process: string,
+	title: string,
+	x: number,
+	y: number
+) => Promise<string>
 
 interface Screen {
-  name: string
-  x: number
-  y: number
-  width: number
-  height: number
+	name: string
+	x: number
+	y: number
+	width: number
+	height: number
 }
-interface GetScreens {
-  (): Promise<Display[]>
-}
+type GetScreens = () => Promise<Display[]>
+type SelectDisplay = (includeThumbnails?: boolean) => Promise<Display>
 
-interface TileWindow {
-  (
-    app: string,
-    leftOrRight: "left" | "right"
-  ): Promise<string>
-}
+type TileWindow = (
+	app: string,
+	leftOrRight: "left" | "right"
+) => Promise<string>
 
-interface GetActiveScreen {
-  (): Promise<Display>
-}
+type GetActiveScreen = () => Promise<Display>
 
-interface GetMousePosition {
-  (): Promise<Point>
-}
+type GetMousePosition = () => Promise<Point>
 
-interface GetProcesses {
-  (): Promise<ProcessInfo[]>
-}
+type GetProcesses = () => Promise<ProcessInfo[]>
 
 interface Rectangle {
-  x: number
-  y: number
-  width: number
-  height: number
+	x: number
+	y: number
+	width: number
+	height: number
 }
 
 export interface Prompt {
-  id: string
-  pid: number
-  birthTime: number
-  isFocused: boolean
-  isVisible: boolean
-  isDestroyed: boolean
-  bounds: Rectangle
-  focus: () => Promise<void>
+	id: string
+	pid: number
+	birthTime: number
+	isFocused: boolean
+	isVisible: boolean
+	isDestroyed: boolean
+	bounds: Rectangle
+	focus: () => Promise<void>
 }
 
-interface GetPrompts {
-  (): Promise<Prompt[]>
-}
+type GetPrompts = () => Promise<Prompt[]>
 interface KitWindow {
-  name: string
-  id: string
-  value: string
-  bounds: Rectangle
-  isFocused: boolean
-  isVisible: boolean
-  isDestroyed: boolean
+	name: string
+	id: string
+	value: string
+	bounds: Rectangle
+	isFocused: boolean
+	isVisible: boolean
+	isDestroyed: boolean
 }
 
-interface GetKitWindows {
-  (): Promise<KitWindow[]>
-}
+type GetKitWindows = () => Promise<KitWindow[]>
 
-interface FocusAppWindow {
-  (id: string): Promise<void>
-}
+type FocusAppWindow = (id: string) => Promise<void>
 
 interface Bounds {
-  left: number
-  top: number
-  right: number
-  bottom: number
+	left: number
+	top: number
+	right: number
+	bottom: number
 }
-interface SetActiveAppBounds {
-  (bounds: Bounds): Promise<void>
-}
-interface SetActiveAppPosition {
-  (position: { x: number; y: number }): Promise<void>
-}
-interface SetActiveAppSize {
-  (size: { width: number; height: number }): Promise<void>
-}
+type SetActiveAppBounds = (bounds: Bounds) => Promise<void>
+type SetActiveAppPosition = (position: {
+	x: number
+	y: number
+}) => Promise<void>
+type SetActiveAppSize = (size: {
+	width: number
+	height: number
+}) => Promise<void>
 
-interface GetActiveAppInfo {
-  (): Promise<{
-    localizedName: string
-    bundleIdentifier: string
-    bundleURLPath: string
-    executableURLPath: string
-    isFinishedLaunching: boolean
-    processIdentifier: number
-    windowTitle: string
-    windowIndex: number
-    windowID: number
-    x: number
-    y: number
-    width: number
-    height: number
-  }>
-}
-interface GetActiveAppBounds {
-  (): Promise<Bounds>
-}
+type GetActiveAppInfo = () => Promise<{
+	localizedName: string
+	bundleIdentifier: string
+	bundleURLPath: string
+	executableURLPath: string
+	isFinishedLaunching: boolean
+	processIdentifier: number
+	windowTitle: string
+	windowIndex: number
+	windowID: number
+	x: number
+	y: number
+	width: number
+	height: number
+}>
+type GetActiveAppBounds = () => Promise<Bounds>
 
-interface GetSelectedFile {
-  (): Promise<string>
-}
+type GetSelectedFile = () => Promise<string>
 
-interface SetSelectedFile {
-  (filePath: string): Promise<void>
-}
+type SetSelectedFile = (filePath: string) => Promise<void>
 
-interface GetSelectedDir {
-  (): Promise<string>
-}
-interface SelectFile {
-  (message?: string): Promise<string>
-}
+type GetSelectedDir = () => Promise<string>
+type SelectFile = (message?: string) => Promise<string>
 
-interface RevealFile {
-  (filePath: string): Promise<string>
-}
-interface RevealInFinder {
-  (filePath?: string): Promise<void>
-}
-interface SelectFolder {
-  (message?: string): Promise<string>
-}
+type RevealFile = (filePath: string) => Promise<string>
+type RevealInFinder = (filePath?: string) => Promise<void>
+type SelectFolder = (message?: string) => Promise<string>
 
-interface GetSelectedText {
-  (): Promise<string>
-}
+type GetSelectedText = () => Promise<string>
 
-interface CutText {
-  (): Promise<string>
-}
+type CutText = () => Promise<string>
 
-interface Lock {
-  (): Promise<string>
-}
+type Lock = () => Promise<unknown>
 
-interface Logout {
-  (): Promise<string>
-}
-interface Sleep {
-  (): Promise<string>
-}
-interface Shutdown {
-  (): Promise<string>
-}
+type Logout = () => Promise<unknown>
+type Sleep = () => Promise<unknown>
+type Shutdown = () => Promise<unknown>
 
-interface QuitAllApps {
-  (appsToExclude?: string): Promise<string>
-}
+type QuitAllApps = (appsToExclude?: string) => Promise<unknown>
 
-interface Say {
-  (text: string, options?: any): Promise<string>
-}
+type Say = (text: string, options?: any) => Promise<string>
 
-interface Beep {
-  (): Promise<void>
-}
+type Beep = () => Promise<void>
 
-interface SetSelectedText {
-  (text: string, hide?: boolean): Promise<void>
-}
+type SetSelectedText = (text: string, hide?: boolean) => Promise<void>
 
-interface KeyStroke {
-  (keyString: string): Promise<string>
-}
+type KeyStroke = (keyString: string) => Promise<string>
 
-interface AppleScript {
-  (script: string, options?: any): Promise<string>
-}
+type AppleScript = (script: string, options?: any) => Promise<string>
 
 export interface PlatformApi {
-  applescript: AppleScript
-  copyPathAsImage: CopyPathAsImage
-  fileSearch: FileSearch
-  focusTab: FocusTab
-  focusWindow: FocusWindow
-  getActiveTab: GetActiveTab
-  getActiveScreen: GetActiveScreen
-  getActiveAppInfo: GetActiveAppInfo
-  getActiveAppBounds: GetActiveAppBounds
-  getMousePosition: GetMousePosition
-  getScreens: GetScreens
-  getSelectedFile: GetSelectedFile
-  setSelectedFile: SetSelectedFile
-  getSelectedDir: GetSelectedDir
-  revealInFinder: RevealInFinder
-  selectFile: SelectFile
-  selectFolder: SelectFolder
-  revealFile: RevealFile
-  getSelectedText: GetSelectedText
-  cutText: CutText
-  getTabs: GetTabs
-  getWindows: GetWindows
-  getWindowsBounds: GetWindowsBounds
-  keystroke: KeyStroke
-  lock: Lock
-  openLog: () => void
-  organizeWindows: OrganizeWindows
-  playAudioFile: PlayAudioFile
-  stopAudioFile: StopAudioFile
-  quitAllApps: QuitAllApps
-  say: Say
-  beep: Beep
-  scatterWindows: ScatterWindows
-  scrapeAttribute: ScrapeAttribute
-  scrapeSelector: ScrapeSelector
-  getScreenshotFromWebpage: GetScreenshotFromWebpage
-  getWebpageAsPdf: GetWebpageAsPdf
-  setActiveAppBounds: SetActiveAppBounds
-  setActiveAppPosition: SetActiveAppPosition
-  setActiveAppSize: SetActiveAppSize
-  setSelectedText: SetSelectedText
-  setWindowBoundsByIndex: SetWindowBoundsByIndex
-  setWindowPosition: SetWindowPosition
-  setWindowPositionByIndex: SetWindowPositionByIndex
-  setWindowSize: SetWindowSize
-  setWindowSizeByIndex: SetWindowSizeByIndex
-  shutdown: Shutdown
-  sleep: Sleep
-  tileWindow: TileWindow
+	applescript: AppleScript
+	copyPathAsImage: CopyPathAsImage
+	fileSearch: FileSearch
+	focusTab: FocusTab
+	focusWindow: FocusWindow
+	getActiveTab: GetActiveTab
+	getActiveScreen: GetActiveScreen
+	getActiveAppInfo: GetActiveAppInfo
+	getActiveAppBounds: GetActiveAppBounds
+	getMousePosition: GetMousePosition
+	getScreens: GetScreens
+	selectDisplay: SelectDisplay
+	getSelectedFile: GetSelectedFile
+	setSelectedFile: SetSelectedFile
+	getSelectedDir: GetSelectedDir
+	revealInFinder: RevealInFinder
+	selectFile: SelectFile
+	selectFolder: SelectFolder
+	revealFile: RevealFile
+	getSelectedText: GetSelectedText
+	cutText: CutText
+	getTabs: GetTabs
+	getWindows: GetWindows
+	getWindowsBounds: GetWindowsBounds
+	keystroke: KeyStroke
+	lock: Lock
+	openLog: () => void
+	organizeWindows: OrganizeWindows
+	playAudioFile: PlayAudioFile
+	stopAudioFile: StopAudioFile
+	quitAllApps: QuitAllApps
+	say: Say
+	beep: Beep
+	scatterWindows: ScatterWindows
+	scrapeAttribute: ScrapeAttribute
+	scrapeSelector: ScrapeSelector
+	getScreenshotFromWebpage: GetScreenshotFromWebpage
+	getWebpageAsPdf: GetWebpageAsPdf
+	setActiveAppBounds: SetActiveAppBounds
+	setActiveAppPosition: SetActiveAppPosition
+	setActiveAppSize: SetActiveAppSize
+	setSelectedText: SetSelectedText
+	setWindowBoundsByIndex: SetWindowBoundsByIndex
+	setWindowPosition: SetWindowPosition
+	setWindowPositionByIndex: SetWindowPositionByIndex
+	setWindowSize: SetWindowSize
+	setWindowSizeByIndex: SetWindowSizeByIndex
+	shutdown: Shutdown
+	sleep: Sleep
+	tileWindow: TileWindow
 }
 
 declare global {
-  var applescript: AppleScript
-  var beep: Beep
-  var copyPathAsImage: CopyPathAsImage
-  var fileSearch: FileSearch
-  var focusTab: FocusTab
-  var focusWindow: FocusWindow
-  var getActiveAppInfo: GetActiveAppInfo
-  var getActiveAppBounds: GetActiveAppBounds
-  var getActiveScreen: GetActiveScreen
-  var getActiveTab: GetActiveTab
-  var getMousePosition: GetMousePosition
-  var getProcesses: GetProcesses
-  var getPrompts: GetPrompts
-  var getKitWindows: GetKitWindows
-  var focusKitWindow: FocusAppWindow
-  var getScreens: GetScreens
-  var getSelectedFile: GetSelectedFile
-  var revealInFinder: RevealInFinder
-  var selectFile: SelectFile
-  var selectFolder: SelectFolder
-  var revealFile: RevealFile
-  var getSelectedText: GetSelectedText
-  var cutText: CutText
-  var getTabs: GetTabs
-  var getWindows: GetWindows
-  var getWindowsBounds: GetWindowsBounds
-  var getSelectedDir: GetSelectedDir
-  var keystroke: KeyStroke
-  var logout: Logout
-  var lock: Lock
-  var openLog: () => void
-  var organizeWindows: OrganizeWindows
-  var playAudioFile: PlayAudioFile
-  var stopAudioFile: StopAudioFile
-  var quitAllApps: QuitAllApps
-  var say: Say
-  var scatterWindows: ScatterWindows
-  var scrapeAttribute: ScrapeAttribute
-  var scrapeSelector: ScrapeSelector
-  var getScreenshotFromWebpage: GetScreenshotFromWebpage
-  var getWebpageAsPdf: GetWebpageAsPdf
-  var setActiveAppBounds: SetActiveAppBounds
-  var setActiveAppPosition: SetActiveAppPosition
-  var setActiveAppSize: SetActiveAppSize
-  var setSelectedText: SetSelectedText
-  var setSelectedFile: SetSelectedFile
-  var setWindowBoundsByIndex: SetWindowBoundsByIndex
-  var setWindowPosition: SetWindowPosition
-  var setWindowPositionByIndex: SetWindowPositionByIndex
-  var setWindowSize: SetWindowSize
-  var setWindowSizeByIndex: SetWindowSizeByIndex
-  var shutdown: Shutdown
-  var sleep: Sleep
-  var tileWindow: TileWindow
+	var applescript: AppleScript
+	var beep: Beep
+	var copyPathAsImage: CopyPathAsImage
+	var fileSearch: FileSearch
+	var focusTab: FocusTab
+	var focusWindow: FocusWindow
+	var getActiveAppInfo: GetActiveAppInfo
+	var getActiveAppBounds: GetActiveAppBounds
+	var getActiveScreen: GetActiveScreen
+	var getActiveTab: GetActiveTab
+	var getMousePosition: GetMousePosition
+	var getProcesses: GetProcesses
+	var getPrompts: GetPrompts
+	var getKitWindows: GetKitWindows
+	var focusKitWindow: FocusAppWindow
+	var getScreens: GetScreens
+	var selectDisplay: SelectDisplay
+	var getSelectedFile: GetSelectedFile
+	var revealInFinder: RevealInFinder
+	var selectFile: SelectFile
+	var selectFolder: SelectFolder
+	var revealFile: RevealFile
+	var getSelectedText: GetSelectedText
+	var cutText: CutText
+	var getTabs: GetTabs
+	var getWindows: GetWindows
+	var getWindowsBounds: GetWindowsBounds
+	var getSelectedDir: GetSelectedDir
+	var keystroke: KeyStroke
+	var logout: Logout
+	var lock: Lock
+	var openLog: () => void
+	var organizeWindows: OrganizeWindows
+	var playAudioFile: PlayAudioFile
+	var stopAudioFile: StopAudioFile
+	var quitAllApps: QuitAllApps
+	var say: Say
+	var scatterWindows: ScatterWindows
+	var scrapeAttribute: ScrapeAttribute
+	var scrapeSelector: ScrapeSelector
+	var getScreenshotFromWebpage: GetScreenshotFromWebpage
+	var getWebpageAsPdf: GetWebpageAsPdf
+	var setActiveAppBounds: SetActiveAppBounds
+	var setActiveAppPosition: SetActiveAppPosition
+	var setActiveAppSize: SetActiveAppSize
+	var setSelectedText: SetSelectedText
+	var setSelectedFile: SetSelectedFile
+	var setWindowBoundsByIndex: SetWindowBoundsByIndex
+	var setWindowPosition: SetWindowPosition
+	var setWindowPositionByIndex: SetWindowPositionByIndex
+	var setWindowSize: SetWindowSize
+	var setWindowSizeByIndex: SetWindowSizeByIndex
+	var shutdown: Shutdown
+	var sleep: Sleep
+	var tileWindow: TileWindow
+}
+import type { ForkOptions } from "node:child_process"
+import type { Channel } from "../core/enum"
+import type { PromptConfig } from "./core"
+import type {
+	BrowserWindowConstructorOptions,
+	Display,
+	Rectangle
+} from "./electron"
+
+export type BaseWidgetOptions = BrowserWindowConstructorOptions & {
+	/**
+	 * Important: This property determines whether the widget can be dragged.
+	 * To enable dragging, ensure that the "draggable" class is added to any element
+	 * intended for dragging the widget. This is essential for user interaction.
+	 */
+	draggable?: boolean
+	title?: string
+	ignoreMouse?: boolean
+	ttl?: number
+	center?: boolean
+	preventEscape?: boolea
+	css?: string
+	body?: string
 }
 
+export type WidgetOptions = BaseWidgetOptions & {
+	state?: any
+	unpkg?: string[]
+	containerClass?: string
+}
 
-
-
-
-export type WidgetOptions =
-  BrowserWindowConstructorOptions & {
-    state?: any
-    draggable?: boolean
-    unpkg?: string[]
-    title?: string
-    ignoreMouse?: boolean
-    ttl?: number
-    center?: boolean
-    containerClass?: string
-    preventEscape?: boolean
-    experimental?: boolean
-    css?: string
-    body?: string
-  }
+export type ViteOptions = BaseWidgetOptions & {
+	mode?: "development" | "production" | string
+	port?: number
+}
 
 export interface WidgetMessage {
-  channel: Channel
-  pid: number
-  targetId: string
-  widgetId: number
-  value?: any
-  x: number
-  y: number
-  width?: number
-  height?: number
-  dataset?: {
-    [key: string]: any
-  }
+	channel: Channel
+	pid: number
+	targetId: string
+	widgetId: number
+	value?: any
+	x: number
+	y: number
+	width?: number
+	height?: number
+	dataset?: {
+		[key: string]: any
+	}
 }
 
-export interface WidgetHandler {
-  (data: WidgetMessage): void
+export interface ViteMessage extends WidgetMessage {
+	widgetChannel: string
+	widgetData?: any
 }
 
-export interface WidgetAPI {
-  setState: (state: any) => void
-  capturePage: () => Promise<string>
-  close: () => void
-  fit: () => void
-  setSize: (width: number, height: number) => void
-  setPosition: (x: number, y: number) => void
-  call: (name: string, ...args: any[]) => void
-  onCustom: (handler: WidgetHandler) => void
-  onClick: (handler: WidgetHandler) => void
-  onDrop: (handler: WidgetHandler) => void
-  onMouseDown: (handler: WidgetHandler) => void
-  onInput: (handler: WidgetHandler) => void
-  onClose: (handler: WidgetHandler) => void
-  onResized: (handler: WidgetHandler) => void
-  onMoved: (handler: WidgetHandler) => void
-  onInit: (handler: WidgetHandler) => void
-  executeJavaScript: (js: string) => Promise<any>
-  show: () => void
-  showInactive: () => void
-  hide: () => void
-  focus: () => void
-  blur: () => void
-  minimize: () => void
-  maximize: () => void
-  restore: () => void
-  setAlwaysOnTop: (flag: boolean) => void
+export type WidgetHandler = (data: WidgetMessage) => void
+export type ViteHandler = (data: ViteMessage) => void
+
+export interface BaseWidgetApi {
+	show: () => void
+	showInactive: () => void
+	hide: () => void
+	focus: () => void
+	blur: () => void
+	minimize: () => void
+	maximize: () => void
+	restore: () => void
+	setAlwaysOnTop: (flag: boolean) => void
+	close: () => void
+	setSize: (width: number, height: number) => void
+	setPosition: (x: number, y: number) => void
+	call: (name: string, ...args: any[]) => void
+	executeJavaScript: (js: string) => Promise<any>
+	capturePage: () => Promise<string>
+	onClose: (handler: WidgetHandler) => void
 }
 
-export interface Widget {
-  (
-    html: string,
-    options?: WidgetOptions
-  ): Promise<WidgetAPI>
+export interface WidgetAPI extends BaseWidgetApi {
+	setState: (state: any) => void
+	fit: () => void
+	onCustom: (handler: WidgetHandler) => void
+	onClick: (handler: WidgetHandler) => void
+	onDrop: (handler: WidgetHandler) => void
+	onMouseDown: (handler: WidgetHandler) => void
+	onInput: (handler: WidgetHandler) => void
+	onResized: (handler: WidgetHandler) => void
+	onMoved: (handler: WidgetHandler) => void
+	onInit: (handler: WidgetHandler) => void
 }
 
-export interface Menubar {
-  (text: string, scripts?: string[]): Promise<void>
+type ViteWidgetSendMessage = {
+	channel: string
+	pid: number
+	targetId: string
+	widgetId: number
+	[key: string]: any
 }
+export interface ViteAPI extends BaseWidgetApi {
+	/**
+	 * Registers an event handler for a specific channel.
+	 * @param event The channel name to listen for.
+	 * @param handler The function to be called when an event on this channel is received.
+	 * @returns A function that, when called, will remove the event handler.
+	 *
+	 * Example usage:
+	 * ```typescript
+	 * const removeHandler = v.on('myChannel', (data) => {
+	 *   console.log('Received data:', data);
+	 * });
+	 *
+	 * // Later, when you want to stop listening:
+	 * removeHandler();
+	 * ```
+	 */
+	on: (event: string, handler: ViteHandler) => () => void
+	send: (channel: string, data: any) => void
+}
+
+export type Widget = (
+	html: string,
+	options?: WidgetOptions
+) => Promise<WidgetAPI>
+
+export type ViteWidget = (
+	dir: string,
+	options?: ViteOptions
+) => Promise<ViteAPI>
+
+export type Menubar = (text: string, scripts?: string[]) => Promise<void>
 
 export interface TerminalOptions extends PromptConfig {
-  command?: string
-  cwd?: string
-  shell?: string | boolean
-  args?: string[]
-  env?: {
-    [key: string]: string
-  }
-  closeOnExit?: boolean
-  cleanPath?: boolean
+	command?: string
+	cwd?: string
+	shell?: string | boolean
+	args?: string[]
+	env?: {
+		[key: string]: string
+	}
+	closeOnExit?: boolean
+	cleanPath?: boolean
 }
 
 export type Terminal = {
-  (command?: string): Promise<string>
-  (options?: TerminalOptions): Promise<string>
+	(command?: string, actions?: Action[]): Promise<string>
+	(options?: TerminalOptions, actions?: Action[]): Promise<string>
 } & {
-  write?: (text: string) => Promise<void>
+	write?: (text: string) => Promise<void>
 }
 
 export interface ProAPI {
-  widget: Widget
-  menubar: Menubar
-  term: Terminal
+	widget: Widget
+	menubar: Menubar
+	term: Terminal
 }
 
-export interface ShowLogWindow {
-  (scriptPath?: string): Promise<void>
-}
+export type ShowLogWindow = (scriptPath?: string) => Promise<void>
 
 declare global {
-  var widget: Widget
-  var menu: Menubar
-  var term: Terminal
-  var showLogWindow: ShowLogWindow
+	var widget: Widget
+	var vite: ViteWidget
+	var menu: Menubar
+	var term: Terminal
+	var showLogWindow: ShowLogWindow
 }
 export interface Md {
   (markdown: string, containerClasses?: string): string

@@ -40,7 +40,7 @@ import type {
 } from "./io"
 import type { FileSearchOptions } from "./platform"
 import { ReadStream, WriteStream } from "node:fs"
-import type { NotificationConstructorOptions } from "./notify/notify"
+import type { NotificationConstructorOptions } from "./notify"
 
 export type Status = (typeof statuses)[number]
 
