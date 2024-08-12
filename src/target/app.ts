@@ -1629,8 +1629,24 @@ global.template = async (
 	options: EditorOptions = { language: "plaintext" },
 	actions?: Action[]
 ) => {
+	let updatedTemplate = template
+	if (template.includes("$SELECTION")) {
+		updatedTemplate = updatedTemplate.replaceAll(
+			"$SELECTION",
+			await getSelectedText()
+		)
+	}
+
+	if (updatedTemplate.includes("$CLIPBOARD")) {
+		updatedTemplate = updatedTemplate.replaceAll("$CLIPBOARD", await paste())
+	}
+
+	if (updatedTemplate.includes("$HOME")) {
+		updatedTemplate = updatedTemplate.replaceAll("$HOME", home())
+	}
+
 	return global.editor({
-		template,
+		template: updatedTemplate,
 		...options,
 		actions,
 		enter: ""

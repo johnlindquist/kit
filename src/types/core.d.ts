@@ -111,7 +111,9 @@ export interface ScriptMetadata {
 	shift?: string
 	hasPreview?: boolean
 	logo?: string
+	/** @deprecated Use 'expand' instead */
 	snippet?: string
+	expand?: string
 	snippetdelay?: number
 	index?: string
 	template?: boolean

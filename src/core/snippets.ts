@@ -1,6 +1,11 @@
-import type { Snippet } from "../types"
+import type { Metadata, Snippet } from "../types"
 import { kenvPath } from "./resolvers.js"
-import { escapeHTML, getKenvFromPath } from "./utils.js"
+import {
+	escapeHTML,
+	getKenvFromPath,
+	getMetadata,
+	postprocessMetadata
+} from "./utils.js"
 
 export let parseSnippets = async (): Promise<Snippet[]> => {
 	let snippetPaths = await globby([
@@ -33,23 +38,22 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
 export let getSnippet = (
 	contents: string
 ): {
-	metadata: Record<string, string>
+	metadata: Metadata
 	snippet: string
 } => {
 	let lines = contents.split("\n")
-	let metadata = {}
+	let metadata = postprocessMetadata(
+		getMetadata(contents),
+		contents
+	) as Metadata
+	delete (metadata as any).type
 	let contentStartIndex = lines.length
 
 	for (let i = 0; i < lines.length; i++) {
 		let line = lines[i]
 		let match = line.match(/(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/)
 
-		if (match) {
-			let [, key, value] = match
-			if (value) {
-				metadata[key.trim().toLowerCase()] = value.trim()
-			}
-		} else {
+		if (!match) {
 			contentStartIndex = i
 			break
 		}
