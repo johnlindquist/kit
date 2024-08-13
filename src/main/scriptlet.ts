@@ -1,3 +1,4 @@
+import { SHELL_TOOLS } from "../core/constants.js"
 import { Channel } from "../core/enum.js"
 import type { Script, Scriptlet } from "../types"
 import untildify from "untildify"
@@ -43,7 +44,6 @@ export let runScriptlet = async (
 
 	send(Channel.STAMP_SCRIPT, focusedScriptlet as Script)
 	switch (focusedScriptlet.tool) {
-		case "":
 		case "kit":
 		case "ts":
 		case "js": {
@@ -128,6 +128,8 @@ await setSelectedText(result)`
 			}
 
 			if (getExtension(focusedScriptlet.tool) !== focusedScriptlet.tool) {
+				if (focusedScriptlet.tool) {
+				}
 				const extension = getExtension(focusedScriptlet.tool)
 				const scriptPath = kenvPath(
 					"tmp",
@@ -209,17 +211,9 @@ await setSelectedText(result)`
 					: undefined
 
 				let useExec = () => {
-					const shellTools = [
-						"bash",
-						"sh",
-						"zsh",
-						"fish",
-						"powershell",
-						"pwsh",
-						"cmd"
-					]
 					return (
-						shellTools.includes(focusedScriptlet.tool) && !focusedScriptlet.term
+						SHELL_TOOLS.includes(focusedScriptlet.tool) &&
+						!focusedScriptlet.term
 					)
 				}
 
@@ -229,6 +223,10 @@ await setSelectedText(result)`
 						cwd
 					})
 				}
+
+				global.log(
+					`Running scriptlet with command: ${command}. This should be run by spawnShebang in the app...`
+				)
 
 				return await exec(command, {
 					shell: true,

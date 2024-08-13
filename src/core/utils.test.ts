@@ -340,7 +340,24 @@ export { note }
 	}
 )
 
-ava("parseScriptlets doesn't error on empty string", async (t) => {
+ava("parseScriptlets tool default to bash or cmd", async (t) => {
+	let scriptlet = await parseMarkdownAsScriptlets(`
+## Append Note
+
+<!-- 
+Shortcut: cmd o
+cwd: ~/Downloads
+-->
+
+\`\`\`
+echo "hello world"
+\`\`\`		
+		
+		`)
+	t.is(scriptlet[0].tool, process.platform === "win32" ? "cmd" : "bash")
+})
+
+ava("parseMarkdownAsScriptlets doesn't error on empty string", async (t) => {
 	let scriptlets = await parseMarkdownAsScriptlets("")
 	t.is(scriptlets.length, 0)
 })
@@ -591,3 +608,91 @@ console.log("Snippet 2");
 // 	const snippetDir = path.join(kenvPath(), "snippets")
 // 	await rmdir(snippetDir, { recursive: true })
 // })
+
+if (process.platform !== "win32") {
+	ava("parseScriptlets no tool preview uses bash codeblock", async (t) => {
+		let scriptlet = await parseMarkdownAsScriptlets(`
+## Append Note
+
+<!-- 
+Shortcut: cmd o
+cwd: ~/Downloads
+-->
+
+\`\`\`
+echo "hello world"
+\`\`\`		
+		
+		`)
+
+		t.log(scriptlet[0].preview)
+
+		t.true((scriptlet[0].preview as string)?.includes("language-bash"))
+	})
+
+	ava("parseScriptlets with tool preview uses tool codeblock", async (t) => {
+		let scriptlet = await parseMarkdownAsScriptlets(`
+	## Append Note
+	
+	<!-- 
+	Shortcut: cmd o
+	cwd: ~/Downloads
+	-->
+	
+	\`\`\`python
+	echo "hello world"
+	\`\`\`		
+			
+			`)
+
+		t.log(scriptlet[0].preview)
+
+		t.true((scriptlet[0].preview as string)?.includes("language-python"))
+	})
+}
+
+ava(
+	"parseScriptlets with a shell tool and without inputs uses shebang",
+	async (t) => {
+		let scriptlet = await parseMarkdownAsScriptlets(`
+## Append Note
+
+<!-- 
+Shortcut: cmd o
+cwd: ~/Downloads
+-->
+
+\`\`\`
+echo "hello world"
+\`\`\`		
+		
+		`)
+
+		t.log(scriptlet[0])
+
+		t.truthy(scriptlet[0].shebang)
+	}
+)
+
+ava(
+	"parseScriptlets with a shell tool with inputs doesn't use shebang",
+	async (t) => {
+		let scriptlet = await parseMarkdownAsScriptlets(`
+## Append Note
+
+<!-- 
+Shortcut: cmd o
+cwd: ~/Downloads
+-->
+
+\`\`\`
+echo "hello {who}"
+\`\`\`		
+		
+		`)
+
+		t.log(scriptlet[0])
+
+		t.falsy(scriptlet[0].shebang)
+	}
+)

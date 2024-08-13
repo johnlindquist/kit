@@ -28,3 +28,13 @@ export const KENV_BIN = kenvPath("bin")
 export const KIT_APP = kitPath("run", "app.js")
 export const KIT_APP_PROMPT = kitPath("run", "app-prompt.js")
 export const KIT_APP_INDEX = kitPath("run", "app-index.js")
+
+export const SHELL_TOOLS = [
+	"bash",
+	"sh",
+	"zsh",
+	"fish",
+	"powershell",
+	"pwsh",
+	"cmd"
+]

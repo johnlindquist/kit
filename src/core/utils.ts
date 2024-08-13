@@ -1216,8 +1216,8 @@ export let md = (content = "", containerClasses = "p-5 prose prose-sm") => {
 
 export let highlight = async (
 	markdown: string,
-	containerClass: string = "p-5 leading-loose",
-	injectStyles: string = ``
+	containerClass = "p-5 leading-loose",
+	injectStyles = ""
 ) => {
 	let { default: highlight } =
 		global.__kitHighlight || (await import("highlight.js"))
@@ -1239,6 +1239,7 @@ export let highlight = async (
 	}
 	marked.setOptions({
 		renderer,
+		// biome-ignore lint/complexity/useArrowFunction: <explanation>
 		highlight: function (code, lang) {
 			const language = highlight.getLanguage(lang) ? lang : "plaintext"
 			return highlight.highlight(code, { language }).value
@@ -1428,5 +1429,6 @@ export {
 	KENV_BIN,
 	KIT_APP,
 	KIT_APP_PROMPT,
-	KIT_APP_INDEX
+	KIT_APP_INDEX,
+	SHELL_TOOLS
 } from "./constants.js"

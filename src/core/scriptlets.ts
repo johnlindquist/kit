@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises"
 import { postprocessMetadata } from "./parser.js"
 import { kenvPath } from "./resolvers.js"
 import { getKenvFromPath, highlight, tagger } from "./utils.js"
+import { SHELL_TOOLS } from "./constants.js"
 
 export let parseMarkdownAsScriptlets = async (
 	markdown: string
@@ -53,7 +54,12 @@ export let parseMarkdownAsScriptlets = async (
 
 		if (line.startsWith("```") || line.startsWith("~~~")) {
 			if (!currentScriptlet.tool) {
-				let tool = line.replace("```", "").replace("~~~", "").trim() || "ts"
+				let tool = line.replace("```", "").replace("~~~", "").trim()
+
+				if (tool === "") {
+					tool = process.platform === "win32" ? "cmd" : "bash"
+				}
+
 				currentScriptlet.tool = tool
 
 				currentScriptlet.preview += `\n// ${tool}`
@@ -93,7 +99,10 @@ export let parseMarkdownAsScriptlets = async (
 	}
 
 	for (let scriptlet of scriptlets) {
-		let preview = (scriptlet.preview as string).trim()
+		let preview = (scriptlet.preview as string)
+			.trim()
+			.replace(/```\n/, `\`\`\`${scriptlet.tool}\n`)
+			.replace(/~~~\n/, `~~~${scriptlet.tool}\n`)
 
 		let highlightedPreview = md(`# ${scriptlet.name}
 ${await highlight(preview, "")}`)
@@ -106,6 +115,11 @@ ${await highlight(preview, "")}`)
 					?.map((x: string) => x.slice(1, -1)) || []
 			)
 		)
+
+		if (scriptlet.inputs.length === 0 && SHELL_TOOLS.includes(scriptlet.tool)) {
+			scriptlet.shebang = scriptlet.tool
+		}
+
 		tagger(scriptlet)
 	}
 
