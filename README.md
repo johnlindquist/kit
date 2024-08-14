@@ -79,4 +79,4 @@ The build command builds the SDK to ~/.kit
 3. cd to wherever you cloned kitapp
 4. npm link @johnlindquist/kit
 
-This will force the App to use the SDK so you can work on both simultaneously
+This codebase is the core of Script Kit, a powerful tool designed to enhance productivity by allowing users to create, manage, and execute scripts efficiently. Script Kit provides a comprehensive SDK and a user-friendly application that integrates seamlessly with various development environments. It supports advanced features such as built-in debugging, script logging, and remote script execution. The platform is highly customizable, enabling users to extend its functionality with custom scripts and integrations. By leveraging Script Kit, developers can automate repetitive tasks, streamline workflows, and improve overall efficiency in their development processes.
