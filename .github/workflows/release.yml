@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.15.1'
+          node-version: '20.16.0'
 
       - name: Check node $PATH version
         shell: bash
@@ -81,7 +81,7 @@ jobs:
       - name: Install Node
         run: |
           mkdir -p ./.knode
-          ./build/install-node.sh -v 20.15.1 -P ./.knode -y
+          ./build/install-node.sh -v 20.16.0 -P ./.knode -y
 
       - name: Build Kit
         run: |
@@ -148,7 +148,7 @@ jobs:
       - name: Install Node
         run: |
           mkdir -p ./.knode
-          ./build/install-node.sh -v 20.15.1 -P ./.knode -y
+          ./build/install-node.sh -v 20.16.0 -P ./.knode -y
 
       - name: Build Kit
         run: |

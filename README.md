@@ -33,17 +33,17 @@
 
 Requirements: npm
 
-### Using node 20.15.1 from ~/.knode
+### Using node 20.16.0 from ~/.knode
 
-Installing `Kit.app` already installed node 20.15.1 to ~/.knode. You'll want to use this node version for all build/run steps:
+Installing `Kit.app` already installed node 20.16.0 to ~/.knode. You'll want to use this node version for all build/run steps:
 
 `PATH=~/.knode/bin:$PATH`
 
-This will use 20.15.1's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
+This will use 20.16.0's node/npm when working with Kit. (Alternatively, you can use nvm/n/whatever, but I don't)
 
 - Use `volta` to manage node versions.
     1. Install [volta](https://volta.sh/)
-    2. Volta will automatically switch node version to 20.15.1 when working with kit.
+    2. Volta will automatically switch node version to 20.16.0 when working with kit.
 
 ### Clone Kit SDK
 

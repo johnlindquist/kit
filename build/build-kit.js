@@ -34,7 +34,7 @@ function isMinifiedCode(line) {
 	return line.length > 200 || line.split(",").length > 10
 }
 
-let knodeVersion = "20.15.1"
+let knodeVersion = "20.16.0"
 
 let originalDir = process.cwd()
 

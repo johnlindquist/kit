@@ -27,6 +27,7 @@ import { writeJson, readJson } from "@johnlindquist/kit-internal/fs-extra"
 import type { Choice, Script, PromptDb } from "../types/core"
 import { Low, JSONFile } from "@johnlindquist/kit-internal/lowdb"
 import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
+import type { Keyv } from "keyv"
 
 export const resolveKenv = (...parts: string[]) => {
 	if (global.kitScript) {
@@ -39,7 +40,7 @@ export const resolveKenv = (...parts: string[]) => {
 export let store = async (
 	nameOrPath: string,
 	initialData: any
-): Promise<InstanceType<typeof import("keyv")>> => {
+): Promise<Keyv> => {
 	let isPath = nameOrPath.includes("/") || nameOrPath.includes("\\")
 	let { default: Keyv } = await import("keyv")
 	let { KeyvFile } = await import("keyv-file")
@@ -54,7 +55,7 @@ export let store = async (
 	})
 
 	if (!fileExists) {
-		let dataToInit
+		let dataToInit: Record<string, any> = {}
 
 		if (typeof initialData === "function") {
 			dataToInit = await (initialData as () => Promise<any>)()
@@ -177,14 +178,6 @@ export let db = async <T = any>(
 			if (d[k]) {
 				if (typeof d[k] === "function") {
 					return d[k].bind(d)
-
-					// TODO: If connected to a parent process, send them as actions:
-					if (process.send) {
-						return (...args: any[]) => {
-							return sendWait(`DB_GET_${k}` as any, ...args)
-						}
-					} else {
-					}
 				}
 				return d[k]
 			}
