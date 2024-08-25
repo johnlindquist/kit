@@ -246,14 +246,14 @@ export let getScriptsDb = async (
 		scripts: Script[]
 	}
 > => {
-	// if (!fromCache) console.log(`🔄 Refresh scripts db`)
-
 	let dbResult = await db(
 		scriptsDbPath,
 		async () => {
-			let scripts = await parseScripts(ignoreKenvPattern)
-			let scriptlets = await parseScriptlets()
-			let snippets = await parseSnippets()
+			const [scripts, scriptlets, snippets] = await Promise.all([
+				parseScripts(ignoreKenvPattern),
+				parseScriptlets(),
+				parseSnippets()
+			])
 			return {
 				scripts: scripts.concat(scriptlets, snippets)
 			}

@@ -12,35 +12,43 @@ import { parentPort } from "node:worker_threads"
 import { type Stamp, getScriptsDb, getTimestamps } from "../core/db.js"
 import { scriptsSort } from "../core/utils.js"
 
+const getTimestampsDb = async (stamp: Stamp) => {
+	let timestampsDb = await getTimestamps()
+	let index = timestampsDb.stamps.findIndex(
+		(s) => s.filePath === stamp.filePath
+	)
+
+	let oldStamp = timestampsDb.stamps[index]
+
+	stamp.timestamp = Date.now()
+	if (stamp.runCount) {
+		stamp.runCount = oldStamp?.runCount ? oldStamp.runCount + 1 : 1
+	}
+	if (oldStamp) {
+		timestampsDb.stamps[index] = {
+			...oldStamp,
+			...stamp
+		}
+	} else {
+		timestampsDb.stamps.push(stamp)
+	}
+
+	try {
+		await timestampsDb.write()
+	} catch (error) {
+		if (global.log) global.log(error)
+	}
+
+	return timestampsDb
+}
+
 const parseMainMenu = async (stamp: Stamp = null) => {
 	if (stamp) {
-		let timestampsDb = await getTimestamps()
-		let index = timestampsDb.stamps.findIndex(
-			(s) => s.filePath === stamp.filePath
-		)
+		let [timestampsDb, scriptsDb] = await Promise.all([
+			getTimestampsDb(stamp),
+			getScriptsDb(false)
+		])
 
-		let oldStamp = timestampsDb.stamps[index]
-
-		stamp.timestamp = Date.now()
-		if (stamp.runCount) {
-			stamp.runCount = oldStamp?.runCount ? oldStamp.runCount + 1 : 1
-		}
-		if (oldStamp) {
-			timestampsDb.stamps[index] = {
-				...oldStamp,
-				...stamp
-			}
-		} else {
-			timestampsDb.stamps.push(stamp)
-		}
-
-		try {
-			await timestampsDb.write()
-		} catch (error) {
-			if (global.log) global.log(error)
-		}
-
-		let scriptsDb = await getScriptsDb(false)
 		let script = scriptsDb.scripts.find((s) => s.filePath === stamp.filePath)
 
 		if (script) {

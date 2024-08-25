@@ -1576,7 +1576,7 @@ export let getProcessedScripts = async (fromCache = true) => {
 	})
 	processedScripts = await processInBatches(
 		scripts.map(processScript(timestampsDb.stamps)),
-		10
+		5
 	)
 
 	trace.end({
