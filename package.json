@@ -93,7 +93,7 @@
 		"keyv-file": "^0.3.3",
 		"quick-score": "^0.2.0",
 		"rimraf": "6.0.1",
-		"safe-stable-stringify": "^2.4.3",
+		"safe-stable-stringify": "^2.5.0",
 		"shelljs": "0.8.5",
 		"slugify": "1.6.6",
 		"suggestion": "2.1.2",
@@ -114,7 +114,7 @@
 		"semantic-release": "24.1.0",
 		"semantic-release-plugin-update-version-in-files": "1.1.0",
 		"tsc-watch": "6.2.0",
-		"tsx": "^4.17.0",
+		"tsx": "^4.18.0",
 		"typescript": "5.5.4",
 		"unzipper": "0.12.3"
 	},
