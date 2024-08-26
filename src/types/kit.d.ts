@@ -15,7 +15,8 @@ import type {
 	PromptConfig,
 	ScoredChoice,
 	Script,
-	Shortcut
+	Shortcut,
+	Flags
 } from "./core"
 import { ChannelHandler } from "./core"
 import type { ConfigOptions, Options } from "quick-score"
@@ -137,14 +138,6 @@ export type GetScripts = (fromCache?: boolean) => Promise<Script[]>
 export type FlagFn = (flags: FlagsObject, options?: ActionsConfig) => void
 export type ActionsFn = (actions: Action[], options?: ActionsConfig) => void
 export type PrepFlags = (flags: FlagsObject) => FlagsObject
-export type Flags = {
-	[key: string]: boolean | string
-	cmd?: boolean | string
-	ctrl?: boolean | string
-	shift?: boolean | string
-	option?: boolean | string
-	alt?: boolean | string
-}
 
 export type SelectKitEditor = (reset: boolean) => Promise<string>
 

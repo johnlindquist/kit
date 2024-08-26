@@ -135,7 +135,7 @@ Enabled: Yes
   -->
 
 \`\`\`bash
-open -a 'Google Chrome' https://scriptkit.com/{user}
+open -a 'Google Chrome' https://scriptkit.com/{{user}}
 \`\`\`
 
 This Script Opens the Script Kit URL
@@ -145,7 +145,7 @@ I hope you enjoy!
 ## Append Note
 
 \`\`\`kit
-await appendFile(home("{File Name}.txt"), {Note})
+await appendFile(home("{{File Name}}.txt"), {{Note}})
 \`\`\`
 `
 
@@ -157,7 +157,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 	t.is(scripts[0].tool, "bash")
 	t.is(
 		scripts[0].scriptlet,
-		"open -a 'Google Chrome' https://scriptkit.com/{user}"
+		"open -a 'Google Chrome' https://scriptkit.com/{{user}}"
 	)
 	t.is(scripts[0].group, "Scriptlets")
 	t.deepEqual(scripts[0].inputs, ["user"])
@@ -166,7 +166,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 	t.is(scripts[1].tool, "kit")
 	t.is(
 		scripts[1].scriptlet,
-		'await appendFile(home("{File Name}.txt"), {Note})'
+		'await appendFile(home("{{File Name}}.txt"), {{Note}})'
 	)
 	t.is(scripts[1].group, "Scriptlets")
 	t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
@@ -182,7 +182,7 @@ Enabled: Yes
   -->
 
 \`\`\`bash
-open -a 'Google Chrome' https://scriptkit.com/{user}
+open -a 'Google Chrome' https://scriptkit.com/{{user}}
 \`\`\`
 
 This Script Opens the Script Kit URL
@@ -192,7 +192,7 @@ I hope you enjoy!
 ## Append Note
 
 \`\`\`kit
-await appendFile(home("{File Name}.txt"), {Note})
+await appendFile(home("{{File Name}}.txt"), {{Note}})
 \`\`\`
 `
 
@@ -204,7 +204,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 	t.is(scripts[0].tool, "bash")
 	t.is(
 		scripts[0].scriptlet,
-		"open -a 'Google Chrome' https://scriptkit.com/{user}"
+		"open -a 'Google Chrome' https://scriptkit.com/{{user}}"
 	)
 	t.is(scripts[0].group, "Scriptlets")
 	t.deepEqual(scripts[0].inputs, ["user"])
@@ -213,7 +213,7 @@ await appendFile(home("{File Name}.txt"), {Note})
 	t.is(scripts[1].tool, "kit")
 	t.is(
 		scripts[1].scriptlet,
-		'await appendFile(home("{File Name}.txt"), {Note})'
+		'await appendFile(home("{{File Name}}.txt"), {{Note}})'
 	)
 	t.is(scripts[1].group, "Scriptlets")
 	t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
@@ -231,7 +231,7 @@ Enabled: Yes
   -->
 
 \`\`\`bash
-open -a 'Google Chrome' https://scriptkit.com/{user}
+open -a 'Google Chrome' https://scriptkit.com/{{user}}
 \`\`\`
 
 This Script Opens the Script Kit URL
@@ -251,7 +251,7 @@ append: | grep "foo"
 import { appendFile } from "fs"
 let note = "This is a note"
 await exec(\`echo "\${note}" >> foo.txt\`)
-await appendFile(home("{File Name}.txt"), {Note})
+await appendFile(home("{{File Name}}.txt"), {{Note}})
 export { note }
 \`\`\`
 `
@@ -265,7 +265,7 @@ export { note }
 		t.is(scripts[0].tag, "trigger: sk")
 		t.is(
 			scripts[0].scriptlet,
-			"open -a 'Google Chrome' https://scriptkit.com/{user}"
+			"open -a 'Google Chrome' https://scriptkit.com/{{user}}"
 		)
 		t.is(scripts[0].group, "Scriptlets")
 		t.deepEqual(scripts[0].inputs, ["user"])
@@ -286,7 +286,7 @@ export { note }
 import { appendFile } from "fs"
 let note = "This is a note"
 await exec(\`echo "\${note}" >> foo.txt\`)
-await appendFile(home("{File Name}.txt"), {Note})
+await appendFile(home("{{File Name}}.txt"), {{Note}})
 export { note }
 		`.trim()
 		)
@@ -307,7 +307,7 @@ Enabled: Yes
   -->
 
 \`\`\`bash
-open -a 'Google Chrome' https://scriptkit.com/{user} && echo "{user}"
+open -a 'Google Chrome' https://scriptkit.com/{{user}} && echo "{{user}}"
 \`\`\`
 
 This Script Opens the Script Kit URL
@@ -327,8 +327,8 @@ append: | grep "foo"
 import { appendFile } from "fs"
 let note = "This is a note"
 await exec(\`echo "\${note}" >> foo.txt\`)
-await appendFile(home("{File Name}.txt"), {Note})
-console.log("Creating {Note}")
+await appendFile(home("{{File Name}}.txt"), {{Note}})
+console.log("Creating {{Note}}")
 export { note }
 \`\`\`
 `
@@ -376,7 +376,7 @@ console.log("Hello, world!")
 	const filePath = await outputTmpFile("test-scriptlet.md", markdown)
 	const scripts = await parseScriptletsFromPath(filePath)
 
-	t.log(scripts[0])
+	// t.log(scripts[0])
 	t.is(scripts.length, 1)
 	t.is(scripts[0].name, "Test Scriptlet")
 	if (process.platform === "darwin") {
@@ -686,7 +686,7 @@ cwd: ~/Downloads
 -->
 
 \`\`\`
-echo "hello {who}"
+echo "hello {{who}}"
 \`\`\`		
 		
 		`)

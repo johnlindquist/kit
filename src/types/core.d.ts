@@ -323,6 +323,15 @@ export type Panel =
 	| ((input: string) => Promise<any>)
 	| ((input: string) => Promise<void>)
 
+export type Flags = {
+	[key: string]: boolean | string
+	cmd?: boolean | string
+	ctrl?: boolean | string
+	shift?: boolean | string
+	option?: boolean | string
+	alt?: boolean | string
+}
+
 export type FlagsWithKeys = {
 	[key: string]: {
 		shortcut?: string

@@ -99,10 +99,15 @@ export let parseMarkdownAsScriptlets = async (
 	}
 
 	for (let scriptlet of scriptlets) {
-		let preview = (scriptlet.preview as string)
-			.trim()
-			.replace(/```\n/, `\`\`\`${scriptlet.tool}\n`)
-			.replace(/~~~\n/, `~~~${scriptlet.tool}\n`)
+		let preview = (scriptlet.preview as string).trim()
+
+		// Check if there are exactly two empty code fences
+		const emptyCodeFences = preview.match(/^(```|~~~)\s*$/gm)
+
+		if (emptyCodeFences && emptyCodeFences.length === 2) {
+			// Replace only the first occurrence
+			preview = preview.replace(/^(```|~~~)\s*$/m, `$1${scriptlet.tool}`)
+		}
 
 		let highlightedPreview = md(`# ${scriptlet.name}
 ${await highlight(preview, "")}`)
@@ -111,8 +116,8 @@ ${await highlight(preview, "")}`)
 		scriptlet.inputs = Array.from(
 			new Set(
 				scriptlet.scriptlet
-					.match(/(?<!import |export |\$|`\${|=\s*){[a-zA-Z0-9 ]*?}/g)
-					?.map((x: string) => x.slice(1, -1)) || []
+					.match(/(?<!import |export |\$|`\${|=\s*){{[a-zA-Z0-9 ]*?}}/g)
+					?.map((x: string) => x.slice(2, -2)) || []
 			)
 		)
 

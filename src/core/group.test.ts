@@ -309,8 +309,8 @@ ava("groupChoices - pass group with previewPath", (t) => {
 })
 
 ava("groupChoices - benchmark performance", (t) => {
-	const createChoices = (): Choice[] => {
-		return Array.from({ length: 1000 }, (_, i) => ({
+	const createChoices = (iterations: number): Choice[] => {
+		return Array.from({ length: iterations }, (_, i) => ({
 			name: `Choice${i + 1}`,
 			group: `Group${Math.floor(i / 3) + 1}`,
 			value: Math.random()
@@ -318,8 +318,8 @@ ava("groupChoices - benchmark performance", (t) => {
 	}
 
 	const benchmarkGroupChoices = () => {
-		const iterations = 10000
-		const choices = createChoices()
+		const iterations = 1000
+		const choices = createChoices(iterations)
 		const startTime = process.hrtime()
 
 		for (let i = 0; i < iterations; i++) {

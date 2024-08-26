@@ -14,7 +14,7 @@ import {
 	isScriptlet,
 	isSnippet
 } from "../core/utils.js"
-import type { Choice, Scriptlet, Script, Snippet } from "../types/core.js"
+import type { Choice, Scriptlet, Script } from "../types/core.js"
 import {
 	mainMenu,
 	scriptFlags,
@@ -293,17 +293,17 @@ const runScript = async (script: Script | string) => {
 
 	if (isScriptlet(script)) {
 		let { runScriptlet } = await import("./scriptlet.js")
-		await runScriptlet(script, script.inputs || [])
+		await runScriptlet(script, script.inputs || [], flag)
 		return
 	}
 
 	if (Array.isArray(script)) {
 		let { runScriptlet } = await import("./scriptlet.js")
-		await runScriptlet(focused as Scriptlet, script)
+		await runScriptlet(focused as Scriptlet, script, flag)
 		return
 	}
 
-	if (script && script?.filePath) {
+	if (script?.filePath) {
 		preload(script?.filePath)
 		let runP = run(script.filePath, ...Object.keys(flag).map((f) => `--${f}`))
 
