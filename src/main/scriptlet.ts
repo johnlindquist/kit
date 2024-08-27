@@ -16,28 +16,28 @@ export function formatScriptlet(
 
 	// Process Handlebars-style conditionals (including nested ones)
 	const processConditionals = (str: string): string => {
-		return str.replace(
-			/{{#if\s+flag\.(\w+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?)({{#if\s+flag\.(\w+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?){{\/if}}|)((?:(?!{{#if)(?!{{\/if}}).|\n)*?){{\/if}}/g,
-			(
-				match,
-				outerFlag,
-				outerContent,
-				_,
-				innerFlag,
-				innerContent,
-				remainingOuterContent
-			) => {
-				if (flag?.[outerFlag]) {
-					let result = outerContent
-					if (innerFlag && flag?.[innerFlag]) {
-						result += innerContent
+		const regex =
+			/{{#if\s+flag\.(\w+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?)(?:{{else}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))?{{\/if}}/g
+
+		let result = str
+		let lastResult: string
+		do {
+			lastResult = result
+			result = result.replace(
+				regex,
+				(match, condition, ifContent, elseContent) => {
+					if (flag?.[condition]) {
+						return ifContent
 					}
-					result += remainingOuterContent
-					return result.trim()
+					if (elseContent) {
+						return elseContent
+					}
+					return ""
 				}
-				return ""
-			}
-		)
+			)
+		} while (result !== lastResult)
+
+		return result
 	}
 
 	scriptlet = processConditionals(scriptlet)

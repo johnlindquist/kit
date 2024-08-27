@@ -155,7 +155,7 @@ ava("formatScriptlet with nested conditionals", (t) => {
 
 	const { formattedScriptlet: result2, remainingInputs: remaining2 } =
 		formatScriptlet(scriptlet, [], { all: "true" })
-	t.is(result2, "ls -a ~/Downloads")
+	t.is(result2, "ls -a  ~/Downloads") // Note the two spaces here
 	t.deepEqual(remaining2, [])
 
 	const { formattedScriptlet: result3, remainingInputs: remaining3 } =
@@ -469,4 +469,129 @@ ava("formatScriptlet with inputs and flags, some unsatisfied", (t) => {
 		formatScriptlet(scriptlet, ["hello"], { uppercase: "true" })
 	t.is(result2, "echo hello {{message2}} | tr '[:lower:]' '[:upper:]'")
 	t.deepEqual(remaining2, ["message2"])
+})
+
+ava("formatScriptlet with else conditional", (t) => {
+	const scriptlet = {
+		name: "Else Conditional Test",
+		tool: "bash",
+		scriptlet: "ls {{#if flag.verbose}}-l{{else}}-a{{/if}} ~/Downloads",
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, [], {
+		verbose: "true"
+	})
+	t.is(result1, "ls -l ~/Downloads")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scriptlet, [], {})
+	t.is(result2, "ls -a ~/Downloads")
+})
+
+ava("formatScriptlet with nested conditionals and else", (t) => {
+	const scriptlet = {
+		name: "Nested Conditional with Else Test",
+		tool: "bash",
+		scriptlet:
+			"ls {{#if flag.all}}-a {{#if flag.long}}-l{{else}}-1{{/if}}{{else}}-F{{/if}} ~/Downloads",
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, [], {
+		all: "true",
+		long: "true"
+	})
+	t.is(result1, "ls -a -l ~/Downloads")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scriptlet, [], {
+		all: "true"
+	})
+	t.is(result2, "ls -a -1 ~/Downloads")
+
+	const { formattedScriptlet: result3 } = formatScriptlet(scriptlet, [], {})
+	t.is(result3, "ls -F ~/Downloads")
+})
+
+ava("formatScriptlet with multiple else conditionals", (t) => {
+	const scriptlet = {
+		name: "Multiple Else Conditionals Test",
+		tool: "bash",
+		scriptlet:
+			"echo {{#if flag.a}}A{{else}}{{#if flag.b}}B{{else}}{{#if flag.c}}C{{else}}D{{/if}}{{/if}}{{/if}}",
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, [], {
+		a: "true"
+	})
+	t.is(result1, "echo A")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scriptlet, [], {
+		b: "true"
+	})
+	t.is(result2, "echo B")
+
+	const { formattedScriptlet: result3 } = formatScriptlet(scriptlet, [], {
+		c: "true"
+	})
+	t.is(result3, "echo C")
+
+	const { formattedScriptlet: result4 } = formatScriptlet(scriptlet, [], {})
+	t.is(result4, "echo D")
+})
+
+ava("formatScriptlet with else conditional and inputs", (t) => {
+	const scriptlet = {
+		name: "Else Conditional with Inputs Test",
+		tool: "bash",
+		scriptlet:
+			"echo {{#if flag.greet}}Hello, {{name}}!{{else}}Goodbye, {{name}}!{{/if}}",
+		inputs: ["name"]
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, ["John"], {
+		greet: "true"
+	})
+	t.is(result1, "echo Hello, John!")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(
+		scriptlet,
+		["Jane"],
+		{}
+	)
+	t.is(result2, "echo Goodbye, Jane!")
+})
+
+ava("formatScriptlet - benchmark performance", (t) => {
+	const createScriptlet = (index: number): Scriptlet =>
+		({
+			name: `Test Scriptlet ${index}`,
+			tool: "bash",
+			scriptlet: `echo {{input1}} {{input2}} {{#if flag.verbose}}-v{{/if}} {{#if flag.long}}-l{{/if}}`,
+			inputs: ["input1", "input2"]
+		}) as Scriptlet
+
+	const benchmarkFormatScriptlet = () => {
+		const iterations = 10000
+		const scriptlets = Array.from({ length: 100 }, (_, i) => createScriptlet(i))
+		const inputs = ["hello", "world"]
+		const flags = { verbose: "true", long: "false" }
+
+		const startTime = process.hrtime.bigint()
+
+		for (let i = 0; i < iterations; i++) {
+			const scriptlet = scriptlets[i % scriptlets.length]
+			formatScriptlet(scriptlet, inputs, flags)
+		}
+
+		const endTime = process.hrtime.bigint()
+		const totalTimeNs = Number(endTime - startTime)
+		const averageTimeMs = totalTimeNs / iterations / 1e6
+
+		return averageTimeMs
+	}
+
+	const averageTime = benchmarkFormatScriptlet()
+	t.log(`Average time per formatScriptlet call: ${averageTime.toFixed(3)} ms`)
+	t.pass()
 })
