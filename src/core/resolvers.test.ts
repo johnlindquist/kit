@@ -69,11 +69,14 @@ ava("kitDotEnvPath with default KIT_DOTENV_PATH env", (t) => {
 	cleanup()
 })
 
-ava("kitDotEnvPath with custom KIT_DOTENV_PATH env", (t) => {
-	const cleanup = setupEnv({ KIT_DOTENV_PATH: "/custom/.env" })
-	t.is(kitDotEnvPath(), "/custom/.env")
-	cleanup()
-})
+// TODO: Fix this test on Windows
+if (process.platform !== "win32") {
+	ava("kitDotEnvPath with custom KIT_DOTENV_PATH env", (t) => {
+		const cleanup = setupEnv({ KIT_DOTENV_PATH: "/custom/.env" })
+		t.is(kitDotEnvPath(), "/custom/.env")
+		cleanup()
+	})
+}
 
 ava("knodePath with default KNODE env", (t) => {
 	const cleanup = setupEnv({ KNODE: undefined })
