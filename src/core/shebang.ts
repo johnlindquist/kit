@@ -32,7 +32,7 @@ export function parseShebang(script: Script | Scriptlet): ShebangConfig {
 	}
 
 	if ("cwd" in script) {
-		cwd = slash(untildify(script.cwd))
+		cwd = path.resolve(slash(untildify(script.cwd)))
 	}
 
 	return {

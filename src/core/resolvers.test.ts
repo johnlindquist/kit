@@ -65,7 +65,7 @@ ava("kenvPath with custom KENV env", (t) => {
 
 ava("kitDotEnvPath with default KIT_DOTENV_PATH env", (t) => {
 	const cleanup = setupEnv({ KIT_DOTENV_PATH: undefined, KENV: undefined })
-	t.is(kitDotEnvPath(), path.resolve(homedir(), ".kenv", ".env"))
+	t.is(kitDotEnvPath(), home(".kenv", ".env"))
 	cleanup()
 })
 
