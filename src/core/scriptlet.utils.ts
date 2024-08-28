@@ -1,7 +1,6 @@
-export function processConditionals(
-	str: string,
-	flag?: Record<string, string>
-): string {
+import type { Flags } from "../types"
+
+export function processConditionals(str: string, flag?: Flags): string {
 	const regex =
 		/{{#if\s+flag\.([\w-]+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?)((?:{{else\s+if\s+flag\.([\w-]+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))*)(?:{{else}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))?{{\/if}}/g
 

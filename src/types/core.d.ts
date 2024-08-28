@@ -1,6 +1,8 @@
 import type { ChildProcess } from "node:child_process"
 import type { ProcessType, UI, Mode } from "../core/enum.js"
 
+type ModifierKeys = "cmd" | "ctrl" | "shift" | "option" | "alt"
+
 export interface Choice<Value = any> {
 	name: string
 	value?: Value
@@ -325,12 +327,7 @@ export type Panel =
 
 export type Flags = {
 	[key: string]: boolean | string
-	cmd?: boolean | string
-	ctrl?: boolean | string
-	shift?: boolean | string
-	option?: boolean | string
-	alt?: boolean | string
-}
+} & Partial<Record<ModifierKeys, boolean | string>>
 
 export type FlagsWithKeys = {
 	[key: string]: {

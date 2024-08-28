@@ -3,7 +3,7 @@ import { Channel } from "../core/enum.js"
 import { kenvPath } from "../core/utils.js"
 import type { Flags, Script, Scriptlet } from "../types"
 import untildify from "untildify"
-import { processConditionals } from "../core/scriptlet.utils"
+import { processConditionals } from "../core/scriptlet.utils.js"
 
 export function formatScriptlet(
 	focusedScriptlet: Scriptlet,
