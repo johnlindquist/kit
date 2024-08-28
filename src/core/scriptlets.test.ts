@@ -386,8 +386,8 @@ Enabled: Yes
 <p><span>Type whatever you want!</span></p>
 </div></div>`
 
-	await writeFile(home("test-1.txt"), scripts[0].preview)
-	await writeFile(home("test-2.txt"), scripts[1].preview)
+	// await writeFile(home("test-1.txt"), scripts[0].preview)
+	// await writeFile(home("test-2.txt"), scripts[1].preview)
 	t.is(scripts[0].preview, preview1)
 	t.is(scripts[1].preview, preview2)
 })
