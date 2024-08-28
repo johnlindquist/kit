@@ -9,7 +9,7 @@ import {
 	friendlyShortcut
 } from "./utils.js"
 import { ProcessType } from "./enum.js"
-import { slash } from "./resolvers"
+import { slash } from "./resolvers.js"
 
 export let postprocessMetadata = (
 	metadata: Metadata,
