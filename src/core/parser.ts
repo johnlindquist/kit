@@ -9,6 +9,7 @@ import {
 	friendlyShortcut
 } from "./utils.js"
 import { ProcessType } from "./enum.js"
+import { slash } from "./resolvers"
 
 export let postprocessMetadata = (
 	metadata: Metadata,
@@ -34,7 +35,7 @@ export let postprocessMetadata = (
 	}
 
 	if (metadata.image) {
-		result.img = untildify(metadata.image)
+		result.img = slash(untildify(metadata.image))
 	}
 
 	result.type = metadata.schedule

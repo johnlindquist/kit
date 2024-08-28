@@ -1,5 +1,6 @@
 import { SHELL_TOOLS } from "../core/constants.js"
 import { Channel } from "../core/enum.js"
+import { slash } from "../core/resolvers.js"
 import { formatScriptlet } from "../core/scriptlets.js"
 import { parseShebang } from "../core/shebang.js"
 import { kenvPath } from "../core/utils.js"
@@ -165,7 +166,7 @@ await setSelectedText(result)`
 			}
 
 			const cwd = formattedFocusedScriptlet?.cwd
-				? untildify(formattedFocusedScriptlet.cwd)
+				? slash(untildify(formattedFocusedScriptlet.cwd))
 				: undefined
 
 			const useExec =

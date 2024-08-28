@@ -1,6 +1,7 @@
 import type { Script, Scriptlet } from "../types"
 import untildify from "untildify"
 import { kenvPath } from "./utils.js"
+import { slash } from "./resolvers.js"
 
 export type ShebangConfig = {
 	command: string
@@ -31,7 +32,7 @@ export function parseShebang(script: Script | Scriptlet): ShebangConfig {
 	}
 
 	if ("cwd" in script) {
-		cwd = untildify(script.cwd)
+		cwd = slash(untildify(script.cwd))
 	}
 
 	return {

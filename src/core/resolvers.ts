@@ -1,6 +1,11 @@
 import { homedir } from "node:os"
 import * as path from "node:path"
 
+const windowsSlashRE = /\\/g
+export function slash(p: string): string {
+	return p.replace(windowsSlashRE, "/")
+}
+
 export let createPathResolver =
 	(parentDir: string) =>
 	(...parts: string[]) => {
