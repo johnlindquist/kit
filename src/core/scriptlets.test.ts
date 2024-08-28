@@ -562,6 +562,146 @@ ava("formatScriptlet with else conditional and inputs", (t) => {
 	t.is(result2, "echo Goodbye, Jane!")
 })
 
+ava("formatScriptlet with else if conditional", (t) => {
+	const scriptlet = {
+		name: "Else If Conditional Test",
+		tool: "bash",
+		scriptlet: "echo {{#if flag.a}}A{{else if flag.b}}B{{else}}C{{/if}}",
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, [], {
+		a: "true"
+	})
+	t.is(result1, "echo A")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scriptlet, [], {
+		b: "true"
+	})
+	t.is(result2, "echo B")
+
+	const { formattedScriptlet: result3 } = formatScriptlet(scriptlet, [], {
+		c: "true"
+	})
+	t.is(result3, "echo C")
+
+	const { formattedScriptlet: result4 } = formatScriptlet(scriptlet, [], {})
+	t.is(result4, "echo C")
+})
+
+ava("formatScriptlet with else if conditional and inputs", (t) => {
+	const scriptlet = {
+		name: "Else If Conditional with Inputs Test",
+		tool: "bash",
+		scriptlet:
+			"echo {{#if flag.greet}}Hello, {{name}}!{{else if flag.farewell}}Goodbye, {{name}}!{{else}}Hi, {{name}}!{{/if}}",
+		inputs: ["name"]
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, ["John"], {
+		greet: "true"
+	})
+	t.is(result1, "echo Hello, John!")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scriptlet, ["Jane"], {
+		farewell: "true"
+	})
+	t.is(result2, "echo Goodbye, Jane!")
+
+	const { formattedScriptlet: result3 } = formatScriptlet(
+		scriptlet,
+		["Alice"],
+		{}
+	)
+	t.is(result3, "echo Hi, Alice!")
+})
+
+ava(
+	"formatScriptlet with else if conditional and no matching condition",
+	(t) => {
+		const scriptlet = {
+			name: "Else If Conditional No Match Test",
+			tool: "bash",
+			scriptlet: "echo {{#if flag.a}}A{{else if flag.b}}B{{/if}}",
+			inputs: []
+		} as Scriptlet
+
+		const { formattedScriptlet: result } = formatScriptlet(scriptlet, [], {
+			c: "true"
+		})
+		t.is(result, "echo ")
+	}
+)
+
+ava("formatScriptlet with two else if conditionals", (t) => {
+	const scriptlet = {
+		name: "Two Else If Conditionals Test",
+		tool: "bash",
+		scriptlet:
+			"echo {{#if flag.a}}A{{else if flag.b}}B{{else if flag.c}}C{{else}}D{{/if}}",
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, [], {
+		a: "true"
+	})
+	t.is(result1, "echo A")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scriptlet, [], {
+		b: "true"
+	})
+	t.is(result2, "echo B")
+
+	const { formattedScriptlet: result3 } = formatScriptlet(scriptlet, [], {
+		c: "true"
+	})
+	t.is(result3, "echo C")
+
+	const { formattedScriptlet: result4 } = formatScriptlet(scriptlet, [], {
+		d: "true"
+	})
+	t.is(result4, "echo D")
+
+	const { formattedScriptlet: result5 } = formatScriptlet(scriptlet, [], {})
+	t.is(result5, "echo D")
+})
+
+ava("formatScriptlet with two else if conditionals and inputs", (t) => {
+	const scriptlet = {
+		name: "Two Else If Conditionals with Inputs Test",
+		tool: "bash",
+		scriptlet:
+			"echo {{#if flag.greet}}Hello, {{name}}!{{else if flag.farewell}}Goodbye, {{name}}!{{else if flag.question}}How are you, {{name}}?{{else}}Hi, {{name}}!{{/if}}",
+		inputs: ["name"]
+	} as Scriptlet
+
+	const { formattedScriptlet: result1 } = formatScriptlet(scriptlet, ["John"], {
+		greet: "true"
+	})
+	t.is(result1, "echo Hello, John!")
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scriptlet, ["Jane"], {
+		farewell: "true"
+	})
+	t.is(result2, "echo Goodbye, Jane!")
+
+	const { formattedScriptlet: result3 } = formatScriptlet(
+		scriptlet,
+		["Alice"],
+		{
+			question: "true"
+		}
+	)
+	t.is(result3, "echo How are you, Alice?")
+
+	const { formattedScriptlet: result4 } = formatScriptlet(
+		scriptlet,
+		["Bob"],
+		{}
+	)
+	t.is(result4, "echo Hi, Bob!")
+})
+
 ava("formatScriptlet - benchmark performance", (t) => {
 	const createScriptlet = (index: number): Scriptlet =>
 		({

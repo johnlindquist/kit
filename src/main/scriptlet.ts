@@ -3,6 +3,7 @@ import { Channel } from "../core/enum.js"
 import { kenvPath } from "../core/utils.js"
 import type { Flags, Script, Scriptlet } from "../types"
 import untildify from "untildify"
+import { processConditionals } from "../core/scriptlet.utils"
 
 export function formatScriptlet(
 	focusedScriptlet: Scriptlet,
@@ -14,33 +15,7 @@ export function formatScriptlet(
 		throw new Error(`No template found for ${focusedScriptlet.value.name}`)
 	}
 
-	// Process Handlebars-style conditionals (including nested ones)
-	const processConditionals = (str: string): string => {
-		const regex =
-			/{{#if\s+flag\.(\w+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?)(?:{{else}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))?{{\/if}}/g
-
-		let result = str
-		let lastResult: string
-		do {
-			lastResult = result
-			result = result.replace(
-				regex,
-				(match, condition, ifContent, elseContent) => {
-					if (flag?.[condition]) {
-						return ifContent
-					}
-					if (elseContent) {
-						return elseContent
-					}
-					return ""
-				}
-			)
-		} while (result !== lastResult)
-
-		return result
-	}
-
-	scriptlet = processConditionals(scriptlet)
+	scriptlet = processConditionals(scriptlet, flag)
 
 	const namedInputs = focusedScriptlet?.inputs || []
 	const remainingInputs = [...namedInputs]
