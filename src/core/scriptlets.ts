@@ -1,10 +1,64 @@
-import type { Scriptlet } from "../types"
+import type { Flags, Scriptlet } from "../types"
 import slugify from "slugify"
 import { readFile } from "node:fs/promises"
 import { postprocessMetadata } from "./parser.js"
 import { kenvPath } from "./resolvers.js"
 import { getKenvFromPath, highlight, tagger } from "./utils.js"
 import { SHELL_TOOLS } from "./constants.js"
+import { processConditionals } from "./scriptlet.utils.js"
+
+export function formatScriptlet(
+	focusedScriptlet: Scriptlet,
+	inputs: string[],
+	flag?: Flags
+): { formattedScriptlet: string; remainingInputs: string[] } {
+	let scriptlet = focusedScriptlet?.scriptlet
+	if (!scriptlet) {
+		throw new Error(`No template found for ${focusedScriptlet.value.name}`)
+	}
+
+	scriptlet = processConditionals(scriptlet, flag)
+
+	const namedInputs = focusedScriptlet?.inputs || []
+	const remainingInputs = [...namedInputs]
+
+	// Replace numbered inputs first
+	for (let i = 0; i < inputs.length; i++) {
+		const index = i + 1
+		const unixPattern = new RegExp(`\\$\\{?${index}\\}?`, "g")
+		const windowsPattern = new RegExp(`%${index}`, "g")
+		scriptlet = scriptlet
+			.replace(unixPattern, inputs[i])
+			.replace(windowsPattern, inputs[i])
+	}
+
+	// Then replace named inputs, but only if they haven't been replaced by numbered inputs
+	// and are not part of a conditional statement
+	const conditionalPattern = /{{#if.*?}}.*?{{\/if}}/gs
+	const scriptletWithoutConditionals = scriptlet.replace(conditionalPattern, "")
+
+	for (let i = 0; i < namedInputs.length; i++) {
+		const inputName = namedInputs[i]
+		if (inputName.toLowerCase() === "else") continue // Skip 'else' as an input name
+
+		const inputPattern = new RegExp(`{{${inputName}}}`, "g")
+		if (
+			scriptletWithoutConditionals.match(inputPattern) &&
+			inputs[i] !== undefined
+		) {
+			scriptlet = scriptlet.replace(inputPattern, inputs[i])
+			remainingInputs.splice(remainingInputs.indexOf(inputName), 1)
+		}
+	}
+
+	// Replace $@ with all arguments, each surrounded by quotes
+	scriptlet = scriptlet.replace(
+		/\$@|%\*/g,
+		inputs.map((arg) => `"${arg}"`).join(" ")
+	)
+
+	return { formattedScriptlet: scriptlet, remainingInputs }
+}
 
 export let parseMarkdownAsScriptlets = async (
 	markdown: string
@@ -62,7 +116,7 @@ export let parseMarkdownAsScriptlets = async (
 
 				currentScriptlet.tool = tool
 
-				currentScriptlet.preview += `\n// ${tool}`
+				// currentScriptlet.preview = `### ${tool}\n${currentScriptlet.preview}`
 				parsingValue = true
 			} else {
 				parsingValue = false
@@ -116,8 +170,9 @@ ${await highlight(preview, "")}`)
 		scriptlet.inputs = Array.from(
 			new Set(
 				scriptlet.scriptlet
-					.match(/(?<!import |export |\$|`\${|=\s*){{[a-zA-Z0-9 ]*?}}/g)
-					?.map((x: string) => x.slice(2, -2)) || []
+					.match(/{{(?!#if|else\s?if|else|\/if)([^}]+)}}/g)
+					?.map((x: string) => x.slice(2, -2).trim())
+					.filter((x: string) => x !== "" && !x.startsWith("/")) || []
 			)
 		)
 

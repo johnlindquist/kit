@@ -41,6 +41,7 @@ import type {
 import type { FileSearchOptions } from "./platform"
 import { ReadStream, WriteStream } from "node:fs"
 import type { NotificationConstructorOptions } from "./notify"
+import type { ShebangConfig } from "../core/shebang"
 
 export type Status = (typeof statuses)[number]
 
@@ -544,10 +545,7 @@ export interface ChannelMap {
 		message: string
 		icon: string
 	}
-	[Channel.SHEBANG]: {
-		shebang: string
-		filePath: string
-	}
+	[Channel.SHEBANG]: ShebangConfig
 	[Channel.SELECT_FILE]: string
 	[Channel.SELECT_FOLDER]: string
 	[Channel.REVEAL_FILE]: string

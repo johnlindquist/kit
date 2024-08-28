@@ -24,6 +24,7 @@ import {
 	getFlagsFromActions
 } from "../api/kit.js"
 import type { Open } from "../types/packages.js"
+import { parseShebang } from "../core/shebang.js"
 
 console.clear()
 
@@ -277,10 +278,6 @@ const runScript = async (script: Script | string) => {
 		return await edit(script.filePath, kenvPath())
 	}
 
-	if ((script as Script)?.shebang) {
-		return await sendWait(Channel.SHEBANG, script)
-	}
-
 	if (isSnippet(script)) {
 		send(Channel.STAMP_SCRIPT, script as Script)
 
@@ -301,6 +298,11 @@ const runScript = async (script: Script | string) => {
 		let { runScriptlet } = await import("./scriptlet.js")
 		await runScriptlet(focused as Scriptlet, script, flag)
 		return
+	}
+
+	if ((script as Script)?.shebang) {
+		const shebang = parseShebang(script as Script)
+		return await sendWait(Channel.SHEBANG, shebang)
 	}
 
 	if (script?.filePath) {

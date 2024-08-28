@@ -668,7 +668,7 @@ echo "hello world"
 		
 		`)
 
-		t.log(scriptlet[0])
+		// t.log(scriptlet[0])
 
 		t.truthy(scriptlet[0].shebang)
 	}
@@ -691,7 +691,7 @@ echo "hello {{who}}"
 		
 		`)
 
-		t.log(scriptlet[0])
+		// t.log(scriptlet[0])
 
 		t.falsy(scriptlet[0].shebang)
 	}

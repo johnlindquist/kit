@@ -1,52 +1,10 @@
 import { SHELL_TOOLS } from "../core/constants.js"
 import { Channel } from "../core/enum.js"
+import { formatScriptlet } from "../core/scriptlets.js"
+import { parseShebang } from "../core/shebang.js"
 import { kenvPath } from "../core/utils.js"
 import type { Flags, Script, Scriptlet } from "../types"
 import untildify from "untildify"
-import { processConditionals } from "../core/scriptlet.utils.js"
-
-export function formatScriptlet(
-	focusedScriptlet: Scriptlet,
-	inputs: string[],
-	flag?: Flags
-): { formattedScriptlet: string; remainingInputs: string[] } {
-	let scriptlet = focusedScriptlet?.scriptlet
-	if (!scriptlet) {
-		throw new Error(`No template found for ${focusedScriptlet.value.name}`)
-	}
-
-	scriptlet = processConditionals(scriptlet, flag)
-
-	const namedInputs = focusedScriptlet?.inputs || []
-	const remainingInputs = [...namedInputs]
-
-	// Replace numbered inputs first
-	for (let i = 0; i < inputs.length; i++) {
-		const index = i + 1
-		const unixPattern = new RegExp(`\\$\\{?${index}\\}?`, "g")
-		const windowsPattern = new RegExp(`%${index}`, "g")
-		scriptlet = scriptlet
-			.replace(unixPattern, inputs[i])
-			.replace(windowsPattern, inputs[i])
-	}
-
-	// Then replace named inputs, but only if they haven't been replaced by numbered inputs
-	for (let i = 0; i < namedInputs.length; i++) {
-		const inputPattern = new RegExp(`{{${namedInputs[i]}}}`, "g")
-		if (scriptlet.match(inputPattern) && inputs[i] !== undefined) {
-			scriptlet = scriptlet.replace(inputPattern, inputs[i])
-			remainingInputs.splice(remainingInputs.indexOf(namedInputs[i]), 1)
-		}
-	}
-
-	// Replace $@ with all arguments, each surrounded by quotes
-	scriptlet = scriptlet.replace(
-		/\$@|%\*/g,
-		inputs.map((arg) => `"${arg}"`).join(" ")
-	)
-
-	return { formattedScriptlet: scriptlet, remainingInputs }
-}
 
 const toolExtensionMap = new Map([
 	["ruby", "rb"],
@@ -136,13 +94,16 @@ export let runScriptlet = async (
 		send(Channel.STAMP_SCRIPT, focusedScriptlet as Script)
 	}
 
-	switch (focusedScriptlet.tool) {
+	const formattedFocusedScriptlet = structuredClone(focusedScriptlet)
+	formattedFocusedScriptlet.scriptlet = formattedScriptlet
+
+	switch (formattedFocusedScriptlet.tool) {
 		case "kit":
 		case "ts":
 		case "js": {
 			const quickPath = kenvPath(
 				"tmp",
-				`scriptlet-${focusedScriptlet.command}.ts`
+				`scriptlet-${formattedFocusedScriptlet.command}.ts`
 			)
 			await writeFile(quickPath, formattedScriptlet)
 			return await run(quickPath)
@@ -150,7 +111,7 @@ export let runScriptlet = async (
 		case "transform": {
 			const quickPath = kenvPath(
 				"tmp",
-				`scriptlet-${focusedScriptlet.command}.ts`
+				`scriptlet-${formattedFocusedScriptlet.command}.ts`
 			)
 			const content = `let text = await getSelectedText()
 let result = ${formattedScriptlet}
@@ -163,57 +124,62 @@ await setSelectedText(result)`
 		case "paste":
 		case "type":
 			await hide()
-			if (focusedScriptlet.tool === "open") {
+			if (formattedFocusedScriptlet.tool === "open") {
 				await open(formattedScriptlet)
 				await wait(1000)
-			} else if (focusedScriptlet.tool === "edit") {
+			} else if (formattedFocusedScriptlet.tool === "edit") {
 				await edit(formattedScriptlet)
 				await wait(1000)
-			} else if (focusedScriptlet.tool === "paste") {
+			} else if (formattedFocusedScriptlet.tool === "paste") {
 				await setSelectedText(formattedScriptlet)
-			} else if (focusedScriptlet.tool === "type") {
+			} else if (formattedFocusedScriptlet.tool === "type") {
 				await keyboard.type(formattedScriptlet)
 			}
 			process.exit(0)
 			break
 		default: {
 			const extension =
-				toolExtensionMap.get(focusedScriptlet.tool) || focusedScriptlet.tool
+				toolExtensionMap.get(formattedFocusedScriptlet.tool) ||
+				formattedFocusedScriptlet.tool
 			const scriptPath = kenvPath(
 				"tmp",
-				`scriptlet-${focusedScriptlet.command}.${extension}`
+				`scriptlet-${formattedFocusedScriptlet.command}.${extension}`
 			)
 			await writeFile(scriptPath, formattedScriptlet)
 
-			const commandGenerator = toolCommandMap.get(focusedScriptlet.tool)
+			const commandGenerator = toolCommandMap.get(
+				formattedFocusedScriptlet.tool
+			)
 			if (!commandGenerator) {
-				throw new Error(`Unsupported tool: ${focusedScriptlet.tool}`)
+				throw new Error(`Unsupported tool: ${formattedFocusedScriptlet.tool}`)
 			}
 
 			let command = commandGenerator(scriptPath)
 
-			if (focusedScriptlet.prepend) {
-				command = `${focusedScriptlet.prepend} ${command}`
+			if (formattedFocusedScriptlet.prepend) {
+				command = `${formattedFocusedScriptlet.prepend} ${command}`
 			}
 
-			if (focusedScriptlet.append) {
-				command = `${command} ${focusedScriptlet.append}`
+			if (formattedFocusedScriptlet.append) {
+				command = `${command} ${formattedFocusedScriptlet.append}`
 			}
 
-			const cwd = focusedScriptlet?.cwd
-				? untildify(focusedScriptlet.cwd)
+			const cwd = formattedFocusedScriptlet?.cwd
+				? untildify(formattedFocusedScriptlet.cwd)
 				: undefined
 
 			const useExec =
-				SHELL_TOOLS.includes(focusedScriptlet.tool) && !focusedScriptlet.term
+				SHELL_TOOLS.includes(formattedFocusedScriptlet.tool) &&
+				!formattedFocusedScriptlet.term
 
 			if (process.env.KIT_CONTEXT === "app") {
 				if (!useExec) {
 					return await term({ command, cwd })
 				}
 
-				if (focusedScriptlet.shebang) {
-					return await sendWait(Channel.SHEBANG, focusedScriptlet as Script)
+				if (formattedFocusedScriptlet.shebang) {
+					const shebang = parseShebang(formattedFocusedScriptlet)
+					return await sendWait(Channel.SHEBANG, shebang)
 				}
 			}
 

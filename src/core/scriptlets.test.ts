@@ -1,7 +1,7 @@
 import ava from "ava"
 import type { Scriptlet } from "../types"
 import { parseMarkdownAsScriptlets, home, kenvPath } from "./utils"
-import { formatScriptlet } from "../main/scriptlet"
+import { formatScriptlet } from "./scriptlets"
 
 // Helper function to create a temporary snippet file
 process.env.KENV = home(".mock-kenv")
@@ -44,25 +44,36 @@ https://github.com/time-loop/pr-ai-action-playground
 	t.is(scripts[2].name, "Github PR AI Review Playground URL")
 })
 
-ava("parseMarkdownAsScriptlets with conditional flag", async (t) => {
-	let markdown = `
+ava(
+	"parseMarkdownAsScriptlets with conditional flag - ignore else from input",
+	async (t) => {
+		let markdown = `
 ## Conditional Flag Test
 
 \`\`\`bash
-ls {{#if flag.verbose}}-l{{/if}} ~/Downloads {{#if flag.zip}}| grep .zip{{/if}}
+{{#if flag.cmd}}
+open https://github.com/time-loop/pr-ai-action-playground
+{{else}}
+cursor /Users/johnlindquist/dev/github-action-pr
+{{/if}}
 \`\`\`
 `
 
-	const scripts = await parseMarkdownAsScriptlets(markdown)
-	t.is(scripts.length, 1)
-	t.is(scripts[0].name, "Conditional Flag Test")
-	t.is(scripts[0].tool, "bash")
-	t.is(
-		scripts[0].scriptlet,
-		"ls {{#if flag.verbose}}-l{{/if}} ~/Downloads {{#if flag.zip}}| grep .zip{{/if}}"
-	)
-	t.deepEqual(scripts[0].inputs, [])
-})
+		const scripts = await parseMarkdownAsScriptlets(markdown)
+		t.is(scripts.length, 1)
+		t.is(scripts[0].name, "Conditional Flag Test")
+		t.is(scripts[0].tool, "bash")
+		t.is(
+			scripts[0].scriptlet,
+			`{{#if flag.cmd}}
+open https://github.com/time-loop/pr-ai-action-playground
+{{else}}
+cursor /Users/johnlindquist/dev/github-action-pr
+{{/if}}`
+		)
+		t.deepEqual(scripts[0].inputs, [])
+	}
+)
 
 ava("formatScriptlet with no flags", (t) => {
 	const scriptlet = {
@@ -354,8 +365,7 @@ Type whatever you want!
 Trigger: sk
 Alias:
 Enabled: Yes
---></p><pre><code class="hljs language-bash">// bash
-open -a <span class="hljs-string">&#x27;Google Chrome&#x27;</span> https://scriptkit.com/{{user}}
+--></p><pre><code class="hljs language-bash">open -a <span class="hljs-string">&#x27;Google Chrome&#x27;</span> https://scriptkit.com/{{user}}
 </code></pre>
 <p><span>This Script Opens the Script Kit URL</span></p><p><span>I hope you enjoy!</span></p>
 </div></div>`
@@ -371,14 +381,13 @@ open -a <span class="hljs-string">&#x27;Google Chrome&#x27;</span> https://scrip
   }
   
 <p><span>  </span></style><span>
-  </span><pre><code class="hljs language-kit"><span>// kit
-await appendFile(home(&quot;{{File Name}}.txt&quot;), {{Note}})
+  </span><pre><code class="hljs language-kit"><span>await appendFile(home(&quot;{{File Name}}.txt&quot;), {{Note}})
 </span></code></pre></p><h3 id="quickly-append-text-to-a-txt-file"><span>Quickly Append Text to a .txt File</span></h3>
 <p><span>Type whatever you want!</span></p>
 </div></div>`
 
-	// await writeFile(home("test-1.txt"), scripts[0].preview)
-	// await writeFile(home("test-2.txt"), scripts[1].preview)
+	await writeFile(home("test-1.txt"), scripts[0].preview)
+	await writeFile(home("test-2.txt"), scripts[1].preview)
 	t.is(scripts[0].preview, preview1)
 	t.is(scripts[1].preview, preview2)
 })
@@ -735,3 +744,157 @@ ava("formatScriptlet - benchmark performance", (t) => {
 	t.log(`Average time per formatScriptlet call: ${averageTime.toFixed(3)} ms`)
 	t.pass()
 })
+
+ava("formatScriptlet should not treat 'else' as an input", (t) => {
+	const scriptlet = {
+		name: "Else Not Input Test",
+		tool: "bash",
+		scriptlet: "echo {{#if flag.a}}A{{else}}B{{/if}} {{input}}",
+		inputs: ["input"]
+	} as Scriptlet
+
+	const { formattedScriptlet, remainingInputs } = formatScriptlet(
+		scriptlet,
+		["hello"],
+		{}
+	)
+	t.is(formattedScriptlet, "echo B hello")
+	t.deepEqual(remainingInputs, [])
+})
+
+ava("formatScriptlet should not treat 'else if' as an input", (t) => {
+	const scriptlet = {
+		name: "Else If Not Input Test",
+		tool: "bash",
+		scriptlet:
+			"echo {{#if flag.a}}A{{else if flag.b}}B{{else}}C{{/if}} {{input}}",
+		inputs: ["input"]
+	} as Scriptlet
+
+	const { formattedScriptlet, remainingInputs } = formatScriptlet(
+		scriptlet,
+		["hello"],
+		{}
+	)
+	t.is(formattedScriptlet, "echo C hello")
+	t.deepEqual(remainingInputs, [])
+})
+
+ava(
+	"formatScriptlet should handle 'else' and inputs with similar names",
+	(t) => {
+		const scriptlet = {
+			name: "Else and Similar Input Test",
+			tool: "bash",
+			scriptlet: "echo {{elseInput}} {{#if flag.a}}A{{else}}B{{/if}}",
+			inputs: ["elseInput"]
+		} as Scriptlet
+
+		const { formattedScriptlet, remainingInputs } = formatScriptlet(
+			scriptlet,
+			["hello"],
+			{}
+		)
+		t.is(formattedScriptlet, "echo hello B")
+		t.deepEqual(remainingInputs, [])
+	}
+)
+
+ava(
+	"formatScriptlet should not add 'else' to inputs when in condition",
+	(t) => {
+		const scriptlet = {
+			name: "Else in Condition Test",
+			tool: "bash",
+			scriptlet: "echo {{#if flag.a}}A{{else}}B{{/if}} {{input}}",
+			inputs: ["input"]
+		} as Scriptlet
+
+		const { formattedScriptlet, remainingInputs } = formatScriptlet(
+			scriptlet,
+			["hello"],
+			{}
+		)
+		t.is(formattedScriptlet, "echo B hello")
+		t.deepEqual(remainingInputs, [])
+	}
+)
+
+ava(
+	"formatScriptlet should not add 'else' to inputs when in scriptlet",
+	(t) => {
+		const scriptlet = {
+			name: "Else in Scriptlet Test",
+			tool: "bash",
+			scriptlet: "echo {{input}} else",
+			inputs: ["input"]
+		} as Scriptlet
+
+		const { formattedScriptlet, remainingInputs } = formatScriptlet(
+			scriptlet,
+			["hello"],
+			{}
+		)
+		t.is(formattedScriptlet, "echo hello else")
+		t.deepEqual(remainingInputs, [])
+	}
+)
+
+ava(
+	"formatScriptlet should not add 'else' to inputs with multiple conditions",
+	(t) => {
+		const scriptlet = {
+			name: "Multiple Conditions Test",
+			tool: "bash",
+			scriptlet:
+				"{{#if flag.a}}A{{else}}B{{/if}} {{#if flag.b}}C{{else}}D{{/if}} {{input}}",
+			inputs: ["input"]
+		} as Scriptlet
+
+		const { formattedScriptlet, remainingInputs } = formatScriptlet(
+			scriptlet,
+			["hello"],
+			{ b: "true" }
+		)
+		t.is(formattedScriptlet, "B C hello")
+		t.deepEqual(remainingInputs, [])
+	}
+)
+
+ava("formatScriptlet should handle 'else' in input names correctly", (t) => {
+	const scriptlet = {
+		name: "Else in Input Name Test",
+		tool: "bash",
+		scriptlet: "echo {{elseInput}} {{#if flag.a}}A{{else}}B{{/if}}",
+		inputs: ["elseInput"]
+	} as Scriptlet
+
+	const { formattedScriptlet, remainingInputs } = formatScriptlet(
+		scriptlet,
+		["hello"],
+		{}
+	)
+	t.is(formattedScriptlet, "echo hello B")
+	t.deepEqual(remainingInputs, [])
+})
+
+ava(
+	"formatScriptlet should not add 'else' to inputs with nested conditions",
+	(t) => {
+		const scriptlet = {
+			name: "Nested Conditions Test",
+			tool: "bash",
+			scriptlet:
+				"{{#if flag.a}}A{{#if flag.b}}B{{else}}C{{/if}}{{else}}D{{/if}} {{input}}",
+			inputs: ["input"]
+		} as Scriptlet
+
+		const { formattedScriptlet, remainingInputs } = formatScriptlet(
+			scriptlet,
+			["hello"],
+			{ a: "true" }
+		)
+		t.is(formattedScriptlet, "AC hello")
+		t.deepEqual(remainingInputs, [])
+	}
+)
