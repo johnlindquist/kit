@@ -361,11 +361,13 @@ Type whatever you want!
   }
   
 <p><span>  </span></style><span>
-  </span><!--
+  </span><p class="hljs-tool-topper"><span>bash</span></p></p><!--
 Trigger: sk
 Alias:
 Enabled: Yes
---></p><pre><code class="hljs language-bash">open -a <span class="hljs-string">&#x27;Google Chrome&#x27;</span> https://scriptkit.com/{{user}}
+-->
+
+<pre><code class="hljs language-bash">open -a <span class="hljs-string">&#x27;Google Chrome&#x27;</span> https://scriptkit.com/{{user}}
 </code></pre>
 <p><span>This Script Opens the Script Kit URL</span></p><p><span>I hope you enjoy!</span></p>
 </div></div>`
@@ -381,8 +383,9 @@ Enabled: Yes
   }
   
 <p><span>  </span></style><span>
-  </span><pre><code class="hljs language-kit"><span>await appendFile(home(&quot;{{File Name}}.txt&quot;), {{Note}})
-</span></code></pre></p><h3 id="quickly-append-text-to-a-txt-file"><span>Quickly Append Text to a .txt File</span></h3>
+  </span><p class="hljs-tool-topper"><span>kit</span></p></p><pre><code class="hljs language-kit">await appendFile(home(&quot;{{File Name}}.txt&quot;), {{Note}})
+</code></pre>
+<h3 id="quickly-append-text-to-a-txt-file"><span>Quickly Append Text to a .txt File</span></h3>
 <p><span>Type whatever you want!</span></p>
 </div></div>`
 
