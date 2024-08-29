@@ -12,7 +12,7 @@
 </div>
 
 
-<a href="submit:kit-sponsor" class="shadow-xl shadow-primary/25 text-bg-base font-bold px-3 py-2 no-underline rounded bg-primary bg-opacity-100 hover:opacity-80" style="width: fit-content">Sponsor Script Kit ($7/m.)</a>
+<a href="submit:kit-sponsor" class="sponsor-button" style="width: fit-content">Sponsor Script Kit ($7/m.)</a>
 
 <p class="m-0">
     <a href="https://github.com/johnlindquist/kit/discussions/1415">Open Sponsorship FAQ</a>

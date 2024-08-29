@@ -214,6 +214,9 @@ ${error}
 	}
 
 	let upDir = async (dir) => {
+		if (dir?.miss) {
+			return
+		}
 		await setInput(path.dirname(startPath) + path.sep)
 		if (dir) focusOn = path.basename(path.dirname(dir))
 	}

@@ -64,7 +64,7 @@ export type Inspect = (data: any, extension?: string) => Promise<void>
 export type Store = (
 	key: string,
 	initialData?: any
-) => Promise<InstanceType<typeof import("keyv")>>
+) => Promise<InstanceType<typeof import("keyv").default>>
 
 export type DB = <T = any>(
 	dataOrKeyOrPath?: string | T | (() => Promise<T>),

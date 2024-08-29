@@ -90,7 +90,7 @@
 		"highlight.js": "^11.10.0",
 		"isomorphic-git": "1.27.1",
 		"keyv": "^5.0.1",
-		"keyv-file": "^0.3.3",
+		"keyv-file": "^5.0.0",
 		"quick-score": "^0.2.0",
 		"rimraf": "6.0.1",
 		"safe-stable-stringify": "^2.5.0",
@@ -98,7 +98,7 @@
 		"slugify": "1.6.6",
 		"suggestion": "2.1.2",
 		"vite": "5.4.2",
-		"zx": "^8.1.4"
+		"zx": "^8.1.5"
 	},
 	"devDependencies": {
 		"@types/debug": "4.1.12",

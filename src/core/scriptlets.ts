@@ -116,7 +116,12 @@ export let parseMarkdownAsScriptlets = async (
 
 				currentScriptlet.tool = tool
 
-				// currentScriptlet.preview = `### ${tool}\n${currentScriptlet.preview}`
+				const toolHTML = ` 
+
+<p class="hljs-tool-topper">${tool}</p>
+
+`.trim()
+				currentScriptlet.preview = `${toolHTML}\n${currentScriptlet.preview}`
 				parsingValue = true
 			} else {
 				parsingValue = false

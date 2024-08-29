@@ -39,7 +39,7 @@ export const resolveKenv = (...parts: string[]) => {
 
 export let store = async (
 	nameOrPath: string,
-	initialData: any
+	initialData: object | (() => Promise<object>) = {}
 ): Promise<Keyv> => {
 	let isPath = nameOrPath.includes("/") || nameOrPath.includes("\\")
 	let { default: Keyv } = await import("keyv")
@@ -51,7 +51,8 @@ export let store = async (
 	let keyv = new Keyv({
 		store: new KeyvFile({
 			filename: dbPath
-		})
+			// Not all options are required...
+		} as any)
 	})
 
 	if (!fileExists) {
