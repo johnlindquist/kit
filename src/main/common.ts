@@ -298,6 +298,11 @@ export let createAppChoices = async () => {
 	})
 
 	let assetsPath = kitPath("assets", "app-launcher", "icons")
+	await ensureDir(assetsPath)
+
+	// Define batch size (adjust as needed)
+	const BATCH_SIZE = 10
+
 	if (process.platform === "darwin") {
 		let { fileIconToFile } = await npm("file-icon")
 		await ensureDir(assetsPath)
@@ -308,13 +313,63 @@ export let createAppChoices = async () => {
 			return path.resolve(assetsPath, `${appName}.png`)
 		})
 
-		log(`Creating icons for ${allApps.length} apps`)
-		await fileIconToFile(allApps, {
-			size: 48,
-			destination
-		})
+		global.log(`Creating icons for ${allApps.length} apps\n`)
 
-		log(`Done creating icons`)
+		// Process icons in batches
+		for (let i = 0; i < allApps.length; i += BATCH_SIZE) {
+			const batch = allApps.slice(i, i + BATCH_SIZE)
+			const batchDestination = destination.slice(i, i + BATCH_SIZE)
+
+			// Process current batch
+			await fileIconToFile(batch, {
+				size: 48,
+				destination: batchDestination
+			})
+
+			// Log progress
+			global.log(
+				`\rProcessed ${Math.min(i + BATCH_SIZE, allApps.length)} out of ${allApps.length} icons`
+			)
+		}
+
+		global.log("\rDone creating icons\n")
+	}
+
+	if (isWin) {
+		global.log(`Creating icons for ${allApps.length} apps\n`)
+
+		// Process icons in batches for Windows
+		for (let i = 0; i < allApps.length; i += BATCH_SIZE) {
+			const batch = allApps.slice(i, i + BATCH_SIZE)
+
+			await Promise.all(
+				batch.map(async (appPath) => {
+					try {
+						let { base: appName } = path.parse(appPath)
+						let img = path.resolve(assetsPath, `${appName}.png`)
+
+						let data = await extractIcon(appPath.trim()).catch(() => undefined)
+						if (data) {
+							let buff = Buffer.from(
+								data.replace(/^data:image\/png;base64,/, ""),
+								"base64"
+							)
+							await ensureDir(path.dirname(img))
+							await writeFile(img, buff)
+						}
+					} catch (error) {
+						// Silently ignore errors for individual icons
+					}
+				})
+			)
+
+			// Log progress
+			global.log(
+				`\rProcessed ${Math.min(i + BATCH_SIZE, allApps.length)} out of ${allApps.length} icons`
+			)
+		}
+
+		global.log("\rDone creating icons\n")
 	}
 
 	let choices = sortBy(
@@ -323,18 +378,6 @@ export let createAppChoices = async () => {
 				let { base: appName } = path.parse(appPath)
 				let img = path.resolve(assetsPath, `${appName}.png`)
 				let value = appPath.replace(/\r?\n?$/i, "")
-
-				if (isWin) {
-					try {
-						let data = await extractIcon(appPath.trim()).catch(() => undefined)
-						let buff = Buffer.from(
-							data.replace(/^data:image\/png;base64,/, ""),
-							"base64"
-						)
-						await ensureDir(path.dirname(img))
-						await writeFile(img, buff)
-					} catch (error) {}
-				}
 
 				return {
 					id: value,
