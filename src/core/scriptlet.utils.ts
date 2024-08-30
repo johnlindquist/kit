@@ -2,7 +2,7 @@ import type { Flags } from "../types"
 
 export function processConditionals(str: string, flag?: Flags): string {
 	const regex =
-		/{{#if\s+flag\.([\w-]+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?)((?:{{else\s+if\s+flag\.([\w-]+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))*)(?:{{else}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))?{{\/if}}/g
+		/{{#if\s+([\w-]+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?)((?:{{else\s+if\s+([\w-]+)}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))*)(?:{{else}}((?:(?!{{#if)(?!{{\/if}}).|\n)*?))?{{\/if}}/g
 
 	let result = str
 	let lastResult: string
@@ -19,7 +19,7 @@ export function processConditionals(str: string, flag?: Flags): string {
 
 				// Process else-if conditions
 				const elseIfRegex =
-					/{{else\s+if\s+flag\.([\w-]+)\s*}}((?:(?!{{else\s+if)(?!{{else}})(?!{{\/if}}).|\n)*)/g
+					/{{else\s+if\s+([\w-]+)\s*}}((?:(?!{{else\s+if)(?!{{else}})(?!{{\/if}}).|\n)*)/g
 				let elseIfMatch: RegExpExecArray | null
 				while (true) {
 					elseIfMatch = elseIfRegex.exec(elseIfBlock)

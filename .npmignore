@@ -1,2 +1,6 @@
 node
 node_modules
+**/*.test.js
+**/*.test.ts
+test
+test-sdk

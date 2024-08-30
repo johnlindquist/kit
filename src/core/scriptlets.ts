@@ -17,7 +17,7 @@ export function formatScriptlet(
 		throw new Error(`No template found for ${focusedScriptlet.value.name}`)
 	}
 
-	scriptlet = processConditionals(scriptlet, flag)
+	scriptlet = processConditionals(scriptlet, flag).trim() // Trim the result after processing conditionals
 
 	const namedInputs = focusedScriptlet?.inputs || []
 	const remainingInputs = [...namedInputs]

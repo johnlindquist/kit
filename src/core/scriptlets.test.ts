@@ -51,7 +51,7 @@ ava(
 ## Conditional Flag Test
 
 \`\`\`bash
-{{#if flag.cmd}}
+{{#if cmd}}
 open https://github.com/time-loop/pr-ai-action-playground
 {{else}}
 cursor /Users/johnlindquist/dev/github-action-pr
@@ -65,7 +65,7 @@ cursor /Users/johnlindquist/dev/github-action-pr
 		t.is(scripts[0].tool, "bash")
 		t.is(
 			scripts[0].scriptlet,
-			`{{#if flag.cmd}}
+			`{{#if cmd}}
 open https://github.com/time-loop/pr-ai-action-playground
 {{else}}
 cursor /Users/johnlindquist/dev/github-action-pr
@@ -75,12 +75,65 @@ cursor /Users/johnlindquist/dev/github-action-pr
 	}
 )
 
+ava("formatScriptlet with conditional flag", async (t) => {
+	let markdown = `
+## Conditional Flag Test
+
+\`\`\`bash
+{{#if cmd}}
+open https://github.com/time-loop/pr-ai-action-playground
+{{else}}
+cursor /Users/johnlindquist/dev/github-action-pr
+{{/if}}
+\`\`\`
+`
+
+	const scripts = await parseMarkdownAsScriptlets(markdown)
+	const { formattedScriptlet } = formatScriptlet(scripts[0], [], {
+		cmd: "true"
+	})
+	t.is(
+		formattedScriptlet,
+		"open https://github.com/time-loop/pr-ai-action-playground"
+	)
+})
+
+ava("formatScriptlet with multiple conditional flags", async (t) => {
+	let markdown = `
+## Conditional Flag Test
+
+\`\`\`bash
+{{#if cmd}}
+open https://github.com/time-loop/pr-ai-action-playground
+{{else if shift}}
+open /Users/johnlindquist/dev/github-action-pr
+{{else}}
+cursor /Users/johnlindquist/dev/github-action-pr
+{{/if}}
+\`\`\`
+`
+
+	const scripts = await parseMarkdownAsScriptlets(markdown)
+	const { formattedScriptlet } = formatScriptlet(scripts[0], [], {
+		cmd: "true"
+	})
+	t.is(
+		formattedScriptlet,
+		"open https://github.com/time-loop/pr-ai-action-playground"
+	)
+
+	const { formattedScriptlet: result2 } = formatScriptlet(scripts[0], [], {
+		shift: "true"
+	})
+	t.is(result2, "open /Users/johnlindquist/dev/github-action-pr")
+})
+
 ava("formatScriptlet with no flags", (t) => {
 	const scriptlet = {
 		name: "Test Scriptlet",
 		tool: "bash",
 		scriptlet:
-			"ls {{#if flag.verbose}}-l{{/if}} ~/Downloads {{#if flag.zip}}| grep .zip{{/if}}",
+			"ls {{#if verbose}}-l{{/if}} ~/Downloads {{#if zip}}| grep .zip{{/if}}",
 		inputs: []
 	} as Scriptlet
 
@@ -89,7 +142,7 @@ ava("formatScriptlet with no flags", (t) => {
 		[],
 		{}
 	)
-	t.is(formattedScriptlet, "ls  ~/Downloads ")
+	t.is(formattedScriptlet, "ls  ~/Downloads")
 	t.deepEqual(remainingInputs, [])
 })
 
@@ -98,7 +151,7 @@ ava("formatScriptlet with verbose flag", (t) => {
 		name: "Test Scriptlet",
 		tool: "bash",
 		scriptlet:
-			"ls {{#if flag.verbose}}-l{{/if}} ~/Downloads {{#if flag.zip}}| grep .zip{{/if}}",
+			"ls {{#if verbose}}-l{{/if}} ~/Downloads {{#if zip}}| grep .zip{{/if}}",
 		inputs: []
 	} as Scriptlet
 
@@ -107,7 +160,7 @@ ava("formatScriptlet with verbose flag", (t) => {
 		[],
 		{ verbose: "true" }
 	)
-	t.is(formattedScriptlet, "ls -l ~/Downloads ")
+	t.is(formattedScriptlet, "ls -l ~/Downloads")
 	t.deepEqual(remainingInputs, [])
 })
 
@@ -116,7 +169,7 @@ ava("formatScriptlet with zip flag", (t) => {
 		name: "Test Scriptlet",
 		tool: "bash",
 		scriptlet:
-			"ls {{#if flag.verbose}}-l{{/if}} ~/Downloads {{#if flag.zip}}| grep .zip{{/if}}",
+			"ls {{#if verbose}}-l{{/if}} ~/Downloads {{#if zip}}| grep .zip{{/if}}",
 		inputs: []
 	} as Scriptlet
 
@@ -134,7 +187,7 @@ ava("formatScriptlet with both flags", (t) => {
 		name: "Test Scriptlet",
 		tool: "bash",
 		scriptlet:
-			"ls {{#if flag.verbose}}-l{{/if}} ~/Downloads {{#if flag.zip}}| grep .zip{{/if}}",
+			"ls {{#if verbose}}-l{{/if}} ~/Downloads {{#if zip}}| grep .zip{{/if}}",
 		inputs: []
 	} as Scriptlet
 
@@ -154,8 +207,7 @@ ava("formatScriptlet with nested conditionals", (t) => {
 	const scriptlet = {
 		name: "Nested Conditional Test",
 		tool: "bash",
-		scriptlet:
-			"ls {{#if flag.all}}-a {{#if flag.long}}-l{{/if}}{{/if}} ~/Downloads",
+		scriptlet: "ls {{#if all}}-a {{#if long}}-l{{/if}}{{/if}} ~/Downloads",
 		inputs: []
 	} as Scriptlet
 
@@ -185,13 +237,13 @@ ava("formatScriptlet with inputs and flags", (t) => {
 		name: "Input and Flag Test",
 		tool: "bash",
 		scriptlet:
-			"echo {{message}} {{#if flag.uppercase}}| tr '[:lower:]' '[:upper:]'{{/if}}",
+			"echo {{message}} {{#if uppercase}}| tr '[:lower:]' '[:upper:]'{{/if}}",
 		inputs: ["message"]
 	} as Scriptlet
 
 	const { formattedScriptlet: result1, remainingInputs: remaining1 } =
 		formatScriptlet(scriptlet, ["hello world"], {})
-	t.is(result1, "echo hello world ")
+	t.is(result1, "echo hello world")
 	t.deepEqual(remaining1, [])
 
 	const { formattedScriptlet: result2, remainingInputs: remaining2 } =
@@ -468,13 +520,13 @@ ava("formatScriptlet with inputs and flags, some unsatisfied", (t) => {
 		name: "Inputs and Flags with Unsatisfied Inputs Test",
 		tool: "bash",
 		scriptlet:
-			"echo {{message1}} {{message2}} {{#if flag.uppercase}}| tr '[:lower:]' '[:upper:]'{{/if}}",
+			"echo {{message1}} {{message2}} {{#if uppercase}}| tr '[:lower:]' '[:upper:]'{{/if}}",
 		inputs: ["message1", "message2"]
 	} as Scriptlet
 
 	const { formattedScriptlet: result1, remainingInputs: remaining1 } =
 		formatScriptlet(scriptlet, ["hello"], {})
-	t.is(result1, "echo hello {{message2}} ")
+	t.is(result1, "echo hello {{message2}}")
 	t.deepEqual(remaining1, ["message2"])
 
 	const { formattedScriptlet: result2, remainingInputs: remaining2 } =
@@ -487,7 +539,7 @@ ava("formatScriptlet with else conditional", (t) => {
 	const scriptlet = {
 		name: "Else Conditional Test",
 		tool: "bash",
-		scriptlet: "ls {{#if flag.verbose}}-l{{else}}-a{{/if}} ~/Downloads",
+		scriptlet: "ls {{#if verbose}}-l{{else}}-a{{/if}} ~/Downloads",
 		inputs: []
 	} as Scriptlet
 
@@ -505,7 +557,7 @@ ava("formatScriptlet with nested conditionals and else", (t) => {
 		name: "Nested Conditional with Else Test",
 		tool: "bash",
 		scriptlet:
-			"ls {{#if flag.all}}-a {{#if flag.long}}-l{{else}}-1{{/if}}{{else}}-F{{/if}} ~/Downloads",
+			"ls {{#if all}}-a {{#if long}}-l{{else}}-1{{/if}}{{else}}-F{{/if}} ~/Downloads",
 		inputs: []
 	} as Scriptlet
 
@@ -529,7 +581,7 @@ ava("formatScriptlet with multiple else conditionals", (t) => {
 		name: "Multiple Else Conditionals Test",
 		tool: "bash",
 		scriptlet:
-			"echo {{#if flag.a}}A{{else}}{{#if flag.b}}B{{else}}{{#if flag.c}}C{{else}}D{{/if}}{{/if}}{{/if}}",
+			"echo {{#if a}}A{{else}}{{#if b}}B{{else}}{{#if c}}C{{else}}D{{/if}}{{/if}}{{/if}}",
 		inputs: []
 	} as Scriptlet
 
@@ -557,7 +609,7 @@ ava("formatScriptlet with else conditional and inputs", (t) => {
 		name: "Else Conditional with Inputs Test",
 		tool: "bash",
 		scriptlet:
-			"echo {{#if flag.greet}}Hello, {{name}}!{{else}}Goodbye, {{name}}!{{/if}}",
+			"echo {{#if greet}}Hello, {{name}}!{{else}}Goodbye, {{name}}!{{/if}}",
 		inputs: ["name"]
 	} as Scriptlet
 
@@ -578,7 +630,7 @@ ava("formatScriptlet with else if conditional", (t) => {
 	const scriptlet = {
 		name: "Else If Conditional Test",
 		tool: "bash",
-		scriptlet: "echo {{#if flag.a}}A{{else if flag.b}}B{{else}}C{{/if}}",
+		scriptlet: "echo {{#if a}}A{{else if b}}B{{else}}C{{/if}}",
 		inputs: []
 	} as Scriptlet
 
@@ -606,7 +658,7 @@ ava("formatScriptlet with else if conditional and inputs", (t) => {
 		name: "Else If Conditional with Inputs Test",
 		tool: "bash",
 		scriptlet:
-			"echo {{#if flag.greet}}Hello, {{name}}!{{else if flag.farewell}}Goodbye, {{name}}!{{else}}Hi, {{name}}!{{/if}}",
+			"echo {{#if greet}}Hello, {{name}}!{{else if farewell}}Goodbye, {{name}}!{{else}}Hi, {{name}}!{{/if}}",
 		inputs: ["name"]
 	} as Scriptlet
 
@@ -634,14 +686,14 @@ ava(
 		const scriptlet = {
 			name: "Else If Conditional No Match Test",
 			tool: "bash",
-			scriptlet: "echo {{#if flag.a}}A{{else if flag.b}}B{{/if}}",
+			scriptlet: "echo {{#if a}}A{{else if b}}B{{/if}}",
 			inputs: []
 		} as Scriptlet
 
 		const { formattedScriptlet: result } = formatScriptlet(scriptlet, [], {
 			c: "true"
 		})
-		t.is(result, "echo ")
+		t.is(result, "echo")
 	}
 )
 
@@ -649,8 +701,7 @@ ava("formatScriptlet with two else if conditionals", (t) => {
 	const scriptlet = {
 		name: "Two Else If Conditionals Test",
 		tool: "bash",
-		scriptlet:
-			"echo {{#if flag.a}}A{{else if flag.b}}B{{else if flag.c}}C{{else}}D{{/if}}",
+		scriptlet: "echo {{#if a}}A{{else if b}}B{{else if c}}C{{else}}D{{/if}}",
 		inputs: []
 	} as Scriptlet
 
@@ -683,7 +734,7 @@ ava("formatScriptlet with two else if conditionals and inputs", (t) => {
 		name: "Two Else If Conditionals with Inputs Test",
 		tool: "bash",
 		scriptlet:
-			"echo {{#if flag.greet}}Hello, {{name}}!{{else if flag.farewell}}Goodbye, {{name}}!{{else if flag.question}}How are you, {{name}}?{{else}}Hi, {{name}}!{{/if}}",
+			"echo {{#if greet}}Hello, {{name}}!{{else if farewell}}Goodbye, {{name}}!{{else if question}}How are you, {{name}}?{{else}}Hi, {{name}}!{{/if}}",
 		inputs: ["name"]
 	} as Scriptlet
 
@@ -719,7 +770,7 @@ ava("formatScriptlet - benchmark performance", (t) => {
 		({
 			name: `Test Scriptlet ${index}`,
 			tool: "bash",
-			scriptlet: `echo {{input1}} {{input2}} {{#if flag.verbose}}-v{{/if}} {{#if flag.long}}-l{{/if}}`,
+			scriptlet: `echo {{input1}} {{input2}} {{#if verbose}}-v{{/if}} {{#if long}}-l{{/if}}`,
 			inputs: ["input1", "input2"]
 		}) as Scriptlet
 
@@ -752,7 +803,7 @@ ava("formatScriptlet should not treat 'else' as an input", (t) => {
 	const scriptlet = {
 		name: "Else Not Input Test",
 		tool: "bash",
-		scriptlet: "echo {{#if flag.a}}A{{else}}B{{/if}} {{input}}",
+		scriptlet: "echo {{#if a}}A{{else}}B{{/if}} {{input}}",
 		inputs: ["input"]
 	} as Scriptlet
 
@@ -769,8 +820,7 @@ ava("formatScriptlet should not treat 'else if' as an input", (t) => {
 	const scriptlet = {
 		name: "Else If Not Input Test",
 		tool: "bash",
-		scriptlet:
-			"echo {{#if flag.a}}A{{else if flag.b}}B{{else}}C{{/if}} {{input}}",
+		scriptlet: "echo {{#if a}}A{{else if b}}B{{else}}C{{/if}} {{input}}",
 		inputs: ["input"]
 	} as Scriptlet
 
@@ -789,7 +839,7 @@ ava(
 		const scriptlet = {
 			name: "Else and Similar Input Test",
 			tool: "bash",
-			scriptlet: "echo {{elseInput}} {{#if flag.a}}A{{else}}B{{/if}}",
+			scriptlet: "echo {{elseInput}} {{#if a}}A{{else}}B{{/if}}",
 			inputs: ["elseInput"]
 		} as Scriptlet
 
@@ -809,7 +859,7 @@ ava(
 		const scriptlet = {
 			name: "Else in Condition Test",
 			tool: "bash",
-			scriptlet: "echo {{#if flag.a}}A{{else}}B{{/if}} {{input}}",
+			scriptlet: "echo {{#if a}}A{{else}}B{{/if}} {{input}}",
 			inputs: ["input"]
 		} as Scriptlet
 
@@ -850,7 +900,7 @@ ava(
 			name: "Multiple Conditions Test",
 			tool: "bash",
 			scriptlet:
-				"{{#if flag.a}}A{{else}}B{{/if}} {{#if flag.b}}C{{else}}D{{/if}} {{input}}",
+				"{{#if a}}A{{else}}B{{/if}} {{#if b}}C{{else}}D{{/if}} {{input}}",
 			inputs: ["input"]
 		} as Scriptlet
 
@@ -868,7 +918,7 @@ ava("formatScriptlet should handle 'else' in input names correctly", (t) => {
 	const scriptlet = {
 		name: "Else in Input Name Test",
 		tool: "bash",
-		scriptlet: "echo {{elseInput}} {{#if flag.a}}A{{else}}B{{/if}}",
+		scriptlet: "echo {{elseInput}} {{#if a}}A{{else}}B{{/if}}",
 		inputs: ["elseInput"]
 	} as Scriptlet
 
@@ -888,7 +938,7 @@ ava(
 			name: "Nested Conditions Test",
 			tool: "bash",
 			scriptlet:
-				"{{#if flag.a}}A{{#if flag.b}}B{{else}}C{{/if}}{{else}}D{{/if}} {{input}}",
+				"{{#if a}}A{{#if b}}B{{else}}C{{/if}}{{else}}D{{/if}} {{input}}",
 			inputs: ["input"]
 		} as Scriptlet
 
