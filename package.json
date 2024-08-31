@@ -83,7 +83,6 @@
 		"dotenv": "^16.4.5",
 		"esbuild": "0.23.1",
 		"express": "^4.19.2",
-		"file-icon": "5.1.1",
 		"filesize": "10.1.4",
 		"fs-extra": "^11.2.0",
 		"globby": "^14.0.2",
@@ -91,6 +90,7 @@
 		"isomorphic-git": "1.27.1",
 		"keyv": "^5.0.1",
 		"keyv-file": "^5.0.0",
+		"pnpm": "9.9.0",
 		"quick-score": "^0.2.0",
 		"rimraf": "6.0.1",
 		"safe-stable-stringify": "^2.5.0",
@@ -123,7 +123,11 @@
 			"KIT_TEST": "true"
 		},
 		"verbose": true,
-		"files": ["src/**/*.test.js", "test/**/*.test.js", "test-sdk/**/*.test.js"]
+		"files": [
+			"src/**/*.test.js",
+			"test/**/*.test.js",
+			"test-sdk/**/*.test.js"
+		]
 	},
 	"release": {
 		"branches": [
@@ -151,7 +155,9 @@
 			[
 				"semantic-release-plugin-update-version-in-files",
 				{
-					"files": ["./.kit/package.json"]
+					"files": [
+						"./.kit/package.json"
+					]
 				}
 			]
 		]
@@ -163,5 +169,9 @@
 		"commitizen": {
 			"path": "./node_modules/cz-conventional-changelog"
 		}
+	},
+	"optionalDependencies": {
+		"file-icon": "5.1.1",
+		"get-app-icon": "1.0.1"
 	}
 }

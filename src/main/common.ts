@@ -282,7 +282,8 @@ export let findApps = async (includePrefs = false) => {
 export let createAppChoices = async () => {
 	let extractIcon =
 		process.platform === "win32"
-			? (await npm("get-app-icon")).extractIcon
+			? // @ts-ignore
+				(await import("get-app-icon")).extractIcon
 			: () => Promise.resolve(undefined)
 	setLoading(true)
 	let { apps, prefs } = await findApps(true)
@@ -304,7 +305,7 @@ export let createAppChoices = async () => {
 	const BATCH_SIZE = 10
 
 	if (process.platform === "darwin") {
-		let { fileIconToFile } = await npm("file-icon")
+		let { fileIconToFile } = await import("file-icon")
 		await ensureDir(assetsPath)
 		let allApps = uniq(apps.concat(prefs))
 
