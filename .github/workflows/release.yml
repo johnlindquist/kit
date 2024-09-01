@@ -10,6 +10,10 @@ on:
     tags:
       - "*"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-windows:
     runs-on: windows-latest
@@ -96,7 +100,7 @@ jobs:
       - name: Build Kit
         run: |
           pnpm i
-          pnpm node ./build/build-ci.js
+          KIT=./.kit pnpm node ./build/build-ci.js
         env:
           KIT: ${{ env.kit_path }}
 
@@ -169,9 +173,7 @@ jobs:
       - name: Build Kit
         run: |
           pnpm install
-          pnpm node ./build/build-ci.js
-        env:
-          KIT: ${{ env.kit_path }}
+          KIT=./.kit pnpm node ./build/build-ci.js
 
       - name: Set env vars
         run: |
