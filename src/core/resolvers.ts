@@ -39,8 +39,3 @@ export let kitDotEnvPath = () => {
 		getEnvOrDefault(process.env.KIT_DOTENV_PATH, kenvPath(".env"))
 	)()
 }
-
-export let knodePath = (...parts: string[]) => {
-	const knodeDir = getEnvOrDefault(process.env.KNODE, home(".knode"))
-	return createPathResolver(knodeDir)(...parts.filter(Boolean))
-}

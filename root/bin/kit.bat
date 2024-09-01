@@ -16,7 +16,7 @@ if %errorlevel%==0 (
 
 REM Set the default KIT_NODE variable to the custom node binary
 if not defined KIT_NODE (
-    set "KIT_NODE=%KIT%/../.knode/bin/node"
+    set "KIT_NODE=%KIT%/../.kenv/bin/pnpm node"
 )
 
 REM Check if the custom node binary exists, if not, use the system's node binary

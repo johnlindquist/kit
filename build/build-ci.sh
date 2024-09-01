@@ -2,7 +2,6 @@ set -e
 
 export WD=$(cd "$(dirname ${BASH_SOURCE[0]})"/.. &>/dev/null && pwd)
 export KIT="$WD/.kit"
-export KNODE="$WD/.knode"
 export PATH="$KNODE:$PATH"
 
 cd $WD

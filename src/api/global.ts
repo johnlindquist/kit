@@ -7,7 +7,6 @@ import {
 	kitPath,
 	kenvPath,
 	wait,
-	knodePath,
 	getLogFromScriptPath,
 	createPathResolver
 } from "../core/utils.js"
@@ -79,7 +78,6 @@ assignPropsTo(process.env, global.env)
 global.wait = wait
 global.kitPath = kitPath
 global.kenvPath = kenvPath
-global.knodePath = knodePath
 global.isBin = isBin
 global.isDir = isDir
 global.createPathResolver = createPathResolver

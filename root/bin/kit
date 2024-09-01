@@ -13,7 +13,7 @@ KIT=$(cd "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/.." &>/dev/null && pwd)
         pwd
     )"
 
-KIT_NODE="${KIT_NODE:=$KIT/../.knode/bin/node}"
+KIT_NODE="${KIT_NODE:=$KIT/../.kenv/bin/pnpm node}"
 # Default to system node if KIT_NODE doesn't exist
 [ ! -f $KIT_NODE ] && KIT_NODE=$(which node)
 

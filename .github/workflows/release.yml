@@ -43,7 +43,6 @@ jobs:
         shell: bash
         env:
           KIT: ${{ env.kit_path }}
-          KNODE: ${{ env.knode_path }}
         run: |
           npm run build-kit
 
@@ -56,7 +55,6 @@ jobs:
             npm run test
         env:
           KIT: ${{ env.kit_path }}
-          KNODE: ${{ env.knode_path }}
 
 
   test-mac-and-ubuntu:
@@ -78,26 +76,30 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
-      - name: Install Node
-        run: |
-          mkdir -p ./.knode
-          ./build/install-node.sh -v 20.16.0 -P ./.knode -y
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9.9.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
 
       - name: Build Kit
         run: |
-          PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
-          PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
+          pnpm i
+          pnpm run build-kit
 
       - name: Set env vars
         run: |
           echo "wd_path=$PWD" >> $GITHUB_ENV
           echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
-          echo "knode_path=$PWD/.knode" >> $GITHUB_ENV
           echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Add node and kit to PATH
         run: |
-          echo "${{ env.knode_path }}/bin" >> $GITHUB_PATH
           echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
           echo "---"
           echo "$GITHUB_PATH"
@@ -126,7 +128,6 @@ jobs:
           npm run test
         env:
           KIT: ${{ env.kit_path }}
-          KNODE: ${{ env.knode_path }}
 
   release:
     runs-on: macos-latest
@@ -145,26 +146,31 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
-      - name: Install Node
-        run: |
-          mkdir -p ./.knode
-          ./build/install-node.sh -v 20.16.0 -P ./.knode -y
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9.9.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      
 
       - name: Build Kit
         run: |
-          PATH="./.knode/bin:$PATH" npm i && PATH="./.knode/bin:$PATH" npm dedupe
-          PATH="./.knode/bin:$PATH" KIT=./.kit node ./build/build-ci.js
+          pnpm i
+          pnpm run build-kit
 
       - name: Set env vars
         run: |
           echo "wd_path=$PWD" >> $GITHUB_ENV
           echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
-          echo "knode_path=$PWD/.knode" >> $GITHUB_ENV
           echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Add node and kit to PATH
         run: |
-          echo "${{ env.knode_path }}/bin" >> $GITHUB_PATH
           echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
           echo "---"
           echo "$GITHUB_PATH"

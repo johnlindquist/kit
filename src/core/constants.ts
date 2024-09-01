@@ -1,5 +1,5 @@
-import { home, kenvPath, kitPath, knodePath } from "./resolvers.js"
-import { isMac, isWin } from "./is.js"
+import { home, kenvPath, kitPath } from "./resolvers.js"
+import { isMac } from "./is.js"
 
 export let cmd = isMac ? "cmd" : "ctrl"
 export let returnOrEnter = isMac ? "return" : "enter"

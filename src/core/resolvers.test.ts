@@ -6,8 +6,7 @@ import {
 	home,
 	kitPath,
 	kenvPath,
-	kitDotEnvPath,
-	knodePath
+	kitDotEnvPath
 } from "./resolvers"
 
 // Helper function to set up environment variables

@@ -4,8 +4,6 @@ import { pathToFileURL } from "node:url"
 
 process.env.KIT = process.env.KIT || path.resolve(os.homedir(), ".kit")
 
-process.env.KNODE = process.env.KNODE || path.resolve(os.homedir(), ".knode")
-
 let importKit = async (...parts) => {
 	let partsPath = path.resolve(process.env.KIT, ...parts)
 	await import(pathToFileURL(partsPath).href)

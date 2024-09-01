@@ -9,7 +9,6 @@ import type {
 	Scriptlet,
 	Snippet
 } from "../types/core"
-import { platform } from "node:os"
 import { lstatSync, realpathSync } from "node:fs"
 import { lstat, readdir } from "node:fs/promises"
 import { execSync } from "node:child_process"
@@ -26,7 +25,7 @@ import tsPlugin from "acorn-typescript"
 import type { Stamp } from "./db"
 import { pathToFileURL } from "node:url"
 import { parseScript } from "./parser.js"
-import { kitPath, kenvPath, knodePath } from "./resolvers.js"
+import { kitPath, kenvPath } from "./resolvers.js"
 import { cmd } from "./constants.js"
 import { isBin, isJsh, isDir, isWin, isMac } from "./is.js"
 
@@ -1411,8 +1410,7 @@ export {
 	home,
 	kitPath,
 	kenvPath,
-	kitDotEnvPath,
-	knodePath
+	kitDotEnvPath
 } from "./resolvers.js"
 
 export { isBin, isFile, isJsh, isDir, isLinux, isMac, isWin } from "./is.js"

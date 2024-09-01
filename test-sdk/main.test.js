@@ -7,8 +7,6 @@ process.env.NODE_NO_WARNINGS = 1
 
 process.env.KIT = process.env.KIT || path.resolve(os.homedir(), ".kit")
 
-process.env.KNODE = process.env.KNODE || path.resolve(homedir(), ".knode")
-
 ava.serial("app-prompt.js", async (t) => {
 	let script = "mock-script-with-arg"
 	let scriptPath = kenvPath("scripts", `${script}.js`)
@@ -301,12 +299,14 @@ ava.serial("Run both JS and TS scripts", async (t) => {
 	let newJSCommandResult = await exec(`kit new ${jsCommand} main --no-edit`, {
 		env: {
 			...process.env,
+			EXEC_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
 	let newTSCommandResult = await exec(`kit new ${tsCommand} main --no-edit`, {
 		env: {
 			...process.env,
+			KIT_EXEC_PATH: process.execPath,
 			KIT_MODE: "ts"
 		}
 	})
@@ -333,6 +333,7 @@ ava.serial("Run kit from package.json", async (t) => {
 	await exec(`kit new ${command} main --no-edit`, {
 		env: {
 			...process.env,
+			EXEC_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})

@@ -1,6 +1,6 @@
-import path from "path"
+import path from "node:path"
 import shelljs from "shelljs"
-import { kitPath, knodePath, home } from "../../core/utils.js"
+import { kitPath, home } from "../../core/utils.js"
 import { compile } from "@johnlindquist/globals"
 import {
 	ensureDir,
