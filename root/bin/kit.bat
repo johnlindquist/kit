@@ -16,7 +16,9 @@ if %errorlevel%==0 (
 
 REM Set the default KIT_NODE variable to the custom node binary
 if not defined KIT_NODE (
-    set "KIT_NODE=%KIT%/../.kenv/bin/pnpm node"
+    for /f "tokens=* USEBACKQ" %%F in (`powershell -Command "pnpm node -e 'console.log(process.execPath)'"`) do (
+        set "KIT_NODE=%%F"
+    )
 )
 
 REM Check if the custom node binary exists, if not, use the system's node binary

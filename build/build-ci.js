@@ -13,10 +13,11 @@ cp("-R", "./build", kitPath())
 cp("-R", "./src/types", kitPath())
 
 cp("*.md", kitPath())
+cp(".npmrc", kitPath())
 cp("package*.json", kitPath())
 cp("LICENSE", kitPath())
 
-let { stdout: nodeVersion } = await exec("node --version")
+let { stdout: nodeVersion } = await exec("pnpm node --version")
 console.log({ nodeVersion })
 let { stdout: npmVersion } = await exec("pnpm --version")
 console.log({ npmVersion })

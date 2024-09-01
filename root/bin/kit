@@ -13,9 +13,9 @@ KIT=$(cd "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/.." &>/dev/null && pwd)
         pwd
     )"
 
-KIT_NODE="${KIT_NODE:=$KIT/../.kenv/bin/pnpm node}"
+KIT_NODE="${KIT_NODE:=$(pnpm node -e 'console.log(process.execPath)')}"
 # Default to system node if KIT_NODE doesn't exist
-[ ! -f $KIT_NODE ] && KIT_NODE=$(which node)
+[ ! -f "$KIT_NODE" ] && KIT_NODE=$(which node)
 
 if [[ $KIT =~ ^/[a-zA-Z]/ ]]; then
     drive_letter=${KIT:1:1}
