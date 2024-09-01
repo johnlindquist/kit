@@ -145,7 +145,8 @@ function scopesToEnvName(scopes: string[]) {
 	return [ENV_TOKEN_PREFIX, ...scopes.sort()].join("_").toUpperCase()
 }
 
-export let Octokit = OctokitCore.plugin(
+// @ts-ignore
+export let Octokit: any = OctokitCore.plugin(
 	restEndpointMethods,
 	paginateRest,
 	retry,

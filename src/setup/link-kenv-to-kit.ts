@@ -35,8 +35,7 @@ await cli("install", `"${kitPath()}"`)
 let defaultPackageJson = {
 	type: "module",
 	engines: {
-		node: "20.16.0",
-		npm: "10.8.1"
+		node: "20.16.0"
 	},
 	devDependencies: {
 		"@johnlindquist/kit": "file:../.kit",
@@ -51,6 +50,7 @@ let packageJson = await ensureReadFile(
 let packageJsonObj = JSON.parse(packageJson)
 if (!packageJsonObj.type) {
 	packageJsonObj.type = "module"
+	packageJsonObj.engines = defaultPackageJson.engines
 	await writeFile(
 		kenvPath("package.json"),
 		JSON.stringify(packageJsonObj, null, 2)

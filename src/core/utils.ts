@@ -69,7 +69,6 @@ const WIN_DEFAULT_PATH = combinePath([])
 export const KIT_DEFAULT_PATH = isWin ? WIN_DEFAULT_PATH : UNIX_DEFAULT_PATH
 
 export const KIT_BIN_PATHS = combinePath([
-	knodePath("bin"),
 	kitPath("bin"),
 	...(isWin ? [] : [kitPath("override", "code")]),
 	kenvPath("bin")
@@ -1430,7 +1429,6 @@ export {
 	tmpClipboardDir,
 	tmpDownloadsDir,
 	getMainScriptPath,
-	execPath,
 	kitDocsPath,
 	KENV_SCRIPTS,
 	KENV_APP,

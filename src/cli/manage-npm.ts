@@ -36,10 +36,6 @@ while (true) {
 			{
 				name: "Open a Terminal to Manually Install/Uninstall",
 				value: "manual-npm"
-			},
-			{
-				name: "Reset all npm packages",
-				value: "reset-npm"
 			}
 		]
 	)

@@ -1,11 +1,8 @@
-let command = ``
-if (!isWin) {
-  command = `export PATH=${knodePath("bin")}:$PATH `
-}
+let command = ""
 
 await term({
-  command,
-  cwd: kenvPath(),
+	command,
+	cwd: kenvPath()
 })
 
 export {}

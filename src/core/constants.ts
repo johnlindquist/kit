@@ -18,7 +18,7 @@ export const getMainScriptPath = () => {
 	const version = process.env?.KIT_MAIN_SCRIPT
 	return kitPath("main", `index${version ? `-${version}` : ""}.js`)
 }
-export const execPath = knodePath("bin", `node${isWin ? ".exe" : ""}`)
+
 export const kitDocsPath = home(".kit-docs")
 
 export const KENV_SCRIPTS = kenvPath("scripts")

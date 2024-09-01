@@ -2096,7 +2096,9 @@ export let toggleEnvVar = async (key: keyof kenvEnv, defaultValue = "true") => {
 	)
 }
 
-export let authenticate = async () => {
+//@ts-ignore
+export let authenticate = async (): Promise<Octokit> => {
+	// @ts-ignore
 	let { Octokit } = await import("../share/auth-scriptkit.js")
 	let octokit = new Octokit({
 		request: {

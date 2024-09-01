@@ -77,20 +77,3 @@ if (process.platform !== "win32") {
 		cleanup()
 	})
 }
-
-ava("knodePath with default KNODE env", (t) => {
-	const cleanup = setupEnv({ KNODE: undefined })
-	t.is(knodePath("test"), path.resolve(homedir(), ".knode", "test"))
-	t.is(knodePath("sub", "dir"), path.resolve(homedir(), ".knode", "sub", "dir"))
-	cleanup()
-})
-
-ava("knodePath with custom KNODE env", (t) => {
-	const cleanup = setupEnv({ KNODE: "/custom/knode/path" })
-	t.is(knodePath("test"), path.resolve("/custom/knode/path", "test"))
-	t.is(
-		knodePath("sub", "dir"),
-		path.resolve("/custom/knode/path", "sub", "dir")
-	)
-	cleanup()
-})
