@@ -62,10 +62,23 @@ process.env.KENV = kenvTestPath
 
 console.log({ kitPath: kitPath() })
 await rimraf(escapePathPeriods(kitPath("db", "scripts.json")))
-await exec(`kit "${kitPath("setup", "setup.js")}" --no-edit`)
+const { stdout: setupStdout, stderr: setupStderr } = await exec(
+	`kit "${kitPath("setup", "setup.js")}" --no-edit`
+)
+console.log({ setupStdout })
+if (setupStderr) {
+	console.log({ setupStderr })
+	exit(1)
+}
 // console.log(
 //   await readFile(kenvPath("package.json"), "utf-8")
 // )
-await exec(`kit "${kitPath("cli", "refresh-scripts-db.js")}"`)
+const { stdout: refreshScriptsDbStdout, stderr: refreshScriptsDbStderr } =
+	await exec(`kit "${kitPath("cli", "refresh-scripts-db.js")}"`)
+console.log({ refreshScriptsDbStdout })
+if (refreshScriptsDbStderr) {
+	console.log({ refreshScriptsDbStderr })
+	exit(1)
+}
 
 export {}
