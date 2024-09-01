@@ -10129,7 +10129,6 @@ declare module "@johnlindquist/kit" {
 
 		kitPath: PathFn
 		kenvPath: PathFn
-		knodePath: PathFn
 		/**
 		 * Generate a path `~/.kenv/tmp/{command}/...parts`
 		 *
@@ -10210,7 +10209,6 @@ declare module "@johnlindquist/kit" {
 
 		var kitPath: PathFn
 		var kenvPath: PathFn
-		var knodePath: PathFn
 		var tmpPath: PathFn
 		var kenvTmpPath: PathFn
 
