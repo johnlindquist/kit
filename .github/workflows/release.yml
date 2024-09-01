@@ -100,7 +100,7 @@ jobs:
       - name: Build Kit
         run: |
           pnpm i
-          export EXEC_PATH=$(pnpm node -e )
+          export NODE_PATH=$(pnpm node -e )
           KIT=./.kit pnpm node ./build/build-ci.js
         env:
           KIT: ${{ env.kit_path }}

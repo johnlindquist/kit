@@ -12,7 +12,7 @@ ava.serial("env should work with different params", async (t) => {
 	await exec(`kit new ${name} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: type
 		}
 	})

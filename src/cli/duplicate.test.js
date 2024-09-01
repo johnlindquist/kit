@@ -14,7 +14,7 @@ ava.serial("kit duplicate", async (t) => {
 	await exec(`kit duplicate ${command} ${duplicate} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
@@ -49,7 +49,7 @@ ava.serial("kit duplicate a typescript file", async (t) => {
 	await exec(`kit new ${command} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "ts"
 		}
 	})
@@ -60,7 +60,7 @@ ava.serial("kit duplicate a typescript file", async (t) => {
 	await exec(`kit duplicate ${command} ${duplicate} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "ts"
 		}
 	})

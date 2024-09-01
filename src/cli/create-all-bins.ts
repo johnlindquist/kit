@@ -36,7 +36,7 @@ for await (let { command, filePath } of scripts) {
 		command,
 		type: "scripts",
 		KIT: kitPath(),
-		EXEC_PATH: process.env.EXEC_PATH,
+		NODE_PATH: process.env.NODE_PATH,
 		...global.env,
 		TARGET_PATH: filePath
 	})

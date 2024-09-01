@@ -19,7 +19,7 @@ ava.before(async () => {
 	await exec(`kit new ${testingFindMe} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})

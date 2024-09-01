@@ -174,7 +174,7 @@ ava.serial("JavaScript support", async (t) => {
 	await exec(`kit new ${script} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
@@ -206,7 +206,7 @@ ava.serial("kit new, run, and rm", async (t) => {
 	let { stdout, stderr } = await exec(`kit new ${command} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
@@ -301,14 +301,14 @@ ava.serial("Run both JS and TS scripts", async (t) => {
 	let newJSCommandResult = await exec(`kit new ${jsCommand} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
 	let newTSCommandResult = await exec(`kit new ${tsCommand} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "ts"
 		}
 	})
@@ -335,7 +335,7 @@ ava.serial("Run kit from package.json", async (t) => {
 	await exec(`kit new ${command} main --no-edit`, {
 		env: {
 			...process.env,
-			EXEC_PATH: process.execPath,
+			NODE_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
@@ -378,7 +378,7 @@ ava.serial(
 		await exec(`kit new ${command} main --no-edit`, {
 			env: {
 				...process.env,
-				EXEC_PATH: process.execPath,
+				NODE_PATH: process.execPath,
 				KIT_MODE: "js"
 			}
 		})
@@ -414,7 +414,7 @@ ava.serial(
 		await exec(`kit new ${command} main --no-edit`, {
 			env: {
 				...process.env,
-				EXEC_PATH: process.execPath,
+				NODE_PATH: process.execPath,
 				KIT_MODE: "js"
 			}
 		})
@@ -452,7 +452,7 @@ ava.serial(
 		await exec(`kit new ${command} main --no-edit`, {
 			env: {
 				...process.env,
-				EXEC_PATH: process.execPath,
+				NODE_PATH: process.execPath,
 				KIT_MODE: "js"
 			}
 		})

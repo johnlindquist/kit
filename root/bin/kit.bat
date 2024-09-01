@@ -14,26 +14,26 @@ if %errorlevel%==0 (
     set "KENV=%CD%"
 )
 
-REM Set the default EXEC_PATH variable to the custom node binary
-set "EXEC_PATH="
+REM Set the default NODE_PATH variable to the custom node binary
+set "NODE_PATH="
 if exist "%KIT%/node_modules/.bin/pnpm" (
     for /f "tokens=* USEBACKQ" %%F in (`%KIT%/node_modules/.bin/pnpm node -p "process.execPath" 2^>nul`) do (
-        set "EXEC_PATH=%%F"
+        set "NODE_PATH=%%F"
     )
 )
-if not defined EXEC_PATH (
+if not defined NODE_PATH (
     for /f "tokens=* USEBACKQ" %%F in (`pnpm node -p "process.execPath" 2^>nul`) do (
-        set "EXEC_PATH=%%F"
+        set "NODE_PATH=%%F"
     )
 )
-if not defined EXEC_PATH (
+if not defined NODE_PATH (
     for /f "tokens=* USEBACKQ" %%F in (`node -p "process.execPath" 2^>nul`) do (
-        set "EXEC_PATH=%%F"
+        set "NODE_PATH=%%F"
     )
 )
 
-if not defined EXEC_PATH (
-    echo Node not found, please provide an EXEC_PATH in your environment
+if not defined NODE_PATH (
+    echo Node not found, please provide an NODE_PATH in your environment
     exit /b 1
 )
 
@@ -41,4 +41,4 @@ REM Set the NODE_NO_WARNINGS environment variable
 set "NODE_NO_WARNINGS=1"
 
 REM Run the terminal.js file with the determined Node.js binary and pass all arguments
-"%EXEC_PATH%" --loader "file://%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*
+"%NODE_PATH%" --loader "file://%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*
