@@ -7,6 +7,7 @@ ava.serial("kenv create", async (t) => {
 	let { stdout } = await exec(`kit kenv-create ${kenvName}`, {
 		env: {
 			...process.env,
+			EXEC_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
@@ -27,6 +28,7 @@ ava.serial("kenv remove", async (t) => {
 	await exec(`kit kenv-rm ${kenvName}`, {
 		env: {
 			...process.env,
+			EXEC_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})

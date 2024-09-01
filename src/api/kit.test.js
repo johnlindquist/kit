@@ -27,12 +27,14 @@ ava.serial(`testing "run" is global`, async (t) => {
 	await exec(`kit new ${otherScript} main --no-edit`, {
 		env: {
 			...process.env,
+			EXEC_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
 	await exec(`kit new ${mainScript} main --no-edit`, {
 		env: {
 			...process.env,
+			EXEC_PATH: process.execPath,
 			KIT_MODE: "js"
 		}
 	})
