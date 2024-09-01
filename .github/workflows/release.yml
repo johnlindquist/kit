@@ -126,11 +126,14 @@ jobs:
       - name: Log ./.kit
         run: |
           ls ./.kit/*/*
+          ls ./.kit/node_modules/.bin/*
 
       - name: pnpm i
         run: |
           cd "${{ env.wd_path }}"
           pnpm i
+          ls ./.kit/node_modules/.bin/*
+
 
       - name: pnpm run ava
         run: |

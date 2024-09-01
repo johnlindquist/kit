@@ -3,6 +3,13 @@
 
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
 KIT_NODE="${KIT_NODE:=$KIT/node_modules/.bin/pnpm node}"
+if ! command -v "$KIT_NODE" &> /dev/null; then
+    KIT_NODE=$(which node)
+    if [ -z "$KIT_NODE" ]; then
+        echo "Error: Node.js not found in PATH" >&2
+        exit 1
+    fi
+fi
 
 NODE_NO_WARNINGS=1 \
 "$KIT_NODE" \

@@ -13,7 +13,7 @@ KIT=$(cd "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/.." &>/dev/null && pwd)
         pwd
     )"
 
-KIT_NODE="${KIT_NODE:=$($KIT/node_modules/.bin/pnpm node -e 'console.log(process.execPath)')}"
+KIT_NODE="${KIT_NODE:=$(command -v pnpm >/dev/null 2>&1 && $KIT/node_modules/.bin/pnpm node -e 'console.log(process.execPath)' || which node)}"
 # Default to system node if KIT_NODE doesn't exist
 [ ! -f "$KIT_NODE" ] && KIT_NODE=$(which node)
 
