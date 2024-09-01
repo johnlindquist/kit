@@ -17,10 +17,16 @@ jobs:
       - name: Checkout kit
         uses: actions/checkout@master
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          node-version: '20.16.0'
+          version: 9.9.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.16.0
+          cache: 'pnpm'
 
       - name: Check node $PATH version
         shell: bash
