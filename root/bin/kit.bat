@@ -14,29 +14,18 @@ if %errorlevel%==0 (
     set "KENV=%CD%"
 )
 
-REM Set the default KIT_NODE variable to the custom node binary
-if not defined KIT_NODE (
-    if exist "node_modules\.bin\pnpm" (
-        for /f "tokens=* USEBACKQ" %%F in (`powershell -Command "node_modules\.bin\pnpm node -e 'console.log(process.execPath)'"`) do (
-            set "KIT_NODE=%%F"
-        )
-    ) else (
-        REM If pnpm doesn't exist, use the system's node binary
-        for /f "tokens=* USEBACKQ" %%F in (`where node`) do (
-            set "KIT_NODE=%%F"
-        )
-    )
+REM Set the default EXEC_PATH variable to the custom node binary
+for /f "tokens=* USEBACKQ" %%F in (`%KIT%/node_modules/.bin/pnpm node -p "process.execPath" 2>nul || pnpm node -p "process.execPath" 2>nul || node -p "process.execPath" 2>nul`) do (
+    set "EXEC_PATH=%%F"
 )
 
-REM Check if the custom node binary exists, if not, use the system's node binary
-if not exist "%KIT_NODE%" (
-    for /f "tokens=* USEBACKQ" %%F in (`where node`) do (
-        set "KIT_NODE=%%F"
-    )
+if not exist "%EXEC_PATH%" (
+    echo Node not found, please provide an EXEC_PATH in your environment
+    exit /b 1
 )
 
 REM Set the NODE_NO_WARNINGS environment variable
 set "NODE_NO_WARNINGS=1"
 
 REM Run the terminal.js file with the determined Node.js binary and pass all arguments
-"%KIT_NODE%" --loader "file://%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*
+"%EXEC_PATH%" --loader "file://%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*

@@ -13,9 +13,14 @@ KIT=$(cd "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/.." &>/dev/null && pwd)
         pwd
     )"
 
-KIT_NODE="${KIT_NODE:=$(command -v pnpm >/dev/null 2>&1 && $KIT/node_modules/.bin/pnpm node -e 'console.log(process.execPath)' || which node)}"
-# Default to system node if KIT_NODE doesn't exist
-[ ! -f "$KIT_NODE" ] && KIT_NODE=$(which node)
+EXEC_PATH="${EXEC_PATH:=$($KIT/node_modules/.bin/pnpm node -p "process.execPath" 2>/dev/null || pnpm node -p "process.execPath" 2>/dev/null || node -p "process.execPath" 2>/dev/null)}"
+if ! command -v "$EXEC_PATH" &> /dev/null; then
+    EXEC_PATH=$(which node)
+    if [ -z "$EXEC_PATH" ]; then
+        echo "Error: Node.js not found in PATH. Provide an EXEC_PATH in your environment." >&2
+        exit 1
+    fi
+fi
 
 if [[ $KIT =~ ^/[a-zA-Z]/ ]]; then
     drive_letter=${KIT:1:1}
@@ -26,7 +31,7 @@ KIT_TARGET="terminal" \
 KIT="$KIT" \
 KENV="$KENV" \
 NODE_NO_WARNINGS=1 \
-"$KIT_NODE" \
+"$EXEC_PATH" \
 --loader "file://$KIT/build/loader.js" \
 "$KIT/run/terminal.js" \
 "$@"

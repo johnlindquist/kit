@@ -473,11 +473,19 @@ global.term = async (
 
 	let isCwdKenv = arePathsEqual(config.cwd, kenvPath())
 	if (config.command.startsWith("pnpm ") && isCwdKenv) {
-		config.command = config.command.replace(/^pnpm/, "./pnpm")
+		const isWindows = process.platform === "win32"
+		config.command = config.command.replace(
+			/^pnpm/,
+			isWindows ? "..\\.kit\\pnpm" : "../.kit/pnpm"
+		)
 	}
 
 	if (config.command.startsWith("npm ") && isCwdKenv) {
-		config.command = config.command.replace(/^npm/, "./npm")
+		const isWindows = process.platform === "win32"
+		config.command = config.command.replace(
+			/^npm/,
+			isWindows ? "..\\.kit\\pnpm" : "../.kit/pnpm"
+		)
 	}
 
 	return await global.kitPrompt({
