@@ -4,11 +4,10 @@
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
 EXEC_PATH="${EXEC_PATH:=$($KIT/node_modules/.bin/pnpm node -p "process.execPath" 2>/dev/null || pnpm node -p "process.execPath" 2>/dev/null || node -p "process.execPath" 2>/dev/null)}"
 
-    if [ -z "$EXEC_PATH" ]; then
-        echo "Error: Node.js not found in PATH. Provide an EXEC_PATH in your environment." >&2
-        exit 1
-    fi
-
+if [ -z "$EXEC_PATH" ]; then
+    echo "Error: Node.js not found in PATH. Provide an EXEC_PATH in your environment." >&2
+    exit 1
+fi
 
 NODE_NO_WARNINGS=1 \
 "$EXEC_PATH" \

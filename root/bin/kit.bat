@@ -15,11 +15,24 @@ if %errorlevel%==0 (
 )
 
 REM Set the default EXEC_PATH variable to the custom node binary
-for /f "tokens=* USEBACKQ" %%F in (`%KIT%/node_modules/.bin/pnpm node -p "process.execPath" 2>nul || pnpm node -p "process.execPath" 2>nul || node -p "process.execPath" 2>nul`) do (
-    set "EXEC_PATH=%%F"
+set "EXEC_PATH="
+if exist "%KIT%/node_modules/.bin/pnpm" (
+    for /f "tokens=* USEBACKQ" %%F in (`%KIT%/node_modules/.bin/pnpm node -p "process.execPath" 2^>nul`) do (
+        set "EXEC_PATH=%%F"
+    )
+)
+if not defined EXEC_PATH (
+    for /f "tokens=* USEBACKQ" %%F in (`pnpm node -p "process.execPath" 2^>nul`) do (
+        set "EXEC_PATH=%%F"
+    )
+)
+if not defined EXEC_PATH (
+    for /f "tokens=* USEBACKQ" %%F in (`node -p "process.execPath" 2^>nul`) do (
+        set "EXEC_PATH=%%F"
+    )
 )
 
-if not exist "%EXEC_PATH%" (
+if not defined EXEC_PATH (
     echo Node not found, please provide an EXEC_PATH in your environment
     exit /b 1
 )
