@@ -126,14 +126,14 @@ jobs:
         run: |
           ls ./.kit/*/*
 
-      - name: npm i
+      - name: pnpm i
         run: |
           cd "${{ env.wd_path }}"
-          npm i
+          pnpm i
 
-      - name: npm run ava
+      - name: pnpm run ava
         run: |
-          npm run ava
+          pnpm run ava
 
       - name: npm run test
         run: |
@@ -191,7 +191,7 @@ jobs:
       - name: Check node $PATH version
         run: |
           node --version
-          npm --version
+          pnpm --version
 
       - name: Semantic Release      
         run: |
