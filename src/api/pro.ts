@@ -467,6 +467,19 @@ global.term = async (
 		})
 	}
 
+	function arePathsEqual(path1, path2) {
+		return path.resolve(path1) === path.resolve(path2)
+	}
+
+	let isCwdKenv = arePathsEqual(config.cwd, kenvPath())
+	if (config.command.startsWith("pnpm ") && isCwdKenv) {
+		config.command = config.command.replace(/^pnpm/, "./pnpm")
+	}
+
+	if (config.command.startsWith("npm ") && isCwdKenv) {
+		config.command = config.command.replace(/^npm/, "./npm")
+	}
+
 	return await global.kitPrompt({
 		input: config.command,
 		ui: UI.term,

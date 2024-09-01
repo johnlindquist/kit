@@ -18,18 +18,18 @@ let install = async (packageNames) => {
 			: `npm${global.isWin ? `.cmd` : ``} i`
 	).split(" ")
 
-	let toolPath = global.isWin ? (isYarn ? "yarn" : "./pnpm") : tool
+	let toolPath = global.isWin ? (isYarn ? "yarn" : "pnpm") : tool
 
 	let toolExists = await isBin(toolPath)
 	if (!toolExists) {
-		toolPath = "./npm"
+		toolPath = "pnpm"
 	}
 
 	let packages = packageNames.join(" ")
 	let command = `${toolPath} ${toolArgs} -D ${packages}`.trim()
 
 	return await term({
-		name: "./pnpm install",
+		name: "pnpm install",
 		command,
 		env: {
 			...global.env,

@@ -30,15 +30,15 @@ if (process.env.SCRIPTS_DIR) {
 let isYarn = await isFile(kenvPath("yarn.lock"))
 let [tool, toolArgs] = (
 	isYarn
-		? `yarn${global.isWin ? `.cmd` : ``} remove`
-		: `./npm${global.isWin ? `.cmd` : ``} un`
+		? `yarn${global.isWin ? ".cmd" : ""} remove`
+		: `pnpm${global.isWin ? ".cmd" : ""} rm`
 ).split(" ")
 
-let toolPath = global.isWin ? (isYarn ? `yarn` : "pnpm") : tool
+let toolPath = global.isWin ? (isYarn ? "yarn" : "pnpm") : tool
 
 let toolExists = await isBin(toolPath)
 if (!toolExists) {
-	toolPath = `./pnpm`
+	toolPath = "pnpm"
 }
 
 let command = `${toolPath} ${toolArgs} -D ${packageNames.join(" ")}`.trim()
