@@ -144,7 +144,7 @@ cd(originalDir)
 
 try {
 	if (process.platform === "win32") {
-		await Promise.all([fsChmod(kitPath("kit.bat"), 0o755)])
+		await Promise.all([fsChmod(kitPath("bin", "kit.bat"), 0o755)])
 	} else {
 		console.log(
 			"Make script, kar, bin/k, bin/kit, bin/sk, and override/code/python executable"
