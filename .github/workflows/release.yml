@@ -26,33 +26,33 @@ jobs:
         shell: bash
         run: |
           node --version
-          npm --version
+          pnpm --version
 
-      - name: npm i
+      - name: pnpm i
         shell: bash
         run: |
           cd "${{ env.wd_path }}"
-          npm i
+          pnpm i
 
-      - name: npm run ava
+      - name: pnpm run ava
         shell: bash
         run: |
-          npm run ava
+          pnpm run ava
 
-      - name: npm run build-kit
+      - name: pnpm run build-kit
         shell: bash
         env:
           KIT: ${{ env.kit_path }}
         run: |
-          npm run build-kit
+          pnpm run build-kit
 
-      - name: npm run test
+      - name: pnpm run test
         uses: nick-invision/retry@v3
         with:
           max_attempts: 3
           timeout_minutes: 30
           command: |
-            npm run test
+            pnpm run test
         env:
           KIT: ${{ env.kit_path }}
 
@@ -84,13 +84,15 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.16.0
           cache: 'pnpm'
 
       - name: Build Kit
         run: |
           pnpm i
           pnpm run build-kit
+        env:
+          KIT: ${{ env.kit_path }}
 
       - name: Set env vars
         run: |
@@ -154,14 +156,16 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.16.0
           cache: 'pnpm'
       
 
       - name: Build Kit
         run: |
-          pnpm i
+          pnpm install
           pnpm run build-kit
+        env:
+          KIT: ${{ env.kit_path }}
 
       - name: Set env vars
         run: |
