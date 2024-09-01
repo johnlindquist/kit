@@ -2,7 +2,7 @@
 # ../../ of this script
 
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
-KIT_NODE="${KIT_NODE:=$KIT/../.kenv/bin/pnpm node}"
+KIT_NODE="${KIT_NODE:=$KIT/node_modules/.bin/pnpm node}"
 
 NODE_NO_WARNINGS=1 \
 "$KIT_NODE" \

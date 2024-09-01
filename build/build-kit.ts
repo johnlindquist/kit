@@ -123,7 +123,7 @@ await ensureDir(kitPath("data"))
 const { default: download } = await import("./download.ts")
 
 try {
-	const docsBuffer = await download("https://www.scriptkit.com/api/docs")
+	const docsBuffer = await download("https://www.scriptkit.com/data/docs.json")
 	await writeFile(kitPath("data", "docs.json"), docsBuffer)
 } catch (e) {
 	console.error(e)
@@ -132,7 +132,7 @@ try {
 try {
 	console.log("Download hot")
 
-	const hotBuffer = await download("https://www.scriptkit.com/api/hot")
+	const hotBuffer = await download("https://www.scriptkit.com/data/hot.json")
 	await writeFile(kitPath("data", "hot.json"), hotBuffer)
 } catch (e) {
 	console.error(e)
@@ -143,7 +143,9 @@ await writeFile(kitPath(".kitignore"), "*")
 cd(originalDir)
 
 try {
-	if (process.platform !== "win32") {
+	if (process.platform === "win32") {
+		await Promise.all([fsChmod(kitPath("kit.bat"), 0o755)])
+	} else {
 		console.log(
 			"Make script, kar, bin/k, bin/kit, bin/sk, and override/code/python executable"
 		)
@@ -155,9 +157,8 @@ try {
 			fsChmod(kitPath("bin", "sk"), 0o755),
 			fsChmod(kitPath("override", "code", "python"), 0o755)
 		])
-
-		process.exit(0)
 	}
+	process.exit(0)
 } catch (e) {
 	console.error(e)
 	process.exit(1)

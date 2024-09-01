@@ -78,7 +78,7 @@ jobs:
 
       - name: Get Time
         id: time
-        uses: nanzm/get-time-action@v1.1
+        uses: nanzm/get-time-action@v2.0
         with:
           timeZone: 8
           format: "YYYY-MM-DD-HH-mm-ss"
@@ -151,7 +151,7 @@ jobs:
 
       - name: Get Time
         id: time
-        uses: nanzm/get-time-action@v1.1
+        uses: nanzm/get-time-action@v2.0
         with:
           timeZone: 8
           format: "YYYY-MM-DD-HH-mm-ss"

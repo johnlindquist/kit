@@ -16,7 +16,7 @@ if %errorlevel%==0 (
 
 REM Set the default KIT_NODE variable to the custom node binary
 if not defined KIT_NODE (
-    for /f "tokens=* USEBACKQ" %%F in (`powershell -Command "pnpm node -e 'console.log(process.execPath)'"`) do (
+    for /f "tokens=* USEBACKQ" %%F in (`powershell -Command "node_modules\.bin\pnpm node -e 'console.log(process.execPath)'"`) do (
         set "KIT_NODE=%%F"
     )
 )
