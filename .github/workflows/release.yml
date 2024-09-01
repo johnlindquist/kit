@@ -96,7 +96,7 @@ jobs:
       - name: Build Kit
         run: |
           pnpm i
-          pnpm run build-kit
+          pnpm node ./build/build-ci.js
         env:
           KIT: ${{ env.kit_path }}
 
@@ -169,7 +169,7 @@ jobs:
       - name: Build Kit
         run: |
           pnpm install
-          pnpm run build-kit
+          pnpm node ./build/build-ci.js
         env:
           KIT: ${{ env.kit_path }}
 
