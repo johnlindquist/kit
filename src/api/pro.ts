@@ -467,8 +467,8 @@ global.term = async (
 		})
 	}
 
-	function arePathsEqual(path1, path2) {
-		return path.resolve(path1) === path.resolve(path2)
+	function arePathsEqual(path1: string | undefined, path2: string | undefined) {
+		return path1 && path2 && path.resolve(path1) === path.resolve(path2)
 	}
 
 	let isCwdKenv = arePathsEqual(config.cwd, kenvPath())
