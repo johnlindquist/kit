@@ -92,9 +92,6 @@ importers:
       keyv-file:
         specifier: ^5.0.0
         version: 5.0.2
-      pnpm:
-        specifier: 9.9.0
-        version: 9.9.0
       quick-score:
         specifier: ^0.2.0
         version: 0.2.0
@@ -3019,11 +3016,6 @@ packages:
   plur@5.1.0:
     resolution: {integrity: sha512-VP/72JeXqak2KiOzjgKtQen5y3IZHn+9GOuLDafPv0eXa47xq0At93XahYBs26MsifCQ4enGKwbjBTKgb9QJXg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  pnpm@9.9.0:
-    resolution: {integrity: sha512-YMGKzROL/2ldM5vmrRP36TbupnRWYNTMSndtUkfFQNDt7hpWNpXBg6ZuuRfviPK0/rH8JfMqetytx6rzQ46ZwQ==}
-    engines: {node: '>=18.12'}
-    hasBin: true
 
   postcss@8.4.42:
     resolution: {integrity: sha512-hywKUQB9Ra4dR1mGhldy5Aj1X3MWDSIA1cEi+Uy0CjheLvP6Ual5RlwMCh8i/X121yEDLDIKBsrCQ8ba3FDMfQ==}
@@ -6793,8 +6785,6 @@ snapshots:
   plur@5.1.0:
     dependencies:
       irregular-plurals: 3.5.0
-
-  pnpm@9.9.0: {}
 
   postcss@8.4.42:
     dependencies:

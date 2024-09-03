@@ -38,16 +38,12 @@ Requirements: npm
 Clone:
 `git clone https://github.com/johnlindquist/kit.git`
 
-Install:
-`npm install`
+Install pnpm:
 
-### Clone Kit App
-
-Clone:
-`git clone https://github.com/johnlindquist/kitapp.git`
+[https://pnpm.io/installation](https://pnpm.io/installation)
 
 Install:
-`yarn`
+`pnpm install`
 
 ### (Skip if you already have a kenv from production) Clone the base kenv
 
@@ -56,11 +52,11 @@ Clone:
 
 ### Building Kit SDK
 
-`npm run build-kit`
+`pnpm build-kit`
 
 The build command builds the SDK to ~/.kit
 
-#### npm link (First run only)
+#### npm link to app (First run only)
 
 1. cd to ~/.kit
 2. npm link
