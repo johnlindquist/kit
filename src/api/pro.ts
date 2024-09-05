@@ -467,27 +467,6 @@ global.term = async (
 		})
 	}
 
-	function arePathsEqual(path1: string | undefined, path2: string | undefined) {
-		return path1 && path2 && path.resolve(path1) === path.resolve(path2)
-	}
-
-	let isCwdKenv = arePathsEqual(config.cwd, kenvPath())
-	if (config.command.startsWith("pnpm ") && isCwdKenv) {
-		const isWindows = process.platform === "win32"
-		config.command = config.command.replace(
-			/^pnpm/,
-			isWindows ? "..\\.kit\\pnpm" : "../.kit/pnpm"
-		)
-	}
-
-	if (config.command.startsWith("npm ") && isCwdKenv) {
-		const isWindows = process.platform === "win32"
-		config.command = config.command.replace(
-			/^npm/,
-			isWindows ? "..\\.kit\\pnpm" : "../.kit/pnpm"
-		)
-	}
-
 	return await global.kitPrompt({
 		input: config.command,
 		ui: UI.term,
