@@ -38,8 +38,12 @@ global.fileSearch = async (
 	const command = `where /r ${onlyin} *${name.replace(/\W/g, "*")}*`
 
 	let stdout = ""
+	let stderr = ""
 	try {
-		stdout = (await global.exec(command)).stdout
+		;({ stdout, stderr } = await global.exec(command))
+		if (stderr) {
+			console.log(stderr)
+		}
 	} catch (error) {
 		stdout = `No results for ${name}`
 	}
