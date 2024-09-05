@@ -294,6 +294,7 @@ export let createAppChoices = async () => {
 		if (appPath.includes("/Contents/")) return false
 		if (appPath.includes("/Uninstall")) return false
 		if (appPath.includes("/PrivateFrameworks")) return false
+		if (appPath.includes("Daemon Containers")) return false
 
 		return true
 	})

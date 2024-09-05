@@ -164,8 +164,13 @@ export type Speech = (config?: PromptConfig) => Promise<string>
 
 export type Screenshot = (
 	displayId?: number,
-	bounds?: ScreenShotBounds
+	bounds?: Rectangle
 ) => Promise<Buffer>
+
+export type ScreenshotConfig = {
+	displayId?: Parameters<Screenshot>[0]
+	bounds?: Parameters<Screenshot>[1]
+}
 
 export type GetMediaDevices = () => Promise<MediaDeviceInfo[]>
 
@@ -669,10 +674,7 @@ export interface ChannelMap {
 	[Channel.PRELOAD]: string
 	[Channel.MIC_STREAM]: boolean
 	[Channel.START_MIC]: MicConfig
-	[Channel.SCREENSHOT]: {
-		displayId?: Screenshot["displayId"]
-		bounds?: Screenshot["bounds"]
-	}
+	[Channel.SCREENSHOT]: ScreenshotConfig
 	[Channel.SYSTEM_CLICK]: boolean
 	[Channel.SYSTEM_MOVE]: boolean
 	[Channel.SYSTEM_KEYDOWN]: boolean
