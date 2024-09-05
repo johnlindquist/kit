@@ -35,7 +35,8 @@ global.fileSearch = async (
 	name,
 	{ onlyin, kind } = { onlyin: home(), kind: "" }
 ) => {
-	const command = 'where /r "' + onlyin + '" *' + name.replace(/\W/g, "*") + "*"
+	const command = `where /r ${onlyin} *${name.replace(/\W/g, "*")}*`
+
 	let stdout = ""
 	try {
 		stdout = (await global.exec(command)).stdout
