@@ -11,8 +11,14 @@ global.warn = console.warn
 global.error = console.error
 global.info = console.info
 
-await exec('pnpm node -p "process.execPath"')
+let kitPath = (...pathParts) =>
+	path.resolve(process.env.KIT || path.resolve(homedir(), ".kit"), ...pathParts)
 
+let options = {
+	cwd: kitPath(),
+	shell: true,
+	stdio: "pipe"
+}
 process.on("uncaughtException", (error) => {
 	console.error("Uncaught Exception:")
 	console.error(formatError(error))
@@ -44,13 +50,8 @@ let originalDir = process.cwd()
 
 let { cd, cp } = shelljs
 
-let kitPath = (...pathParts) =>
-	path.resolve(process.env.KIT || path.resolve(homedir(), ".kit"), ...pathParts)
-
 // check npm and node versions
-let options = {
-	cwd: kitPath()
-}
+
 // Log which node is running this script using process.version and the node path
 console.log(
 	`build-kit
@@ -111,8 +112,11 @@ let dec = exec(
 await dec
 
 console.log("Install deps")
+// await exec('npx pnpm node -p "process.execPath"', options)
 
-await exec(`npx pnpm i --prod --prefix ${kitPath()}`, options)
+await exec(`npx pnpm i --prod`, options)
+// await exec(`npx pnpm dedupe --check`, options)
+// await exec(`npx pnpm dedupe`, options)
 
 // console.log(`Install app deps`)
 // await exec(`${npm} i @johnlindquist/kitdeps@0.1.1`)

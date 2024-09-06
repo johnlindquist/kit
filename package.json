@@ -57,11 +57,17 @@
 		"posttest": "node ./scripts/test-post.js",
 		"build-editor-types": "tsx ./build/build-editor-types.ts",
 		"rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
-		"lazy-install": "npm i esbuild@0.21.4 --save-exact --production --prefer-dedupe --loglevel=verbose",
+		"lazy-install": "npm i esbuild@0.23.1 --save-exact --production --prefer-dedupe --loglevel=verbose",
 		"preinstall": "node ./build/preinstall.js"
 	},
 	"author": "John Lindquist (https://johnlindquist.com)",
 	"license": "ISC",
+	"pnpm": {
+		"overrides": {
+			"typescript": "5.5.4",
+			"esbuild": "0.23.1"
+		}
+	},
 	"dependencies": {
 		"@johnlindquist/globals": "1.16.4",
 		"@johnlindquist/kit-internal": "^1.13.5",
@@ -98,6 +104,8 @@
 		"shelljs": "0.8.5",
 		"slugify": "1.6.6",
 		"suggestion": "2.1.2",
+		"tsx": "4.19.0",
+		"typescript": "5.5.4",
 		"untildify": "5.0.0",
 		"vite": "5.4.3",
 		"zx": "^8.1.5"
@@ -116,8 +124,6 @@
 		"semantic-release": "24.1.0",
 		"semantic-release-plugin-update-version-in-files": "1.1.0",
 		"tsc-watch": "6.2.0",
-		"tsx": "^4.19.0",
-		"typescript": "5.5.4",
 		"unzipper": "0.12.3"
 	},
 	"ava": {
@@ -125,11 +131,7 @@
 			"KIT_TEST": "true"
 		},
 		"verbose": true,
-		"files": [
-			"src/**/*.test.js",
-			"test/**/*.test.js",
-			"test-sdk/**/*.test.js"
-		]
+		"files": ["src/**/*.test.js", "test/**/*.test.js", "test-sdk/**/*.test.js"]
 	},
 	"release": {
 		"branches": [
@@ -157,9 +159,7 @@
 			[
 				"semantic-release-plugin-update-version-in-files",
 				{
-					"files": [
-						"./.kit/package.json"
-					]
+					"files": ["./.kit/package.json"]
 				}
 			]
 		]

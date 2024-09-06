@@ -113,6 +113,12 @@ importers:
       suggestion:
         specifier: 2.1.2
         version: 2.1.2
+      tsx:
+        specifier: 4.19.0
+        version: 4.19.0
+      typescript:
+        specifier: 5.5.4
+        version: 5.5.4
       untildify:
         specifier: 5.0.0
         version: 5.0.0
@@ -169,12 +175,6 @@ importers:
       tsc-watch:
         specifier: 6.2.0
         version: 6.2.0(typescript@5.5.4)
-      tsx:
-        specifier: ^4.19.0
-        version: 4.19.0
-      typescript:
-        specifier: 5.5.4
-        version: 5.5.4
       unzipper:
         specifier: 0.12.3
         version: 0.12.3
