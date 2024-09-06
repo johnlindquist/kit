@@ -894,7 +894,8 @@ ava("formatScriptlet handles mixed Unix and Windows style variables", (t) => {
 		"d"
 	])
 	if (os.platform() === "win32") {
-		t.is(formattedScriptlet, "echo $1 a | grep ${3} b")
+		// These are positional, so it's grabbing the 2nd and 4th inputs
+		t.is(formattedScriptlet, "echo $1 b | grep ${3} d")
 	} else {
 		t.is(formattedScriptlet, "echo a %2 | grep ${3} %4")
 	}
