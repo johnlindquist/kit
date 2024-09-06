@@ -28,8 +28,10 @@ export type kenvEnv = {
 	KIT_MEASURE?: string | undefined
 	KIT_MONO_FONT?: string | undefined
 	KIT_NO_PREVIEW?: string | undefined
+	KIT_NODE?: string | undefined
 	KIT_OPEN_AT_LOGIN?: string | undefined
 	KIT_OPEN_IN?: string | undefined
+	KIT_PNPM?: string | undefined
 	KIT_PROMPT_INITIAL_HIDE_TIMEOUT?: string | undefined
 	KIT_PROMPT_INITIAL_SHOW?: string | undefined
 	KIT_PROMPT_INITIAL_X?: string | undefined
