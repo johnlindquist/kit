@@ -272,6 +272,10 @@ ava("formatScriptlet with $@ input", (t) => {
 })
 
 ava("formatScriptlet with numbered inputs", (t) => {
+	if (os.platform() === "win32") {
+		t.pass("Skipping test on Windows")
+		return
+	}
 	const scriptlet = {
 		name: "Numbered Inputs Test",
 		tool: "bash",
