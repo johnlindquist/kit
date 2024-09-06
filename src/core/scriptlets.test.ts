@@ -2,6 +2,8 @@ import ava from "ava"
 import type { Scriptlet } from "../types"
 import { parseMarkdownAsScriptlets, home, kenvPath } from "./utils"
 import { formatScriptlet } from "./scriptlets"
+import * as os from "node:os"
+import { execSync } from "child_process"
 
 // Helper function to create a temporary snippet file
 process.env.KENV = home(".mock-kenv")
@@ -287,6 +289,10 @@ ava("formatScriptlet with numbered inputs", (t) => {
 })
 
 ava("formatScriptlet with Windows-style inputs", (t) => {
+	if (os.platform() !== "win32") {
+		t.pass("Skipping test on non-Windows platforms")
+		return
+	}
 	const scriptlet = {
 		name: "Windows Inputs Test",
 		tool: "cmd",
@@ -799,6 +805,101 @@ ava("formatScriptlet - benchmark performance", (t) => {
 	t.pass()
 })
 
+ava(
+	"formatScriptlet replaces numbered variables only before pipe in Unix-style",
+	(t) => {
+		if (os.platform() === "win32") {
+			t.pass("Skipping test on Windows")
+			return
+		}
+
+		const scriptlet: Scriptlet = {
+			name: "Test Unix Pipe",
+			tool: "bash",
+			scriptlet: "echo $1 $2 | grep $1",
+			inputs: []
+		} as Scriptlet
+
+		const { formattedScriptlet } = formatScriptlet(scriptlet, [
+			"hello",
+			"world"
+		])
+		t.is(formattedScriptlet, "echo hello world | grep $1")
+	}
+)
+
+ava(
+	"formatScriptlet replaces numbered variables only before ampersand in Windows-style",
+	(t) => {
+		if (os.platform() !== "win32") {
+			t.pass("Skipping test on non-Windows platforms")
+			return
+		}
+		const scriptlet: Scriptlet = {
+			name: "Test Windows Pipe",
+			tool: "cmd",
+			scriptlet: "echo %1 %2 & findstr %1",
+			inputs: []
+		} as Scriptlet
+
+		const { formattedScriptlet } = formatScriptlet(scriptlet, [
+			"hello",
+			"world"
+		])
+		if (os.platform() === "win32") {
+			t.is(formattedScriptlet, "echo hello world & findstr %1")
+		} else {
+			t.is(formattedScriptlet, "echo hello world | findstr %1")
+		}
+	}
+)
+
+ava(
+	"formatScriptlet handles multiple pipes correctly on non-Windows platforms",
+	(t) => {
+		if (os.platform() === "win32") {
+			t.pass("Skipping test on Windows platforms")
+			return
+		}
+		const scriptlet: Scriptlet = {
+			name: "Test Multiple Pipes",
+			tool: "bash",
+			scriptlet: "echo $1 $2 | grep $3 | sed 's/$4/$5/'",
+			inputs: []
+		} as Scriptlet
+
+		const { formattedScriptlet } = formatScriptlet(scriptlet, [
+			"a",
+			"b",
+			"c",
+			"d",
+			"e"
+		])
+		t.is(formattedScriptlet, "echo a b | grep $3 | sed 's/$4/$5/'")
+	}
+)
+
+ava("formatScriptlet handles mixed Unix and Windows style variables", (t) => {
+	const scriptlet: Scriptlet = {
+		name: "Test Mixed Styles",
+		tool: "bash",
+		scriptlet: "echo $1 %2 | grep ${3} %4",
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet } = formatScriptlet(scriptlet, [
+		"a",
+		"b",
+		"c",
+		"d"
+	])
+	if (os.platform() === "win32") {
+		t.is(formattedScriptlet, "echo $1 a | grep ${3} b")
+	} else {
+		t.is(formattedScriptlet, "echo a %2 | grep ${3} %4")
+	}
+})
+
 ava("formatScriptlet should not treat 'else' as an input", (t) => {
 	const scriptlet = {
 		name: "Else Not Input Test",
@@ -951,3 +1052,25 @@ ava(
 		t.deepEqual(remainingInputs, [])
 	}
 )
+
+ava("formatScriptlet handles complex du command with awk", (t) => {
+	if (os.platform() === "win32") {
+		t.pass("Skipping test on Windows")
+		return
+	}
+
+	const complexCommand =
+		"find ~/.kit -type d -exec du -sh {} + | sort -hr | awk '$1 ~ /[0-9]M|[0-9]G/ {print $0}'"
+
+	const scriptlet: Scriptlet = {
+		name: "Find Large Directories",
+		tool: "bash",
+		scriptlet: complexCommand,
+
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet } = formatScriptlet(scriptlet, [])
+
+	t.is(formattedScriptlet, complexCommand)
+})

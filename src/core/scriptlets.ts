@@ -6,6 +6,7 @@ import { kenvPath } from "./resolvers.js"
 import { getKenvFromPath, highlight, tagger } from "./utils.js"
 import { SHELL_TOOLS } from "./constants.js"
 import { processConditionals } from "./scriptlet.utils.js"
+import os from "node:os"
 
 export function formatScriptlet(
 	focusedScriptlet: Scriptlet,
@@ -17,20 +18,22 @@ export function formatScriptlet(
 		throw new Error(`No template found for ${focusedScriptlet.value.name}`)
 	}
 
-	scriptlet = processConditionals(scriptlet, flag).trim() // Trim the result after processing conditionals
+	scriptlet = processConditionals(scriptlet, flag).trim()
 
 	const namedInputs = focusedScriptlet?.inputs || []
 	const remainingInputs = [...namedInputs]
 
-	// Replace numbered inputs first
-	for (let i = 0; i < inputs.length; i++) {
-		const index = i + 1
-		const unixPattern = new RegExp(`\\$\\{?${index}\\}?`, "g")
-		const windowsPattern = new RegExp(`%${index}`, "g")
-		scriptlet = scriptlet
-			.replace(unixPattern, inputs[i])
-			.replace(windowsPattern, inputs[i])
-	}
+	const pipeSymbol = os.platform() === "win32" ? "&" : "|"
+	const parts = scriptlet.split(new RegExp(`\\${pipeSymbol}`))
+	const variableSymbol = os.platform() === "win32" ? "%" : "$"
+	parts[0] = parts[0].replace(
+		new RegExp(`\\${variableSymbol}(\\d+)`, "g"),
+		(match, unixNum, winNum) => {
+			const index = Number.parseInt(unixNum || winNum) - 1
+			return inputs[index] !== undefined ? inputs[index] : match
+		}
+	)
+	scriptlet = parts.join(pipeSymbol)
 
 	// Then replace named inputs, but only if they haven't been replaced by numbered inputs
 	// and are not part of a conditional statement
