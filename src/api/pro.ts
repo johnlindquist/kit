@@ -421,7 +421,8 @@ global.term = async (
 		command: "",
 		env: {
 			...global.env,
-			PATH: KIT_FIRST_PATH
+			PATH: KIT_FIRST_PATH,
+			DISABLE_AUTO_UPDATE: "true" // Disable auto-update for zsh
 		},
 		height: PROMPT.HEIGHT.BASE,
 		previewWidthPercent: 40,

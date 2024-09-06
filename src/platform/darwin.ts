@@ -209,7 +209,7 @@ If you edited your ~/.zshrc (or similar) for a custom command then sync your PAT
 
 Run the following in your terminal:
 ~~~bash
-~/.kenv/pnpm node ~/.kit/cli/sync-path.js ~/.kenv/.env
+pnpm node ~/.kit/cli/sync-path.js ~/.kenv/.env
 ~~~
 
 ## Still not working?
