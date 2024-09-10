@@ -172,6 +172,32 @@ await appendFile(home("{{File Name}}.txt"), {{Note}})
 	t.deepEqual(scripts[1].inputs, ["File Name", "Note"])
 })
 
+ava(
+	"parseMarkdownAsScripts handles quotes in name and formats command",
+	async (t) => {
+		let markdown = `
+## What's This?
+<!-- 
+Trigger: test-quotes
+Alias:
+Enabled: Yes
+  -->
+
+\`\`\`bash
+echo "This is a test script"
+\`\`\`
+`
+
+		const scripts = await parseMarkdownAsScriptlets(markdown)
+		t.is(scripts.length, 1)
+		t.is(scripts[0].name, "What's This?")
+		t.is(scripts[0].trigger, "test-quotes")
+		t.is(scripts[0].tool, "bash")
+		t.is(scripts[0].scriptlet, 'echo "This is a test script"')
+		t.is(scripts[0].command, "whats-this")
+	}
+)
+
 ava("parseMarkdownAsScripts allow JavaScript objects", async (t) => {
 	let markdown = `
 ## Open Script Kit

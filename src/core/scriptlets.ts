@@ -3,7 +3,7 @@ import slugify from "slugify"
 import { readFile } from "node:fs/promises"
 import { postprocessMetadata } from "./parser.js"
 import { kenvPath } from "./resolvers.js"
-import { getKenvFromPath, highlight, tagger } from "./utils.js"
+import { getKenvFromPath, highlight, stripName, tagger } from "./utils.js"
 import { SHELL_TOOLS } from "./constants.js"
 import { processConditionals } from "./scriptlet.utils.js"
 import os from "node:os"
@@ -88,7 +88,7 @@ export let parseMarkdownAsScriptlets = async (
 				scriptlet: "",
 				tool: "",
 				name,
-				command: slugify(name, { lower: true, trim: true, replacement: "-" }),
+				command: stripName(name),
 				preview: "",
 				kenv: ""
 			} as Scriptlet

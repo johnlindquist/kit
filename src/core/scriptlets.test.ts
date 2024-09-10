@@ -3,7 +3,6 @@ import type { Scriptlet } from "../types"
 import { parseMarkdownAsScriptlets, home, kenvPath } from "./utils"
 import { formatScriptlet } from "./scriptlets"
 import * as os from "node:os"
-import { execSync } from "child_process"
 
 // Helper function to create a temporary snippet file
 process.env.KENV = home(".mock-kenv")
