@@ -98,7 +98,6 @@
 		"jsonfile": "6.1.0",
 		"keyv": "^5.0.1",
 		"keyv-file": "^5.0.3",
-		"mac-windows": "1.0.0",
 		"quick-score": "^0.2.0",
 		"rimraf": "6.0.1",
 		"safe-stable-stringify": "^2.5.0",
@@ -182,7 +181,8 @@
 	},
 	"optionalDependencies": {
 		"file-icon": "5.1.1",
-		"get-app-icon": "1.0.1"
+		"get-app-icon": "1.0.1",
+		"mac-windows": "1.0.0"
 	},
 	"packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c"
 }

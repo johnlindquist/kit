@@ -99,9 +99,6 @@ importers:
       keyv-file:
         specifier: ^5.0.3
         version: 5.0.3
-      mac-windows:
-        specifier: 1.0.0
-        version: 1.0.0
       quick-score:
         specifier: ^0.2.0
         version: 0.2.0
@@ -145,6 +142,9 @@ importers:
       get-app-icon:
         specifier: 1.0.1
         version: 1.0.1
+      mac-windows:
+        specifier: 1.0.0
+        version: 1.0.0
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -6163,7 +6163,8 @@ snapshots:
 
   lru-cache@11.0.0: {}
 
-  mac-windows@1.0.0: {}
+  mac-windows@1.0.0:
+    optional: true
 
   make-dir@3.1.0:
     dependencies:
