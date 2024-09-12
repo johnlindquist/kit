@@ -54,11 +54,9 @@ export type Git = {
 export type Open = typeof import("open/index").default
 export type OpenApp = typeof import("open/index").openApp
 
-export interface OnTab {
-	(name: string, fn: () => void): void
-}
+export type OnTab = (name: string, fn: () => void) => void
 
-export type Tmp = typeof import("tmp-promise")
+export type TmpPromise = typeof import("tmp-promise")
 
 export type Zx = typeof import("zx/build/index")
 
@@ -126,7 +124,7 @@ declare global {
 	var rm: Trash
 	var git: Git
 	var degit: Degit
-	var tmp: Tmp
+	var tmpPromise: TmpPromise
 	var memoryMap: Map<string, any>
 
 	var onTabIndex: number

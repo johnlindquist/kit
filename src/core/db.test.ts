@@ -96,7 +96,7 @@ await tmp.withDir(async (dir) => {
 
 	test.serial("fruit example", async (t) => {
 		let fruitDb = await db(["apple", "banana", "orange"])
-		fruitDb.data.items.push("grape")
+		fruitDb.items.push("grape")
 		await fruitDb.write()
 
 		t.deepEqual(fruitDb.items, ["apple", "banana", "orange", "grape"])

@@ -29,7 +29,7 @@ import type { Choice, Script, PromptDb } from "../types/core"
 import { Low, JSONFile } from "@johnlindquist/kit-internal/lowdb"
 import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 import type { Keyv } from "keyv"
-import type { DB } from "../types/kit.js"
+import type { DBData, DBKeyOrPath, DBReturnType } from "../types/kit.js"
 
 export const resolveKenv = (...parts: string[]) => {
 	if (global.kitScript) {
@@ -74,11 +74,11 @@ export let store = async (
 	return keyv
 }
 
-export async function db<T = any>(
-	dataOrKeyOrPath?: Parameters<DB<T>>[0],
-	data?: Parameters<DB<T>>[1],
+export async function db<T>(
+	dataOrKeyOrPath?: DBKeyOrPath<T>,
+	data?: DBData<T>,
 	fromCache = true
-): ReturnType<DB<T>> {
+): Promise<DBReturnType<T>> {
 	let dbPath = ""
 
 	// If 'data' is undefined and 'dataOrKeyOrPath' is not a string,
@@ -245,12 +245,10 @@ export let parseScripts = async (ignoreKenvPattern = /^ignore$/) => {
 export let getScriptsDb = async (
 	fromCache = true,
 	ignoreKenvPattern = /^ignore$/
-): Promise<
-	Low & {
+) => {
+	let dbResult = await db<{
 		scripts: Script[]
-	}
-> => {
-	let dbResult = await db(
+	}>(
 		scriptsDbPath,
 		async () => {
 			const [scripts, scriptlets, snippets] = await Promise.all([
@@ -259,7 +257,7 @@ export let getScriptsDb = async (
 				parseSnippets()
 			])
 			return {
-				scripts: scripts.concat(scriptlets, snippets)
+				scripts: scripts.concat(scriptlets, snippets) as Script[]
 			}
 		},
 		fromCache
@@ -347,14 +345,10 @@ export type Stamp = {
 	runCount?: number
 }
 
-export let getTimestamps = async (
-	fromCache = true
-): Promise<
-	Low & {
+export let getTimestamps = async (fromCache = true) => {
+	return await db<{
 		stamps: Stamp[]
-	}
-> => {
-	return await db(
+	}>(
 		statsPath,
 		{
 			stamps: []
@@ -453,12 +447,12 @@ export let getUserJson = async (): Promise<UserDb> => {
 type PrefsDb = {
 	showJoin: boolean
 }
-export let getPrefsDb = async (): Promise<Low<any> & PrefsDb> => {
-	return await db(prefsPath, { showJoin: true })
+export let getPrefsDb = async () => {
+	return await db<PrefsDb>(prefsPath, { showJoin: true })
 }
 
-export let getPromptDb = async (): Promise<Low<any> & PromptDb> => {
-	return await db(promptDbPath, {
+export let getPromptDb = async () => {
+	return await db<PromptDb & { clear?: boolean }>(promptDbPath, {
 		screens: {},
 		clear: false
 	})

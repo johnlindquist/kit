@@ -106,7 +106,6 @@ const limitedCacheMainScripts = limiter.wrap(cacheMainScripts)
 const removeTimestamp = async (filePath: string) => {
 	const stampDb = await getTimestamps()
 	const stamp = stampDb.stamps.findIndex((s) => s.filePath === filePath)
-
 	stampDb.stamps.splice(stamp, 1)
 	await stampDb.write()
 

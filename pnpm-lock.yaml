@@ -99,6 +99,9 @@ importers:
       keyv-file:
         specifier: ^5.0.3
         version: 5.0.3
+      mac-windows:
+        specifier: 1.0.0
+        version: 1.0.0
       quick-score:
         specifier: ^0.2.0
         version: 0.2.0
@@ -2349,6 +2352,10 @@ packages:
   lru-cache@11.0.0:
     resolution: {integrity: sha512-Qv32eSV1RSCfhY3fpPE2GNZ8jgM9X7rdAfemLWqTUxwiyIC4jJ6Sy0fZ8H+oLWevO6i4/bizg7c8d8i6bxrzbA==}
     engines: {node: 20 || >=22}
+
+  mac-windows@1.0.0:
+    resolution: {integrity: sha512-jntT8ejkd+qW8fdVvqBEALeKpAHQ1ovoSsh//PUUnHUIQz0YCkXDdmat1Vd3T31oSMbpuKpTnTUtRAo3EYLSkQ==}
+    os: [darwin, '!win32', '!linux']
 
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
@@ -6155,6 +6162,8 @@ snapshots:
   lru-cache@10.4.3: {}
 
   lru-cache@11.0.0: {}
+
+  mac-windows@1.0.0: {}
 
   make-dir@3.1.0:
     dependencies:

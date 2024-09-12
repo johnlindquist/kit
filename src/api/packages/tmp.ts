@@ -1,2 +1,2 @@
-import tmp from "tmp-promise"
-;(global as any).tmp = tmp
+import tmpPromise from "tmp-promise"
+;(global as any).tmp = tmpPromise
