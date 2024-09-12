@@ -35,7 +35,7 @@ await cli("install", `"${kitPath()}"`)
 let defaultPackageJson = {
 	type: "module",
 	engines: {
-		node: "20.16.0"
+		node: "20.17.0"
 	},
 	devDependencies: {
 		"@johnlindquist/kit": "file:../.kit",

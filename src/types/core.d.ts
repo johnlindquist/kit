@@ -259,6 +259,7 @@ export interface PromptData {
 	html?: string
 	theme?: any
 	alwaysOnTop?: boolean
+	skipTaskbar?: boolean
 	cwd?: string
 	hasOnNoChoices?: boolean
 	inputCommandChars?: string[]
