@@ -104,6 +104,7 @@
 		"shelljs": "0.8.5",
 		"slugify": "1.6.6",
 		"suggestion": "2.1.2",
+		"tmp-promise": "3.0.3",
 		"tsx": "4.19.1",
 		"typescript": "5.6.2",
 		"untildify": "5.0.0",
@@ -131,7 +132,11 @@
 			"KIT_TEST": "true"
 		},
 		"verbose": true,
-		"files": ["src/**/*.test.js", "test/**/*.test.js", "test-sdk/**/*.test.js"]
+		"files": [
+			"src/**/*.test.js",
+			"test/**/*.test.js",
+			"test-sdk/**/*.test.js"
+		]
 	},
 	"release": {
 		"branches": [
@@ -159,7 +164,9 @@
 			[
 				"semantic-release-plugin-update-version-in-files",
 				{
-					"files": ["./.kit/package.json"]
+					"files": [
+						"./.kit/package.json"
+					]
 				}
 			]
 		]
@@ -175,5 +182,6 @@
 	"optionalDependencies": {
 		"file-icon": "5.1.1",
 		"get-app-icon": "1.0.1"
-	}
+	},
+	"packageManager": "pnpm@9.8.0+sha512.8e4c3550fb500e808dbc30bb0ce4dd1eb614e30b1c55245f211591ec2cdf9c611cabd34e1364b42f564bd54b3945ed0f49d61d1bbf2ec9bd74b866fcdc723276"
 }

@@ -1,4 +1,5 @@
 import * as path from "node:path"
+import { rm } from "node:fs/promises"
 import {
 	kitPath,
 	kenvPath,
@@ -28,6 +29,7 @@ import type { Choice, Script, PromptDb } from "../types/core"
 import { Low, JSONFile } from "@johnlindquist/kit-internal/lowdb"
 import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
 import type { Keyv } from "keyv"
+import type { DB } from "../types/kit.js"
 
 export const resolveKenv = (...parts: string[]) => {
 	if (global.kitScript) {
@@ -72,96 +74,93 @@ export let store = async (
 	return keyv
 }
 
-export let db = async <T = any>(
-	dataOrKeyOrPath?: string | T | (() => Promise<T>),
-	data?: T | (() => Promise<T>),
+export async function db<T = any>(
+	dataOrKeyOrPath?: Parameters<DB<T>>[0],
+	data?: Parameters<DB<T>>[1],
 	fromCache = true
-): Promise<Low & any> => {
-	// global.__kitDbMap = global.__kitDbMap || new Map()
+): ReturnType<DB<T>> {
+	let dbPath = ""
+
+	// If 'data' is undefined and 'dataOrKeyOrPath' is not a string,
+	// treat 'dataOrKeyOrPath' as 'data' and generate a default key/path
 	if (typeof data === "undefined" && typeof dataOrKeyOrPath !== "string") {
 		data = dataOrKeyOrPath
 		dataOrKeyOrPath = "_" + resolveScriptToCommand(global.kitScript)
 	}
 
-	let dbPath = ""
-
+	// Handle case when 'dataOrKeyOrPath' is a string (key or path)
 	if (typeof dataOrKeyOrPath === "string") {
-		if (fromCache) {
-			global.__kitDbMap = global.__kitDbMap || new Map()
-		} else {
-			global.__kitDbMap = new Map()
-		}
+		// Initialize or reset the cache map based on 'fromCache'
+		global.__kitDbMap = fromCache ? global.__kitDbMap || new Map() : new Map()
+
+		// Return cached database if available
 		if (global.__kitDbMap.has(dataOrKeyOrPath)) {
 			return global.__kitDbMap.get(dataOrKeyOrPath)
 		}
 
 		dbPath = dataOrKeyOrPath
-		if (!dataOrKeyOrPath.endsWith(".json")) {
-			dbPath = resolveKenv("db", `${dataOrKeyOrPath}.json`)
+
+		// Ensure the database file has a '.json' extension and resolve its full path
+		if (!dbPath.endsWith(".json")) {
+			dbPath = resolveKenv("db", `${dbPath}.json`)
 		}
 	}
 
-	let parentExists = await isDir(path.dirname(dbPath))
+	// Check if the parent directory of 'dbPath' exists
+	const parentExists = await isDir(path.dirname(dbPath))
 	if (!parentExists) {
-		console.warn(`Couldn't find ${path.dirname(dbPath)}. Returning defaults...`)
-		return {
-			...(data || {}),
-			write: () => {}
-		}
+		dbPath = kenvPath("db", `${path.basename(dbPath)}`)
+		await ensureDir(path.dirname(dbPath))
 	}
 
-	let _db
-	let init = async () => {
-		let jsonFile = new JSONFile(dbPath)
-		let result = await jsonFile.read()
+	let _db: Low<any>
+
+	// Initialize the database
+	const init = async () => {
+		const jsonFile = new JSONFile(dbPath)
+		const result = await jsonFile.read()
 		_db = new Low(jsonFile, result)
 
 		try {
+			// Read existing data
 			await _db.read()
 		} catch (error) {
-			// if dbPath dir is kitPath("db"), then delete the dbPath file and try again
-			if (global?.warn) {
-				try {
-					global.warn(error)
-				} catch (error) {}
-			}
+			// Log error and attempt to recover if possible
+			global.warn?.(error)
 
 			if (path.dirname(dbPath) === kitPath("db")) {
-				// await rm(dbPath)
+				// Attempt to reinitialize the database
+				// await rm(dbPath); // This line is commented out in the original code
 				_db = new Low(jsonFile, result)
 				await _db.read()
 			}
 		}
 
+		// If no data or not using cache, initialize with provided data
 		if (!_db.data || !fromCache) {
-			let getData = async () => {
+			const getData = async () => {
 				if (typeof data === "function") {
-					let result = await (data as any)()
-					if (Array.isArray(result)) return { items: result }
-
-					return result
+					const result = await (data as () => Promise<T>)()
+					return Array.isArray(result) ? { items: result } : result
 				}
-
-				if (Array.isArray(data)) return { items: data }
-
-				return data
+				return Array.isArray(data) ? { items: data } : data
 			}
 
 			_db.data = await getData()
 
 			try {
+				// Write initial data to the database
 				await _db.write()
 			} catch (error) {
-				if (global.log) {
-					global.log(error)
-				}
+				global.log?.(error)
 			}
 		}
 	}
 
 	await init()
 
-	let dbAPI = {
+	// Define database API with additional methods
+	const dbAPI = {
 		dbPath,
 		clear: async () => {
 			await rm(dbPath)
@@ -172,27 +171,30 @@ export let db = async <T = any>(
 		}
 	}
 
-	let dbProxy = new Proxy(dbAPI as any, {
-		get: (_target, k: string) => {
-			if (k === "then") return _db
-			let d = _db as any
-			if (d[k]) {
-				if (typeof d[k] === "function") {
-					return d[k].bind(d)
-				}
-				return d[k]
+	// Create a proxy to handle property access and modification
+	const dbProxy = new Proxy(dbAPI as any, {
+		get: (_target, key: string) => {
+			if (key === "then") return _db
+			if (key in dbAPI) {
+				return typeof dbAPI[key] === "function"
+					? dbAPI[key].bind(dbAPI)
+					: dbAPI[key]
 			}
-			return _db?.data?.[k]
+			const dbInstance = _db as any
+			if (dbInstance[key]) {
+				return typeof dbInstance[key] === "function"
+					? dbInstance[key].bind(dbInstance)
+					: dbInstance[key]
+			}
+			return _db.data?.[key]
 		},
-		set: (target: any, key: string, value: any) => {
+		set: (_target: any, key: string, value: any) => {
 			try {
 				;(_db as any).data[key] = value
-				// TODO: If connected to a parent process, send the values to the app
+				// Optionally send data to a parent process if connected
 				// if (process.send) {
-				//   send(`DB_SET_${key}` as any, value)
-				// } else {
+				//   send(`DB_SET_${key}` as any, value);
 				// }
-
 				return true
 			} catch (error) {
 				return false
@@ -200,7 +202,8 @@ export let db = async <T = any>(
 		}
 	})
 
-	if (dataOrKeyOrPath && typeof dataOrKeyOrPath === "string") {
+	// Cache the database instance if a key/path is provided
+	if (typeof dataOrKeyOrPath === "string") {
 		global.__kitDbMap.set(dataOrKeyOrPath, dbProxy)
 	}
 

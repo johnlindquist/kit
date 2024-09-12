@@ -223,6 +223,7 @@ export let findApps = async (includePrefs = false) => {
 		})
 		const APP_DIR = "/Applications"
 		const UTILITIES_DIR = `${APP_DIR}/Utilities`
+		const SYSTEM_UTILITIES_DIR = "/System/Applications/Utilities"
 		const CHROME_APPS_DIR = home("Applications", "Chrome Apps.localized")
 
 		let manualAppDir = (await readdir(APP_DIR)).map(
@@ -230,6 +231,9 @@ export let findApps = async (includePrefs = false) => {
 		)
 		let manualUtilitiesDir = (await readdir(UTILITIES_DIR)).map(
 			(app) => `${UTILITIES_DIR}/${app}`
+		)
+		let systemUtilitiesDir = (await readdir(SYSTEM_UTILITIES_DIR)).map(
+			(app) => `${SYSTEM_UTILITIES_DIR}/${app}`
 		)
 		let chromeApps = []
 		if (await isDir(CHROME_APPS_DIR)) {
@@ -239,7 +243,7 @@ export let findApps = async (includePrefs = false) => {
 		}
 
 		let apps = manualAppDir
-			.concat(chromeApps, manualUtilitiesDir)
+			.concat(chromeApps, manualUtilitiesDir, systemUtilitiesDir)
 			.filter((app) => app.endsWith(".app"))
 
 		for (let a of foundApps) {
@@ -253,7 +257,7 @@ export let findApps = async (includePrefs = false) => {
 		// apps = uniq(apps.filter(a => !a.includes("Users")))
 		let prefs = []
 		if (includePrefs) {
-			let prefs = await fileSearch("", {
+			prefs = await fileSearch("", {
 				onlyin: "/",
 				kind: "preferences"
 			})

@@ -66,23 +66,18 @@ export type Store = (
 	initialData?: any
 ) => Promise<InstanceType<typeof import("keyv").default>>
 
-export type DB = <T = any>(
+export type DB<T = any> = (
 	dataOrKeyOrPath?: string | T | (() => Promise<T>),
 	data?: T | (() => Promise<T>),
 	fromCache?: boolean
 ) => Promise<
-	T extends string
-		? {
-				write: () => Promise<void>
-				read: () => Promise<any>
-				data: any
-				[key: string]: any
-			}
-		: {
-				write: () => Promise<void>
-				read: () => Promise<T>
-				data: any
-			} & T
+	Low<T> & {
+		data: T extends string[] ? { items: T } : T
+		dbPath: string
+		clear: () => Promise<void>
+		reset: () => Promise<void>
+		// biome-ignore lint/complexity/noBannedTypes: don't add anything if T isn't a string[]
+	} & (T extends string[] ? { items: T } : {})
 >
 
 export type OnTab = (

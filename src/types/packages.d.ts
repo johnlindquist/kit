@@ -1,6 +1,13 @@
-export {}
-import * as shelljs from "shelljs/index"
-import { add, clone, commit, init, pull, push, addRemote } from "isomorphic-git"
+import type * as shelljs from "shelljs/index"
+import type {
+	add,
+	clone,
+	commit,
+	init,
+	pull,
+	push,
+	addRemote
+} from "isomorphic-git"
 
 export type Trash = (
 	input: string | readonly string[],
@@ -51,7 +58,9 @@ export interface OnTab {
 	(name: string, fn: () => void): void
 }
 
-type Zx = typeof import("zx/build/index")
+export type Tmp = typeof import("tmp-promise")
+
+export type Zx = typeof import("zx/build/index")
 
 export interface PackagesApi {
 	cd: Zx["cd"]
@@ -117,7 +126,7 @@ declare global {
 	var rm: Trash
 	var git: Git
 	var degit: Degit
-
+	var tmp: Tmp
 	var memoryMap: Map<string, any>
 
 	var onTabIndex: number

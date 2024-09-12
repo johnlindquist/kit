@@ -1,6 +1,5 @@
 import ava from "ava"
 import os from "node:os"
-import fs from "fs-extra"
 import "../../test-sdk/config.js"
 import dotenv from "dotenv"
 import { pathToFileURL } from "node:url"

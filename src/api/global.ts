@@ -29,6 +29,7 @@ await import("./packages/clipboardy.js")
 await import("./packages/shelljs.js")
 await import("./packages/trash.js")
 await import("./packages/open.js")
+await import("./packages/tmp.js")
 await import("./packages/git.js")
 
 global.env = async (envKey, promptConfig) => {
