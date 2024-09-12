@@ -23,8 +23,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
-        with:
-          version: 9.10.0
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -88,8 +86,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
-        with:
-          version: 9.10.0
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -162,8 +158,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
-        with:
-          version: 9.10.0
 
       - name: Install Node.js
         uses: actions/setup-node@v4
