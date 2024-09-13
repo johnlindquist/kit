@@ -28,6 +28,9 @@ let install = async (packageNames) => {
 	let packages = packageNames.join(" ")
 	let command = `${toolPath} ${toolArgs} -D ${packages}`.trim()
 
+	global.log(`Running: ${command}`)
+	global.log(`In: ${cwd}`)
+
 	return await term({
 		name: "pnpm install",
 		command,

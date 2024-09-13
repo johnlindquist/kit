@@ -414,6 +414,11 @@ global.term = async (commandOrConfig) => {
 		...defaultConfig,
 		...(typeof commandOrConfig === "object" ? commandOrConfig : {})
 	})
+
+	global.log(`Running: ${command}`, {
+		command,
+		commandOrConfig
+	})
 	task.stdout.pipe(process.stdout)
 	task.stderr.pipe(process.stderr)
 	let result = await task
