@@ -41,8 +41,8 @@ await tmp.withDir(async (dir) => {
 		console.log = t.log
 		global.log = t.log
 		flag.trust = true
-		args.push("hello")
 		let { titleCase } = await npm("title-case")
+		args.push("hello")
 		let result = titleCase(await arg("Enter a string to title case:"))
 
 		t.is(result, "Hello")
