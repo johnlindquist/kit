@@ -30,9 +30,9 @@ let findMain = async (
 
 		let { module, main, type, exports } = packageJson
 
-		if (module && type == "module") return kPath(module)
+		if (module && type === "module") return kPath(module)
 		if (main && (await global.isFile(kPath(main)))) return kPath(main)
-		if (main && main.endsWith(".js")) return kPath(main)
+		if (main?.endsWith(".js")) return kPath(main)
 		if (main && !main.endsWith(".js")) {
 			// Author forgot to add .js
 			if (await global.isFile(kPath(`${main}.js`))) {
@@ -45,14 +45,17 @@ let findMain = async (
 			}
 		}
 		if (exports) {
+			if (process.env.KIT_CONTEXT === "workflow") {
+				log(`exports:`, exports)
+			}
 			if (exports?.["."]) {
+				if (typeof exports?.["."] === "string") return kPath(exports?.["."])
 				if (exports?.["."]?.import?.default)
 					return kPath(exports?.["."]?.import?.default)
 				if (exports?.["."]?.import) return kPath(exports?.["."]?.import)
 				if (exports?.["."]?.require?.default)
 					return kPath(exports?.["."]?.require?.default)
 				if (exports?.["."]?.require) return kPath(exports?.["."]?.require)
-				if (typeof exports?.["."] == "string") return kPath(exports?.["."])
 			}
 		}
 		return kPath("index.js")
@@ -71,7 +74,7 @@ let findPackageJson =
 			"package.json"
 		)
 
-		if (process.env.KIT_CONTEXT == "workflow") {
+		if (process.env.KIT_CONTEXT === "workflow") {
 			log(`package.json path: ${packageJson}`)
 		}
 
@@ -81,8 +84,8 @@ let findPackageJson =
 
 		let pkgPackageJson = JSON.parse(await global.readFile(packageJson, "utf-8"))
 
-		if (process.env.KIT_CONTEXT == "workflow") {
-			log(`package.json: ${JSON.stringify(pkgPackageJson)}`)
+		if (process.env.KIT_CONTEXT === "workflow") {
+			log(`package.json:`, pkgPackageJson)
 		}
 
 		let mainModule = await findMain(parent, packageName, pkgPackageJson)
@@ -102,13 +105,25 @@ let kenvImport = async (packageName: string) => {
 		let findMainFromPackageJson = findPackageJson(packageName)
 
 		let mainModule = await findMainFromPackageJson("")
-		if (mainModule)
+		if (mainModule) {
+			if (process.env.KIT_CONTEXT === "workflow") {
+				log(`mainModule:`, mainModule)
+			}
+
 			return await defaultImport(pathToFileURL(mainModule).toString())
+		}
 
 		if (process.env?.SCRIPTS_DIR) {
+			if (process.env.KIT_CONTEXT === "workflow") {
+				log(`SCRIPTS_DIR:`, process.env.SCRIPTS_DIR)
+			}
 			mainModule = await findMainFromPackageJson(process.env.SCRIPTS_DIR)
-			if (mainModule)
+			if (mainModule) {
+				if (process.env.KIT_CONTEXT === "workflow") {
+					log(`mainModule:`, mainModule)
+				}
 				return await defaultImport(pathToFileURL(mainModule).toString())
+			}
 		}
 
 		throw new Error(`Could not find main module for ${packageName}`)
