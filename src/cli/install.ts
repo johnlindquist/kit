@@ -4,25 +4,6 @@ import {
 } from "@johnlindquist/kit-internal/date-fns"
 import { KIT_FIRST_PATH } from "../core/utils.js"
 
-let workflowLog =
-	(color: "green" | "yellow" | "red" | "blue" | "magenta" | "cyan" | "white") =>
-	(...messages: any[]) => {
-		if (process.env.KIT_CONTEXT === "workflow") {
-			// if any of the message items are not a string, convert them to a string
-			for (let message of messages) {
-				if (typeof message !== "string") {
-					message = JSON.stringify(message)
-				}
-				global.echo(global.chalk`{${color} ${message}}`)
-			}
-		}
-	}
-
-
-let wlog = workflowLog("green")
-let wwarn = workflowLog("yellow")
-let werror = workflowLog("red")
-
 let install = async (packageNames) => {
 	let cwd = kenvPath()
 
@@ -46,9 +27,6 @@ let install = async (packageNames) => {
 
 	let packages = packageNames.join(" ")
 	let command = `${toolPath} ${toolArgs} -D ${packages}`.trim()
-
-	wlog(`Running: ${command}`)
-	wlog(`In: ${cwd}`)
 
 	return await term({
 		name: "pnpm install",
@@ -104,12 +82,6 @@ let packages = await arg(
 let installNames = [...packages.split(" ")]
 if (process?.send) global.setChoices([])
 
-
-wlog(`Installing:`, {
-	installNames,
-	args,
-	argOpts
-})
 await install([...installNames, ...args, ...argOpts])
 
 export { packages }

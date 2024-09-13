@@ -14,24 +14,6 @@ interface PackageJson {
 	type?: string
 }
 
-let workflowLog =
-	(color: "green" | "yellow" | "red" | "blue" | "magenta" | "cyan" | "white") =>
-	(...messages: any[]) => {
-		if (process.env.KIT_CONTEXT === "workflow") {
-			// if any of the message items are not a string, convert them to a string
-			for (let message of messages) {
-				if (typeof message !== "string") {
-					message = JSON.stringify(message)
-				}
-				global.echo(global.chalk`{${color} ${message}}`)
-			}
-		}
-	}
-
-let wlog = workflowLog("green")
-let wwarn = workflowLog("yellow")
-let werror = workflowLog("red")
-
 let findMain = async (packageJsonPath: string, packageJson: PackageJson) => {
 	try {
 		let kPath = (...pathParts: string[]) =>
@@ -80,10 +62,7 @@ let findPackageJson =
 			"package.json"
 		)
 
-		wlog(`packageJsonPath`, packageJsonPath)
-
 		if (!(await global.isFile(packageJsonPath))) {
-			wlog(`Could not find package.json at ${packageJsonPath}`)
 			return false
 		}
 
@@ -91,17 +70,12 @@ let findPackageJson =
 			await global.readFile(packageJsonPath, "utf-8")
 		)
 
-		wlog(`pkgPackageJson`, pkgPackageJson)
-
-		let mainModule = await findMain(packageJsonPath, pkgPackageJson)
-
-		wlog(`mainModule`, mainModule)
+		let mainModule = await findMain(packageJsonPath, pkgPackageJson)		
 
 		return mainModule || false
 	}
 
 let kenvImport = async (packageName: string) => {
-	wlog(`Importing ${packageName}...`)
 	packageName = adjustPackageName(packageName)
 
 	try {
@@ -112,11 +86,8 @@ let kenvImport = async (packageName: string) => {
 
 		let findMainFromPackageJson = findPackageJson(packageName)
 
-		wlog(`Finding main`, { findMainFromPackageJson })
-
 		let mainModule = await findMainFromPackageJson("")
 
-		wlog(`mainModule`, { mainModule })
 		if (mainModule) {
 			if (process.env.KIT_CONTEXT === "workflow") {
 				log(`mainModule:`, mainModule)

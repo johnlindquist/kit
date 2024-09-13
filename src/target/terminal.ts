@@ -217,30 +217,10 @@ let terminalInstall = async (packageName) => {
 	global.echo(
 		global.chalk`Installing {yellow ${packageName}} into ${kenvPath()} and continuing...`
 	)
-
-	const files = await global.globby("**/*", {
-		cwd: kenvPath()
-	})
-	global.echo(files?.length + " files found")
-	for (let file of files) {
-		global.echo(`before: ${file}`)
-		let contents = await readFile(kenvPath(file), "utf8")
-		global.echo(contents)
-	}
+	
 	try {
 		args.push(packageName)
 		await import("../cli/install.js")
-
-		global.echo(global.chalk`Installed {red ${packageName}} into ${kenvPath()} and continuing...`)
-		const files = await global.globby("**/*", {
-			cwd: kenvPath()
-		})
-		global.echo(files?.length + " files found")
-		for (let file of files) {
-			global.echo(`after: ${file}`)
-			let contents = await readFile(kenvPath(file), "utf8")
-			global.echo(contents)
-		}
 	} catch (error) {
 		global.echo(global.chalk`{red ${error}}`)
 		global.exit(1)
