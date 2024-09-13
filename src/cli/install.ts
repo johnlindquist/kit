@@ -26,9 +26,9 @@ let werror = workflowLog("red")
 let install = async (packageNames) => {
 	let cwd = kenvPath()
 
-	if (process.env.SCRIPTS_DIR) {
-		cwd = kenvPath(process.env.SCRIPTS_DIR)
-	}
+	// if (process.env.SCRIPTS_DIR) {
+	// 	cwd = kenvPath(process.env.SCRIPTS_DIR)
+	// }
 
 	let isYarn = await isFile(kenvPath("yarn.lock"))
 	let [tool, toolArgs] = (

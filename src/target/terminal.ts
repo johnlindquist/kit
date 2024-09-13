@@ -6,6 +6,7 @@ import {
 	assignPropsTo,
 	debounce,
 	isString,
+	kenvPath,
 	isUndefined
 } from "../core/utils.js"
 import type { Rectangle } from "../types/electron"
@@ -214,7 +215,7 @@ let terminalInstall = async (packageName) => {
 		}
 	}
 	global.echo(
-		global.chalk`Installing {yellow ${packageName}} into ${cwd} and continuing...`
+		global.chalk`Installing {yellow ${packageName}} into ${kenvPath()} and continuing...`
 	)
 	try {
 		await global.cli("install", packageName)
