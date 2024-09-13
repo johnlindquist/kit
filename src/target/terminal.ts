@@ -217,8 +217,25 @@ let terminalInstall = async (packageName) => {
 	global.echo(
 		global.chalk`Installing {yellow ${packageName}} into ${kenvPath()} and continuing...`
 	)
+
+	const files = await global.globby("**/*", {
+		cwd: kenvPath()
+	})
+	global.echo(files?.length + " files found")
+	for (let file of files) {
+		global.echo(file)
+	}
 	try {
 		await global.cli("install", packageName)
+
+		global.echo(global.chalk`Installing {red ${packageName}} into ${kenvPath()} and continuing...`)
+		const files = await global.globby("**/*", {
+			cwd: kenvPath()
+		})
+		global.echo(files?.length + " files found")
+		for (let file of files) {
+			global.echo(file)
+		}
 	} catch (error) {
 		global.echo(global.chalk`{red ${error}}`)
 		global.exit(1)
