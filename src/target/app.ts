@@ -2064,7 +2064,7 @@ export let appInstallMultiple = async (packageNames: string[]) => {
 	console.clear()
 }
 
-export let appInstall = async (packageName) => {
+export let appInstall = async (packageName:string) => {
 	// don't try to install explicit built-in node modules
 	if (packageName.startsWith("node:")) return
 

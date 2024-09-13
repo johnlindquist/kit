@@ -217,9 +217,9 @@ let terminalInstall = async (packageName) => {
 	global.echo(
 		global.chalk`Installing {yellow ${packageName}} into ${kenvPath()} and continuing...`
 	)
-	
+
 	try {
-		args.push(packageName)
+		args.unshift(packageName)
 		await import("../cli/install.js")
 	} catch (error) {
 		global.echo(global.chalk`{red ${error}}`)

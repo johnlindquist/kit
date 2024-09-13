@@ -21,14 +21,17 @@ await tmp.withDir(async (dir) => {
 		global.kitScript = `${randomUUID()}.js`
 		global.__kitDbMap = new Map()
 
+		await ensureDir(kenvPath())
+		await ensureDir(kitPath())
+
+
 		t.log({
-			kenvPath: kenvPath()
+			kenvPath: kenvPath(),
+			kitPath: kitPath()
 		})
 	})
 
 	ava.only("legacy npm import with title-case", async (t) => {
-		await ensureDir(kenvPath())
-		await ensureDir(kitPath())
 		try{
 			await exec(`pnpm init`, {
 				cwd: kenvPath()
@@ -42,8 +45,8 @@ await tmp.withDir(async (dir) => {
 		console.log = t.log
 		global.log = t.log
 		flag.trust = true
-		let { titleCase } = await npm("title-case")
 		args.push("hello")
+		let { titleCase } = await npm("title-case")
 		let result = titleCase(await arg("Enter a string to title case:"))
 
 		t.is(result, "Hello")

@@ -4,7 +4,7 @@ import {
 } from "@johnlindquist/kit-internal/date-fns"
 import { KIT_FIRST_PATH } from "../core/utils.js"
 
-let install = async (packageNames) => {
+let install = async (packageNames:string[]) => {
 	let cwd = kenvPath()
 
 	// if (process.env.SCRIPTS_DIR) {
@@ -82,6 +82,6 @@ let packages = await arg(
 let installNames = [...packages.split(" ")]
 if (process?.send) global.setChoices([])
 
-await install([...installNames, ...args, ...argOpts])
+await install([...installNames, ...argOpts])
 
 export { packages }
