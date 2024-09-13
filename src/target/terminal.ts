@@ -223,7 +223,9 @@ let terminalInstall = async (packageName) => {
 	})
 	global.echo(files?.length + " files found")
 	for (let file of files) {
-		global.echo(file)
+		global.echo(`before: ${file}`)
+		let contents = await readFile(kenvPath(file), "utf8")
+		global.echo(contents)
 	}
 	try {
 		await global.cli("install", packageName)
@@ -234,7 +236,9 @@ let terminalInstall = async (packageName) => {
 		})
 		global.echo(files?.length + " files found")
 		for (let file of files) {
-			global.echo(file)
+			global.echo(`after: ${file}`)
+			let contents = await readFile(kenvPath(file), "utf8")
+			global.echo(contents)
 		}
 	} catch (error) {
 		global.echo(global.chalk`{red ${error}}`)
