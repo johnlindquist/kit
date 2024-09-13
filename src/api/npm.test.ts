@@ -27,13 +27,15 @@ await tmp.withDir(async (dir) => {
 	})
 
 	ava.only("legacy npm import with title-case", async (t) => {
-		const kenvPkgJsonPath = kenvPath("package.json")
-		const kitPkgJsonPath = kitPath("package.json")
 		await ensureDir(kenvPath())
 		await ensureDir(kitPath())
 		try{
-			await $`cd ${kenvPath()} && pnpm init`
-			await $`cd ${kitPath()} && pnpm init`
+			await exec(`pnpm init`, {
+				cwd: kenvPath()
+			})
+			await exec(`pnpm init`, {
+				cwd: kitPath()
+			})
 		} catch (error) {
 			t.log(error)
 		}
