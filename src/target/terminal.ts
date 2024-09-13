@@ -230,7 +230,7 @@ let terminalInstall = async (packageName) => {
 	try {
 		await global.cli("install", packageName)
 
-		global.echo(global.chalk`Installing {red ${packageName}} into ${kenvPath()} and continuing...`)
+		global.echo(global.chalk`Installed {red ${packageName}} into ${kenvPath()} and continuing...`)
 		const files = await global.globby("**/*", {
 			cwd: kenvPath()
 		})

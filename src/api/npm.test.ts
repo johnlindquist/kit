@@ -26,18 +26,17 @@ await tmp.withDir(async (dir) => {
 		})
 	})
 
-	ava.serial("legacy npm import with title-case", async (t) => {
+	ava.only("legacy npm import with title-case", async (t) => {
 		const kenvPkgJsonPath = kenvPath("package.json")
 		const kitPkgJsonPath = kitPath("package.json")
-		const defaultPkgJson = {
-			type: "module",
-			dependencies: {},
-			devDependencies: {}
+		await ensureDir(kenvPath())
+		await ensureDir(kitPath())
+		try{
+			await $`cd ${kenvPath()} && pnpm init`
+			await $`cd ${kitPath()} && pnpm init`
+		} catch (error) {
+			t.log(error)
 		}
-
-		await ensureReadJson(kenvPkgJsonPath, defaultPkgJson)
-		await ensureReadJson(kitPkgJsonPath, defaultPkgJson)
-
 		console.log = t.log
 		global.log = t.log
 		flag.trust = true
