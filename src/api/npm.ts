@@ -74,7 +74,7 @@ let findPackageJson =
 	(packageName: string) =>
 	async (parent = "") => {
 		let packageJsonPath = global.kenvPath(
-			// parent,
+			parent,
 			"node_modules",
 			packageName,
 			"package.json"

@@ -214,7 +214,7 @@ let terminalInstall = async (packageName) => {
 		}
 	}
 	global.echo(
-		global.chalk`Installing {yellow ${packageName}} and continuing...`
+		global.chalk`Installing {yellow ${packageName}} into ${cwd} and continuing...`
 	)
 	try {
 		await global.cli("install", packageName)
