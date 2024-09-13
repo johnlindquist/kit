@@ -15,18 +15,20 @@ import { kenvPath } from "../core/utils.js"
 await tmp.withDir(async (dir) => {
 	process.env.KENV = dir.path
 	process.env.KIT_CONTEXT = "workflow"
-	console.log(process.env.KENV)
+	process.env.KENV = path.resolve(dir.path, ".kenv")
+
 	ava.beforeEach(async (t) => {
 		global.kitScript = `${randomUUID()}.js`
 		global.__kitDbMap = new Map()
+
+		t.log({
+			kenvPath: kenvPath()
+		})
 	})
 
 	ava.serial("legacy npm import with title-case", async (t) => {
 		const pkgJsonPath = kenvPath("package.json")
-		t.log({ pkgJsonPath })
-		await ensureDir(path.dirname(pkgJsonPath))
-
-		await writeJson(pkgJsonPath, {
+		await ensureReadJson(pkgJsonPath, {
 			type: "module"
 		})
 		console.log = t.log
