@@ -228,7 +228,8 @@ let terminalInstall = async (packageName) => {
 		global.echo(contents)
 	}
 	try {
-		await global.cli("install", packageName)
+		args.push(packageName)
+		await import("../cli/install.js")
 
 		global.echo(global.chalk`Installed {red ${packageName}} into ${kenvPath()} and continuing...`)
 		const files = await global.globby("**/*", {
@@ -424,7 +425,7 @@ global.revealFile = async () => {
 	}
 )
 
-global.term = async (commandOrConfig) => {
+global.term = async (commandOrConfig) => {	
 	let defaultConfig = {
 		shell: true
 	}
