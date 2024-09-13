@@ -14,6 +14,20 @@ interface PackageJson {
 	type?: string
 }
 
+let workflowLog =
+	(color: "green" | "yellow" | "red" | "blue" | "magenta" | "cyan" | "white") =>
+	(...messages: any[]) => {
+		if (process.env.KIT_CONTEXT === "workflow") {
+			// if any of the message items are not a string, convert them to a string
+			for (let message of messages) {
+				if (typeof message !== "string") {
+					message = JSON.stringify(message)
+				}
+				global.echo(global.chalk`{${color} ${message}}`)
+			}
+		}
+	}
+
 let findMain = async (packageJsonPath: string, packageJson: PackageJson) => {
 	try {
 		let kPath = (...pathParts: string[]) =>
@@ -21,10 +35,22 @@ let findMain = async (packageJsonPath: string, packageJson: PackageJson) => {
 
 		let { module, main, type, exports } = packageJson
 
+		let wlog = workflowLog("green")
+		let wwarn = workflowLog("yellow")
+		let werror = workflowLog("red")
+
+		wlog("module:", {
+			module,
+			main,
+			type,
+			exports
+		})
+
 		if (module && type === "module") return kPath(module)
 		if (main && (await global.isFile(kPath(main)))) return kPath(main)
 		if (main?.endsWith(".js")) return kPath(main)
 		if (main && !main.endsWith(".js")) {
+			wlog("main:", main)
 			// Author forgot to add .js
 			if (await global.isFile(kPath(`${main}.js`))) {
 				return kPath(`${main}.js`)
@@ -36,9 +62,7 @@ let findMain = async (packageJsonPath: string, packageJson: PackageJson) => {
 			}
 		}
 		if (exports) {
-			if (process.env.KIT_CONTEXT === "workflow") {
-				log(`exports:`, exports)
-			}
+			wlog("exports:", exports)
 			if (exports?.["."]) {
 				if (typeof exports?.["."] === "string") return kPath(exports?.["."])
 				if (exports?.["."]?.import?.default)
@@ -65,9 +89,7 @@ let findPackageJson =
 			"package.json"
 		)
 
-		if (process.env.KIT_CONTEXT === "workflow") {
-			log(`package.json path: ${packageJsonPath}`)
-		}
+		workflowLog("green")(`package.json path: ${packageJsonPath}`)
 
 		if (!(await global.isFile(packageJsonPath))) {
 			return false
@@ -78,7 +100,7 @@ let findPackageJson =
 		)
 
 		if (process.env.KIT_CONTEXT === "workflow") {
-			log(`package.json:`, pkgPackageJson)
+			workflowLog("green")("package.json:", pkgPackageJson)
 		}
 
 		let mainModule = await findMain(packageJsonPath, pkgPackageJson)
