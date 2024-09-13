@@ -80,7 +80,10 @@ let findPackageJson =
 			"package.json"
 		)
 
+		wlog(`packageJsonPath`, packageJsonPath)
+
 		if (!(await global.isFile(packageJsonPath))) {
+			wlog(`Could not find package.json at ${packageJsonPath}`)
 			return false
 		}
 
@@ -88,7 +91,11 @@ let findPackageJson =
 			await global.readFile(packageJsonPath, "utf-8")
 		)
 
+		wlog(`pkgPackageJson`, pkgPackageJson)
+
 		let mainModule = await findMain(packageJsonPath, pkgPackageJson)
+
+		wlog(`mainModule`, mainModule)
 
 		return mainModule || false
 	}
