@@ -65,7 +65,7 @@ if (isMac) {
 			.map((w) => {
 				let img =
 					(apps?.choices?.length ? apps.choices : []).find(
-						(a) => a.name == w.ownerName || a.name.includes(w.ownerName)
+						(a) => a.name === w.ownerName || a.name.includes(w.ownerName)
 					)?.img || ""
 				return {
 					name: w.ownerName,

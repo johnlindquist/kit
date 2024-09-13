@@ -14,19 +14,10 @@ interface PackageJson {
 	type?: string
 }
 
-let findMain = async (
-	parent = "",
-	packageName: string,
-	packageJson: PackageJson
-) => {
+let findMain = async (packageJsonPath: string, packageJson: PackageJson) => {
 	try {
 		let kPath = (...pathParts: string[]) =>
-			global.kenvPath(parent, "node_modules", packageName, ...pathParts)
-
-		// if kPath doesn't exist, return false
-		if (!(await global.isDir(kPath()))) {
-			return false
-		}
+			path.resolve(path.dirname(packageJsonPath), ...pathParts)
 
 		let { module, main, type, exports } = packageJson
 
@@ -67,7 +58,7 @@ let findMain = async (
 let findPackageJson =
 	(packageName: string) =>
 	async (parent = "") => {
-		let packageJson = global.kenvPath(
+		let packageJsonPath = global.kenvPath(
 			parent,
 			"node_modules",
 			packageName,
@@ -75,20 +66,22 @@ let findPackageJson =
 		)
 
 		if (process.env.KIT_CONTEXT === "workflow") {
-			log(`package.json path: ${packageJson}`)
+			log(`package.json path: ${packageJsonPath}`)
 		}
 
-		if (!(await global.isFile(packageJson))) {
+		if (!(await global.isFile(packageJsonPath))) {
 			return false
 		}
 
-		let pkgPackageJson = JSON.parse(await global.readFile(packageJson, "utf-8"))
+		let pkgPackageJson = JSON.parse(
+			await global.readFile(packageJsonPath, "utf-8")
+		)
 
 		if (process.env.KIT_CONTEXT === "workflow") {
 			log(`package.json:`, pkgPackageJson)
 		}
 
-		let mainModule = await findMain(parent, packageName, pkgPackageJson)
+		let mainModule = await findMain(packageJsonPath, pkgPackageJson)
 
 		return mainModule || false
 	}
