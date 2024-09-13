@@ -222,8 +222,6 @@ let terminalInstall = async (packageName) => {
 		global.echo(global.chalk`{red ${error}}`)
 		global.exit(1)
 	}
-
-	global.echo(global.chalk`{green ${packageName}} installed successfully!`)
 }
 
 let { createNpm } = await import("../api/npm.js")
