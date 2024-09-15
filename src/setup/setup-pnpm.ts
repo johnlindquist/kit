@@ -54,7 +54,7 @@ try {
 	}
 	console.log("Configuring pnpm to use local Node.js version...")
 	try {
-		await exec("pnpm config set use-node-version 20.17.0 --location project", {
+		await exec("pnpm config set use-node-version 20.16.0 --location project", {
 			cwd: kenvPath()
 		})
 		console.log("pnpm configuration updated successfully.")
