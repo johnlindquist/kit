@@ -24,7 +24,7 @@ if (isMac) {
 		>
 	}
 	let importKey = isMac ? "mac-windows" : ""
-	let { getWindows } = (await import(importKey)) as MacWindows
+	let { getWindows } = (await npm(importKey)) as MacWindows
 
 	let apps = await db<{ choices: Choice[] }>(kitPath("db", "apps.json"))
 
