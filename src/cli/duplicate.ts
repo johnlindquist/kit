@@ -37,7 +37,7 @@ let name = await arg(
         : `// Name: ${input}`,
       description: !input
         ? `The filename will be converted automatically.`
-        : `Filename will be convert to ${stripName(
+        : `Filename will be converted to ${stripName(
             input
           )}.${kitMode()}`,
     },
