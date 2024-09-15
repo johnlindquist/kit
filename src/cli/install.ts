@@ -15,15 +15,10 @@ let install = async (packageNames:string[]) => {
 	let [tool, toolArgs] = (
 		isYarn
 			? `yarn${global.isWin ? `.cmd` : ``}  add`
-			: `npm${global.isWin ? `.cmd` : ``} i`
+			: `pnpm${global.isWin ? `.cmd` : ``} i`
 	).split(" ")
 
 	let toolPath = global.isWin ? (isYarn ? "yarn" : "pnpm") : tool
-
-	let toolExists = await isBin(toolPath)
-	if (!toolExists) {
-		toolPath = "pnpm"
-	}
 
 	let packages = packageNames.join(" ")
 	let command = `${toolPath} ${toolArgs} -D ${packages}`.trim()
