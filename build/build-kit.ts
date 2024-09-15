@@ -78,6 +78,7 @@ cp("-R", "./src/types", kitPath())
 cp(".npmrc", kitPath())
 cp("*.md", kitPath())
 cp("package*.json", kitPath())
+cp("pnpm-lock.yaml", kitPath())
 cp("LICENSE", kitPath())
 
 // if src/editor/types/kit-editor.d.ts exists, copy it to kitPath('editor', 'types', 'kit-editor.d.ts')

@@ -15,6 +15,7 @@ cp("-R", "./src/types", kitPath())
 cp("*.md", kitPath())
 cp(".npmrc", kitPath())
 cp("package*.json", kitPath())
+cp("pnpm-lock.yaml", kitPath())
 cp("LICENSE", kitPath())
 
 let { stdout: nodeVersion } = await exec("pnpm node --version")
