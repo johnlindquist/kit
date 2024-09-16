@@ -19,7 +19,7 @@ if (await isFile(openConfigPath)) {
 			shortcut: item?.shortcut || "",
 			action: async (selectedFile: string) => {
 				hide()
-				await exec(item.command.replace("${file}", selectedFile))
+				await exec(item.command.replace("${file}", `'${selectedFile}'`))
 				process.exit(0)
 			}
 		})
@@ -148,7 +148,7 @@ export let actionFlags: {
 							let command = `${process.env.KIT_OPEN_IN} '${selectedFile}'`
 							await exec(command)
 						} else {
-							await exec(`"${process.env.KIT_OPEN_IN}" ${selectedFile}`)
+							await exec(`"${process.env.KIT_OPEN_IN}" '${selectedFile}'`)
 						}
 					}
 				}
