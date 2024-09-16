@@ -96,8 +96,19 @@ const parseMainMenu = async (stamp: Stamp = null) => {
 }
 
 const cacheMainScripts = async (stamp: Stamp) => {
-	const message = await parseMainMenu(stamp)
-	parentPort.postMessage(message)
+	try {
+		const message = await parseMainMenu(stamp)
+		parentPort.postMessage(message)
+	} catch (error) {
+		console.error(error)
+		parentPort.postMessage({
+			channel: Channel.CACHE_MAIN_SCRIPTS,
+			error,
+			scripts: [],
+			scriptFlags: {},
+			preview: ""
+		})
+	}
 }
 
 const limiter = new Bottleneck({ maxConcurrent: 1 })

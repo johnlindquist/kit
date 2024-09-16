@@ -200,6 +200,7 @@ export let errorPrompt = async (error: Error) => {
 				log({ args })
 				args = []
 			}
+			global.warn(`Running error action because of`, {script, error})
 			await run(
 				kitPath("cli", "error-action.js"),
 				script,

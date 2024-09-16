@@ -2841,12 +2841,14 @@ global.getAppState = async () => {
 global.__kitAddErrorListeners = () => {
 	if (process.listenerCount("unhandledRejection") === 0) {
 		process.prependOnceListener("unhandledRejection", async (error) => {
+			global.warn(`Running error action because of unhandledRejection`, {error})
 			await errorPrompt(error as Error)
 		})
 	}
 
 	if (process.listenerCount("uncaughtException") === 0) {
 		process.prependOnceListener("uncaughtException", async (error) => {
+			global.warn(`Running error action because of uncaughtException`, {error})
 			await errorPrompt(error as Error)
 		})
 	}

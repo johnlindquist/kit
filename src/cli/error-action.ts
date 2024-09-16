@@ -22,11 +22,11 @@ if (args?.length < 5) {
     args.push(arg)
   }
 }
-let script = await arg()
-let stackFile = await arg()
-let errorFile = await arg()
-let line = await arg()
-let col = await arg()
+let script = args.shift() || "No script reported"
+let stackFile = args.shift() || "No stack file reported"
+let errorFile = args.shift() || "No error file reported"
+let line = args.shift() || "No line reported"
+let col = args.shift() || "No column reported"
 
 let stack = await readFile(stackFile, "utf-8")
 

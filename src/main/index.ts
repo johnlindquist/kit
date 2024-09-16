@@ -180,6 +180,7 @@ trace.instant({
 })
 
 if (!script && Object.keys(flag).length === 0) {
+	global.warn(`Running error action because of no script or flag detected`)
 	await errorPrompt({
 		message: `An unknown error occurred. Please try again.`,
 		name: "No Script or Flag Detected"
