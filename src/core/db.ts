@@ -229,7 +229,7 @@ export let parseScripts = async (ignoreKenvPattern = /^ignore$/) => {
 		scriptInfoPromises.push(asyncScriptInfoFunction)
 	}
 
-	let scriptInfo = await processInBatches(scriptInfoPromises, 10)
+	let scriptInfo = await processInBatches(scriptInfoPromises, 5)
 
 	let timestamps = []
 	try {

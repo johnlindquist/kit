@@ -98,6 +98,7 @@
 		"jsonfile": "6.1.0",
 		"keyv": "^5.0.1",
 		"keyv-file": "^5.0.3",
+		"p-retry": "6.2.0",
 		"quick-score": "^0.2.0",
 		"rimraf": "6.0.1",
 		"safe-stable-stringify": "^2.5.0",

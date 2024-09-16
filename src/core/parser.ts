@@ -1,4 +1,5 @@
 import untildify from "untildify"
+import { createReadStream } from 'fs';
 import type { Script, ScriptMetadata, ScriptPathInfo } from "../types"
 import {
 	getMetadata,
@@ -99,25 +100,30 @@ export let parseFilePath = async (
 	}
 }
 
+
 export let parseScript = async (filePath: string): Promise<Script> => {
-	let parsedFilePath = await parseFilePath(filePath)
+    let parsedFilePath = await parseFilePath(filePath);
 
-	let contents = await readFile(filePath, "utf8")
+    const stream = createReadStream(filePath, { encoding: 'utf8' });
+    let contents = '';
+    for await (const chunk of stream) {
+        contents += chunk;
+    }
 
-	let metadata = parseMetadata(contents)
+    let metadata = parseMetadata(contents);
 
-	let shebang = getShebangFromContents(contents)
+    let shebang = getShebangFromContents(contents);
 
-	let needsDebugger = Boolean(contents.match(/^\s*debugger/gim))
+    let needsDebugger = Boolean(contents.match(/^\s*debugger/gim));
 
-	let result = {
-		shebang,
-		...metadata,
-		...parsedFilePath,
-		needsDebugger,
-		name: metadata.name || metadata.menu || parsedFilePath.command,
-		description: metadata.description || ""
-	}
+    let result = {
+        shebang,
+        ...metadata,
+        ...parsedFilePath,
+        needsDebugger,
+        name: metadata.name || metadata.menu || parsedFilePath.command,
+        description: metadata.description || ""
+    };
 
-	return result
+    return result;
 }

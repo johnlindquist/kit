@@ -28,6 +28,7 @@ import { parseScript } from "./parser.js"
 import { kitPath, kenvPath } from "./resolvers.js"
 import { cmd } from "./constants.js"
 import { isBin, isJsh, isDir, isWin, isMac } from "./is.js"
+import pRetry from 'p-retry';
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 
@@ -1205,13 +1206,25 @@ export let escapeHTML = (text: string) => {
 
 export let processInBatches = async <T>(
 	items: Promise<T>[],
-	batchSize: number
+	batchSize: number,
+	maxRetries: number = 3
 ): Promise<T[]> => {
 	let result: T[] = []
 	for (let i = 0; i < items.length; i += batchSize) {
 		const batch = items.slice(i, i + batchSize)
-		const batchResults = await Promise.all(batch)
-		result = result.concat(batchResults)
+		const batchResults = await Promise.all(
+			batch.map(async (item) => {
+				return pRetry(async () => {
+					try {
+						return await item
+					} catch (error) {
+						console.error(`Error processing item: ${error.message}`)
+						throw error // Rethrow to trigger retry
+					}
+				}, { retries: maxRetries })
+			})
+		)
+		result = result.concat(batchResults.filter((item): item is Awaited<T> => item !== undefined))
 	}
 	return result
 }

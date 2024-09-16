@@ -307,7 +307,7 @@ export let createAppChoices = async () => {
 	await ensureDir(assetsPath)
 
 	// Define batch size (adjust as needed)
-	const BATCH_SIZE = 10
+	const BATCH_SIZE = 5
 
 	if (process.platform === "darwin") {
 		let { fileIconToFile } = await import("file-icon")
