@@ -37,7 +37,8 @@ if (isMac) {
 		"Notification Center",
 		"Dock",
 		"AvatarPickerMemojiPicker",
-		"com.apple.preference.security.r"
+		"com.apple.preference.security.r",
+		"Kit"
 	]
 
 	let selectedWindow = await arg<{

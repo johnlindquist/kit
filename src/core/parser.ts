@@ -100,30 +100,37 @@ export let parseFilePath = async (
 	}
 }
 
-
 export let parseScript = async (filePath: string): Promise<Script> => {
-    let parsedFilePath = await parseFilePath(filePath);
-
+    const parsedFilePath = await parseFilePath(filePath);
     const stream = createReadStream(filePath, { encoding: 'utf8' });
+
     let contents = '';
-    for await (const chunk of stream) {
-        contents += chunk;
-    }
+    return new Promise<Script>((resolve, reject) => {
+        stream.on('data', chunk => {
+            contents += chunk;
+        });
 
-    let metadata = parseMetadata(contents);
+        stream.on('end', () => {
+            try {
+                const metadata = parseMetadata(contents);
+                const shebang = getShebangFromContents(contents);
+                const needsDebugger = Boolean(contents.match(/^\s*debugger/gim));
 
-    let shebang = getShebangFromContents(contents);
+                const result: Script = {
+                    shebang,
+                    ...metadata,
+                    ...parsedFilePath,
+                    needsDebugger,
+                    name: metadata.name || metadata.menu || parsedFilePath.command,
+                    description: metadata.description || ""
+                };
 
-    let needsDebugger = Boolean(contents.match(/^\s*debugger/gim));
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
 
-    let result = {
-        shebang,
-        ...metadata,
-        ...parsedFilePath,
-        needsDebugger,
-        name: metadata.name || metadata.menu || parsedFilePath.command,
-        description: metadata.description || ""
-    };
-
-    return result;
-}
+        stream.on('error', reject);
+    });
+};
