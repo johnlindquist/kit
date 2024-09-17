@@ -173,7 +173,7 @@
 		]
 	},
 	"volta": {
-		"node": "20.16.0"
+		"node": "20.17.0"
 	},
 	"config": {
 		"commitizen": {
