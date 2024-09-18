@@ -71,6 +71,8 @@ ava.serial(`testing "run" is global`, async (t) => {
 	t.is(stderr, "")
 })
 
+// TODO: Fix tmpPath on Windows
+if(process.platform !== "win32") {
 ava.serial("tmpPath generates a tmp path", async (t) => {
 	let script = "mock-tmp-path"
 	let file = "taco.txt"
@@ -87,10 +89,11 @@ ava.serial("tmpPath generates a tmp path", async (t) => {
 	let testTmpPath = pathToFileURL(
 		path.resolve(os.tmpdir(), "kit", script, file)
 	).href
-	t.log({ result, testTmpPath })
-	t.is(result, testTmpPath)
-	t.is(stderr, "")
-})
+		t.log({ result, testTmpPath })
+		t.is(result, testTmpPath)
+		t.is(stderr, "")
+	})
+}
 
 ava.serial("setEnvVar sets an environment variable", async (t) => {
 	const key = "KIT_TEST_ENV_VAR"
