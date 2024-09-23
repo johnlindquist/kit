@@ -1,188 +1,189 @@
 {
-	"name": "@johnlindquist/kit",
-	"type": "module",
-	"bin": {
-		"kit": "bin/kit",
-		"sk": "bin/sk",
-		"kitblitz": "bin/kitblitz.mjs"
-	},
-	"engines": {
-		"node": ">=14.8.0"
-	},
-	"version": "0.0.0-development",
-	"description": "The Script Kit sdk",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/johnlindquist/kit.git"
-	},
-	"exports": {
-		".": "./index.js",
-		"./*": "./*",
-		"./api/*": "./api/*.js",
-		"./cli/*": "./cli/*.js",
-		"./target/*": "./target/*.js",
-		"./platform/*": "./platform/*.js",
-		"./run/*": "./run/*.js",
-		"./core/*": "./core/*.js",
-		"./workers": "./workers/index.js"
-	},
-	"types": "./types/index.d.ts",
-	"scripts": {
-		"ava": "ava --config ./test/ava.config.mjs",
-		"ava:watch": "ava --watch --no-worker-threads --config ./test/ava.config.mjs",
-		"ava:reset": "ava reset-cache --config ./test/ava.config.mjs",
-		"ava:debug": "ava debug --config ./test/ava.config.mjs",
-		"build-kit": "tsx ./build/build-kit.ts",
-		"commit": "cz",
-		"rebuild-kit": "tsx ./build/rebuild-kit.ts",
-		"download-md": "node ./build/download-md.js",
-		"dev": "tsc --watch --outDir ~/.kit",
-		"declaration": "tsc -p ./tsconfig-declaration.json --watch",
-		"pretest:core": "node ./scripts/test-pre.js",
-		"test:core": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/*.test.js --no-worker-threads",
-		"posttest:core": "node ./scripts/test-post.js",
-		"pretest:kit": "node ./scripts/test-pre.js",
-		"test:kit": "cross-env NODE_NO_WARNINGS=1 ava ./src/api/kit.test.js --no-worker-threads",
-		"pretest:sdk": "node ./scripts/test-pre.js",
-		"test:sdk": "cross-env NODE_NO_WARNINGS=1 ava ./test-sdk/*.test.js --no-worker-threads",
-		"posttest:sdk": "node ./scripts/test-post.js",
-		"pretest:api": "node ./scripts/test-pre.js",
-		"test:api": "cross-env NODE_NO_WARNINGS=1 ava ./src/api/*.test.js --no-worker-threads",
-		"posttest:api": "node ./scripts/test-post.js",
-		"pretest:metadata": "node ./scripts/test-pre.js",
-		"test:metadata": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/metadata.test.js --no-worker-threads",
-		"posttest:metadata": "node ./scripts/test-post.js",
-		"pretest": "node ./scripts/test-pre.js",
-		"test": "cross-env cross-env NODE_NO_WARNINGS=1 ava --no-worker-threads",
-		"posttest": "node ./scripts/test-post.js",
-		"build-editor-types": "tsx ./build/build-editor-types.ts",
-		"rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
-		"lazy-install": "npm i esbuild@0.23.1 --save-exact --production --prefer-dedupe --loglevel=verbose",
-		"preinstall": "node ./build/preinstall.js"
-	},
-	"author": "John Lindquist (https://johnlindquist.com)",
-	"license": "ISC",
-	"pnpm": {
-		"overrides": {
-			"typescript": "5.6.2",
-			"esbuild": "0.23.1"
-		}
-	},
-	"dependencies": {
-		"@johnlindquist/globals": "1.16.4",
-		"@johnlindquist/kit-internal": "^1.13.5",
-		"@johnlindquist/open": "^10.1.1",
-		"@octokit/auth-oauth-device": "7.1.1",
-		"@octokit/core": "6.1.2",
-		"@octokit/plugin-paginate-rest": "11.3.3",
-		"@octokit/plugin-rest-endpoint-methods": "13.2.4",
-		"@octokit/plugin-retry": "7.1.2",
-		"@octokit/plugin-throttling": "9.3.1",
-		"@types/shelljs": "0.8.15",
-		"@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2",
-		"acorn": "^8.12.1",
-		"acorn-typescript": "^1.4.13",
-		"advanced-calculator": "1.1.1",
-		"body-parser": "^1.20.3",
-		"bottleneck": "^2.19.5",
-		"chrome-trace-event": "^1.0.4",
-		"color-name": "2.0.0",
-		"dotenv": "^16.4.5",
-		"esbuild": "0.23.1",
-		"express": "^4.21.0",
-		"filesize": "10.1.6",
-		"fs-extra": "^11.2.0",
-		"globby": "^14.0.2",
-		"highlight.js": "^11.10.0",
-		"isomorphic-git": "1.27.1",
-		"jsonfile": "6.1.0",
-		"keyv": "^5.0.1",
-		"keyv-file": "^5.0.3",
-		"p-retry": "6.2.0",
-		"quick-score": "^0.2.0",
-		"rimraf": "6.0.1",
-		"safe-stable-stringify": "^2.5.0",
-		"shelljs": "0.8.5",
-		"slugify": "1.6.6",
-		"suggestion": "2.1.2",
-		"tmp-promise": "3.0.3",
-		"tsx": "4.19.1",
-		"typescript": "5.6.2",
-		"untildify": "5.0.0",
-		"vite": "5.4.7",
-		"zx": "^8.1.8"
-	},
-	"devDependencies": {
-		"@types/debug": "4.1.12",
-		"@types/express": "4.17.21",
-		"@types/express-ws": "3.0.5",
-		"@types/node": "^22.5.5",
-		"@types/node-ipc": "9.2.3",
-		"ava": "^6.1.3",
-		"cross-env": "^7.0.3",
-		"cz-conventional-changelog": "^3.3.0",
-		"debug": "4.3.7",
-		"node-stream-zip": "^1.15.0",
-		"semantic-release": "24.1.1",
-		"semantic-release-plugin-update-version-in-files": "1.1.0",
-		"tsc-watch": "6.2.0",
-		"unzipper": "0.12.3"
-	},
-	"ava": {
-		"environmentVariables": {
-			"KIT_TEST": "true"
-		},
-		"verbose": true,
-		"files": [
-			"src/**/*.test.js",
-			"test/**/*.test.js",
-			"test-sdk/**/*.test.js"
-		]
-	},
-	"release": {
-		"branches": [
-			"+([0-9]).x",
-			"main",
-			"next",
-			{
-				"name": "beta",
-				"prerelease": true
-			},
-			{
-				"name": "alpha",
-				"prerelease": true
-			}
-		],
-		"plugins": [
-			"@semantic-release/commit-analyzer",
-			"@semantic-release/release-notes-generator",
-			[
-				"@semantic-release/npm",
-				{
-					"pkgRoot": "./.kit"
-				}
-			],
-			[
-				"semantic-release-plugin-update-version-in-files",
-				{
-					"files": [
-						"./.kit/package.json"
-					]
-				}
-			]
-		]
-	},
-	"volta": {
-		"node": "20.17.0"
-	},
-	"config": {
-		"commitizen": {
-			"path": "./node_modules/cz-conventional-changelog"
-		}
-	},
-	"optionalDependencies": {
-		"file-icon": "5.1.1",
-		"get-app-icon": "1.0.1"
-	},
-	"packageManager": "pnpm@9.11.0"
+  "name": "@johnlindquist/kit",
+  "type": "module",
+  "bin": {
+    "kit": "bin/kit",
+    "sk": "bin/sk",
+    "kitblitz": "bin/kitblitz.mjs"
+  },
+  "engines": {
+    "node": ">=14.8.0"
+  },
+  "version": "0.0.0-development",
+  "description": "The Script Kit sdk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnlindquist/kit.git"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./*": "./*",
+    "./api/*": "./api/*.js",
+    "./cli/*": "./cli/*.js",
+    "./target/*": "./target/*.js",
+    "./platform/*": "./platform/*.js",
+    "./run/*": "./run/*.js",
+    "./core/*": "./core/*.js",
+    "./workers": "./workers/index.js"
+  },
+  "types": "./types/index.d.ts",
+  "scripts": {
+    "ava": "ava --config ./test/ava.config.mjs",
+    "ava:watch": "ava --watch --no-worker-threads --config ./test/ava.config.mjs",
+    "ava:reset": "ava reset-cache --config ./test/ava.config.mjs",
+    "ava:debug": "ava debug --config ./test/ava.config.mjs",
+    "build-kit": "tsx ./build/build-kit.ts",
+    "build": "tsx ./build/build-kit.ts",
+    "commit": "cz",
+    "rebuild-kit": "tsx ./build/rebuild-kit.ts",
+    "download-md": "node ./build/download-md.js",
+    "dev": "tsc --watch --outDir ~/.kit",
+    "declaration": "tsc -p ./tsconfig-declaration.json --watch",
+    "pretest:core": "node ./scripts/test-pre.js",
+    "test:core": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/*.test.js --no-worker-threads",
+    "posttest:core": "node ./scripts/test-post.js",
+    "pretest:kit": "node ./scripts/test-pre.js",
+    "test:kit": "cross-env NODE_NO_WARNINGS=1 ava ./src/api/kit.test.js --no-worker-threads",
+    "pretest:sdk": "node ./scripts/test-pre.js",
+    "test:sdk": "cross-env NODE_NO_WARNINGS=1 ava ./test-sdk/*.test.js --no-worker-threads",
+    "posttest:sdk": "node ./scripts/test-post.js",
+    "pretest:api": "node ./scripts/test-pre.js",
+    "test:api": "cross-env NODE_NO_WARNINGS=1 ava ./src/api/*.test.js --no-worker-threads",
+    "posttest:api": "node ./scripts/test-post.js",
+    "pretest:metadata": "node ./scripts/test-pre.js",
+    "test:metadata": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/metadata.test.js --no-worker-threads",
+    "posttest:metadata": "node ./scripts/test-post.js",
+    "pretest": "node ./scripts/test-pre.js",
+    "test": "cross-env cross-env NODE_NO_WARNINGS=1 ava --no-worker-threads",
+    "posttest": "node ./scripts/test-post.js",
+    "build-editor-types": "tsx ./build/build-editor-types.ts",
+    "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
+    "lazy-install": "npm i esbuild@0.23.1 --save-exact --production --prefer-dedupe --loglevel=verbose",
+    "preinstall": "node ./build/preinstall.js"
+  },
+  "author": "John Lindquist (https://johnlindquist.com)",
+  "license": "ISC",
+  "pnpm": {
+    "overrides": {
+      "typescript": "5.6.2",
+      "esbuild": "0.23.1"
+    }
+  },
+  "dependencies": {
+    "@johnlindquist/globals": "1.16.4",
+    "@johnlindquist/kit-internal": "^1.13.5",
+    "@johnlindquist/open": "^10.1.1",
+    "@octokit/auth-oauth-device": "7.1.1",
+    "@octokit/core": "6.1.2",
+    "@octokit/plugin-paginate-rest": "11.3.3",
+    "@octokit/plugin-rest-endpoint-methods": "13.2.4",
+    "@octokit/plugin-retry": "7.1.2",
+    "@octokit/plugin-throttling": "9.3.1",
+    "@types/shelljs": "0.8.15",
+    "@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2",
+    "acorn": "^8.12.1",
+    "acorn-typescript": "^1.4.13",
+    "advanced-calculator": "1.1.1",
+    "body-parser": "^1.20.3",
+    "bottleneck": "^2.19.5",
+    "chrome-trace-event": "^1.0.4",
+    "color-name": "2.0.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "0.23.1",
+    "express": "^4.21.0",
+    "filesize": "10.1.6",
+    "fs-extra": "^11.2.0",
+    "globby": "^14.0.2",
+    "highlight.js": "^11.10.0",
+    "isomorphic-git": "1.27.1",
+    "jsonfile": "6.1.0",
+    "keyv": "^5.0.1",
+    "keyv-file": "^5.0.3",
+    "p-retry": "6.2.0",
+    "quick-score": "^0.2.0",
+    "rimraf": "6.0.1",
+    "safe-stable-stringify": "^2.5.0",
+    "shelljs": "0.8.5",
+    "slugify": "1.6.6",
+    "suggestion": "2.1.2",
+    "tmp-promise": "3.0.3",
+    "tsx": "4.19.1",
+    "typescript": "5.6.2",
+    "untildify": "5.0.0",
+    "vite": "5.4.7",
+    "zx": "^8.1.8"
+  },
+  "devDependencies": {
+    "@types/debug": "4.1.12",
+    "@types/express": "4.17.21",
+    "@types/express-ws": "3.0.5",
+    "@types/node": "^22.5.5",
+    "@types/node-ipc": "9.2.3",
+    "ava": "^6.1.3",
+    "cross-env": "^7.0.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "debug": "4.3.7",
+    "node-stream-zip": "^1.15.0",
+    "semantic-release": "24.1.1",
+    "semantic-release-plugin-update-version-in-files": "1.1.0",
+    "tsc-watch": "6.2.0",
+    "unzipper": "0.12.3"
+  },
+  "ava": {
+    "environmentVariables": {
+      "KIT_TEST": "true"
+    },
+    "verbose": true,
+    "files": [
+      "src/**/*.test.js",
+      "test/**/*.test.js",
+      "test-sdk/**/*.test.js"
+    ]
+  },
+  "release": {
+    "branches": [
+      "+([0-9]).x",
+      "main",
+      "next",
+      {
+        "name": "beta",
+        "prerelease": true
+      },
+      {
+        "name": "alpha",
+        "prerelease": true
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "./.kit"
+        }
+      ],
+      [
+        "semantic-release-plugin-update-version-in-files",
+        {
+          "files": [
+            "./.kit/package.json"
+          ]
+        }
+      ]
+    ]
+  },
+  "volta": {
+    "node": "20.17.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "optionalDependencies": {
+    "file-icon": "5.1.1",
+    "get-app-icon": "1.0.1"
+  },
+  "packageManager": "pnpm@9.11.0"
 }
