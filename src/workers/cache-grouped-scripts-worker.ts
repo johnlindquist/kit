@@ -16,6 +16,13 @@ import {
 } from "../core/db.js"
 import { scriptsSort } from "../core/utils.js"
 
+const logToParent = (message: string) => {
+  parentPort?.postMessage({
+    channel: Channel.LOG_TO_PARENT,
+    value: message,
+  })
+}
+
 const getTimestampsDb = async (stamp: Stamp) => {
   let timestampsDb = await getTimestamps()
   let index = timestampsDb.stamps.findIndex(
@@ -42,13 +49,16 @@ const getTimestampsDb = async (stamp: Stamp) => {
   try {
     await timestampsDb.write()
   } catch (error) {
-    if (global.log) global.log(error)
+    logToParent(`Error writing timestampsDb: ${error}`)
   }
 
   return timestampsDb
 }
 
 const parseMainMenu = async (stamp: Stamp = null) => {
+  logToParent(
+    `${stamp?.filePath || "No stamp"}: Parsing main menu`
+  )
   if (stamp) {
     let [timestampsDb, scriptsDb] = await Promise.all([
       getTimestampsDb(stamp),
@@ -65,7 +75,9 @@ const parseMainMenu = async (stamp: Stamp = null) => {
       )
       try {
         await scriptsDb.write()
-      } catch (error) {}
+      } catch (error) {
+        logToParent(`Error writing scriptsDb: ${error}`)
+      }
     }
   }
 
@@ -78,7 +90,7 @@ const parseMainMenu = async (stamp: Stamp = null) => {
       firstScript as unknown as Script
     )()
   } catch (error) {
-    console.error(error)
+    logToParent(`Error processing script preview: ${error}`)
   }
 
   // Clone and remove all scriptFlags["key"].preview
@@ -86,7 +98,7 @@ const parseMainMenu = async (stamp: Stamp = null) => {
     {},
     scriptFlags
   ) as object
-  for (const key in sanitizedScriptFlags) {
+  for (const key of Object.keys(sanitizedScriptFlags)) {
     if (sanitizedScriptFlags?.[key]?.preview) {
       sanitizedScriptFlags[key].preview = undefined
     }
@@ -116,10 +128,11 @@ const cacheMainScripts = async (
   stamp: Stamp
 ) => {
   try {
+    logToParent(`${id}: Caching main scripts`)
     const message = await parseMainMenu(stamp)
     parentPort.postMessage({ ...message, id })
   } catch (error) {
-    console.error(error)
+    logToParent(`Error caching main scripts: ${error}`)
     parentPort.postMessage({
       channel: Channel.CACHE_MAIN_SCRIPTS,
       error,
@@ -140,6 +153,7 @@ const removeTimestamp = async (
   id: string,
   stamp: Stamp
 ) => {
+  logToParent(`Removing timestamp: ${stamp.filePath}`)
   const stampDb = await getTimestamps()
   const stampIndex = stampDb.stamps.findIndex(
     s => s.filePath === stamp.filePath
@@ -154,6 +168,7 @@ const removeTimestamp = async (
 }
 
 const clearTimestamps = async (id: string) => {
+  logToParent(`${id}: Clearing timestamps`)
   const stampDb = await getTimestamps()
   stampDb.stamps = []
   await stampDb.write()
