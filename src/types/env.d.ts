@@ -1,5 +1,7 @@
 export type kenvEnv = {
   KIT_API_KEY?: string | undefined
+  KIT_API_PORT?: string | undefined
+  KIT_AUTOSTART_SERVER?: string | undefined
   KIT_AUTO_INSTALL?: string | undefined
   KIT_AUTO_UPDATE?: string | undefined
   KIT_BACKGROUND_COLOR?: string | undefined
