@@ -2,6 +2,13 @@ export enum Env {
   REMOVE = "__KIT_REMOVE_ENV_VAR__",
 }
 
+export enum MainMenuType {
+  SCRIPT = "SCRIPT",
+  APP = "APP",
+  SCRIPTLET = "SCRIPTLET",
+  SNIPPET = "SNIPPET",
+}
+
 export enum Mode {
   FILTER = "FILTER",
   GENERATE = "GENERATE",

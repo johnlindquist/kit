@@ -279,6 +279,7 @@ export interface PromptData {
   formData?: any
   html?: string
   theme?: any
+  /** @deprecated Kit now supports backgrounding windows */
   alwaysOnTop?: boolean
   skipTaskbar?: boolean
   cwd?: string

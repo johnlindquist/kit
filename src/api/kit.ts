@@ -1688,6 +1688,18 @@ export let getApps = async () => {
   return groupedApps
 }
 
+export let splitEnvVarIntoArray = (
+  envVar: string | undefined,
+  fallback: string[]
+) => {
+  return envVar
+    ? envVar
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+    : fallback
+}
+
 let groupScripts = scripts => {
   let excludeGroups =
     global?.env?.KIT_EXCLUDE_KENVS?.split(",").map(k =>
@@ -1697,26 +1709,22 @@ let groupScripts = scripts => {
   return groupChoices(scripts, {
     groupKey: "kenv",
     missingGroupName: "Main",
-    order: process?.env?.KIT_MAIN_ORDER
-      ? process?.env?.KIT_MAIN_ORDER?.split(",")
-          .filter(Boolean)
-          .map(s => s.trim())
-      : [
-          "Favorite",
-          "Main",
-          "Scriptlets",
-          "Snippets",
-          "Apps",
-        ],
-    endOrder: process?.env?.KIT_MAIN_END_ORDER
-      ? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(
-          Boolean
-        )
-      : ["Pass"],
+    order: splitEnvVarIntoArray(
+      process?.env?.KIT_MAIN_ORDER,
+      ["Favorite", "Main", "Scriptlets"]
+    ),
+
+    endOrder: splitEnvVarIntoArray(
+      process?.env?.KIT_MAIN_END_ORDER,
+      ["Apps", "Pass"]
+    ),
     recentKey: "timestamp",
     excludeGroups,
     recentLimit: getRecentLimit(),
-    hideWithoutInput: ["Apps"],
+    hideWithoutInput: splitEnvVarIntoArray(
+      process?.env?.KIT_HIDE_WITHOUT_INPUT,
+      []
+    ),
     tagger,
   })
 }
@@ -1779,6 +1787,7 @@ export let getGroupedScripts = async (fromCache = true) => {
 
   let apps = (await getApps()).map(a => {
     a.ignoreFlags = true
+    global.log(a)
     return a
   })
   if (apps.length) {

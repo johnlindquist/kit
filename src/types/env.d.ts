@@ -61,4 +61,7 @@ export type kenvEnv = {
   KIT_SEARCH_MIN_SCORE?: string | undefined
   KIT_SEARCH_MAX_ITERATIONS?: string | undefined
   KIT_USE_NODE_PATH?: string | undefined
+  KIT_MAIN_ORDER?: string | undefined
+  KIT_MAIN_END_ORDER?: string | undefined
+  KIT_HIDE_WITHOUT_INPUT?: string | undefined
 }
