@@ -1787,7 +1787,6 @@ export let getGroupedScripts = async (fromCache = true) => {
 
   let apps = (await getApps()).map(a => {
     a.ignoreFlags = true
-    global.log(a)
     return a
   })
   if (apps.length) {
