@@ -44,8 +44,9 @@ let name = arg?.pass
         enter: `Create script and open in editor`,
         strict: false,
         initialChoices,
-      },
-      choices
+      }
+      // I don't think we need choices here
+      // choices
     )
 
 let { dirPath: selectedKenvPath } = await selectKenv({
