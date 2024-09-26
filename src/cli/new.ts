@@ -141,9 +141,10 @@ if (arg?.url || arg?.content) {
 } else {
   const nameMetadata = scriptName || name || ""
 
-  const defaultMetadataMode = await getUserDefaultMetadataMode()
+  const defaultMetadataMode =
+    await getUserDefaultMetadataMode()
 
-  if (defaultMetadataMode === 'comment') {
+  if (defaultMetadataMode === "comment") {
     if (
       (scriptName || command !== name) &&
       !contents.includes(`Name:`)
@@ -152,23 +153,25 @@ if (arg?.url || arg?.content) {
 ${contents.startsWith("/") ? contents : "\n" + contents}
 `
     }
-  } else if (defaultMetadataMode === 'convention') {
+  } else if (defaultMetadataMode === "convention") {
     const parts = []
 
-    if (await getEnvVar("KIT_MODE", "ts") === "ts") {
+    if ((await getEnvVar("KIT_MODE", "ts")) === "ts") {
       // Direct type annotation
-      parts.push('export const metadata: Metadata = {')
+      parts.push("export const metadata: Metadata = {")
     } else {
       // JSDoc type comment
-      parts.push('/** @type Metadata */')
-      parts.push('export const metadata = {')
+      parts.push("/** @type Metadata */")
+      parts.push("export const metadata = {")
     }
 
     parts.push(`  name: "${nameMetadata}",`)
-    parts.push('}\n')
+    parts.push("}\n")
     parts.push(contents)
 
-    contents = prependImport(parts.join('\n'), { force: true })
+    contents = prependImport(parts.join("\n"), {
+      force: true,
+    })
   }
 }
 

@@ -6,7 +6,7 @@ import {
   ensureDir,
   readFile,
   writeFile,
-} from "@johnlindquist/kit-internal/fs-extra.js"
+} from "@johnlindquist/kit-internal/fs-extra"
 
 import type { Bin } from "../../core/enum.ts"
 import type { Choice, Script } from "../../types/core.ts"
