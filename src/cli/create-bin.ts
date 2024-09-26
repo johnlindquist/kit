@@ -11,7 +11,7 @@ let script = await selectScript(
   "Create bin from which script?",
   false
 )
-await createBinFromScript(
-  type,
-  script as Script & { execPath: string }
-)
+await createBinFromScript(type, {
+  ...script,
+  execPath: "",
+})
