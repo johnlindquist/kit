@@ -18,6 +18,7 @@ export enum Mode {
 }
 
 export enum Channel {
+  RESPONSE = "RESPONSE",
   ABANDON = "ABANDON",
   APP_CONFIG = "APP_CONFIG",
   APP_DB = "APP_DB",

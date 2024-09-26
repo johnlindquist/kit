@@ -377,6 +377,10 @@ global.send = (channel: Channel, value?: any) => {
   }
 }
 
+global.sendResponse = (response: any) => {
+  return global.sendWait(Channel.RESPONSE, response)
+}
+
 let _consoleLog = global.console.log.bind(global.console)
 let _consoleWarn = global.console.warn.bind(global.console)
 let _consoleClear = global.console.clear.bind(
@@ -388,7 +392,7 @@ global.log = (...args) => {
       Channel.KIT_LOG,
       args
         .map(a =>
-          typeof a != "string" ? JSONSafe.stringify(a) : a
+          typeof a !== "string" ? JSONSafe.stringify(a) : a
         )
         .join(" ")
     )

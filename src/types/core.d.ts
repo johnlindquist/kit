@@ -502,6 +502,8 @@ export type CronExpression =
   | `${string} ${string} ${string} ${string} ${string} ${string}`
 
 export interface Metadata {
+  /** The author's name */
+  author?: string
   /**
    * Specifies the name of the script as it appears in the Script Kit interface.
    * If not provided, the file name will be used.
@@ -562,6 +564,7 @@ export interface Metadata {
   /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
   schedule?: CronExpression
   access?: "public" | "key" | "private"
+  response?: boolean
 }
 
 export interface ProcessInfo {
