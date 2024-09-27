@@ -27,40 +27,33 @@
 | | Measure Tool |
 | | Debug from IDE |
 
-## Script Kit Dev Setup
-
-> Note: This ain't pretty 😅
-
-Requirements: npm
-
-### Clone Kit SDK
-
-Clone:
-`git clone https://github.com/johnlindquist/kit.git`
+## Prerequisites
 
 Install pnpm:
 
 [https://pnpm.io/installation](https://pnpm.io/installation)
 
-Install:
-`pnpm install`
+### Clone Kit SDK
 
-### (Skip if you already have a kenv from production) Clone the base kenv
+Clone and install:
+```
+git clone https://github.com/johnlindquist/kit.git
+cd kit
+pnpm install
+```
 
-Clone:
-`git clone https://github.com/johnlindquist/kenv.git ~/.kenv`
 
 ### Building Kit SDK
 
-`pnpm build-kit`
+`pnpm build`
 
 The build command builds the SDK to ~/.kit
 
 #### npm link to app (First run only)
 
+(The app requires `npm` instead of `pnpm` due to build/native reasons)
+
 1. cd to ~/.kit
 2. npm link
 3. cd to wherever you cloned kitapp
 4. npm link @johnlindquist/kit
-
-This codebase is the core of Script Kit, a powerful tool designed to enhance productivity by allowing users to create, manage, and execute scripts efficiently. Script Kit provides a comprehensive SDK and a user-friendly application that integrates seamlessly with various development environments. It supports advanced features such as built-in debugging, script logging, and remote script execution. The platform is highly customizable, enabling users to extend its functionality with custom scripts and integrations. By leveraging Script Kit, developers can automate repetitive tasks, streamline workflows, and improve overall efficiency in their development processes.
