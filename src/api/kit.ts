@@ -377,7 +377,27 @@ global.send = (channel: Channel, value?: any) => {
   }
 }
 
-global.sendResponse = (response: any) => {
+global.sendResponse = (
+  body: any,
+  headers: Record<string, string> = {}
+) => {
+  let statusCode = 200
+  if (headers["Status-Code"]) {
+    statusCode = Number.parseInt(headers["Status-Code"], 10)
+    headers["Status-Code"] = undefined
+  }
+
+  const responseHeaders = { ...headers }
+  if (!responseHeaders["Content-Type"]) {
+    responseHeaders["Content-Type"] = "application/json"
+  }
+
+  const response = {
+    body,
+    statusCode,
+    headers: responseHeaders,
+  }
+
   return global.sendWait(Channel.RESPONSE, response)
 }
 

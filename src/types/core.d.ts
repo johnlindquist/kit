@@ -92,7 +92,7 @@ export interface ScriptPathInfo {
   compileMessage?: string
 }
 
-export interface ScriptMetadata {
+export interface ScriptMetadata extends Metadata {
   shebang?: string
   name?: string
   menu?: string
@@ -535,8 +535,13 @@ export interface Metadata {
   expand?: string
   /** Associates a keyword with the script for easier discovery in the main menu. */
   keyword?: string
-  /** Indicates that user input in the main menu should be passed as an argument to the script. */
-  pass?: boolean
+  /**
+   * Indicates that user input in the main menu should be passed as an argument to the script.
+   * "true" indicates that the entire input should be passed as an argument
+   * A string indicates a "postfix", then match the text before the string
+   * A RegExp indicates a "pattern" to match
+   * */
+  pass?: boolean | string
   /** Assigns the script to a specific group for organization in the main menu. */
   group?: string
   /** Excludes the script from appearing in the main menu. */

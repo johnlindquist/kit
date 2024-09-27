@@ -1497,6 +1497,9 @@ export let tagger = (script: Script) => {
       tags.push(`keyword: ${script.keyword}`)
     if (script.snippet)
       tags.push(`snippet ${script.snippet}`)
+    if (script.expand) {
+      tags.push(`expand: ${script.expand}`)
+    }
 
     if (
       typeof script.pass === "string" &&

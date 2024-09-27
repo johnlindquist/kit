@@ -1097,7 +1097,11 @@ declare global {
     value?: any,
     timeout?: number
   ) => Promise<any>
-  var sendResponse: (response: any) => Promise<any>
+  var headers: Record<string, string>
+  var sendResponse: (
+    body: any,
+    headers?: Record<string, string>
+  ) => Promise<any>
   var sendWaitLong: (
     channel: Channel,
     value?: any,
