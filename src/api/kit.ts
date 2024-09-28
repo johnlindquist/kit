@@ -2427,3 +2427,4 @@ global.preload = (scriptPath?: string) => {
 }
 
 global.metadata = {}
+global.headers = {}

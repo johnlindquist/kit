@@ -6,7 +6,6 @@ import { configEnv, run } from "../core/utils.js"
 // TODO: Fix the types around accepting an early Scriptlet
 let script: any = ""
 let args = []
-global.headers = {}
 let tooEarlyHandler = data => {
   if (data.channel === Channel.VALUE_SUBMITTED) {
     script = data?.value?.scriptlet
