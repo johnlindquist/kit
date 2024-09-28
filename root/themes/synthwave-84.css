@@ -1,0 +1,17 @@
+:root {
+  --name: "Synthwave 84";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #f0eff1;
+  --color-primary: #ff7edb;
+  --color-secondary: #241b2f;
+  --color-background: #2b213a;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

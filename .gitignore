@@ -127,3 +127,5 @@ kit.sock
 .kitignore
 TODO.md
 .idea
+.tsimp
+.aider*

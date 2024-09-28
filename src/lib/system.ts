@@ -1,49 +1,41 @@
 global.mute = async () => {
-  return await applescript(
-    String.raw`set volume with output muted`
-  )
+	return await applescript(String.raw`set volume with output muted`)
 }
 
 global.unmute = async () => {
-  return await applescript(
-    String.raw`set volume without output muted`
-  )
+	return await applescript(String.raw`set volume without output muted`)
 }
 
 global.logout = async () => {
-  return await applescript(
-    String.raw`tell application "System Events" to log out`
-  )
+	return await applescript(
+		String.raw`tell application "System Events" to log out`
+	)
 }
 
 global.lock = async () => {
-  return await applescript(
-    String.raw`tell application "System Events" to keystroke "q" using {command down, control down}`
-  )
+	return await applescript(
+		String.raw`tell application "System Events" to keystroke "q" using {command down, control down}`
+	)
 }
 
 global.sleep = async () => {
-  return await applescript(
-    String.raw`tell application "Finder" to sleep`
-  )
+	return await applescript(String.raw`tell application "Finder" to sleep`)
 }
 
 global.shutdown = async () => {
-  return await applescript(
-    String.raw`tell application "Finder" to shut down`
-  )
+	return await applescript(String.raw`tell application "Finder" to shut down`)
 }
 
 // Example: "AppleScript Editor", "Automator", "Finder", "LaunchBar"
 // the quotes, comma and spacing are important
 global.quitAllApps = async (appsToExclude = "") => {
-  // Credit to clozach on StackOverflow: https://stackoverflow.com/a/44268337/3015595
-  const excludeApps = appsToExclude
-    ? `set exclusions to ${appsToExclude}`
-    : ""
-
-  return await applescript(
-    String.raw`
+	const excludeApps = appsToExclude
+		? `set exclusions to {${appsToExclude
+				.split(",")
+				.map((app) => `"${app.trim()}"`)
+				.join(", ")}}`
+		: "set exclusions to {}"
+	return await applescript(String.raw`
       -- get list of open apps
       tell application "System Events"
         set allApps to displayed name of (every process whose background only is false) as list
@@ -59,25 +51,22 @@ global.quitAllApps = async (appsToExclude = "") => {
           tell application thisApp to quit
         end if
       end repeat
-    `
-  )
+    `)
 }
 
 global.adjustVolume = async () => {
-  let volume = await arg({
-    name: "Adjust Volume",
-    description: "Enter a number between 0 and 100",
-  })
-  return await applescript(
-    String.raw`set volume output volume ${volume}`
-  )
+	let volume = await arg({
+		name: "Adjust Volume",
+		description: "Enter a number between 0 and 100"
+	})
+	return await applescript(String.raw`set volume output volume ${volume}`)
 }
 
 global.sleepScreens = async () => {
-  await exec(`pmset displaysleepnow`)
+	await exec(`pmset displaysleepnow`)
 }
 
 global.caffeinate = async () => {
-  run(kitPath("cli", "caffeinate.js"))
+	run(kitPath("cli", "caffeinate.js"))
 }
 export {}

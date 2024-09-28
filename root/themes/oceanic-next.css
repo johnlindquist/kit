@@ -1,0 +1,14 @@
+:root {
+  --name: "Oceanic Next";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #d8dee9;
+  --color-primary: #6699cc;
+  --color-secondary: #4f5b66;
+  --color-background: #1b2b34;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+  --mono-font: 'JetBrains Mono', monospace;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'Times', serif;
+}

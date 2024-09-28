@@ -1,23 +1,17 @@
 process.env.KIT_TARGET = "github-workflow"
 
-import os from "os"
-import { randomUUID } from "crypto"
-import { pathToFileURL } from "url"
+import os from "node:os"
+import { randomUUID } from "node:crypto"
+import { pathToFileURL } from "node:url"
 
 process.env.KIT_CONTEXT = "workflow"
 
-import {
-  configEnv,
-  resolveToScriptPath,
-  kitPath,
-} from "../core/utils.js"
+import { configEnv, resolveToScriptPath, kitPath } from "../core/utils.js"
 
 let kitImport = async (...pathParts: string[]) =>
-  await import(
-    pathToFileURL(kitPath(...pathParts)).href +
-      "?uuid=" +
-      randomUUID()
-  )
+	await import(
+		pathToFileURL(kitPath(...pathParts)).href + "?uuid=" + randomUUID()
+	)
 
 await kitImport("api", "global.js")
 await kitImport("api", "kit.js")
@@ -35,7 +29,5 @@ await kitImport("target", "terminal.js")
 global.core = await npm("@actions/core")
 global.github = await npm("@actions/github")
 
-let scriptPath = resolveToScriptPath(
-  await arg("Path to script")
-)
+let scriptPath = resolveToScriptPath(await arg("Path to script"))
 await run(scriptPath)

@@ -3,36 +3,37 @@ import { Channel } from "../core/enum.js"
 // TODO: Optimize, etc
 // "kMDItemContentType = 'com.apple.application-bundle'"
 global.fileSearch = async (
-  name,
-  { onlyin = "~", kind = "", kMDItemContentType = "" } = {}
+	name,
+	{ onlyin = "~", kind = "", kMDItemContentType = "" } = {}
 ) => {
-  let command = `/usr/bin/mdfind${
-    name ? ` -name ${name}` : ""
-  }${onlyin ? ` -onlyin ${onlyin}` : ``}${
-    kind ? ` "kind:${kind}"` : ``
-  }${
-    kMDItemContentType
-      ? ` "kMDItemContentType:${kMDItemContentType}"`
-      : ``
-  }`
+	let command = `/usr/bin/mdfind${
+		name ? ` -name ${name}` : ""
+	}${onlyin ? ` -onlyin ${onlyin}` : ``}${kind ? ` "kind:${kind}"` : ``}${
+		kMDItemContentType ? ` "kMDItemContentType:${kMDItemContentType}"` : ``
+	}`
 
-  let results = []
+	let results = []
 
-  try {
-    results = (await global.exec(command)).stdout
-      .split("\n")
-      .filter(Boolean)
-  } catch (e) {
-    warn(e)
-    results = []
-  }
+	try {
+		results = (
+			await global.exec(command, {
+				windowsHide: true,
+				shell: true
+			})
+		).stdout
+			.split("\n")
+			.filter(Boolean)
+	} catch (e) {
+		warn(e)
+		results = []
+	}
 
-  return results
+	return results
 }
 
 global.getSelectedFile = async () => {
-  return await applescript(
-    String.raw`
+	return await applescript(
+		String.raw`
       tell application "Finder"
         set finderSelList to selection as alias list
       end tell
@@ -45,11 +46,11 @@ global.getSelectedFile = async () => {
         set AppleScript's text item delimiters to linefeed
         finderSelList as text
       end if`
-  )
+	)
 }
 
 global.getSelectedDir = async () => {
-  return await applescript(`
+	return await applescript(`
  tell application "Finder"
      if exists Finder window 1 then
          set currentDir to target of Finder window 1 as alias
@@ -62,37 +63,33 @@ global.getSelectedDir = async () => {
 }
 
 global.setSelectedFile = async (filePath: string) => {
-  await applescript(`
+	await applescript(`
 set aFile to (POSIX file "${filePath}") as alias
 tell application "Finder" to select aFile
 `)
 }
 
-global.copyPathAsImage = async path =>
-  await applescript(
-    String.raw`set the clipboard to (read (POSIX file "${path}") as JPEG picture)`
-  )
+global.copyPathAsImage = async (path) =>
+	await applescript(
+		String.raw`set the clipboard to (read (POSIX file "${path}") as JPEG picture)`
+	)
 
 global.copyPathAsPicture = copyPathAsImage
 
-global.selectFolder = async (
-  message: string = "Pick a folder:"
-) => {
-  return await sendWaitLong(Channel.SELECT_FOLDER, message)
+global.selectFolder = async (message: string = "Pick a folder:") => {
+	return await sendWaitLong(Channel.SELECT_FOLDER, message)
 }
 
-global.selectFile = async (
-  message: string = "Pick a file:"
-) => {
-  return await sendWaitLong(Channel.SELECT_FILE, message)
+global.selectFile = async (message: string = "Pick a file:") => {
+	return await sendWaitLong(Channel.SELECT_FILE, message)
 }
 
-global.revealFile = async filePath => {
-  return sendWaitLong(Channel.REVEAL_FILE, filePath.trim())
+global.revealFile = async (filePath) => {
+	return sendWaitLong(Channel.REVEAL_FILE, filePath.trim())
 }
 
-global.revealInFinder = async filePath => {
-  return sendWaitLong(Channel.REVEAL_FILE, filePath.trim())
+global.revealInFinder = async (filePath) => {
+	return sendWaitLong(Channel.REVEAL_FILE, filePath.trim())
 }
 
 export {}

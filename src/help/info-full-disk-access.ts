@@ -11,7 +11,6 @@ Once enabled, quit Kit.app from the menubar and restart it.
 
 await div({
   html,
-  ignoreBlur: true,
   enter: "Back to Main",
   shortcuts: [
     {

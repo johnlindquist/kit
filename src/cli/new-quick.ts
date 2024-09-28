@@ -39,6 +39,6 @@ global.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
 
-edit(scriptPath, kenvPath())
+await edit(scriptPath, kenvPath())
 
 export {}

@@ -6,7 +6,13 @@
 
 import { Choice } from "../types/core"
 import { Main, CLI } from "./index"
-import { returnOrEnter, run } from "../core/utils.js"
+import {
+  keywordInputTransformer,
+  returnOrEnter,
+  run,
+} from "../core/utils.js"
+
+let inputTransformer = keywordInputTransformer(arg?.keyword)
 
 setFlags({})
 
@@ -46,25 +52,26 @@ let newChoices: Choice<keyof CLI | keyof Main>[] = [
 ]
 
 let onNoChoices = async input => {
+  input = inputTransformer(input)
   if (input) {
     let scriptName = input
-      .replace(/[^\w\s]/g, "")
+      .replace(/[^\w\s-]/g, "")
       .replace(/\s/g, "-")
       .toLowerCase()
 
     setPanel(
       md(`# Create <code>${scriptName}</code>
 
-Type <kbd>${returnOrEnter}</kd> to create a script named <code>${scriptName}</code>
+Type <kbd>${returnOrEnter}</kbd> to create a script named <code>${scriptName}</code>
     `)
     )
   }
 }
 
-if (arg?.pass) {
+if (arg?.pass && !arg?.keyword) {
   await cli("new")
 } else {
-  let cliScript = await arg<keyof CLI | keyof Main>(
+  let cliScript: string = await arg<keyof CLI | keyof Main>(
     {
       placeholder: "Create a new script",
       strict: false,
@@ -76,6 +83,9 @@ if (arg?.pass) {
     },
     newChoices
   )
+  cliScript = inputTransformer(cliScript)
+  if (arg?.keyword) delete arg.keyword
+
   if (
     cliScript === "snippets" ||
     cliScript === "templates"

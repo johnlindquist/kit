@@ -1,0 +1,104 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "organizeImports": {
+    "ignore": ["assets"],
+    "enabled": true
+  },
+  "linter": {
+    "ignore": ["assets"],
+    "enabled": true,
+    "rules": {
+      "all": true,
+      "a11y": {
+        "all": false
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off",
+        "noForEach": "off"
+      },
+      "correctness": {
+        "noUndeclaredVariables": "off",
+        "noConstantCondition": "off",
+        "noUnusedVariables": "off",
+        "noUnusedImports": "off",
+        "noNodejsModules": "off",
+        "useExhaustiveDependencies": "off"
+      },
+      "style": {
+        "noDefaultExport": "off",
+        "noParameterAssign": "off",
+        "useNamingConvention": "off",
+        "noParameterProperties": "off",
+        "noNonNullAssertion": "off",
+        "useTemplate": "off",
+        "useForOf": "off",
+        "useLiteralEnumMembers": "off",
+        "useConst": "off",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": [
+              "camelCase",
+              "kebab-case",
+              "PascalCase"
+            ]
+          }
+        }
+      },
+      "suspicious": {
+        "noEmptyBlockStatements": "off",
+        "noDebugger": "off",
+        "noConsoleLog": "off",
+        "noExplicitAny": "off",
+        "noAssignInExpressions": "off",
+        "noImplicitAnyLet": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      }
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "include": [
+      "**/*.ts",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.tsx",
+      "**/*.css",
+      "**/*.json"
+    ],
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120,
+    "ignore": [
+      ".cache",
+      ".history",
+      ".npm-cache",
+      "node_modules",
+      ".vscode",
+      "assets"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "bracketSpacing": true,
+      "arrowParentheses": "always",
+      "trailingCommas": "none"
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true
+    }
+  }
+}

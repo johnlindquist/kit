@@ -1,16 +1,13 @@
-let envTemplatePath = kitPath(
-  "templates",
-  "env",
-  "template.env"
-)
+let envTemplatePath = kitPath("templates", "env", "template.env")
 
 let envTemplate = await readFile(envTemplatePath, "utf8")
 
 let envTemplateCompiler = compile(envTemplate)
 let compiledEnvTemplate = envTemplateCompiler({
-  ...process.env,
+	...process.env,
+	KIT_MAIN_SHORTCUT: process.platform === "win32" ? "ctrl ;" : "cmd ;"
 })
 
 await writeFile(kenvPath(".env"), compiledEnvTemplate)
 
-export { }
+export {}

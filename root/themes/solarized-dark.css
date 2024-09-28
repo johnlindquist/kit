@@ -1,0 +1,17 @@
+:root {
+  --name: "Solarized Dark";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #839496;
+  --color-primary: #268bd2;
+  --color-secondary: #073642;
+  --color-background: #002b36;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

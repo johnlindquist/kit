@@ -6,368 +6,31 @@
 // Cache: true
 performance.measure("index", "run")
 
-import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
-import { getTimestamps } from "../core/db.js"
 import { Channel, Value } from "../core/enum.js"
 import {
   run,
   cmd,
-  isMac,
   getMainScriptPath,
+  isScriptlet,
+  isSnippet,
 } from "../core/utils.js"
-import { FlagsOptions, Script } from "../types/core.js"
-import { mainMenu } from "../api/kit.js"
-import { Open } from "../types/packages.js"
-
-let modifiers = {
-  cmd: "cmd",
-  shift: "shift",
-  opt: "opt",
-  ctrl: "ctrl",
-}
+import type {
+  Choice,
+  Scriptlet,
+  Script,
+} from "../types/core.js"
+import {
+  mainMenu,
+  scriptFlags,
+  actions,
+  modifiers,
+  errorPrompt,
+  getFlagsFromActions,
+} from "../api/kit.js"
+import type { Open } from "../types/packages.js"
+import { parseShebang } from "../core/shebang.js"
 
 console.clear()
-
-let order = [
-  "Script Actions",
-  "Copy",
-  "Debug",
-  "Kenv",
-  "Git",
-  "Share",
-  "Export",
-  // "DB",
-  "Run",
-]
-let scriptFlags: FlagsOptions = {
-  order,
-  sortChoicesKey: order.map(o => ""),
-  // open: {
-  //   name: "Script Actions",
-  //   description: "Open the selected script in your editor",
-  //   shortcut: `${cmd}+o`,
-  //   action: "right",
-  // },
-  // ["new-menu"]: {
-  //   name: "New",
-  //   description: "Create a new script",
-  //   shortcut: `${cmd}+n`,
-  //   action: "left",
-  // },
-  ["edit-script"]: {
-    name: "Edit",
-    group: "Script Actions",
-    description: "Open the selected script in your editor",
-    preview: async (input, state) => {
-      let flaggedFilePath = state?.flaggedValue?.filePath
-      if (!flaggedFilePath) return
-
-      // Get last modified time
-      let { size, mtime, mtimeMs } = await stat(
-        flaggedFilePath
-      )
-      let lastModified = new Date(mtimeMs)
-
-      let stamps = await getTimestamps()
-      let stamp = stamps.stamps.find(
-        s => s.filePath === flaggedFilePath
-      )
-
-      let composeBlock = (...lines) =>
-        lines.filter(Boolean).join("\n")
-
-      let compileMessage =
-        stamp?.compileMessage?.trim() || ""
-      let compileStamp = stamp?.compileStamp
-        ? `Last compiled: ${formatDistanceToNow(
-            new Date(stamp?.compileStamp),
-            { includeSeconds: true }
-          )} ago`
-        : ""
-      let executionTime = stamp?.executionTime
-        ? `Last run duration: ${stamp?.executionTime}ms`
-        : ""
-      let runCount = stamp?.runCount
-        ? `Run count: ${stamp?.runCount}`
-        : ""
-
-      let compileBlock = composeBlock(
-        compileMessage && `* ${compileMessage}`,
-        compileStamp && `* ${compileStamp}`
-      )
-
-      if (compileBlock) {
-        compileBlock =
-          `### Compile Info\n${compileBlock}`.trim()
-      }
-
-      let executionBlock = composeBlock(
-        runCount && `* ${runCount}`,
-        executionTime && `* ${executionTime}`
-      )
-
-      if (executionBlock) {
-        executionBlock =
-          `### Execution Info\n${executionBlock}`.trim()
-      }
-
-      let lastRunBlock = ""
-      if (stamp) {
-        let lastRunDate = new Date(stamp.timestamp)
-        lastRunBlock = `### Last Run
-  - ${lastRunDate.toLocaleString()}
-  - ${formatDistanceToNow(lastRunDate)} ago
-  `.trim()
-      }
-
-      let modifiedBlock = `### Last Modified 
-- ${lastModified.toLocaleString()}      
-- ${formatDistanceToNow(lastModified)} ago`
-
-      let info = md(
-        `# Stats
-
-#### ${flaggedFilePath}
-
-${compileBlock}
-  
-${executionBlock}
-  
-${modifiedBlock}
-  
-${lastRunBlock}
-  
-`.trim()
-      )
-      return info
-    },
-  },
-  [cmd]: {
-    group: "Debug",
-    name: "Debug Script",
-    description:
-      "Open inspector. Pause on debugger statements.",
-    shortcut: `${cmd}+enter`,
-    flag: cmd,
-  },
-  [modifiers.opt]: {
-    group: "Debug",
-    name: "Open Log Window",
-    description: "Open a log window for selected script",
-    shortcut: `alt+enter`,
-    flag: modifiers.opt,
-  },
-  ["push-script"]: {
-    group: "Git",
-    name: "Push to Git Repo",
-    description: "Push the selected script to a git repo",
-  },
-  ["pull-script"]: {
-    group: "Git",
-    name: "Pull from Git Repo",
-    description: "Pull the selected script from a git repo",
-  },
-
-  ["edit-doc"]: {
-    group: "Script Actions",
-    name: "Create/Edit Doc",
-    description:
-      "Open the selected script's markdown in your editor",
-  },
-  ["share-script-as-discussion"]: {
-    group: "Share",
-    name: "Post to Community Scripts",
-    description:
-      "Share the selected script on GitHub Discussions",
-  },
-  ["share-script-as-link"]: {
-    group: "Share",
-    name: "Create Install URL",
-    description:
-      "Create a link which will install the script",
-  },
-  ["share-script-as-kit-link"]: {
-    group: "Share",
-    name: "Share as private kit:// link",
-    description:
-      "Create a private link which will install the script",
-  },
-  ["share-script"]: {
-    group: "Share",
-    name: "Share as Gist",
-    description: "Share the selected script as a gist",
-  },
-  ["share-script-as-markdown"]: {
-    group: "Share",
-    name: "Share as Markdown",
-    description:
-      "Copies script contents in fenced JS Markdown",
-  },
-  ["share-copy"]: {
-    group: "Copy",
-    name: "Copy",
-    description: "Copy script contents to clipboard",
-    shortcut: `${cmd}+c`,
-  },
-  ["copy-path"]: {
-    group: "Copy",
-    name: "Copy Path",
-    description: "Copy full path of script to clipboard",
-  },
-  ["paste-as-markdown"]: {
-    group: "Copy",
-    name: "Paste as Markdown",
-    description:
-      "Paste the contents of the script as Markdown",
-    shortcut: `${cmd}+shift+p`,
-  },
-  duplicate: {
-    group: "Script Actions",
-    name: "Duplicate",
-    description: "Duplicate the selected script",
-    shortcut: `${cmd}+d`,
-  },
-  rename: {
-    group: "Script Actions",
-    name: "Rename",
-    description: "Rename the selected script",
-    shortcut: `${cmd}+shift+r`,
-  },
-  remove: {
-    group: "Script Actions",
-    name: "Remove",
-    description: "Delete the selected script",
-    shortcut: `${cmd}+shift+backspace`,
-  },
-  ["remove-from-recent"]: {
-    group: "Script Actions",
-    name: "Remove from Recent",
-    description:
-      "Remove the selected script from the recent list",
-  },
-  ["clear-recent"]: {
-    group: "Script Actions",
-    name: "Clear Recent",
-    description: "Clear the recent list of scripts",
-  },
-  // ["open-script-database"]: {
-  //   group: "DB",
-  //   name: "Open Database",
-  //   description: "Open the db file for the selected script",
-  //   shortcut: `${cmd}+b`,
-  // },
-  // ["clear-script-database"]: {
-  //   group: "DB",
-  //   name: "Delete Database",
-  //   description:
-  //     "Delete the db file for the selected script",
-  // },
-  ["reveal-script"]: {
-    group: "Script Actions",
-    name: "Reveal",
-    description: `Reveal the selected script in ${
-      isMac ? "Finder" : "Explorer"
-    }`,
-    shortcut: `${cmd}+shift+f`,
-  },
-  ["kenv-term"]: {
-    group: "Kenv",
-    name: "Open Script Kenv in a  Terminal",
-    description:
-      "Open the selected script's kenv in a terminal",
-  },
-  ["kenv-trust"]: {
-    group: "Kenv",
-    name: "Trust Script Kenv",
-    description: "Trust the selected script's kenv",
-  },
-  ["kenv-view"]: {
-    group: "Kenv",
-    name: "View Script Kenv",
-    description: "View the selected script's kenv",
-  },
-  ["kenv-visit"]: {
-    group: "Kenv",
-    name: "Open Script Repo",
-    description:
-      "Visit the selected script's kenv in your browser",
-  },
-  // ["share"]: {
-  //   name: "Share",
-  //   description: "Share the selected script",
-  //   shortcut: `${cmd}+s`,
-  //   bar: "right",
-  // },
-  // ["share-script"]: {
-  //   name: "Share as Gist",
-  //   description: "Share the selected script as a gist",
-  //   shortcut: `${cmd}+g`,
-  // },
-  // ["share-script-as-kit-link"]: {
-  //   name: "Share as kit:// link",
-  //   description:
-  //     "Create a link which will install the script",
-  //   shortcut: "option+s",
-  // },
-  // ["share-script-as-link"]: {
-  //   name: "Share as URL",
-  //   description:
-  //     "Create a URL which will install the script",
-  //   shortcut: `${cmd}+u`,
-  // },
-  // ["share-script-as-discussion"]: {
-  //   name: "Share as GitHub Discussion",
-  //   description:
-  //     "Copies shareable info to clipboard and opens GitHub Discussions",
-  // },
-  // ["share-script-as-markdown"]: {
-  //   name: "Share as Markdown",
-  //   description:
-  //     "Copies script contents in fenced JS Markdown",
-  //   shortcut: `${cmd}+m`,
-  // },
-  ["change-shortcut"]: {
-    group: "Script Actions",
-    name: "Change Shortcut",
-    description:
-      "Prompts to pick a new shortcut for the script",
-  },
-  move: {
-    group: "Kenv",
-    name: "Move Script to Kenv",
-    description: "Move the script between Kit Environments",
-  },
-  ["stream-deck"]: {
-    group: "Export",
-    name: "Prepare Script for Stream Deck",
-    description:
-      "Create a .sh file around the script for Stream Decks",
-  },
-  ["open-script-log"]: {
-    group: "Debug",
-    name: "Open Log File",
-    description:
-      "Open the log file for the selected script",
-  },
-  [modifiers.shift]: {
-    group: "Run",
-    name: "Run script w/ shift flag",
-    shortcut: "shift+enter",
-    flag: "shift",
-  },
-  [modifiers.ctrl]: {
-    group: "Run",
-    name: "Run script w/ ctrl flag",
-    shortcut: "ctrl+enter",
-    flag: "ctrl",
-  },
-  ["settings"]: {
-    group: "Run",
-    name: "Settings",
-    description: "Open the settings menu",
-    shortcut: `${cmd}+,`,
-  },
-}
 
 if (env.KIT_EDITOR !== "code") {
   scriptFlags["code"] = {
@@ -433,6 +96,7 @@ Create a script named <code>${scriptName}</code>
 let isApp = false
 let isPass = false
 let input = ""
+let focused: Choice | undefined
 
 trace.instant({
   args: "mainMenu",
@@ -446,7 +110,11 @@ let script = await mainMenu({
   flags: scriptFlags,
   onMenuToggle: async (input, state) => {
     if (!state?.flag) {
-      setFlags(scriptFlags)
+      let menuFlags = {
+        ...(scriptFlags as object),
+        ...getFlagsFromActions(actions),
+      }
+      setFlags(menuFlags)
     }
   },
   onKeyword: async (input, state) => {
@@ -464,6 +132,10 @@ let script = await mainMenu({
       input = i.trim()
     }
   },
+  onBlur: async (input, state) => {
+    hide()
+    exit()
+  },
   onNoChoices,
   onChoiceFocus: async (input, state) => {
     isApp =
@@ -472,9 +144,11 @@ let script = await mainMenu({
     isPass =
       state?.focused?.group === "Pass" &&
       !state?.focused?.exact
+
+    focused = state?.focused
   },
   // footer: `Script Options: ${cmd}+k`,
-  onInputSubmit: {
+  shortcodes: {
     // "=": kitPath("handler", "equals-handler.js"),
     // ">": kitPath("handler", "greaterthan-handler.js"),
     // "/": kitPath("main", "browse.js"),
@@ -491,141 +165,20 @@ let script = await mainMenu({
     // "<": kitPath("handler", "lessthan-handler.js"),
     // "-": kitPath("handler", "minus-handler.js"),
     // "[": kitPath("handler", "leftbracket-handler.js"),
-    "1": kitPath("handler", "number-handler.js") + ` 1`,
-    "2": kitPath("handler", "number-handler.js") + ` 2`,
-    "3": kitPath("handler", "number-handler.js") + ` 3`,
-    "4": kitPath("handler", "number-handler.js") + ` 4`,
-    "5": kitPath("handler", "number-handler.js") + ` 5`,
-    "6": kitPath("handler", "number-handler.js") + ` 6`,
-    "7": kitPath("handler", "number-handler.js") + ` 7`,
-    "8": kitPath("handler", "number-handler.js") + ` 8`,
-    "9": kitPath("handler", "number-handler.js") + ` 9`,
+    "1": `${kitPath("handler", "number-handler.js")} 1`,
+    "2": `${kitPath("handler", "number-handler.js")} 2`,
+    "3": `${kitPath("handler", "number-handler.js")} 3`,
+    "4": `${kitPath("handler", "number-handler.js")} 4`,
+    "5": `${kitPath("handler", "number-handler.js")} 5`,
+    "6": `${kitPath("handler", "number-handler.js")} 6`,
+    "7": `${kitPath("handler", "number-handler.js")} 7`,
+    "8": `${kitPath("handler", "number-handler.js")} 8`,
+    "9": `${kitPath("handler", "number-handler.js")} 9`,
     // "0": kitPath("handler", "zero-handler.js"),
     // "?": kitPath("handler", "question-handler.js"),
   },
 
-  shortcuts: [
-    // {
-    //   name: "New Menu",
-    //   key: `${cmd}+shift+n`,
-    //   onPress: async () => {
-    //     await run(kitPath("cli", "new-menu.js"))
-    //   },
-    // },
-    {
-      name: "New",
-      key: `${cmd}+n`,
-      bar: "left",
-      onPress: async () => {
-        await run(kitPath("cli", "new.js"))
-      },
-    },
-    {
-      name: "New Snippet",
-      key: `${cmd}+shift+n`,
-      onPress: async () => {
-        await run(kitPath("cli", "new-snippet.js"))
-      },
-    },
-    {
-      name: "Sign In",
-      flag: "sign-in-to-script-kit",
-      key: `${cmd}+shift+opt+s`,
-      onPress: async () => {
-        await run(kitPath("main", "account-v2.js"))
-      },
-    },
-    {
-      name: "List Processes",
-      key: `${cmd}+p`,
-      onPress: async () => {
-        let processes = await getProcesses()
-        if (
-          processes.filter(p => p?.scriptPath)?.length > 1
-        ) {
-          await run(kitPath("cli", "processes.js"))
-        }
-      },
-    },
-    {
-      name: "Find Script",
-      key: `${cmd}+f`,
-      onPress: async () => {
-        global.setFlags({})
-        await run(kitPath("cli", "find.js"))
-      },
-    },
-    {
-      name: "Reset Prompt",
-      key: `${cmd}+0`,
-      onPress: async () => {
-        await run(kitPath("cli", "kit-clear-prompt.js"))
-      },
-    },
-    {
-      name: "Edit",
-      key: `${cmd}+o`,
-      onPress: async (input, { focused }) => {
-        if (process?.env?.KIT_EDITOR !== "kit") {
-          await hide()
-        }
-        await run(
-          kitPath("cli", "edit-script.js"),
-          focused.value.filePath
-        )
-        submit(false)
-      },
-      bar: "right",
-    },
-    {
-      name: "Create/Edit Doc",
-      key: `${cmd}+.`,
-      onPress: async (input, { focused }) => {
-        await run(
-          kitPath("cli", "edit-doc.js"),
-          focused.value.filePath
-        )
-        submit(false)
-      },
-    },
-    {
-      name: "Log",
-      key: `${cmd}+l`,
-      onPress: async (input, { focused }) => {
-        await run(
-          kitPath("cli", "open-script-log.js"),
-          focused?.value?.filePath
-        )
-      },
-    },
-    {
-      name: "Share",
-      key: `${cmd}+s`,
-      condition: c => !c.needsDebugger,
-      onPress: async (input, { focused }) => {
-        let shareFlags = {}
-        for (let [k, v] of Object.entries(scriptFlags)) {
-          if (k.startsWith("share")) {
-            shareFlags[k] = v
-            delete shareFlags[k].group
-          }
-        }
-        await setFlags(shareFlags)
-        await setFlagValue(focused?.value)
-      },
-      bar: "right",
-    },
-    {
-      name: "Debug",
-      key: `${cmd}+enter`,
-      condition: c => c.needsDebugger,
-      onPress: async (input, { focused }) => {
-        flag.cmd = true
-        submit(focused)
-      },
-      bar: "right",
-    },
-  ],
+  actions,
   input: arg?.input || "",
 })
 
@@ -633,43 +186,69 @@ trace.instant({
   args: "mainMenu submitted",
 })
 
+if (!script && Object.keys(flag).length === 0) {
+  global.warn(
+    `Running error action because of no script or flag detected`
+  )
+  await errorPrompt({
+    message: `An unknown error occurred. Please try again.`,
+    name: "No Script or Flag Detected",
+  })
+}
+
 if (typeof script === "boolean" && !script) {
   exit()
 }
 
-// TODO: Help me clean up all these conditionals
-if (isApp && typeof script === "string") {
-  await Promise.all([
-    hide({
-      preloadScript: getMainScriptPath(),
-    }),
-    (open as unknown as Open)(script as string),
-  ])
-} else if (isPass) {
-  await run((script as Script)?.filePath, `--pass`, input)
-} else if (
-  script === Value.NoValue ||
-  typeof script === "undefined"
-) {
-  console.warn(`🤔 No script selected`, script)
-} else if (typeof script === "string") {
-  if (script === "kit-sponsor") {
-    await run(kitPath("main", "sponsor.js"))
-  } else {
+const runScript = async (script: Script | string) => {
+  if (isApp && typeof script === "string") {
+    return await Promise.all([
+      hide({
+        preloadScript: getMainScriptPath(),
+      }),
+      (open as unknown as Open)(script as string),
+    ])
+  }
+
+  if (isPass || (script as Script)?.postfix) {
+    let hardPass = (script as any).postfix || input
+    if (typeof global?.flag === "object") {
+      global.flag.hardPass = hardPass
+    }
+    return await run(
+      (script as Script)?.filePath,
+      "--pass",
+      hardPass
+    )
+  }
+
+  if (
+    script === Value.NoValue ||
+    typeof script === "undefined"
+  ) {
+    console.warn("🤔 No script selected", script)
+    return
+  }
+
+  if (typeof script === "string") {
+    if (script === "kit-sponsor") {
+      return await run(kitPath("main", "sponsor.js"))
+    }
+
     let scriptPath = script as string
     let [maybeScript, numarg] = scriptPath.split(/\s(?=\d)/)
     if (await isFile(maybeScript)) {
-      await run(maybeScript, numarg)
-    } else {
-      await run(
-        `${kitPath("cli", "new")}.js`,
-        scriptPath.trim().replace(/\s/g, "-").toLowerCase(),
-        `--scriptName`,
-        scriptPath.trim()
-      )
+      return await run(maybeScript, numarg)
     }
+
+    return await run(
+      `${kitPath("cli", "new")}.js`,
+      scriptPath.trim().replace(/\s/g, "-").toLowerCase(),
+      `--scriptName`,
+      scriptPath.trim()
+    )
   }
-} else {
+
   let shouldEdit = flag?.open
 
   let selectedFlag: string | undefined = Object.keys(
@@ -677,54 +256,94 @@ if (isApp && typeof script === "string") {
   ).find(f => {
     return f && !modifiers[f]
   })
+
   if (selectedFlag && flag?.code) {
-    await exec(
+    return await exec(
       `open -a 'Visual Studio Code' '${path.dirname(
         path.dirname(script.filePath)
       )}'`
     )
-  } else if (selectedFlag && selectedFlag === "settings") {
-    await run(kitPath("main", "kit.js"))
-  } else if (
-    selectedFlag &&
-    selectedFlag?.startsWith("kenv")
-  ) {
+  }
+
+  if (selectedFlag && selectedFlag === "settings") {
+    return await run(kitPath("main", "kit.js"))
+  }
+  if (selectedFlag?.startsWith("kenv")) {
     let k = script.kenv || "main"
     if (selectedFlag === "kenv-term") {
       k = path.dirname(path.dirname(script.filePath))
     }
 
-    await run(`${kitPath("cli", selectedFlag)}.js`, k)
-  } else if (
-    selectedFlag &&
-    selectedFlag?.endsWith("menu")
-  ) {
-    await run(`${kitPath("cli", selectedFlag)}.js`)
-  } else if (selectedFlag && !flag?.open) {
-    await run(
+    return await run(
+      `${kitPath("cli", selectedFlag)}.js`,
+      k
+    )
+  }
+
+  if (selectedFlag?.endsWith("menu")) {
+    return await run(`${kitPath("cli", selectedFlag)}.js`)
+  }
+
+  if (selectedFlag && !flag?.open) {
+    return await run(
       `${kitPath("cli", selectedFlag)}.js`,
       script.filePath
     )
-  } else if (flag[modifiers.opt]) {
-    showLogWindow(script?.filePath)
-  } else if (script.background) {
-    await run(
+  }
+
+  if (flag[modifiers.opt]) {
+    return showLogWindow(script?.filePath)
+  }
+
+  if (script.background) {
+    return await run(
       kitPath("cli", "toggle-background.js"),
       script?.filePath
     )
-  } else if (shouldEdit) {
-    await edit(script.filePath, kenvPath())
-  } else if ((script as Script)?.shebang) {
-    await sendWait(Channel.SHEBANG, script)
-  } else if (script && script?.filePath) {
+  }
+
+  if (shouldEdit) {
+    return await edit(script.filePath, kenvPath())
+  }
+
+  if (isSnippet(script)) {
+    send(Channel.STAMP_SCRIPT, script as Script)
+
+    return await run(
+      kitPath("app", "paste-snippet.js"),
+      "--filePath",
+      script.filePath
+    )
+  }
+
+  if (isScriptlet(script)) {
+    let { runScriptlet } = await import("./scriptlet.js")
+    await runScriptlet(script, script.inputs || [], flag)
+    return
+  }
+
+  if (Array.isArray(script)) {
+    let { runScriptlet } = await import("./scriptlet.js")
+    await runScriptlet(focused as Scriptlet, script, flag)
+    return
+  }
+
+  if ((script as Script)?.shebang) {
+    const shebang = parseShebang(script as Script)
+    return await sendWait(Channel.SHEBANG, shebang)
+  }
+
+  if (script?.filePath) {
     preload(script?.filePath)
     let runP = run(
       script.filePath,
       ...Object.keys(flag).map(f => `--${f}`)
     )
 
-    await runP
+    return await runP
   }
+
+  return await arg("How did you get here?")
 }
 
-export {}
+await runScript(script)

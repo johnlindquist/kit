@@ -1,61 +1,56 @@
 import ava from "ava"
-import fs from "fs"
-import "../../test/config.js"
+import "../../test-sdk/config.js"
+import { pathToFileURL } from "node:url"
 
-/** @type {import("./utils")} */
-let { resolveToScriptPath } = await import(
-  kitPath("core", "utils.js")
-)
-
-ava.serial(
-  `env should work with different params`,
-  async t => {
-    let name = `mock-env-message`
-    let content = `
+ava.serial("env should work with different params", async (t) => {
+	let name = "mock-env-message"
+	let content = `
     await env("MOCK_ENV_MESSAGE", "Enter a value:")    
     `
-    let type = "js"
+	let type = "js"
 
-    await $`KIT_MODE=${type} kit new ${name} main --no-edit`
+	await exec(`kit new ${name} main --no-edit`, {
+		env: {
+			...process.env,
+			NODE_PATH: process.execPath,
+			KIT_MODE: type
+		}
+	})
 
-    await appendFile(
-      kenvPath("scripts", `${name}.js`),
-      content
-    )
+	await appendFile(kenvPath("scripts", `${name}.js`), content)
 
-    let p = $`${kenvPath("bin", name)}`
+	if (process.platform === "win32") {
+		name += ".cmd"
+	}
 
-    p.stdin.write("Some value\n")
+	let p = exec(`${kenvPath("bin", name)}`)
 
-    let { stdout } = await p
+	p.stdin.write("Some value\n")
 
-    t.regex(stdout, /env/)
-  }
-)
+	let { stdout } = await p
 
-ava.serial(`All globals exist`, async t => {
-  // TODO: Make platform independent...
-  /** @type {import("../platform/darwin")} */
-  await import(kitPath("platform", "darwin.js"))
-  await import(kitPath("target", "app.js"))
-  await import(kitPath("api", "pro.js"))
-  await import(kitPath("index.js"))
+	t.regex(stdout, /env/)
+})
 
-  let files = await readdir(kitPath("types"))
-  files = files.filter(f => !f.includes("kit-editor"))
-  let content = ``
-  for await (let f of files) {
-    content += await readFile(kitPath("types", f), "utf-8")
-  }
+ava.serial("All globals exist", async (t) => {
+	// TODO: Make platform independent...
+	/** @type {import("../platform/darwin")} */
+	await import(pathToFileURL(kitPath("platform", "darwin.js")).href)
+	await import(pathToFileURL(kitPath("target", "app.js")).href)
+	await import(pathToFileURL(kitPath("api", "pro.js")).href)
+	await import(pathToFileURL(kitPath("index.js")).href)
 
-  let matches = content
-    .match(/(?<=var ).*?(?=:)/gim)
-    .filter(m => !m.includes("projectPath"))
+	let files = await readdir(kitPath("types"))
+	let content = ``
+	for await (let f of files) {
+		content += await readFile(kitPath("types", f), "utf-8")
+	}
 
-  for (let m of matches) {
-    t.true(
-      typeof global[m] !== "undefined",
-      `${m} is missing`
-    )
-  }
+	let matches = content
+		.match(/(?<=var ).*?(?=:)/gim)
+		.filter((m) => !m.includes("projectPath"))
+
+	for (let m of matches) {
+		t.true(typeof global[m] !== "undefined", `${m} is missing`)
+	}
 })

@@ -1,44 +1,47 @@
 import { exec } from "@johnlindquist/globals"
-import { editor } from "./editor.api"
+import type { editor } from "./editor.api"
 
+import type core from "./core/enum"
 import {
-  Key as KeyboardEnum,
+  type Key,
   Channel,
   Mode,
-  statuses,
-  PROMPT as PROMPT_OBJECT,
+  type statuses,
+  type PROMPT as PROMPT_OBJECT,
 } from "../core/enum"
-import { KeyEnum } from "../core/keyboard.js"
-import { AppDb } from "../core/db.js"
+import type { KeyEnum } from "../core/keyboard.js"
+import type { AppDb } from "../core/db.js"
 
 import {
-  AppState,
+  type AppState,
   ChannelHandler,
-  Choice,
+  type Choice,
   Choices,
-  FlagsOptions,
-  PromptConfig,
-  PromptData,
-  ScoredChoice,
-  Script,
-  Shortcut,
+  type FlagsObject,
+  type PromptConfig,
+  type PromptData,
+  type ScoredChoice,
+  type Script,
+  type Shortcut,
 } from "./core"
-import {
+import type {
   BrowserWindowConstructorOptions,
   Display,
   Rectangle,
 } from "./electron"
-import { Flags } from "./kit"
-import { Trash } from "./packages"
-import { marked } from "@johnlindquist/globals/types/marked"
-import { ChildProcess } from "child_process"
-import {
+
+import type { Trash } from "./packages"
+import type { marked } from "@johnlindquist/globals/types/marked"
+import type { ChildProcess } from "node:child_process"
+import type {
   UiohookKeyboardEvent,
   UiohookMouseEvent,
   UiohookWheelEvent,
 } from "./io"
-import { FileSearchOptions } from "./platform"
-import { ReadStream, WriteStream } from "fs"
+import type { FileSearchOptions } from "./platform"
+import { ReadStream, WriteStream } from "node:fs"
+import type { NotificationConstructorOptions } from "./notify"
+import type { ShebangConfig } from "../core/shebang"
 
 export type Status = (typeof statuses)[number]
 
@@ -49,6 +52,7 @@ export interface AppMessage {
   state: AppState
   widgetId?: number
   promptId: string
+  env?: Record<string, string>
 }
 
 export interface Config {
@@ -83,9 +87,14 @@ export interface IMessage extends BaseMessage {
 
 export type Message = string | Partial<IMessage>
 
-export type Chat = {
-  (config?: PromptConfig): Promise<Message[]>
-} & {
+export type Notify = (
+  bodyOrOptions: NotificationConstructorOptions | string
+) => Promise<void>
+
+export type Chat = ((
+  config?: PromptConfig,
+  actions?: Action[]
+) => Promise<Message[]>) & {
   addMessage?: (message: Message) => void
   setMessage?: (index: number, message: Message) => void
   getMessages?: () => Promise<BaseMessage[]>
@@ -93,46 +102,100 @@ export type Chat = {
   pushToken?: (token: string) => Promise<void>
 }
 
-export type Toast = {
-  (toast: string, options?: any): void
+interface ToastOptions {
+  /**
+   * Pause the timer when the mouse hover the toast.
+   * `Default: true`
+   */
+  pauseOnHover?: boolean
+  /**
+   * Pause the toast when the window loses focus.
+   * `Default: true`
+   */
+  pauseOnFocusLoss?: boolean
+  /**
+   * Remove the toast when clicked.
+   * `Default: true`
+   */
+  closeOnClick?: boolean
+  /**
+   * Set the delay in ms to close the toast automatically.
+   * Use `false` to prevent the toast from closing.
+   * `Default: 5000`
+   */
+  autoClose?: number | false
+  /**
+   * Hide or show the progress bar.
+   * `Default: false`
+   */
+  hideProgressBar?: boolean
+  /**
+   * Allow toast to be draggable
+   * `Default: 'touch'`
+   */
+  draggable?: boolean | "mouse" | "touch"
+  /**
+   * The percentage of the toast's width it takes for a drag to dismiss a toast
+   * `Default: 80`
+   */
+  draggablePercent?: number
+}
+export type Toast = (
+  toast: string,
+  options?: ToastOptions
+) => void
+
+export type Prompt = {
+  closeActions(): Promise<void>
+  close(): Promise<void>
+  openActions(): Promise<void>
+  setInput(input: string): Promise<void>
+  focus(): Promise<void>
+  blur(): Promise<void>
+  hide(): Promise<void>
 }
 
-export type Mic = {
-  (config?: MicConfig): Promise<Buffer>
-} & {
+export type Mic = ((
+  config?: MicConfig
+) => Promise<Buffer>) & {
   stop?: () => Promise<Buffer>
   start?: (config?: MicConfig) => Promise<string>
   stream?: Readable
 }
 
-export type WebCam = {
-  (config?: PromptConfig): Promise<string>
+export type WebCam = (
+  config?: PromptConfig
+) => Promise<string>
+
+export type Speech = (
+  config?: PromptConfig
+) => Promise<string>
+
+export type Screenshot = (
+  displayId?: number,
+  bounds?: Rectangle
+) => Promise<Buffer>
+
+export type ScreenshotConfig = {
+  displayId?: Parameters<Screenshot>[0]
+  bounds?: Parameters<Screenshot>[1]
 }
 
-export type Speech = {
-  (config?: PromptConfig): Promise<string>
-}
+export type GetMediaDevices = () => Promise<
+  MediaDeviceInfo[]
+>
 
-export type GetMediaDevices = {
-  (): Promise<MediaDeviceInfo[]>
-}
+export type GetTypedText = () => Promise<string>
 
-export type GetTypedText = {
-  (): Promise<string>
-}
+export type Find = (
+  placeholderOrConfig?: string | PromptConfig,
+  options?: FileSearchOptions
+) => Promise<string>
 
-export type Find = {
-  (
-    placeholderOrConfig?: string | PromptConfig,
-    options?: FileSearchOptions
-  ): Promise<string>
-}
-
-export type Editor = {
-  (
-    config?: EditorConfig & { hint?: string }
-  ): Promise<string>
-} & {
+export type Editor = ((
+  config?: EditorConfig & { hint?: string },
+  actions?: Action[]
+) => Promise<string>) & {
   setSuggestions?: (suggestions: string[]) => Promise<void>
   setConfig?: (config: EditorConfig) => Promise<void>
   append?: (text: string) => Promise<void>
@@ -165,10 +228,10 @@ export type EditorOptions =
     onPaste?: PromptConfig["onPaste"]
     onBlur?: PromptConfig["onBlur"]
     onDrop?: PromptConfig["onDrop"]
-    ignoreBlur?: boolean
     extraLibs?: { content: string; filePath: string }[]
     template?: string
     suggestions?: string[]
+    actions?: Action[]
   }
 
 export type EditorConfig =
@@ -201,36 +264,34 @@ export type PromptDb = {
   }
 }
 
-export interface TextArea {
-  (placeholderOrOptions?: string | TextareaConfig): Promise<
-    string | void
-  >
-}
+export type TextArea = (
+  placeholderOrOptions?: string | TextareaConfig
+) => Promise<string | void>
 
-export interface Drop {
-  (placeholder?: string | PromptConfig): Promise<any>
-}
-export interface Template {
-  (template: string, config?: EditorConfig): Promise<string>
-}
-export interface OldForm {
-  (
-    html?:
-      | string
-      | {
-          html?: string
-          hint?: string
-        },
-    formData?: any
-  ): Promise<any>
-}
+export type Drop = (
+  placeholder?: string | PromptConfig,
+  actions?: Action[]
+) => Promise<any>
+export type Template = (
+  template: string,
+  config?: EditorConfig,
+  actions?: Action[]
+) => Promise<string>
+export type OldForm = (
+  html?:
+    | string
+    | {
+        html?: string
+        hint?: string
+      },
+  formData?: any
+) => Promise<any>
 
-export interface Form {
-  (
-    html: string | PromptConfig,
-    formData?: any
-  ): Promise<any>
-}
+export type Form = (
+  html: string | PromptConfig,
+  formData?: any,
+  actions?: Action[]
+) => Promise<any>
 
 type Field =
   | {
@@ -247,11 +308,10 @@ type Field =
     }
   | string
 
-export interface Fields {
-  (
-    fields: Field[] | (PromptConfig & { fields: Field[] })
-  ): Promise<string[]>
-}
+export type Fields = (
+  fields: Field[] | (PromptConfig & { fields: Field[] }),
+  actions?: Action[]
+) => Promise<string[]>
 
 export type AudioOptions = {
   filePath: string
@@ -266,24 +326,21 @@ type EmojiObject = {
   unifiedWithoutSkinTone: string
 }
 
-export interface Emoji {
-  (config?: PromptConfig): Promise<EmojiObject>
-}
+export type Emoji = (
+  config?: PromptConfig
+) => Promise<EmojiObject>
 
 export interface DivConfig extends PromptConfig {
   html: string
   placeholder?: string
   hint?: string
-  ignoreBlur?: boolean
   footer?: string
 }
 
-export interface Div {
-  (
-    html?: string | DivConfig,
-    containerClass?: string
-  ): Promise<any>
-}
+export type Div = (
+  html?: string | DivConfig,
+  containerClass?: string
+) => Promise<any>
 
 export interface KeyData {
   key: KeyEnum
@@ -303,35 +360,23 @@ export interface Hotkey {
   (placeholder?: string | PromptConfig): Promise<KeyData>
 }
 
-export interface AppleScript {
-  (script: string, options?: any): Promise<string>
-}
-
 type SetImage = string | { src: string }
 
-interface AddChoice {
-  (choice: string | Choice): Promise<void>
-}
+type AddChoice = (choice: string | Choice) => Promise<void>
 
-interface SetChoices {
-  (
-    choices: (Choice | string)[],
-    config?: {
-      className?: string
-      skipInitialSearch?: boolean
-      inputRegex?: string
-      generated?: boolean
-    }
-  ): Promise<void>
-}
+type SetChoices = (
+  choices: (Choice | string)[],
+  config?: {
+    className?: string
+    skipInitialSearch?: boolean
+    inputRegex?: string
+    generated?: boolean
+  }
+) => Promise<void>
 
-interface SetFormData {
-  (formData: any): Promise<void>
-}
+type SetFormData = (formData: any) => Promise<void>
 
-interface AppendChoices {
-  (choices: Choice[]): Promise<void>
-}
+type AppendChoices = (choices: Choice[]) => Promise<void>
 
 type SetTextAreaOptions = {
   value?: string
@@ -400,6 +445,9 @@ export type SendNoOptions =
   | Channel.PONG
 export interface ChannelMap {
   // Figure these undefined out later
+  [Channel.KIT_LOADING]: string
+  [Channel.KIT_READY]: string
+  [Channel.MAIN_MENU_READY]: string
   [Channel.ERROR]: {
     script: string
     message?: string
@@ -518,10 +566,7 @@ export interface ChannelMap {
     message: string
     icon: string
   }
-  [Channel.SHEBANG]: {
-    shebang: string
-    filePath: string
-  }
+  [Channel.SHEBANG]: ShebangConfig
   [Channel.SELECT_FILE]: string
   [Channel.SELECT_FOLDER]: string
   [Channel.REVEAL_FILE]: string
@@ -556,7 +601,7 @@ export interface ChannelMap {
   [Channel.APPEND_EDITOR_VALUE]: string
   [Channel.SET_ENTER]: string
   [Channel.SET_FIELDS]: Field[]
-  [Channel.SET_FLAGS]: FlagsOptions
+  [Channel.SET_FLAGS]: FlagsObject
   [Channel.SET_FLAG_VALUE]: any
   [Channel.SET_FORM_HTML]: { html: string; formData: any }
   [Channel.SET_FORM]: PromptConfig[]
@@ -574,7 +619,6 @@ export interface ChannelMap {
   [Channel.SET_RUNNING]: boolean
   [Channel.SET_LOG]: string
   [Channel.SET_LOGO]: string
-  [Channel.SET_LOGIN]: boolean
   [Channel.SET_NAME]: string
   [Channel.SET_OPEN]: boolean
   [Channel.SET_PANEL]: string
@@ -625,8 +669,12 @@ export interface ChannelMap {
 
   [Channel.KEYBOARD_CONFIG]: { autoDelayMs: number }
   [Channel.KEYBOARD_TYPE]: string
-  [Channel.KEYBOARD_PRESS_KEY]: KeyboardEnum[]
-  [Channel.KEYBOARD_RELEASE_KEY]: KeyboardEnum[]
+  [Channel.KEYBOARD_PRESS_KEY]: Key[]
+  [Channel.KEYBOARD_RELEASE_KEY]: Key[]
+
+  [Channel.SCRIPT_CHANGED]: Script
+  [Channel.SCRIPT_REMOVED]: Script
+  [Channel.SCRIPT_ADDED]: Script
 
   [Channel.TRASH]: {
     input: Parameters<Trash>[0]
@@ -642,6 +690,17 @@ export interface ChannelMap {
   [Channel.PRELOAD]: string
   [Channel.MIC_STREAM]: boolean
   [Channel.START_MIC]: MicConfig
+  [Channel.SCREENSHOT]: ScreenshotConfig
+  [Channel.SYSTEM_CLICK]: boolean
+  [Channel.SYSTEM_MOVE]: boolean
+  [Channel.SYSTEM_KEYDOWN]: boolean
+  [Channel.SYSTEM_KEYUP]: boolean
+  [Channel.SYSTEM_MOUSEDOWN]: boolean
+  [Channel.SYSTEM_MOUSEUP]: boolean
+  [Channel.SYSTEM_MOUSEMOVE]: boolean
+  [Channel.SYSTEM_WHEEL]: boolean
+  [Channel.STAMP_SCRIPT]: Script
+  [Channel.VITE_WIDGET_SEND]: any
 }
 export interface Send {
   (channel: Channel | GetAppData | SendNoOptions): void
@@ -660,53 +719,32 @@ export interface SendData<C extends keyof ChannelMap> {
 
 export type GenericSendData = SendData<keyof ChannelMap>
 
-export interface SetHint {
-  (hint: string): void
-}
+export type SetHint = (hint: string) => void
 
-export interface SetName {
-  (name: string): void
-}
+export type SetName = (name: string) => void
 
-export interface SetDescription {
-  (description: string): void
-}
+export type SetDescription = (description: string) => void
 
-export interface SetInput {
-  (input: string): Promise<void>
-}
+export type SetInput = (input: string) => Promise<void>
 
-export interface ScrollTo {
-  (location: "top" | "bottom" | "center"): Promise<void>
-}
+export type ScrollTo = (
+  location: "top" | "bottom" | "center"
+) => Promise<void>
 
-export interface SetTextareaValue {
-  (value: string): void
-}
+export type SetTextareaValue = (value: string) => void
 
-export interface SetFocused {
-  (id: string): void
-}
+export type SetFocused = (id: string) => void
 
-export interface SetIgnoreBlur {
-  (ignoreBlur: boolean): Promise<void>
-}
+export type SetResize = (resize: boolean) => void
 
-export interface SetResize {
-  (resize: boolean): void
-}
+export type SetLoading = (loading: boolean) => void
 
-export interface SetLoading {
-  (loading: boolean): void
-}
+export type SetProgress = (progress: number) => void
+export type ShowDeprecated = (
+  message: string
+) => Promise<void>
 
-export interface SetProgress {
-  (progress: number): void
-}
-
-export interface SetStatus {
-  (status: KitStatus): void
-}
+export type SetStatus = (status: KitStatus) => void
 
 export interface KitTheme {
   "--color-primary-light": string
@@ -724,59 +762,43 @@ export interface KitTheme {
   ui: string
   opacity: string
 }
-export interface SetTheme {
-  (theme: Partial<KitTheme>): Promise<void>
-}
 
-export interface SetPlaceholder {
-  (placeholder: string): void
-}
+export type SetTheme = (theme: string) => Promise<void>
 
-export interface SetEnter {
-  (text: string): void
-}
+export type SetPlaceholder = (placeholder: string) => void
 
-export interface SetPanel {
-  (html: string, containerClasses?: string): void
-}
+export type SetEnter = (text: string) => void
 
-export interface SetFooter {
-  (footer: string): void
-}
+export type SetPanel = (
+  html: string,
+  containerClasses?: string
+) => void
 
-export interface SetPrompt {
-  (config: Partial<PromptData>): void
-}
-export interface SetPreview {
-  (html: string, containerClasses?: string): void
-}
-export interface SetBounds {
-  (bounds: Partial<Rectangle>): void
-}
+export type SetFooter = (footer: string) => void
 
-export interface SendKeystroke {
-  (keyData: Partial<KeyData>): void
-}
+export type SetPrompt = (
+  config: Partial<PromptData>
+) => void
+export type SetPreview = (
+  html: string,
+  containerClasses?: string
+) => void
+export type SetBounds = (bounds: Partial<Rectangle>) => void
 
-export interface GetBounds {
-  (): Promise<Rectangle>
-}
-export interface GetBounds {
-  (): Promise<Rectangle>
-}
+export type SendKeystroke = (
+  keyData: Partial<KeyData>
+) => void
 
-export interface GetActiveScreen {
-  (): Promise<Display>
-}
+export type GetBounds = () => Promise<Rectangle>
 
-export interface GetEditorHistory {
-  (): Promise<
-    {
-      content: string
-      timestamp: string
-    }[]
-  >
-}
+export type GetActiveScreen = () => Promise<Display>
+
+export type GetEditorHistory = () => Promise<
+  {
+    content: string
+    timestamp: string
+  }[]
+>
 
 export interface Submit {
   (value: any): Promise<void>
@@ -804,12 +826,71 @@ export interface ClipboardItem {
   preview?: string
 }
 
+export interface System {
+  onClick: typeof global.onClick
+  onMousedown: typeof global.onMousedown
+  onMouseup: typeof global.onMouseup
+  onWheel: typeof global.onWheel
+  onKeydown: typeof global.onKeydown
+  onKeyup: typeof global.onKeyup
+}
+/**
+ * A handler for a script event. Receives the full path to the script that was affected
+ * @param script The script that was added, changed, or removed.
+ */
+type ScriptHandler = (scriptPath: string) => void
+type ScriptEventHandler = (
+  handler: ScriptHandler
+) => removeListener
+
+export type App = {
+  /**
+   * A handler for a script event. Receives the full path to the script that was added.
+   * @param scriptPath The full path to the script that was added
+   */
+  onScriptAdded?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was changed.
+   * @param scriptPath The full path to the script that was changed
+   */
+  onScriptChanged?: ScriptEventHandler
+  /**
+   * A handler for a script event. Receives the full path to the script that was removed.
+   * @param scriptPath The full path to the script that was removed
+   */
+  onScriptRemoved?: ScriptEventHandler
+}
+
 export interface Keyboard {
-  type: (
-    ...text: (string | KeyboardEnum)[]
-  ) => Promise<void>
-  pressKey: (...keys: KeyboardEnum[]) => Promise<void>
-  releaseKey: (...keys: KeyboardEnum[]) => Promise<void>
+  type: (...text: (string | Key)[]) => Promise<void>
+  /**
+   * Types text or keys with a delay between each keystroke.
+   * @param config Configuration object for typing.
+   * @param config.rate The delay in milliseconds between keystrokes. Note: values less than 700 can give weird results.
+   * @param config.textOrKeys The text or keys to type.
+   */
+  typeDelayed: (config: {
+    rate?: number
+    textOrKeys: string | Key[]
+  }) => Promise<void>
+  /**
+   * Presses a key.
+   * @param keys The keys to press.
+   */
+  pressKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Releases a key.
+   * @param keys The keys to release.
+   */
+  releaseKey: (...keys: Key[]) => Promise<void>
+  /**
+   * Taps a key.
+   * @param keys The keys to tap.
+   */
+  tap: (...keys: Key[]) => Promise<void>
+  /**
+   * @deprecated Use `keyboard.typeDelayed` or set `KIT_TYPING_RATE` and use `keyboard.type` instead.
+   */
   config: (config: { autoDelayMs: number }) => Promise<void>
 }
 
@@ -848,13 +929,14 @@ export interface KitClipboard {
   clear: () => Promise<void>
 }
 
-export interface RegisterShortcut {
-  (shortcut: string, callback: () => void): Promise<void>
-}
+export type RegisterShortcut = (
+  shortcut: string,
+  callback: () => void
+) => Promise<void>
 
-export interface UnregisterShortcut {
-  (shortcut: string): Promise<void>
-}
+export type UnregisterShortcut = (
+  shortcut: string
+) => Promise<void>
 
 export type GuideSection = {
   name: string
@@ -864,24 +946,20 @@ export type GuideSection = {
     [key: string]: string
   }
 }
-export interface Docs<T = any> {
-  (
-    markdownPath: string,
-    options?:
-      | Partial<PromptConfig>
-      | ((
-          sections?: GuideSection[],
-          tokens?: marked.Token[]
-        ) => Promise<Partial<PromptConfig>>)
-  ): Promise<T>
-}
+export type Docs<T = any> = (
+  markdownPath: string,
+  options?:
+    | Partial<PromptConfig>
+    | ((
+        sections?: GuideSection[],
+        tokens?: marked.Token[]
+      ) => Promise<Partial<PromptConfig>>)
+) => Promise<T>
 
-export interface ExecLog {
-  (
-    command: string,
-    logger?: typeof console.log
-  ): ChildProcess
-}
+export type ExecLog = (
+  command: string,
+  logger?: typeof console.log
+) => ChildProcess
 
 export interface AppApi {
   textarea: TextArea
@@ -893,6 +971,7 @@ export interface AppApi {
   emoji: Emoji
   div: Div
   hotkey: Hotkey
+  prompt: Prompt
 
   kitPrompt: (promptConfig: PromptConfig) => Promise<any>
   send: Send
@@ -912,6 +991,7 @@ export interface AppApi {
   setDescription: SetDescription
   setInput: SetInput
   setFilterInput: SetInput
+  showDeprecated: ShowDeprecated
   setTextareaValue: SetTextareaValue
 
   setIgnoreBlur: SetIgnoreBlur
@@ -966,7 +1046,7 @@ export interface AppApi {
   ) => Promise<void>
 
   appKeystroke: SendKeystroke
-  Key: typeof KeyboardEnum
+  Key: typeof core.Key
 
   log: typeof console.log
   warn: typeof console.warn
@@ -1000,7 +1080,6 @@ export interface Schedule extends Choice {
 export interface HideOptions {
   preloadScript?: string
 }
-
 declare global {
   var textarea: TextArea
   var drop: Drop
@@ -1017,6 +1096,11 @@ declare global {
     channel: Channel,
     value?: any,
     timeout?: number
+  ) => Promise<any>
+  var headers: Record<string, string>
+  var sendResponse: (
+    body: any,
+    headers?: Record<string, string>
   ) => Promise<any>
   var sendWaitLong: (
     channel: Channel,
@@ -1077,7 +1161,7 @@ declare global {
   ) => Promise<void>
 
   var appKeystroke: SendKeystroke
-  var Key: typeof KeyboardEnum
+  var Key: typeof core.Key
 
   var log: typeof console.log
   var warn: typeof console.warn
@@ -1109,32 +1193,75 @@ declare global {
   var toast: Toast
   var find: Find
   var mic: Mic
+  /**
+   * Captures a screenshot. Defaults to the display where the current mouse cursor is located and captures the full screen if no bounds are specified.
+   * @param displayId - The identifier for the display to capture. If not provided, captures the display with the current mouse cursor.
+   * @param bounds - The specific area of the screen to capture. If not provided, captures the entire screen.
+   * @returns A Promise that resolves to a Buffer containing the screenshot data.
+   */
+  var screenshot: Screenshot
   var webcam: WebCam
+  var prompt: Prompt
   var getMediaDevices: GetMediaDevices
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
   var preventSubmit: Symbol
 
+  type removeListener = () => void
+  /**
+   * Registers a global system onClick event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onClick: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => removeListener
 
+  /**
+   * Registers a global system onMousedown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMousedown: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
+  ) => removeListener
+  /**
+   * Registers a global system onMouseup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onMouseup: (
     callback: (event: UiohookMouseEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onWheel event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onWheel: (
     callback: (event: UiohookWheelEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onKeydown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeydown: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
-
+  ) => removeListener
+  /**
+   * Registers a global system onKeyup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
   var onKeyup: (
     callback: (event: UiohookKeyboardEvent) => void
-  ) => void
+  ) => removeListener
+
+  var system: System
+  var app: App
+
+  var getTheme: () => Promise<KitTheme>
+
+  var notify: Notify
 }

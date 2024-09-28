@@ -1,22 +1,30 @@
-import * as os from "os"
-import { pathToFileURL } from "url"
+import path from "node:path"
+import { existsSync, lstatSync } from "node:fs"
+import {
+  readFile,
+  readJson,
+} from "@johnlindquist/kit-internal/fs-extra"
+import * as os from "node:os"
+import { pathToFileURL } from "node:url"
 import * as JSONSafe from "safe-stable-stringify"
 import {
   QuickScore,
   quickScore,
   createConfig,
-  Options,
-  ConfigOptions,
+  type Options,
+  type ConfigOptions,
 } from "quick-score"
 import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
-import {
+import type {
   Action,
   Choice,
-  FlagsOptions,
+  FlagsObject,
   FlagsWithKeys,
   PromptConfig,
   ScoredChoice,
   Script,
+  Scriptlet,
+  Shortcut,
 } from "../types/core"
 import { Channel, PROMPT } from "../core/enum.js"
 
@@ -25,25 +33,38 @@ import {
   kenvPath,
   resolveScriptToCommand,
   run,
+  home,
+  isFile,
   getKenvs,
   groupChoices,
   formatChoices,
   parseScript,
   processInBatches,
+  highlight,
+  md as mdUtil,
+  tagger,
 } from "../core/utils.js"
 import {
   getScripts,
   getScriptFromString,
   getUserJson,
   getTimestamps,
-  Stamp,
+  type Stamp,
   setUserJson,
 } from "../core/db.js"
 
 import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
 
-import { Kenv } from "../types/kit"
-import { Fields as TraceFields } from "chrome-trace-event"
+import type { Kenv } from "../types/kit"
+import type { Fields as TraceFields } from "chrome-trace-event"
+import dotenv from "dotenv"
+import type { kenvEnv } from "../types/env"
+import { getRecentLimit } from "./recent.js"
+
+global.__kitActionsMap = new Map<
+  string,
+  Action | Shortcut
+>()
 
 export async function initTrace() {
   if (
@@ -152,8 +173,8 @@ export let errorPrompt = async (error: Error) => {
     global.warn(stackWithoutId)
 
     let errorFile = global.kitScript
-    let line: string = "1"
-    let col: string = "1"
+    let line = "1"
+    let col = "1"
 
     let secondLine = stackWithoutId.split("\n")?.[1] || ""
 
@@ -200,6 +221,10 @@ export let errorPrompt = async (error: Error) => {
         log({ args })
         args = []
       }
+      global.warn(`Running error action because of`, {
+        script,
+        error,
+      })
       await run(
         kitPath("cli", "error-action.js"),
         script,
@@ -221,7 +246,7 @@ export let outputTmpFile = async (
   contents: string
 ) => {
   let outputPath = path.resolve(
-    global.tempdir(),
+    os.tmpdir(),
     "kit",
     fileName
   )
@@ -245,7 +270,7 @@ export let buildWidget = async (
   let outfile = outPath || scriptPath
 
   let templateContent = await readFile(
-    kenvPath("templates", `widget.html`),
+    kenvPath("templates", "widget.html"),
     "utf8"
   )
 
@@ -352,6 +377,30 @@ global.send = (channel: Channel, value?: any) => {
   }
 }
 
+global.sendResponse = (
+  body: any,
+  headers: Record<string, string> = {}
+) => {
+  let statusCode = 200
+  if (headers["Status-Code"]) {
+    statusCode = Number.parseInt(headers["Status-Code"], 10)
+    headers["Status-Code"] = undefined
+  }
+
+  const responseHeaders = { ...headers }
+  if (!responseHeaders["Content-Type"]) {
+    responseHeaders["Content-Type"] = "application/json"
+  }
+
+  const response = {
+    body,
+    statusCode,
+    headers: responseHeaders,
+  }
+
+  return global.sendWait(Channel.RESPONSE, response)
+}
+
 let _consoleLog = global.console.log.bind(global.console)
 let _consoleWarn = global.console.warn.bind(global.console)
 let _consoleClear = global.console.clear.bind(
@@ -363,7 +412,7 @@ global.log = (...args) => {
       Channel.KIT_LOG,
       args
         .map(a =>
-          typeof a != "string" ? JSONSafe.stringify(a) : a
+          typeof a !== "string" ? JSONSafe.stringify(a) : a
         )
         .join(" ")
     )
@@ -484,8 +533,7 @@ global.cli = async (cliPath, ..._args) => {
 
 global.setup = async (setupPath, ..._args) => {
   global.setPlaceholder(`>_ setup: ${setupPath}...`)
-  let setupScriptPath =
-    kitPath("setup/" + setupPath) + ".js"
+  let setupScriptPath = kitPath("setup", setupPath) + ".js"
   return await global.attemptImport(
     setupScriptPath,
     ..._args
@@ -500,29 +548,38 @@ global.kenvTmpPath = (...parts) => {
   return scriptTmpDir
 }
 
-global.tmpPath = (...parts) => {
+export let tmpPath = (...parts: string[]) => {
   let command = global?.kitScript
     ? resolveScriptToCommand(global.kitScript)
     : ""
 
-  let tmpCommandDir = global.path.resolve(
+  let tmpCommandDir = path.resolve(
     os.tmpdir(),
     "kit",
     command
   )
 
-  let scriptTmpDir = global.path.resolve(
-    tmpCommandDir,
-    ...parts
-  )
+  let scriptTmpDir = path.resolve(tmpCommandDir, ...parts)
 
   let kenvTmpCommandPath = kenvPath("tmp", command)
 
   global.ensureDirSync(tmpCommandDir)
   // symlink to kenvPath("command")
-  global.ensureSymlink(tmpCommandDir, kenvTmpCommandPath)
+  // Check if tmpCommandDir exists and is not a symlink before creating the symlink
+  if (
+    !existsSync(kenvTmpCommandPath) ||
+    lstatSync(kenvTmpCommandPath).isSymbolicLink()
+  ) {
+    global.ensureSymlinkSync(
+      tmpCommandDir,
+      kenvTmpCommandPath
+    )
+  }
+
   return scriptTmpDir
 }
+
+global.tmpPath = tmpPath
 /**
  * @deprecated use `tmpPath` instead
  */
@@ -543,11 +600,11 @@ global.inspect = async (data, fileName) => {
   }
 
   if (fileName) {
-    tmpFullPath = global.tmpPath(fileName)
+    tmpFullPath = tmpPath(fileName)
   } else if (typeof data === "object") {
-    tmpFullPath = global.tmpPath(`${dashedDate()}.json`)
+    tmpFullPath = tmpPath(`${dashedDate()}.json`)
   } else {
-    tmpFullPath = global.tmpPath(`${dashedDate()}.txt`)
+    tmpFullPath = tmpPath(`${dashedDate()}.txt`)
   }
 
   await global.writeFile(tmpFullPath, formattedData)
@@ -570,7 +627,6 @@ global.onTabIndex = 0
 global.onTab = (name, tabFunction) => {
   let fn = async (...args) => {
     await tabFunction(...args)
-    finishScript()
   }
   global.onTabs.push({ name, fn })
   if (global.flag?.tab) {
@@ -768,9 +824,8 @@ global.setChoices = async (choices, config) => {
 
 global.flag ||= {}
 global.prepFlags = (
-  flagsOptions: FlagsOptions
-): FlagsOptions => {
-  global.kitFlagsAsChoices = []
+  flagsOptions: FlagsObject
+): FlagsObject => {
   for (let key of Object.keys(global?.flag)) {
     delete global?.flag?.[key]
   }
@@ -792,9 +847,9 @@ global.prepFlags = (
     if (key === "order") continue
     if (key === "sortChoicesKey") continue
 
-    validFlags[key] = {
+    let validFlag = {
+      ...value,
       name: value?.name || key,
-      group: value?.group || "Actions",
       shortcut: value?.shortcut || "",
       description: value?.description || "",
       value: key,
@@ -802,54 +857,131 @@ global.prepFlags = (
       preview: value?.preview || "",
       hasAction: Boolean(value?.onAction),
     }
+    validFlags[key] = validFlag
+
+    if (value?.group) {
+      validFlags[key].group = value.group
+    }
   }
 
-  global.kitFlagsAsChoices = currentFlags.map(
-    ([key, value]) => {
-      return {
-        id: key,
-        group: value?.group || "Actions",
-        name: value?.name || key,
-        value: key,
-        description: value?.description || "",
-        preview: value?.preview || `<div></div>`,
-        shortcut: value?.shortcut || "",
-        onAction: value?.onAction || null,
-      }
+  for (const [key, value] of currentFlags) {
+    if (key === "order") continue
+    if (key === "sortChoicesKey") continue
+    const choice = {
+      id: key,
+      name: value?.name || key,
+      value: key,
+      description: value?.description || "",
+      preview: value?.preview || "<div></div>",
+      shortcut: value?.shortcut || "",
+      onAction: value?.onAction || null,
+    } as Choice
+
+    if (value?.group) {
+      choice.group = value.group
     }
-  )
+
+    global.__kitActionsMap.set(value?.name || key, choice)
+  }
 
   return validFlags
 }
 
-global.setFlags = (flags: FlagsOptions) => {
-  global.send(Channel.SET_FLAGS, global.prepFlags(flags))
+global.setFlags = async (
+  flags: FlagsObject,
+  options = {}
+) => {
+  let flagsMessage = {
+    flags: global.prepFlags(flags),
+    options: {
+      name: options?.name || "",
+      placeholder: options?.placeholder || "",
+      active: options?.active || "Actions",
+    },
+  }
+  // TODO: Move props from FlagsObject like "order", "sortChoicesKey" to the options
+  await global.sendWait(Channel.SET_FLAGS, flagsMessage)
+}
+
+function sortArrayByIndex(arr) {
+  const sortedArr = []
+  const indexedItems = []
+
+  // Separate indexed items from non-indexed items
+  arr.forEach((item, i) => {
+    if (item.hasOwnProperty("index")) {
+      indexedItems.push({ item, index: item.index })
+    } else {
+      sortedArr.push(item)
+    }
+  })
+
+  // Sort indexed items based on their index
+  indexedItems.sort((a, b) => a.index - b.index)
+
+  // Insert indexed items into the sorted array at their respective positions
+  for (const { item, index } of indexedItems) {
+    sortedArr.splice(index, 0, item)
+  }
+
+  return sortedArr
 }
 
 export let getFlagsFromActions = (
   actions: PromptConfig["actions"]
 ) => {
-  let flags: FlagsOptions = {}
-  if (Array.isArray(actions)) {
-    for (let action of actions) {
-      if (typeof action === "string") {
-        action = { name: action, flag: action }
-      }
-      flags[action.flag || action.name] = {
-        flag: action.flag || action.name,
-        ...action,
-        hasAction: action?.onAction ? true : false,
-        bar: action?.visible ? "right" : "",
-      }
+  let flags: FlagsObject = {}
+  let indices = new Set()
+  for (let a of actions as Action[]) {
+    if (a?.index) {
+      indices.add(a.index)
     }
   }
+  let groups = new Set()
+  if (Array.isArray(actions)) {
+    const sortedActions = sortArrayByIndex(actions)
+    for (let i = 0; i < sortedActions.length; i++) {
+      let action = sortedActions[i]
+      if (typeof action === "string") {
+        action = {
+          name: action,
+          flag: action,
+        }
+      }
+      if (action?.group) {
+        groups.add(action.group)
+      }
+
+      let flagAction = {
+        flag: action.flag || action.name,
+        index: i,
+        close: true,
+        ...action,
+        hasAction: !!action?.onAction,
+        bar: action?.visible ? "right" : "",
+      } as Action
+      flags[action.flag || action.name] = flagAction
+    }
+  }
+
+  flags.sortChoicesKey = Array.from(groups).map(
+    g => "index"
+  )
 
   return flags
 }
 
-global.setActions = (actions: Action[]) => {
+global.setActions = (actions: Action[], options = {}) => {
   let flags = getFlagsFromActions(actions)
-  setFlags(flags)
+  setFlags(flags, options)
+}
+
+global.openActions = async () => {
+  await sendWait(Channel.OPEN_ACTIONS)
+}
+
+global.closeActions = async () => {
+  await sendWait(Channel.CLOSE_ACTIONS)
 }
 
 global.setFlagValue = (value: any) => {
@@ -998,7 +1130,544 @@ export let highlightJavaScript = async (
   return wrapped
 }
 
-function buildScriptConfig(
+let order = [
+  "Script Actions",
+  "New",
+  "Copy",
+  "Debug",
+  "Kenv",
+  "Git",
+  "Share",
+  "Export",
+  // "DB",
+  "Run",
+]
+
+export let actions: Action[] = [
+  // {
+  //   name: "New Menu",
+  //   key: `${cmd}+shift+n`,
+  //   onPress: async () => {
+  //     await run(kitPath("cli", "new-menu.js"))
+  //   },
+  // },
+  {
+    name: "New Script",
+    description: "Create a new script",
+    shortcut: `${cmd}+n`,
+    onAction: async () => {
+      await run(kitPath("cli", "new.js"))
+    },
+    group: "New",
+  },
+  {
+    name: "New Scriptlet",
+    description: "Create a new scriptlet",
+    shortcut: `${cmd}+shift+n`,
+    onAction: async () => {
+      await run(kitPath("cli", "new-scriptlet.js"))
+    },
+    group: "New",
+  },
+  {
+    name: "New Snippet",
+    description: "Create a new snippet",
+    shortcut: `${cmd}+opt+n`,
+    onAction: async () => {
+      await run(kitPath("cli", "new-snippet.js"))
+    },
+    group: "New",
+  },
+  {
+    name: "New Theme",
+    description: "Create a new theme",
+    onAction: async () => {
+      await run(kitPath("cli", "new-theme.js"))
+    },
+    group: "New",
+  },
+  {
+    name: "Sign In",
+    description: "Log in to GitHub to Script Kit",
+    flag: "sign-in-to-script-kit",
+    shortcut: `${cmd}+shift+opt+s`,
+    onAction: async () => {
+      await run(kitPath("main", "account-v2.js"))
+    },
+    group: "Settings",
+  },
+  {
+    name: "List Processes",
+    description: "List running processes",
+    shortcut: `${cmd}+p`,
+    onAction: async () => {
+      let processes = await getProcesses()
+      if (
+        processes.filter(p => p?.scriptPath)?.length > 1
+      ) {
+        await run(kitPath("cli", "processes.js"))
+      } else {
+        toast("No running processes found...")
+      }
+    },
+    group: "Debug",
+  },
+  {
+    name: "Find Script",
+    description: "Search for a script by contents",
+    shortcut: `${cmd}+f`,
+    onAction: async () => {
+      global.setFlags({})
+      await run(kitPath("cli", "find.js"))
+    },
+    group: "Script Actions",
+  },
+  {
+    name: "Reset Prompt",
+    shortcut: `${cmd}+0`,
+    onAction: async () => {
+      await run(kitPath("cli", "kit-clear-prompt.js"))
+    },
+    group: "Script Actions",
+  },
+  // TODO: Figure out why setFlags is being called twice and overridden here
+  // {
+  //   name: "Share",
+  //   description: "Share {{name}}",
+  //   shortcut: `${cmd}+s`,
+  //   condition: c => !c.needsDebugger,
+  //   onAction: async (input, { focused }) => {
+  //     let shareFlags = {}
+  //     for (let [k, v] of Object.entries(scriptFlags)) {
+  //       if (k.startsWith("share")) {
+  //         shareFlags[k] = v
+  //         delete shareFlags[k].group
+  //       }
+  //     }
+  //     await setFlags(shareFlags)
+  //     await setFlagValue(focused?.value)
+  //   },
+  //   group: "Script Actions",
+  // },
+  {
+    name: "Debug",
+    shortcut: `${cmd}+enter`,
+    condition: c => c.needsDebugger,
+    onAction: async (input, { focused }) => {
+      flag.cmd = true
+      submit(focused)
+    },
+    group: "Debug",
+  },
+  {
+    name: "Support",
+    shortcut: `${cmd}+i`,
+    close: false,
+    onAction: async () => {
+      let userJson = await getUserJson()
+      let loggedIn = userJson?.login
+      let helpActions: Action[] = [
+        ...(loggedIn
+          ? []
+          : [
+              {
+                name: "Sign In",
+                description: "Sign in to Script Kit",
+                onAction: async () => {
+                  await run(
+                    kitPath("main", "account-v2.js")
+                  )
+                },
+              },
+            ]),
+        {
+          name: "Read Docs",
+          description: "Read the docs",
+          onAction: async () => {
+            await open("https://scriptkit.com/docs")
+            exit()
+          },
+        },
+        {
+          name: "Ask a Question",
+          description: "Open GitHub Discussions",
+          onAction: async () => {
+            await open(
+              `https://github.com/johnlindquist/kit/discussions`
+            )
+            exit()
+          },
+        },
+        {
+          name: "Report a Bug",
+          description: "Open GitHub Issues",
+          onAction: async () => {
+            await open(
+              `https://github.com/johnlindquist/kit/issues`
+            )
+            exit()
+          },
+        },
+        {
+          name: "Join Discord Server",
+          description: "Hang out on Discord",
+          onAction: async () => {
+            let response = await get(
+              "https://scriptkit.com/api/discord-invite"
+            )
+            await open(response.data)
+            exit()
+          },
+        },
+      ]
+      await setActions(helpActions, {
+        name: `Script Kit ${process.env.KIT_APP_VERSION}`,
+        placeholder: "Support",
+        active: "Script Kit Support",
+      })
+      openActions()
+    },
+    group: "Support",
+  },
+]
+
+export let modifiers = {
+  cmd: "cmd",
+  shift: "shift",
+  opt: "opt",
+  ctrl: "ctrl",
+}
+
+export let scriptFlags: FlagsObject = {
+  order,
+  sortChoicesKey: order.map(o => ""),
+  // open: {
+  //   name: "Script Actions",
+  //   description: "Open {{name}} in your editor",
+  //   shortcut: `${cmd}+o`,
+  //   action: "right",
+  // },
+  // ["new-menu"]: {
+  //   name: "New",
+  //   description: "Create a new script",
+  //   shortcut: `${cmd}+n`,
+  //   action: "left",
+  // },
+  ["edit-script"]: {
+    name: "Edit",
+    shortcut: `${cmd}+o`,
+    group: "Script Actions",
+    description: "Open {{name}} in your editor",
+    preview: async (input, state) => {
+      let flaggedFilePath = state?.flaggedValue?.filePath
+      if (!flaggedFilePath) return
+
+      // Get last modified time
+      let { size, mtime, mtimeMs } = await stat(
+        flaggedFilePath
+      )
+      let lastModified = new Date(mtimeMs)
+
+      let stamps = await getTimestamps()
+      let stamp = stamps.stamps.find(
+        s => s.filePath === flaggedFilePath
+      )
+
+      let composeBlock = (...lines) =>
+        lines.filter(Boolean).join("\n")
+
+      let compileMessage =
+        stamp?.compileMessage?.trim() || ""
+      let compileStamp = stamp?.compileStamp
+        ? `Last compiled: ${formatDistanceToNow(
+            new Date(stamp?.compileStamp),
+            {
+              includeSeconds: true,
+            }
+          )} ago`
+        : ""
+      let executionTime = stamp?.executionTime
+        ? `Last run duration: ${stamp?.executionTime}ms`
+        : ""
+      let runCount = stamp?.runCount
+        ? `Run count: ${stamp?.runCount}`
+        : ""
+
+      let compileBlock = composeBlock(
+        compileMessage && `* ${compileMessage}`,
+        compileStamp && `* ${compileStamp}`
+      )
+
+      if (compileBlock) {
+        compileBlock =
+          `### Compile Info\n${compileBlock}`.trim()
+      }
+
+      let executionBlock = composeBlock(
+        runCount && `* ${runCount}`,
+        executionTime && `* ${executionTime}`
+      )
+
+      if (executionBlock) {
+        executionBlock =
+          `### Execution Info\n${executionBlock}`.trim()
+      }
+
+      let lastRunBlock = ""
+      if (stamp) {
+        let lastRunDate = new Date(stamp.timestamp)
+        lastRunBlock = `### Last Run
+  - ${lastRunDate.toLocaleString()}
+  - ${formatDistanceToNow(lastRunDate)} ago
+  `.trim()
+      }
+
+      let modifiedBlock = `### Last Modified 
+- ${lastModified.toLocaleString()}      
+- ${formatDistanceToNow(lastModified)} ago`
+
+      let info = md(
+        `# Stats
+
+#### ${flaggedFilePath}
+
+${compileBlock}
+  
+${executionBlock}
+  
+${modifiedBlock}
+  
+${lastRunBlock}
+  
+`.trim()
+      )
+      return info
+    },
+  },
+  [cmd]: {
+    group: "Debug",
+    name: "Debug Script",
+    description:
+      "Open inspector. Pause on debugger statements.",
+    shortcut: `${cmd}+enter`,
+    flag: cmd,
+  },
+  [modifiers.opt]: {
+    group: "Debug",
+    name: "Open Log Window",
+    description: "Open a log window for {{name}}",
+    shortcut: "alt+enter",
+    flag: modifiers.opt,
+  },
+  "push-script": {
+    group: "Git",
+    name: "Push to Git Repo",
+    description: "Push {{name}} to a git repo",
+  },
+  "pull-script": {
+    group: "Git",
+    name: "Pull from Git Repo",
+    description: "Pull {{name}} from a git repo",
+  },
+
+  "edit-doc": {
+    group: "Script Actions",
+    name: "Create/Edit Doc",
+    shortcut: `${cmd}+.`,
+    description: "Open {{name}}'s markdown in your editor",
+  },
+  "share-script-as-discussion": {
+    group: "Share",
+    name: "Post to Community Scripts",
+    description: "Share {{name}} on GitHub Discussions",
+  },
+  "share-script-as-link": {
+    group: "Share",
+    name: "Create Install URL",
+    description:
+      "Create a link which will install the script",
+  },
+  "share-script-as-kit-link": {
+    group: "Share",
+    name: "Share as private kit:// link",
+    description:
+      "Create a private link which will install the script",
+  },
+  "share-script": {
+    group: "Share",
+    name: "Share as Gist",
+    description: "Share {{name}} as a gist",
+  },
+  "share-script-as-markdown": {
+    group: "Share",
+    name: "Share as Markdown",
+    description:
+      "Copies script contents in fenced JS Markdown",
+  },
+  "share-copy": {
+    group: "Copy",
+    name: "Copy",
+    description: "Copy script contents to clipboard",
+    shortcut: `${cmd}+c`,
+  },
+  "copy-path": {
+    group: "Copy",
+    name: "Copy Path",
+    description: "Copy full path of script to clipboard",
+  },
+  "paste-as-markdown": {
+    group: "Copy",
+    name: "Paste as Markdown",
+    description:
+      "Paste the contents of the script as Markdown",
+    shortcut: `${cmd}+shift+p`,
+  },
+  duplicate: {
+    group: "Script Actions",
+    name: "Duplicate",
+    description: "Duplicate {{name}}",
+    shortcut: `${cmd}+d`,
+  },
+  rename: {
+    group: "Script Actions",
+    name: "Rename",
+    description: "Rename {{name}}",
+    shortcut: `${cmd}+shift+r`,
+  },
+  remove: {
+    group: "Script Actions",
+    name: "Remove",
+    description: "Delete {{name}}",
+    shortcut: `${cmd}+shift+backspace`,
+  },
+  "remove-from-recent": {
+    group: "Script Actions",
+    name: "Remove from Recent",
+    description: "Remove {{name}} from the recent list",
+  },
+  "clear-recent": {
+    group: "Script Actions",
+    name: "Clear Recent",
+    description: "Clear the recent list of scripts",
+  },
+  // ["open-script-database"]: {
+  //   group: "DB",
+  //   name: "Open Database",
+  //   description: "Open the db file for {{name}}",
+  //   shortcut: `${cmd}+b`,
+  // },
+  // ["clear-script-database"]: {
+  //   group: "DB",
+  //   name: "Delete Database",
+  //   description:
+  //     "Delete the db file for {{name}}",
+  // },
+  "reveal-script": {
+    group: "Script Actions",
+    name: "Reveal",
+    description: `Reveal {{name}} in ${
+      isMac ? "Finder" : "Explorer"
+    }`,
+    shortcut: `${cmd}+shift+f`,
+  },
+  "kenv-term": {
+    group: "Kenv",
+    name: "Open Script Kenv in a  Terminal",
+    description: "Open {{name}}'s kenv in a terminal",
+  },
+  "kenv-trust": {
+    group: "Kenv",
+    name: "Trust Script Kenv",
+    description: "Trust {{name}}'s kenv",
+  },
+  "kenv-view": {
+    group: "Kenv",
+    name: "View Script Kenv",
+    description: "View {{name}}'s kenv",
+  },
+  "kenv-visit": {
+    group: "Kenv",
+    name: "Open Script Repo",
+    description: "Visit {{name}}'s kenv in your browser",
+  },
+  // ["share"]: {
+  //   name: "Share",
+  //   description: "Share {{name}}",
+  //   shortcut: `${cmd}+s`,
+  //   bar: "right",
+  // },
+  // ["share-script"]: {
+  //   name: "Share as Gist",
+  //   description: "Share {{name}} as a gist",
+  //   shortcut: `${cmd}+g`,
+  // },
+  // ["share-script-as-kit-link"]: {
+  //   name: "Share as kit:// link",
+  //   description:
+  //     "Create a link which will install the script",
+  //   shortcut: "option+s",
+  // },
+  // ["share-script-as-link"]: {
+  //   name: "Share as URL",
+  //   description:
+  //     "Create a URL which will install the script",
+  //   shortcut: `${cmd}+u`,
+  // },
+  // ["share-script-as-discussion"]: {
+  //   name: "Share as GitHub Discussion",
+  //   description:
+  //     "Copies shareable info to clipboard and opens GitHub Discussions",
+  // },
+  // ["share-script-as-markdown"]: {
+  //   name: "Share as Markdown",
+  //   description:
+  //     "Copies script contents in fenced JS Markdown",
+  //   shortcut: `${cmd}+m`,
+  // },
+  "change-shortcut": {
+    group: "Script Actions",
+    name: "Change Shortcut",
+    description:
+      "Prompts to pick a new shortcut for the script",
+  },
+  move: {
+    group: "Kenv",
+    name: "Move Script to Kenv",
+    description: "Move the script between Kit Environments",
+  },
+  "stream-deck": {
+    group: "Export",
+    name: "Prepare Script for Stream Deck",
+    description:
+      "Create a .sh file around the script for Stream Decks",
+  },
+  "open-script-log": {
+    group: "Debug",
+    name: "Open Log File",
+    description: "Open the log file for {{name}}",
+    shortcut: `${cmd}+l`,
+  },
+  [modifiers.shift]: {
+    group: "Run",
+    name: "Run script w/ shift flag",
+    shortcut: "shift+enter",
+    flag: "shift",
+  },
+  [modifiers.ctrl]: {
+    group: "Run",
+    name: "Run script w/ ctrl flag",
+    shortcut: "ctrl+enter",
+    flag: "ctrl",
+  },
+  settings: {
+    group: "Settings",
+    name: "Settings",
+    description: "Open the settings menu",
+    shortcut: `${cmd}+,`,
+  },
+}
+
+export function buildScriptConfig(
   message: string | PromptConfig
 ): PromptConfig {
   let scriptsConfig =
@@ -1022,9 +1691,8 @@ async function getScriptResult(
       message?.strict === true)
   ) {
     return await getScriptFromString(script)
-  } else {
-    return script as Script //hmm...
   }
+  return script as Script //hmm...
 }
 
 export let getApps = async () => {
@@ -1044,82 +1712,63 @@ export let getApps = async () => {
   return groupedApps
 }
 
+export let splitEnvVarIntoArray = (
+  envVar: string | undefined,
+  fallback: string[]
+) => {
+  return envVar
+    ? envVar
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+    : fallback
+}
+
 let groupScripts = scripts => {
   let excludeGroups =
-    env?.KIT_EXCLUDE_KENVS?.split(",").map(k => k.trim()) ||
-    []
+    global?.env?.KIT_EXCLUDE_KENVS?.split(",").map(k =>
+      k.trim()
+    ) || []
 
   return groupChoices(scripts, {
     groupKey: "kenv",
     missingGroupName: "Main",
-    order: process?.env?.KIT_MAIN_ORDER
-      ? process?.env?.KIT_MAIN_ORDER?.split(",")
-          .filter(Boolean)
-          .map(s => s.trim())
-      : ["Favorite", "Main", "Apps"],
-    endOrder: process?.env?.KIT_MAIN_END_ORDER
-      ? process?.env?.KIT_MAIN_END_ORDER?.split(",").filter(
-          Boolean
-        )
-      : ["Pass"],
+    order: splitEnvVarIntoArray(
+      process?.env?.KIT_MAIN_ORDER,
+      ["Favorite", "Main", "Scriptlets"]
+    ),
+
+    endOrder: splitEnvVarIntoArray(
+      process?.env?.KIT_MAIN_END_ORDER,
+      ["Apps", "Pass"]
+    ),
     recentKey: "timestamp",
     excludeGroups,
-    recentLimit: process?.env?.KIT_RECENT_LIMIT
-      ? parseInt(process.env.KIT_RECENT_LIMIT, 10)
-      : 3,
-    hideWithoutInput: ["Apps"],
-    tagger: (s: any) => {
-      if (!s.tag) {
-        s.tag = ``
-        if (s?.friendlyShortcut) {
-          s.tag = s.friendlyShortcut
-        }
-
-        if (s?.trigger) {
-          s.tag = `${s?.tag && ` ${s?.tag} `}trigger: ${
-            s.trigger
-          }`
-        }
-
-        if (s?.keyword) {
-          s.tag = `${s?.tag && ` ${s?.tag} `}keyword: ${
-            s.keyword
-          }`
-        }
-
-        if (s.snippet) {
-          s.tag = `${s?.tag && ` ${s?.tag} `}snippet ${
-            s.snippet
-          }`
-        }
-
-        if (
-          typeof s?.pass === "string" &&
-          s?.pass !== "true"
-        ) {
-          s.tag = `${s?.tag && ` ${s?.tag} `}postfix: ${
-            s.pass
-          }`
-        }
-
-        s.tag = s.tag.trim()
-      }
-    },
+    recentLimit: getRecentLimit(),
+    hideWithoutInput: splitEnvVarIntoArray(
+      process?.env?.KIT_HIDE_WITHOUT_INPUT,
+      []
+    ),
+    tagger,
   })
 }
 
 let processedScripts = []
-export let getProcessedScripts = async () => {
+export let getProcessedScripts = async (
+  fromCache = true
+) => {
   if (
+    fromCache &&
     global.__kitScriptsFromCache &&
     processedScripts.length
-  )
+  ) {
     return processedScripts
+  }
 
   trace.begin({
     name: "getScripts",
   })
-  let scripts: Script[] = await getScripts(true)
+  let scripts: Script[] = await getScripts(fromCache)
   trace.end({
     name: "getScripts",
   })
@@ -1139,7 +1788,7 @@ export let getProcessedScripts = async () => {
   })
   processedScripts = await processInBatches(
     scripts.map(processScript(timestampsDb.stamps)),
-    10
+    5
   )
 
   trace.end({
@@ -1149,11 +1798,13 @@ export let getProcessedScripts = async () => {
   return scripts
 }
 
-export let getGroupedScripts = async () => {
+export let getGroupedScripts = async (fromCache = true) => {
   trace.begin({
     name: "getProcessedScripts",
   })
-  let processedscripts = await getProcessedScripts()
+  let processedscripts = await getProcessedScripts(
+    fromCache
+  )
   trace.end({
     name: "getProcessedScripts",
   })
@@ -1169,7 +1820,9 @@ export let getGroupedScripts = async () => {
   let kitScripts = [
     // kitPath("cli", "new.js"),
     kitPath("cli", "new-menu.js"),
+    kitPath("cli", "new-scriptlet.js"),
     kitPath("cli", "new-snippet.js"),
+    kitPath("cli", "new-theme.js"),
     kitPath("cli", "share.js"),
     kitPath("cli", "find.js"),
     kitPath("main", "docs.js"),
@@ -1181,13 +1834,13 @@ export let getGroupedScripts = async () => {
     // kitPath("main", "google.js"),
   ]
 
-  if (env?.KIT_LOGIN) {
+  if (global?.env?.KIT_LOGIN) {
     kitScripts.push(kitPath("main", "account-v2.js"))
   } else {
     kitScripts.push(kitPath("main", "sign-in.js"))
   }
 
-  if (env?.KIT_PRO !== "true") {
+  if (global?.env?.KIT_PRO !== "true") {
     kitScripts.push(kitPath("main", "sponsor.js"))
   }
 
@@ -1220,9 +1873,13 @@ export let getGroupedScripts = async () => {
     kitScripts.push(kitPath("main", "system-commands.js"))
     kitScripts.push(kitPath("main", "focus-window.js"))
 
-    if (!Boolean(env?.KIT_ACCESSIBILITY)) {
+    if (!Boolean(global?.env?.KIT_ACCESSIBILITY)) {
       kitScripts.push(kitPath("main", "accessibility.js"))
     }
+  }
+
+  if (process.env.KIT_HIDE_KIT_SCRIPTS) {
+    kitScripts = []
   }
 
   trace.begin({
@@ -1290,6 +1947,9 @@ export let getGroupedScripts = async () => {
   //   communityScripts
   // )
 
+  // let scraps = await parseScraps()
+  // processedscripts = processedscripts.concat(scraps)
+
   trace.begin({
     name: "groupScripts",
   })
@@ -1312,19 +1972,6 @@ export let getGroupedScripts = async () => {
 export let mainMenu = async (
   message: string | PromptConfig = "Select a script"
 ): Promise<Script | string> => {
-  setShortcuts([
-    { name: "New Menu", key: `${cmd}+shift+n` },
-    { name: "New", key: `${cmd}+n`, bar: "left" },
-    { name: "List Processes", key: `${cmd}+p` },
-    { name: "Find Script", key: `${cmd}+f` },
-    { name: "Reset Prompt", key: `${cmd}+0` },
-    { name: "Edit", key: "cmd+o", bar: "right" },
-    { name: "Create/Edit Doc", key: `${cmd}+.` },
-    { name: "Log", key: `${cmd}+l` },
-    { name: "Share", key: `${cmd}+s`, bar: "right" },
-    { name: "Exit", key: `${cmd}+w`, bar: "" },
-  ])
-
   // if (global.trace) {
   //   global.trace.addBegin({
   //     name: "buildScriptConfig",
@@ -1356,6 +2003,10 @@ export let mainMenu = async (
     name: "getGroupedScripts",
   })
 
+  process.send({
+    channel: Channel.MAIN_MENU_READY,
+    scripts: groupedScripts.length,
+  })
   let script = await global.arg(
     scriptsConfig,
     groupedScripts
@@ -1372,10 +2023,17 @@ export let selectScript = async (
   let scripts: Script[] = xf(
     await getScripts(fromCache, ignoreKenvPattern)
   )
+  let scriptsConfig = buildScriptConfig(message)
 
+  // let scraps = await parseScraps()
+  // let scriptsAndScraps = scripts.concat(scraps)
+
+  if (process.env.KIT_CONTEXT === "terminal") {
+    let script = await global.arg(scriptsConfig, scripts)
+    return await getScriptResult(script, message)
+  }
   let groupedScripts = groupScripts(scripts)
 
-  let scriptsConfig = buildScriptConfig(message)
   scriptsConfig.keepPreview = true
 
   let script = await global.arg(
@@ -1456,7 +2114,9 @@ ${stamp.compileMessage}
 `
       }
     }
-    s.preview = processScriptPreview(s, infoBlock)
+    if (!(s as Scriptlet)?.scriptlet) {
+      s.preview = processScriptPreview(s, infoBlock)
+    }
 
     return s
   }
@@ -1620,71 +2280,13 @@ export let selectKenv = async (
 
 global.selectKenv = selectKenv
 
-global.highlight = async (
-  markdown: string,
-  containerClass: string = "p-5 leading-loose",
-  injectStyles: string = ``
-) => {
-  let { default: highlight } =
-    global.__kitHighlight || (await import("highlight.js"))
-  if (!global.__kitHighlight)
-    global.__kitHighlight = { default: highlight }
+global.highlight = highlight
 
-  let renderer = new marked.Renderer()
-  renderer.paragraph = p => {
-    // Convert a tag with href .mov, .mp4, or .ogg video links to video tags
-    if (p.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
-      let url = p.match(/href="(.*)"/)[1]
-      return `<video controls src="${url}" style="max-width: 100%;"></video>`
-    }
-
-    return `<p>${p}</p>`
-  }
-
-  renderer.text = text => {
-    return `<span>${text}</span>`
-  }
-  global.marked.setOptions({
-    renderer,
-    highlight: function (code, lang) {
-      const language = highlight.getLanguage(lang)
-        ? lang
-        : "plaintext"
-      return highlight.highlight(code, { language }).value
-    },
-    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
-    pedantic: false,
-    gfm: true,
-    breaks: false,
-    sanitize: false,
-    smartLists: true,
-    smartypants: false,
-    xhtml: false,
-  })
-
-  let highlightedMarkdown = global.marked(markdown)
-
-  let result = `<div class="${containerClass}">
-  <style>
-  p{
-    margin-bottom: 1rem;
-  }
-  li{
-    margin-bottom: .25rem;
-  }
-  ${injectStyles}
-  </style>
-  ${highlightedMarkdown}
-</div>`
-
-  return result
-}
-
-global.setTab = (tabName: string) => {
+global.setTab = async (tabName: string) => {
   let i = global.onTabs.findIndex(
     ({ name }) => name === tabName
   )
-  global.send(Channel.SET_TAB_INDEX, i)
+  await global.sendWait(Channel.SET_TAB_INDEX, i)
   global.onTabs[i].fn()
 }
 
@@ -1717,13 +2319,7 @@ global.clearTabs = () => {
   global.send(Channel.CLEAR_TABS)
 }
 
-let _md = global.md
-global.md = (
-  content = "",
-  containerClasses = "p-5 prose prose-sm"
-) => {
-  return _md(content + "\n", containerClasses)
-}
+global.md = mdUtil
 
 export let isAuthenticated = async () => {
   let envPath = kenvPath(".kenv")
@@ -1732,11 +2328,53 @@ export let isAuthenticated = async () => {
   return envContents.match(/^GITHUB_SCRIPTKIT_TOKEN=.*/g)
 }
 
-export let authenticate = async () => {
+export let setEnvVar = async (
+  key: string,
+  value: string
+) => {
+  await global.cli("set-env-var", key, value)
+}
+
+export let getEnvVar = async (
+  key: string,
+  fallback = ""
+) => {
+  let kenvEnv = dotenv.parse(
+    await readFile(kenvPath(".env"), "utf8")
+  ) as kenvEnv
+  return kenvEnv?.[key] || fallback
+}
+
+export let toggleEnvVar = async (
+  key: keyof kenvEnv,
+  defaultValue = "true"
+) => {
+  let kenvEnv = dotenv.parse(
+    await readFile(kenvPath(".env"), "utf8")
+  ) as kenvEnv
+  // Check if the environment variable `key` exists and if its value is equal to the `defaultState`
+  // If it is, toggle the value between "true" and "false"
+  // If it isn't, set it to the `defaultState`
+  await setEnvVar(
+    key,
+    kenvEnv?.[key] === defaultValue
+      ? defaultValue === "true"
+        ? "false"
+        : "true" // Toggle the value
+      : defaultValue // Set to defaultState if not already set
+  )
+}
+
+//@ts-ignore
+export let authenticate = async (): Promise<Octokit> => {
+  // @ts-ignore
   let { Octokit } = await import(
     "../share/auth-scriptkit.js"
   )
   let octokit = new Octokit({
+    request: {
+      fetch: global.fetch,
+    },
     auth: {
       scopes: ["gist"],
       env: "GITHUB_SCRIPTKIT_TOKEN",
@@ -1788,31 +2426,5 @@ global.preload = (scriptPath?: string) => {
   }
 }
 
-// global api for preloading main menu and removing listeners
-let done = false
-let executed = false
-let beforeExit = () => {
-  if (executed) return
-  if (global?.trace?.flush) {
-    global.trace.flush()
-  }
-  executed = true
-  send(Channel.BEFORE_EXIT)
-}
-
-global.finishScript = () => {
-  process.removeAllListeners("disconnect")
-  if (typeof global.finishPrompt === "function") {
-    global.finishPrompt()
-  }
-
-  let activeMessageListeners =
-    process.listenerCount("message")
-
-  beforeExit()
-  if (!done && activeMessageListeners === 0) {
-    // log(`🏁 Finish script`)
-    done = true
-    process.removeAllListeners()
-  }
-}
+global.metadata = {}
+global.headers = {}

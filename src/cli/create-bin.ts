@@ -1,4 +1,5 @@
 import { Bin } from "../core/enum.js"
+import type { Script } from "../types/core.ts"
 import { createBinFromScript } from "./lib/utils.js"
 
 let type = await arg<Bin>(
@@ -7,8 +8,10 @@ let type = await arg<Bin>(
 )
 
 let script = await selectScript(
-  `Create bin from which script?`,
+  "Create bin from which script?",
   false
 )
-await createBinFromScript(type, script)
-export {}
+await createBinFromScript(type, {
+  ...script,
+  execPath: "",
+})

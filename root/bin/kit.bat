@@ -4,6 +4,7 @@ setlocal
 
 REM Get the parent directory of the script file
 set "KIT=%~dp0.."
+set "KIT_TARGET=terminal"
 
 REM Check if the script file is in the "node_modules" directory
 echo %~dp0 | findstr /C:"node_modules" >nul
@@ -13,20 +14,31 @@ if %errorlevel%==0 (
     set "KENV=%CD%"
 )
 
-REM Set the default KIT_NODE variable to the custom node binary
-if not defined KIT_NODE (
-    set "KIT_NODE=%KIT%/../.knode/bin/node"
+REM Set the default NODE_PATH variable to the custom node binary
+set "NODE_PATH="
+if exist "%KIT%/node_modules/.bin/pnpm" (
+    for /f "tokens=* USEBACKQ" %%F in (`%KIT%/node_modules/.bin/pnpm node -p "process.execPath" 2^>nul`) do (
+        set "NODE_PATH=%%F"
+    )
+)
+if not defined NODE_PATH (
+    for /f "tokens=* USEBACKQ" %%F in (`pnpm node -p "process.execPath" 2^>nul`) do (
+        set "NODE_PATH=%%F"
+    )
+)
+if not defined NODE_PATH (
+    for /f "tokens=* USEBACKQ" %%F in (`node -p "process.execPath" 2^>nul`) do (
+        set "NODE_PATH=%%F"
+    )
 )
 
-REM Check if the custom node binary exists, if not, use the system's node binary
-if not exist "%KIT_NODE%" (
-    for /f "tokens=* USEBACKQ" %%F in (`where node`) do (
-        set "KIT_NODE=%%F"
-    )
+if not defined NODE_PATH (
+    echo Node not found, please provide an NODE_PATH in your environment
+    exit /b 1
 )
 
 REM Set the NODE_NO_WARNINGS environment variable
 set "NODE_NO_WARNINGS=1"
 
 REM Run the terminal.js file with the determined Node.js binary and pass all arguments
-"%KIT_NODE%" --experimental-loader "file://%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*
+"%NODE_PATH%" --loader "file://%KIT%/build/loader.js" "%KIT%/run/terminal.js" %*

@@ -86,7 +86,7 @@ let onNoChoices = async input => {
     setPanel(
       md(`# Create <code>${scriptName}</code>
 
-Type <kbd>${returnOrEnter}</kd> to create a script named <code>${scriptName}</code>
+Type <kbd>${returnOrEnter}</kbd> to create a script named <code>${scriptName}</code>
     `)
     )
   }

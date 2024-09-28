@@ -10,7 +10,6 @@ import { Channel } from "../core/enum.js"
 // Trigger: >
 // Pass: true
 
-// TODO: Make terminal launch faster
 setName(``)
 
 await term({
@@ -22,8 +21,7 @@ await term({
       key: `${cmd}+w`,
       bar: "right",
       onPress: async () => {
-        send(Channel.TERM_EXIT, "")
-        finishScript()
+        send(Channel.TERM_EXIT, "")        
       },
     },
   ],

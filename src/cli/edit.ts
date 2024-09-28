@@ -4,6 +4,6 @@ let { filePath } = await selectScript(
   `Select script to open in ${await env("KIT_EDITOR")}?`
 )
 
-edit(filePath, kenvPath())
+await edit(filePath, kenvPath())
 
 export {}

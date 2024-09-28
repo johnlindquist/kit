@@ -1,489 +1,400 @@
-import { ProcessInfo } from "./core"
-import { Display, Point } from "./electron"
+import type { ProcessInfo } from "./core"
+import type { Display, Point } from "./electron"
 import type {
-  BrowserContextOptions,
-  Page,
-  PageScreenshotOptions,
+	BrowserContextOptions,
+	Page,
+	PageScreenshotOptions
 } from "playwright"
 
-interface PlayAudioFile {
-  (path: string, options?: any): Promise<string>
-}
+type PlayAudioFile = (path: string, options?: any) => Promise<string>
 
-interface StopAudioFile {
-  (): Promise<void>
-}
+type StopAudioFile = () => Promise<void>
 
-interface CopyPathAsImage {
-  (path: string): Promise<string>
-}
+type CopyPathAsImage = (path: string) => Promise<string>
 
 interface FileSearchOptions {
-  onlyin?: string
-  kind?: string
-  kMDItemContentType?: string
+	onlyin?: string
+	kind?: string
+	kMDItemContentType?: string
 }
-interface FileSearch {
-  (
-    name: string,
-    fileSearchOptions?: FileSearchOptions
-  ): Promise<string[]>
-}
+type FileSearch = (
+	name: string,
+	fileSearchOptions?: FileSearchOptions
+) => Promise<string[]>
 
-type Browser =
-  | "Google Chrome"
-  | "Brave"
-  | "Firefox"
-  | "Edge"
+type Browser = "Google Chrome" | "Brave" | "Firefox" | "Edge"
 
-interface GetActiveTab {
-  (browser?: Browser): Promise<string>
-}
-interface GetTabs {
-  (browser?: Browser): Promise<
-    { url: string; title: string }[]
-  >
-}
+type GetActiveTab = (browser?: Browser) => Promise<string>
+type GetTabs = (browser?: Browser) => Promise<{ url: string; title: string }[]>
 
-interface FocusTab {
-  (url: string, browser?: Browser): Promise<string>
-}
+type FocusTab = (url: string, browser?: Browser) => Promise<string>
 
 interface ScrapeOptions {
-  headless?: boolean
-  timeout?: number
-  /**
-   * Playwright browser context options.
-   *
-   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
-   */
-  browserOptions?: BrowserContextOptions
+	headless?: boolean
+	timeout?: number
+	/**
+	 * Playwright browser context options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+	 */
+	browserOptions?: BrowserContextOptions
 }
 
-interface ScrapeSelector<T = any> {
-  (
-    url: string,
-    selector: string,
-    /**
-     * Transformation to apply to each DOM node that was selected.
-     * By default, `element.innerText` is returned.
-     */
-    transform?: (element: any) => T,
-    options?: ScrapeOptions
-  ): Promise<T[]>
-}
+type ScrapeSelector<T = any> = (
+	url: string,
+	selector: string,
+	/**
+	 * Transformation to apply to each DOM node that was selected.
+	 * By default, `element.innerText` is returned.
+	 */
+	transform?: (element: any) => T,
+	options?: ScrapeOptions
+) => Promise<T[]>
 
-interface ScrapeAttribute {
-  (
-    url: string,
-    selector: string,
-    attribute: string,
-    options?: ScrapeOptions
-  ): Promise<string | null>
-}
+type ScrapeAttribute = (
+	url: string,
+	selector: string,
+	attribute: string,
+	options?: ScrapeOptions
+) => Promise<string | null>
 interface ScreenshotFromWebpageOptions {
-  timeout?: number
-  /**
-   * Playwright browser context options.
-   *
-   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
-   */
-  browserOptions?: BrowserContextOptions
-  /**
-   * Playwright page screenshot options.
-   *
-   * {@link https://playwright.dev/docs/api/class-page#page-screenshot}
-   */
-  screenshotOptions?: PageScreenshotOptions
+	timeout?: number
+	/**
+	 * Playwright browser context options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+	 */
+	browserOptions?: BrowserContextOptions
+	/**
+	 * Playwright page screenshot options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-page#page-screenshot}
+	 */
+	screenshotOptions?: PageScreenshotOptions
 }
 
-interface GetScreenshotFromWebpage {
-  (
-    url: string,
-    options?: ScreenshotFromWebpageOptions
-  ): Promise<Buffer>
-}
+type GetScreenshotFromWebpage = (
+	url: string,
+	options?: ScreenshotFromWebpageOptions
+) => Promise<Buffer>
 
 interface WebpageAsPdfOptions {
-  timeout?: number
-  /**
-   * Playwright browser context options.
-   *
-   * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
-   */
-  browserOptions?: BrowserContextOptions
-  /**
-   * Playwright page pdf options.
-   *
-   * {@link https://playwright.dev/docs/api/class-page#page-pdf}
-   */
-  pdfOptions?: Parameters<Page["pdf"]>[0]
-  /**
-   * Playwright page emulate media options.
-   *
-   * {@link https://playwright.dev/docs/api/class-page#page-emulate-media}
-   */
-  mediaOptions?: Parameters<Page["emulateMedia"]>[0]
+	timeout?: number
+	/**
+	 * Playwright browser context options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-browser#browser-new-context}
+	 */
+	browserOptions?: BrowserContextOptions
+	/**
+	 * Playwright page pdf options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-page#page-pdf}
+	 */
+	pdfOptions?: Parameters<Page["pdf"]>[0]
+	/**
+	 * Playwright page emulate media options.
+	 *
+	 * {@link https://playwright.dev/docs/api/class-page#page-emulate-media}
+	 */
+	mediaOptions?: Parameters<Page["emulateMedia"]>[0]
 }
 
-interface GetWebpageAsPdf {
-  (
-    url: string,
-    options?: WebpageAsPdfOptions
-  ): Promise<Buffer>
-}
+type GetWebpageAsPdf = (
+	url: string,
+	options?: WebpageAsPdfOptions
+) => Promise<Buffer>
 
 interface Window {
-  process: string
-  title: string
-  index: number
+	process: string
+	title: string
+	index: number
 }
-interface GetWindows {
-  (): Promise<Window[]>
-}
+type GetWindows = () => Promise<Window[]>
 
-interface FocusWindow {
-  (process: string, title: string): Promise<string>
-}
+type FocusWindow = (process: string, title: string) => Promise<string>
 
 interface WindowBounds {
-  process: string
-  name: string
-  position: { x: number; y: number }
-  size: { width: number; height: number }
-  fullscreen: boolean
+	process: string
+	name: string
+	position: { x: number; y: number }
+	size: { width: number; height: number }
+	fullscreen: boolean
 }
-interface GetWindowsBounds {
-  (): Promise<WindowBounds[]>
-}
-interface GetWindowPosition {
-  (
-    process: string,
-    title: string,
-    x: number,
-    y: number
-  ): Promise<string>
-}
+type GetWindowsBounds = () => Promise<WindowBounds[]>
+type GetWindowPosition = (
+	process: string,
+	title: string,
+	x: number,
+	y: number
+) => Promise<string>
 
-interface SetWindowPosition {
-  (
-    process: string,
-    title: string,
-    x: number,
-    y: number
-  ): Promise<string>
-}
-interface SetWindowSizeByIndex {
-  (
-    process: string,
-    index: number,
-    x: number,
-    y: number
-  ): Promise<string>
-}
-interface SetWindowBoundsByIndex {
-  (
-    process: string,
-    index: number,
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ): Promise<string>
-}
+type SetWindowPosition = (
+	process: string,
+	title: string,
+	x: number,
+	y: number
+) => Promise<string>
+type SetWindowSizeByIndex = (
+	process: string,
+	index: number,
+	x: number,
+	y: number
+) => Promise<string>
+type SetWindowBoundsByIndex = (
+	process: string,
+	index: number,
+	x: number,
+	y: number,
+	width: number,
+	height: number
+) => Promise<string>
 
-interface ScatterWindows {
-  (): Promise<string>
-}
+type ScatterWindows = () => Promise<string>
 
-interface OrganizeWindows {
-  (): Promise<void>
-}
+type OrganizeWindows = () => Promise<void>
 
-interface SetWindowPositionByIndex {
-  (
-    process: string,
-    index: number,
-    x: number,
-    y: number
-  ): Promise<string>
-}
+type SetWindowPositionByIndex = (
+	process: string,
+	index: number,
+	x: number,
+	y: number
+) => Promise<string>
 
-interface SetWindowSize {
-  (
-    process: string,
-    title: string,
-    x: number,
-    y: number
-  ): Promise<string>
-}
+type SetWindowSize = (
+	process: string,
+	title: string,
+	x: number,
+	y: number
+) => Promise<string>
 
 interface Screen {
-  name: string
-  x: number
-  y: number
-  width: number
-  height: number
+	name: string
+	x: number
+	y: number
+	width: number
+	height: number
 }
-interface GetScreens {
-  (): Promise<Display[]>
-}
+type GetScreens = () => Promise<Display[]>
+type SelectDisplay = (includeThumbnails?: boolean) => Promise<Display>
 
-interface TileWindow {
-  (
-    app: string,
-    leftOrRight: "left" | "right"
-  ): Promise<string>
-}
+type TileWindow = (
+	app: string,
+	leftOrRight: "left" | "right"
+) => Promise<string>
 
-interface GetActiveScreen {
-  (): Promise<Display>
-}
+type GetActiveScreen = () => Promise<Display>
 
-interface GetMousePosition {
-  (): Promise<Point>
-}
+type GetMousePosition = () => Promise<Point>
 
-interface GetProcesses {
-  (): Promise<ProcessInfo[]>
-}
+type GetProcesses = () => Promise<ProcessInfo[]>
 
 interface Rectangle {
-  x: number
-  y: number
-  width: number
-  height: number
+	x: number
+	y: number
+	width: number
+	height: number
 }
+
+export interface Prompt {
+	id: string
+	pid: number
+	birthTime: number
+	isFocused: boolean
+	isVisible: boolean
+	isDestroyed: boolean
+	bounds: Rectangle
+	focus: () => Promise<void>
+}
+
+type GetPrompts = () => Promise<Prompt[]>
 interface KitWindow {
-  name: string
-  id: string
-  value: string
-  bounds: Rectangle
-  isFocused: boolean
-  isVisible: boolean
-  isDestroyed: boolean
+	name: string
+	id: string
+	value: string
+	bounds: Rectangle
+	isFocused: boolean
+	isVisible: boolean
+	isDestroyed: boolean
 }
 
-interface GetKitWindows {
-  (): Promise<KitWindow[]>
-}
+type GetKitWindows = () => Promise<KitWindow[]>
 
-interface FocusAppWindow {
-  (id: string): Promise<void>
-}
+type FocusAppWindow = (id: string) => Promise<void>
 
 interface Bounds {
-  left: number
-  top: number
-  right: number
-  bottom: number
+	left: number
+	top: number
+	right: number
+	bottom: number
 }
-interface SetActiveAppBounds {
-  (bounds: Bounds): Promise<void>
-}
-interface SetActiveAppPosition {
-  (position: { x: number; y: number }): Promise<void>
-}
-interface SetActiveAppSize {
-  (size: { width: number; height: number }): Promise<void>
-}
+type SetActiveAppBounds = (bounds: Bounds) => Promise<void>
+type SetActiveAppPosition = (position: {
+	x: number
+	y: number
+}) => Promise<void>
+type SetActiveAppSize = (size: {
+	width: number
+	height: number
+}) => Promise<void>
 
-interface GetActiveAppInfo {
-  (): Promise<{
-    localizedName: string
-    bundleIdentifier: string
-    bundleURLPath: string
-    executableURLPath: string
-    isFinishedLaunching: boolean
-    processIdentifier: number
-    windowTitle: string
-    windowIndex: number
-    windowID: number
-    x: number
-    y: number
-    width: number
-    height: number
-  }>
-}
-interface GetActiveAppBounds {
-  (): Promise<Bounds>
-}
+type GetActiveAppInfo = () => Promise<{
+	localizedName: string
+	bundleIdentifier: string
+	bundleURLPath: string
+	executableURLPath: string
+	isFinishedLaunching: boolean
+	processIdentifier: number
+	windowTitle: string
+	windowIndex: number
+	windowID: number
+	x: number
+	y: number
+	width: number
+	height: number
+}>
+type GetActiveAppBounds = () => Promise<Bounds>
 
-interface GetSelectedFile {
-  (): Promise<string>
-}
+type GetSelectedFile = () => Promise<string>
 
-interface SetSelectedFile {
-  (filePath: string): Promise<void>
-}
+type SetSelectedFile = (filePath: string) => Promise<void>
 
-interface GetSelectedDir {
-  (): Promise<string>
-}
-interface SelectFile {
-  (message?: string): Promise<string>
-}
+type GetSelectedDir = () => Promise<string>
+type SelectFile = (message?: string) => Promise<string>
 
-interface RevealFile {
-  (filePath: string): Promise<string>
-}
-interface RevealInFinder {
-  (filePath?: string): Promise<void>
-}
-interface SelectFolder {
-  (message?: string): Promise<string>
-}
+type RevealFile = (filePath: string) => Promise<string>
+type RevealInFinder = (filePath?: string) => Promise<void>
+type SelectFolder = (message?: string) => Promise<string>
 
-interface GetSelectedText {
-  (): Promise<string>
-}
+type GetSelectedText = () => Promise<string>
 
-interface CutText {
-  (): Promise<string>
-}
+type CutText = () => Promise<string>
 
-interface Lock {
-  (): Promise<string>
-}
+type Lock = () => Promise<unknown>
 
-interface Logout {
-  (): Promise<string>
-}
-interface Sleep {
-  (): Promise<string>
-}
-interface Shutdown {
-  (): Promise<string>
-}
+type Logout = () => Promise<unknown>
+type Sleep = () => Promise<unknown>
+type Shutdown = () => Promise<unknown>
 
-interface QuitAllApps {
-  (appsToExclude?: string): Promise<string>
-}
+type QuitAllApps = (appsToExclude?: string) => Promise<unknown>
 
-interface Say {
-  (text: string, options?: any): Promise<string>
-}
+type Say = (text: string, options?: any) => Promise<string>
 
-interface Beep {
-  (): Promise<void>
-}
+type Beep = () => Promise<void>
 
-interface SetSelectedText {
-  (text: string, hide?: boolean): Promise<void>
-}
+type SetSelectedText = (text: string, hide?: boolean) => Promise<void>
 
-interface KeyStroke {
-  (keyString: string): Promise<string>
-}
+type KeyStroke = (keyString: string) => Promise<string>
 
-interface AppleScript {
-  (script: string, options?: any): Promise<string>
-}
+type AppleScript = (script: string, options?: any) => Promise<string>
 
 export interface PlatformApi {
-  applescript: AppleScript
-  copyPathAsImage: CopyPathAsImage
-  fileSearch: FileSearch
-  focusTab: FocusTab
-  focusWindow: FocusWindow
-  getActiveTab: GetActiveTab
-  getActiveScreen: GetActiveScreen
-  getActiveAppInfo: GetActiveAppInfo
-  getActiveAppBounds: GetActiveAppBounds
-  getMousePosition: GetMousePosition
-  getScreens: GetScreens
-  getSelectedFile: GetSelectedFile
-  setSelectedFile: SetSelectedFile
-  getSelectedDir: GetSelectedDir
-  revealInFinder: RevealInFinder
-  selectFile: SelectFile
-  selectFolder: SelectFolder
-  revealFile: RevealFile
-  getSelectedText: GetSelectedText
-  cutText: CutText
-  getTabs: GetTabs
-  getWindows: GetWindows
-  getWindowsBounds: GetWindowsBounds
-  keystroke: KeyStroke
-  lock: Lock
-  openLog: () => void
-  organizeWindows: OrganizeWindows
-  playAudioFile: PlayAudioFile
-  stopAudioFile: StopAudioFile
-  quitAllApps: QuitAllApps
-  say: Say
-  beep: Beep
-  scatterWindows: ScatterWindows
-  scrapeAttribute: ScrapeAttribute
-  scrapeSelector: ScrapeSelector
-  getScreenshotFromWebpage: GetScreenshotFromWebpage
-  getWebpageAsPdf: GetWebpageAsPdf
-  setActiveAppBounds: SetActiveAppBounds
-  setActiveAppPosition: SetActiveAppPosition
-  setActiveAppSize: SetActiveAppSize
-  setSelectedText: SetSelectedText
-  setWindowBoundsByIndex: SetWindowBoundsByIndex
-  setWindowPosition: SetWindowPosition
-  setWindowPositionByIndex: SetWindowPositionByIndex
-  setWindowSize: SetWindowSize
-  setWindowSizeByIndex: SetWindowSizeByIndex
-  shutdown: Shutdown
-  sleep: Sleep
-  tileWindow: TileWindow
+	applescript: AppleScript
+	copyPathAsImage: CopyPathAsImage
+	fileSearch: FileSearch
+	focusTab: FocusTab
+	focusWindow: FocusWindow
+	getActiveTab: GetActiveTab
+	getActiveScreen: GetActiveScreen
+	getActiveAppInfo: GetActiveAppInfo
+	getActiveAppBounds: GetActiveAppBounds
+	getMousePosition: GetMousePosition
+	getScreens: GetScreens
+	selectDisplay: SelectDisplay
+	getSelectedFile: GetSelectedFile
+	setSelectedFile: SetSelectedFile
+	getSelectedDir: GetSelectedDir
+	revealInFinder: RevealInFinder
+	selectFile: SelectFile
+	selectFolder: SelectFolder
+	revealFile: RevealFile
+	getSelectedText: GetSelectedText
+	cutText: CutText
+	getTabs: GetTabs
+	getWindows: GetWindows
+	getWindowsBounds: GetWindowsBounds
+	keystroke: KeyStroke
+	lock: Lock
+	openLog: () => void
+	organizeWindows: OrganizeWindows
+	playAudioFile: PlayAudioFile
+	stopAudioFile: StopAudioFile
+	quitAllApps: QuitAllApps
+	say: Say
+	beep: Beep
+	scatterWindows: ScatterWindows
+	scrapeAttribute: ScrapeAttribute
+	scrapeSelector: ScrapeSelector
+	getScreenshotFromWebpage: GetScreenshotFromWebpage
+	getWebpageAsPdf: GetWebpageAsPdf
+	setActiveAppBounds: SetActiveAppBounds
+	setActiveAppPosition: SetActiveAppPosition
+	setActiveAppSize: SetActiveAppSize
+	setSelectedText: SetSelectedText
+	setWindowBoundsByIndex: SetWindowBoundsByIndex
+	setWindowPosition: SetWindowPosition
+	setWindowPositionByIndex: SetWindowPositionByIndex
+	setWindowSize: SetWindowSize
+	setWindowSizeByIndex: SetWindowSizeByIndex
+	shutdown: Shutdown
+	sleep: Sleep
+	tileWindow: TileWindow
 }
 
 declare global {
-  var applescript: AppleScript
-  var beep: Beep
-  var copyPathAsImage: CopyPathAsImage
-  var fileSearch: FileSearch
-  var focusTab: FocusTab
-  var focusWindow: FocusWindow
-  var getActiveAppInfo: GetActiveAppInfo
-  var getActiveAppBounds: GetActiveAppBounds
-  var getActiveScreen: GetActiveScreen
-  var getActiveTab: GetActiveTab
-  var getMousePosition: GetMousePosition
-  var getProcesses: GetProcesses
-  var getKitWindows: GetKitWindows
-  var focusKitWindow: FocusAppWindow
-  var getScreens: GetScreens
-  var getSelectedFile: GetSelectedFile
-  var revealInFinder: RevealInFinder
-  var selectFile: SelectFile
-  var selectFolder: SelectFolder
-  var revealFile: RevealFile
-  var getSelectedText: GetSelectedText
-  var cutText: CutText
-  var getTabs: GetTabs
-  var getWindows: GetWindows
-  var getWindowsBounds: GetWindowsBounds
-  var getSelectedDir: GetSelectedDir
-  var keystroke: KeyStroke
-  var logout: Logout
-  var lock: Lock
-  var openLog: () => void
-  var organizeWindows: OrganizeWindows
-  var playAudioFile: PlayAudioFile
-  var stopAudioFile: StopAudioFile
-  var quitAllApps: QuitAllApps
-  var say: Say
-  var scatterWindows: ScatterWindows
-  var scrapeAttribute: ScrapeAttribute
-  var scrapeSelector: ScrapeSelector
-  var getScreenshotFromWebpage: GetScreenshotFromWebpage
-  var getWebpageAsPdf: GetWebpageAsPdf
-  var setActiveAppBounds: SetActiveAppBounds
-  var setActiveAppPosition: SetActiveAppPosition
-  var setActiveAppSize: SetActiveAppSize
-  var setSelectedText: SetSelectedText
-  var setSelectedFile: SetSelectedFile
-  var setWindowBoundsByIndex: SetWindowBoundsByIndex
-  var setWindowPosition: SetWindowPosition
-  var setWindowPositionByIndex: SetWindowPositionByIndex
-  var setWindowSize: SetWindowSize
-  var setWindowSizeByIndex: SetWindowSizeByIndex
-  var shutdown: Shutdown
-  var sleep: Sleep
-  var tileWindow: TileWindow
+	var applescript: AppleScript
+	var beep: Beep
+	var copyPathAsImage: CopyPathAsImage
+	var fileSearch: FileSearch
+	var focusTab: FocusTab
+	var focusWindow: FocusWindow
+	var getActiveAppInfo: GetActiveAppInfo
+	var getActiveAppBounds: GetActiveAppBounds
+	var getActiveScreen: GetActiveScreen
+	var getActiveTab: GetActiveTab
+	var getMousePosition: GetMousePosition
+	var getProcesses: GetProcesses
+	var getPrompts: GetPrompts
+	var getKitWindows: GetKitWindows
+	var focusKitWindow: FocusAppWindow
+	var getScreens: GetScreens
+	var selectDisplay: SelectDisplay
+	var getSelectedFile: GetSelectedFile
+	var revealInFinder: RevealInFinder
+	var selectFile: SelectFile
+	var selectFolder: SelectFolder
+	var revealFile: RevealFile
+	var getSelectedText: GetSelectedText
+	var cutText: CutText
+	var getTabs: GetTabs
+	var getWindows: GetWindows
+	var getWindowsBounds: GetWindowsBounds
+	var getSelectedDir: GetSelectedDir
+	var keystroke: KeyStroke
+	var logout: Logout
+	var lock: Lock
+	var openLog: () => void
+	var organizeWindows: OrganizeWindows
+	var playAudioFile: PlayAudioFile
+	var stopAudioFile: StopAudioFile
+	var quitAllApps: QuitAllApps
+	var say: Say
+	var scatterWindows: ScatterWindows
+	var scrapeAttribute: ScrapeAttribute
+	var scrapeSelector: ScrapeSelector
+	var getScreenshotFromWebpage: GetScreenshotFromWebpage
+	var getWebpageAsPdf: GetWebpageAsPdf
+	var setActiveAppBounds: SetActiveAppBounds
+	var setActiveAppPosition: SetActiveAppPosition
+	var setActiveAppSize: SetActiveAppSize
+	var setSelectedText: SetSelectedText
+	var setSelectedFile: SetSelectedFile
+	var setWindowBoundsByIndex: SetWindowBoundsByIndex
+	var setWindowPosition: SetWindowPosition
+	var setWindowPositionByIndex: SetWindowPositionByIndex
+	var setWindowSize: SetWindowSize
+	var setWindowSizeByIndex: SetWindowSizeByIndex
+	var shutdown: Shutdown
+	var sleep: Sleep
+	var tileWindow: TileWindow
 }

@@ -22,11 +22,11 @@ if (args?.length < 5) {
     args.push(arg)
   }
 }
-let script = await arg()
-let stackFile = await arg()
-let errorFile = await arg()
-let line = await arg()
-let col = await arg()
+let script = args.shift() || "No script reported"
+let stackFile = args.shift() || "No stack file reported"
+let errorFile = args.shift() || "No error file reported"
+let line = args.shift() || "No line reported"
+let col = args.shift() || "No column reported"
 
 let stack = await readFile(stackFile, "utf-8")
 
@@ -101,21 +101,21 @@ if (errorMessage.includes("Cannot find package")) {
     [key in ErrorAction]: () => Promise<void>
   } = {
     [ErrorAction.Open]: async () => {
-      edit(errorFile, kenvPath(), line, col)
+      await edit(errorFile, kenvPath(), line, col)
     },
     [ErrorAction.Copy]: async () => {
-      copy(stack)
+      await copy(stack)
       exit()
     },
     [ErrorAction.KitLog]: async () => {
-      edit(kitPath("logs", "kit.log"), kenvPath())
+      await edit(kitPath("logs", "kit.log"), kenvPath())
     },
     [ErrorAction.Log]: async () => {
-      edit(errorLogPath, kenvPath())
+      await edit(errorLogPath, kenvPath())
     },
     [ErrorAction.Ask]: async () => {
-      copy(stack)
-      exec(
+      await copy(stack)
+      await exec(
         `open "https://github.com/johnlindquist/kit/discussions/categories/errors"`
       )
     },
@@ -137,7 +137,6 @@ if (errorMessage.includes("Cannot find package")) {
   let errorAction: ErrorAction = await arg(
     {
       placeholder: `🤕 Error in ${script}`,
-      ignoreBlur: true,
       hint,
       shortcuts: [
         {
@@ -198,13 +197,13 @@ ${stack}
 
             return highlight(
               `## ${errorLog}\n\n    
-    ~~~bash          
-    ${logFile
-      .split("\n")
-      .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
-      .reverse()
-      .join("\n")}
-    ~~~`,
+~~~bash          
+${logFile
+  .split("\n")
+  .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+  .reverse()
+  .join("\n")}
+~~~`,
               "",
               `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
             )

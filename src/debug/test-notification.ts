@@ -1,6 +1,6 @@
 notify({
-  title: "Kit SDK Notification",
-  message: "This is a test notification from the Kit SDK",
+	title: "Kit SDK Notification",
+	body: "This is a test notification from the Kit SDK"
 })
 
 export {}

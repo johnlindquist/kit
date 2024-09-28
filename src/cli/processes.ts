@@ -4,62 +4,86 @@
 // Keyword: p
 // Log: false
 
-import { Channel } from "../core/enum.js"
 import {
-  escapeShortcut,
-  cmd,
-  viewLogShortcut,
+	escapeShortcut,
+	cmd,
+	viewLogShortcut,
+	terminateProcessShortcut
 } from "../core/utils.js"
 let formatProcesses = async () => {
-  let processes: any = await getProcesses()
-  processes = processes
-    .filter(p => p?.scriptPath)
-    .filter(p => !p?.scriptPath?.endsWith("processes.js"))
-    .map(p => {
-      return {
-        id: String(p.pid),
-        name: p?.scriptPath,
-        description: `${p.pid}`,
-        value: p,
-      }
-    })
+	let processes: any = await getProcesses()
+	processes = processes
+		.filter((p) => p?.scriptPath)
+		.filter((p) => !p?.scriptPath?.endsWith("processes.js"))
+		.map((p) => {
+			return {
+				id: String(p.pid),
+				name: p?.scriptPath,
+				description: `${p.pid}`,
+				value: p
+			}
+		})
 
-  processes.push({
-    info: true,
-    miss: true,
-    name: "No running processes found...",
-  })
-
-  return processes
+	return processes
 }
-let id = setTimeout(async () => {
-  setChoices(await formatProcesses())
+
+let checkProcesses = async () => {
+	let newProcesses = await formatProcesses()
+	let sameProcesses =
+		JSON.stringify(newProcesses) === JSON.stringify(currentProcesses)
+	if (!sameProcesses) {
+		setChoices(newProcesses)
+		currentProcesses = newProcesses
+	}
+}
+
+let id = setInterval(async () => {
+	await checkProcesses()
 }, 1000)
 
 let currentProcesses = await formatProcesses()
 
 let argPromise = arg(
-  {
-    placeholder: "Select Process",
-    enter: "Terminate",
-    shortcuts: [escapeShortcut, viewLogShortcut],
-    onAbandon: async () => {
-      clearTimeout(id)
-      await mainScript()
-    },
-  },
-  currentProcesses
+	{
+		placeholder: "Focus Prompt",
+		enter: "Focus",
+		shortcuts: [
+			escapeShortcut,
+			{
+				name: "Edit",
+				key: `${cmd}+o`,
+				onPress: async (input, state) => {
+					clearInterval(id)
+					await edit(state.focused.value.scriptPath)
+				},
+				bar: "right"
+			},
+			{
+				...viewLogShortcut,
+				onPress: async (input, state) => {
+					clearInterval(id)
+					await viewLogShortcut.onPress(input, state)
+				}
+			},
+			{
+				...terminateProcessShortcut,
+				onPress: async (input, state) => {
+					await terminateProcessShortcut.onPress(input, state)
+					await checkProcesses()
+				}
+			}
+		],
+		onAbandon: async () => {
+			clearInterval(id)
+			await mainScript()
+		}
+	},
+	currentProcesses
 )
 let { pid, scriptPath }: any = await argPromise
 clearInterval(id)
 
-setDescription(`${pid}: ${scriptPath}`)
+let prompts = await getPrompts()
+const prompt = prompts.find((p) => p.pid === pid)
 
-await sendWait(Channel.TERMINATE_PROCESS, pid)
-let processes = await formatProcesses()
-
-if (processes?.length === 0) {
-  await mainScript()
-} else {
-  await run(kitPath("cli", "processes.js"))
-}
+await prompt.focus()

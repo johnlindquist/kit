@@ -1,0 +1,17 @@
+:root {
+  --name: "Monokai Pro";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #f8f8f2;
+  --color-primary: #a6e22e;
+  --color-secondary: #49483e;
+  --color-background: #272822;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

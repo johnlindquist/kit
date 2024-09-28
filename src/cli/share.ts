@@ -1,4 +1,4 @@
-// Menu: Share Script
+// Name: Share Script
 // Description: Open the Share Menu
 
 import { CLI } from "../cli"

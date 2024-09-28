@@ -1,15 +1,15 @@
 // Description: Kit.app Settings
 
 import {
-  appDbPath,
   escapeShortcut,
   closeShortcut,
   cmd,
 } from "../core/utils.js"
 
+let kenvEnvPath = kenvPath(".env")
 await editor({
-  value: await readFile(appDbPath, "utf-8"),
-  language: "json",
+  value: await readFile(kenvEnvPath, "utf-8"),
+  language: "properties",
   shortcuts: [
     escapeShortcut,
     closeShortcut,
@@ -17,7 +17,7 @@ await editor({
       name: "Save",
       key: `${cmd}+s`,
       onPress: async input => {
-        await writeFile(appDbPath, input)
+        await writeFile(kenvEnvPath, input)
       },
       bar: "right",
     },

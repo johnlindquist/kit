@@ -294,7 +294,7 @@ await hide()
 // but you can import that package directly (or another similar package) if you prefer
 let info = await getActiveAppInfo()
 if (info.bundleIdentifier === "com.google.Chrome"){
-  await keyboard.pressKey(Key.LeftSuper, Key.T)
-  await keyboard.releaseKey(Key.LeftSuper, Key.T)
+  await keyboard.pressKey(Key.Meta, Key.T)
+  await keyboard.releaseKey(Key.Meta, Key.T)
 }
 ```

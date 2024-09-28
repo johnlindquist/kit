@@ -13,6 +13,6 @@ await ensureReadFile(
   JSON.stringify({ items: [] })
 )
 
-edit(scriptDb)
+await edit(scriptDb)
 
 export {}

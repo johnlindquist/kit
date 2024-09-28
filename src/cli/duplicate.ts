@@ -1,7 +1,7 @@
 // Description: Duplicate the selected script
 
 import {
-  exists,
+  checkIfCommandExists,
   stripName,
   kitMode,
   stripMetadata,
@@ -25,7 +25,7 @@ let name = await arg(
     debounceInput: 0,
     placeholder: `Enter name for new script`,
     validate: input => {
-      return exists(stripName(input))
+      return checkIfCommandExists(stripName(input))
     },
     strict: false,
   },
@@ -37,7 +37,7 @@ let name = await arg(
         : `// Name: ${input}`,
       description: !input
         ? `The filename will be converted automatically.`
-        : `Filename will be convert to ${stripName(
+        : `Filename will be converted to ${stripName(
             input
           )}.${kitMode()}`,
     },

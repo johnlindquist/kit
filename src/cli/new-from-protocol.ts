@@ -5,7 +5,7 @@
 import { highlightJavaScript } from "../api/kit.js"
 
 import {
-  exists,
+  checkIfCommandExists,
   kitMode,
   stripMetadata,
   uniq,
@@ -29,7 +29,9 @@ let name = await arg(
     placeholder:
       arg?.placeholder || "Enter a name for your script:",
     validate: input => {
-      return exists(input.replace(/\s/g, "-").toLowerCase())
+      return checkIfCommandExists(
+        input.replace(/\s/g, "-").toLowerCase()
+      )
     },
     shortcuts: [],
     enter: `Create script and open in editor`,
@@ -54,7 +56,6 @@ if (process?.env?.KIT_TRUST_SCRIPTS !== "true") {
   let message = await arg(
     {
       enter: "",
-      ignoreBlur: true,
       placeholder: `Type "ok" and hit enter to continue...`,
       strict: true,
       height: PROMPT.HEIGHT["4XL"],
@@ -108,7 +109,7 @@ Hit "escape" to cancel.
   )
 
   if (message !== "ok") {
-    global.finishScript()
+    exit()
   }
 }
 

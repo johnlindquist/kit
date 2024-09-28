@@ -1,6 +1,12 @@
-import { ChildProcess } from "child_process"
-import { ProcessType, UI, Mode } from "../core/enum.js"
-import { AppMessage, Field } from "./kitapp.js"
+import type { ChildProcess } from "node:child_process"
+import type { ProcessType, UI, Mode } from "../core/enum.js"
+
+type ModifierKeys =
+  | "cmd"
+  | "ctrl"
+  | "shift"
+  | "option"
+  | "alt"
 
 export interface Choice<Value = any> {
   name: string
@@ -49,10 +55,11 @@ export interface Choice<Value = any> {
   disableSubmit?: boolean
   info?: boolean
   exclude?: boolean
+  width?: number
   height?: number
   skip?: boolean
   miss?: boolean
-  pass?: boolean
+  pass?: boolean | string
   group?: string
   userGrouped?: boolean
   choices?: (Omit<Choice<any>, "choices"> | string)[]
@@ -85,7 +92,7 @@ export interface ScriptPathInfo {
   compileMessage?: string
 }
 
-export interface ScriptMetadata {
+export interface ScriptMetadata extends Metadata {
   shebang?: string
   name?: string
   menu?: string
@@ -104,12 +111,12 @@ export interface ScriptMetadata {
   schedule?: string
   system?: string
   watch?: string
-  background?: string
+  background?: boolean | "auto"
   type: ProcessType
   timeout?: number
   tabs?: string[]
   tag?: string
-  log?: "true" | "false"
+  log?: boolean
   hasFlags?: boolean
   cmd?: string
   option?: string
@@ -117,19 +124,20 @@ export interface ScriptMetadata {
   shift?: string
   hasPreview?: boolean
   logo?: string
+  /** @deprecated Use 'expand' instead */
   snippet?: string
+  expand?: string
   snippetdelay?: number
   index?: string
   template?: boolean
-  ["color-text"]?: string
-  ["color-primary"]?: string
-  ["color-secondary"]?: string
-  ["color-background"]?: string
-  ["opacity"]?: string
+  "color-text"?: string
+  "color-primary"?: string
+  "color-secondary"?: string
+  "color-background"?: string
+  opacity?: string
   preview?: Choice["preview"]
   previewPath?: string
   debug?: boolean
-  verbose?: boolean
   cache?: boolean
   note?: string
   group?: string
@@ -137,11 +145,30 @@ export interface ScriptMetadata {
   enter?: string
   recent?: boolean
   img?: string
+  postfix?: string
 }
 
 export type Script = ScriptMetadata &
   ScriptPathInfo &
   Choice
+
+export type Scriptlet = Script & {
+  group: string
+  inputs: string[]
+  tool: "kit" | "open" | "paste" | string
+  scriptlet: string
+  value: Script
+  cwd?: string
+  prepend?: string
+  append?: string
+  term?: undefined | boolean
+  shell?: string | boolean
+}
+
+export type Snippet = Script & {
+  group: "Snippets"
+  text: string
+}
 
 export type PromptBounds = {
   x?: number
@@ -192,7 +219,7 @@ export type Shortcut = {
   onPress?: (
     input: string,
     state: AppState
-  ) => void | Promise<void>
+  ) => unknown | Promise<unknown>
   bar?: "right" | "left" | ""
   flag?: string
   visible?: boolean
@@ -204,11 +231,10 @@ export interface PromptData {
   key: string
   scriptPath: string
   description: string
-  flags: FlagsOptions
+  flags: FlagsObject
   hasPreview: boolean
   keepPreview?: boolean
   hint: string
-  ignoreBlur: boolean
   input: string
   inputRegex: string
   kitArgs: string[]
@@ -229,7 +255,7 @@ export interface PromptData {
   resize: boolean
   placeholderOnly: boolean
   scripts: boolean
-  onInputSubmit: { [key: string]: any }
+  shortcodes: { [key: string]: any }
   defaultChoiceId: string
   focusedId: string
   footer: string
@@ -253,7 +279,9 @@ export interface PromptData {
   formData?: any
   html?: string
   theme?: any
+  /** @deprecated Kit now supports backgrounding windows */
   alwaysOnTop?: boolean
+  skipTaskbar?: boolean
   cwd?: string
   hasOnNoChoices?: boolean
   inputCommandChars?: string[]
@@ -267,15 +295,18 @@ export interface PromptData {
   keyword?: string
   multiple?: boolean
   searchKeys?: string[]
+  show?: boolean
+  scriptlet?: boolean
+  actionsConfig?: ActionsConfig
 }
 
-export interface GenerateChoices {
-  (input: string): Choice<any>[] | Promise<Choice<any>[]>
-}
+export type GenerateChoices = (
+  input: string
+) => Choice<any>[] | Promise<Choice<any>[]>
 
-export interface GenerateActions {
-  (input: string): Action[] | Promise<Action[]>
-}
+export type GenerateActions = (
+  input: string
+) => Action[] | Promise<Action[]>
 
 export type Choices<Value> = (
   | (string | Choice)[]
@@ -319,6 +350,10 @@ export type Panel =
   | ((input: string) => Promise<any>)
   | ((input: string) => Promise<void>)
 
+export type Flags = {
+  [key: string]: boolean | string
+} & Partial<Record<ModifierKeys, boolean | string>>
+
 export type FlagsWithKeys = {
   [key: string]: {
     shortcut?: string
@@ -334,7 +369,12 @@ export type FlagsWithKeys = {
   sortChoicesKey?: string[]
   order?: string[]
 }
-export type FlagsOptions = FlagsWithKeys | boolean
+export type FlagsObject = FlagsWithKeys | boolean
+export type ActionsConfig = {
+  name?: string
+  placeholder?: string
+  active?: string
+}
 
 export type Action = {
   name: string
@@ -347,10 +387,13 @@ export type Action = {
   enter?: string
   onAction?: ChannelHandler
   condition?: Shortcut["condition"]
+  close?: boolean
+  index?: number
 }
 
 export interface AppState {
   input?: string
+  actionsInput?: string
   inputChanged?: boolean
   flaggedValue?: any
   flag?: string
@@ -378,20 +421,19 @@ export interface AppState {
   action?: Action
 }
 
-export interface ChannelHandler {
-  (input?: string, state?: AppState): void | Promise<void>
-}
+export type ChannelHandler = (
+  input?: string,
+  state?: AppState
+) => void | Promise<void>
 
-export interface SubmitHandler {
-  (input?: string, state?: AppState):
-    | void
-    | Symbol
-    | Promise<void | Symbol>
-}
+export type SubmitHandler = (
+  input?: string,
+  state?: AppState
+) => void | Symbol | Promise<void | Symbol>
 
 export type PromptConfig = {
   validate?: (
-    choice: string
+    input: string
   ) => boolean | string | Promise<boolean | string>
   choices?: Choices<any> | Panel
   actions?: Action[] | Panel
@@ -399,7 +441,7 @@ export type PromptConfig = {
   html?: string
   formData?: any
   className?: string
-  flags?: FlagsOptions
+  flags?: FlagsObject
   actions?: Action[]
   preview?:
     | string
@@ -420,7 +462,7 @@ export type PromptConfig = {
   onTab?: ChannelHandler
   onKeyword?: ChannelHandler
   onInput?: ChannelHandler
-  onFlagInput?: ChannelHandler
+  onActionsInput?: ChannelHandler
   onChange?: ChannelHandler
   onBlur?: ChannelHandler
   onSelected?: ChannelHandler
@@ -439,18 +481,95 @@ export type PromptConfig = {
   debounceInput?: number
   debounceChoiceFocus?: number
   keyword?: string
-  onInputSubmit?: {
+  shortcodes?: {
     [key: string]: any
   }
   env?: any
   shortcuts?: Shortcut[]
   show?: boolean
+  grid?: boolean
+  columns?: number
+  columnWidth?: number
+  rowHeight?: number
+  gridGap?: number
+  gridPadding?: number
 } & Partial<
   Omit<PromptData, "choices" | "id" | "script" | "preview">
 >
 
+export type CronExpression =
+  | `${string} ${string} ${string} ${string} ${string}`
+  | `${string} ${string} ${string} ${string} ${string} ${string}`
+
 export interface Metadata {
-  [key: string]: string
+  /** The author's name */
+  author?: string
+  /**
+   * Specifies the name of the script as it appears in the Script Kit interface.
+   * If not provided, the file name will be used.
+   */
+  name?: string
+  /** Provides a brief description of the script's functionality. */
+  description?: string
+  /** The string displayed in the Enter button */
+  enter?: string
+  /** Defines an alternative search term to find this script */
+  alias?: string
+  /** Defines the path to an image to be used for the script */
+  image?: string
+  /** Defines a global keyboard shortcut to trigger the script. */
+  shortcut?: string
+  /**
+   * Similar to {@link trigger}, defines a string that, when typed in the main menu
+   * followed by a space, immediately executes the script.
+   */
+  shortcode?: string
+  /**
+   * Similar to {@link shortcode}, defines a string that, when typed in the main menu,
+   * immediately executes the script.
+   */
+  trigger?: string
+  /** @deprecated Use `expand` instead. Designates the script as a text expansion snippet and specifies the trigger text. */
+  snippet?: string
+  /** Designates the script as a text expansion snippet and specifies the trigger text. */
+  expand?: string
+  /** Associates a keyword with the script for easier discovery in the main menu. */
+  keyword?: string
+  /**
+   * Indicates that user input in the main menu should be passed as an argument to the script.
+   * "true" indicates that the entire input should be passed as an argument
+   * A string indicates a "postfix", then match the text before the string
+   * A RegExp indicates a "pattern" to match
+   * */
+  pass?: boolean | string
+  /** Assigns the script to a specific group for organization in the main menu. */
+  group?: string
+  /** Excludes the script from appearing in the main menu. */
+  exclude?: boolean
+  /** Specifies a file or directory to watch for changes, triggering the script upon modifications. */
+  watch?: string
+  /** Indicates whether to disable logs */
+  log?: boolean
+  /** Designates the script as a background process, running continuously in the background. */
+  background?: boolean | "auto"
+  /** Defines the number of seconds after which the script will be terminated */
+  timeout?: number
+  /** Associates the script with system events such as sleep, wake, or shutdown. */
+  system?:
+    | "suspend"
+    | "resume"
+    | "on-ac"
+    | "on-battery"
+    | "shutdown"
+    | "lock-screen"
+    | "unlock-screen"
+    | "user-did-become-active"
+    | "user-did-resign-active"
+
+  /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
+  schedule?: CronExpression
+  access?: "public" | "key" | "private"
+  response?: boolean
 }
 
 export interface ProcessInfo {

@@ -1,19 +1,41 @@
 import ava from "ava"
-import "../../test/config.js"
+import "../../test-sdk/config.js"
+import { pathToFileURL } from "node:url"
 
-let kenvName = `mock-kenv`
-ava.serial("kenv create", async t => {
-  await $`KIT_MODE=js kit kenv-create ${kenvName}`
+let kenvName = "mock-kenv"
+ava.serial("kenv create", async (t) => {
+	let { stdout } = await exec(`kit kenv-create ${kenvName}`, {
+		env: {
+			...process.env,
+			NODE_PATH: process.execPath,
+			KIT_MODE: "js"
+		}
+	})
 
-  t.log(await readdir(kenvPath("kenvs")))
+	let kenvsPath = kenvPath("kenvs")
+	let kenvsPathFileUrl = path.join(kenvsPath, kenvName)
 
-  t.true(await pathExists(kenvPath("kenvs", kenvName)))
+	t.log({ stdout, kenvsPath })
+
+	let kenvs = await readdir(kenvsPath)
+	let kenvExists = await pathExists(kenvsPathFileUrl)
+	t.log({ kenvs, kenvExists })
+
+	t.true(kenvExists)
 })
 
-ava.serial("kenv remove", async t => {
-  await $`KIT_MODE=js kit kenv-rm ${kenvName}`
+ava.serial("kenv remove", async (t) => {
+	await exec(`kit kenv-rm ${kenvName}`, {
+		env: {
+			...process.env,
+			NODE_PATH: process.execPath,
+			KIT_MODE: "js"
+		}
+	})
 
-  t.log(await readdir(kenvPath("kenvs")))
+	let kenvs = await readdir(kenvPath("kenvs"))
+	let kenvExists = await pathExists(kenvPath("kenvs", kenvName))
+	t.log({ kenvs, kenvExists })
 
-  t.false(await pathExists(kenvPath("kenvs", kenvName)))
+	t.false(kenvExists)
 })

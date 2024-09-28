@@ -3,6 +3,7 @@ import fs from "fs"
 import os from "os"
 import http from "isomorphic-git/http/node/index.js"
 import { DegitOptions } from "../../types/packages"
+import { rimraf } from "rimraf"
 
 let gitClone = async (
   repo: string,
@@ -132,7 +133,7 @@ class Degit {
       .catch(() => false)
 
     if (exists && this.options.force) {
-      await rmdir(dest, { recursive: true })
+      await rimraf(dest)
     } else if (exists && !this.options.force) {
       throw new Error(
         `Destination directory "${dest}" already exists. Use "force: true" to override.`
@@ -171,9 +172,7 @@ class Degit {
       .then(() => true)
       .catch(() => false)
     if (dotGitExists) {
-      await rmdir(path.join(dest, ".git"), {
-        recursive: true,
-      })
+      await rimraf(path.join(dest, ".git"))
     }
   }
 }

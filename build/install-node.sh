@@ -1,34 +1,34 @@
-#!/bin/sh
+#!/bin/bash
+set -euo pipefail
 
-# `install-node.vercel.app` is a simple one-liner shell script to
-# install official Node.js binaries from `nodejs.org/dist` or other
-# blessed sources (i.e. Alpine Linux builds are not on nodejs.org)
+# `install-node.vercel.app` is a simple one-liner bash script
+# to install Node.js binaries from `nodejs.org/dist` or
+# `unofficial-builds.nodejs.org/download/release`.
 #
 # For newest Node.js version:
 #
-#   $ curl -sL install-node.vercel.app | sh
-
+#   $ curl -sfLS install-node.vercel.app | bash
+#
 # For latest LTS Node.js version:
 #
-#   $ curl -sL install-node.vercel.app/lts | sh
+#   $ curl -sfLS install-node.vercel.app/lts | bash
 #
 # Install a specific version (ex: v8.9.0):
 #
-#   $ curl -sL install-node.vercel.app/v8.9.0 | sh
+#   $ curl -sfLS install-node.vercel.app/v8.9.0 | bash
 #
 # Semver also works (ex: v4.x.x):
 #
-#   $ curl -sL install-node.vercel.app/4 | sh
+#   $ curl -sfLS install-node.vercel.app/4 | bash
 #
 # Options may be passed to the shell script with `-s --`:
 #
-#   $ curl -sL install-node.vercel.app | sh -s -- --prefix=$HOME --version=8 --verbose
-#   $ curl -sL install-node.vercel.app | sh -s -- -P $HOME -v 8 -V
+#   $ curl -sfLS install-node.vercel.app | bash -s -- --prefix=$HOME --version=8 --verbose
+#   $ curl -sfLS install-node.vercel.app | bash -s -- -P $HOME -v 8 -V
 #
 # Patches welcome!
-# https://github.com/zeit/install-node.vercel.app
-# Nathan Rajlich <nate@zeit.co>
-set -eu
+# https://github.com/vercel/install-node
+# Nathan Rajlich <nate@vercel.com>
 
 BOLD="$(tput bold 2>/dev/null || echo '')"
 GREY="$(tput setaf 0 2>/dev/null || echo '')"
@@ -57,40 +57,9 @@ complete() {
   printf "${GREEN}✓${NO_COLOR} $@\n"
 }
 
-fetch() {
-  local command
-  if hash curl 2>/dev/null; then
-    set +e
-    command="curl --silent --fail $1"
-    curl --silent --fail "$1"
-    rc=$?
-    set -e
-  else
-    if hash wget 2>/dev/null; then
-      set +e
-      command="wget -O- -q $1"
-      wget -O- -q "$1"
-      rc=$?
-      set -e
-    else
-      error "No HTTP download program (curl, wget) found…"
-      exit 1
-    fi
-  fi
-
-  if [ $rc -ne 0 ]; then
-    error "Command failed (exit code $rc): ${BLUE}${command}${NO_COLOR}"
-    exit $rc
-  fi
-}
-
-resolve_node_version() {
-  local tag="$1"
-  if [ "${tag}" = "latest" ]; then
-    tag=
-  fi
-  # fetch "https://resolve-node.vercel.app/$tag"
-  echo "v18.18.2"
+# Add a new function for logging curl requests
+log_curl_request() {
+  info "Making curl request to: $1"
 }
 
 # Currently known to support:
@@ -121,6 +90,7 @@ detect_platform() {
 #   - x86 (i386)
 #   - armv6l (Raspbian on Pi 1/Zero)
 #   - armv7l (Raspbian on Pi 2/3)
+#   - arm64 (Apple M1)
 detect_arch() {
   local arch="$(uname -m | tr '[:upper:]' '[:lower:]')"
 
@@ -132,6 +102,8 @@ detect_arch() {
       arch=x86
     elif [ "${arch}" = "x86_64" ]; then
       arch=x64
+    elif [ "${arch}" = "aarch64" ]; then
+      arch=arm64
     fi
 
     # `uname -m` in some cases mis-reports 32-bit OS as 64-bit, so double check
@@ -140,6 +112,60 @@ detect_arch() {
     fi
 
     echo "${arch}"
+  fi
+}
+
+confirm() {
+  if [ -z "${FORCE-}" ]; then
+    printf "${MAGENTA}?${NO_COLOR} $@ ${BOLD}[yN]${NO_COLOR} "
+    set +e
+    read yn < /dev/tty
+    rc=$?
+    set -e
+    if [ $rc -ne 0 ]; then
+      error "Error reading from prompt (please re-run with the \`--yes\` option)"
+      return 1
+    fi
+    if [ "$yn" != "y" ] && [ "$yn" != "yes" ]; then
+      error "Aborting (please answer \"yes\" to continue)"
+      return 1
+    fi
+  fi
+}
+
+check_prefix() {
+  # Remove any surrounding quotes from the input
+  local cleaned_prefix=$(echo "$1" | sed "s/^['\"]\(.*\)['\"]$/\1/")
+  local bin="${cleaned_prefix}/bin"
+  
+  info "Checking prefix: '${cleaned_prefix}'"
+  info "Bin directory: '${bin}'"
+  info "Current working directory: $(pwd)"
+  
+  if [ ! -d "${cleaned_prefix}" ]; then
+    error "Directory '${cleaned_prefix}' does not exist"
+    ls -ld "${cleaned_prefix}" 2>/dev/null || echo "Cannot list directory"
+    exit 1
+  fi
+  
+  if [ ! -w "${cleaned_prefix}" ]; then
+    error "Cannot write to directory '${cleaned_prefix}'"
+    ls -ld "${cleaned_prefix}"
+    exit 1
+  fi
+
+  # https://stackoverflow.com/a/11655875
+  local good=$( IFS=:
+    for path in $PATH; do
+      if [ "${path}" = "${bin}" ]; then
+        echo 1
+        break
+      fi
+    done
+  )
+
+  if [ "${good}" != "1" ]; then
+    warn "Prefix bin directory ${bin} is not in your \$PATH"
   fi
 }
 
@@ -160,87 +186,38 @@ if [ -z "${ARCH-}" ]; then
   ARCH="$(detect_arch)"
 fi
 
-if [ -z "${BASE_URL-}" ]; then
-  BASE_URL="https://nodejs.org/dist"
-fi
-
 # parse argv variables
 while [ "$#" -gt 0 ]; do
   case "$1" in
-  -v | --version)
-    VERSION="$2"
-    shift 2
-    ;;
-  -p | --platform)
-    PLATFORM="$2"
-    shift 2
-    ;;
-  -P | --prefix)
-    PREFIX="$2"
-    shift 2
-    ;;
-  -a | --arch)
-    ARCH="$2"
-    shift 2
-    ;;
-  -b | --base-url)
-    BASE_URL="$2"
-    shift 2
-    ;;
+    -v|--version) VERSION="$2"; shift 2;;
+    -p|--platform) PLATFORM="$2"; shift 2;;
+    -P|--prefix) PREFIX="$2"; shift 2;;
+    -a|--arch) ARCH="$2"; shift 2;;
 
-  -V | --verbose)
-    VERBOSE=1
-    shift 1
-    ;;
-  -f | -y | --force | --yes)
-    FORCE=1
-    shift 1
-    ;;
+    -V|--verbose) VERBOSE=1; shift 1;;
+    -f|-y|--force|--yes) FORCE=1; shift 1;;
 
-  -v=* | --version=*)
-    VERSION="${1#*=}"
-    shift 1
-    ;;
-  -p=* | --platform=*)
-    PLATFORM="${1#*=}"
-    shift 1
-    ;;
-  -P=* | --prefix=*)
-    PREFIX="${1#*=}"
-    shift 1
-    ;;
-  -a=* | --arch=*)
-    ARCH="${1#*=}"
-    shift 1
-    ;;
-  -b=* | --base-url=*)
-    BASE_URL="${1#*=}"
-    shift 1
-    ;;
-  -V=* | --verbose=*)
-    VERBOSE="${1#*=}"
-    shift 1
-    ;;
-  -f=* | -y=* | --force=* | --yes=*)
-    FORCE="${1#*=}"
-    shift 1
-    ;;
+    -v=*|--version=*) VERSION="${1#*=}"; shift 1;;
+    -p=*|--platform=*) PLATFORM="${1#*=}"; shift 1;;
+    -P=*|--prefix=*) PREFIX="${1#*=}"; shift 1;;
+    -a=*|--arch=*) ARCH="${1#*=}"; shift 1;;
+    -V=*|--verbose=*) VERBOSE="${1#*=}"; shift 1;;
+    -f=*|-y=*|--force=*|--yes=*) FORCE="${1#*=}"; shift 1;;
 
-  -*)
-    error "Unknown option: $1"
-    exit 1
-    ;;
-  *)
-    VERSION="$1"
-    shift 1
-    ;;
+    -*) error "Unknown option: $1"; exit 2;;
+    *) VERSION="$1"; shift 1;;
   esac
 done
 
 # Resolve the requested version tag into an existing Node.js version
-RESOLVED="$(resolve_node_version "$VERSION")"
+log_curl_request "https://resolve-node.vercel.app/?tag=${VERSION}&platform=${PLATFORM}&arch=${ARCH}"
+HEADERS="$(curl -sfLSI "https://resolve-node.vercel.app/?tag=${VERSION}&platform=${PLATFORM}&arch=${ARCH}")"
+RESOLVED="$(echo "$HEADERS" | grep "x-node-version" | awk 'BEGIN{RS="\r\n";} /^x-node-version/{print $2}')"
+PLATFORM="$(echo "$HEADERS" | grep "x-platform" | awk 'BEGIN{RS="\r\n";} /^x-platform/{print $2}')"
+ARCH="$(echo "$HEADERS" | grep "x-arch" | awk 'BEGIN{RS="\r\n";} /^x-arch/{print $2}')"
+
 if [ -z "${RESOLVED}" ]; then
-  error "Could not resolve Node.js version ${MAGENTA}${VERSION}${NO_COLOR}"
+  error "Could not resolve Node.js version ${MAGENTA}${RESOLED}${NO_COLOR}"
   exit 1
 fi
 
@@ -255,7 +232,7 @@ info "${BOLD}Platform${NO_COLOR}: ${GREEN}${PLATFORM}${NO_COLOR}"
 info "${BOLD}Arch${NO_COLOR}:     ${GREEN}${ARCH}${NO_COLOR}"
 
 # non-empty VERBOSE enables verbose untarring
-if [ ! -z "${VERBOSE-}" ]; then
+if [ -n "${VERBOSE-}" ]; then
   VERBOSE=v
   info "${BOLD}Verbose${NO_COLOR}: yes"
 else
@@ -264,37 +241,33 @@ fi
 
 echo
 
-# Alpine Linux binaries get downloaded from `nodejs-binaries.zeit.sh`
-if [ "$PLATFORM" = "linux_musl" -o \( "$PLATFORM" = "win" -a "$RESOLVED" = "v5.12.0" \) ]; then
-  BASE_URL="https://nodejs-binaries.zeit.sh"
-fi
-
-EXT=tar.gz
-if [ "${PLATFORM}" = win ]; then
-  EXT=zip
-fi
-
-URL="${BASE_URL}/${RESOLVED}/node-${RESOLVED}-${PLATFORM}-${ARCH}.tar.gz"
+URL="$(echo "$HEADERS" | grep "x-download-url" | awk 'BEGIN{RS="\r\n";} /^x-download-url/{print $2}')"
 info "Tarball URL: ${UNDERLINE}${BLUE}${URL}${NO_COLOR}"
+check_prefix "${PREFIX}"
+confirm "Install Node.js ${GREEN}${RESOLVED}${NO_COLOR} to ${BOLD}${GREEN}${PREFIX}${NO_COLOR}?"
 
 info "Installing Node.js, please wait…"
 
-if [ "${EXT}" = zip ]; then
-  fetch "${URL}" |
-    tar xzf${VERBOSE} - \
-      --exclude CHANGELOG.md \
-      --exclude LICENSE \
-      --exclude README.md \
-      --strip-components 1 \
-      -C "${PREFIX}"
-else
-  fetch "${URL}" |
-    tar xzf${VERBOSE} - \
-      --exclude CHANGELOG.md \
-      --exclude LICENSE \
-      --exclude README.md \
-      --strip-components 1 \
-      -C "${PREFIX}"
+info "About to extract to: '${PREFIX}'"
+ls -ld "${PREFIX}" || echo "Cannot list directory"
+
+log_curl_request "${URL}"
+# Modify the curl | tar command to use the cleaned prefix
+cleaned_prefix=$(echo "${PREFIX}" | sed "s/^['\"]\(.*\)['\"]$/\1/")
+curl -sfLS "${URL}" \
+  | tar xzf${VERBOSE} - \
+    --exclude CHANGELOG.md \
+    --exclude LICENSE \
+    --exclude README.md \
+    --strip-components 1 \
+    -C "${cleaned_prefix}"
+
+# Add error checking after the curl | tar command
+if [ $? -ne 0 ]; then
+  error "Failed to download or extract Node.js"
+  error "Curl exit code: $?"
+  error "Tar exit code: ${PIPESTATUS[1]}"
+  exit 1
 fi
 
 complete "Done"

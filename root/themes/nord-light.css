@@ -1,0 +1,17 @@
+:root {
+  --name: "Nord Light";
+  --appearance: light;
+  --opacity: 0.9;
+  --color-text: #2e3440;
+  --color-primary: #5e81ac;
+  --color-secondary: #e5e9f0;
+  --color-background: #eceff4;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

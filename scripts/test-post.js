@@ -1,10 +1,10 @@
-await import("../test/config.js")
+import { rimraf } from "rimraf"
+
+await import("../test-sdk/config.js")
 
 if (test("-d", kitMockPath())) {
-  await rm(kitMockPath())
+	await rimraf(kitMockPath())
 }
 
 process.env.KENV = home(".kenv")
-await $`kit ${kitPath("cli", "refresh-scripts-db.js")}`
-
-export {}
+await exec(`kit ${kitPath("cli", "refresh-scripts-db.js")}`)

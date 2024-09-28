@@ -24,75 +24,108 @@
     "./platform/*": "./platform/*.js",
     "./run/*": "./run/*.js",
     "./core/*": "./core/*.js",
-    "./cjs/*": "./core/*.cjs"
+    "./workers": "./workers/index.js"
   },
   "types": "./types/index.d.ts",
   "scripts": {
-    "build-kit": "node ./build/build-kit.js && npm run build-editor-types",
+    "ava": "ava --config ./test/ava.config.mjs",
+    "ava:watch": "ava --watch --no-worker-threads --config ./test/ava.config.mjs",
+    "ava:reset": "ava reset-cache --config ./test/ava.config.mjs",
+    "ava:debug": "ava debug --config ./test/ava.config.mjs",
+    "build-kit": "tsx ./build/build-kit.ts",
+    "build": "tsx ./build/build-kit.ts",
     "commit": "cz",
-    "rebuild-kit": "node ./build/rebuild-kit.js && npm run build-editor-types",
+    "rebuild-kit": "tsx ./build/rebuild-kit.ts",
     "download-md": "node ./build/download-md.js",
     "dev": "tsc --watch --outDir ~/.kit",
     "declaration": "tsc -p ./tsconfig-declaration.json --watch",
     "pretest:core": "node ./scripts/test-pre.js",
-    "test:core": "NODE_NO_WARNINGS=1 ava ./src/core/*.test.js --no-worker-threads",
+    "test:core": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/*.test.js --no-worker-threads",
     "posttest:core": "node ./scripts/test-post.js",
+    "pretest:kit": "node ./scripts/test-pre.js",
+    "test:kit": "cross-env NODE_NO_WARNINGS=1 ava ./src/api/kit.test.js --no-worker-threads",
+    "pretest:sdk": "node ./scripts/test-pre.js",
+    "test:sdk": "cross-env NODE_NO_WARNINGS=1 ava ./test-sdk/*.test.js --no-worker-threads",
+    "posttest:sdk": "node ./scripts/test-post.js",
+    "pretest:api": "node ./scripts/test-pre.js",
+    "test:api": "cross-env NODE_NO_WARNINGS=1 ava ./src/api/*.test.js --no-worker-threads",
+    "posttest:api": "node ./scripts/test-post.js",
+    "pretest:metadata": "node ./scripts/test-pre.js",
+    "test:metadata": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/metadata.test.js --no-worker-threads",
+    "posttest:metadata": "node ./scripts/test-post.js",
     "pretest": "node ./scripts/test-pre.js",
-    "test": "NODE_NO_WARNINGS=1 ava --no-worker-threads",
+    "test": "cross-env NODE_NO_WARNINGS=1 ava --no-worker-threads --fail-fast",
     "posttest": "node ./scripts/test-post.js",
-    "cjs": "source ./build/set-env-vars.sh && npx tsc --project ./tsconfig-cjs.json --outDir \"$KIT/cjs\" && node ./scripts/cjs-fix.js",
-    "build-editor-types": "kit ./build/build-editor-types.ts",
+    "build-editor-types": "tsx ./build/build-editor-types.ts",
     "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
-    "lazy-install": "npm i esbuild@0.19.4 --save-exact --production --prefer-dedupe --loglevel=verbose"
+    "lazy-install": "npm i esbuild@0.23.1 --save-exact --production --prefer-dedupe --loglevel=verbose",
+    "preinstall": "node ./build/preinstall.js"
   },
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
+  "pnpm": {
+    "overrides": {
+      "typescript": "5.6.2",
+      "esbuild": "0.24.0"
+    }
+  },
   "dependencies": {
-    "@johnlindquist/globals": "1.15.1",
-    "@johnlindquist/kit-internal": "^1.13.3",
-    "@octokit/auth-oauth-device": "4.0.4",
-    "@octokit/core": "4.2.0",
-    "@octokit/plugin-paginate-rest": "6.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "7.0.1",
-    "@octokit/plugin-retry": "4.1.3",
-    "@octokit/plugin-throttling": "5.0.1",
-    "@types/node-notifier": "8.0.3",
-    "@types/shelljs": "0.8.13",
+    "@johnlindquist/globals": "1.16.4",
+    "@johnlindquist/kit-internal": "^1.13.5",
+    "@johnlindquist/open": "^10.1.1",
+    "@octokit/auth-oauth-device": "7.1.1",
+    "@octokit/core": "6.1.2",
+    "@octokit/plugin-paginate-rest": "11.3.3",
+    "@octokit/plugin-rest-endpoint-methods": "13.2.4",
+    "@octokit/plugin-retry": "7.1.2",
+    "@octokit/plugin-throttling": "9.3.1",
+    "@types/shelljs": "0.8.15",
+    "@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2",
+    "acorn": "^8.12.1",
+    "acorn-typescript": "^1.4.13",
     "advanced-calculator": "1.1.1",
-    "chrome-trace-event": "^1.0.3",
-    "esbuild": "0.19.9",
-    "file-icon": "5.1.1",
-    "filesize": "10.1.0",
-    "globby": "^14.0.0",
-    "highlight.js": "11.9.0",
-    "isomorphic-git": "1.25.1",
-    "keyv": "^4.5.4",
-    "keyv-file": "^0.3.0",
-    "node-notifier": "10.0.1",
-    "open": "9.1.0",
-    "p-limit": "^5.0.0",
+    "body-parser": "^1.20.3",
+    "bottleneck": "^2.19.5",
+    "chrome-trace-event": "^1.0.4",
+    "color-name": "2.0.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "0.24.0",
+    "filesize": "10.1.6",
+    "fs-extra": "^11.2.0",
+    "globby": "^14.0.2",
+    "highlight.js": "^11.10.0",
+    "isomorphic-git": "1.27.1",
+    "jsonfile": "6.1.0",
+    "keyv": "^5.0.3",
+    "keyv-file": "^5.0.3",
+    "p-retry": "6.2.0",
     "quick-score": "^0.2.0",
-    "rimraf": "5.0.5",
-    "safe-stable-stringify": "^2.4.3",
+    "rimraf": "6.0.1",
+    "safe-stable-stringify": "^2.5.0",
     "shelljs": "0.8.5",
     "slugify": "1.6.6",
     "suggestion": "2.1.2",
-    "zx": "^7.2.3"
+    "tmp-promise": "3.0.3",
+    "tsx": "4.19.1",
+    "typescript": "5.6.2",
+    "untildify": "5.0.0",
+    "vite": "5.4.7",
+    "zx": "^8.1.8"
   },
   "devDependencies": {
-    "@types/debug": "4.1.9",
-    "@types/express": "4.17.19",
-    "@types/express-ws": "3.0.2",
-    "@types/node": "^20.8.4",
-    "@types/node-ipc": "9.2.1",
-    "ava": "5.3.1",
+    "@biomejs/biome": "1.9.2",
+    "@types/debug": "4.1.12",
+    "@types/node": "^22.6.0",
+    "@types/node-ipc": "9.2.3",
+    "ava": "^6.1.3",
+    "cross-env": "^7.0.3",
     "cz-conventional-changelog": "^3.3.0",
-    "debug": "4.3.4",
-    "semantic-release": "22.0.12",
+    "debug": "4.3.7",
+    "node-stream-zip": "^1.15.0",
+    "semantic-release": "24.1.1",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
-    "tsc-watch": "6.0.4",
-    "typescript": "5.3.3",
-    "unzipper": "0.10.14"
+    "tsc-watch": "6.2.0",
+    "unzipper": "0.12.3"
   },
   "ava": {
     "environmentVariables": {
@@ -101,7 +134,8 @@
     "verbose": true,
     "files": [
       "src/**/*.test.js",
-      "test/**/*.test.js"
+      "test/**/*.test.js",
+      "test-sdk/**/*.test.js"
     ]
   },
   "release": {
@@ -138,11 +172,16 @@
     ]
   },
   "volta": {
-    "node": "18.18.2"
+    "node": "20.17.0"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  }
+  },
+  "optionalDependencies": {
+    "file-icon": "5.1.1",
+    "get-app-icon": "1.0.1"
+  },
+  "packageManager": "pnpm@9.11.0"
 }

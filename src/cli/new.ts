@@ -1,5 +1,5 @@
 import {
-  exists,
+  checkIfCommandExists,
   stripName,
   kitMode,
   stripMetadata,
@@ -10,6 +10,8 @@ import {
   ensureTemplates,
   prependImport,
 } from "./lib/utils.js"
+import { getUserDefaultMetadataMode } from "./metadata-mode.js"
+import { getEnvVar } from "../api/kit.js"
 
 let inputTransformer = keywordInputTransformer(arg?.keyword)
 
@@ -17,8 +19,8 @@ let choices = input => [
   {
     info: true,
     name: !input
-      ? `Enter a name for your script's // Name: metadata`
-      : `// Name: ${inputTransformer(input)}`,
+      ? `Enter a name for your script's metadata`
+      : `Name: ${inputTransformer(input)}`,
     description: !input
       ? `The filename will be converted automatically.`
       : `Filename will be converted to ${stripName(
@@ -36,14 +38,15 @@ let name = arg?.pass
         debounceInput: 0,
         placeholder: arg?.placeholder || "Enter a name",
         validate: input => {
-          return exists(stripName(input))
+          return checkIfCommandExists(stripName(input))
         },
         shortcuts: [],
         enter: `Create script and open in editor`,
         strict: false,
         initialChoices,
-      },
-      choices
+      }
+      // I don't think we need choices here
+      // choices
     )
 
 let { dirPath: selectedKenvPath } = await selectKenv({
@@ -123,18 +126,10 @@ if (!arg?.tip) {
   })
 }
 
-if (
-  (scriptName || command !== name) &&
-  !contents.includes(`Name:`)
-) {
-  contents = `// Name: ${scriptName || name || ""}
-${contents.startsWith("/") ? contents : "\n" + contents}
-`
-}
-
 if (arg?.url || arg?.content) {
   contents = (await get<any>(arg?.url)).data
   if (!arg?.keepMetadata) {
+    // TODO(josxa): This should also work with conventions
     contents = stripMetadata(contents, [
       "Menu",
       "Name",
@@ -143,6 +138,41 @@ if (arg?.url || arg?.content) {
       "Alias",
       "Description",
     ])
+  }
+} else {
+  const nameMetadata = scriptName || name || ""
+
+  const defaultMetadataMode =
+    await getUserDefaultMetadataMode()
+
+  if (defaultMetadataMode === "comment") {
+    if (
+      (scriptName || command !== name) &&
+      !contents.includes(`Name:`)
+    ) {
+      contents = `// Name: ${nameMetadata}
+${contents.startsWith("/") ? contents : "\n" + contents}
+`
+    }
+  } else if (defaultMetadataMode === "convention") {
+    const parts = []
+
+    if ((await getEnvVar("KIT_MODE", "ts")) === "ts") {
+      // Direct type annotation
+      parts.push("export const metadata: Metadata = {")
+    } else {
+      // JSDoc type comment
+      parts.push("/** @type Metadata */")
+      parts.push("export const metadata = {")
+    }
+
+    parts.push(`  name: "${nameMetadata}",`)
+    parts.push("}\n")
+    parts.push(contents)
+
+    contents = prependImport(parts.join("\n"), {
+      force: true,
+    })
   }
 }
 

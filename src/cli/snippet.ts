@@ -1,6 +1,6 @@
 // Description: Create a new script
 import {
-  exists,
+  checkIfCommandExists,
   kitMode,
   returnOrEnter,
   uniq,
@@ -39,7 +39,9 @@ let name = await arg(
       arg?.placeholder || "Enter a Name for Your Script",
     hint: `e.g., <span class="pl-2 font-mono">${examples}</span>`,
     validate: input => {
-      return exists(input.replace(/\s/g, "-").toLowerCase())
+      return checkIfCommandExists(
+        input.replace(/\s/g, "-").toLowerCase()
+      )
     },
     enter: `Create Script and Open in Editor`,
   },
@@ -119,4 +121,4 @@ await cli("create-bin", "scripts", name)
 global.log(
   chalk`\nCreated a {green ${name}} script using the {yellow ${template}} template`
 )
-edit(scriptPath, kenvPath(), 3)
+await edit(scriptPath, kenvPath(), 3)

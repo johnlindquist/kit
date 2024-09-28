@@ -1,5 +1,15 @@
-import { Bin } from "../../core/enum"
-import { Choice, Script } from "../../types/core"
+import path from "node:path"
+import shelljs from "shelljs"
+import { kitPath, home } from "../../core/utils.js"
+import { compile } from "@johnlindquist/globals"
+import {
+  ensureDir,
+  readFile,
+  writeFile,
+} from "@johnlindquist/kit-internal/fs-extra"
+
+import type { Bin } from "../../core/enum.ts"
+import type { Choice, Script } from "../../types/core.ts"
 
 export let jsh = process.env?.SHELL?.includes("jsh")
 
@@ -29,7 +39,11 @@ export let ensureTemplates = async () => {
 
 export let createBinFromScript = async (
   type: Bin,
-  { command, filePath }: Script
+  {
+    command,
+    filePath,
+    execPath,
+  }: Script & { execPath?: string }
 ) => {
   let template = jsh ? "stackblitz" : "terminal"
 
@@ -50,9 +64,9 @@ export let createBinFromScript = async (
     command,
     type,
     ...global.env,
-    KNODE: knodePath().trim() || home(".knode"),
+    NODE_PATH: execPath || process.env.NODE_PATH,
     KIT: kitPath().trim() || home(".kit"),
-    TARGET_PATH: filePath,
+    TARGET_PATH: filePath.replace("#", "#"),
   })
 
   let binDirPath = path.resolve(
@@ -68,9 +82,9 @@ export let createBinFromScript = async (
     binFilePath += ".cmd"
   }
 
-  await global.ensureDir(path.dirname(binFilePath))
-  await global.writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
+  await ensureDir(path.dirname(binFilePath))
+  await writeFile(binFilePath, compiledBinTemplate)
+  shelljs.chmod(755, binFilePath)
 }
 
 interface Doc {
@@ -196,12 +210,27 @@ export let addPreview = async (
   return [...enhancedChoices, ...docOnlyChoices]
 }
 
-export let prependImport = contents => {
-  let foundImport = contents.match(
-    /import.*('|")@johnlindquist\/kit('|")/
-  )
+export let prependImport = (
+  contents: string,
+  { force = false }: { force?: boolean } = {}
+) => {
+  let insert = true
 
-  if (!foundImport) {
+  if (force) {
+    contents = contents.replaceAll(
+      /^import\s+['"]@johnlindquist\/kit['"]\s*\n?/gm,
+      ""
+    )
+  } else {
+    let foundImport = contents.match(
+      /import\s+['"]@johnlindquist\/kit['"]/
+    )
+    if (foundImport) {
+      insert = false
+    }
+  }
+
+  if (insert) {
     return `import "@johnlindquist/kit"
     
 ${contents}`

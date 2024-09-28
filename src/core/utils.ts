@@ -1,35 +1,40 @@
-import { randomUUID as uuid } from "crypto"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
-import * as path from "path"
-import untildify from "untildify"
 import {
+  md as globalMd,
+  marked,
+} from "@johnlindquist/globals"
+
+import * as path from "node:path"
+
+import type {
   Script,
-  ScriptPathInfo,
-  ScriptMetadata,
   Metadata,
   Shortcut,
-  Choice,
+  Scriptlet,
+  Snippet,
 } from "../types/core"
-import { platform, homedir } from "os"
-import { lstatSync, PathLike, realpathSync } from "fs"
-import { lstat, readdir, readFile } from "fs/promises"
+import { lstatSync, realpathSync } from "node:fs"
+import { lstat, readdir } from "node:fs/promises"
+import { execSync } from "node:child_process"
 
-import { execSync } from "child_process"
-
-import { ProcessType, Channel, PROMPT } from "./enum.js"
-
-export let isWin = platform().startsWith("win")
-export let isMac = platform().startsWith("darwin")
-export let isLinux = platform().startsWith("linux")
-export let cmd = isMac ? "cmd" : "ctrl"
-export let returnOrEnter = isMac ? "return" : "enter"
+import { Channel } from "./enum.js"
+import {
+  type AssignmentExpression,
+  type Identifier,
+  type ObjectExpression,
+  Parser,
+  type Program,
+} from "acorn"
+import tsPlugin from "acorn-typescript"
+import type { Stamp } from "./db"
+import { pathToFileURL } from "node:url"
+import { parseScript } from "./parser.js"
+import { kitPath, kenvPath } from "./resolvers.js"
+import { cmd } from "./constants.js"
+import { isBin, isJsh, isDir, isWin, isMac } from "./is.js"
+import pRetry from "p-retry"
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
-export let jsh = process.env?.SHELL?.includes("jsh")
-
-export let home = (...pathParts: string[]) => {
-  return path.resolve(homedir(), ...pathParts)
-}
 
 export let wait = async (time: number): Promise<void> =>
   new Promise(res => setTimeout(res, time))
@@ -38,109 +43,6 @@ export let checkProcess = (pid: string | number) => {
   return execSync(`kill -0 ` + pid).buffer.toString()
 }
 
-export let isFile = async (
-  file: string
-): Promise<boolean> => {
-  try {
-    let stats = await lstat(file)
-    return stats.isFile()
-  } catch {
-    return false
-  }
-}
-
-//app
-export let isDir = async (
-  dir: string
-): Promise<boolean> => {
-  try {
-    let stats = await lstat(dir)
-
-    return stats.isDirectory()
-  } catch {
-    return false
-  }
-}
-
-export let isBin = async (
-  bin: string
-): Promise<boolean> => {
-  if (jsh) return false
-  try {
-    return Boolean(execSync(`command -v ${bin}`))
-  } catch {
-    return false
-  }
-}
-
-export let createPathResolver =
-  (parentDir: string) =>
-  (...parts: string[]) => {
-    return path.resolve(parentDir, ...parts)
-  }
-
-//app
-export let kitPath = (...parts: string[]) =>
-  path.join(
-    process.env.KIT || home(".kit"),
-    ...parts.filter(Boolean)
-  )
-
-// //app
-export let kenvPath = (...parts: string[]) => {
-  return path.join(
-    process.env.KENV || home(".kenv"),
-    ...parts.filter(Boolean)
-  )
-}
-
-export let kitDotEnvPath = () => {
-  return process.env.KIT_DOTENV_PATH || kenvPath(".env")
-}
-
-export let knodePath = (...parts: string[]) =>
-  path.join(
-    process.env.KNODE || home(".knode"),
-    ...parts.filter(Boolean)
-  )
-
-export const scriptsDbPath = kitPath("db", "scripts.json")
-export const timestampsPath = kitPath(
-  "db",
-  "timestamps.json"
-)
-export const statsPath = kitPath("db", "stats.json")
-export const prefsPath = kitPath("db", "prefs.json")
-export const shortcutsPath = kitPath("db", "shortcuts.json")
-export const promptDbPath = kitPath("db", "prompt.json")
-export const appDbPath = kitPath("db", "app.json")
-export const themeDbPath = kitPath("db", "theme.json")
-export const userDbPath = kitPath("db", "user.json")
-export const tmpClipboardDir = kitPath("tmp", "clipboard")
-export const tmpDownloadsDir = kitPath("tmp", "downloads")
-
-export const getMainScriptPath = () => {
-  const version = process.env?.KIT_MAIN_SCRIPT
-  return kitPath(
-    "main",
-    `index${version ? `-${version}` : ""}.js`
-  )
-}
-export const execPath = knodePath(
-  "bin",
-  `node${isWin ? `.exe` : ``}`
-)
-export const kitDocsPath = home(".kit-docs")
-
-export const KENV_SCRIPTS = kenvPath("scripts")
-export const KENV_APP = kenvPath("app")
-export const KENV_BIN = kenvPath("bin")
-
-export const KIT_APP = kitPath("run", "app.js")
-export const KIT_APP_PROMPT = kitPath(
-  "run",
-  "app-prompt.js"
-)
 export let combinePath = (
   arrayOfPaths: string[]
 ): string => {
@@ -175,7 +77,6 @@ export const KIT_DEFAULT_PATH = isWin
   : UNIX_DEFAULT_PATH
 
 export const KIT_BIN_PATHS = combinePath([
-  knodePath("bin"),
   kitPath("bin"),
   ...(isWin ? [] : [kitPath("override", "code")]),
   kenvPath("bin"),
@@ -213,13 +114,23 @@ let fileExists = (path: string) => {
   }
 }
 
+export let isScriptletPath = (filePath: unknown) => {
+  return (
+    typeof filePath === "string" &&
+    filePath.includes(".md#")
+  )
+}
+
 //app
 export let resolveToScriptPath = (
-  script: string,
+  rawScript: string,
   cwd: string = process.cwd()
 ): string => {
-  let extensions = ["", ".js", ".ts"]
+  let extensions = ["", ".js", ".ts", ".md"]
   let resolvedScriptPath = ""
+
+  // Remove anchor from the end
+  let script = rawScript.replace(/\#.*$/, "")
 
   // if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
   if (fileExists(script)) return script
@@ -361,17 +272,66 @@ ${contents}`.trim()
   return contents
 }
 
-//app
-export let getMetadata = (contents: string): Metadata => {
+const getMetadataFromComments = (
+  contents: string
+): Record<string, string> => {
   const lines = contents.split("\n")
   const metadata = {}
   let commentStyle = null
+  let spaceRegex = null
+  let inMultilineComment = false
+  let multilineCommentEnd = null
+
+  const setCommentStyle = (style: string) => {
+    commentStyle = style
+    spaceRegex = new RegExp(`^${commentStyle} ?[^ ]`)
+  }
 
   for (const line of lines) {
+    // Check for the start of a multiline comment block
+    if (
+      !inMultilineComment &&
+      (line.trim().startsWith("/*") ||
+        line.trim().startsWith("'''") ||
+        line.trim().startsWith('"""') ||
+        line.trim().match(/^: '/))
+    ) {
+      inMultilineComment = true
+      multilineCommentEnd = line.trim().startsWith("/*")
+        ? "*/"
+        : line.trim().startsWith(": '")
+        ? "'"
+        : line.trim().startsWith("'''")
+        ? "'''"
+        : '"""'
+    }
+
+    // Check for the end of a multiline comment block
+    if (
+      inMultilineComment &&
+      line.trim().endsWith(multilineCommentEnd)
+    ) {
+      inMultilineComment = false
+      multilineCommentEnd = null
+      continue // Skip the end line of a multiline comment block
+    }
+
+    // Skip lines that are part of a multiline comment block
+    if (inMultilineComment) continue
+
     // Determine the comment style based on the first encountered comment line
     if (commentStyle === null) {
-      if (line.startsWith("/")) commentStyle = "//"
-      else if (line.startsWith("#")) commentStyle = "#"
+      if (
+        line.startsWith("//") &&
+        (line[2] === " " || /[a-zA-Z]/.test(line[2]))
+      ) {
+        setCommentStyle("//")
+      } else if (
+        line.startsWith("#") &&
+        (line[1] === " " || /[a-zA-Z]/.test(line[1]))
+      ) {
+        setCommentStyle("#")
+      }
     }
 
     // Skip lines that don't start with the determined comment style
@@ -380,6 +340,9 @@ export let getMetadata = (contents: string): Metadata => {
       (commentStyle && !line.startsWith(commentStyle))
     )
       continue
+
+    // Check for 0 or 1 space after the comment style
+    if (!line.match(spaceRegex)) continue
 
     // Find the index of the first colon
     const colonIndex = line.indexOf(":")
@@ -396,198 +359,176 @@ export let getMetadata = (contents: string): Metadata => {
     const value = line.substring(colonIndex + 1).trim()
 
     // Skip empty keys or values
-    if (!key || !value) continue
+    if (!key || !value) {
+      continue
+    }
+
+    let parsedValue: string | boolean | number
+    let lowerValue = value.toLowerCase()
+    let lowerKey = key.toLowerCase()
+    switch (true) {
+      case lowerValue === "true":
+        parsedValue = true
+        break
+      case lowerValue === "false":
+        parsedValue = false
+        break
+      case lowerKey === "timeout":
+        parsedValue = parseInt(value, 10)
+        break
+      default:
+        parsedValue = value
+    }
 
     // Only assign if the key hasn't been assigned before
     if (!(key in metadata)) {
-      metadata[key] = value
+      metadata[key] = parsedValue
     }
   }
 
   return metadata
 }
 
-const shebangRegex = /^#!(.+)/m
-
-export let getShebangFromContents = (
-  contents: string
-): string | undefined => {
-  let match = contents.match(shebangRegex)
-  return match ? match[1].trim() : undefined
+function parseTypeScript(code: string) {
+  const parser = Parser.extend(
+    // @ts-expect-error Somehow these are not 100% compatible
+    tsPlugin({ allowSatisfies: true })
+  )
+  return parser.parse(code, {
+    sourceType: "module",
+    ecmaVersion: "latest",
+  })
 }
 
-//app
-export let formatScriptMetadata = (
-  metadata: Metadata,
-  fileContents: string
-): ScriptMetadata => {
-  if (metadata?.shortcut) {
-    metadata.shortcut = shortcutNormalizer(
-      metadata?.shortcut
+function isOfType<
+  T extends { type: string },
+  TType extends string
+>(node: T, type: TType): node is T & { type: TType } {
+  return node.type === type
+}
+
+function parseMetadataProperties(
+  properties: ObjectExpression["properties"]
+) {
+  return properties.reduce((acc, prop) => {
+    if (!isOfType(prop, "Property")) {
+      throw Error("Not a Property")
+    }
+
+    const key = prop.key
+    const value = prop.value
+
+    if (!isOfType(key, "Identifier")) {
+      throw Error("Key is not an Identifier")
+    }
+
+    if (!isOfType(value, "Literal")) {
+      throw Error(
+        `value is not a Literal, but a ${value.type}`
+      )
+    }
+
+    acc[key.name] = value.value
+    return acc
+  }, {})
+}
+
+function getMetadataFromExport(
+  ast: Program
+): Partial<Metadata> {
+  for (const node of ast.body) {
+    const isExpressionStatement = isOfType(
+      node,
+      "ExpressionStatement"
     )
 
-    metadata.friendlyShortcut = friendlyShortcut(
-      metadata.shortcut
+    if (isExpressionStatement) {
+      const expression =
+        node.expression as AssignmentExpression
+
+      const isMetadata =
+        (expression.left as Identifier).name === "metadata"
+      const isEquals = expression.operator === "="
+      const properties = (
+        expression.right as ObjectExpression
+      ).properties
+
+      const isGlobalMetadata = isMetadata && isEquals
+
+      if (isGlobalMetadata) {
+        return parseMetadataProperties(properties)
+      }
+    }
+
+    const isExportNamedDeclaration = isOfType(
+      node,
+      "ExportNamedDeclaration"
     )
+
+    if (!isExportNamedDeclaration || !node.declaration) {
+      continue
+    }
+
+    const declaration = node.declaration
+
+    if (
+      declaration.type !== "VariableDeclaration" ||
+      !declaration.declarations[0]
+    ) {
+      continue
+    }
+
+    const namedExport = declaration.declarations[0]
+
+    if (
+      !("name" in namedExport.id) ||
+      namedExport.id.name !== "metadata"
+    ) {
+      continue
+    }
+
+    if (namedExport.init?.type !== "ObjectExpression") {
+      continue
+    }
+
+    const properties = namedExport.init?.properties
+
+    return parseMetadataProperties(properties)
   }
 
-  // A shortcode allows you to run the script using "spacebar"
-  if (metadata?.shortcode) {
-    ;(metadata as unknown as ScriptMetadata).shortcode =
-      metadata?.shortcode?.trim()?.toLowerCase()
-  }
-
-  if (metadata?.trigger) {
-    ;(metadata as unknown as ScriptMetadata).shortcode =
-      metadata?.trigger?.trim()?.toLowerCase()
-  }
-
-  // An alias brings the script to the top of the list
-  if (metadata?.alias) {
-    ;(metadata as unknown as ScriptMetadata).alias =
-      metadata?.alias?.trim().toLowerCase()
-  }
-
-  if (metadata?.verbose) {
-    ;(metadata as unknown as ScriptMetadata).verbose =
-      Boolean(metadata?.verbose === "true")
-  }
-
-  if (metadata?.image) {
-    metadata.img = untildify(metadata?.image)
-  }
-
-  if (metadata?.timeout) {
-    ;(metadata as unknown as ScriptMetadata).timeout =
-      parseInt(metadata?.timeout, 10)
-  }
-
-  if (metadata?.exclude) {
-    ;(metadata as unknown as ScriptMetadata).exclude =
-      Boolean(metadata?.exclude === "true")
-  }
-
-  if (metadata?.group) {
-    ;(metadata as unknown as ScriptMetadata).group =
-      metadata?.group
-  }
-
-  if (metadata?.recent) {
-    ;(metadata as unknown as ScriptMetadata).recent =
-      Boolean(metadata?.recent === "true")
-  }
-
-  metadata.type = metadata?.schedule
-    ? ProcessType.Schedule
-    : metadata?.watch
-    ? ProcessType.Watch
-    : metadata?.system
-    ? ProcessType.System
-    : metadata?.background
-    ? ProcessType.Background
-    : ProcessType.Prompt
-
-  let tabs =
-    fileContents.match(
-      new RegExp(`(?<=^onTab[(]['"]).+?(?=['"])`, "gim")
-    ) || []
-
-  if (tabs?.length) {
-    ;(metadata as unknown as ScriptMetadata).tabs = tabs
-  }
-
-  let hasFlags = Boolean(
-    fileContents.match(
-      new RegExp(`(?<=^setFlags).*`, "gim")
-    )
-  )
-
-  if (hasFlags) {
-    ;(metadata as unknown as ScriptMetadata).hasFlags = true
-  }
-
-  if (metadata?.log === "false") {
-    ;(metadata as unknown as ScriptMetadata).log = "false"
-  }
-
-  let hasPreview = Boolean(
-    fileContents.match(/preview(:|\s{0,1}=)/gi)?.[0]
-  )
-  if (hasPreview) {
-    ;(metadata as unknown as ScriptMetadata).hasPreview =
-      hasPreview
-  }
-
-  return metadata as unknown as ScriptMetadata
+  // Nothing found
+  return {}
 }
 
 //app
-export let parseMetadata = (
-  fileContents: string
-): ScriptMetadata => {
-  let metadata: Metadata = getMetadata(fileContents)
-  return formatScriptMetadata(metadata, fileContents)
-}
+export let getMetadata = (contents: string): Metadata => {
+  const fromComments = getMetadataFromComments(contents)
 
-//app
-export let commandFromFilePath = (filePath: string) =>
-  path.basename(filePath)?.replace(/\.(j|t)s$/, "") || ""
+  // if (
+  //   !/(const|var|let) metadata/g.test(contents) &&
+  //   !/^metadata = {/g.test(contents)
+  // ) {
+  //   // No named export in file, return early
+  //   return fromComments
+  // }
 
-//app
-export let iconFromKenv = async (kenv: string) => {
-  let iconPath = kenv
-    ? kenvPath("kenvs", kenv, "icon.png")
-    : ""
-
-  return kenv && (await isFile(iconPath)) ? iconPath : ""
-}
-
-//app
-export let parseFilePath = async (
-  filePath: string
-): Promise<ScriptPathInfo> => {
-  let command = commandFromFilePath(filePath)
-  let kenv = kenvFromFilePath(filePath)
-  let icon = await iconFromKenv(kenv)
-
-  return {
-    id: filePath,
-    command,
-    filePath,
-    kenv,
-    icon,
-  }
-}
-
-// app
-export let parseScript = async (
-  filePath: string
-): Promise<Script> => {
-  let parsedFilePath = await parseFilePath(filePath)
-
-  let contents = await readFile(filePath, "utf8")
-
-  let metadata = parseMetadata(contents)
-
-  let shebang = getShebangFromContents(contents)
-
-  let needsDebugger = Boolean(
-    contents.match(/^\s*debugger/gim)
-  )
-
-  let result = {
-    shebang,
-    ...metadata,
-    ...parsedFilePath,
-    needsDebugger,
-    name:
-      metadata.name ||
-      metadata.menu ||
-      parsedFilePath.command,
-    description: metadata.description || "",
+  let ast: Program
+  try {
+    ast = parseTypeScript(contents)
+  } catch (err) {
+    // TODO: May wanna introduce some error handling here. In my script version, I automatically added an error
+    //  message near the top of the user's file, indicating that their input couldn't be parsed...
+    //  acorn-typescript unfortunately doesn't support very modern syntax, like `const T` generics.
+    //  But it works in most cases.
+    return fromComments
   }
 
-  return result
+  try {
+    const fromExport = getMetadataFromExport(ast)
+    return { ...fromComments, ...fromExport }
+  } catch (err) {
+    return fromComments
+  }
 }
 
 export let getLastSlashSeparated = (
@@ -658,7 +599,7 @@ export let stripName = (name: string) => {
 }
 
 //validator
-export let exists = async (input: string) => {
+export let checkIfCommandExists = async (input: string) => {
   if (await isBin(kenvPath("bin", input))) {
     return global.chalk`{red.bold ${input}} already exists. Try again:`
   }
@@ -717,6 +658,11 @@ export let run = async (
   let scriptArgs = []
   let script = ""
   let match
+  // This regex splits the command string into parts:
+  // - Matches single-quoted strings: '[^']+?'
+  // - Matches double-quoted strings: "[^"]+?"
+  // - Matches one or more whitespace characters: \s+
+  // This allows us to preserve quoted arguments as single units
   let splitRegex = /('[^']+?')|("[^"]+?")|\s+/
   let quoteRegex = /'|"/g
   let parts = command.split(splitRegex).filter(Boolean)
@@ -770,15 +716,6 @@ export let run = async (
 
   global.flag.tab = ""
 
-  if (
-    kitLocalRunCount === kitGlobalRunCount &&
-    // Without this, the TODOs example auto-exits
-    typeof global?.onTabs?.length !== "undefined" &&
-    global?.onTabs?.length === 0
-  ) {
-    global.finishScript()
-  }
-
   return result
 }
 
@@ -794,7 +731,15 @@ export let updateEnv = (scriptProjectPath: string) => {
   }
 
   if (error) {
-    console.log(error)
+    let isCwdKenv =
+      path.normalize(cwd()) === path.normalize(kenvPath())
+    if (
+      isCwdKenv &&
+      !error?.message?.includes("files matching pattern") &&
+      !process.env.CI
+    ) {
+      global.log(error.message)
+    }
   }
 }
 
@@ -804,6 +749,18 @@ export let configEnv = () => {
     path: process.env.KIT_DOTENV_PATH || kenvPath(),
     silent: true,
   })
+
+  if (error) {
+    let isCwdKenv =
+      path.normalize(cwd()) === path.normalize(kenvPath())
+    if (
+      isCwdKenv &&
+      !error?.message?.includes("files matching pattern") &&
+      !process.env.CI
+    ) {
+      global.log(error.message)
+    }
+  }
 
   process.env.PATH_FROM_DOTENV = combinePath([
     parsed?.PATH || process.env.PATH,
@@ -825,7 +782,7 @@ export let trashScriptBin = async (script: Script) => {
     "@johnlindquist/kit-internal/fs-extra"
   )
 
-  let binJSPath = jsh
+  let binJSPath = isJsh()
     ? kenvPath("node_modules", ".bin", command + ".js")
     : kenvPath(
         kenv && `kenvs/${kenv}`,
@@ -841,8 +798,14 @@ export let trashScriptBin = async (script: Script) => {
     name
   )
 
+  if (process.platform === "win32") {
+    if (!commandBinPath.endsWith(".cmd")) {
+      commandBinPath += ".cmd"
+    }
+  }
+
   if (binJS) {
-    let binPath = jsh
+    let binPath = isJsh()
       ? kenvPath("node_modules", ".bin", command)
       : commandBinPath
 
@@ -882,9 +845,13 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
       if (!fileName.startsWith(".")) {
         let fullPath = path.join(scriptsPath, fileName)
         if (!path.extname(fileName)) {
-          let stats = await lstat(fullPath)
-          if (!stats.isDirectory()) {
-            scriptFiles.push(fullPath)
+          try {
+            let stats = await lstat(fullPath)
+            if (!stats.isDirectory()) {
+              scriptFiles.push(fullPath)
+            }
+          } catch (error) {
+            log(error)
           }
         } else {
           scriptFiles.push(fullPath)
@@ -897,12 +864,8 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
   }
 }
 
-export type Timestamp = {
-  filePath: string
-  timestamp: number
-}
 export let scriptsSort =
-  (timestamps: Timestamp[]) => (a: Script, b: Script) => {
+  (timestamps: Stamp[]) => (a: Script, b: Script) => {
     let aTimestamp = timestamps.find(
       t => t.filePath === a.filePath
     )
@@ -956,12 +919,11 @@ export let isInDir =
   }
 
 export let escapeShortcut: Shortcut = {
-  name: `Back`,
+  name: `Escape`,
   key: `escape`,
   bar: "left",
   onPress: async () => {
-    setInput("")
-    global.finishScript()
+    exit()
   },
 }
 
@@ -980,37 +942,6 @@ export let closeShortcut: Shortcut = {
   bar: "right",
   onPress: () => {
     exit()
-  },
-}
-
-export let shortcutsShortcut: Shortcut = {
-  name: "Display Shortcuts",
-  key: `${cmd}+/`,
-  bar: "right",
-  onPress: async () => {
-    setAlwaysOnTop(true)
-    setIgnoreBlur(true)
-    let shortcutsList = ``
-    ;(global?.kitShortcutsMap || new Map()).forEach(
-      (name, shortcut) => {
-        shortcutsList += `<div><span class="justify-center rounded py-0.5 px-1.5 text-sm text-primary text-opacity-90 bg-text-base bg-opacity-0 bg-opacity-10 font-medium">${shortcut}</span> - ${name}<div>`
-      }
-    )
-
-    if (shortcutsList) {
-      await widget(
-        md(`## Shortcuts
-      
-${shortcutsList}`),
-        {
-          width: 274,
-          draggable: true,
-          containerClass: `bg-bg-base`,
-          resizable: true,
-          transparent: true,
-        }
-      )
-    }
   },
 }
 
@@ -1045,6 +976,30 @@ export let viewLogShortcut: Shortcut = {
     )
   },
   bar: "right",
+  visible: true,
+}
+
+export let terminateProcessShortcut: Shortcut = {
+  name: "Terminate Process",
+  key: `${cmd}+enter`,
+  onPress: async (input, { focused }) => {
+    await sendWait(
+      Channel.TERMINATE_PROCESS,
+      focused?.value?.pid
+    )
+  },
+  bar: "right",
+  visible: true,
+}
+
+export let terminateAllProcessesShortcut: Shortcut = {
+  name: "Terminate All Processes",
+  key: `${cmd}+shift+enter`,
+  onPress: async () => {
+    await sendWait(Channel.TERMINATE_ALL_PROCESSES)
+  },
+  bar: "right",
+  visible: true,
 }
 
 export let smallShortcuts: Shortcut[] = [
@@ -1099,40 +1054,109 @@ export let cliShortcuts: Shortcut[] = [
   closeShortcut,
 ]
 
+let kitFilePath = (...paths: string[]) =>
+  pathToFileURL(kitPath("images", ...paths)).href
+let iconPath = kitFilePath("icon.svg")
+let kentPath = kitFilePath("kent.jpg")
+let mattPath = kitFilePath("matt.jpg")
+
+const checkmarkStyles = `
+  <style>
+    .checkmark-list {
+      list-style-type: none !important;
+      padding-left: 0 !important;
+    }
+    .checkmark-list li {
+      padding-left: 1.5em;
+      position: relative;
+    }
+    .checkmark-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--color-primary);
+    }
+    .checkmark-list li::marker {
+      content: none !important;
+    }
+  </style>
+`
 export let proPane = () =>
   `
-<h2 class="pb-1 text-xl">⭐️ Pro Account</h2>
-<a href="submit:pro" class="shadow-xl shadow-primary/25 text-bg-base font-bold px-3 py-3 h-6 no-underline rounded bg-primary bg-opacity-100 hover:opacity-80">Unlock All Features ($7/m.)</a>
+  ${checkmarkStyles}
 
-<div class="py-1"></div>
-<div class="flex justify-evenly">
 
-<div class="list-inside">
+<svg width="0" height="0">
+  <defs>
+    <filter id="dropShadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="0" dy="3" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="1" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+  </defs>
+</svg>
 
-## Pro Features
-
-- Debugger
-- Script Log Window
-- Support through Discord
-
+<div class="px-8">
+<div class="flex flex-col items-center">
+  <img src="${iconPath}" alt="Script Kit Pro" class="mx-auto mt-4 mb-3"  style="width: 50px; height: 50px; filter: url(#dropShadow);">
+  <h3 class="text-2xl font-bold my-1">Script Kit Pro</h3>
+  <p class="text-lg -mt-1">$7 / month</p>
+  <a href="submit:pro" class="shadow-lg shadow-primary/25 max-w-52 text-center text-bg-base font-bold px-3 py-3 h-12 no-underline rounded bg-primary bg-opacity-100 hover:shadow-md hover:shadow-primary/10">Unlock All Features</a>
+  <p class="text-xs mt-3">Cancel anytime</p>
 </div>
 
-<div>
+<hr class="mt-4 -mb-2">
 
-## Upcoming Pro Features
+<div class="flex">
+  <div class="list-inside flex-1">
+    <h3 class="text-xl font-bold">Pro Features</h3>
+    <ul class="checkmark-list">
+    <li>Debugger</li>
+    <li>Unlimited Active Prompts</li>
+    <li>Script Log Window</li>
+    <li>Vite Widgets</li>
+      <li>Webcam Capture</li>
+      <li>Screenshots</li>
+      <li>Desktop Color Picker</li>
+      <li>Support through Discord</li>
+    </ul>
+  </div>
 
-- Sync Scripts to GitHub Repo
-- Run Script Remotely as GitHub Actions
-- Advanced Widgets
-- Screenshots
-- Screen Recording
-- Audio Recording
-- Webcam Capture
-- Desktop Color Picker
-- Measure Tool
-
+  <div class="list-inside flex-1">
+    <h3 class="text-xl font-bold">Planned Features...</h3>
+    <ul class="checkmark-list">
+      <li>Sync Scripts to GitHub Repo</li>
+      <li>Run Script Remotely as GitHub Actions</li>
+      <li>Screen Recording</li>      
+      <li>Measure Tool</li>
+    </ul>
+  </div>
 </div>
-</div>
+
+<hr class="my-4">
+
+<h3 class="text-xl font-bold">What the community is saying</h3>
+<div class="flex flex-row">
+  
+  <div class="flex flex-col w-1/2 pr-8">
+    <div class="flex flex-row items-center -mb-2">
+    <img src="${kentPath}" alt="Kent C. Dodds" class="rounded-full mx-auto" style="width: 40px; height: 40px;">
+    <p class="font-bold text-lg ml-2 mb-0">Kent C. Dodds</p>
+    </div>
+    <p class="text-sm text-left">I forgot that a lot of people don't know what Script Kit is. <strong>You're missing out!</strong> I use it to easily open projects in VSCode, start a zoom meeting and put the link in my clipboard, download Twitter images, upload images to cloudinary, and so much more!</p>
+  </div>
+
+
+  <div class="flex flex-col w-1/2">
+  <div class="flex flex-row items-center -mb-2">
+    <img src="${mattPath}" alt="Matt Pocock" class="rounded-full mx-auto" style="width: 40px; height: 40px;">
+    <p class="font-bold text-lg ml-2 mb-0">Matt Pocock</p>
+    </div>
+    <p class="text-sm text-left">So, <strong>Script Kit is AMAZING.</strong> Just spent a very happy morning figuring out a script where it takes my latest recording from OBS and trims the silence from the start and end with ffmpeg. Now, it's just a command palette action away.</p>
+  </div>
+  </div>
+  
+  </div>
 `
 
 export const getShellSeparator = () => {
@@ -1228,6 +1252,17 @@ export const debounce = <T extends Procedure>(
   }
 }
 
+export const range = (
+  start: number,
+  end: number,
+  step = 1
+): number[] => {
+  return Array.from(
+    { length: Math.ceil((end - start) / step) },
+    (_, i) => start + i * step
+  )
+}
+
 type Iteratee<T> = ((item: T) => any) | keyof T
 
 export let sortBy = <T>(
@@ -1266,383 +1301,6 @@ export let isString = (value: any): value is string => {
   return typeof value === "string"
 }
 
-export let groupChoices = (
-  choices: Choice[],
-  options = {}
-) => {
-  let {
-    groupKey,
-    missingGroupName,
-    order,
-    endOrder,
-    sortChoicesKey,
-    recentKey,
-    recentLimit,
-    hideWithoutInput,
-    excludeGroups,
-    tagger,
-  } = {
-    groupKey: "group",
-    missingGroupName: "No Group",
-    order: [],
-    endOrder: [],
-    sortChoicesKey: [],
-    hideWithoutInput: [],
-    recentKey: "",
-    recentLimit: 3,
-    excludeGroups: [],
-    tagger: null,
-    ...options,
-  }
-
-  // A group is a choice with a group key and "choices" array
-  let groups = []
-  let missingGroup
-
-  let recentGroup = {
-    // Initialize the Recent group
-    skip: true,
-    group: "Recent",
-    name: "Recent",
-    value: "Recent",
-    choices: [],
-  }
-
-  let passGroup = {
-    skip: true,
-    pass: true,
-    group: "Pass",
-    value: "Pass",
-    name: 'Pass "{input}" to...',
-    choices: [],
-  }
-
-  let putIntoGroups = (choice: Choice) => {
-    if (tagger) tagger(choice)
-    if (
-      excludeGroups.find(
-        c =>
-          choice?.group === c ||
-          (choice as Script)?.kenv === c
-      )
-    ) {
-      choice.exclude = true
-    }
-    if (choice?.pass) {
-      choice.group = "Pass"
-      if (!choice.previewPath) {
-        choice.preview = `<div></div>`
-      }
-      passGroup.choices.push(choice)
-    } else if (
-      !Boolean(choice?.group) &&
-      !Boolean(choice?.[groupKey])
-    ) {
-      choice.group = missingGroupName
-      if (missingGroup) {
-        missingGroup.choices.push(choice)
-      } else {
-        missingGroup = {
-          skip: true,
-          id: `group-${missingGroupName}-${choice.id}`,
-          group: missingGroupName,
-          name: missingGroupName,
-          value: missingGroupName,
-          choices: [choice],
-        }
-        groups.push(missingGroup)
-      }
-    } else {
-      let groupParent: { choices: Choice[] }
-      if (choice?.group) {
-        groupParent = groups.find(
-          g => g?.group === choice?.group
-        )
-      } else {
-        groupParent = groups.find(
-          g => g?.group === choice?.[groupKey]
-        )
-      }
-      let userGrouped = choice?.group ? true : false
-      choice.group ||= choice[groupKey]
-      let group = choice.group
-
-      choice.hideWithoutInput ||=
-        hideWithoutInput.includes(group)
-      if (groupParent) {
-        groupParent.choices.push(choice)
-      } else {
-        groups.push({
-          skip: true,
-          userGrouped,
-          id: `group-${group}-${choice.id}`,
-          group,
-          name: group,
-          value: group,
-          choices: [choice],
-          hideWithoutInput:
-            hideWithoutInput.includes(group),
-        })
-      }
-    }
-  }
-
-  for (let choice of choices) {
-    if (
-      choice[recentKey] &&
-      !choice.pass &&
-      !(
-        typeof choice?.recent === "boolean" &&
-        choice?.recent === false
-      )
-    ) {
-      // TODO: Implement "recentLimit" number to the most recent choices
-      // If choice is recent, add to the Recent group
-      recentGroup.choices.push(choice)
-      continue // Skip to next iteration of loop
-    }
-
-    // sort recentGroup.choices by recentKey
-    recentGroup.choices = recentGroup.choices.sort(
-      (a, b) => {
-        if (a?.[recentKey] < b?.[recentKey]) return 1
-        if (a?.[recentKey] > b?.[recentKey]) return -1
-        return 0
-      }
-    )
-
-    let unrecentGroup
-    if (recentGroup.choices.length > recentLimit) {
-      // If recentGroup.choices is longer than recentLimit
-      // split into recentGroup and unrecentGroup
-      unrecentGroup = recentGroup.choices.splice(
-        recentLimit,
-        recentGroup.choices.length - recentLimit
-      )
-    }
-
-    if (unrecentGroup) {
-      for (let unrecentChoice of unrecentGroup) {
-        putIntoGroups(unrecentChoice)
-      }
-    }
-
-    putIntoGroups(choice)
-  }
-
-  let lowerOrder = order.map(o => o.toLowerCase())
-  let lowerEndOrder = endOrder.map(o => o.toLowerCase())
-
-  groups.sort((a: Choice, b: Choice) => {
-    let aGroup = a.group.toLowerCase()
-    let bGroup = b.group.toLowerCase()
-    let aOrder = lowerOrder.indexOf(aGroup)
-    let bOrder = lowerOrder.indexOf(bGroup)
-    let endAOrder = lowerEndOrder.indexOf(aGroup)
-    let endBOrder = lowerEndOrder.indexOf(bGroup)
-
-    // If both elements are in the order array, sort them as per the order array
-    if (aOrder !== -1 && bOrder !== -1)
-      return aOrder - bOrder
-
-    // If a is in the order array, or b is in the endOrder array, a comes first
-    if (aOrder !== -1 || endBOrder !== -1) return -1
-
-    // If b is in the order array, or a is in the endOrder array, b comes first
-    if (bOrder !== -1 || endAOrder !== -1) return 1
-
-    // If both elements are in the endOrder array, sort them as per the endOrder array
-    if (endAOrder !== -1 && endBOrder !== -1)
-      return endAOrder - endBOrder
-
-    // Sort "userGrouped" "true" before "false"
-    if (a.userGrouped && !b.userGrouped) return -1
-    if (!a.userGrouped && b.userGrouped) return 1
-
-    // If neither are in the order or endOrder arrays, and not differentiated by userGrouped, sort them alphabetically
-    return aGroup.localeCompare(bGroup)
-  })
-
-  // if missingGroupName === "No Group", then move it to the end
-  if (missingGroupName === "No Group") {
-    let noGroupIndex = groups.findIndex(
-      g => g.name === missingGroupName
-    )
-    if (noGroupIndex > -1) {
-      let noGroup = groups.splice(noGroupIndex, 1)
-      groups.push(noGroup[0])
-    }
-  }
-
-  groups = groups.map((g, i) => {
-    const maybeKey = sortChoicesKey?.[i]
-    const sortKey =
-      typeof maybeKey === "boolean" && maybeKey === false
-        ? false
-        : typeof maybeKey === "string"
-        ? maybeKey
-        : "name"
-
-    if (sortKey) {
-      g.choices = g.choices.sort((a, b) => {
-        if (a?.[sortKey] < b?.[sortKey]) return -1
-        if (a?.[sortKey] > b?.[sortKey]) return 1
-
-        return 0
-      })
-    }
-
-    if (Boolean(g?.choices?.[0]?.preview)) {
-      g.preview = g.choices[0].preview
-      g.hasPreview = true
-    }
-
-    return g
-  })
-
-  if (recentGroup.choices.length > 0) {
-    recentGroup.choices = recentGroup.choices.sort(
-      (a, b) => {
-        if (a?.[recentKey] < b?.[recentKey]) return 1
-        if (a?.[recentKey] > b?.[recentKey]) return -1
-        return 0
-      }
-    )
-    groups.unshift(recentGroup)
-  }
-
-  if (passGroup.choices.length > 0) {
-    groups.push(passGroup)
-  }
-
-  return groups
-}
-
-export let defaultGroupClassName = `border-t-1 border-t-ui-border`
-export let defaultGroupNameClassName = `font-medium text-xxs text-text-base/60 uppercase`
-
-export let formatChoices = (
-  choices: Choice[],
-  className = ""
-) => {
-  if (Array.isArray(choices)) {
-    return (choices as Choice<any>[]).flatMap(
-      (choice, index) => {
-        const isChoiceObject = typeof choice === "object"
-
-        if (!isChoiceObject) {
-          let name = String(choice)
-          let slicedName = (choice as string).slice(0, 63)
-          return {
-            name,
-            slicedName,
-            value: choice,
-            id: `${index}-${slicedName}`,
-            hasPreview: false,
-            className,
-          }
-        }
-
-        let hasPreview = Boolean(choice?.preview)
-        let slicedName = choice?.name?.slice(0, 63) || ""
-        let properChoice = {
-          hasPreview,
-          id: choice?.id || `${index}-${slicedName || ""}`,
-          name: choice?.name || "",
-          slicedName,
-          slicedDescription:
-            choice?.description?.slice(0, 63) || "",
-          value: choice?.value || choice,
-          nameClassName: choice?.info ? "text-primary" : "",
-          skip: choice?.info ? true : false,
-          className:
-            choice?.className || choice?.choices
-              ? ""
-              : className,
-
-          ...choice,
-        }
-
-        if (properChoice.height > PROMPT.ITEM.HEIGHT.XXL) {
-          properChoice.height = PROMPT.ITEM.HEIGHT.XXL
-        }
-        if (properChoice.height < PROMPT.ITEM.HEIGHT.XXXS) {
-          properChoice.height = PROMPT.ITEM.HEIGHT.XXXS
-        }
-
-        const choiceChoices = properChoice?.choices
-        if (!choiceChoices) {
-          return properChoice
-        }
-
-        delete properChoice.choices
-
-        let isArray = Array.isArray(choiceChoices)
-        if (!isArray) {
-          throw new Error(
-            `Group choices must be an array. Received ${typeof choiceChoices}`
-          )
-        }
-
-        let groupedChoices = []
-
-        properChoice.group = properChoice.name
-        properChoice.skip =
-          typeof choice?.skip === "undefined"
-            ? true
-            : choice.skip
-        properChoice.className ||= defaultGroupClassName
-        properChoice.nameClassName ||=
-          defaultGroupNameClassName
-        properChoice.height ||= PROMPT.ITEM.HEIGHT.XXXS
-
-        groupedChoices.push(properChoice)
-
-        choiceChoices.forEach(subChoice => {
-          if (typeof subChoice === "undefined") {
-            throw new Error(
-              `Undefined choice in ${properChoice.name}`
-            )
-          }
-
-          if (typeof subChoice === "object") {
-            groupedChoices.push({
-              name: subChoice?.name,
-              slicedName:
-                subChoice?.name?.slice(0, 63) || "",
-              slicedDescription:
-                subChoice?.description?.slice(0, 63) || "",
-              value: subChoice?.value || subChoice,
-              id: subChoice?.id || uuid(),
-              group: choice?.name,
-              className,
-              hasPreview: Boolean(subChoice?.preview),
-              ...subChoice,
-            })
-          } else {
-            groupedChoices.push({
-              name: String(subChoice),
-              value: String(subChoice),
-              slicedName:
-                String(subChoice)?.slice(0, 63) || "",
-              slicedDescription: "",
-              group: choice?.name,
-              className,
-              id: uuid(),
-            })
-          }
-        })
-
-        return groupedChoices
-      }
-    )
-  } else if (Boolean(choices)) {
-    throw new Error(
-      `Choices must be an array. Received ${typeof choices}`
-    )
-  }
-}
-
 export let getCachePath = (
   filePath: string,
   type: string
@@ -1665,7 +1323,7 @@ export let getCachePath = (
   dashedName = dashedName.replace(/-+/g, "-")
 
   // Append .json extension
-  return kitPath(`cache`, type, `${dashedName}.json`)
+  return kitPath("cache", type, `${dashedName}.json`)
 }
 
 export let adjustPackageName = (packageName: string) => {
@@ -1719,13 +1377,302 @@ export let escapeHTML = (text: string) => {
 
 export let processInBatches = async <T>(
   items: Promise<T>[],
-  batchSize: number
+  batchSize: number,
+  maxRetries: number = 3
 ): Promise<T[]> => {
   let result: T[] = []
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize)
-    const batchResults = await Promise.all(batch)
-    result = result.concat(batchResults)
+    const batchResults = await Promise.all(
+      batch.map(async item => {
+        return pRetry(
+          async () => {
+            try {
+              return await item
+            } catch (error) {
+              console.error(
+                `Error processing item: ${error.message}`
+              )
+              throw error // Rethrow to trigger retry
+            }
+          },
+          { retries: maxRetries }
+        )
+      })
+    )
+    result = result.concat(
+      batchResults.filter(
+        (item): item is Awaited<T> => item !== undefined
+      )
+    )
   }
   return result
 }
+
+export let md = (
+  content = "",
+  containerClasses = "p-5 prose prose-sm"
+) => {
+  return globalMd(content + "\n", containerClasses)
+}
+
+export let highlight = async (
+  markdown: string,
+  containerClass = "p-5 leading-loose",
+  injectStyles = ""
+) => {
+  let { default: highlight } =
+    global.__kitHighlight || (await import("highlight.js"))
+  if (!global.__kitHighlight)
+    global.__kitHighlight = { default: highlight }
+
+  let renderer = new marked.Renderer()
+  renderer.paragraph = p => {
+    // Convert a tag with href .mov, .mp4, or .ogg video links to video tags
+    if (p.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
+      let url = p.match(/href="(.*)"/)[1]
+      return `<video controls src="${url}" style="max-width: 100%;"></video>`
+    }
+
+    return `<p>${p}</p>`
+  }
+
+  renderer.text = text => {
+    return `<span>${text}</span>`
+  }
+  marked.setOptions({
+    renderer,
+    // biome-ignore lint/complexity/useArrowFunction: <explanation>
+    highlight: function (code, lang) {
+      const language = highlight.getLanguage(lang)
+        ? lang
+        : "plaintext"
+      return highlight.highlight(code, { language }).value
+    },
+    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
+    pedantic: false,
+    gfm: true,
+    breaks: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false,
+    xhtml: false,
+  })
+
+  let highlightedMarkdown = marked(markdown)
+
+  let result = `<div class="${containerClass}">
+  <style>
+  p{
+    margin-bottom: 1rem;
+  }
+  li{
+    margin-bottom: .25rem;
+  }
+  ${injectStyles}
+  </style>
+  ${highlightedMarkdown}
+</div>`
+
+  return result
+}
+
+export let tagger = (script: Script) => {
+  if (!script.tag) {
+    let tags = []
+
+    if (script.friendlyShortcut) {
+      tags.push(script.friendlyShortcut)
+    } else if (script.shortcut) {
+      tags.push(
+        friendlyShortcut(
+          shortcutNormalizer(script.shortcut)
+        )
+      )
+    }
+
+    if (script.trigger)
+      tags.push(`trigger: ${script.trigger}`)
+    if (script.keyword)
+      tags.push(`keyword: ${script.keyword}`)
+    if (script.snippet)
+      tags.push(`snippet ${script.snippet}`)
+    if (script.expand) {
+      tags.push(`expand: ${script.expand}`)
+    }
+
+    if (
+      typeof script.pass === "string" &&
+      script.pass !== "true"
+    ) {
+      tags.push(
+        script.pass.startsWith("/")
+          ? `pattern: ${script.pass}`
+          : `postfix: ${script.pass}`
+      )
+    }
+
+    script.tag = tags.join(" ")
+  }
+}
+
+export let getKenvFromPath = (filePath: string): string => {
+  let normalizedPath = path.normalize(filePath)
+  let normalizedKenvPath = path.normalize(kenvPath())
+
+  if (!normalizedPath.startsWith(normalizedKenvPath)) {
+    return ""
+  }
+
+  let relativePath = normalizedPath.replace(
+    normalizedKenvPath,
+    ""
+  )
+  if (!relativePath.includes("kenvs")) {
+    return ""
+  }
+
+  let parts = relativePath.split(path.sep)
+  let kenvIndex = parts.indexOf("kenvs")
+  return kenvIndex !== -1 && parts[kenvIndex + 1]
+    ? parts[kenvIndex + 1]
+    : ""
+}
+
+export let isScriptlet = (
+  script: Script | Scriptlet
+): script is Scriptlet => {
+  return "scriptlet" in script
+}
+
+export let isSnippet = (
+  script: Script
+): script is Snippet => {
+  return "text" in script
+}
+
+export let processPlatformSpecificTheme = (
+  cssString: string
+): string => {
+  const platform = process.platform
+  const platformSuffix =
+    platform === "darwin"
+      ? "-mac"
+      : platform === "win32"
+      ? "-win"
+      : "-other"
+
+  // Split the CSS string into lines
+  const lines = cssString.split("\n")
+
+  // Process each line
+  const processedLines = lines.map(line => {
+    // Check if the line contains a CSS variable
+    if (line.includes("--") && line.includes(":")) {
+      const parts = line.split(":")
+      const variableName = parts[0].trim()
+
+      // Check if the variable ends with a platform suffix
+      if (
+        variableName.endsWith("-mac") ||
+        variableName.endsWith("-win") ||
+        variableName.endsWith("-other")
+      ) {
+        // If it matches the current platform, remove the suffix
+        if (variableName.endsWith(platformSuffix)) {
+          return `    ${variableName.slice(
+            0,
+            -platformSuffix.length
+          )}: ${parts[1].trim()}`
+        }
+        // If it doesn't match, remove the line
+        return null
+      }
+    }
+    // If it's not a platform-specific variable, keep the line as is
+    return line
+  })
+
+  // Join the processed lines, filtering out null values
+  return processedLines
+    .filter(line => line !== null)
+    .join("\n")
+}
+
+export let infoPane = (
+  title: string,
+  description?: string
+) => {
+  return `<div class="w-full h-full flex items-center justify-center -mt-4">
+	<div class="text-center -mt-2">
+		<h1 class="text-2xl font-bold">${title}</h1>
+		<p class="text-sm text-secondary">${description}</p>
+	</div>
+</div>`
+}
+
+// TODO: Clean-up re-exports
+export {
+  parseScript,
+  commandFromFilePath,
+  getShebangFromContents,
+  iconFromKenv,
+  parseFilePath,
+  parseMetadata,
+  postprocessMetadata,
+} from "./parser.js"
+
+export {
+  defaultGroupClassName,
+  defaultGroupNameClassName,
+  formatChoices,
+} from "./format.js"
+
+export { groupChoices } from "./group.js"
+export {
+  parseScriptletsFromPath,
+  parseMarkdownAsScriptlets,
+  parseScriptlets,
+} from "./scriptlets.js"
+
+export { getSnippet, parseSnippets } from "./snippets.js"
+
+export {
+  createPathResolver,
+  home,
+  kitPath,
+  kenvPath,
+  kitDotEnvPath,
+} from "./resolvers.js"
+
+export {
+  isBin,
+  isFile,
+  isJsh,
+  isDir,
+  isLinux,
+  isMac,
+  isWin,
+} from "./is.js"
+export {
+  cmd,
+  returnOrEnter,
+  scriptsDbPath,
+  timestampsPath,
+  statsPath,
+  prefsPath,
+  promptDbPath,
+  themeDbPath,
+  userDbPath,
+  tmpClipboardDir,
+  tmpDownloadsDir,
+  getMainScriptPath,
+  kitDocsPath,
+  KENV_SCRIPTS,
+  KENV_APP,
+  KENV_BIN,
+  KIT_APP,
+  KIT_APP_PROMPT,
+  KIT_APP_INDEX,
+  SHELL_TOOLS,
+} from "./constants.js"

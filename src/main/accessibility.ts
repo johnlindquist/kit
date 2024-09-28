@@ -4,7 +4,6 @@
 import { Channel } from "../core/enum.js"
 
 await div({
-  ignoreBlur: true,
   html: md(`## Prompting for Accessibility Permissions
   
 - Kit needs permission to watch your clipboard and keyboard. This is a one-time prompt.

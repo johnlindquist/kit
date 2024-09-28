@@ -1,5 +1,3 @@
-import { getAppDb, appDefaults } from "../core/db.js"
-
 let copyIfNotExists = async (p: string, dest: string) => {
   if (!(await isFile(p))) await copyFile(p, dest)
 }
@@ -66,12 +64,6 @@ try {
       )
     }
   }
-
-  let appDb = await getAppDb()
-  for (let [k, v] of Object.entries(appDefaults)) {
-    if (appDb?.[k] === undefined) appDb[k] = v
-  }
-  await appDb.write()
 } catch (error) {
   console.log(error)
 }

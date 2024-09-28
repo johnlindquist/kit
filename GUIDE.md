@@ -362,7 +362,7 @@ my-sites --open
 The `db` helpers reads/writes to json files in the `~/.kenv/db` directory. It's meant as a simple wrapper around common json operations.
 
 ```js
-// Menu: Database Read/Write Example
+// Name: Database Read/Write Example
 // Description: Add/remove items from a list of fruit
 
 let fruitDb = await db(["apple", "banana", "orange"])
@@ -397,7 +397,7 @@ while (true) {
 This db helper can also be used as a simple Key/value Store like this: 
 
 ```js
-// Menu: Database Read/Write Example 2
+// Name: Database Read/Write Example 2
 // Description: Use 'db' helper as Key/Value Store
 
 // Open the json file with the same name as the script file, the data in the param is the default, 
@@ -1179,7 +1179,7 @@ await degit(`https://github.com/sveltejs/template`).clone(
   targetDir
 )
 
-edit(targetDir)
+await edit(targetDir)
 ```
 
 ## View Logs

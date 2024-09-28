@@ -1,5 +1,5 @@
 // Description: Open Log
 
-edit(kitPath("logs", "kit.log"))
+await edit(kitPath("logs", "kit.log"))
 
 export {}

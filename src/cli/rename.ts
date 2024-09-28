@@ -2,7 +2,7 @@
 
 import { refreshScripts } from "../core/db.js"
 import {
-  exists,
+  checkIfCommandExists,
   extensionRegex,
   trashScriptBin,
 } from "../core/utils.js"
@@ -27,7 +27,7 @@ let newCommand = await arg(
   {
     description: `Rename ${filePath}`,
     placeholder: `Enter the new script name:`,
-    validate: exists,
+    validate: checkIfCommandExists,
     strict: false,
   },
   [
@@ -56,6 +56,6 @@ mv(filePath, newFilePath)
 await cli("create-bin", "scripts", newFilePath)
 await refreshScripts()
 
-edit(newFilePath, kenvPath())
+await edit(newFilePath, kenvPath())
 
 export {}

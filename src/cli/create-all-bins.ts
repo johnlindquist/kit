@@ -7,59 +7,52 @@ let kenvs = await getKenvs()
 
 log(`🔎 Found kenvs`, kenvs)
 
-await trash([
-  `!${kenvPath("bin", ".gitignore")}`,
-  kenvPath("bin", "*"),
-])
+await trash([`!${kenvPath("bin", ".gitignore")}`, kenvPath("bin", "*")])
 
 await ensureDir(kenvPath("bin"))
 
 for await (let kenv of kenvs) {
-  await trash([
-    `!${path.resolve(kenv, "bin", ".gitignore")}`,
-    path.resolve(kenv, "bin", "*"),
-  ])
+	await trash([
+		`!${path.resolve(kenv, "bin", ".gitignore")}`,
+		path.resolve(kenv, "bin", "*")
+	])
 
-  await ensureDir(path.resolve(kenv, "bin"))
+	await ensureDir(path.resolve(kenv, "bin"))
 }
 
 let jsh = process.env?.SHELL?.includes("jsh")
 let template = jsh ? "stackblitz" : "terminal"
-let useCmd =
-  process.platform === "win32" && !process.env?.KIT_WSL
+let useCmd = process.platform === "win32" && !process.env?.KIT_WSL
 
 if (useCmd) {
-  template = "cmd"
+	template = "cmd"
 }
-let binTemplate = await readFile(
-  kitPath("templates", "bin", template),
-  "utf8"
-)
+let binTemplate = await readFile(kitPath("templates", "bin", template), "utf8")
 
 let binTemplateCompiler = compile(binTemplate)
 
 for await (let { command, filePath } of scripts) {
-  let compiledBinTemplate = binTemplateCompiler({
-    command,
-    type: "scripts",
-    KNODE: knodePath(),
-    KIT: kitPath(),
-    ...global.env,
-    TARGET_PATH: filePath,
-  })
+	let compiledBinTemplate = binTemplateCompiler({
+		command,
+		type: "scripts",
+		KIT: kitPath(),
+		NODE_PATH: process.env.NODE_PATH,
+		...global.env,
+		TARGET_PATH: filePath
+	})
 
-  let binDirPath = path.resolve(
-    filePath,
-    "..",
-    "..",
-    ...(jsh ? ["node_modules", ".bin"] : ["bin"])
-  )
-  let binFilePath = path.resolve(binDirPath, command)
-  if (useCmd) {
-    binFilePath += ".cmd"
-  }
-  await global.writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
+	let binDirPath = path.resolve(
+		filePath,
+		"..",
+		"..",
+		...(jsh ? ["node_modules", ".bin"] : ["bin"])
+	)
+	let binFilePath = path.resolve(binDirPath, command)
+	if (useCmd) {
+		binFilePath += ".cmd"
+	}
+	await global.writeFile(binFilePath, compiledBinTemplate)
+	global.chmod(755, binFilePath)
 }
 
 export {}

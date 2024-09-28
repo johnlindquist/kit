@@ -60,7 +60,10 @@ while (true) {
     await trashScriptBin(script)
     mv(script.filePath, targetPath)
     await refreshScripts()
-    createBinFromScript(Bin.scripts, script)
+    createBinFromScript(Bin.scripts, {
+      ...script,
+      execPath: "",
+    })
   }
 
   script = null
