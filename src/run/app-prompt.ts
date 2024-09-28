@@ -16,7 +16,6 @@ let tooEarlyHandler = data => {
       data?.value?.args || data?.state?.value?.args || []
     global.headers = data?.value?.headers || {}
 
-    console.log("headers", global.headers)
     // const value = `${process.pid}: ${
     //   data?.channel
     // }: ${script} ${performance.now()}ms`
@@ -110,7 +109,6 @@ try {
           args: data,
         })
         global.headers = data?.value?.headers || {}
-        console.log("headers", global.headers)
         process.off("message", messageHandler)
         resolve(data.value)
       }
