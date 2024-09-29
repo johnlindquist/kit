@@ -47,7 +47,9 @@ global.fileSearch = async (
   let stderr = ""
   try {
     if (activeFileSearchProcess) {
-      activeFileSearchProcess.kill()
+      try {
+        activeFileSearchProcess?.kill()
+      } catch {}
     }
 
     activeFileSearchProcess = global.exec(command)
