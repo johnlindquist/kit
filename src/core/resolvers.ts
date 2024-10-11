@@ -38,10 +38,7 @@ export let kenvPath = (...parts: string[]) => {
 
 export let kitPnpmPath = (...parts: string[]) => {
   return createPathResolver(
-    getEnvOrDefault(
-      process.env.KIT_PNPM_PATH,
-      kitPath("pnpm")
-    )
+    getEnvOrDefault(process.env.KIT_PNPM_PATH, kitPath())
   )(...parts.filter(Boolean))
 }
 
