@@ -118,7 +118,7 @@ download_and_install() {
     cp "${current_location}" "${new_exec_path}"
   }
 
-  copy_cli "$tmp_dir/pnpm" "${KIT_PNPM_HOME:-$HOME/.kitpnpm}" || return 1
+  copy_cli "$tmp_dir/pnpm" "${KIT_PNPM_HOME:-$HOME/.kit}" || return 1
 }
 
 download_and_install || abort "Install Error!"

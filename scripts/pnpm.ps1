@@ -136,7 +136,7 @@ if ($platform -ne 'win') {
   chmod +x $tempFile
 }
 
-$KIT_PNPM_HOME = Join-Path $env:USERPROFILE ".kitpnpm"
+$KIT_PNPM_HOME = Join-Path $env:USERPROFILE ".kit"
 $env:KIT_PNPM_HOME = $KIT_PNPM_HOME
 
 $targetDir = $KIT_PNPM_HOME
