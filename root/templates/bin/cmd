@@ -4,4 +4,4 @@ set KENV=%~dp0..
 set KIT={{KIT}}
 set TARGET_PATH={{TARGET_PATH}}
 
-{{NODE_PATH}} --loader file://%KIT%\build\loader.js  %KIT%\run\terminal.js %TARGET_PATH% %*
+{{KIT_NODE_PATH}} --loader file://%KIT%\build\loader.js  %KIT%\run\terminal.js %TARGET_PATH% %*

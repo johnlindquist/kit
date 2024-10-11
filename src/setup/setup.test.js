@@ -22,7 +22,7 @@ const options = {
 	env: {
 		KIT,
 		KENV,
-		NODE_PATH: process.execPath,
+		KIT_NODE_PATH: process.execPath,
 		PATH: KIT_FIRST_PATH
 	}
 }

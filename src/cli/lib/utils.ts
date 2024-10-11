@@ -64,7 +64,7 @@ export let createBinFromScript = async (
     command,
     type,
     ...global.env,
-    NODE_PATH: execPath || process.env.NODE_PATH,
+    KIT_NODE_PATH: execPath || process.env.KIT_NODE_PATH,
     KIT: kitPath().trim() || home(".kit"),
     TARGET_PATH: filePath.replace("#", "#"),
   })

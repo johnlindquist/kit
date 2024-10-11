@@ -10242,7 +10242,7 @@ declare module "@johnlindquist/kit" {
     KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
     KIT_SEARCH_MIN_SCORE?: string | undefined
     KIT_SEARCH_MAX_ITERATIONS?: string | undefined
-    KIT_USE_NODE_PATH?: string | undefined
+    KIT_USE_KIT_NODE_PATH?: string | undefined
   }
   import type { GlobalsApi } from "@johnlindquist/globals"
   import type { AppApi } from "./kitapp"

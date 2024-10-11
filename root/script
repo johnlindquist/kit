@@ -2,15 +2,15 @@
 # ../../ of this script
 
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
-NODE_PATH="${NODE_PATH:=$($KIT/node_modules/.bin/pnpm node -p "process.execPath" 2>/dev/null || pnpm node -p "process.execPath" 2>/dev/null || node -p "process.execPath" 2>/dev/null)}"
+KIT_NODE_PATH="${KIT_NODE_PATH:=$($KIT/node_modules/.bin/pnpm node -p "process.execPath" 2>/dev/null || pnpm node -p "process.execPath" 2>/dev/null || node -p "process.execPath" 2>/dev/null)}"
 
-if [ -z "$NODE_PATH" ]; then
-    echo "Error: Node.js not found in PATH. Provide an NODE_PATH in your environment." >&2
+if [ -z "$KIT_NODE_PATH" ]; then
+    echo "Error: Node.js not found in PATH. Provide an KIT_NODE_PATH in your environment." >&2
     exit 1
 fi
 
 NODE_NO_WARNINGS=1 \
-"$NODE_PATH" \
+"$KIT_NODE_PATH" \
 --loader "file://$KIT/build/loader.js" \
 "$KIT/run/terminal.js" \
 "$@"

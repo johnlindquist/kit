@@ -246,7 +246,7 @@ ava.serial(`new script supports KIT_METADATA_MODE`, async (t) => {
 	await exec(`kit new ${name} main --no-edit`, {
 		env: {
 			...process.env,
-			NODE_PATH: process.execPath,
+			KIT_NODE_PATH: process.execPath,
 			KIT_MODE: "ts",
 			KIT_METADATA_MODE: "convention"
 		}

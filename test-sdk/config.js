@@ -55,7 +55,7 @@ let testScript = async (name, content, type = "js") => {
 	await exec(`kit new ${name} main --no-edit`, {
 		env: {
 			...process.env,
-			NODE_PATH: process.execPath,
+			KIT_NODE_PATH: process.execPath,
 			KIT_MODE: type
 		}
 	})

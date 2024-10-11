@@ -172,7 +172,7 @@ ava.serial('JavaScript support', async (t) => {
   await exec(`kit new ${script} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });
@@ -197,7 +197,7 @@ ava.serial('kit new, run, and rm', async (t) => {
   let { stdout, stderr } = await exec(`kit new ${command} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });
@@ -290,14 +290,14 @@ ava.serial('Run both JS and TS scripts', async (t) => {
   let newJSCommandResult = await exec(`kit new ${jsCommand} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });
   let newTSCommandResult = await exec(`kit new ${tsCommand} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'ts'
     }
   });
@@ -324,7 +324,7 @@ ava.serial('Run kit from package.json', async (t) => {
   await exec(`kit new ${command} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });
@@ -365,7 +365,7 @@ ava.serial('Run a script with --flag values: pass hello instead of one and two',
   await exec(`kit new ${command} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });
@@ -398,7 +398,7 @@ ava.serial('Run a script with --flag values: ones and twos match', async (t) => 
   await exec(`kit new ${command} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });
@@ -431,7 +431,7 @@ ava.serial('Run a script with --flag values: ones match, twos mismatch', async (
   await exec(`kit new ${command} main --no-edit`, {
     env: {
       ...process.env,
-      NODE_PATH: process.execPath,
+      KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });

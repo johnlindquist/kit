@@ -13,11 +13,11 @@ KIT=$(cd "$(dirname $(readlink -f ${BASH_SOURCE[0]}))/.." &>/dev/null && pwd)
         pwd
     )"
 
-NODE_PATH="${NODE_PATH:=$($KIT/node_modules/.bin/pnpm node -p "process.execPath" 2>/dev/null || pnpm node -p "process.execPath" 2>/dev/null || node -p "process.execPath" 2>/dev/null)}"
-if ! command -v "$NODE_PATH" &> /dev/null; then
-    NODE_PATH=$(which node)
-    if [ -z "$NODE_PATH" ]; then
-        echo "Error: Node.js not found in PATH. Provide an NODE_PATH in your environment." >&2
+KIT_NODE_PATH="${KIT_NODE_PATH:=$($KIT/node_modules/.bin/pnpm node -p "process.execPath" 2>/dev/null || pnpm node -p "process.execPath" 2>/dev/null || node -p "process.execPath" 2>/dev/null)}"
+if ! command -v "$KIT_NODE_PATH" &> /dev/null; then
+    KIT_NODE_PATH=$(which node)
+    if [ -z "$KIT_NODE_PATH" ]; then
+        echo "Error: Node.js not found in PATH. Provide an KIT_NODE_PATH in your environment." >&2
         exit 1
     fi
 fi
@@ -31,7 +31,7 @@ KIT_TARGET="terminal" \
 KIT="$KIT" \
 KENV="$KENV" \
 NODE_NO_WARNINGS=1 \
-"$NODE_PATH" \
+"$KIT_NODE_PATH" \
 --loader "file://$KIT/build/loader.js" \
 "$KIT/run/terminal.js" \
 "$@"
