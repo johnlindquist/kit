@@ -1642,6 +1642,7 @@ export {
   home,
   kitPath,
   kenvPath,
+  kitPnpmPath,
   kitDotEnvPath,
 } from "./resolvers.js"
 
