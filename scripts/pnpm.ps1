@@ -136,10 +136,10 @@ if ($platform -ne 'win') {
   chmod +x $tempFile
 }
 
-$PNPM_HOME = Join-Path $env:USERPROFILE ".kitpnpm"
-$env:PNPM_HOME = $PNPM_HOME
+$KIT_PNPM_HOME = Join-Path $env:USERPROFILE ".kitpnpm"
+$env:KIT_PNPM_HOME = $KIT_PNPM_HOME
 
-$targetDir = $PNPM_HOME
+$targetDir = $KIT_PNPM_HOME
 $newExecPath = Join-Path $targetDir (Split-Path $tempFile -Leaf)
 
 if ((Resolve-Path $newExecPath) -ne (Resolve-Path $tempFile)) {
