@@ -1,5 +1,5 @@
 import { kitPnpmPath } from "../../core/resolvers.js"
-
+import { isBin } from "../../core/is.js"
 export async function createPackageManagerCommand(
   command: "i" | "un",
   packageNames: string[]
@@ -23,7 +23,9 @@ export async function createPackageManagerCommand(
   }
 
   if (!isYarn) {
-    packageManager = kitPnpmPath(packageManager)
+    if (await isBin(kitPnpmPath(packageManager))) {
+      packageManager = kitPnpmPath(packageManager)
+    }
   }
 
   // Combine package manager and command
