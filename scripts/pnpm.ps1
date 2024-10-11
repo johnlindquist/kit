@@ -132,21 +132,38 @@ Invoke-WebRequest $archiveUrl -OutFile $tempFile -UseBasicParsing
 
 Write-Host "Running setup...`n" -ForegroundColor Green
 
-if ($platform -ne 'win') {
-  chmod +x $tempFile
-}
-
 $KIT_PNPM_HOME = Join-Path $env:USERPROFILE ".kit"
 $env:KIT_PNPM_HOME = $KIT_PNPM_HOME
 
 $targetDir = $KIT_PNPM_HOME
 $newExecPath = Join-Path $targetDir (Split-Path $tempFile -Leaf)
 
-if ((Resolve-Path $newExecPath) -ne (Resolve-Path $tempFile)) {
-    Write-Host "Copying pnpm CLI from $tempFile to $newExecPath"
+# Create the target directory if it doesn't exist
+if (-not (Test-Path $targetDir)) {
     New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
-    Copy-Item $tempFile $newExecPath -Force
+    Write-Host "Created directory: $targetDir"
 }
 
-Remove-Item $tempFile
-Remove-Item $tempFileFolder -Recurse
+# Copy the file to the new location
+try {
+    Copy-Item $tempFile $newExecPath -Force
+    Write-Host "Successfully copied pnpm CLI from $tempFile to $newExecPath"
+} catch {
+    Write-Error "Failed to copy pnpm CLI: $_"
+    exit 1
+}
+
+# Set execute permissions on non-Windows platforms
+if ($platform -ne 'win') {
+    try {
+        chmod +x $newExecPath
+        Write-Host "Set execute permissions for $newExecPath"
+    } catch {
+        Write-Error "Failed to set execute permissions: $_"
+        exit 1
+    }
+}
+
+# Clean up temporary files
+Remove-Item $tempFile -ErrorAction SilentlyContinue
+Remove-Item $tempFileFolder -Recurse -ErrorAction SilentlyContinue
