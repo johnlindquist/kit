@@ -19,13 +19,11 @@ export async function createPackageManagerCommand(
     }
   }
 
-  // Add .cmd extension for Windows
-  if (global.isWin) {
-    packageManager += ".exe"
-  }
-
   if (!isYarn) {
-    if (existsSync(kitPnpmPath(packageManager))) {
+    // Check if the package manager exists with or without .exe extension
+    const pm = packageManager + (global.isWin ? ".exe" : "")
+    if (existsSync(kitPnpmPath(pm))) {
+      // Use the full path to the package manager, but without the .exe extension
       packageManager = kitPnpmPath(packageManager)
     }
   }
