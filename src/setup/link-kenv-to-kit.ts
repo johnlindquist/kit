@@ -1,15 +1,15 @@
 let copyIfNotExists = async (p: string, dest: string) => {
-	let exists = await isFile(dest)
-	console.log({
-		p,
-		dest,
-		exists: exists ? "true" : "false"
-	})
-	if (!exists) await copyFile(p, dest)
+  let exists = await isFile(dest)
+  console.log({
+    p,
+    dest,
+    exists: exists ? "true" : "false",
+  })
+  if (!exists) await copyFile(p, dest)
 }
 
 let writeIfNotExists = async (p: string, dest: string) => {
-	if (!(await isFile(p))) await writeFile(p, dest)
+  if (!(await isFile(p))) await writeFile(p, dest)
 }
 
 let npmRc = `
@@ -20,12 +20,18 @@ install-links=false
 await writeIfNotExists(kenvPath(".npmrc"), npmRc)
 
 // add install-links=false to kenv's .npmrc if it doesn't exist
-let npmrcContent = await readFile(kenvPath(".npmrc"), "utf-8")
+let npmrcContent = await readFile(
+  kenvPath(".npmrc"),
+  "utf-8"
+)
 if (!npmrcContent.match(/^install-links=false$/gm)) {
-	if (npmrcContent.split("\n").at(-1) !== "") {
-		await appendFile(kenvPath(".npmrc"), "\n")
-	}
-	await appendFile(kenvPath(".npmrc"), `install-links=false`)
+  if (npmrcContent.split("\n").at(-1) !== "") {
+    await appendFile(kenvPath(".npmrc"), "\n")
+  }
+  await appendFile(
+    kenvPath(".npmrc"),
+    `install-links=false`
+  )
 }
 
 await cli("install", `"${kitPath()}"`)
@@ -33,28 +39,29 @@ await cli("install", `"${kitPath()}"`)
 // ensure kenvPath('package.json') has a "type": "module"
 
 let defaultPackageJson = {
-	type: "module",
-	engines: {
-		node: "20.17.0"
-	},
-	devDependencies: {
-		"@johnlindquist/kit": "file:../.kit",
-		"@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2"
-	}
+  type: "module",
+  engines: {
+    node: "20.18.0",
+  },
+  devDependencies: {
+    "@johnlindquist/kit": "file:../.kit",
+    "@typescript/lib-dom":
+      "npm:@johnlindquist/no-dom@^1.0.2",
+  },
 }
 
 let packageJson = await ensureReadFile(
-	kenvPath("package.json"),
-	JSON.stringify(defaultPackageJson, null, 2)
+  kenvPath("package.json"),
+  JSON.stringify(defaultPackageJson, null, 2)
 )
 let packageJsonObj = JSON.parse(packageJson)
 if (!packageJsonObj.type) {
-	packageJsonObj.type = "module"
-	packageJsonObj.engines = defaultPackageJson.engines
-	await writeFile(
-		kenvPath("package.json"),
-		JSON.stringify(packageJsonObj, null, 2)
-	)
+  packageJsonObj.type = "module"
+  packageJsonObj.engines = defaultPackageJson.engines
+  await writeFile(
+    kenvPath("package.json"),
+    JSON.stringify(packageJsonObj, null, 2)
+  )
 }
 
 export {}
