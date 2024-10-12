@@ -1,5 +1,5 @@
 import { kitPnpmPath } from "../../core/resolvers.js"
-import { isBin } from "../../core/is.js"
+import { existsSync } from "node:fs"
 export async function createPackageManagerCommand(
   command: "i" | "un",
   packageNames: string[]
@@ -14,16 +14,18 @@ export async function createPackageManagerCommand(
     | "uninstall"
 
   if (isYarn) {
-    if (command == "i") toolCommand = "add"
+    if (command === "i") {
+      toolCommand = "add"
+    }
   }
 
   // Add .cmd extension for Windows
   if (global.isWin) {
-    packageManager += ".cmd"
+    packageManager += ".exe"
   }
 
   if (!isYarn) {
-    if (await isBin(kitPnpmPath(packageManager))) {
+    if (existsSync(kitPnpmPath(packageManager))) {
       packageManager = kitPnpmPath(packageManager)
     }
   }
