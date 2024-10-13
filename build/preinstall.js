@@ -21,13 +21,13 @@ if (isCI) {
       console.log(`${binFilePathToRemove} does not exist. Skipping...`);
     }
 
-    let kitBat = 'kit.bat';
-    let batFilePath = kitPath('bin', kitBat);
+    let kitBat = 'bin/kit.bat';
+    let batFilePath = kitPath(kitBat.split('/'));
     let packageJsonPath = kitPath('package.json');
     if (existsSync(batFilePath)) {
       // Update the package.json to use the new bin file name
       let packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-      packageJson.bin.kit = kitBat;
+      packageJson.bin.kit = 'bin/kit.bat';
       writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
     } else {
       console.log(`${batFilePath} does not exist. Skipping...`);
