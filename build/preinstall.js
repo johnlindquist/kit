@@ -22,7 +22,7 @@ if (isCI) {
     }
 
     let kitBat = 'bin/kit.bat';
-    let batFilePath = kitPath(kitBat.split('/'));
+    let batFilePath = kitPath(...kitBat.split('/'));
     let packageJsonPath = kitPath('package.json');
     if (existsSync(batFilePath)) {
       // Update the package.json to use the new bin file name
