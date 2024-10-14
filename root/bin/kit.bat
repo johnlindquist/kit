@@ -2,6 +2,13 @@
 REM Enable local variables
 setlocal
 
+REM Source environment variables from .env file if it exists
+if exist "%USERPROFILE%\.kenv\.env" (
+    for /F "usebackq tokens=*" %%A in ("%USERPROFILE%\.kenv\.env") do (
+        set %%A
+    )
+)
+
 REM Get the parent directory of the script file
 set "KIT=%~dp0.."
 set "KIT_TARGET=terminal"
@@ -14,26 +21,42 @@ if %errorlevel%==0 (
     set "KENV=%CD%"
 )
 
+REM Change to KIT directory before attempting to find Node.js
+pushd "%KIT%"
+
 REM Set the default KIT_NODE_PATH variable to the custom node binary
-set "KIT_NODE_PATH="
-if exist "%KIT%/node_modules/.bin/pnpm" (
-    for /f "tokens=* USEBACKQ" %%F in (`%KIT%/node_modules/.bin/pnpm node -p "process.execPath" 2^>nul`) do (
-        set "KIT_NODE_PATH=%%F"
-    )
-)
 if not defined KIT_NODE_PATH (
-    for /f "tokens=* USEBACKQ" %%F in (`pnpm node -p "process.execPath" 2^>nul`) do (
-        set "KIT_NODE_PATH=%%F"
+    set "KIT_NODE_PATH="
+    if exist "%KIT%/node_modules/.bin/pnpm" (
+        for /f "tokens=* USEBACKQ" %%F in (`%KIT%/node_modules/.bin/pnpm node -p "process.execPath" 2^>nul`) do (
+            set "KIT_NODE_PATH=%%F"
+        )
     )
-)
-if not defined KIT_NODE_PATH (
-    for /f "tokens=* USEBACKQ" %%F in (`node -p "process.execPath" 2^>nul`) do (
-        set "KIT_NODE_PATH=%%F"
+    
+    if not defined KIT_NODE_PATH if exist "%KIT%\pnpm" (
+        for /f "tokens=* USEBACKQ" %%F in (`"%KIT%\pnpm" node -p "process.execPath" 2^>nul`) do (
+            set "KIT_NODE_PATH=%%F"
+        )
+    )
+    
+    if not defined KIT_NODE_PATH (
+        for /f "tokens=* USEBACKQ" %%F in (`pnpm node -p "process.execPath" 2^>nul`) do (
+            set "KIT_NODE_PATH=%%F"
+        )
+    )
+    
+    if not defined KIT_NODE_PATH (
+        for /f "tokens=* USEBACKQ" %%F in (`node -p "process.execPath" 2^>nul`) do (
+            set "KIT_NODE_PATH=%%F"
+        )
     )
 )
 
+REM Change back to the original directory
+popd
+
 if not defined KIT_NODE_PATH (
-    echo Node not found, please provide an KIT_NODE_PATH in your environment
+    echo Node not found, please provide a KIT_NODE_PATH in your environment
     exit /b 1
 )
 
