@@ -34,7 +34,7 @@ end finalizeObject
 end script`
 
 global.getWindows = async () => {
-	let result = await applescript(String.raw`
+  let result = await applescript(String.raw`
 ${utils}
 
 tell application "System Events"
@@ -58,11 +58,11 @@ end tell
 get V's JSON
 `)
 
-	return JSON.parse(result)
+  return JSON.parse(result)
 }
 
 global.focusWindow = async (process, title) => {
-	return await applescript(String.raw`
+  return await applescript(String.raw`
 tell application "${process}"
 	activate	
 end tell
@@ -81,7 +81,8 @@ end tell
 }
 
 global.getWindowsBounds = async () => {
-	let result = await applescript(String.raw`set listOfWindows to ""
+  let result =
+    await applescript(String.raw`set listOfWindows to ""
 	tell application "System Events"
 		
 		set listOfProcesses to name of every process whose visible is true
@@ -109,11 +110,11 @@ global.getWindowsBounds = async () => {
 	
 	get "[" & text 1 thru -2 of listOfWindows & "]"`)
 
-	return JSON.parse(result)
+  return JSON.parse(result)
 }
 
 global.setWindowPosition = async (process, title, x, y) => {
-	return await applescript(String.raw`
+  return await applescript(String.raw`
 	tell application "System Events"
 	set theProcessWindow to window of process "${process}"
 	repeat with theWindow in theProcessWindow
@@ -126,8 +127,13 @@ global.setWindowPosition = async (process, title, x, y) => {
 end tell`)
 }
 
-global.setWindowSizeByIndex = async (process, index, x, y) => {
-	return await applescript(String.raw`
+global.setWindowSizeByIndex = async (
+  process,
+  index,
+  x,
+  y
+) => {
+  return await applescript(String.raw`
 		tell application "System Events"
 		set theProcessWindow to window of process "${process}"
 		set counter to 0
@@ -140,8 +146,15 @@ global.setWindowSizeByIndex = async (process, index, x, y) => {
 	end tell`)
 }
 
-global.setWindowBoundsByIndex = async (process, index, x, y, width, height) => {
-	return await applescript(String.raw`
+global.setWindowBoundsByIndex = async (
+  process,
+  index,
+  x,
+  y,
+  width,
+  height
+) => {
+  return await applescript(String.raw`
 		  tell application "System Events"
 		  set theProcessWindow to window of process "${process}"
 		  set counter to 0
@@ -156,10 +169,10 @@ global.setWindowBoundsByIndex = async (process, index, x, y, width, height) => {
 }
 
 global.scatterWindows = async () => {
-	let { workArea } = await getActiveScreen()
-	let { x, y, width, height } = workArea
+  let { workArea } = await getActiveScreen()
+  let { x, y, width, height } = workArea
 
-	return await applescript(String.raw`
+  return await applescript(String.raw`
   ${utils}
 
 tell application "System Events"
@@ -185,44 +198,59 @@ end tell
 }
 
 global.organizeWindows = async () => {
-	let { workArea } = await getActiveScreen()
-	let { x, y, width, height } = workArea
+  let { workArea } = await getActiveScreen()
+  let { x, y, width, height } = workArea
 
-	let windows = await getWindows()
-	let rows = Math.floor(Math.sqrt(windows.length))
-	let columns = Math.floor(Math.sqrt(windows.length))
+  let windows = await getWindows()
+  let rows = Math.floor(Math.sqrt(windows.length))
+  let columns = Math.floor(Math.sqrt(windows.length))
 
-	windows.forEach(async (window, i) => {
-		let sqrt = Math.ceil(Math.sqrt(windows.length))
-		let col = Math.floor(i % sqrt)
-		let row = Math.floor(i / sqrt)
-		let { process, title, index } = window
+  windows.forEach(async (window, i) => {
+    let sqrt = Math.ceil(Math.sqrt(windows.length))
+    let col = Math.floor(i % sqrt)
+    let row = Math.floor(i / sqrt)
+    let { process, title, index } = window
 
-		let windowX = Math.floor((col * width) / sqrt) + x
-		let windowY = Math.floor((row * height) / sqrt) + y
-		let windowWidth = Math.floor(width / sqrt)
-		let windowHeight = Math.floor(height / sqrt)
+    let windowX = Math.floor((col * width) / sqrt) + x
+    let windowY = Math.floor((row * height) / sqrt) + y
+    let windowWidth = Math.floor(width / sqrt)
+    let windowHeight = Math.floor(height / sqrt)
 
-		// console.log({
-		//   process,
-		//   title,
-		//   index,
-		//   sqrt,
-		//   col,
-		//   row,
-		//   windowX,
-		//   windowY,
-		//   windowWidth,
-		//   windowHeight,
-		// })
-		await setWindowSizeByIndex(process, index, windowWidth, windowHeight)
+    // console.log({
+    //   process,
+    //   title,
+    //   index,
+    //   sqrt,
+    //   col,
+    //   row,
+    //   windowX,
+    //   windowY,
+    //   windowWidth,
+    //   windowHeight,
+    // })
+    await setWindowSizeByIndex(
+      process,
+      index,
+      windowWidth,
+      windowHeight
+    )
 
-		await setWindowPositionByIndex(process, index, windowX, windowY)
-	})
+    await setWindowPositionByIndex(
+      process,
+      index,
+      windowX,
+      windowY
+    )
+  })
 }
 
-global.setWindowPositionByIndex = async (process, index, x, y) => {
-	return await applescript(String.raw`
+global.setWindowPositionByIndex = async (
+  process,
+  index,
+  x,
+  y
+) => {
+  return await applescript(String.raw`
 		tell application "System Events"
 		set theProcessWindow to window of process "${process}"
 		set counter to 0
@@ -236,7 +264,7 @@ global.setWindowPositionByIndex = async (process, index, x, y) => {
 }
 
 global.setWindowSize = async (process, title, x, y) => {
-	return await applescript(String.raw`
+  return await applescript(String.raw`
 	  tell application "System Events"
 	  set theProcessWindow to window of process "${process}"
 	  repeat with theWindow in theProcessWindow
@@ -250,30 +278,38 @@ global.setWindowSize = async (process, title, x, y) => {
 }
 
 global.getScreens = async () =>
-	(await global.getDataFromApp(Channel.GET_SCREENS_INFO)).displays
+  (
+    await global.getDataFromApp(
+      Channel.GET_SCREENS_INFO,
+      undefined,
+      5000
+    )
+  ).displays
 
 global.selectDisplay = async (includeThumbnails = true) => {
-	let displays = (
-		await global.getDataFromApp(
-			Channel.GET_SCREENS_INFO,
-			includeThumbnails,
-			5000
-		)
-	).displays
-	return await arg(
-		"Select Display",
-		displays.map((d) => {
-			return {
-				name: d.label,
-				value: d,
-				preview: `<img src="${pathToFileURL(d.thumbnailPath).href}" />`
-			}
-		})
-	)
+  let displays = (
+    await global.getDataFromApp(
+      Channel.GET_SCREENS_INFO,
+      includeThumbnails,
+      5000
+    )
+  ).displays
+  return await arg(
+    "Select Display",
+    displays.map(d => {
+      return {
+        name: d.label,
+        value: d,
+        preview: `<img src="${
+          pathToFileURL(d.thumbnailPath).href
+        }" />`,
+      }
+    })
+  )
 }
 
 global.tileWindow = async (app, leftOrRight) => {
-	return await applescript(String.raw`
+  return await applescript(String.raw`
 	tell application "System Events"
 	tell process "${app}"
 		set frontmost to true
@@ -284,71 +320,83 @@ end tell
 }
 
 global.getActiveScreen = async () =>
-	(await global.getDataFromApp(Channel.GET_SCREEN_INFO)).activeScreen
+  (await global.getDataFromApp(Channel.GET_SCREEN_INFO))
+    .activeScreen
 
 global.getMousePosition = async () =>
-	(await global.getDataFromApp(Channel.GET_MOUSE)).mouseCursor
+  (await global.getDataFromApp(Channel.GET_MOUSE))
+    .mouseCursor
 
 global.getProcesses = async () =>
-	(await global.getDataFromApp(Channel.GET_PROCESSES)).processes
+  (await global.getDataFromApp(Channel.GET_PROCESSES))
+    .processes
 global.getPrompts = async () => {
-	let { prompts } = await global.getDataFromApp(Channel.GET_PROMPTS)
-	if (!prompts) return []
-	for (let prompt of prompts) {
-		prompt.focus = async () => {
-			await hide()
-			await sendWait(Channel.FOCUS_PROMPT, {
-				pid: prompt.pid
-			})
-		}
-	}
-	return prompts
+  let { prompts } = await global.getDataFromApp(
+    Channel.GET_PROMPTS
+  )
+  if (!prompts) return []
+  for (let prompt of prompts) {
+    prompt.focus = async () => {
+      await hide()
+      await sendWait(Channel.FOCUS_PROMPT, {
+        pid: prompt.pid,
+      })
+    }
+  }
+  return prompts
 }
 
 global.getKitWindows = async () => {
-	let message = await global.getDataFromApp(Channel.GET_KIT_WINDOWS)
+  let message = await global.getDataFromApp(
+    Channel.GET_KIT_WINDOWS
+  )
 
-	return message.windows
+  return message.windows
 }
 
 global.focusKitWindow = async (id: string) => {
-	return sendWait(Channel.FOCUS_KIT_WINDOW, { id })
+  return sendWait(Channel.FOCUS_KIT_WINDOW, { id })
 }
 
-global.setActiveAppBounds = async ({ left, top, right, bottom }) => {
-	await applescript(
-		`tell application "System Events"
+global.setActiveAppBounds = async ({
+  left,
+  top,
+  right,
+  bottom,
+}) => {
+  await applescript(
+    `tell application "System Events"
       set processName to name of first application process whose frontmost is true as text
       tell process processName to set the position of front window to {${left}, ${top}}
       tell process processName to set the size of front window to {${
-				right - left
-			}, ${bottom - top}}
+        right - left
+      }, ${bottom - top}}
     end tell`
-	)
+  )
 }
 global.setActiveAppPosition = async ({ x, y }) => {
-	await applescript(
-		`tell application "System Events"
+  await applescript(
+    `tell application "System Events"
       set processName to name of first application process whose frontmost is true as text
       tell process processName to set the position of front window to {${x}, ${y}}      
     end tell`
-	)
+  )
 }
 
 global.setActiveAppSize = async ({ width, height }) => {
-	await applescript(
-		`tell application "System Events"
+  await applescript(
+    `tell application "System Events"
       set processName to name of first application process whose frontmost is true as text
       tell process processName to set the size of front window to {${width}, ${height}}
     end tell`
-	)
+  )
 }
 
 global.getActiveAppInfo = async () =>
-	(await global.getDataFromApp(Channel.GET_ACTIVE_APP)).app
+  (await global.getDataFromApp(Channel.GET_ACTIVE_APP)).app
 
 global.getActiveAppBounds = async () => {
-	let stringBounds = await applescript(String.raw`
+  let stringBounds = await applescript(String.raw`
   ${utils}
 
   tell application "System Events"
@@ -370,13 +418,13 @@ end tell
 get V's JSON
   `)
 
-	let jsonBounds = JSON.parse(stringBounds)[0]
+  let jsonBounds = JSON.parse(stringBounds)[0]
 
-	return Object.entries(jsonBounds).reduce(
-		(acc, [key, value]: [string, string]) => {
-			acc[key] = parseInt(value, 10)
-			return acc
-		},
-		{}
-	) as Bounds
+  return Object.entries(jsonBounds).reduce(
+    (acc, [key, value]: [string, string]) => {
+      acc[key] = parseInt(value, 10)
+      return acc
+    },
+    {}
+  ) as Bounds
 }

@@ -205,12 +205,12 @@ jobs:
 
       - name: Create Draft Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.time.outputs.time }}
-          release_name: ${{ env.release_channel }}
+          name: ${{ env.release_channel }}
           draft: true
           prerelease: false
 
