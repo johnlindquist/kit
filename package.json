@@ -81,7 +81,7 @@
     "@octokit/plugin-throttling": "9.3.2",
     "@types/shelljs": "0.8.15",
     "@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2",
-    "acorn": "^8.13.0",
+    "acorn": "^8.12.1",
     "acorn-typescript": "^1.4.13",
     "advanced-calculator": "1.1.1",
     "body-parser": "^1.20.3",

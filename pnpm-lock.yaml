@@ -46,11 +46,11 @@ importers:
         specifier: npm:@johnlindquist/no-dom@^1.0.2
         version: '@johnlindquist/no-dom@1.0.2'
       acorn:
-        specifier: ^8.13.0
-        version: 8.13.0
+        specifier: ^8.12.1
+        version: 8.12.1
       acorn-typescript:
         specifier: ^1.4.13
-        version: 1.4.13(acorn@8.13.0)
+        version: 1.4.13(acorn@8.12.1)
       advanced-calculator:
         specifier: 1.1.1
         version: 1.1.1
@@ -755,6 +755,11 @@ packages:
 
   acorn@7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.12.1:
+    resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -4227,9 +4232,9 @@ snapshots:
       acorn-walk: 7.2.0
       xtend: 4.0.2
 
-  acorn-typescript@1.4.13(acorn@8.13.0):
+  acorn-typescript@1.4.13(acorn@8.12.1):
     dependencies:
-      acorn: 8.13.0
+      acorn: 8.12.1
 
   acorn-walk@7.2.0: {}
 
@@ -4240,6 +4245,8 @@ snapshots:
   acorn@5.7.4: {}
 
   acorn@7.4.1: {}
+
+  acorn@8.12.1: {}
 
   acorn@8.13.0: {}
 
