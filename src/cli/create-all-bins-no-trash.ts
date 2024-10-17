@@ -28,28 +28,32 @@ let binTemplate = await readFile(
 
 let binTemplateCompiler = compile(binTemplate)
 
-for await (let { command, filePath } of scripts) {
-  let compiledBinTemplate = binTemplateCompiler({
-    command,
-    type: "scripts",
-    KIT: kitPath(),
-    KIT_NODE_PATH: process.env.KIT_NODE_PATH,
-    ...global.env,
-    TARGET_PATH: filePath,
-  })
+try {
+  for await (let { command, filePath } of scripts) {
+    let compiledBinTemplate = binTemplateCompiler({
+      command,
+      type: "scripts",
+      KIT: kitPath(),
+      KIT_NODE_PATH: process.env.KIT_NODE_PATH,
+      ...global.env,
+      TARGET_PATH: filePath,
+    })
 
-  let binDirPath = path.resolve(
-    filePath,
-    "..",
-    "..",
-    ...(jsh ? ["node_modules", ".bin"] : ["bin"])
-  )
-  let binFilePath = path.resolve(binDirPath, command)
-  if (useCmd) {
-    binFilePath += ".cmd"
+    let binDirPath = path.resolve(
+      filePath,
+      "..",
+      "..",
+      ...(jsh ? ["node_modules", ".bin"] : ["bin"])
+    )
+    let binFilePath = path.resolve(binDirPath, command)
+    if (useCmd) {
+      binFilePath += ".cmd"
+    }
+    await global.writeFile(binFilePath, compiledBinTemplate)
+    global.chmod(755, binFilePath)
   }
-  await global.writeFile(binFilePath, compiledBinTemplate)
-  global.chmod(755, binFilePath)
+} catch (error) {
+  log(`🚨 Error creating bins`, error)
 }
 
 export {}

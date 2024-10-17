@@ -1,9 +1,9 @@
 // Description: Add Local Kenv Repo
 
 import { getLastSlashSeparated } from "../core/utils.js"
-import os from "os"
+import os from "node:os"
 import slugify from "slugify"
-import { ChannelHandler } from "../types/core.js"
+import type { ChannelHandler } from "../types/core.js"
 
 let createKenvPathFromName = async (name: string) => {
   let addKenvPath = ""
@@ -132,6 +132,15 @@ let kenvName = await arg(
 let kenvDir = kenvPath("kenvs", kenvName)
 
 ln("-s", existingKenvPath, kenvDir)
+
+const { stdout } = await exec(
+  `${kitPath("pnpm")} add ${kitPath()}`,
+  {
+    cwd: kenvDir,
+  }
+)
+
+log(stdout)
 
 await cli("create-all-bins-no-trash")
 
