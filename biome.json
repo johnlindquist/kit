@@ -90,7 +90,7 @@
     "formatter": {
       "enabled": true,
       "quoteStyle": "single",
-      "semicolons": "always",
+      "semicolons": "asNeeded",
       "bracketSpacing": true,
       "arrowParentheses": "always",
       "trailingCommas": "none"

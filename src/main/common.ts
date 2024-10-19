@@ -9,8 +9,16 @@ import {
 } from "../core/utils.js"
 import { MainMenuType } from "../core/enum.js"
 
+type ActionFlag = {
+  name: string
+  shortcut?: string
+  description?: string
+  value: string
+  action?: (selectedFile: string) => Promise<unknown>
+}
+
 let openConfigPath = kenvPath("config", "open.json")
-let openActions = []
+let openActions: ActionFlag[] = []
 if (await isFile(openConfigPath)) {
   let openConfig = await readJson(openConfigPath)
   for (let item of openConfig) {
@@ -32,13 +40,7 @@ if (await isFile(openConfigPath)) {
   }
 }
 
-export let actionFlags: {
-  name: string
-  shortcut?: string
-  description?: string
-  value: string
-  action?: (selectedFile: string) => Promise<unknown>
-}[] = [
+export let actionFlags: ActionFlag[] = [
   {
     name: "Open in Default App",
     value: "open",
@@ -195,6 +197,35 @@ export let actionFlags: {
           destination,
           path.basename(selectedFile)
         )
+      )
+    },
+  },
+  {
+    name: "Duplicate",
+    value: "duplicate",
+    shortcut: `${cmd}+shift+d`,
+    action: async selectedFile => {
+      const base = path.basename(selectedFile)
+      let destination = await path({
+        hint: `Select path (including new filename) for ${base}`,
+        startPath: home(),
+        onlyDirs: true,
+        shortcuts: [escapeShortcut],
+        missingChoices: [
+          {
+            name: `Duplicate "${base}" to "{input}"`,
+            miss: true,
+            enter: "Duplicate",
+            onSubmit: input => {
+              submit(input)
+            },
+          },
+        ],
+      })
+
+      await copyFile(
+        selectedFile,
+        path.resolve(destination)
       )
     },
   },

@@ -785,7 +785,9 @@ global.___kitFormatChoices = async (
   choices,
   className = ""
 ) => {
-  if (!Array.isArray(choices)) return choices
+  if (!Array.isArray(choices)) {
+    return choices
+  }
   let formattedChoices = formatChoices(choices, className)
   let { __currentPromptConfig } = global as any
   let { shortcuts: globalShortcuts } =
