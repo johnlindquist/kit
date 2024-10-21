@@ -3,6 +3,8 @@
 // Cache: true
 // Trigger: /
 
+import type { PathDefaultMissingValues } from "../types/kit.js"
+
 import { actionFlags } from "./common.js"
 
 let flags = {}
@@ -34,12 +36,18 @@ let selectedPath = await path({
       let doesPathExist = await pathExists(selectedPath)
       let type = "file"
       if (!doesPathExist) {
-        if (state?.focused?.value === "create-file") {
+        const value = state?.focused
+          ?.value as PathDefaultMissingValues
+        if (value === "create-file") {
           await ensureFile(selectedPath)
         }
-        if (state?.focused?.value === "create-folder") {
+        if (value === "create-folder") {
           type = "folder"
           await ensureDir(selectedPath)
+        }
+        if (value === "select-anyway") {
+          type = "file"
+          submit(selectedPath)
         }
       }
 

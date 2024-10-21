@@ -203,7 +203,11 @@ export type Highlight = (
   injectStyles?: string
 ) => Promise<string>
 
-interface PathConfig extends PromptConfig {
+export type PathDefaultMissingValues =
+  | "select-anyway"
+  | "create-file"
+  | "create-folder"
+export interface PathConfig extends PromptConfig {
   startPath?: string
   onlyDirs?: boolean
   showHidden?: boolean

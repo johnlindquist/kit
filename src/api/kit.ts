@@ -816,7 +816,7 @@ global.setChoices = async (choices, config) => {
   )
   global.send(Channel.SET_CHOICES, {
     choices: formattedChoices,
-    skipInitialSearch: config?.skipInitialSearch || false,
+    skipInitialSearch: config?.skipInitialSearch,
     inputRegex: config?.inputRegex || "",
     generated: Boolean(config?.generated),
   })
@@ -1704,7 +1704,9 @@ export let getApps = async () => {
     choices: [],
   }))
 
-  if (choices.length === 0) return []
+  if (choices.length === 0) {
+    return []
+  }
 
   let groupedApps = choices.map(c => {
     c.group = "Apps"

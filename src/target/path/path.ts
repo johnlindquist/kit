@@ -10,7 +10,10 @@ import {
 
 import type { Dirent } from "node:fs"
 import { pathToFileURL } from "node:url"
-import type { PathConfig } from "../../types/kit"
+import type {
+  PathConfig,
+  PathDefaultMissingValues,
+} from "../../types/kit"
 import type {
   Action,
   Choice,
@@ -134,22 +137,25 @@ export const createPathChoices = async (
   return mapped.sort(dirSort)
 }
 
-let defaultPathMissingChoices: Choice[] = [
-  {
-    name: "Doesn't exist, select anyway",
-    miss: true,
-    onSubmit: input => {
-      submit(input)
+type DefaultMissingPathChoice = Omit<Choice, "value"> & {
+  value: PathDefaultMissingValues
+  miss: true
+}
+let defaultPathMissingChoices: DefaultMissingPathChoice[] =
+  [
+    {
+      name: "Doesn't exist, select anyway",
+      miss: true,
+      value: "select-anyway",
+      enter: "Select",
     },
-    enter: "Select",
-  },
-  {
-    name: `Create Folder "{base}"`,
-    miss: true,
-    value: "create-folder",
-    enter: "Create Folder",
-  },
-]
+    {
+      name: `Create Folder "{base}"`,
+      miss: true,
+      value: "create-folder",
+      enter: "Create Folder",
+    },
+  ]
 
 let __pathSelector = async (
   config: string | PathConfig = home(),
@@ -166,17 +172,22 @@ let __pathSelector = async (
   if (typeof config === "object") {
     startPath = config?.startPath || home()
     onlyDirs = Boolean(config?.onlyDirs)
-    missingChoices =
-      config?.missingChoices || defaultPathMissingChoices
-    if (!onlyDirs && missingChoices.length === 0) {
+    let configMissingChoicesIsArray = Array.isArray(
+      config?.missingChoices
+    )
+    missingChoices = configMissingChoicesIsArray
+      ? config.missingChoices
+      : config?.missingChoices || defaultPathMissingChoices
+    if (!(onlyDirs || configMissingChoicesIsArray)) {
+      const createFileChoice: DefaultMissingPathChoice = {
+        name: `Create File "{base}"`,
+        miss: true,
+        value: "create-file",
+        enter: "Create File",
+      }
       missingChoices = [
-        missingChoices[0],
-        {
-          name: `Create File "{base}"`,
-          miss: true,
-          value: "create-file",
-          enter: "Create File",
-        },
+        createFileChoice,
+
         ...missingChoices.slice(1),
       ]
     }
@@ -213,7 +224,7 @@ let __pathSelector = async (
       if (focusOn) {
         setFocused(focusOn)
       }
-      focusOn = ``
+      focusOn = ""
     } catch (error) {
       setPanel(
         md(`### Failed to read ${startPath}
@@ -230,8 +241,9 @@ ${error}
   if (
     !startPath.endsWith(path.sep) &&
     (await isDir(startPath))
-  )
+  ) {
     startPath += path.sep
+  }
   let slashCount = startPath.split(path.sep).length
 
   let lsCurrentDir = async input => {
@@ -239,7 +251,9 @@ ${error}
     //   await mainScript()
     // }
 
-    if (input?.startsWith("~")) startPath = home()
+    if (input?.startsWith("~")) {
+      startPath = home()
+    }
 
     if (input?.endsWith(path.sep)) {
       startPath = input
@@ -259,7 +273,9 @@ ${error}
       return
     }
     await setInput(path.dirname(startPath) + path.sep)
-    if (dir) focusOn = path.basename(path.dirname(dir))
+    if (dir) {
+      focusOn = path.basename(path.dirname(dir))
+    }
   }
 
   let downDir = async dir => {
@@ -307,7 +323,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
             name: "Quit",
             key: `${cmd}+q`,
             bar: "right",
-            onPress: async () => {
+            onPress: () => {
               send(Channel.QUIT_APP)
             },
           },
@@ -384,7 +400,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
-  let onTab = async (input, state) => {
+  let onTab = (input, state) => {
     let dir = state.focused.value
 
     if (state.modifiers.includes("shift")) {
@@ -394,16 +410,16 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
-  let onRight = async (input, state) => {
+  let onRight = (input, state) => {
     downDir(state.focused.value)
   }
 
-  let onLeft = async (input, state) => {
+  let onLeft = (input, state) => {
     upDir(state.focused.value)
   }
 
-  let onEscape = async () => {
-    await mainScript()
+  let onEscape = () => {
+    mainScript()
   }
 
   let sort = "name"
@@ -457,7 +473,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       // onNoChoices,
       // onEscape,
       // TODO: If I want resize, I need to create choices first?
-      onInit: async () => {
+      onInit: () => {
         setResize(true)
         lsCurrentDir(startPath)
       },
@@ -518,6 +534,10 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
+  if (selectedPath === "select-anyway") {
+    selectedPath = currentInput
+  }
+
   return selectedPath.trim()
 }
 
@@ -529,3 +549,5 @@ global.path = new Proxy(__pathSelector, {
 }) as any
 
 export const path = global.path
+
+// Try to open non-existent ~/.huskyrc

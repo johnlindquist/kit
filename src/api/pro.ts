@@ -419,7 +419,9 @@ export type {};
 
 // TODO: Support urls. Make sure urls handle "widgetId" for sending messages
 let widget: Widget = async (html, options = {}) => {
-  // hide()
+  if (options?.hidePrompt !== false) {
+    hide()
+  }
   let { widgetId } = await global.getDataFromApp(
     Channel.WIDGET_GET,
     {
