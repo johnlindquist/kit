@@ -1,18 +1,19 @@
 import { exec } from "@johnlindquist/globals"
 import type { editor } from "./editor.api"
 
-import type core from "./core/enum"
 import {
   type Key,
+  Key as CoreKeyEnum,
   Channel,
   Mode,
   type statuses,
   type PROMPT as PROMPT_OBJECT,
 } from "../core/enum"
-import type { KeyEnum } from "../core/keyboard.js"
+
 import type { AppDb } from "../core/db.js"
 
 import {
+  type Action,
   type AppState,
   ChannelHandler,
   type Choice,
@@ -1046,7 +1047,7 @@ export interface AppApi {
   ) => Promise<void>
 
   appKeystroke: SendKeystroke
-  Key: typeof core.Key
+  Key: Key
 
   log: typeof console.log
   warn: typeof console.warn
@@ -1161,7 +1162,7 @@ declare global {
   ) => Promise<void>
 
   var appKeystroke: SendKeystroke
-  var Key: typeof core.Key
+  var Key: typeof CoreKeyEnum
 
   var log: typeof console.log
   var warn: typeof console.warn

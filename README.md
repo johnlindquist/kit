@@ -49,11 +49,9 @@ pnpm install
 
 The build command builds the SDK to ~/.kit
 
-#### npm link to app (First run only)
-
-(The app requires `npm` instead of `pnpm` due to build/native reasons)
+#### pnpm link to app (First run only)
 
 1. cd to ~/.kit
-2. npm link
+2. pnpm link
 3. cd to wherever you cloned kitapp
-4. npm link @johnlindquist/kit
+4. pnpm link @johnlindquist/kit
