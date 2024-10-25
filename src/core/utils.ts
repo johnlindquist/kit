@@ -1491,6 +1491,9 @@ export let tagger = (script: Script) => {
       )
     }
 
+    if (script.kenv && script.kenv !== ".kit") {
+      tags.push(script.kenv)
+    }
     if (script.trigger)
       tags.push(`trigger: ${script.trigger}`)
     if (script.keyword)
