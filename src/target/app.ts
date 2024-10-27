@@ -1719,7 +1719,7 @@ global.docs = async (filePath: string, options = {}) => {
   )
 }
 
-global.editor = async (
+global.editor = (async (
   options?: EditorOptions,
   actions?: Action[]
 ) => {
@@ -1771,7 +1771,7 @@ global.editor = async (
     choices: [],
     hideOnEscape: false,
   })
-}
+}) as any // TODO: Fix global implementation to better match exported types
 
 global.editor.setSuggestions = async (
   suggestions: string[] = []
@@ -2117,7 +2117,7 @@ global.arg =
     ? global.basePrompt
     : global.mini
 
-global.chat = async (
+global.chat = (async (
   options = {},
   actions: Action[] = []
 ) => {
@@ -2145,7 +2145,7 @@ global.chat = async (
   })
 
   return messages
-}
+}) as any // TODO: Fix global implementation to better match exported types
 
 global.chat.addMessage = async (message = {}) => {
   if (typeof message === "string") {
@@ -3344,7 +3344,7 @@ let micStreamHandler = (message: AppMessage) => {
     endMicStream(false)
   }
 }
-global.mic = async (config: MicConfig = {}) => {
+global.mic = (async (config: MicConfig = {}) => {
   // Create a Readable stream on the fly
   beginMicStream()
 
@@ -3376,7 +3376,7 @@ global.mic = async (config: MicConfig = {}) => {
   endMicStream()
 
   return await readFile(tmpFilePath)
-}
+}) as any // TODO: Fix global implementation to better match exported types
 
 global.mic.stream = undefined
 
