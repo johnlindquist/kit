@@ -96,11 +96,11 @@ export type Chat = ((
   config?: PromptConfig,
   actions?: Action[]
 ) => Promise<Message[]>) & {
-  addMessage?: (message: Message) => void
-  setMessage?: (index: number, message: Message) => void
-  getMessages?: () => Promise<BaseMessage[]>
-  setMessages?: (messages: Message[]) => Promise<void>
-  pushToken?: (token: string) => Promise<void>
+  addMessage: (message: Message) => void
+  setMessage: (index: number, message: Message) => void
+  getMessages: () => Promise<BaseMessage[]>
+  setMessages: (messages: Message[]) => Promise<void>
+  pushToken: (token: string) => Promise<void>
 }
 
 interface ToastOptions {
@@ -159,9 +159,9 @@ export type Prompt = {
 export type Mic = ((
   config?: MicConfig
 ) => Promise<Buffer>) & {
-  stop?: () => Promise<Buffer>
-  start?: (config?: MicConfig) => Promise<string>
-  stream?: Readable
+  stop: () => Promise<Buffer>
+  start: (config?: MicConfig) => Promise<string>
+  stream: Readable
 }
 
 export type WebCam = (
@@ -197,18 +197,18 @@ export type Editor = ((
   config?: EditorConfig & { hint?: string },
   actions?: Action[]
 ) => Promise<string>) & {
-  setSuggestions?: (suggestions: string[]) => Promise<void>
-  setConfig?: (config: EditorConfig) => Promise<void>
-  append?: (text: string) => Promise<void>
-  getSelection?: () => Promise<{
+  setSuggestions: (suggestions: string[]) => Promise<void>
+  setConfig: (config: EditorConfig) => Promise<void>
+  append: (text: string) => Promise<void>
+  getSelection: () => Promise<{
     text: string
     start: number
     end: number
   }>
-  getCursorOffset?: () => Promise<number>
-  moveCursor?: (offset: number) => Promise<void>
-  insertText?: (text: string) => Promise<void>
-  // setCodeHint?: (hint: string) => Promise<void>
+  getCursorOffset: () => Promise<number>
+  moveCursor: (offset: number) => Promise<void>
+  insertText: (text: string) => Promise<void>
+  // setCodeHint: (hint: string) => Promise<void>
 }
 
 export interface EditorProps {
