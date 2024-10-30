@@ -781,10 +781,11 @@ let waitForPromptValue = ({
               onBlur(data.state.input, data.state)
               break
 
-            case Channel.ABANDON:
+            case Channel.ABANDON: {
               global.__kitAbandoned = true
               onAbandon(data.state.input, data.state)
               break
+            }
 
             case Channel.SHORTCUT:
               await runAction(data)
@@ -829,8 +830,13 @@ let waitForPromptValue = ({
               global.__kitScriptsFromCache = false
               break
 
-            case Channel.ENV_CHANGED:
+            case Channel.ENV_CHANGED: {
               ;(process as any).env = data?.env
+              break
+            }
+
+            default:
+              warn(`Unknown channel: ${data.channel}`)
               break
           }
         },
@@ -892,11 +898,11 @@ let waitForPromptValue = ({
   return global.activePromptPromise
 }
 
-let onNoChoicesDefault = async (input: string) => {
-  setPreview(``)
+let onNoChoicesDefault = (input: string) => {
+  setPreview('')
 }
 
-let onEscapeDefault: ChannelHandler = async (
+let onEscapeDefault: ChannelHandler = (
   input: string,
   state: AppState
 ) => {
@@ -2408,6 +2414,7 @@ global.setHint = async hint => {
 }
 
 global.setInput = async input => {
+  log(`setInput: ${input}`)
   return await global.sendWait(Channel.SET_INPUT, input)
 }
 

@@ -1,18 +1,15 @@
-process.env.KIT_TARGET = "app-prompt"
-import { Channel, Trigger } from "../core/enum.js"
-import os from "node:os"
-import { configEnv, run } from "../core/utils.js"
+process.env.KIT_TARGET = 'app-prompt'
+import { Channel, Trigger } from '../core/enum.js'
+import os from 'node:os'
+import { configEnv, run } from '../core/utils.js'
 
 // TODO: Fix the types around accepting an early Scriptlet
-let script: any = ""
+let script: any = ''
 let args = []
-let tooEarlyHandler = data => {
+let tooEarlyHandler = (data) => {
   if (data.channel === Channel.VALUE_SUBMITTED) {
-    script = data?.value?.scriptlet
-      ? data?.value
-      : data?.value?.script || data?.state?.value?.filePath
-    args =
-      data?.value?.args || data?.state?.value?.args || []
+    script = data?.value?.scriptlet ? data?.value : data?.value?.script || data?.state?.value?.filePath
+    args = data?.value?.args || data?.state?.value?.args || []
     global.headers = data?.value?.headers || {}
 
     // const value = `${process.pid}: ${
@@ -27,52 +24,57 @@ let tooEarlyHandler = data => {
 
 process.send({
   channel: Channel.KIT_LOADING,
-  value: "app-prompt.ts",
+  value: 'app-prompt.ts'
 })
 
-process.on("message", tooEarlyHandler)
+process.on('message', tooEarlyHandler)
 
-await import("../api/global.js")
-let { initTrace } = await import("../api/kit.js")
+await import('../api/global.js')
+let { initTrace } = await import('../api/kit.js')
 await initTrace()
-await import("../api/pro.js")
-await import("../api/lib.js")
-await import("../platform/base.js")
+await import('../api/pro.js')
+await import('../api/lib.js')
+await import('../platform/base.js')
 
 let platform = os.platform()
+
 try {
   await import(`../platform/${platform}.js`)
 } catch (error) {
   // console.log(`No ./platform/${platform}.js`)
 }
 
-await import("../target/app.js")
+await import('../target/app.js')
 
 if (process.env.KIT_MEASURE) {
-  let { PerformanceObserver, performance } = await import(
-    "node:perf_hooks"
-  )
-  let obs = new PerformanceObserver(list => {
+  let { PerformanceObserver, performance } = await import('node:perf_hooks')
+  let obs = new PerformanceObserver((list) => {
     let entry = list.getEntries()[0]
     log(`⌚️ [Perf] ${entry.name}: ${entry.duration}ms`)
   })
-  obs.observe({ entryTypes: ["measure"] })
+  obs.observe({ entryTypes: ['measure'] })
 }
 
-let trigger = ""
-let name = ""
+try {
+  await attemptImport(kenvPath('globals.ts'))
+} catch (error) {
+  log('No user-defined globals.ts')
+}
+
+let trigger = ''
+let name = ''
 let result = null
 let choices = []
 let scriptlet = null
-process.title = "Kit Idle - App Prompt"
+process.title = 'Kit Idle - App Prompt'
 process.send({
   channel: Channel.KIT_READY,
-  value: result,
+  value: result
 })
 
 try {
   result = await new Promise((resolve, reject) => {
-    process.off("message", tooEarlyHandler)
+    process.off('message', tooEarlyHandler)
 
     if (script) {
       // process.send({
@@ -88,7 +90,7 @@ try {
       resolve({
         script,
         args,
-        trigger: Trigger.Trigger,
+        trigger: Trigger.Trigger
       })
       return
     }
@@ -104,29 +106,28 @@ try {
       }
       if (data.channel === Channel.VALUE_SUBMITTED) {
         trace.instant({
-          name: "app-prompt.ts -> VALUE_SUBMITTED",
-          args: data,
+          name: 'app-prompt.ts -> VALUE_SUBMITTED',
+          args: data
         })
         global.headers = data?.value?.headers || {}
-        process.off("message", messageHandler)
+        process.off('message', messageHandler)
         resolve(data.value)
       }
     }
-    process.on("message", messageHandler)
+    process.on('message', messageHandler)
   })
 } catch (e) {
   global.warn(e)
   exit()
 }
-;({ script, args, trigger, choices, name, scriptlet } =
-  result)
+;({ script, args, trigger, choices, name, scriptlet } = result)
 
 process.env.KIT_TRIGGER = trigger
 
 configEnv()
 process.title = `Kit - ${path.basename(script)}`
 
-process.once("beforeExit", () => {
+process.once('beforeExit', () => {
   if (global?.trace?.flush) {
     global.trace.flush()
     global.trace = null
@@ -134,7 +135,7 @@ process.once("beforeExit", () => {
   send(Channel.BEFORE_EXIT)
 })
 
-performance.mark("run")
+performance.mark('run')
 
 if (choices?.length) {
   let inputs = []
@@ -147,18 +148,16 @@ if (choices?.length) {
         resize: true,
         onEscape: () => {
           exit()
-        },
+        }
       },
       choices
     )
   }
-  let { runScriptlet } = await import(
-    "../main/scriptlet.js"
-  )
+  let { runScriptlet } = await import('../main/scriptlet.js')
   await runScriptlet(scriptlet, inputs, flag)
 } else {
-  if (script.includes(".md")) {
-    log({ script, ugh: "❌" })
+  if (script.includes('.md')) {
+    log({ script, ugh: '❌' })
     exit()
   }
   await run(script, ...args)

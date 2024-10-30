@@ -1,41 +1,27 @@
-import fs from "node:fs"
-import { unlink } from "node:fs/promises"
-import { filesize } from "filesize"
-import * as ogPath from "node:path"
+import fs from 'node:fs'
+import { unlink } from 'node:fs/promises'
+import { filesize } from 'filesize'
+import * as ogPath from 'node:path'
 
-import {
-  formatDistanceToNow,
-  compareAsc,
-} from "@johnlindquist/kit-internal/date-fns"
+import { formatDistanceToNow, compareAsc } from '@johnlindquist/kit-internal/date-fns'
 
-import type { Dirent } from "node:fs"
-import { pathToFileURL } from "node:url"
-import type {
-  PathConfig,
-  PathDefaultMissingValues,
-} from "../../types/kit"
-import type {
-  Action,
-  Choice,
-  PromptConfig,
-} from "../../types"
-import { Channel } from "../../core/enum.js"
+import type { Dirent } from 'node:fs'
+import { pathToFileURL } from 'node:url'
+import type { PathConfig, PathDefaultMissingValues } from '../../types/kit'
+import type { Action, Choice, PromptConfig } from '../../types'
+import { Channel } from '../../core/enum.js'
 
 export const createPathChoices = async (
   startPath: string,
-  {
-    dirFilter = dirent => true,
-    dirSort = (a, b) => 0,
-    onlyDirs = false,
-  } = {}
+  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false } = {}
 ) => {
   const dirFiles = await readdir(startPath, {
-    withFileTypes: true,
+    withFileTypes: true
   })
 
   dirFiles.sort((a, b) => {
-    const aStarts = a.name.startsWith(".")
-    const bStarts = b.name.startsWith(".")
+    const aStarts = a.name.startsWith('.')
+    const bStarts = b.name.startsWith('.')
     return aStarts === bStarts ? 0 : aStarts ? 1 : -1
   })
 
@@ -52,12 +38,10 @@ export const createPathChoices = async (
 
   // Process symlinks in parallel
   await Promise.all(
-    dirents.map(async dirent => {
+    dirents.map(async (dirent) => {
       if (dirent.isSymbolicLink()) {
         try {
-          const resolved = await fs.promises.realpath(
-            ogPath.resolve(dirent.path, dirent.name)
-          )
+          const resolved = await fs.promises.realpath(ogPath.resolve(dirent.path, dirent.name))
           const stats = getCachedStat(resolved)
 
           Object.assign(dirent, {
@@ -67,10 +51,9 @@ export const createPathChoices = async (
             isFile: () => stats.isFile(),
             isSymbolicLink: () => stats.isSymbolicLink(),
             isBlockDevice: () => stats.isBlockDevice(),
-            isCharacterDevice: () =>
-              stats.isCharacterDevice(),
+            isCharacterDevice: () => stats.isCharacterDevice(),
             isFIFO: () => stats.isFIFO(),
-            isSocket: () => stats.isSocket(),
+            isSocket: () => stats.isSocket()
           })
           validDirents.push(dirent)
         } catch {
@@ -82,43 +65,19 @@ export const createPathChoices = async (
     })
   )
 
-  const folderSet = new Set(
-    validDirents
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name)
-  )
-  const folders = validDirents.filter(dirent =>
-    folderSet.has(dirent.name)
-  )
-  const files = onlyDirs
-    ? []
-    : validDirents.filter(
-        dirent => !folderSet.has(dirent.name)
-      )
+  const folderSet = new Set(validDirents.filter((dirent) => dirent.isDirectory()).map((dirent) => dirent.name))
+  const folders = validDirents.filter((dirent) => folderSet.has(dirent.name))
+  const files = onlyDirs ? [] : validDirents.filter((dirent) => !folderSet.has(dirent.name))
 
   const mapDirents = (dirents: Dirent[]): Choice[] => {
-    return dirents.map(dirent => {
-      const fullPath = ogPath.resolve(
-        dirent.path,
-        dirent.name
-      )
+    return dirents.map((dirent) => {
+      const fullPath = ogPath.resolve(dirent.path, dirent.name)
       const { size, mtime } = getCachedStat(fullPath)
 
-      const type = folderSet.has(dirent.name)
-        ? "folder"
-        : "file"
-      const description =
-        type === "folder"
-          ? ""
-          : `${filesize(
-              size
-            )} - Last modified ${formatDistanceToNow(
-              mtime
-            )} ago`
+      const type = folderSet.has(dirent.name) ? 'folder' : 'file'
+      const description = type === 'folder' ? '' : `${filesize(size)} - Last modified ${formatDistanceToNow(mtime)} ago`
 
-      const img = pathToFileURL(
-        kitPath("icons", `${type}.svg`)
-      ).href
+      const img = pathToFileURL(kitPath('icons', `${type}.svg`)).href
 
       return {
         img,
@@ -127,7 +86,7 @@ export const createPathChoices = async (
         description,
         drag: fullPath,
         mtime,
-        size,
+        size
       } as const
     })
   }
@@ -137,44 +96,38 @@ export const createPathChoices = async (
   return mapped.sort(dirSort)
 }
 
-type DefaultMissingPathChoice = Omit<Choice, "value"> & {
+type DefaultMissingPathChoice = Omit<Choice, 'value'> & {
   value: PathDefaultMissingValues
   miss: true
 }
-let defaultPathMissingChoices: DefaultMissingPathChoice[] =
-  [
-    {
-      name: "Doesn't exist, select anyway",
-      miss: true,
-      value: "select-anyway",
-      enter: "Select",
-    },
-    {
-      name: `Create Folder "{base}"`,
-      miss: true,
-      value: "create-folder",
-      enter: "Create Folder",
-    },
-  ]
+let defaultPathMissingChoices: DefaultMissingPathChoice[] = [
+  {
+    name: "Doesn't exist, select anyway",
+    miss: true,
+    value: 'select-anyway',
+    enter: 'Select'
+  },
+  {
+    name: `Create Folder "{base}"`,
+    miss: true,
+    value: 'create-folder',
+    enter: 'Create Folder'
+  }
+]
 
-let __pathSelector = async (
-  config: string | PathConfig = home(),
-  actions?: Action[]
-) => {
-  let startPath = ""
-  let focusOn = ""
+let __pathSelector = async (config: string | PathConfig = home(), actions?: Action[]) => {
+  let startPath = ''
+  let focusOn = ''
   let onInputHook = null
   let onlyDirs = false
   let missingChoices: Choice[] = defaultPathMissingChoices
-  if (typeof config === "string") {
+  if (typeof config === 'string') {
     startPath = config
   }
-  if (typeof config === "object") {
+  if (typeof config === 'object') {
     startPath = config?.startPath || home()
     onlyDirs = Boolean(config?.onlyDirs)
-    let configMissingChoicesIsArray = Array.isArray(
-      config?.missingChoices
-    )
+    let configMissingChoicesIsArray = Array.isArray(config?.missingChoices)
     missingChoices = configMissingChoicesIsArray
       ? config.missingChoices
       : config?.missingChoices || defaultPathMissingChoices
@@ -182,49 +135,46 @@ let __pathSelector = async (
       const createFileChoice: DefaultMissingPathChoice = {
         name: `Create File "{base}"`,
         miss: true,
-        value: "create-file",
-        enter: "Create File",
+        value: 'create-file',
+        enter: 'Create File'
       }
       missingChoices = [
         createFileChoice,
 
-        ...missingChoices.slice(1),
+        ...missingChoices.slice(1)
       ]
     }
   }
 
   let initialChoices = await createPathChoices(startPath, {
     onlyDirs,
-    dirFilter: dirent => {
+    dirFilter: (dirent) => {
       // if (dirent.name.startsWith(".")) {
       //   return showHidden
       // }
 
       return true
-    },
+    }
   })
 
-  let currentDirChoices = async (
-    startPath,
-    dirFilter = () => true
-  ) => {
+  let currentDirChoices = async (startPath, dirFilter = () => true) => {
     try {
       let choices = await createPathChoices(startPath, {
         dirFilter: dirFilter as (dirent: any) => true,
-        onlyDirs,
+        onlyDirs
       })
 
       choices.push(...missingChoices)
 
       await setChoices(choices, {
         skipInitialSearch: false,
-        inputRegex: `[^\\${path.sep}]+$`,
+        inputRegex: `[^\\${path.sep}]+$`
       })
       setPauseResize(false)
       if (focusOn) {
         setFocused(focusOn)
       }
-      focusOn = ""
+      focusOn = ''
     } catch (error) {
       setPanel(
         md(`### Failed to read ${startPath}
@@ -238,20 +188,17 @@ ${error}
   let inputRegex = `[^\\${path.sep}]+$`
   setFilterInput(inputRegex)
 
-  if (
-    !startPath.endsWith(path.sep) &&
-    (await isDir(startPath))
-  ) {
+  if (!startPath.endsWith(path.sep) && (await isDir(startPath))) {
     startPath += path.sep
   }
   let slashCount = startPath.split(path.sep).length
 
-  let lsCurrentDir = async input => {
+  let lsCurrentDir = async (input) => {
     // if (!input) {
     //   await mainScript()
     // }
 
-    if (input?.startsWith("~")) {
+    if (input?.startsWith('~')) {
       startPath = home()
     }
 
@@ -268,7 +215,7 @@ ${error}
     }
   }
 
-  let upDir = async dir => {
+  let upDir = async (dir) => {
     if (dir?.miss) {
       return
     }
@@ -278,21 +225,17 @@ ${error}
     }
   }
 
-  let downDir = async dir => {
+  let downDir = async (dir) => {
     if (dir?.miss) {
       return
     }
     let targetPath = ogPath.resolve(startPath, dir)
     let allowed = true
     let needsPermission =
-      targetPath === home("Downloads") ||
-      targetPath === home("Documents") ||
-      targetPath === home("Desktop")
+      targetPath === home('Downloads') || targetPath === home('Documents') || targetPath === home('Desktop')
 
     if (needsPermission && isMac) {
-      let testFile = createPathResolver(targetPath)(
-        `._kit_test_file_${Date.now()}.txt`
-      )
+      let testFile = createPathResolver(targetPath)(`._kit_test_file_${Date.now()}.txt`)
       await writeFile(testFile, `success`)
       allowed = await isFile(testFile)
       if (allowed) {
@@ -317,31 +260,33 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       await div({
         html,
 
-        enter: "Back to Main",
+        enter: 'Back to Main',
         shortcuts: [
           {
-            name: "Quit",
+            name: 'Quit',
             key: `${cmd}+q`,
-            bar: "right",
+            bar: 'right',
             onPress: () => {
               send(Channel.QUIT_APP)
-            },
-          },
-        ],
+            }
+          }
+        ]
       })
 
       await mainScript()
     }
   }
 
-  let currentInput = ``
-  let prevInput = ``
+  let currentInput = ''
+  let prevInput = ''
   let onInput = async (input, state) => {
     let inputLess = input.length < prevInput.length
     prevInput = input
     currentInput = input
-    setEnter((config as PathConfig)?.enter || "Actions")
-    if (onInputHook) onInputHook(input, state)
+    setEnter((config as PathConfig)?.enter || 'Actions')
+    if (onInputHook) {
+      onInputHook(input, state)
+    }
     // if (input.endsWith(">")) {
     //   let choices = await createPathChoices(
     //     startPath,
@@ -370,9 +315,11 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     //   return
     // }
 
-    if (!input) return
+    if (!input) {
+      return
+    }
 
-    if (input?.startsWith("~")) {
+    if (input?.startsWith('~')) {
       setInput(home() + path.sep)
       return
     }
@@ -391,10 +338,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     //   return
     // }
     let currentSlashCount = input?.split(path.sep).length
-    if (
-      currentSlashCount != slashCount ||
-      (input.endsWith(path.sep) && inputLess)
-    ) {
+    if (currentSlashCount !== slashCount || (input.endsWith(path.sep) && inputLess)) {
       slashCount = currentSlashCount
       await lsCurrentDir(input)
     }
@@ -403,7 +347,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   let onTab = (input, state) => {
     let dir = state.focused.value
 
-    if (state.modifiers.includes("shift")) {
+    if (state.modifiers.includes('shift')) {
       upDir(dir)
     } else {
       downDir(dir)
@@ -422,45 +366,40 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     mainScript()
   }
 
-  let sort = "name"
-  let dir = "desc"
+  let sort = 'name'
+  let dir = 'desc'
   let sorters = {
-    date: ({ mtime: a }, { mtime: b }) =>
-      dir === "asc" ? compareAsc(a, b) : compareAsc(b, a),
-    name: ({ name: a }, { name: b }) =>
-      dir === "desc" ? (a > b ? 1 : -1) : a > b ? -1 : 1,
-    size: ({ size: a }, { size: b }) =>
-      dir === "asc" ? (a > b ? 1 : -1) : a > b ? -1 : 1,
+    date: ({ mtime: a }, { mtime: b }) => (dir === 'asc' ? compareAsc(a, b) : compareAsc(b, a)),
+    name: ({ name: a }, { name: b }) => (dir === 'desc' ? (a > b ? 1 : -1) : a > b ? -1 : 1),
+    size: ({ size: a }, { size: b }) => (dir === 'asc' ? (a > b ? 1 : -1) : a > b ? -1 : 1)
   }
-  let createSorter = (s: "date" | "name" | "size") => {
+  let createSorter = (s: 'date' | 'name' | 'size') => {
     return async () => {
       if (sort !== s) {
-        dir = "desc"
+        dir = 'desc'
       } else {
-        dir = dir === "asc" ? "desc" : "asc"
+        dir = dir === 'asc' ? 'desc' : 'asc'
       }
 
       sort = s
       let dirSort = sorters[s] as any
       let choices = await createPathChoices(startPath, {
-        dirFilter: dirent => true,
+        dirFilter: (dirent) => true,
         dirSort,
-        onlyDirs,
+        onlyDirs
       })
 
       setChoices(choices)
       setPauseResize(false)
     }
   }
-  let bar = (config as PromptConfig)?.shortcuts?.length
-    ? ""
-    : ("right" as PromptConfig["shortcuts"][0]["bar"])
+  let bar = (config as PromptConfig)?.shortcuts?.length ? '' : ('right' as PromptConfig['shortcuts'][0]['bar'])
   setPauseResize(true)
   let selectedPath = await arg(
     {
-      placeholder: "Browse",
+      placeholder: 'Browse',
       ...(config as PromptConfig),
-      inputCommandChars: ["/"],
+      inputCommandChars: ['/'],
       input: startPath,
       inputRegex: `[^\\${path.sep}]+$`,
       onInput,
@@ -479,46 +418,48 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       },
       shortcuts: [
         {
-          name: "Out",
-          key: "left",
+          name: 'Out',
+          key: 'left',
           bar,
-          onPress: onLeft,
+          onPress: onLeft
         },
         {
-          name: "In",
-          key: "right",
+          name: 'In',
+          key: 'right',
           bar,
-          onPress: onRight,
+          onPress: onRight
         },
         {
-          name: "Name",
+          name: 'Name',
           key: `${cmd}+,`,
-          onPress: createSorter("name"),
+          onPress: createSorter('name'),
           visible: true,
-          bar,
+          bar
         },
         {
-          name: "Size",
+          name: 'Size',
           key: `${cmd}+.`,
-          onPress: createSorter("size"),
+          onPress: createSorter('size'),
           visible: true,
-          bar,
+          bar
         },
         {
-          name: "Date",
+          name: 'Date',
           visible: true,
           key: `${cmd}+/`,
-          onPress: createSorter("date"),
-          bar,
+          onPress: createSorter('date'),
+          bar
         },
-        ...((config as PromptConfig).shortcuts || []),
-      ],
+        ...((config as PromptConfig).shortcuts || [])
+      ]
     },
     initialChoices
   )
 
-  if (!selectedPath) return ""
-  if (selectedPath === "create-file") {
+  if (!selectedPath) {
+    return ''
+  }
+  if (selectedPath === 'create-file') {
     selectedPath = currentInput
     let doesPathExist = await pathExists(selectedPath)
     if (!doesPathExist) {
@@ -526,7 +467,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
-  if (selectedPath === "create-folder") {
+  if (selectedPath === 'create-folder') {
     selectedPath = currentInput
     let doesPathExist = await pathExists(selectedPath)
     if (!doesPathExist) {
@@ -534,7 +475,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
-  if (selectedPath === "select-anyway") {
+  if (selectedPath === 'select-anyway') {
     selectedPath = currentInput
   }
 
@@ -543,9 +484,9 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
 
 global.path = new Proxy(__pathSelector, {
   get: (target, k: string) => {
-    if (k === "then") return __pathSelector
+    if (k === 'then') return __pathSelector
     return ogPath[k]
-  },
+  }
 }) as any
 
 export const path = global.path

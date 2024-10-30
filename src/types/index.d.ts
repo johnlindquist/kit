@@ -6,18 +6,18 @@ import type { PlatformApi } from "./platform"
 import type { ProAPI } from "./pro"
 
 export type GlobalApi = Omit<GlobalsApi, "path"> &
-	KitApi &
-	PackagesApi &
-	PlatformApi &
-	AppApi &
-	ProAPI
+  KitApi &
+  PackagesApi &
+  PlatformApi &
+  AppApi &
+  ProAPI
 
 declare global {
-	var kit: GlobalApi & Run
+  var kit: GlobalApi & Run
+}
 
-	namespace NodeJS {
-		interface Global extends GlobalApi {}
-	}
+declare module "node:globals" {
+  interface Global extends GlobalApi {}
 }
 
 export * from "./core"

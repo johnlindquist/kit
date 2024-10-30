@@ -46,11 +46,11 @@ importers:
         specifier: npm:@johnlindquist/no-dom@^1.0.2
         version: '@johnlindquist/no-dom@1.0.2'
       acorn:
-        specifier: ^8.13.0
-        version: 8.13.0
+        specifier: ^8.14.0
+        version: 8.14.0
       acorn-typescript:
         specifier: ^1.4.13
-        version: 1.4.13(acorn@8.13.0)
+        version: 1.4.13(acorn@8.14.0)
       advanced-calculator:
         specifier: 1.1.1
         version: 1.1.1
@@ -141,20 +141,20 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: ^22.8.0
-        version: 22.8.0
+        specifier: ^22.8.4
+        version: 22.8.4
       '@types/node-ipc':
         specifier: 9.2.3
         version: 9.2.3
       ava:
-        specifier: ^6.1.3
-        version: 6.1.3
+        specifier: ^6.2.0
+        version: 6.2.0
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
       cz-conventional-changelog:
         specifier: ^3.3.0
-        version: 3.3.0(@types/node@22.8.0)(typescript@5.6.3)
+        version: 3.3.0(@types/node@22.8.4)(typescript@5.6.3)
       debug:
         specifier: 4.3.7
         version: 4.3.7
@@ -162,8 +162,8 @@ importers:
         specifier: ^1.15.0
         version: 1.15.0
       semantic-release:
-        specifier: 24.1.3
-        version: 24.1.3(typescript@5.6.3)
+        specifier: 24.2.0
+        version: 24.2.0(typescript@5.6.3)
       semantic-release-plugin-update-version-in-files:
         specifier: 1.1.0
         version: 1.1.0
@@ -171,8 +171,8 @@ importers:
         specifier: 6.2.0
         version: 6.2.0(typescript@5.6.3)
       tsx:
-        specifier: 4.19.1
-        version: 4.19.1
+        specifier: 4.19.2
+        version: 4.19.2
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -181,7 +181,7 @@ importers:
         version: 0.12.3
       vite:
         specifier: 5.4.10
-        version: 5.4.10(@types/node@22.8.0)
+        version: 5.4.10(@types/node@22.8.4)
 
 packages:
 
@@ -697,8 +697,8 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
-  '@types/node@22.8.0':
-    resolution: {integrity: sha512-84rafSBHC/z1i1E3p0cJwKA+CfYDNSXX9WSZBRopjIzLET8oNt6ht2tei4C7izwDeEiLLfdeSVBv1egOH916hg==}
+  '@types/node@22.8.4':
+    resolution: {integrity: sha512-SpNNxkftTJOPk0oN+y2bIqurEXHTA2AOZ3EJDDKeJ5VzkvvORSvmQXGQarcOzWV1ac7DCaPBEdMDxBsM+d8jWw==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -712,8 +712,8 @@ packages:
   '@types/shelljs@0.8.15':
     resolution: {integrity: sha512-vzmnCHl6hViPu9GNLQJ+DZFd6BQI2DBTUeOvYHqkWQLMfKAAQYMb/xAmZkTogZI/vqXHCWkqDRymDI5p0QTi5Q==}
 
-  '@vercel/nft@0.26.5':
-    resolution: {integrity: sha512-NHxohEqad6Ra/r4lGknO52uc/GrWILXAMs1BB4401GTqww0fw1bAqzpG1XHuDO+dprg4GvsD9ZLLSsdo78p9hQ==}
+  '@vercel/nft@0.27.5':
+    resolution: {integrity: sha512-b2A7M+4yMHdWKY7xCC+kBEcnMrpaSE84CnuauTjhKKoCEeej0byJMAB8h/RBVnw/HdZOAFVcxR0Izr3LL24FwA==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -744,8 +744,8 @@ packages:
     resolution: {integrity: sha512-OPdCF6GsMIP+Az+aWfAAOEt2/+iVDKE7oy6lJ098aoe59oAmK76qV6Gw60SbZ8jHuG2wH058GF4pLFbYamYrVA==}
     engines: {node: '>=0.4.0'}
 
-  acorn-walk@8.3.3:
-    resolution: {integrity: sha512-MxXdReSRhGO7VlFe1bRG/oI7/mdLV9B9JJT0N8vZOhF7gFRR5l3M8W9G8JxmKV+JC5mGqJ0QvqfSOLsCPa4nUw==}
+  acorn-walk@8.3.4:
+    resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
     engines: {node: '>=0.4.0'}
 
   acorn@5.7.4:
@@ -758,8 +758,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  acorn@8.13.0:
-    resolution: {integrity: sha512-8zSiw54Oxrdym50NlZ9sUusyO1Z1ZchgRLWRaK6c86XJFClyCgFKetdowBg5bKxyp/u+CDBJG4Mpp0m3HLZl9w==}
+  acorn@8.14.0:
+    resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -887,9 +887,9 @@ packages:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
 
-  ava@6.1.3:
-    resolution: {integrity: sha512-tkKbpF1pIiC+q09wNU9OfyTDYZa8yuWvU2up3+lFJ3lr1RmnYh2GBpPwzYUEB0wvTPIUysGjcZLNZr7STDviRA==}
-    engines: {node: ^18.18 || ^20.8 || ^21 || ^22}
+  ava@6.2.0:
+    resolution: {integrity: sha512-+GZk5PbyepjiO/68hzCZCUepQOQauKfNnI7sA4JukBTg97jD7E+tDKEA7OhGOGr6EorNNMM9+jqvgHVOTOzG4w==}
+    engines: {node: ^18.18 || ^20.8 || ^22 || >=23}
     hasBin: true
     peerDependencies:
       '@ava/typescript': '*'
@@ -2824,9 +2824,9 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
 
-  picomatch@3.0.1:
-    resolution: {integrity: sha512-I3EurrIQMlRc9IaAZnqRR044Phh2DXY+55o7uJ0V+hYZAcQYSuFWsc9q5PvyDHUSCe1Qxn/iBz+78s86zWnGag==}
-    engines: {node: '>=10'}
+  picomatch@4.0.2:
+    resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
+    engines: {node: '>=12'}
 
   pify@3.0.0:
     resolution: {integrity: sha512-C3FsVNH1udSEX48gGX1xfvwTWfsYWj5U+8/uK15BGzIGrKoUpghX8hWZwa/OFnakBiiVNmBvemTJR5mcy7iPcg==}
@@ -3063,8 +3063,8 @@ packages:
   semantic-release-plugin-update-version-in-files@1.1.0:
     resolution: {integrity: sha512-OWBrved3Rr0w3YP4iID81MhG9qhGrG+XtxdO9VMhKJ9qte3yBdMz5cSxDiPE/uhnGJQF00fqQetY3yhHFGabWw==}
 
-  semantic-release@24.1.3:
-    resolution: {integrity: sha512-Cb0Pm3Ye15u8k/B+7EnusMUSIIucAIEBD3QDRmmclv53KVyqmg1Lb3XPx0AMNxfJZEI+ZT+M+IXDyTrudK6Rew==}
+  semantic-release@24.2.0:
+    resolution: {integrity: sha512-fQfn6e/aYToRtVJYKqneFM1Rg3KP2gh3wSWtpYsLlz6uaPKlISrTzvYAFn+mYWo07F0X1Cz5ucU89AVE8X1mbg==}
     engines: {node: '>=20.8.1'}
     hasBin: true
 
@@ -3424,8 +3424,8 @@ packages:
   tslib@2.7.0:
     resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
 
-  tsx@4.19.1:
-    resolution: {integrity: sha512-0flMz1lh74BR4wOvBjuh9olbnwqCPc35OOlfyzHba0Dc+QNUeWX/Gq2YTbnwcWPO3BMd8fkzRVrHcsR+a7z7rA==}
+  tsx@4.19.2:
+    resolution: {integrity: sha512-pOUl6Vo2LUq/bSa8S5q7b91cgNSjctn9ugq/+Mvow99qW6x/UZYwzxy/3NmqoT66eHYfCVvFvACC58UBPFf28g==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -3633,9 +3633,9 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  write-file-atomic@5.0.1:
-    resolution: {integrity: sha512-+QU2zd6OTD8XWIJCbffaiQeH9U73qIqafo1x6V1snCWYGJf6cVE0cDR4D8xRzcEnfI21IFrUPzPGtcPf8AC+Rw==}
-    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+  write-file-atomic@6.0.0:
+    resolution: {integrity: sha512-GmqrO8WJ1NuzJ2DrziEI2o57jKAVIQNf8a18W3nCYU3H7PNWqCCVTeH6/NQE93CIllIgQS98rrmVkYgTX9fFJQ==}
+    engines: {node: ^18.17.0 || >=20.5.0}
 
   xtend@2.1.2:
     resolution: {integrity: sha512-vMNKzr2rHP9Dp/e1NQFnLQlwlhp9L/LfvnsVdHxN1f+uggyVI3i08uD14GPvCToPkdsRfyPqIyYGmIk58V98ZQ==}
@@ -3740,7 +3740,7 @@ snapshots:
   '@commitlint/execute-rule@19.0.0':
     optional: true
 
-  '@commitlint/load@19.4.0(@types/node@22.8.0)(typescript@5.6.3)':
+  '@commitlint/load@19.4.0(@types/node@22.8.4)(typescript@5.6.3)':
     dependencies:
       '@commitlint/config-validator': 19.0.3
       '@commitlint/execute-rule': 19.0.0
@@ -3748,7 +3748,7 @@ snapshots:
       '@commitlint/types': 19.0.3
       chalk: 5.3.0
       cosmiconfig: 9.0.0(typescript@5.6.3)
-      cosmiconfig-typescript-loader: 5.0.0(@types/node@22.8.0)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3)
+      cosmiconfig-typescript-loader: 5.0.0(@types/node@22.8.4)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -4056,7 +4056,7 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
-  '@semantic-release/commit-analyzer@13.0.0(semantic-release@24.1.3(typescript@5.6.3))':
+  '@semantic-release/commit-analyzer@13.0.0(semantic-release@24.2.0(typescript@5.6.3))':
     dependencies:
       conventional-changelog-angular: 8.0.0
       conventional-changelog-writer: 8.0.0
@@ -4066,13 +4066,13 @@ snapshots:
       import-from-esm: 1.3.4
       lodash-es: 4.17.21
       micromatch: 4.0.8
-      semantic-release: 24.1.3(typescript@5.6.3)
+      semantic-release: 24.2.0(typescript@5.6.3)
     transitivePeerDependencies:
       - supports-color
 
   '@semantic-release/error@4.0.0': {}
 
-  '@semantic-release/github@11.0.0(semantic-release@24.1.3(typescript@5.6.3))':
+  '@semantic-release/github@11.0.0(semantic-release@24.2.0(typescript@5.6.3))':
     dependencies:
       '@octokit/core': 6.1.2
       '@octokit/plugin-paginate-rest': 11.3.5(@octokit/core@6.1.2)
@@ -4089,12 +4089,12 @@ snapshots:
       lodash-es: 4.17.21
       mime: 4.0.4
       p-filter: 4.1.0
-      semantic-release: 24.1.3(typescript@5.6.3)
+      semantic-release: 24.2.0(typescript@5.6.3)
       url-join: 5.0.0
     transitivePeerDependencies:
       - supports-color
 
-  '@semantic-release/npm@12.0.1(semantic-release@24.1.3(typescript@5.6.3))':
+  '@semantic-release/npm@12.0.1(semantic-release@24.2.0(typescript@5.6.3))':
     dependencies:
       '@semantic-release/error': 4.0.0
       aggregate-error: 5.0.0
@@ -4107,11 +4107,11 @@ snapshots:
       rc: 1.2.8
       read-pkg: 9.0.1
       registry-auth-token: 5.0.2
-      semantic-release: 24.1.3(typescript@5.6.3)
+      semantic-release: 24.2.0(typescript@5.6.3)
       semver: 7.6.3
       tempy: 3.1.0
 
-  '@semantic-release/release-notes-generator@14.0.1(semantic-release@24.1.3(typescript@5.6.3))':
+  '@semantic-release/release-notes-generator@14.0.1(semantic-release@24.2.0(typescript@5.6.3))':
     dependencies:
       conventional-changelog-angular: 8.0.0
       conventional-changelog-writer: 8.0.0
@@ -4123,7 +4123,7 @@ snapshots:
       into-stream: 7.0.0
       lodash-es: 4.17.21
       read-package-up: 11.0.0
-      semantic-release: 24.1.3(typescript@5.6.3)
+      semantic-release: 24.2.0(typescript@5.6.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -4135,7 +4135,7 @@ snapshots:
 
   '@types/conventional-commits-parser@5.0.0':
     dependencies:
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
     optional: true
 
   '@types/debug@4.1.12':
@@ -4147,17 +4147,17 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
     optional: true
 
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
     optional: true
 
   '@types/minimatch@5.1.2': {}
@@ -4166,12 +4166,12 @@ snapshots:
 
   '@types/node-ipc@9.2.3':
     dependencies:
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
 
   '@types/node@12.20.55':
     optional: true
 
-  '@types/node@22.8.0':
+  '@types/node@22.8.4':
     dependencies:
       undici-types: 6.19.8
 
@@ -4184,14 +4184,14 @@ snapshots:
   '@types/shelljs@0.8.15':
     dependencies:
       '@types/glob': 7.2.0
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
 
-  '@vercel/nft@0.26.5':
+  '@vercel/nft@0.27.5':
     dependencies:
       '@mapbox/node-pre-gyp': 1.0.11
       '@rollup/pluginutils': 4.2.1
-      acorn: 8.13.0
-      acorn-import-attributes: 1.9.5(acorn@8.13.0)
+      acorn: 8.14.0
+      acorn-import-attributes: 1.9.5(acorn@8.14.0)
       async-sema: 3.1.1
       bindings: 1.5.0
       estree-walker: 2.0.2
@@ -4217,9 +4217,9 @@ snapshots:
       balanced-match: 0.2.1
       dot-parts: 1.0.1
 
-  acorn-import-attributes@1.9.5(acorn@8.13.0):
+  acorn-import-attributes@1.9.5(acorn@8.14.0):
     dependencies:
-      acorn: 8.13.0
+      acorn: 8.14.0
 
   acorn-node@1.8.2:
     dependencies:
@@ -4227,21 +4227,21 @@ snapshots:
       acorn-walk: 7.2.0
       xtend: 4.0.2
 
-  acorn-typescript@1.4.13(acorn@8.13.0):
+  acorn-typescript@1.4.13(acorn@8.14.0):
     dependencies:
-      acorn: 8.13.0
+      acorn: 8.14.0
 
   acorn-walk@7.2.0: {}
 
-  acorn-walk@8.3.3:
+  acorn-walk@8.3.4:
     dependencies:
-      acorn: 8.13.0
+      acorn: 8.14.0
 
   acorn@5.7.4: {}
 
   acorn@7.4.1: {}
 
-  acorn@8.13.0: {}
+  acorn@8.14.0: {}
 
   advanced-calculator@1.1.1: {}
 
@@ -4362,11 +4362,11 @@ snapshots:
 
   at-least-node@1.0.0: {}
 
-  ava@6.1.3:
+  ava@6.2.0:
     dependencies:
-      '@vercel/nft': 0.26.5
-      acorn: 8.13.0
-      acorn-walk: 8.3.3
+      '@vercel/nft': 0.27.5
+      acorn: 8.14.0
+      acorn-walk: 8.3.4
       ansi-styles: 6.2.1
       arrgv: 1.0.2
       arrify: 3.0.0
@@ -4394,7 +4394,7 @@ snapshots:
       ms: 2.1.3
       p-map: 7.0.2
       package-config: 5.0.0
-      picomatch: 3.0.1
+      picomatch: 4.0.2
       plur: 5.1.0
       pretty-ms: 9.1.0
       resolve-cwd: 3.0.0
@@ -4402,7 +4402,7 @@ snapshots:
       strip-ansi: 7.1.0
       supertap: 3.0.1
       temp-dir: 3.0.0
-      write-file-atomic: 5.0.1
+      write-file-atomic: 6.0.0
       yargs: 17.7.2
     transitivePeerDependencies:
       - encoding
@@ -4772,10 +4772,10 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  commitizen@4.3.0(@types/node@22.8.0)(typescript@5.6.3):
+  commitizen@4.3.0(@types/node@22.8.4)(typescript@5.6.3):
     dependencies:
       cachedir: 2.3.0
-      cz-conventional-changelog: 3.3.0(@types/node@22.8.0)(typescript@5.6.3)
+      cz-conventional-changelog: 3.3.0(@types/node@22.8.4)(typescript@5.6.3)
       dedent: 0.7.0
       detect-indent: 6.1.0
       find-node-modules: 2.1.3
@@ -4868,9 +4868,9 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@5.0.0(@types/node@22.8.0)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3):
+  cosmiconfig-typescript-loader@5.0.0(@types/node@22.8.4)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3):
     dependencies:
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
       cosmiconfig: 9.0.0(typescript@5.6.3)
       jiti: 1.21.6
       typescript: 5.6.3
@@ -4941,16 +4941,16 @@ snapshots:
     dependencies:
       array-find-index: 1.0.2
 
-  cz-conventional-changelog@3.3.0(@types/node@22.8.0)(typescript@5.6.3):
+  cz-conventional-changelog@3.3.0(@types/node@22.8.4)(typescript@5.6.3):
     dependencies:
       chalk: 2.4.2
-      commitizen: 4.3.0(@types/node@22.8.0)(typescript@5.6.3)
+      commitizen: 4.3.0(@types/node@22.8.4)(typescript@5.6.3)
       conventional-commit-types: 3.0.0
       lodash.map: 4.6.0
       longest: 2.0.1
       word-wrap: 1.2.5
     optionalDependencies:
-      '@commitlint/load': 19.4.0(@types/node@22.8.0)(typescript@5.6.3)
+      '@commitlint/load': 19.4.0(@types/node@22.8.4)(typescript@5.6.3)
     transitivePeerDependencies:
       - '@types/node'
       - typescript
@@ -6396,7 +6396,7 @@ snapshots:
 
   picomatch@2.3.1: {}
 
-  picomatch@3.0.1: {}
+  picomatch@4.0.2: {}
 
   pify@3.0.0: {}
 
@@ -6688,13 +6688,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  semantic-release@24.1.3(typescript@5.6.3):
+  semantic-release@24.2.0(typescript@5.6.3):
     dependencies:
-      '@semantic-release/commit-analyzer': 13.0.0(semantic-release@24.1.3(typescript@5.6.3))
+      '@semantic-release/commit-analyzer': 13.0.0(semantic-release@24.2.0(typescript@5.6.3))
       '@semantic-release/error': 4.0.0
-      '@semantic-release/github': 11.0.0(semantic-release@24.1.3(typescript@5.6.3))
-      '@semantic-release/npm': 12.0.1(semantic-release@24.1.3(typescript@5.6.3))
-      '@semantic-release/release-notes-generator': 14.0.1(semantic-release@24.1.3(typescript@5.6.3))
+      '@semantic-release/github': 11.0.0(semantic-release@24.2.0(typescript@5.6.3))
+      '@semantic-release/npm': 12.0.1(semantic-release@24.2.0(typescript@5.6.3))
+      '@semantic-release/release-notes-generator': 14.0.1(semantic-release@24.2.0(typescript@5.6.3))
       aggregate-error: 5.0.0
       cosmiconfig: 9.0.0(typescript@5.6.3)
       debug: 4.3.7
@@ -7093,7 +7093,7 @@ snapshots:
 
   tslib@2.7.0: {}
 
-  tsx@4.19.1:
+  tsx@4.19.2:
     dependencies:
       esbuild: 0.24.0
       get-tsconfig: 4.8.1
@@ -7202,13 +7202,13 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.3.0
 
-  vite@5.4.10(@types/node@22.8.0):
+  vite@5.4.10(@types/node@22.8.4):
     dependencies:
       esbuild: 0.24.0
       postcss: 8.4.47
       rollup: 4.24.0
     optionalDependencies:
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
       fsevents: 2.3.3
 
   vm-browserify@0.0.4:
@@ -7258,7 +7258,7 @@ snapshots:
 
   wrappy@1.0.2: {}
 
-  write-file-atomic@5.0.1:
+  write-file-atomic@6.0.0:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
@@ -7302,4 +7302,4 @@ snapshots:
   zx@8.1.9:
     optionalDependencies:
       '@types/fs-extra': 11.0.4
-      '@types/node': 22.8.0
+      '@types/node': 22.8.4
