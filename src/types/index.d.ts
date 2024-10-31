@@ -14,9 +14,6 @@ export type GlobalApi = Omit<GlobalsApi, "path"> &
 
 declare global {
   var kit: GlobalApi & Run
-}
-
-declare module "node:globals" {
   interface Global extends GlobalApi {}
 }
 

@@ -107,12 +107,12 @@
     "suggestion": "2.1.2",
     "tmp-promise": "3.0.3",
     "untildify": "5.0.0",
-    "zx": "^8.1.9"
+    "zx": "^8.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.8.4",
+    "@types/node": "^22.8.6",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",

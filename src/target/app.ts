@@ -836,7 +836,7 @@ let waitForPromptValue = ({
             }
 
             default:
-              warn(`Unknown channel: ${data.channel}`)
+              // warn(`Unknown channel: ${data.channel}`)
               break
           }
         },

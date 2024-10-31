@@ -124,8 +124,8 @@ importers:
         specifier: 5.0.0
         version: 5.0.0
       zx:
-        specifier: ^8.1.9
-        version: 8.1.9
+        specifier: ^8.2.0
+        version: 8.2.0
     optionalDependencies:
       file-icon:
         specifier: 5.1.1
@@ -141,8 +141,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: ^22.8.4
-        version: 22.8.4
+        specifier: ^22.8.6
+        version: 22.8.6
       '@types/node-ipc':
         specifier: 9.2.3
         version: 9.2.3
@@ -154,7 +154,7 @@ importers:
         version: 7.0.3
       cz-conventional-changelog:
         specifier: ^3.3.0
-        version: 3.3.0(@types/node@22.8.4)(typescript@5.6.3)
+        version: 3.3.0(@types/node@22.8.6)(typescript@5.6.3)
       debug:
         specifier: 4.3.7
         version: 4.3.7
@@ -181,7 +181,7 @@ importers:
         version: 0.12.3
       vite:
         specifier: 5.4.10
-        version: 5.4.10(@types/node@22.8.4)
+        version: 5.4.10(@types/node@22.8.6)
 
 packages:
 
@@ -697,8 +697,8 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
-  '@types/node@22.8.4':
-    resolution: {integrity: sha512-SpNNxkftTJOPk0oN+y2bIqurEXHTA2AOZ3EJDDKeJ5VzkvvORSvmQXGQarcOzWV1ac7DCaPBEdMDxBsM+d8jWw==}
+  '@types/node@22.8.6':
+    resolution: {integrity: sha512-tosuJYKrIqjQIlVCM4PEGxOmyg3FCPa/fViuJChnGeEIhjA46oy8FMVoF9su1/v8PNs2a8Q0iFNyOx0uOF91nw==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -3672,8 +3672,8 @@ packages:
     resolution: {integrity: sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==}
     engines: {node: '>=18'}
 
-  zx@8.1.9:
-    resolution: {integrity: sha512-UHuLHphHmsBYKkAchkSrEN4nzDyagafqC9HUxtc1J7eopaScW6H9dsLJ1lmkAntnLtDTGoM8fa+jrJrXiIfKFA==}
+  zx@8.2.0:
+    resolution: {integrity: sha512-ec7Z1Ki9h4CsKqbMjZ8H7G1PbbZYErscxT314LF66Ljx1YRENisqa5m9IN2VjbYgOKxdv5t0MbVd3Hf+II3e7w==}
     engines: {node: '>= 12.17.0'}
     hasBin: true
 
@@ -3740,7 +3740,7 @@ snapshots:
   '@commitlint/execute-rule@19.0.0':
     optional: true
 
-  '@commitlint/load@19.4.0(@types/node@22.8.4)(typescript@5.6.3)':
+  '@commitlint/load@19.4.0(@types/node@22.8.6)(typescript@5.6.3)':
     dependencies:
       '@commitlint/config-validator': 19.0.3
       '@commitlint/execute-rule': 19.0.0
@@ -3748,7 +3748,7 @@ snapshots:
       '@commitlint/types': 19.0.3
       chalk: 5.3.0
       cosmiconfig: 9.0.0(typescript@5.6.3)
-      cosmiconfig-typescript-loader: 5.0.0(@types/node@22.8.4)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3)
+      cosmiconfig-typescript-loader: 5.0.0(@types/node@22.8.6)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -4135,7 +4135,7 @@ snapshots:
 
   '@types/conventional-commits-parser@5.0.0':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
     optional: true
 
   '@types/debug@4.1.12':
@@ -4147,17 +4147,17 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
     optional: true
 
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
     optional: true
 
   '@types/minimatch@5.1.2': {}
@@ -4166,12 +4166,12 @@ snapshots:
 
   '@types/node-ipc@9.2.3':
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
 
   '@types/node@12.20.55':
     optional: true
 
-  '@types/node@22.8.4':
+  '@types/node@22.8.6':
     dependencies:
       undici-types: 6.19.8
 
@@ -4184,7 +4184,7 @@ snapshots:
   '@types/shelljs@0.8.15':
     dependencies:
       '@types/glob': 7.2.0
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
 
   '@vercel/nft@0.27.5':
     dependencies:
@@ -4772,10 +4772,10 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  commitizen@4.3.0(@types/node@22.8.4)(typescript@5.6.3):
+  commitizen@4.3.0(@types/node@22.8.6)(typescript@5.6.3):
     dependencies:
       cachedir: 2.3.0
-      cz-conventional-changelog: 3.3.0(@types/node@22.8.4)(typescript@5.6.3)
+      cz-conventional-changelog: 3.3.0(@types/node@22.8.6)(typescript@5.6.3)
       dedent: 0.7.0
       detect-indent: 6.1.0
       find-node-modules: 2.1.3
@@ -4868,9 +4868,9 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@5.0.0(@types/node@22.8.4)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3):
+  cosmiconfig-typescript-loader@5.0.0(@types/node@22.8.6)(cosmiconfig@9.0.0(typescript@5.6.3))(typescript@5.6.3):
     dependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
       cosmiconfig: 9.0.0(typescript@5.6.3)
       jiti: 1.21.6
       typescript: 5.6.3
@@ -4941,16 +4941,16 @@ snapshots:
     dependencies:
       array-find-index: 1.0.2
 
-  cz-conventional-changelog@3.3.0(@types/node@22.8.4)(typescript@5.6.3):
+  cz-conventional-changelog@3.3.0(@types/node@22.8.6)(typescript@5.6.3):
     dependencies:
       chalk: 2.4.2
-      commitizen: 4.3.0(@types/node@22.8.4)(typescript@5.6.3)
+      commitizen: 4.3.0(@types/node@22.8.6)(typescript@5.6.3)
       conventional-commit-types: 3.0.0
       lodash.map: 4.6.0
       longest: 2.0.1
       word-wrap: 1.2.5
     optionalDependencies:
-      '@commitlint/load': 19.4.0(@types/node@22.8.4)(typescript@5.6.3)
+      '@commitlint/load': 19.4.0(@types/node@22.8.6)(typescript@5.6.3)
     transitivePeerDependencies:
       - '@types/node'
       - typescript
@@ -7202,13 +7202,13 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.3.0
 
-  vite@5.4.10(@types/node@22.8.4):
+  vite@5.4.10(@types/node@22.8.6):
     dependencies:
       esbuild: 0.24.0
       postcss: 8.4.47
       rollup: 4.24.0
     optionalDependencies:
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
       fsevents: 2.3.3
 
   vm-browserify@0.0.4:
@@ -7299,7 +7299,7 @@ snapshots:
 
   yoctocolors@2.1.1: {}
 
-  zx@8.1.9:
+  zx@8.2.0:
     optionalDependencies:
       '@types/fs-extra': 11.0.4
-      '@types/node': 22.8.4
+      '@types/node': 22.8.6
