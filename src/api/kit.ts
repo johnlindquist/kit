@@ -446,7 +446,7 @@ if (process?.send) {
   global.console.log = (...args) => {
     let log = args
       .map(a =>
-        typeof a != "string" ? JSONSafe.stringify(a) : a
+        typeof a !== "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 
@@ -456,7 +456,7 @@ if (process?.send) {
   global.console.warn = (...args) => {
     let warn = args
       .map(a =>
-        typeof a != "string" ? JSONSafe.stringify(a) : a
+        typeof a !== "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 
@@ -470,7 +470,7 @@ if (process?.send) {
   global.console.error = (...args) => {
     let error = args
       .map(a =>
-        typeof a != "string" ? JSONSafe.stringify(a) : a
+        typeof a !== "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 
@@ -480,7 +480,7 @@ if (process?.send) {
   global.console.info = (...args) => {
     let info = args
       .map(a =>
-        typeof a != "string" ? JSONSafe.stringify(a) : a
+        typeof a !== "string" ? JSONSafe.stringify(a) : a
       )
       .join(" ")
 

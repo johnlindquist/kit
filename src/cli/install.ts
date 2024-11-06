@@ -35,14 +35,15 @@ let packages = await arg(
       "Which npm package/s would you like to install?",
   },
   async input => {
-    if (!input || input?.length < 3)
+    if (!input || input?.length < 3) {
       return [
         {
           info: true,
           miss: true,
-          name: `Search for npm packages`,
+          name: 'Search for npm packages',
         },
       ]
+    }
     type pkgs = {
       objects: {
         package: {

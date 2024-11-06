@@ -275,7 +275,7 @@ let createWidgetAPI = (widgetId: number) => {
       return
     }
 
-    global.warn(`No handler for ${data.channel}`)
+    // global.warn(`No handler for ${data.channel}`)
   }
 
   process.on("message", messageHandler)
