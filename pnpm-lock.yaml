@@ -91,8 +91,8 @@ importers:
         specifier: 6.1.0
         version: 6.1.0
       keyv:
-        specifier: ^5.1.3
-        version: 5.1.3
+        specifier: ^5.2.1
+        version: 5.2.1
       keyv-file:
         specifier: ^5.0.3
         version: 5.0.3
@@ -124,8 +124,8 @@ importers:
         specifier: 5.0.0
         version: 5.0.0
       zx:
-        specifier: ^8.2.0
-        version: 8.2.0
+        specifier: ^8.2.2
+        version: 8.2.2
     optionalDependencies:
       file-icon:
         specifier: 5.1.1
@@ -168,8 +168,8 @@ importers:
         specifier: 1.1.0
         version: 1.1.0
       tsc-watch:
-        specifier: 6.2.0
-        version: 6.2.0(typescript@5.6.3)
+        specifier: 6.2.1
+        version: 6.2.1(typescript@5.6.3)
       tsx:
         specifier: 4.19.2
         version: 4.19.2
@@ -180,8 +180,8 @@ importers:
         specifier: 0.12.3
         version: 0.12.3
       vite:
-        specifier: 5.4.10
-        version: 5.4.10(@types/node@22.9.0)
+        specifier: 5.4.11
+        version: 5.4.11(@types/node@22.9.0)
 
 packages:
 
@@ -2246,8 +2246,8 @@ packages:
   keyv-file@5.0.3:
     resolution: {integrity: sha512-VoX/Y+sMGM9O/d0PFNfuqQDt1cJaBDKgHDuauQeLfhd3S8LKZgqSsJRDoYBbMW8qvuv/1/TJhfAq4k/AXpWxYw==}
 
-  keyv@5.1.3:
-    resolution: {integrity: sha512-qWefZgq3GByWFTQgn+C9U7iaHe+mwAVb1utqbna15ggTO5RiLSL91NY+5liTgzchAhGhI6MOn5NVVn/eR1FkPA==}
+  keyv@5.2.1:
+    resolution: {integrity: sha512-tpIgCaY02VCW2Pz0zAn4guyct+IeH6Mb5wZdOvpe4oqXeQOJO0C3Wo8fTnf7P3ZD83Vr9kghbkNmzG3lTOhy/A==}
 
   labeled-stream-splicer@2.0.2:
     resolution: {integrity: sha512-Ca4LSXFFZUjPScRaqOcFxneA0VpKZr4MMYCljyQr4LIewTLb3Y0IUTIsnBBsVubIeEfxeSZpSjSsRM8APEQaAw==}
@@ -3411,8 +3411,8 @@ packages:
     resolution: {integrity: sha512-aXJDbk6SnumuaZSANd21XAo15ucCDE38H4fkqiGsc3MhCK+wOlZvLP9cB/TvpHT0mOyWgC4Z8EwRlzqYSUzdsA==}
     engines: {node: '>= 0.4'}
 
-  tsc-watch@6.2.0:
-    resolution: {integrity: sha512-2LBhf9kjKXnz7KQ/puLHlozMzzUNHAdYBNMkg3eksQJ9GBAgMg8czznM83T5PmsoUvDnXzfIeQn2lNcIYDr8LA==}
+  tsc-watch@6.2.1:
+    resolution: {integrity: sha512-GLwdz5Dy9K3sVm3RzgkLcyDpl5cvU9HEcE1A3gf5rqEwlUe7gDLxNCgcuNEw3zoKOiegMo3LnbF1t6HLqxhrSA==}
     engines: {node: '>=12.12.0'}
     hasBin: true
     peerDependencies:
@@ -3556,8 +3556,8 @@ packages:
     resolution: {integrity: sha512-ZZKSmDAEFOijERBLkmYfJ+vmk3w+7hOLYDNkRCuRuMJGEmqYNCNLyBBFwWKVMhfwaEF3WOd0Zlw86U/WC/+nYw==}
     engines: {'0': node >=0.6.0}
 
-  vite@5.4.10:
-    resolution: {integrity: sha512-1hvaPshuPUtxeQ0hsVH3Mud0ZanOLwVTneA1EgbAM5LhaZEqyPWGRQ7BtaMvUrTDeEaC8pxtj6a6jku3x4z6SQ==}
+  vite@5.4.11:
+    resolution: {integrity: sha512-c7jFQRklXua0mTzneGW9QVyxFjUgwcihC4bXEtujIo2ouWCe1Ajt/amn2PCxYnhYfd5k09JX3SB7OYWFKYqj8Q==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3672,8 +3672,8 @@ packages:
     resolution: {integrity: sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==}
     engines: {node: '>=18'}
 
-  zx@8.2.0:
-    resolution: {integrity: sha512-ec7Z1Ki9h4CsKqbMjZ8H7G1PbbZYErscxT314LF66Ljx1YRENisqa5m9IN2VjbYgOKxdv5t0MbVd3Hf+II3e7w==}
+  zx@8.2.2:
+    resolution: {integrity: sha512-HSIdpU5P2ONI0nssnhsUZNCH9Sd/Z8LIFk9n8QTbu6JufzJx7qR7ajrMN21s06JqWSApcN012377iWsv8Vs5bg==}
     engines: {node: '>= 12.17.0'}
     hasBin: true
 
@@ -5939,7 +5939,7 @@ snapshots:
       fs-extra: 4.0.3
       tslib: 1.14.1
 
-  keyv@5.1.3:
+  keyv@5.2.1:
     dependencies:
       '@keyv/serialize': 1.0.1
 
@@ -7081,7 +7081,7 @@ snapshots:
 
   traverse@0.6.8: {}
 
-  tsc-watch@6.2.0(typescript@5.6.3):
+  tsc-watch@6.2.1(typescript@5.6.3):
     dependencies:
       cross-spawn: 7.0.3
       node-cleanup: 2.1.2
@@ -7202,7 +7202,7 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.3.0
 
-  vite@5.4.10(@types/node@22.9.0):
+  vite@5.4.11(@types/node@22.9.0):
     dependencies:
       esbuild: 0.24.0
       postcss: 8.4.47
@@ -7299,7 +7299,7 @@ snapshots:
 
   yoctocolors@2.1.1: {}
 
-  zx@8.2.0:
+  zx@8.2.2:
     optionalDependencies:
       '@types/fs-extra': 11.0.4
       '@types/node': 22.9.0
