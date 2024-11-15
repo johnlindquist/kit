@@ -3365,7 +3365,7 @@ global.mic = (async (config: MicConfig = {}) => {
       escapeShortcut,
       {
         key: `${cmd}+i`,
-        name: `Select Mic`,
+        name: "Select Mic",
         onPress: async () => {
           await run(kitPath("cli", "select-mic.js"))
           await mainScript()
@@ -3377,6 +3377,9 @@ global.mic = (async (config: MicConfig = {}) => {
     ],
 
     timeSlice: 200,
+    filePath: tmpPath(
+      `mic-${global.formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")}.webm`
+    ),
     ...config,
   })
 

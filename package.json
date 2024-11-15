@@ -98,7 +98,7 @@
     "jsonfile": "6.1.0",
     "keyv": "^5.2.1",
     "keyv-file": "^5.0.3",
-    "p-retry": "6.2.0",
+    "p-retry": "6.2.1",
     "quick-score": "^0.2.0",
     "rimraf": "6.0.1",
     "safe-stable-stringify": "^2.5.0",
@@ -183,5 +183,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@9.13.1"
+  "packageManager": "pnpm@9.13.2"
 }
