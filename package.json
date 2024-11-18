@@ -16,7 +16,11 @@
     "url": "git+https://github.com/johnlindquist/kit.git"
   },
   "exports": {
-    ".": "./index.js",
+    ".": {
+      "import": "./index.js",
+      "default": "./index.js",
+      "types": "./types/index.d.ts"
+    },
     "./*": "./*",
     "./api/*": "./api/*.js",
     "./cli/*": "./cli/*.js",
@@ -70,7 +74,7 @@
     }
   },
   "dependencies": {
-    "@johnlindquist/globals": "1.16.4",
+    "@johnlindquist/globals": "1.16.5",
     "@johnlindquist/kit-internal": "^1.13.5",
     "@johnlindquist/open": "^10.1.1",
     "@octokit/auth-oauth-device": "7.1.1",

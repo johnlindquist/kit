@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@johnlindquist/globals':
-        specifier: 1.16.4
-        version: 1.16.4
+        specifier: 1.16.5
+        version: 1.16.5
       '@johnlindquist/kit-internal':
         specifier: ^1.13.5
         version: 1.13.5
@@ -422,8 +422,8 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
-  '@johnlindquist/globals@1.16.4':
-    resolution: {integrity: sha512-0OAIZQvze7medaG7KraDaaeKEn3xtT84YY4ZgAe9zHWz3f3ez1xjICIBug0cFfHPW6fAC402z41+U2VZB5E85Q==}
+  '@johnlindquist/globals@1.16.5':
+    resolution: {integrity: sha512-WFp4o+jiIW0OD4QN+2zDXh14U8cC9NrIKuyDvmvTd6c2Lk0eTpsQKmfOJKC1KvRm8IMOyo1akc+CA6617QiHZQ==}
 
   '@johnlindquist/kit-internal@1.13.5':
     resolution: {integrity: sha512-+49s4Y8WLTG+bZyuJ+i4MFab9/6yDabesGrnEuum+K9deYEXbCGuCJGfFIwAoShNwaVxXeWvJQEwnRQbtvwZyQ==}
@@ -3854,7 +3854,7 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
-  '@johnlindquist/globals@1.16.4':
+  '@johnlindquist/globals@1.16.5':
     dependencies:
       chalk-template: 0.4.0
       execa: 8.0.1
