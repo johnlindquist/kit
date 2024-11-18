@@ -17,9 +17,9 @@
   },
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "import": "./index.js",
-      "default": "./index.js",
-      "types": "./types/index.d.ts"
+      "default": "./index.js"
     },
     "./*": "./*",
     "./api/*": "./api/*.js",
