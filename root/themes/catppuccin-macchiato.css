@@ -1,0 +1,16 @@
+:root {
+  --name: "Catppuccin Macchiato";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #cad3f5;
+  --color-primary: #c6a0f6;
+  --color-secondary: #5b6078;
+  --color-background: #24273a;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  --serif-font: "ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif";
+}
