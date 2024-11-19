@@ -63,11 +63,14 @@ export function formatScriptlet(
 	return { formattedScriptlet: scriptlet, remainingInputs }
 }
 
+const h1Regex = /^#(?!#)/
+
 export let parseMarkdownAsScriptlets = async (
 	markdown: string
 ): Promise<Scriptlet[]> => {
 	let lines = markdown.trim().split("\n")
 
+	let currentGroup = "Scriptlets"
 	let currentScriptlet: Scriptlet
 	let currentMetadata: Metadata
 	let scriptlets = [] as Scriptlet[]
@@ -75,7 +78,13 @@ export let parseMarkdownAsScriptlets = async (
 	let parsingValue = false
 
 	for (const untrimmedLine of lines) {
-		let line = untrimmedLine?.length ? untrimmedLine.trim() : ""
+		let line = untrimmedLine?.length > 0 ? untrimmedLine.trim() : ""
+
+		// Check for H1 and set as current group
+		if (line.match(h1Regex)) {
+			currentGroup = line.replace(h1Regex, "").trim()
+			continue
+		}
 
 		if (line.startsWith("##") && !line.startsWith("###")) {
 			if (currentScriptlet) {
@@ -84,7 +93,7 @@ export let parseMarkdownAsScriptlets = async (
 			}
 			let name = line.replace("##", "").trim()
 			currentScriptlet = {
-				group: "Scriptlets",
+				group: currentGroup,
 				scriptlet: "",
 				tool: "",
 				name,
@@ -110,7 +119,9 @@ export let parseMarkdownAsScriptlets = async (
 		}
 
 		if (line.startsWith("```") || line.startsWith("~~~")) {
-			if (!currentScriptlet.tool) {
+			if (currentScriptlet.tool) {
+				parsingValue = false
+			} else {
 				let tool = line.replace("```", "").replace("~~~", "").trim()
 
 				if (tool === "") {
@@ -119,15 +130,13 @@ export let parseMarkdownAsScriptlets = async (
 
 				currentScriptlet.tool = tool
 
-				const toolHTML = ` 
+				const toolHTML = `
 
 <p class="hljs-tool-topper">${tool}</p>
 
 `.trim()
 				currentScriptlet.preview = `${toolHTML}\n${currentScriptlet.preview}`
 				parsingValue = true
-			} else {
-				parsingValue = false
 			}
 			continue
 		}
@@ -202,7 +211,7 @@ export let parseScriptletsFromPath = async (
 	let fileContents = await readFile(filePathWithoutAnchor, "utf8")
 	let scriptlets = await parseMarkdownAsScriptlets(fileContents)
 	for (let scriptlet of scriptlets) {
-		scriptlet.group = path.parse(filePathWithoutAnchor).name
+		// scriptlet.group = path.parse(filePathWithoutAnchor).name
 		scriptlet.filePath = `${filePathWithoutAnchor}#${slugify(scriptlet.name)}`
 		scriptlet.kenv = getKenvFromPath(filePathWithoutAnchor)
 		scriptlet.value = Object.assign({}, scriptlet)

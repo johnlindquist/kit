@@ -779,7 +779,7 @@ ava("formatScriptlet - benchmark performance", (t) => {
 		({
 			name: `Test Scriptlet ${index}`,
 			tool: "bash",
-			scriptlet: `echo {{input1}} {{input2}} {{#if verbose}}-v{{/if}} {{#if long}}-l{{/if}}`,
+			scriptlet: 'echo {{input1}} {{input2}} {{#if verbose}}-v{{/if}} {{#if long}}-l{{/if}}',
 			inputs: ["input1", "input2"]
 		}) as Scriptlet
 

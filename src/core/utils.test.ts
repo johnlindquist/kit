@@ -390,6 +390,8 @@ ava("parseMarkdownAsScriptlets doesn't error on empty string", async (t) => {
 
 ava("parseScriptletsFromPath - valid markdown file", async (t) => {
 	const markdown = `
+# Test
+
 ## Test Scriptlet
 <!-- 
 Shortcut: cmd t
@@ -411,7 +413,7 @@ console.log("Hello, world!")
 		t.is(scripts[0].friendlyShortcut, "ctrl+t")
 	}
 	t.is(scripts[0].scriptlet.trim(), 'console.log("Hello, world!")')
-	t.is(scripts[0].group, "test-scriptlet")
+	t.is(scripts[0].group, "Test")
 	t.is(scripts[0].filePath, `${filePath}#Test-Scriptlet`)
 	t.is(scripts[0].kenv, "")
 })
@@ -442,6 +444,31 @@ console.log("Scriptlet 2")
 	t.is(scripts[0].name, "Scriptlet 1")
 	t.is(scripts[1].name, "Scriptlet 2")
 })
+
+ava("parseScriptletsFromPath - h1 as group", async (t) => {
+	const markdown = `
+# Group A
+## Scriptlet 1
+\`\`\`js
+console.log("Scriptlet 1")
+\`\`\`
+
+## Scriptlet 2
+\`\`\`js
+console.log("Scriptlet 2")
+\`\`\`
+\`\`\`
+`
+	const filePath = await outputTmpFile("grouped-scriptlets.md", markdown)
+	const scripts = await parseScriptletsFromPath(filePath)
+
+	t.is(scripts.length, 2)
+	t.is(scripts[0].name, "Scriptlet 1")
+	t.is(scripts[0].group, "Group A")
+	t.is(scripts[1].name, "Scriptlet 2") 
+	t.is(scripts[1].group, "Group A")
+})
+
 
 ava("getKenvFromPath - main kenv", async (t) => {
 	let scriptletsPath = kenvPath("script", "kit.md")
