@@ -45,6 +45,49 @@ https://github.com/time-loop/pr-ai-action-playground
 	t.is(scripts[2].name, "Github PR AI Review Playground URL")
 })
 
+ava("parseMarkdownAsScripts projects.md with Shortcut", async (t) => {
+	let markdown = `
+# Projects
+<!--
+Shortcut: opt p
+-->
+
+## Github PR AI Review
+
+\`\`\`
+cursor ~/dev/github-action-list-files-on-push
+\`\`\`
+
+## Github PR AI Review Playground
+
+\`\`\`
+cursor /Users/johnlindquist/dev/github-action-pr
+\`\`\`
+
+## Github PR AI Review Playground URL
+
+\`\`\`open
+https://github.com/time-loop/pr-ai-action-playground
+\`\`\`
+
+`.trim()
+
+	const scripts = await parseMarkdownAsScriptlets(markdown)
+
+	t.is(scripts.length, 4)
+	t.is(scripts[0].name, "Projects")
+	t.is(scripts[0].exclude, true)
+	t.is(scripts[0].group, undefined)
+
+	t.is(scripts[1].name, "Github PR AI Review")
+	t.is(scripts[1].group, "Projects")
+	t.is(scripts[1].tool, process.platform === "win32" ? "cmd" : "bash")
+	t.is(scripts[1].scriptlet, "cursor ~/dev/github-action-list-files-on-push")
+
+	t.is(scripts[2].name, "Github PR AI Review Playground")
+	t.is(scripts[3].name, "Github PR AI Review Playground URL")
+})
+
 ava(
 	"parseMarkdownAsScriptlets with conditional flag - ignore else from input",
 	async (t) => {

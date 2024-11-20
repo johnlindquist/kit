@@ -42,7 +42,9 @@ export function formatScriptlet(
 
 	for (let i = 0; i < namedInputs.length; i++) {
 		const inputName = namedInputs[i]
-		if (inputName.toLowerCase() === "else") continue // Skip 'else' as an input name
+		if (inputName.toLowerCase() === "else") {
+			continue // Skip 'else' as an input name
+		}
 
 		const inputPattern = new RegExp(`{{${inputName}}}`, "g")
 		if (
@@ -64,11 +66,20 @@ export function formatScriptlet(
 }
 
 const h1Regex = /^#(?!#)/
+const h2Regex = /^##(?!#)/
+const toolRegex = /^(```|~~~)\s*$/m
+const emptyCodeFenceRegex = /^(```|~~~)\s*$/gm
+const ifElseRegex = /{{(?!#if|else\s?if|else|\/if)([^}]+)}}/g
 
 export let parseMarkdownAsScriptlets = async (
 	markdown: string
 ): Promise<Scriptlet[]> => {
 	let lines = markdown.trim().split("\n")
+
+	let markdownMetadata: Metadata = {
+		exclude: true
+	}
+	let parsingMarkdownMetadata = false
 
 	let currentGroup = "Scriptlets"
 	let currentScriptlet: Scriptlet
@@ -83,15 +94,17 @@ export let parseMarkdownAsScriptlets = async (
 		// Check for H1 and set as current group
 		if (line.match(h1Regex)) {
 			currentGroup = line.replace(h1Regex, "").trim()
+			parsingMarkdownMetadata = true
 			continue
 		}
 
-		if (line.startsWith("##") && !line.startsWith("###")) {
+		if (line.match(h2Regex)) {
+			parsingMarkdownMetadata = false
 			if (currentScriptlet) {
 				let metadata = postprocessMetadata(currentMetadata, "")
 				scriptlets.push({ ...metadata, ...currentScriptlet })
 			}
-			let name = line.replace("##", "").trim()
+			let name = line.replace(h2Regex, "").trim()
 			currentScriptlet = {
 				group: currentGroup,
 				scriptlet: "",
@@ -160,7 +173,11 @@ export let parseMarkdownAsScriptlets = async (
 			if (ignore) {
 				continue
 			}
-			currentMetadata[lowerCaseKey] = value
+			if (parsingMarkdownMetadata) {
+				markdownMetadata[lowerCaseKey] = value
+			} else {
+				currentMetadata[lowerCaseKey] = value
+			}
 		}
 	}
 
@@ -173,11 +190,11 @@ export let parseMarkdownAsScriptlets = async (
 		let preview = (scriptlet.preview as string).trim()
 
 		// Check if there are exactly two empty code fences
-		const emptyCodeFences = preview.match(/^(```|~~~)\s*$/gm)
+		const emptyCodeFences = preview.match(emptyCodeFenceRegex)
 
 		if (emptyCodeFences && emptyCodeFences.length === 2) {
 			// Replace only the first occurrence
-			preview = preview.replace(/^(```|~~~)\s*$/m, `$1${scriptlet.tool}`)
+			preview = preview.replace(toolRegex, `$1${scriptlet.tool}`)
 		}
 
 		let highlightedPreview = md(`# ${scriptlet.name}
@@ -187,7 +204,7 @@ ${await highlight(preview, "")}`)
 		scriptlet.inputs = Array.from(
 			new Set(
 				scriptlet.scriptlet
-					.match(/{{(?!#if|else\s?if|else|\/if)([^}]+)}}/g)
+					.match(ifElseRegex)
 					?.map((x: string) => x.slice(2, -2).trim())
 					.filter((x: string) => x !== "" && !x.startsWith("/")) || []
 			)
@@ -198,6 +215,79 @@ ${await highlight(preview, "")}`)
 		}
 
 		tagger(scriptlet)
+	}
+
+	const metadataKeys = Object.keys(markdownMetadata)
+	if (metadataKeys.length > 1) {
+		let metadata = postprocessMetadata(markdownMetadata, "")
+		scriptlets.unshift({
+			...metadata,
+			name: currentGroup,
+			command: stripName(currentGroup),
+			group: metadata.exclude ? undefined : currentGroup,
+			tool: "kit",
+			// TODO: Extract to a file
+			scriptlet: `
+const scripts = await getScripts(true);
+let focused;
+const script = await arg(
+  {
+    placeholder: "Select a Scriptlet",
+    onChoiceFocus: (input, state) => {
+      focused = state.focused;
+    },
+  },
+  scripts.filter((s) => s.group === "${currentGroup}")
+);
+
+const { runScriptlet } = await import(kitPath("main", "scriptlet.js"));
+
+export let isScriptlet = (
+  script: Script | Scriptlet
+): script is Scriptlet => {
+  return "scriptlet" in script
+}
+
+export let isSnippet = (
+  script: Script
+): script is Snippet => {
+  return "text" in script
+}
+
+const determineScriptletRun = async () => {
+	if (isSnippet(script)) {
+		send("STAMP_SCRIPT", script as Script)
+
+		return await run(
+		kitPath("app", "paste-snippet.js"),
+		"--filePath",
+		script.filePath
+		)
+	}
+    if (isScriptlet(script)) {
+        await runScriptlet(script, script.inputs || [], flag)
+        return
+      }
+    
+      if (Array.isArray(script)) {
+        await runScriptlet(focused as Scriptlet, script, flag)
+        return
+      }
+    
+      if ((script as Script)?.shebang) {
+        const shebang = parseShebang(script as Script)
+        return await sendWait(Channel.SHEBANG, shebang)
+      }
+}
+
+
+await determineScriptletRun();
+			`,
+			preview: `
+List all the scriptlets in the ${currentGroup} group
+			`,
+			inputs: []
+		} as Scriptlet)
 	}
 
 	return scriptlets
