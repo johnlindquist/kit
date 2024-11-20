@@ -330,6 +330,22 @@ global.getMousePosition = async () =>
 global.getProcesses = async () =>
   (await global.getDataFromApp(Channel.GET_PROCESSES))
     .processes
+
+
+global.attemptScriptFocus = async (): Promise<boolean> => {
+  const prompts = await getPrompts()
+  const scriptName = global.path.basename(global.kitScript)
+  
+  for (const prompt of prompts) {
+    if (prompt.isVisible && prompt.name === scriptName) {
+      await prompt.focus()
+      return true
+    }
+  }
+  
+  return false
+}
+
 global.getPrompts = async () => {
   let { prompts } = await global.getDataFromApp(
     Channel.GET_PROMPTS

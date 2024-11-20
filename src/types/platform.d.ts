@@ -205,9 +205,12 @@ export interface Prompt {
 	isDestroyed: boolean
 	bounds: Rectangle
 	focus: () => Promise<void>
+	scriptPath: string
+	name: string
 }
 
 type GetPrompts = () => Promise<Prompt[]>
+type AttemptScriptFocus = () => Promise<boolean>
 interface KitWindow {
 	name: string
 	id: string
@@ -355,6 +358,7 @@ declare global {
 	var getMousePosition: GetMousePosition
 	var getProcesses: GetProcesses
 	var getPrompts: GetPrompts
+	var attemptScriptFocus: AttemptScriptFocus
 	var getKitWindows: GetKitWindows
 	var focusKitWindow: FocusAppWindow
 	var getScreens: GetScreens
