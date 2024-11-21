@@ -74,7 +74,7 @@
     }
   },
   "dependencies": {
-    "@johnlindquist/globals": "1.16.5",
+    "@johnlindquist/globals": "1.16.6",
     "@johnlindquist/kit-internal": "^1.13.5",
     "@johnlindquist/open": "^10.1.1",
     "@octokit/auth-oauth-device": "7.1.1",
@@ -116,7 +116,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.9.1",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",
@@ -187,5 +187,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@9.13.2"
+  "packageManager": "pnpm@9.14.2"
 }
