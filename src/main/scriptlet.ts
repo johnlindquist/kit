@@ -78,7 +78,8 @@ export let runScriptlet = async (
 		formattedScriptlet.match(windowsPattern)
 
 	const matchesSet = new Set(matches || [])
-	const needs: string[] = [...(matches || []), ...remainingInputs]
+	const needs = focusedScriptlet?.tool === "template" ? remainingInputs : [...(matches || []), ...remainingInputs];
+
 
 	for (let need of needs) {
 		let result = await arg(need)
@@ -120,10 +121,16 @@ await setSelectedText(result)`
 			await writeFile(quickPath, content)
 			return await run(quickPath)
 		}
+		case "template": {
+			const result = await template(formattedScriptlet)
+			await setSelectedText(result)
+			process.exit(0)
+			break
+		}
 		case "open":
 		case "edit":
 		case "paste":
-		case "type":
+		case "type": {
 			await hide()
 			if (formattedFocusedScriptlet.tool === "open") {
 				await open(formattedScriptlet)
@@ -138,6 +145,7 @@ await setSelectedText(result)`
 			}
 			process.exit(0)
 			break
+		}
 		default: {
 			const extension =
 				toolExtensionMap.get(formattedFocusedScriptlet.tool) ||

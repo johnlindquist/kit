@@ -119,6 +119,28 @@ cursor /Users/johnlindquist/dev/github-action-pr
 	}
 )
 
+ava(
+	"parseMarkdownAsScriptlets with template tool and variables",
+	async (t) => {
+		let templateString = "${1|Sincerely,Dearly|}, John"
+		let markdown = `
+## Sign Off
+
+~~~template
+${templateString}
+~~~
+
+`
+
+		const scripts = await parseMarkdownAsScriptlets(markdown)
+		t.is(scripts.length, 1)
+		t.is(scripts[0].name, "Sign Off")
+		t.is(scripts[0].tool, "template")
+		t.is(scripts[0].scriptlet, templateString)
+		t.deepEqual(scripts[0].inputs, [])
+	}
+)
+
 ava("formatScriptlet with conditional flag", async (t) => {
 	let markdown = `
 ## Conditional Flag Test
@@ -420,6 +442,24 @@ ava("formatScriptlet with single curly brace at start", (t) => {
 		{}
 	)
 	t.is(formattedScriptlet, "echo } test")
+	t.deepEqual(remainingInputs, [])
+})
+
+ava("formatScriptlet with template", (t) => {
+	const templateString = "${1|Sincerely,Dearly|}, John"
+	const scriptlet = {
+		name: "Template Test",
+		tool: "template",
+		scriptlet: templateString,
+		inputs: []
+	} as Scriptlet
+
+	const { formattedScriptlet, remainingInputs } = formatScriptlet(
+		scriptlet,
+		[],
+		{}
+	)
+	t.is(formattedScriptlet, templateString)
 	t.deepEqual(remainingInputs, [])
 })
 

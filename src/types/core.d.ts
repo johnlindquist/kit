@@ -155,7 +155,7 @@ export type Script = ScriptMetadata &
 export type Scriptlet = Script & {
   group: string
   inputs: string[]
-  tool: "kit" | "open" | "paste" | string
+  tool: string
   scriptlet: string
   value: Script
   cwd?: string
