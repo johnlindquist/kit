@@ -886,8 +886,10 @@ export let scriptsSort =
     }
 
     if (a?.index || b?.index) {
-      if ((a?.index || 9999) < (b?.index || 9999)) return -1
-      else return 1
+      if ((a?.index || 9999) < (b?.index || 9999)) {
+        return -1
+      }
+      return 1
     }
 
     let aName = (a?.name || "").toLowerCase()
@@ -1378,13 +1380,13 @@ export let escapeHTML = (text: string) => {
 export let processInBatches = async <T>(
   items: Promise<T>[],
   batchSize: number,
-  maxRetries: number = 3
+  maxRetries = 3
 ): Promise<T[]> => {
   let result: T[] = []
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize)
     const batchResults = await Promise.all(
-      batch.map(async item => {
+      batch.map(item => {
         return pRetry(
           async () => {
             try {

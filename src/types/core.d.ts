@@ -69,6 +69,7 @@ export interface Choice<Value = any> {
   actions?: Action[]
   exact?: boolean
   recent?: boolean
+  index?: number
 }
 
 export interface ScoredChoice {
@@ -128,7 +129,6 @@ export interface ScriptMetadata extends Metadata {
   snippet?: string
   expand?: string
   snippetdelay?: number
-  index?: string
   template?: boolean
   "color-text"?: string
   "color-primary"?: string
@@ -570,6 +570,7 @@ export interface Metadata {
   schedule?: CronExpression
   access?: "public" | "key" | "private"
   response?: boolean
+  index?: number
 }
 
 export interface ProcessInfo {

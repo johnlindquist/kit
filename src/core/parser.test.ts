@@ -59,6 +59,22 @@ onTab('Tab2', async ()=>  {
 	t.deepEqual(result.tabs, ["Tab1", "Tab2"])
 })
 
+ava("postprocessMetadata - index processing", (t) => {
+	const testCases = [
+		{ metadata: { index: "123" }, expected: 123 },
+		{ metadata: { index: 456 }, expected: 456 },
+		{ metadata: { index: "0" }, expected: 0 },
+		{ metadata: { index: "-1" }, expected: -1 },
+		{ metadata: {}, expected: undefined }
+	] as { metadata: Metadata; expected: number | undefined }[]
+
+	for (const { metadata, expected } of testCases) {
+		const result = postprocessMetadata(metadata, "")
+		t.is(result.index, expected)
+	}
+})
+
+
 ava("postprocessMetadata - hasPreview detection", (t) => {
 	const testCases = [
 		{ fileContents: "preview: true", expected: true },

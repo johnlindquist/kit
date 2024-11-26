@@ -1,5 +1,4 @@
 import ava from "ava"
-import { pathToFileURL } from "node:url"
 import {
 	parseScript,
 	parseMarkdownAsScriptlets,
@@ -9,10 +8,13 @@ import {
 	kenvPath,
 	processPlatformSpecificTheme,
 	parseSnippets,
-	parseScriptletsFromPath
+	parseScriptletsFromPath,
+	scriptsSort
 } from "./utils"
 import { outputTmpFile } from "../api/kit"
 import slugify from "slugify"
+import type { Stamp } from "./db"
+import type { Script } from "../types"
 
 // Helper function to create a temporary snippet file
 process.env.KENV = home(".mock-kenv")
@@ -749,3 +751,64 @@ echo "hello {{who}}"
 		t.falsy(scriptlet[0].shebang)
 	}
 )
+
+ava("scriptsSort - sorts by index when timestamps are equal", (t) => {
+  const timestamps: Stamp[] = []
+  const scripts = [
+    { index: 2, name: "B", filePath: "b.ts" },
+    { index: 1, name: "A", filePath: "a.ts" },
+    { index: 3, name: "C", filePath: "c.ts" }
+  ] as Script[]
+
+  const sortedScripts = [...scripts].sort(scriptsSort(timestamps))
+
+  t.is(sortedScripts[0].name, "A")
+  t.is(sortedScripts[1].name, "B") 
+  t.is(sortedScripts[2].name, "C")
+})
+
+ava("scriptsSort - treats missing index as 9999", (t) => {
+  const timestamps: Stamp[] = []
+  const scripts = [
+    { name: "No Index", filePath: "no-index.ts" },
+    { index: 1, name: "Has Index", filePath: "has-index.ts" }
+  ] as Script[]
+
+  const sortedScripts = [...scripts].sort(scriptsSort(timestamps))
+
+  t.is(sortedScripts[0].name, "Has Index")
+  t.is(sortedScripts[1].name, "No Index")
+})
+
+ava("scriptsSort - timestamps take precedence over index", (t) => {
+  const now = Date.now()
+  const timestamps: Stamp[] = [
+    { filePath: "b.ts", timestamp: now },
+    { filePath: "a.ts", timestamp: now - 1000 }
+  ]
+  
+  const scripts = [
+    { index: 2, name: "B", filePath: "b.ts" },
+    { index: 1, name: "A", filePath: "a.ts" }
+  ] as Script[]
+
+  const sortedScripts = [...scripts].sort(scriptsSort(timestamps))
+
+  t.is(sortedScripts[0].name, "B", "More recent timestamp should come first")
+  t.is(sortedScripts[1].name, "A")
+})
+
+ava("scriptsSort - falls back to name when no timestamps or index", (t) => {
+  const timestamps: Stamp[] = []
+  const scripts = [
+    { name: "Charlie", filePath: "c.ts" },
+    { name: "Alpha", filePath: "a.ts" },
+    { name: "Bravo", filePath: "b.ts" }
+  ] as Script[]
+
+  const sortedScripts = [...scripts].sort(scriptsSort(timestamps))
+
+  t.is(sortedScripts[0].name, "Alpha")
+  t.is(sortedScripts[1].name, "Bravo")
+  t.is(sortedScripts[2].name, "Charlie")
+})

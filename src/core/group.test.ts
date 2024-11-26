@@ -389,3 +389,53 @@ ava("groupChoices - benchmark performance", t => {
   )
   t.pass()
 })
+
+ava("groupChoices - respects choice index within group", t => {
+  const choices: Choice[] = [
+    { name: "A2", group: "A", index: 2 },
+    { name: "A1", group: "A", index: 1 },
+    { name: "A3", group: "A", index: 3 },
+    { name: "A0", group: "A", index: 0 },
+  ]
+
+  const result = groupChoices(choices)
+
+  t.is(result[0].choices[0].name, "A0")
+  t.is(result[0].choices[1].name, "A1")
+  t.is(result[0].choices[2].name, "A2")
+  t.is(result[0].choices[3].name, "A3")
+})
+
+ava("groupChoices - index works with other sorting options", t => {
+  const choices: Choice[] = [
+    { name: "A2", group: "A", index: 1, value: 2 },
+    { name: "A1", group: "A", index: 0, value: 1 },
+    { name: "B1", group: "B", index: 0 },
+  ]
+
+  const result = groupChoices(choices, {
+    sortChoicesKey: ["value"]
+  })
+
+  // Index should take precedence over value sorting
+  t.is(result[0].choices[0].name, "A1")
+  t.is(result[0].choices[1].name, "A2")
+})
+
+ava("groupChoices - mixed indexed and non-indexed choices", t => {
+  const choices: Choice[] = [
+    { name: "A3", group: "A" },        // No index
+    { name: "A1", group: "A", index: 0 },
+    { name: "A4", group: "A" },        // No index
+    { name: "A2", group: "A", index: 1 },
+  ]
+
+  const result = groupChoices(choices)
+
+  // Indexed items should come first, in order
+  t.is(result[0].choices[0].name, "A1")
+  t.is(result[0].choices[1].name, "A2")
+  // Non-indexed items should follow, in original order
+  t.is(result[0].choices[2].name, "A3")
+  t.is(result[0].choices[3].name, "A4")
+})

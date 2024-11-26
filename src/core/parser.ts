@@ -39,6 +39,14 @@ export let postprocessMetadata = (
 		result.img = slash(untildify(metadata.image))
 	}
 
+	if (metadata.index) {
+		if (typeof metadata.index === "string") {
+			result.index = Number.parseInt(metadata.index, 10)
+		} else {
+			result.index = metadata.index
+		}
+	}
+
 	result.type = metadata.schedule
 		? ProcessType.Schedule
 		: metadata.watch
@@ -116,14 +124,14 @@ export let parseScript = async (filePath: string): Promise<Script> => {
                 const shebang = getShebangFromContents(contents);
                 const needsDebugger = Boolean(contents.match(/^\s*debugger/gim));
 
-                const result: Script = {
+                const result = {
                     shebang,
                     ...metadata,
                     ...parsedFilePath,
                     needsDebugger,
                     name: metadata.name || metadata.menu || parsedFilePath.command,
                     description: metadata.description || ""
-                };
+                } as Script;
 
                 resolve(result);
             } catch (error) {
