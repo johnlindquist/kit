@@ -1482,12 +1482,14 @@ ${lastRunBlock}
     group: "Share",
     name: "Post to Community Scripts",
     description: "Share {{name}} on GitHub Discussions",
+    shortcut: `${cmd}+s`,
   },
   "share-script-as-link": {
     group: "Share",
     name: "Create Install URL",
     description:
       "Create a link which will install the script",
+    shortcut: `${cmd}+shift+s`,
   },
   "share-script-as-kit-link": {
     group: "Share",
