@@ -63,7 +63,7 @@ try {
   )
   try {
     await exec(
-      "pnpm config set use-node-version 20.18.0 --location project",
+      "pnpm config set use-node-version 20.18.1 --location project",
       {
         cwd: kenvPath(),
       }
