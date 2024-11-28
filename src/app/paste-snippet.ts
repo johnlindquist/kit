@@ -24,7 +24,7 @@ if (snippet.includes("$HOME")) {
 	snippet = snippet.replaceAll("$HOME", home())
 }
 
-if (snippet.match(/\${(.+)?}/) || snippet.match(/\$(?!\d)/)) {
+if (snippet.match(/\$(?:\d+|\{(?:\d+:|[^}]*\|[^}]*|[^}]+)\})/)) {
 	setInput(``) // clearing keyword
 	snippet = await template(snippet, {
 		description: "Fill in the template",
