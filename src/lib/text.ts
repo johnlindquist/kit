@@ -5,7 +5,13 @@ global.getSelectedText = async () => {
 
   await sendWait(Channel.KEYBOARD_COPY)
 
-  return await global.paste()
+  const result = await global.paste()
+
+  if (result?.replace(/[\r\n]/g, "") === "") {
+    return ""
+  }
+
+  return result
 }
 
 /**
