@@ -111,12 +111,12 @@
     "suggestion": "2.1.2",
     "tmp-promise": "3.0.3",
     "untildify": "5.0.0",
-    "zx": "^8.2.2"
+    "zx": "^8.2.4"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.10.0",
+    "@types/node": "^22.10.1",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",
@@ -129,7 +129,7 @@
     "tsx": "4.19.2",
     "typescript": "5.7.2",
     "unzipper": "0.12.3",
-    "vite": "6.0.0"
+    "vite": "6.0.1"
   },
   "ava": {
     "environmentVariables": {
@@ -187,5 +187,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@9.14.2"
+  "packageManager": "pnpm@9.14.4"
 }
