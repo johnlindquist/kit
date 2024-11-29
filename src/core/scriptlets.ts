@@ -88,35 +88,43 @@ export let parseMarkdownAsScriptlets = async (
 	let parsingMetadata = false
 	let parsingValue = false
 
+	let insideCodeFence = false
+
 	for (const untrimmedLine of lines) {
 		let line = untrimmedLine?.length > 0 ? untrimmedLine.trim() : ""
 
-		// Check for H1 and set as current group
-		if (line.match(h1Regex)) {
-			currentGroup = line.replace(h1Regex, "").trim()
-			parsingMarkdownMetadata = true
-			continue
+		if (line.startsWith("```") || line.startsWith("~~~")) {
+			insideCodeFence = !insideCodeFence
 		}
 
-		if (line.match(h2Regex)) {
-			parsingMarkdownMetadata = false
-			if (currentScriptlet) {
-				let metadata = postprocessMetadata(currentMetadata, "")
-				scriptlets.push({ ...metadata, ...currentScriptlet })
+		if (!insideCodeFence) {
+			// Check for H1 and set as current group
+			if (line.match(h1Regex)) {
+				currentGroup = line.replace(h1Regex, "").trim()
+				parsingMarkdownMetadata = true
+				continue
 			}
-			let name = line.replace(h2Regex, "").trim()
-			currentScriptlet = {
-				group: currentGroup,
-				scriptlet: "",
-				tool: "",
-				name,
-				command: stripName(name),
-				preview: "",
-				kenv: ""
-			} as Scriptlet
 
-			currentMetadata = {}
-			continue
+			if (line.match(h2Regex)) {
+				parsingMarkdownMetadata = false
+				if (currentScriptlet) {
+					let metadata = postprocessMetadata(currentMetadata, "")
+					scriptlets.push({ ...metadata, ...currentScriptlet })
+				}
+				let name = line.replace(h2Regex, "").trim()
+				currentScriptlet = {
+					group: currentGroup,
+					scriptlet: "",
+					tool: "",
+					name,
+					command: stripName(name),
+					preview: "",
+					kenv: ""
+				} as Scriptlet
+
+				currentMetadata = {}
+				continue
+			}
 		}
 
 		if (currentScriptlet) {
@@ -155,8 +163,9 @@ export let parseMarkdownAsScriptlets = async (
 		}
 
 		if (parsingValue) {
-			currentScriptlet.scriptlet =
-				`${currentScriptlet.scriptlet}\n${line}`.trim()
+			currentScriptlet.scriptlet = currentScriptlet.scriptlet 
+				? `${currentScriptlet.scriptlet}\n${line}`
+				: line
 		}
 
 		if (parsingMetadata) {
@@ -183,6 +192,7 @@ export let parseMarkdownAsScriptlets = async (
 
 	if (currentScriptlet) {
 		let metadata = postprocessMetadata(currentMetadata, "")
+		currentScriptlet.scriptlet = currentScriptlet.scriptlet.trim()
 		scriptlets.push({ ...metadata, ...currentScriptlet })
 	}
 

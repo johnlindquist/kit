@@ -1161,3 +1161,89 @@ ava("formatScriptlet handles complex du command with awk", (t) => {
 
 	t.is(formattedScriptlet, complexCommand)
 })
+
+ava("parseMarkdownAsScriptlets handles markdown headers in code fence", async (t) => {
+    let markdown = `
+## Test Script
+\`\`\`bash
+# This is a bash comment
+## This is another bash comment
+echo "Hello World"
+\`\`\`
+`.trim()
+
+    const scripts = await parseMarkdownAsScriptlets(markdown)
+    t.is(scripts.length, 1)
+    t.is(scripts[0].name, "Test Script")
+    t.is(scripts[0].scriptlet, `# This is a bash comment
+## This is another bash comment
+echo "Hello World"`)
+})
+
+ava("parseMarkdownAsScriptlets handles multiple headers in code fence", async (t) => {
+    let markdown = `
+## Complex Script
+\`\`\`bash
+# Main Section
+echo "Starting..."
+
+## Subsection A
+ls -la
+
+### Sub-subsection
+grep "pattern" file.txt
+
+#### Deep nested
+cat output.txt
+\`\`\`
+`.trim()
+
+    const scripts = await parseMarkdownAsScriptlets(markdown)
+    t.is(scripts.length, 1)
+    t.is(scripts[0].name, "Complex Script")
+    t.is(scripts[0].scriptlet, `# Main Section
+echo "Starting..."
+
+## Subsection A
+ls -la
+
+### Sub-subsection
+grep "pattern" file.txt
+
+#### Deep nested
+cat output.txt`)
+})
+
+ava("parseMarkdownAsScriptlets handles headers with special characters in code fence", async (t) => {
+    let markdown = `
+## Special Headers Test
+\`\`\`bash
+# User's Configuration
+echo "Config loading..."
+
+## System & Network Setup
+ping localhost
+
+### Database >>> Setup
+mysql -u root
+
+# !!! Important Warning !!!
+echo "Critical section"
+\`\`\`
+`.trim()
+
+    const scripts = await parseMarkdownAsScriptlets(markdown)
+    t.is(scripts.length, 1)
+    t.is(scripts[0].name, "Special Headers Test")
+    t.is(scripts[0].scriptlet, `# User's Configuration
+echo "Config loading..."
+
+## System & Network Setup
+ping localhost
+
+### Database >>> Setup
+mysql -u root
+
+# !!! Important Warning !!!
+echo "Critical section"`)
+})
