@@ -955,6 +955,7 @@ export let editScriptShortcut: Shortcut = {
       kitPath("cli", "edit-script.js"),
       script?.filePath
     )
+    exit()
   },
   bar: "right",
 }

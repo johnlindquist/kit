@@ -125,7 +125,7 @@ let cliScripts: CLIMenuItem[] = [
 		name: "set-env-var",
 		placeholder: "Add env var to .env"
 	},
-	{ name: "open-log", placeholder: "Open kit.log" },
+	{ name: "open-log", placeholder: "Open main.log" },
 
 	...(isJsh() ? [] : notJsh),
 
