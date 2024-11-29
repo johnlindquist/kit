@@ -122,7 +122,18 @@ await setSelectedText(result)`
 			return await run(quickPath)
 		}
 		case "template": {
-			const result = await template(formattedScriptlet)
+			const result = await template(formattedScriptlet, {
+                shortcuts: [
+                    {
+                        name: "Submit",
+                        key: `${cmd}+s`,
+                        bar: "right",
+                        onPress: (input) => {
+                            submit(input)
+                        }
+                    }
+                ]
+            });
 			await setSelectedText(result)
 			process.exit(0)
 			break

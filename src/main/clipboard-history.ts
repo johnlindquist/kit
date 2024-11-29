@@ -17,7 +17,7 @@ let createPreview = (item, input) => {
   let content = escapeHTML(item.value)
 
   if (item?.type === "image") {
-    return `<div class="p-4 flex justify-center"><img src="${content}" /></div>`
+    return `<div class="p-4 flex justify-center"><img src="file://${content}" /></div>`
   }
 
   let previewContent =
@@ -191,18 +191,15 @@ if (text) {
     await sendWait(Channel.TOGGLE_WATCHER)
   } else if (text === "__authorize-clipboard__") {
     exit()
-  } else {
-    await removeClipboardItem(id)
-    if (isImage) {
+  } else if (isImage) {
+      await removeClipboardItem(id)
       await clipboard.writeImage(await readFile(text))
       await hide()
-
       await sendWait(Channel.KEYBOARD_PASTE)
     } else {
       await setSelectedText(text)
       exit()
     }
-  }
 }
 
 export {}
