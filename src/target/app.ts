@@ -23,6 +23,7 @@ import type {
   ClipboardItem,
   ChannelMap,
   ScreenshotConfig,
+  DivConfig,
 } from "../types/kitapp"
 
 import {
@@ -1543,24 +1544,24 @@ let maybeWrapHtml = (html = "", containerClasses = "") => {
 }
 
 global.div = async (
-  htmlOrConfig = "",
-  containerClasses = ""
-) => {
-  let config: {
-    html?: string
-  } =
-    typeof htmlOrConfig === "string"
-      ? { html: htmlOrConfig }
-      : htmlOrConfig
+  htmlOrConfig: string | DivConfig = "",
+  actions: Action[] = []
+): Promise<any> => {
+  let config: DivConfig = typeof htmlOrConfig === "string" 
+    ? { html: htmlOrConfig }
+    : htmlOrConfig
 
-  if (config.html.trim() === "")
-    htmlOrConfig = md("⚠️ html string was empty")
+  if (!config.html?.trim()) {
+    config.html = md("⚠️ html string was empty")
+  }
+
   return await global.kitPrompt({
-    enter: `Continue`,
+    enter: 'Continue',
     shortcuts: [escapeShortcut],
     ...config,
-    choices: maybeWrapHtml(config?.html, containerClasses),
+    choices: maybeWrapHtml(config.html, config.containerClasses),
     ui: UI.div,
+    actions,
   })
 }
 
@@ -1570,7 +1571,9 @@ global.getCodeblocksFromSections =
     let fileMarkdown = sections.find(
       s => s.name === name
     )?.raw
-    if (!fileMarkdown) return ""
+    if (!fileMarkdown) {
+      return ""
+    }
     let lexer = new marked.Lexer()
     let nodes = lexer.lex(fileMarkdown)
     // Grab all of the code blocks

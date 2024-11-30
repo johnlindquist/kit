@@ -336,11 +336,12 @@ export interface DivConfig extends PromptConfig {
   placeholder?: string
   hint?: string
   footer?: string
+  containerClasses?: string
 }
 
 export type Div = (
   html?: string | DivConfig,
-  containerClass?: string
+  actions?: Action[]
 ) => Promise<any>
 
 export interface KeyData {
