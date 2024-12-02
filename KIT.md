@@ -308,13 +308,13 @@ You can manually edit a `PATH` value any time in `~/.kenv/.env`
 Kit.app will check for updates each time your machine wakes from sleep. But if you heard about an update and just can't wait, trigger this command to grab it.
 
 
-## Open kit.log
+## Open main.log
 
-<!-- description: Open the kit.log file -->
-<!-- value: cli/kit-log.js -->
+<!-- description: Open the main.log file -->
+<!-- value: cli/main-log.js -->
 <!-- enter: Open Log -->
 
-This will open the `kit.log` file in your editor. This is where Script Kit logs errors and other information.
+This will open the `main.log` file in your editor. This is where Script Kit logs errors and other information.
 
 ## Select Default Display
 

@@ -8,7 +8,10 @@ Have an idea on how to support it? Please share on our [GitHub Discussions](http
   )
 
 global.edit = async (path, dir, line, col) => {
-  global.exec(`${env.KIT_EDITOR || "code"} ${path} ${dir}`)
+  await global.exec(`${env.KIT_EDITOR || "code"} ${path} ${dir}`, {
+    detached: true,
+    windowsHide: true,
+  })
 }
 
 global.applescript = notSupported("applescript")

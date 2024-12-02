@@ -91,7 +91,7 @@ export interface CLI {
   "kenv-trust": Promise<typeof import("./kenv-trust")>
   "kenv-distrust": Promise<typeof import("./kenv-distrust")>
   "kenv-view": Promise<typeof import("./kenv-view")>
-  "kit-log": Promise<typeof import("./kit-log")>
+  "main-log": Promise<typeof import("./main-log")>
   "kenv-rm": Promise<typeof import("./kenv-rm")>
   "kenv-pull": Promise<typeof import("./kenv-pull")>
   "kenv-push": Promise<typeof import("./kenv-push")>

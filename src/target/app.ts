@@ -470,6 +470,10 @@ let runAction = async (data: AppMessage) => {
   }
 
   if (action) {
+    if (action?.value) {
+      submit(action.value)
+      return
+    }
     let actionFunction =
       typeof (action as Action)?.onAction === "function"
         ? (action as Action).onAction
@@ -1040,14 +1044,14 @@ let prepPrompt = async (config: PromptConfig) => {
 
   if (Array.isArray(config?.actions)) {
     for (let action of config.actions) {
-      if (action?.name && action?.onAction) {
+      if (action?.name && (action?.onAction || action?.value)) {
         global.__kitActionsMap.set(action.name, action)
       }
     }
   }
 
   for (let shortcut of config?.shortcuts || []) {
-    if (shortcut?.name && shortcut?.onPress) {
+    if (shortcut?.name && (shortcut?.onPress || shortcut?.value)) {
       if (shortcut.key)
         shortcut.key = shortcut.key.toLowerCase()
       global.__kitActionsMap.set(shortcut.name, shortcut)
