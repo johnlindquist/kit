@@ -973,9 +973,9 @@ export let getFlagsFromActions = (
   return flags
 }
 
-global.setActions = (actions: Action[], options = {}) => {
+global.setActions = async (actions: Action[], options = {}) => {
   let flags = getFlagsFromActions(actions)
-  setFlags(flags, options)
+  await setFlags(flags, options)
 }
 
 global.openActions = async () => {
@@ -1270,7 +1270,15 @@ export let actions: Action[] = [
       let loggedIn = userJson?.login
       let helpActions: Action[] = [
         ...(loggedIn
-          ? []
+          ? [
+              {
+                name: "Sign Out",
+                description: "Sign out of Script Kit",
+                onAction: async () => {
+                  await deauthenticate()
+                },
+              },
+            ]
           : [
               {
                 name: "Sign In",
@@ -2396,6 +2404,19 @@ export let authenticate = async (): Promise<Octokit> => {
   })
 
   return octokit
+}
+
+export let deauthenticate = async () => {
+  await setUserJson({})
+  await replace({
+    files: kenvPath(".env"),
+    from: /GITHUB_SCRIPTKIT_TOKEN=.*/g,
+    to: "",
+    disableGlobs: true
+  })
+  process.env.GITHUB_SCRIPTKIT_TOKEN = env.GITHUB_SCRIPTKIT_TOKEN = ``
+
+  await mainScript()
 }
 
 global.createGist = async (

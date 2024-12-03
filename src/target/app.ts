@@ -386,8 +386,8 @@ let createOnChoiceFocusDefault = (
         choice?.preview &&
         typeof choice?.preview === "function"
       ) {
-        ;(choice as any).index = index
-        ;(choice as any).input = input
+        ; (choice as any).index = index
+          ; (choice as any).input = input
 
         try {
           preview = await choice?.preview(input, state)
@@ -435,7 +435,7 @@ let onTabChanged = (input, state) => {
 // This is especially important when switching tabs
 global.__kitEndPrevPromptSubject = new Subject()
 global.__kitPromptState = {}
-global.finishPrompt = () => {}
+global.finishPrompt = () => { }
 let promptPromises: Promise<any>[] = []
 
 export let inspectPromptPromises = () => {
@@ -470,16 +470,24 @@ let runAction = async (data: AppMessage) => {
   }
 
   if (action) {
-    if (action?.value) {
+    const hasOnAction =
+      typeof (action as Action)?.onAction === "function"
+    const hasOnPress =
+      typeof (action as Shortcut)?.onPress === "function"
+    if (
+      action?.value &&
+      !hasOnAction &&
+      !hasOnPress
+    ) {
       submit(action.value)
       return
     }
     let actionFunction =
-      typeof (action as Action)?.onAction === "function"
+      hasOnAction
         ? (action as Action).onAction
-        : typeof (action as Shortcut).onPress === "function"
-        ? (action as Shortcut).onPress
-        : null
+        : hasOnPress
+          ? (action as Shortcut).onPress
+          : null
     if (actionFunction) {
       return await actionFunction(
         data?.state?.input,
@@ -571,7 +579,7 @@ let waitForPromptValue = ({
           global.finishPrompt = () => {
             process.off("message", messageHandler)
             process.off("error", errorHandler)
-            global.finishPrompt = () => {}
+            global.finishPrompt = () => { }
           }
 
           return global.finishPrompt
@@ -836,7 +844,7 @@ let waitForPromptValue = ({
               break
 
             case Channel.ENV_CHANGED: {
-              ;(process as any).env = data?.env
+              ; (process as any).env = data?.env
               break
             }
 
@@ -922,16 +930,16 @@ let onAbandonDefault = () => {
   exit()
 }
 
-let onBackDefault = async () => {}
-let onForwardDefault = async () => {}
-let onUpDefault = async () => {}
-let onDownDefault = async () => {}
-let onLeftDefault = async () => {}
-let onRightDefault = async () => {}
-let onTabDefault = async () => {}
-let onMessageFocusDefault = async () => {}
-let onActionsInputDefault = async () => {}
-let onSelectedDefault = async () => {}
+let onBackDefault = async () => { }
+let onForwardDefault = async () => { }
+let onUpDefault = async () => { }
+let onDownDefault = async () => { }
+let onLeftDefault = async () => { }
+let onRightDefault = async () => { }
+let onTabDefault = async () => { }
+let onMessageFocusDefault = async () => { }
+let onActionsInputDefault = async () => { }
+let onSelectedDefault = async () => { }
 
 let onKeywordDefault = async (input, state) => {
   if (!state.keyword) {
@@ -970,10 +978,10 @@ let onDragOverDefault = async (input, state) => {
   log(`onDragOver`)
 }
 
-let onInitDefault = async (input, state) => {}
-let onSubmitDefault = async (input, state) => {}
-let onValidationFailedDefault = async (input, state) => {}
-let onAudioDataDefault = async (input, state) => {}
+let onInitDefault = async (input, state) => { }
+let onSubmitDefault = async (input, state) => { }
+let onValidationFailedDefault = async (input, state) => { }
+let onAudioDataDefault = async (input, state) => { }
 
 global.setPrompt = (data: Partial<PromptData>) => {
   let { tabs } = data
@@ -1023,7 +1031,7 @@ let prepPrompt = async (config: PromptConfig) => {
   global.__kitActionsMap.clear()
   let escapeDefault = Boolean(
     !config?.onEscape ||
-      config?.onEscape === onEscapeDefault
+    config?.onEscape === onEscapeDefault
   )
   let hasEscapeShortcut = Boolean(
     (config?.shortcuts || []).find(s => s.key === "escape")
@@ -1141,7 +1149,7 @@ let createOnInputDefault = (
   let choicesHasAnInputArg = choices?.length > 0
 
   if (!choicesAreAFunction || !choicesHasAnInputArg) {
-    return async () => {}
+    return async () => { }
   }
 
   // "input" is on the state, so this is only provided as a convenience for the user
@@ -1167,7 +1175,7 @@ let createOnActionInputDefault = (
   let actionsHasAnInputArg = actions?.length > 0
 
   if (!actionsAreAFunction || !actionsHasAnInputArg) {
-    return async () => {}
+    return async () => { }
   }
 
   // "input" is on the state, so this is only provided as a convenience for the user
@@ -1179,9 +1187,9 @@ let createOnActionInputDefault = (
   }, debounceInput)
 }
 
-let onBlurDefault = () => {}
+let onBlurDefault = () => { }
 
-let onChangeDefault = () => {}
+let onChangeDefault = () => { }
 
 let determineChoicesType = choices => {
   if (!choices) return "null"
@@ -1447,18 +1455,15 @@ global.fields = async (formFields, actions?: Action[]) => {
               <${element}
                   id="${id || i}"
                   name="${name || i}"
-                  data-name="${
-                    name ? name : fieldString ? field : i
-                  }"
-                  ${
-                    i === 0 ? `autofocus` : ``
-                  }                  
+                  data-name="${name ? name : fieldString ? field : i
+        }"
+                  ${i === 0 ? `autofocus` : ``
+        }                  
                   ${attributes}   
                   class="peer text-xl h-10 px-4 py-0 outline-none border-b border-opacity-25 placeholder-text-base placeholder-opacity-25 border-text-base border-opacity-15 focus:border-primary w-full"/>
 
-                  <label for=${id || i} htmlFor=${
-        id || i
-      } class="text-sm px-4 block font-normal text-text-base text-opacity-75 peer-focus:text-primary peer-focus:text-opacity-90">
+                  <label for=${id || i} htmlFor=${id || i
+        } class="text-sm px-4 block font-normal text-text-base text-opacity-75 peer-focus:text-primary peer-focus:text-opacity-90">
                           ${label}
                         </label>
           </div>
@@ -1466,9 +1471,9 @@ global.fields = async (formFields, actions?: Action[]) => {
       `
     })
     .join("")
-  ;(
-    config as PromptConfig
-  ).html = `<div class="flex flex-col items-center min-h-full flex-1 w-full">
+    ; (
+      config as PromptConfig
+    ).html = `<div class="flex flex-col items-center min-h-full flex-1 w-full">
 
 ${inputs}
 
@@ -1477,11 +1482,11 @@ ${inputs}
 <input type="submit" name="submit-form" value="Submit" class="focus:underline underline-offset-4 outline-none p-3 text-contrast-dark dark:text-contrast-light text-opacity-75 dark:text-opacity-75 font-medium text-sm focus:text-text-base dark:focus:text-primary-light hover:text-text-base dark:hover:text-primary-light hover:underline dark:hover:underline bg-opacity-75 dark:bg-opacity-75"/>
 </div>
 </div>`
-  ;(config as PromptConfig).shortcuts = formShortcuts
-  ;(config as PromptConfig).actions = actions
+    ; (config as PromptConfig).shortcuts = formShortcuts
+    ; (config as PromptConfig).actions = actions
 
   if (typeof (config as PromptConfig).enter !== "string") {
-    ;(config as PromptConfig).enter = "Submit"
+    ; (config as PromptConfig).enter = "Submit"
   }
 
   let formResponse = await global.form(
@@ -1551,7 +1556,7 @@ global.div = async (
   htmlOrConfig: string | DivConfig = "",
   actions: Action[] = []
 ): Promise<any> => {
-  let config: DivConfig = typeof htmlOrConfig === "string" 
+  let config: DivConfig = typeof htmlOrConfig === "string"
     ? { html: htmlOrConfig }
     : htmlOrConfig
 
@@ -1571,23 +1576,23 @@ global.div = async (
 
 global.getCodeblocksFromSections =
   (sections: GuideSection[]) =>
-  (name: string): string => {
-    let fileMarkdown = sections.find(
-      s => s.name === name
-    )?.raw
-    if (!fileMarkdown) {
-      return ""
-    }
-    let lexer = new marked.Lexer()
-    let nodes = lexer.lex(fileMarkdown)
-    // Grab all of the code blocks
-    let codeBlocks = nodes
-      .filter(node => node.type === "code")
-      .map((node: any) => (node?.text ? node.text : ``))
-      .join("\n\n")
+    (name: string): string => {
+      let fileMarkdown = sections.find(
+        s => s.name === name
+      )?.raw
+      if (!fileMarkdown) {
+        return ""
+      }
+      let lexer = new marked.Lexer()
+      let nodes = lexer.lex(fileMarkdown)
+      // Grab all of the code blocks
+      let codeBlocks = nodes
+        .filter(node => node.type === "code")
+        .map((node: any) => (node?.text ? node.text : ``))
+        .join("\n\n")
 
-    return codeBlocks
-  }
+      return codeBlocks
+    }
 
 global.groupMarkdownFileIntoChoices = async (
   filePath: string
@@ -1757,12 +1762,12 @@ global.editor = (async (
     value: "",
     language: "markdown",
     scrollTo: "top",
-    onInput: () => {},
-    onEscape: () => {},
+    onInput: () => { },
+    onEscape: () => { },
     onAbandon: onAbandonDefault,
     onPaste: onPasteDefault,
     onDrop: onDropDefault,
-    onBlur: () => {},
+    onBlur: () => { },
   }
 
   let editorOptions =
@@ -2274,9 +2279,9 @@ export let appInstallMultiple = async (
     try {
       response = await get<{ downloads: number }>(
         `https://api.npmjs.org/downloads/point/last-week/` +
-          stripVersion
+        stripVersion
       )
-    } catch (error) {}
+    } catch (error) { }
 
     let downloads =
       response?.data?.downloads || `an unknown number of`
@@ -2284,12 +2289,12 @@ export let appInstallMultiple = async (
     let hint =
       md(`A script requires the following packages. Do you trust them? 
 * ${adjustedPackageNames
-        .map((name, index) =>
-          index === i
-            ? `<span class="text-primary font-bold">${name}</span>`
-            : name
-        )
-        .join("\n* ")}
+          .map((name, index) =>
+            index === i
+              ? `<span class="text-primary font-bold">${name}</span>`
+              : name
+          )
+          .join("\n* ")}
 
 ---
 
@@ -2353,9 +2358,9 @@ export let appInstall = async (packageName: string) => {
     try {
       response = await get<{ downloads: number }>(
         `https://api.npmjs.org/downloads/point/last-week/` +
-          stripVersion
+        stripVersion
       )
-    } catch (error) {}
+    } catch (error) { }
 
     let downloads =
       response?.data?.downloads || `an unknown number of`
@@ -2471,9 +2476,9 @@ global.getDataFromApp = global.sendWait = async (
   data?: any,
   timeout = process?.env?.KIT_DEFAULT_APP_TIMEOUT
     ? Number.parseInt(
-        process?.env?.KIT_DEFAULT_APP_TIMEOUT,
-        10
-      )
+      process?.env?.KIT_DEFAULT_APP_TIMEOUT,
+      10
+    )
     : 1000
 ) => {
   if (process?.send) {
@@ -2516,8 +2521,7 @@ global.getDataFromApp = global.sendWait = async (
           process.off("message", messageHandler)
           rej(
             new Error(
-              `Timeout after ${
-                timeout / 1000
+              `Timeout after ${timeout / 1000
               } seconds waiting for ${channel} response
               
 The app failed to send a ${channel} response to the script process within the expected timeframe. Halting script.
@@ -3317,7 +3321,7 @@ global.toast = async (text: string, options = {}) => {
 let beginMicStream = () => {
   global.mic.stream = undefined
   global.mic.stream = new Readable({
-    read() {},
+    read() { },
   })
 
   if (

@@ -115,7 +115,7 @@ await dec
 console.log("Install deps")
 // await exec('npx pnpm node -p "process.execPath"', options)
 
-await exec(`npx pnpm i --prod`, options)
+await exec(`pnpm i --prod`, options)
 // await exec(`npx pnpm dedupe --check`, options)
 // await exec(`npx pnpm dedupe`, options)
 

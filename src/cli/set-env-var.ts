@@ -4,20 +4,24 @@ import { kitDotEnvPath } from "../core/utils.js"
 let envKey = await arg("env key:")
 let envValue = await arg("env value:")
 let envFile = kenvPath(".env")
-let updateEnv = async (envKey, envValue) => {
-  if (env?.[envKey] !== envValue) {
-    let regex = new RegExp("^" + envKey + "=.*$")
-    sed("-i", regex, envKey + "=" + envValue, envFile)
-    env[envKey] = envValue
-    process.env[envKey] = envValue
-  }
+let updateEnv = (envKey: string, envValue: string) => {
+  if (env?.[envKey] === envValue) { return }
+
+  let regex = new RegExp("^" + envKey + "=.*$")
+  sed("-i", regex, envKey + "=" + envValue, envFile)
+  env[envKey] = envValue
+  process.env[envKey] = envValue
 }
-let writeNewEnv = async (envKey, envValue) => {
+let writeNewEnv = async (envKey: string, envValue: string) => {
+  if (env?.[envKey] === envValue) { return }
+
   await appendFile(envFile, `\n${envKey}=${envValue}`)
   env[envKey] = envValue
   process.env[envKey] = envValue
 }
-let removeEnv = async envKey => {
+let removeEnv = (envKey: string) => {
+  if (!env?.[envKey]) { return }
+
   let regex = new RegExp("^" + envKey + "=.*$", "gm")
   sed("-i", regex, "", envFile)
   delete env[envKey]

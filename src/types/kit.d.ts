@@ -164,11 +164,11 @@ export type GetScripts = (
 export type FlagFn = (
   flags: FlagsObject,
   options?: ActionsConfig
-) => void
+) => Promise<void>
 export type ActionsFn = (
   actions: Action[],
   options?: ActionsConfig
-) => void
+) => Promise<void>
 export type PrepFlags = (flags: FlagsObject) => FlagsObject
 
 export type SelectKitEditor = (
