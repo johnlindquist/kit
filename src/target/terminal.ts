@@ -466,8 +466,3 @@ global.term = async commandOrConfig => {
 }
 
 global.mainScript = async () => {}
-
-let { $, cd } = await import("zx")
-
-global.$ = $
-global.cd = cd

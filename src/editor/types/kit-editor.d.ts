@@ -10244,7 +10244,7 @@ declare module "@johnlindquist/kit" {
     KIT_SEARCH_MAX_ITERATIONS?: string | undefined
     KIT_USE_KIT_NODE_PATH?: string | undefined
   }
-  import type { GlobalsApi } from "@johnlindquist/globals"
+  import type { GlobalsApi } from "../../globals/index.js"
   import type { AppApi } from "./kitapp"
   import type { KitApi, Run } from "./kit"
   import type { PackagesApi } from "./packages"
@@ -12446,8 +12446,6 @@ declare module "@johnlindquist/kit" {
     var memoryMap: Map<string, any>
 
     var onTabIndex: number
-
-    var $: Zx["$"]
   }
   import type { ProcessInfo } from "./core"
   import type { Display, Point } from "./electron"
@@ -13164,7 +13162,6 @@ declare module "@johnlindquist/kit" {
     marked: typeof import("./marked").marked
     uuid: typeof import("crypto").randomUUID
     replace: typeof import("./replace-in-file").replaceInFile
-    $: $
 
     //custom
     ensureReadFile: EnsureReadFile

@@ -1,8 +1,9 @@
+import "../globals/index.js"
 import { config } from "@johnlindquist/kit-internal/dotenv-flow"
 import {
   md as globalMd,
   marked,
-} from "@johnlindquist/globals"
+} from "../globals/marked.js"
 
 import * as path from "node:path"
 

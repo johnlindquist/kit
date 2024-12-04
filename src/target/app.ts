@@ -215,7 +215,7 @@ global.app = {
 }
 
 let _exec = global.exec
-global.exec = (
+;(global as any).exec = (
   command: string,
   options = {
     shell: true,
@@ -3035,59 +3035,59 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
     })
   }
 
-  let globalTypesDir = kitPath(
-    "node_modules",
-    "@johnlindquist",
-    "globals",
-    "types"
-  )
+  // let globalTypesDir = kitPath(
+  //   "node_modules",
+  //   "@johnlindquist",
+  //   "globals",
+  //   "types"
+  // )
 
-  let globalTypeDirs = (
-    await readdir(globalTypesDir, { withFileTypes: true })
-  ).filter(dir => dir.isDirectory())
+  // let globalTypeDirs = (
+  //   await readdir(globalTypesDir, { withFileTypes: true })
+  // ).filter(dir => dir.isDirectory())
 
-  for await (let { name } of globalTypeDirs) {
-    let content = await readFile(
-      kitPath(
-        "node_modules",
-        "@johnlindquist",
-        "globals",
-        "types",
-        name,
-        "index.d.ts"
-      ),
-      "utf8"
-    )
+  // for await (let { name } of globalTypeDirs) {
+  //   let content = await readFile(
+  //     kitPath(
+  //       "src",
+  //       "@johnlindquist",
+  //       "globals",
+  //       "types",
+  //       name,
+  //       "index.d.ts"
+  //     ),
+  //     "utf8"
+  //   )
 
-    // let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
-    let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
+  //   // let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
+  //   let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
 
-    extraLibs.push({
-      content,
-      filePath,
-    })
-  }
+    // extraLibs.push({
+    //   content,
+    //   filePath,
+    // })
+  // }
 
   // node_modules/@johnlindquist/globals/types/index.d.ts
-  let globalsIndexContent = await readFile(
-    kitPath(
-      "node_modules",
-      "@johnlindquist",
-      "globals",
-      "types",
-      "index.d.ts"
-    ),
-    "utf8"
-  )
+  // let globalsIndexContent = await readFile(
+  //   kitPath(
+  //     "node_modules",
+  //     "@johnlindquist",
+  //     "globals",
+  //     "types",
+  //     "index.d.ts"
+  //   ),
+  //   "utf8"
+  // )
 
   //   globalsIndexContent = `declare module "@johnlindquist/globals" {
   // ${globalsIndexContent}
   //   }`
 
-  extraLibs.push({
-    content: globalsIndexContent,
-    filePath: `file:///node_modules/@johnlindquist/globals/index.d.ts`,
-  })
+  // extraLibs.push({
+  //   content: globalsIndexContent,
+  //   filePath: `file:///node_modules/@johnlindquist/globals/index.d.ts`,
+  // })
 
   let content = await readFile(
     kitPath("editor", "types", "kit-editor.d.ts"),
@@ -3533,8 +3533,3 @@ global.notify = async options => {
   }
   await sendWait(Channel.NOTIFY, options)
 }
-
-let { $, cd } = await import("zx")
-
-global.$ = $
-global.cd = cd

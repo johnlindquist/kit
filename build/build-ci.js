@@ -1,6 +1,6 @@
-import "@johnlindquist/globals"
 import { exit } from "node:process"
 import shelljs from "shelljs"
+import { execaCommand as exec } from "execa"
 
 let { cd, cp } = shelljs
 

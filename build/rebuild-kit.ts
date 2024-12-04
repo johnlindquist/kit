@@ -1,4 +1,4 @@
-import { exec, writeFile, ensureDir } from "@johnlindquist/globals"
+import { exec, writeFile, ensureDir } from "../src/globals/index.ts"
 import shelljs from "shelljs"
 import { homedir } from "node:os"
 import path from "node:path"

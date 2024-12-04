@@ -80,8 +80,6 @@ export interface PackagesApi {
 	trash: Trash
 	open: Open
 	rm: Trash
-
-	$: Zx["$"]
 }
 
 export interface DegitOptions {
@@ -128,6 +126,4 @@ declare global {
 	var memoryMap: Map<string, any>
 
 	var onTabIndex: number
-
-	var $: Zx["$"]
 }

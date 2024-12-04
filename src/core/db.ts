@@ -23,7 +23,7 @@ import { parseScript } from "./parser.js"
 
 import { parseScriptlets } from "./scriptlets.js"
 
-import { writeJson, readJson } from "@johnlindquist/kit-internal/fs-extra"
+import { writeJson, readJson } from "../globals/fs-extra.js"
 
 import type { Choice, Script, PromptDb } from "../types/core"
 import { Low, JSONFile } from "@johnlindquist/kit-internal/lowdb"

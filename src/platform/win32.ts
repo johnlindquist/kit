@@ -1,4 +1,3 @@
-import type { ExecaChildProcess } from "@johnlindquist/globals/types/execa"
 import { KIT_FIRST_PATH } from "../core/utils.js"
 
 let notSupported = name => async () =>
@@ -33,7 +32,7 @@ global.edit = async (p, dir, line, col) => {
   } catch {}
 }
 
-let activeFileSearchProcess: ExecaChildProcess<string>
+let activeFileSearchProcess: ReturnType<typeof exec>
 global.fileSearch = async (
   name,
   { onlyin, kind } = { onlyin: home(), kind: "" }
@@ -53,7 +52,7 @@ global.fileSearch = async (
     }
 
     activeFileSearchProcess = global.exec(command)
-    ;({ stdout, stderr } = await activeFileSearchProcess)
+    ;({ stdout, stderr } = (await activeFileSearchProcess) as { stdout: string; stderr: string })
     activeFileSearchProcess = null
     if (stderr) {
       console.log(stderr)

@@ -11,6 +11,7 @@ import {
 } from "./utils.js"
 import { ProcessType } from "./enum.js"
 import { slash } from "./resolvers.js"
+import { path } from "../globals/path.js"
 
 export let postprocessMetadata = (
 	metadata: Metadata,

@@ -31,7 +31,7 @@ await tmp.withDir(async (dir) => {
 		})
 	})
 
-	ava.only("legacy npm import with title-case", async (t) => {
+	ava("legacy npm import with title-case", async (t) => {
 		try{
 			await exec(`pnpm init`, {
 				cwd: kenvPath()

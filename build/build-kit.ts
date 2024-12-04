@@ -1,10 +1,11 @@
-import "@johnlindquist/globals"
 import shelljs from "shelljs"
 import path from "node:path"
 import { homedir, platform } from "node:os"
 import { existsSync } from "node:fs"
 import { rimraf } from "rimraf"
-import { chmod as fsChmod } from "node:fs/promises"
+import { chmod as fsChmod, writeFile } from "node:fs/promises"
+import { execaCommand as exec } from "execa"
+import { ensureDir } from "fs-extra"
 
 global.log = console.log
 global.warn = console.warn

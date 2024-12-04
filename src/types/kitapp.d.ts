@@ -1,4 +1,4 @@
-import { exec } from "@johnlindquist/globals"
+import { execaCommand as exec } from "execa"
 import type { editor } from "./editor.api"
 
 import {
@@ -32,7 +32,7 @@ import type {
 } from "./electron"
 
 import type { Trash } from "./packages"
-import type { marked } from "@johnlindquist/globals/types/marked"
+import type { marked } from "../globals/marked.ts"
 import type { ChildProcess } from "node:child_process"
 import type {
   UiohookKeyboardEvent,

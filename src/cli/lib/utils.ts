@@ -1,7 +1,7 @@
 import path from "node:path"
 import shelljs from "shelljs"
 import { kitPath, home } from "../../core/utils.js"
-import { compile } from "@johnlindquist/globals"
+import { compile } from "../../globals/handlebars.js"
 import {
   ensureDir,
   readFile,

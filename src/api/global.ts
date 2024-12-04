@@ -11,6 +11,8 @@ import {
   createPathResolver,
 } from "../core/utils.js"
 
+import "../globals/index.js"
+
 import { getScripts } from "../core/db.js"
 import type { PromptConfig } from "../types/core"
 import {
@@ -24,7 +26,7 @@ global.getScripts = getScripts
 
 performance.mark("run")
 
-await import("@johnlindquist/globals")
+await import("../globals/index.js")
 // await import("./packages/zx.js")
 await import("./packages/clipboardy.js")
 await import("./packages/shelljs.js")

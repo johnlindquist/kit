@@ -1,9 +1,10 @@
-import type { GlobalsApi } from "@johnlindquist/globals"
-import type { AppApi } from "./kitapp"
-import type { KitApi, Run } from "./kit"
-import type { PackagesApi } from "./packages"
-import type { PlatformApi } from "./platform"
-import type { ProAPI } from "./pro"
+import "./globals.d.ts"
+import type { GlobalsApi } from "../globals/index.ts"
+import type { AppApi } from "./kitapp.ts"
+import type { KitApi, Run } from "./kit.ts"
+import type { PackagesApi } from "./packages.ts"
+import type { PlatformApi } from "./platform.ts"
+import type { ProAPI } from "./pro.ts"
 
 export type GlobalApi = Omit<GlobalsApi, "path"> &
   KitApi &

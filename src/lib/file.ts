@@ -1,9 +1,8 @@
-import type { ExecaChildProcess } from "@johnlindquist/globals/types/execa"
 import { Channel } from "../core/enum.js"
 
 // TODO: Optimize, etc
 // "kMDItemContentType = 'com.apple.application-bundle'"
-let activeFileSearchProcess: ExecaChildProcess<string>
+let activeFileSearchProcess: ReturnType<typeof exec>
 global.fileSearch = async (
   name,
   { onlyin = "~", kind = "", kMDItemContentType = "" } = {}
@@ -32,7 +31,7 @@ global.fileSearch = async (
 
     let { stdout } = await activeFileSearchProcess
 
-    results = stdout.split("\n").filter(Boolean)
+    results = (stdout as string).split("\n").filter(Boolean)
     activeFileSearchProcess = null
   } catch (e) {
     warn(e)

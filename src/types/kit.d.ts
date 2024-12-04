@@ -1,4 +1,4 @@
-import { Low } from "@johnlindquist/kit-internal/lowdb"
+import type { Low } from "@johnlindquist/kit-internal/lowdb"
 import type {
   format,
   formatDistanceToNow,

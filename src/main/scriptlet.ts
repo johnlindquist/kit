@@ -36,6 +36,7 @@ const toolCommandMap = new Map([
 	["php", (scriptPath) => `php ${scriptPath}`],
 	["node", (scriptPath) => `node ${scriptPath}`],
 	["bash", (scriptPath) => `bash ${scriptPath}`],
+	["cmd", (scriptPath) => `cmd /s /c ${scriptPath}`],
 	["powershell", (scriptPath) => `powershell -File ${scriptPath}`],
 	["lua", (scriptPath) => `lua ${scriptPath}`],
 	["r", (scriptPath) => `Rscript ${scriptPath}`],
