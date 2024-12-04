@@ -35,6 +35,7 @@ ava.serial("env should work with different params", async (t) => {
 ava.serial("All globals exist", async (t) => {
 	// TODO: Make platform independent...
 	/** @type {import("../platform/darwin")} */
+	await import(pathToFileURL(kitPath("core", "utils.js")).href)
 	await import(pathToFileURL(kitPath("platform", "darwin.js")).href)
 	await import(pathToFileURL(kitPath("target", "app.js")).href)
 	await import(pathToFileURL(kitPath("api", "pro.js")).href)

@@ -24,6 +24,7 @@ export let writeFileSync = (global.writeFileSync = fs.writeFileSync)
 export let appendFileSync = (global.appendFileSync = fs.appendFileSync)
 export let readdirSync = (global.readdirSync = fs.readdirSync)
 export let copyFileSync = (global.copyFileSync = fs.copyFileSync)
+export let renameSync = (global.renameSync = fs.renameSync)
 
 
 export let createReadStream = (global.createReadStream = fs.createReadStream)

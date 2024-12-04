@@ -14,21 +14,21 @@ for (let def of kitDefs) {
 	kitContent += await readFile(path.resolve("src", "types", def), "utf8")
 }
 
-let globalDefs = path.resolve(
-	"node_modules",
-	"@johnlindquist",
-	"globals",
-	"types"
-)
+// let globalDefs = path.resolve(
+// 	"node_modules",
+// 	"@johnlindquist",
+// 	"globals",
+// 	"types"
+// )
 
-let globalTypeDirs = (await readdir(globalDefs)).filter(
-	(dir) => !dir.endsWith(".ts")
-)
+// let globalTypeDirs = (await readdir(globalDefs)).filter(
+// 	(dir) => !dir.endsWith(".ts")
+// )
 
-console.log({ defs: kitDefs, globalTypeDirs })
+// console.log({ defs: kitDefs, globalTypeDirs })
 
 // GlobalsAPI
-kitContent += await readFile(path.resolve(globalDefs, "index.d.ts"), "utf8")
+// kitContent += await readFile(path.resolve(globalDefs, "index.d.ts"), "utf8")
 
 //       content = `declare module '@johnlindquist/kit' {
 

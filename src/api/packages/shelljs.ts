@@ -14,6 +14,7 @@ const {
   tempdir,
   test,
   which,
+  cd,
 } = shelljs
 
 global.cp = cp
@@ -35,5 +36,6 @@ global.tempdir = tempdir
 global.test = test
 global.which = which
 global.pwd = pwd
+global.cd = cd
 
 export {}

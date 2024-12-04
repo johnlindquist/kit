@@ -58,10 +58,8 @@ export type OnTab = (name: string, fn: () => void) => void
 
 export type TmpPromise = typeof import("tmp-promise")
 
-export type Zx = typeof import("zx/build/index")
-
 export interface PackagesApi {
-	cd: Zx["cd"]
+	cd: typeof shelljs.cd
 	cp: typeof shelljs.cp
 	chmod: typeof shelljs.chmod
 	echo: typeof shelljs.echo
@@ -97,7 +95,7 @@ export interface IDegit {
 type Degit = (repo: string, options?: DegitOptions) => IDegit
 
 declare global {
-	var cd: Zx["cd"]
+	var cd: typeof shelljs.cd
 	var cp: typeof shelljs.cp
 	var chmod: typeof shelljs.chmod
 	var echo: typeof shelljs.echo
