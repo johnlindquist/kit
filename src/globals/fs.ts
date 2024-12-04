@@ -19,6 +19,12 @@ export let lchown = (global.lchown = fsPromises.lchown)
 export let utimes = (global.utimes = fsPromises.utimes)
 export let lutimes = (global.lutimes = fsPromises.lutimes)
 export let rename = (global.move = fsPromises.rename)
+export let readFileSync = (global.readFileSync = fs.readFileSync)
+export let writeFileSync = (global.writeFileSync = fs.writeFileSync)
+export let appendFileSync = (global.appendFileSync = fs.appendFileSync)
+export let readdirSync = (global.readdirSync = fs.readdirSync)
+export let copyFileSync = (global.copyFileSync = fs.copyFileSync)
+
 
 export let createReadStream = (global.createReadStream = fs.createReadStream)
 export let createWriteStream = (global.createWriteStream = fs.createWriteStream)

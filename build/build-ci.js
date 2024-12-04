@@ -1,6 +1,7 @@
 import { exit } from "node:process"
 import shelljs from "shelljs"
 import { execaCommand as exec } from "execa"
+import path from "node:path"
 
 let { cd, cp } = shelljs
 
