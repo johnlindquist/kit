@@ -52,6 +52,7 @@ ava.serial("All globals exist", async (t) => {
 		.filter((m) => !m.includes("projectPath"))
 
 	for (let m of matches) {
+		t.log(`Checking if ${m} exists on global...`)
 		t.true(typeof global[m] !== "undefined", `${m} is missing`)
 	}
 })

@@ -6,6 +6,8 @@ import { rimraf } from "rimraf"
 import { chmod as fsChmod, writeFile } from "node:fs/promises"
 import { execaCommand as exec } from "execa"
 import { ensureDir } from "fs-extra"
+import { downloadAndInstallPnpm } from "./pnpm.ts"
+import { cwd } from "node:process"
 
 global.log = console.log
 global.warn = console.warn
@@ -164,6 +166,19 @@ try {
 			fsChmod(kitPath("override", "code", "python"), 0o755)
 		])
 	}
+	await downloadAndInstallPnpm()
+	console.log(`Checking node path with pnpm node -e at ${kitPath("pnpm")}`)
+	const nodePath = await exec(
+		`${kitPath("pnpm")} node -e "console.log(process.execPath)"`,
+		{
+			cwd: kitPath(),
+			stdio: "inherit",
+			env: {
+				PNPM_HOME: kitPath(),
+				PATH:""
+			}
+	})
+
 	process.exit(0)
 } catch (e) {
 	console.error(e)
