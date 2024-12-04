@@ -10503,7 +10503,7 @@ declare module "@johnlindquist/kit" {
   import type {
     format,
     formatDistanceToNow,
-  } from "@johnlindquist/kit-internal/date-fns"
+  } from "date-fns"
   import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
   import type {
     Action,

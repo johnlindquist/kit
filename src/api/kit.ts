@@ -1,9 +1,9 @@
 import path from "node:path"
 import { existsSync, lstatSync } from "node:fs"
 import {
-  readFile,
   readJson,
-} from "@johnlindquist/kit-internal/fs-extra"
+} from "../globals/fs-extra.js"
+import { readFile } from "../globals/fs.js"
 import * as os from "node:os"
 import { pathToFileURL } from "node:url"
 import * as JSONSafe from "safe-stable-stringify"
@@ -14,7 +14,7 @@ import {
   type Options,
   type ConfigOptions,
 } from "quick-score"
-import { formatDistanceToNow } from "@johnlindquist/kit-internal/date-fns"
+import { formatDistanceToNow } from "date-fns"
 import type {
   Action,
   Choice,
@@ -53,7 +53,7 @@ import {
   setUserJson,
 } from "../core/db.js"
 
-import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+import { default as stripAnsi } from "strip-ansi"
 
 import type { Kenv } from "../types/kit"
 import type { Fields as TraceFields } from "chrome-trace-event"

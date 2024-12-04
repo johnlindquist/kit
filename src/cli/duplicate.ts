@@ -7,11 +7,6 @@ import {
   stripMetadata,
   uniq,
 } from "../core/utils.js"
-import { generate } from "@johnlindquist/kit-internal/project-name-generator"
-
-let examples = Array.from({ length: 3 })
-  .map((_, i) => generate({ words: 2 }).dashed)
-  .join(", ")
 
 let { filePath } = await selectScript(
   "Select Script to Duplicate"

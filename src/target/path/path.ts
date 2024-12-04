@@ -3,7 +3,7 @@ import { unlink } from 'node:fs/promises'
 import { filesize } from 'filesize'
 import * as ogPath from 'node:path'
 
-import { formatDistanceToNow, compareAsc } from '@johnlindquist/kit-internal/date-fns'
+import { formatDistanceToNow, compareAsc } from 'date-fns'
 
 import type { Dirent } from 'node:fs'
 import { pathToFileURL } from 'node:url'

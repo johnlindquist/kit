@@ -1,5 +1,5 @@
-import { enquirer } from "@johnlindquist/kit-internal/enquirer"
-import { minimist } from "@johnlindquist/kit-internal/minimist"
+import { default as enquirer } from "enquirer"
+import { default as minimist } from "minimist"
 import type { PromptConfig } from "../types/core"
 import {
   adjustPackageName,
@@ -13,7 +13,7 @@ import type { Rectangle } from "../types/electron"
 import type { EditorOptions } from "../types/kitapp"
 
 type Enquirer =
-  typeof import("@johnlindquist/kit-internal/enquirer").enquirer
+  typeof import("enquirer")
 type Prompt = Enquirer["prompt"]
 type EnquirerPromptConfig = Parameters<Prompt>[0]
 

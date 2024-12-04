@@ -1,7 +1,7 @@
 import {
   formatDistanceToNow,
   parseISO,
-} from "@johnlindquist/kit-internal/date-fns"
+} from "date-fns"
 import { KIT_FIRST_PATH } from "../core/utils.js"
 import { createPackageManagerCommand } from "./lib/install.js"
 

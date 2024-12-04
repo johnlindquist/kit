@@ -1,6 +1,6 @@
 // Name: New Script
 // Description: Creates a new script
-import { generate } from "@johnlindquist/kit-internal/project-name-generator"
+import { default as generate } from "project-name-generator"
 
 let name = "quick-" + generate({ words: 2 }).dashed
 

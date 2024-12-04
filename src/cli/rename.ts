@@ -7,7 +7,7 @@ import {
   trashScriptBin,
 } from "../core/utils.js"
 
-import { generate } from "@johnlindquist/kit-internal/project-name-generator"
+import { default as generate } from "project-name-generator"
 
 let examples = Array.from({ length: 3 })
   .map((_, i) => generate({ words: 2 }).dashed)

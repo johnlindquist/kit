@@ -36,9 +36,9 @@ import {
   tap,
   Subject,
   merge,
-} from "@johnlindquist/kit-internal/rxjs"
-import { minimist } from "@johnlindquist/kit-internal/minimist"
-import { stripAnsi } from "@johnlindquist/kit-internal/strip-ansi"
+} from "rxjs"
+import { default as minimist } from "minimist"
+import { default as stripAnsi } from "strip-ansi"
 
 import {
   Key,

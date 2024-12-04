@@ -9,7 +9,7 @@ import {
   ensureTemplates,
   prependImport,
 } from "./lib/utils.js"
-import { generate } from "@johnlindquist/kit-internal/project-name-generator"
+import { default as generate } from "project-name-generator"
 import { stripMetadata } from "../core/utils.js"
 
 let previewContent = ``

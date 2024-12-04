@@ -1,5 +1,5 @@
 import "../globals/index.js"
-import { config } from "@johnlindquist/kit-internal/dotenv-flow"
+import { config } from "dotenv-flow"
 import {
   md as globalMd,
   marked,
@@ -780,7 +780,7 @@ export let configEnv = () => {
 export let trashScriptBin = async (script: Script) => {
   let { command, kenv, filePath } = script
   let { pathExists } = await import(
-    "@johnlindquist/kit-internal/fs-extra"
+    "fs-extra"
   )
 
   let binJSPath = isJsh()
@@ -827,7 +827,7 @@ export let trashScript = async (script: Script) => {
   await trashScriptBin(script)
 
   let { pathExists } = await import(
-    "@johnlindquist/kit-internal/fs-extra"
+    "fs-extra"
   )
 
   await global.trash([

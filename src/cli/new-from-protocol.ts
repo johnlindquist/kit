@@ -14,11 +14,6 @@ import {
   ensureTemplates,
   prependImport,
 } from "./lib/utils.js"
-import { generate } from "@johnlindquist/kit-internal/project-name-generator"
-
-let examples = Array.from({ length: 3 })
-  .map((_, i) => generate({ words: 2 }).dashed)
-  .join(", ")
 
 let stripName = (name: string) =>
   path.parse(name.trim().replace(/\s/g, "-").toLowerCase())
@@ -41,7 +36,6 @@ let name = await arg(
     {
       info: true,
       name: `Requirements: lowercase, dashed, no extension`,
-      description: `Examples: ${examples}`,
     },
   ]
 )
