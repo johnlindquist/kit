@@ -144,6 +144,26 @@ ava("groupChoices - recentKey and recentLimit", t => {
   t.is(result[0].choices[1].name, "B1")
 })
 
+ava("groupChoices - don't add Favorite group to recent", t => {
+  const choices: Choice[] = [
+    { name: "A1", group: "Favorite", lastUsed: 3 },
+    { name: "A2", group: "A", lastUsed: 1 },
+    { name: "B1", group: "B", lastUsed: 2 },
+    { name: "C1", group: "C" },
+  ] as Choice[]
+
+  const result = groupChoices(choices, {
+    recentKey: "lastUsed",
+    recentLimit: 2,
+  })
+
+  t.is(result[0].name, "Recent")
+  t.is(result[0].choices.length, 2)
+  t.is(result[0].choices[0].name, "B1")
+  t.is(result[0].choices[1].name, "A2")
+})
+
+
 ava("groupChoices - hideWithoutInput", t => {
   const choices: Choice[] = [
     { name: "A1", group: "A" },

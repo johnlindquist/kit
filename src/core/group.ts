@@ -80,6 +80,7 @@ export let groupChoices = (
     if (
       choice[recentKey] &&
       !choice.pass &&
+      choice.group !== "Favorite" &&
       !(
         typeof choice?.recent === "boolean" &&
         choice?.recent === false

@@ -14,7 +14,11 @@ Opens ~/.kenv/scriptlets/scriptlets.md in your selected editor
 
 await ensureDir(kenvPath("scriptlets"))
 let scriptletsPath = kenvPath("scriptlets", "scriptlets.md")
-if (arg?.pass) {
+let name = arg?.pass || await arg({
+	placeholder: "Scriptlet Name",
+	enter: "Create Scriptlet",
+})
+if (name) {
 	let content = await readFile(scriptletsPath, "utf-8")
 	let whitespace = ""
 	if (content.trim() !== "") {
@@ -23,9 +27,9 @@ if (arg?.pass) {
 
 	await appendFile(
 		scriptletsPath,
-		`${whitespace}## ${arg?.pass}
+		`${whitespace}## ${name}
 
-\`\`\`
+\`\`\`ts
 
 \`\`\`
 `

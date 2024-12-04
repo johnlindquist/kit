@@ -1,8 +1,8 @@
 import ava from "ava"
 import "../core/utils.js"
 import tmp from "tmp-promise"
-import { randomUUID } from "crypto"
-import path from "path"
+import { randomUUID } from "node:crypto"
+import path from "node:path"
 import { ensureDir } from "fs-extra"
 import { kenvPath, kitPath } from "../core/utils.js"
 
@@ -10,12 +10,17 @@ import { kenvPath, kitPath } from "../core/utils.js"
 await tmp.withDir(async (dir) => {
   process.env.KENV = dir.path
   process.env.KIT_CONTEXT = "workflow"
+  
+  // Create the base directory first
+  await ensureDir(dir.path)
+  // Then set KENV to the .kenv subdirectory
   process.env.KENV = path.resolve(dir.path, ".kenv")
 
   ava.beforeEach(async (t) => {
     global.kitScript = `${randomUUID()}.js`
     global.__kitDbMap = new Map()
 
+    // Create directories after ensuring base directory exists
     await ensureDir(kenvPath())
     await ensureDir(kitPath())
 

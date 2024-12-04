@@ -101,6 +101,7 @@ export let runScriptlet = async (
 	formattedFocusedScriptlet.scriptlet = formattedScriptlet
 
 	switch (formattedFocusedScriptlet.tool) {
+		case "":
 		case "kit":
 		case "ts":
 		case "js": {
