@@ -4,10 +4,9 @@ import { homedir, platform } from "node:os"
 import { existsSync } from "node:fs"
 import { rimraf } from "rimraf"
 import { chmod as fsChmod, writeFile } from "node:fs/promises"
-import { execaCommand as exec } from "execa"
+import { execaCommand as exec, type Options } from "execa"
 import { ensureDir } from "fs-extra"
 import { downloadAndInstallPnpm } from "./pnpm.ts"
-import { cwd } from "node:process"
 
 global.log = console.log
 global.warn = console.warn
@@ -20,8 +19,8 @@ let kitPath = (...pathParts) =>
 let options = {
 	cwd: kitPath(),
 	shell: true,
-	stdio: "pipe"
-}
+	stdio: "inherit"
+} as Options
 process.on("uncaughtException", (error) => {
 	console.error("Uncaught Exception:")
 	console.error(formatError(error))
@@ -118,7 +117,6 @@ await dec
 console.log("Install deps")
 // await exec('npx pnpm node -p "process.execPath"', options)
 
-await exec(`pnpm i --prod`, options)
 // await exec(`npx pnpm dedupe --check`, options)
 // await exec(`npx pnpm dedupe`, options)
 
@@ -178,6 +176,10 @@ try {
 				PATH:""
 			}
 	})
+
+	const pnpmPath = kitPath("pnpm")
+	await exec(`"${pnpmPath}" i --prod`, options)
+	await exec(`"${pnpmPath}" i esbuild vite tsx`, options)
 
 	process.exit(0)
 } catch (e) {

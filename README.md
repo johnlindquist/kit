@@ -18,14 +18,13 @@
 
 | Shipped | Planned |
 | --- | --- |
-| Built-in Debugger | Sync Scripts to GitHub Repo |
-| Script Log Window | Run Script Remotely as GitHub Actions |
-| Support through Discord | Advanced Widgets |
-| | Screenshots |
-| | Screen Recording |
-| | Desktop Color Picker |
-| | Measure Tool |
-| | Debug from IDE |
+| Unlimited Active Prompts | Sync Scripts to GitHub Repo |
+| Built-in Debugger | Run Script Remotely as GitHub Actions |
+| Script Log Window | Advanced Screenshots |
+| Vite Widgets | Screen Recording |
+| Webcam Capture | Measure Tool |
+| Desktop Color Picker | Debug from IDE |
+| Basic Screenshots |
 
 ## Prerequisites
 

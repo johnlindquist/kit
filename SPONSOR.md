@@ -26,25 +26,25 @@
 <h2 class="text-base">Pro Features</h2>
 
 <ul class="text-xs">
-    <li>Debugger</li>
     <li>Unlimited Active Prompts</li>
+    <li>Built-in Debugger</li>
     <li>Script Log Window</li>
     <li>Vite Widgets</li>
     <li>Webcam Capture</li>
-    <li>Screenshots</li>
+    <li>Basic Screenshots</li>
     <li>Desktop Color Picker</li>
     <li>Support through Discord</li>
-<ul>
+</ul>
 </div>
 
 <div>
-
 
 <h2 class="text-base">Upcoming Pro Features</h2>
 
 <ul class="text-xs">
     <li>Sync Scripts to GitHub Repo</li>
     <li>Run Script Remotely as GitHub Actions</li>
+    <li>Advanced Screenshots</li>
     <li>Screen Recording</li>      
     <li>Measure Tool</li>
 </ul>

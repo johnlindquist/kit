@@ -73,11 +73,13 @@ Additional kenvs are located:
       {
         name: "kenv",
         placeholder: `my-new-kenv`,
+        required: true,
         label: `Name your kenv`,
       },
       {
         name: "init",
         placeholder: "y/n",
+        required: true,
         label: `Initialize as a git repo?`,
       },
       {

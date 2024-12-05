@@ -295,6 +295,7 @@ export interface KitApi {
   onExit: OnExit
 
   attemptImport: KitModuleLoader
+  silentAttemptImport: KitModuleLoader
   npm: KitModuleLoader
   setup: KitModuleLoader
 
@@ -365,6 +366,7 @@ declare global {
   var kenvTmpPath: PathFn
 
   var attemptImport: KitModuleLoader
+  var silentAttemptImport: KitModuleLoader
   /** @deprecated Use standard or dynamic imports instead. */
   var npm: KitModuleLoader
   var npmInstall: (packageName: string) => Promise<void>

@@ -56,7 +56,7 @@ if (process.env.KIT_MEASURE) {
 }
 
 try {
-  await attemptImport(kenvPath('globals.ts'))
+  await silentAttemptImport(kenvPath('globals.ts'))
 } catch (error) {
   log('No user-defined globals.ts')
 }

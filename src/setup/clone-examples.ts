@@ -16,7 +16,7 @@ if (await isDir(examplesDir)) {
 } else {
 	if (await isBin("git")) {
 		await exec(
-			"git clone https://github.com/johnlindquist/kit-examples examples",
+			"git clone https://github.com/johnlindquist/kit-examples-ts examples",
 			{
 				cwd: kenvPath("kenvs")
 			}
@@ -24,7 +24,7 @@ if (await isDir(examplesDir)) {
 	} else {
 		let destination = kenvPath("tmp")
 		await download(
-			"https://github.com/johnlindquist/kit-examples/archive/main.zip",
+			"https://github.com/johnlindquist/kit-examples-ts/archive/main.zip",
 			destination,
 			{
 				extract: true,

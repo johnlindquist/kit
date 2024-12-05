@@ -1115,14 +1115,14 @@ export let proPane = () =>
   <div class="list-inside flex-1">
     <h3 class="text-xl font-bold">Pro Features</h3>
     <ul class="checkmark-list">
-    <li>Debugger</li>
     <li>Unlimited Active Prompts</li>
+    <li>Built-in Debugger</li>
     <li>Script Log Window</li>
     <li>Vite Widgets</li>
-      <li>Webcam Capture</li>
-      <li>Screenshots</li>
-      <li>Desktop Color Picker</li>
-      <li>Support through Discord</li>
+    <li>Webcam Capture</li>
+    <li>Basic Screenshots</li>
+    <li>Desktop Color Picker</li>
+    <li>Support through Discord</li>
     </ul>
   </div>
 
@@ -1131,6 +1131,7 @@ export let proPane = () =>
     <ul class="checkmark-list">
       <li>Sync Scripts to GitHub Repo</li>
       <li>Run Script Remotely as GitHub Actions</li>
+      <li>Advanced Screenshots</li>
       <li>Screen Recording</li>      
       <li>Measure Tool</li>
     </ul>

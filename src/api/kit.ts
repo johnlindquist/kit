@@ -349,6 +349,22 @@ global.attemptImport = async (scriptPath, ..._args) => {
   return importResult
 }
 
+global.silentAttemptImport = async (scriptPath, ..._args) => {
+  let cachedArgs = args.slice(0)
+  let importResult = undefined
+  try {
+    global.updateArgs(_args)
+
+    let href = pathToFileURL(scriptPath).href
+    let kitImport = `${href}?now=${Date.now()}.kit`
+    importResult = await import(kitImport)
+  } catch (error) {
+    
+  }
+
+  return importResult
+}
+
 global.__kitAbandoned = false
 global.send = (channel: Channel, value?: any) => {
   if (global.__kitAbandoned) return null

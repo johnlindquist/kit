@@ -149,6 +149,7 @@ Please go to [${sponsorUrl}](${sponsorUrl}) to become a sponsor to unlock all fe
 </div>
 `)
 	let option = await div({
+		height: PROMPT.HEIGHT["3XL"],
 		enter: "Sign In",
 		name: `Sign in with GitHub to unlock all features.`,
 		description: "",
