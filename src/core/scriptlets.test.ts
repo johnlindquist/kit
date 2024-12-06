@@ -1247,3 +1247,95 @@ mysql -u root
 # !!! Important Warning !!!
 echo "Critical section"`)
 })
+
+ava("parseMarkdownAsScriptlets with snippet placeholders in template", async (t) => {
+  const markdown = `
+## Snippet Placeholder Test
+\`\`\`template
+Dear \${1:name},
+
+Please meet me at \${2:address}
+
+Sincerely,
+John
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "Snippet Placeholder Test")
+  t.is(scripts[0].tool, "template")
+  t.is(
+    scripts[0].scriptlet,
+    `Dear \${1:name},
+
+Please meet me at \${2:address}
+
+Sincerely,
+John`
+  )
+  t.deepEqual(scripts[0].inputs, [])
+})
+
+ava("formatScriptlet preserves snippet placeholders without treating them as inputs", (t) => {
+  const scriptlet = {
+    name: "Snippet Preservation Test",
+    tool: "template",
+    scriptlet: `
+Dear \${1:name},
+
+Please meet me at \${2:address}
+
+Sincerely,
+John
+`.trim(),
+    inputs: []
+  } as Scriptlet
+
+  // No inputs or flags, just ensure formatting leaves placeholders intact
+  const { formattedScriptlet, remainingInputs } = formatScriptlet(scriptlet, [], {})
+  t.is(
+    formattedScriptlet,
+    `Dear \${1:name},
+
+Please meet me at \${2:address}
+
+Sincerely,
+John`
+  )
+  t.deepEqual(remainingInputs, [])
+})
+
+ava("parseMarkdownAsScriptlets with mixed snippet placeholders and a {{variable}}", async (t) => {
+  const markdown = `
+## Mixed Placeholders Test
+\`\`\`template
+Dear \${1:name},
+
+Please meet me at \${2:address}
+Reference Code: {{refCode}}
+
+Sincerely,
+John
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "Mixed Placeholders Test")
+  t.is(scripts[0].tool, "template")
+  // The snippet placeholders should remain untouched
+  t.is(
+    scripts[0].scriptlet,
+    `Dear \${1:name},
+
+Please meet me at \${2:address}
+Reference Code: {{refCode}}
+
+Sincerely,
+John`
+  )
+  // Only `{{refCode}}` is considered an input, snippet placeholders stay as-is
+  t.deepEqual(scripts[0].inputs, ["refCode"])
+})
+

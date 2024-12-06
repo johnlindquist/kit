@@ -53,6 +53,10 @@ await tmp.withDir(async (dir) => {
 
     console.log = t.log
     global.log = t.log
+    global.setEnvVar = async (...args) => {
+      global.args.push(...args)
+      await import(`./../cli/set-env-var.ts?${Math.random()}`)
+    }
 
     t.context = {
       dir,
@@ -62,7 +66,7 @@ await tmp.withDir(async (dir) => {
 
 
   ava.serial("should set a new environment variable", async (t:Context) => {
-    await global.cli("set-env-var", "HELLO", "WORLD")
+    await global.setEnvVar("HELLO", "WORLD")
     const contents = await readFile(kitDotEnvPath(), "utf-8")
     const {parsed, error} = dotenv.config({
       files: [kitDotEnvPath()],
@@ -84,8 +88,7 @@ await tmp.withDir(async (dir) => {
 
   ava.serial("should update an existing environment variable", async (t:Context) => {
     await writeFile(t.context.envFile, "EXISTING_KEY=old_value\n")
-    
-    await global.cli("set-env-var", "EXISTING_KEY", "new_value")
+    await global.setEnvVar("EXISTING_KEY", "new_value")
 
     const {parsed} = dotenv.config({
       files: [t.context.envFile],
@@ -95,8 +98,7 @@ await tmp.withDir(async (dir) => {
 
   ava.serial("should remove an environment variable", async (t:Context) => {
     await writeFile(t.context.envFile, "TO_REMOVE=value\n")
-    
-    await global.cli("set-env-var", "TO_REMOVE", Env.REMOVE)
+    await global.setEnvVar("TO_REMOVE", Env.REMOVE)
 
     const {parsed} = dotenv.config({
       files: [t.context.envFile],
@@ -107,7 +109,7 @@ await tmp.withDir(async (dir) => {
   ava.serial("should handle special characters in values", async (t:Context) => {
     const specialValue = "test=value with spaces!@#$%^&*()"
     
-    await global.cli("set-env-var", "SPECIAL_KEY", specialValue)
+    await global.setEnvVar("SPECIAL_KEY", specialValue)
 
     const {parsed} = dotenv.config({
       files: [t.context.envFile],
@@ -118,7 +120,7 @@ await tmp.withDir(async (dir) => {
   ava.serial("should not duplicate entries when updating", async (t:Context) => {
     await writeFile(t.context.envFile, "DUPLICATE_KEY=first_value\n")
     
-    await global.cli("set-env-var", "DUPLICATE_KEY", "second_value")
+    await global.setEnvVar("DUPLICATE_KEY", "second_value")
 
     const {parsed} = dotenv.config({
       files: [t.context.envFile],
@@ -132,7 +134,7 @@ await tmp.withDir(async (dir) => {
   })
 
   ava.serial("should handle empty values", async (t:Context) => {
-    await global.cli("set-env-var", "EMPTY_KEY", "")
+    await global.setEnvVar("EMPTY_KEY", "")
 
     const {parsed} = dotenv.config({
       files: [t.context.envFile],
@@ -143,7 +145,7 @@ await tmp.withDir(async (dir) => {
   ava.serial("should not modify other variables when updating", async (t:Context) => {
     await writeFile(t.context.envFile, "KEEP_ME=keep\nUPDATE_ME=old\n")
     
-    await global.cli("set-env-var", "UPDATE_ME", "new")
+    await global.setEnvVar("UPDATE_ME", "new")
 
     const {parsed} = dotenv.config({
       files: [t.context.envFile],
@@ -153,13 +155,13 @@ await tmp.withDir(async (dir) => {
   })
 
   ava.serial("should fail to set an environment variable with an empty key", async (t:Context) => {
-    const error = await t.throwsAsync(global.cli("set-env-var", "", "VALUE"))
+    const error = await t.throwsAsync(global.setEnvVar("", "VALUE"))
     t.truthy(error)
     t.regex(error.message, /Invalid environment key/i, "Expected error for empty key")
   })
 
   ava.serial("should fail to set an environment variable with whitespace-only key", async (t:Context) => {
-    const error = await t.throwsAsync(global.cli("set-env-var", "   ", "VALUE"))
+    const error = await t.throwsAsync(global.setEnvVar("   ", "VALUE"))
     t.truthy(error)
     t.regex(error.message, /Invalid environment key/i, "Expected error for whitespace-only key")
 
@@ -171,26 +173,26 @@ await tmp.withDir(async (dir) => {
   ava.serial("should preserve hashes inside quoted values", async (t:Context) => {
     global.log = t.log
     const valueWithHash = "secret#hash"
-    await global.cli("set-env-var", "HASHED_VALUE", valueWithHash)
+    await global.setEnvVar("HASHED_VALUE", valueWithHash)
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.HASHED_VALUE, valueWithHash)
   })
 
   ava.serial("should correctly handle multiple '=' characters in the value", async (t:Context) => {
     const valueWithEquals = "part1=part2=part3"
-    await global.cli("set-env-var", "MULTIPLE_EQUALS", valueWithEquals)
+    await global.setEnvVar("MULTIPLE_EQUALS", valueWithEquals)
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.MULTIPLE_EQUALS, valueWithEquals)
   })
 
   ava.serial("should not break if asked to remove a non-existing variable", async (t:Context) => {
-    await global.cli("set-env-var", "NON_EXISTENT_KEY", Env.REMOVE)
+    await global.setEnvVar("NON_EXISTENT_KEY", Env.REMOVE)
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.falsy(parsed?.NON_EXISTENT_KEY)
   })
 
   ava.serial("should handle lowercase variable names", async (t:Context) => {
-    await global.cli("set-env-var", "lowercase_key", "lower_value")
+    await global.setEnvVar("lowercase_key", "lower_value")
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.lowercase_key, "lower_value")
   })
@@ -198,15 +200,15 @@ await tmp.withDir(async (dir) => {
   ava.serial("should correctly handle double quotes in the value", async (t:Context) => {
     global.log = t.log
     const valueWithQuotes = `foo"bar"baz`
-    await global.cli("set-env-var", "QUOTED_KEY", valueWithQuotes)
+    await global.setEnvVar("QUOTED_KEY", valueWithQuotes)
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.QUOTED_KEY, valueWithQuotes)
   })
 
   ava.serial("should allow updating the same variable multiple times in a row", async (t:Context) => {
-    await global.cli("set-env-var", "REPEATED_KEY", "first_value")
-    await global.cli("set-env-var", "REPEATED_KEY", "second_value")
-    await global.cli("set-env-var", "REPEATED_KEY", "final_value")
+    await global.setEnvVar("REPEATED_KEY", "first_value")
+    await global.setEnvVar("REPEATED_KEY", "second_value")
+    await global.setEnvVar("REPEATED_KEY", "final_value")
 
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.REPEATED_KEY, "final_value")
@@ -214,21 +216,21 @@ await tmp.withDir(async (dir) => {
 
   ava.serial("should handle a scenario where the .env file initially doesn't contain any valid entries", async (t:Context) => {
     // We start with just "poop" in the file as per beforeEach, meaning no valid VAR= lines
-    await global.cli("set-env-var", "BRAND_NEW_KEY", "brand_new_value")
+    await global.setEnvVar("BRAND_NEW_KEY", "brand_new_value")
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.BRAND_NEW_KEY, "brand_new_value")
   })
 
   ava.serial("should handle Windows-style paths", async (t:Context) => {
     const windowsPath = "C:\\Users\\JohnDoe\\Documents\\Project"
-    await global.cli("set-env-var", "WIN_PATH", windowsPath)
+    await global.setEnvVar("WIN_PATH", windowsPath)
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.WIN_PATH, windowsPath)
   })
 
   ava.serial("should handle POSIX-style paths", async (t:Context) => {
     const posixPath = "/home/user/documents/project"
-    await global.cli("set-env-var", "POSIX_PATH", posixPath)
+    await global.setEnvVar("POSIX_PATH", posixPath)
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.POSIX_PATH, posixPath)
   })
@@ -237,8 +239,8 @@ await tmp.withDir(async (dir) => {
     const windowsPath = "C:\\Program Files\\My App\\Config"
     const posixPath = "/home/user/My Documents/project"
     
-    await global.cli("set-env-var", "WIN_SPACE_PATH", windowsPath)
-    await global.cli("set-env-var", "POSIX_SPACE_PATH", posixPath)
+    await global.setEnvVar("WIN_SPACE_PATH", windowsPath)
+    await global.setEnvVar("POSIX_SPACE_PATH", posixPath)
     
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.WIN_SPACE_PATH, windowsPath)
@@ -249,8 +251,8 @@ await tmp.withDir(async (dir) => {
     const uncPath = "\\\\server\\share\\folder"
     const networkPath = "//server/share/folder"
     
-    await global.cli("set-env-var", "UNC_PATH", uncPath)
-    await global.cli("set-env-var", "NETWORK_PATH", networkPath)
+    await global.setEnvVar("UNC_PATH", uncPath)
+    await global.setEnvVar("NETWORK_PATH", networkPath)
     
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.UNC_PATH, uncPath)
@@ -261,8 +263,8 @@ await tmp.withDir(async (dir) => {
     const winRelative = "..\\parent\\child"
     const posixRelative = "../parent/child"
     
-    await global.cli("set-env-var", "WIN_RELATIVE", winRelative)
-    await global.cli("set-env-var", "POSIX_RELATIVE", posixRelative)
+    await global.setEnvVar("WIN_RELATIVE", winRelative)
+    await global.setEnvVar("POSIX_RELATIVE", posixRelative)
     
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
     t.is(parsed.WIN_RELATIVE, winRelative)
