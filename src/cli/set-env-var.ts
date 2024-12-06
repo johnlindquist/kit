@@ -64,8 +64,11 @@ function setEnvValue(key: string, value?: string) {
   }
 }
 
-function formatEnvLine(key:string, value:string) {
-  return `${key}="${value}"`;
+const NEEDS_QUOTES_REGEX = /[\s"'`$&|<>^;,\(\)\\]/
+function formatEnvLine(key: string, value: string) {
+  // Check if value contains spaces, special characters, or hash symbols
+  const needsQuotes = NEEDS_QUOTES_REGEX.test(value) || value.includes('#');
+  return needsQuotes ? `${key}="${value}"` : `${key}=${value}`;
 }
 
 // Update an existing environment variable
