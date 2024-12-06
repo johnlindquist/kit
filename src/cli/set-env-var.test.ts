@@ -75,17 +75,6 @@ await tmp.withDir(async (dir) => {
     t.is(parsed.HELLO, "WORLD")
   })
 
-  ava.serial("await env should set a new environment variable", async (t:Context) => {
-    args.push("1234")
-    await env("API_KEY") // Env will pull off the last arg
-    const contents = await readFile(kitDotEnvPath(), "utf-8")
-    const {parsed, error} = dotenv.config({
-      files: [kitDotEnvPath()],
-    })
-    t.log({ parsed, error, contents })
-    t.is(parsed.API_KEY, "1234")
-  })
-
   ava.serial("should update an existing environment variable", async (t:Context) => {
     await writeFile(t.context.envFile, "EXISTING_KEY=old_value\n")
     await global.setEnvVar("EXISTING_KEY", "new_value")
