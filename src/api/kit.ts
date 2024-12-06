@@ -424,8 +424,11 @@ let _consoleWarn = global.console.warn.bind(global.console)
 let _consoleClear = global.console.clear.bind(
   global.console
 )
+let _consoleError = global.console.error.bind(global.console)
+let _consoleInfo = global.console.info.bind(global.console)
+
 global.log = (...args) => {
-  if (process?.send) {
+  if (process?.send && process.env.KIT_CONTEXT === "app") {
     global.send(
       Channel.KIT_LOG,
       args
@@ -439,12 +442,12 @@ global.log = (...args) => {
   }
 }
 global.warn = (...args) => {
-  if (process?.send) {
+  if (process?.send && process.env.KIT_CONTEXT === "app") {
     global.send(
       Channel.KIT_WARN,
       args
         .map(a =>
-          typeof a != "string" ? JSONSafe.stringify(a) : a
+          typeof a !== "string" ? JSONSafe.stringify(a) : a
         )
         .join(" ")
     )
@@ -453,14 +456,14 @@ global.warn = (...args) => {
   }
 }
 global.clear = () => {
-  if (process?.send) {
+  if (process?.send && process.env.KIT_CONTEXT === "app") {
     global.send(Channel.KIT_CLEAR)
   } else {
     _consoleClear()
   }
 }
 
-if (process?.send) {
+if (process?.send && process.env.KIT_CONTEXT === "app") {
   global.console.log = (...args) => {
     let log = args
       .map(a =>
@@ -478,11 +481,19 @@ if (process?.send) {
       )
       .join(" ")
 
-    global.send(Channel.CONSOLE_WARN, warn)
+    if (process?.send && process.env.KIT_CONTEXT === "app") {
+      global.send(Channel.CONSOLE_WARN, warn)
+    } else {
+      _consoleWarn(...args)
+    }
   }
 
   global.console.clear = () => {
-    global.send(Channel.CONSOLE_CLEAR)
+    if (process?.send && process.env.KIT_CONTEXT === "app") {
+      global.send(Channel.CONSOLE_CLEAR)
+    } else {
+      _consoleClear()
+    }
   }
 
   global.console.error = (...args) => {
@@ -492,7 +503,11 @@ if (process?.send) {
       )
       .join(" ")
 
-    global.send(Channel.CONSOLE_ERROR, error)
+    if (process?.send && process.env.KIT_CONTEXT === "app") {
+      global.send(Channel.CONSOLE_ERROR, error)
+    } else {
+      _consoleError(...args)
+    }
   }
 
   global.console.info = (...args) => {
@@ -502,7 +517,11 @@ if (process?.send) {
       )
       .join(" ")
 
-    global.send(Channel.CONSOLE_INFO, info)
+    if (process?.send && process.env.KIT_CONTEXT === "app") {
+      global.send(Channel.CONSOLE_INFO, info)
+    } else {
+      _consoleInfo(...args)
+    }
   }
 }
 
