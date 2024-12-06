@@ -343,6 +343,8 @@ global.attemptImport = async (scriptPath, ..._args) => {
     global.warn(e)
     if (process.env.KIT_CONTEXT === "app") {
       await errorPrompt(error)
+    }else{
+      throw error
     }
   }
 

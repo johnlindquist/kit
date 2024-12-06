@@ -12,6 +12,7 @@ await import("../target/terminal.js")
 
 import { kenvPath } from "../core/utils.js"
 
+// biome-ignore lint/suspicious/useAwait: <explanation>
 await tmp.withDir(async (dir) => {
 	process.env.KENV = dir.path
 	process.env.KIT_CONTEXT = "workflow"
