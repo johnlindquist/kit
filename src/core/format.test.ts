@@ -2,6 +2,14 @@ import ava from "ava"
 import { formatChoices, defaultGroupClassName, defaultGroupNameClassName } from "./format"
 import { PROMPT } from "./enum.js"
 import type { Choice } from "../types"
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { performance } from 'node:perf_hooks'
+import tmp from 'tmp-promise'
+import { parseScript } from "./parser.js"
+import { writeFile } from "node:fs/promises"
+import path from "node:path"
+import { loadPreviousResults, saveResults } from "./test-utils"
+
 
 ava("formatChoices - basic primitive choices", (t) => {
     const choices = ["option1", "option2", "option3"] as unknown as Choice[]
@@ -324,81 +332,6 @@ ava("formatChoices - index property determines position within groups", (t) => {
         ["Default 1", "Default 2"],
         "Non-indexed items should maintain their relative order"
     )
-})
-
-
-import test from 'ava'
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
-import { performance } from 'node:perf_hooks'
-import { dirname } from 'node:path'
-
-const DEFAULT_BENCHMARK_FILENAME = `${process.env.HOME}/.benchmarks/${
-    new URL(import.meta.url).pathname.split('/').pop()?.replace(/\.test\.ts$/, '-benchmark.json')
-}`
-
-function loadPreviousResults(filename = DEFAULT_BENCHMARK_FILENAME) {
-  if (!existsSync(filename)) return {}
-  return JSON.parse(readFileSync(filename, 'utf8'))
-}
-
-function saveResults(results, filename = DEFAULT_BENCHMARK_FILENAME) {
-  mkdirSync(dirname(filename), { recursive: true })
-  writeFileSync(filename, JSON.stringify(results, null, 2), 'utf8')
-}
-
-test.serial('benchmark - formatChoices', (t) => {
-  const previousResults = loadPreviousResults()
-
-  // Some sample data to benchmark
-  const largeInput = Array.from({ length: 1000 }, (_, i) => ({
-    name: `Item ${i}`,
-    value: `value${i}`,
-    description: `This is item number ${i}`
-  }))
-
-  // Run the benchmark multiple times to get stable measurements
-  const runs = 10
-  const times = []
-
-  // Warm-up run (not measured)
-  formatChoices(largeInput)
-
-  for (let i = 0; i < runs; i++) {
-    const start = performance.now()
-    formatChoices(largeInput)
-    const end = performance.now()
-    times.push(end - start)
-  }
-
-  const mean = times.reduce((a, b) => a + b, 0) / runs
-  const opsPerSecond = (1000 / mean)  // If each run counts as 1 operation
-
-  // Compare to previous results if available
-  const testName = 'formatChoices'
-  const oldResult = previousResults[testName]
-  if (oldResult) {
-    const oldOps = oldResult.operationsPerSecond
-    const improvement = ((opsPerSecond - oldOps) / oldOps) * 100
-    t.log(`Previous OPS: ${oldOps.toFixed(2)}`)
-    t.log(`Current OPS: ${opsPerSecond.toFixed(2)}`)
-    const emoji = improvement > 0 ? "🚀" : "🐌"
-    t.log(`${emoji} Change: ${improvement.toFixed(2)}%`)
-  } else {
-    t.log('No previous benchmark to compare against.')
-  }
-
-  // Write new results
-  const newResults = {
-    ...previousResults,
-    [testName]: {
-      timestamp: new Date().toISOString(),
-      operationsPerSecond: opsPerSecond,
-      meanDurationMs: mean
-    }
-  }
-  saveResults(newResults)
-
-  t.pass()
 })
 
 // Add these after the existing tests in src/core/format.test.ts

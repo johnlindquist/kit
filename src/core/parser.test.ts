@@ -95,5 +95,3 @@ ava("postprocessMetadata - empty input", (t) => {
 
 	t.deepEqual(result, { type: ProcessType.Prompt })
 })
-
-// ... You can add more tests as needed ...
