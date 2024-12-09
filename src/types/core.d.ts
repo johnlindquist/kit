@@ -10,8 +10,10 @@ type ModifierKeys =
 
 export interface Choice<Value = any> {
   name: string
+  slicedName?: string
   value?: Value
   description?: string
+  slicedDescription?: string
   focused?: string
   img?: string
   icon?: string

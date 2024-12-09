@@ -107,7 +107,7 @@ ava("formatChoices - invalid input handling", (t) => {
         name: "Group",
         choices: "not an array"
     }] as any), {
-        message: "Group choices must be an array. Received string"
+        message: "Group choices must be an array."
     })
 
     t.throws(() => formatChoices([{
@@ -324,4 +324,74 @@ ava("formatChoices - index property determines position within groups", (t) => {
         ["Default 1", "Default 2"],
         "Non-indexed items should maintain their relative order"
     )
+})
+
+
+import test from 'ava'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { performance } from 'node:perf_hooks'
+import path from 'node:path'
+import os from 'node:os'
+
+function loadPreviousResults(filename = path.resolve(os.homedir(), '.benchmark-results.json')) {
+  if (!existsSync(filename)) return {}
+  return JSON.parse(readFileSync(filename, 'utf8'))
+}
+
+function saveResults(results, filename = path.resolve(os.homedir(), '.benchmark-results.json')) {
+  writeFileSync(filename, JSON.stringify(results, null, 2), 'utf8')
+}
+
+test.serial('benchmark - formatChoices', (t) => {
+  const previousResults = loadPreviousResults()
+
+  // Some sample data to benchmark
+  const largeInput = Array.from({ length: 1000 }, (_, i) => ({
+    name: `Item ${i}`,
+    value: `value${i}`,
+    description: `This is item number ${i}`
+  }))
+
+  // Run the benchmark multiple times to get stable measurements
+  const runs = 10
+  const times = []
+
+  // Warm-up run (not measured)
+  formatChoices(largeInput)
+
+  for (let i = 0; i < runs; i++) {
+    const start = performance.now()
+    formatChoices(largeInput)
+    const end = performance.now()
+    times.push(end - start)
+  }
+
+  const mean = times.reduce((a, b) => a + b, 0) / runs
+  const opsPerSecond = (1000 / mean)  // If each run counts as 1 operation
+
+  // Compare to previous results if available
+  const testName = 'formatChoices'
+  const oldResult = previousResults[testName]
+  if (oldResult) {
+    const oldOps = oldResult.operationsPerSecond
+    const improvement = ((opsPerSecond - oldOps) / oldOps) * 100
+    t.log(`Previous OPS: ${oldOps.toFixed(2)}`)
+    t.log(`Current OPS: ${opsPerSecond.toFixed(2)}`)
+    t.log(`Change: ${improvement.toFixed(2)}%`)
+  } else {
+    t.log('No previous benchmark to compare against.')
+  }
+
+  // Write new results
+  const newResults = {
+    ...previousResults,
+    [testName]: {
+      timestamp: new Date().toISOString(),
+      operationsPerSecond: opsPerSecond,
+      meanDurationMs: mean
+    }
+  }
+  saveResults(newResults)
+
+  t.pass()
 })

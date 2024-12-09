@@ -65,4 +65,6 @@ export type kenvEnv = {
   KIT_MAIN_END_ORDER?: string | undefined
   KIT_HIDE_WITHOUT_INPUT?: string | undefined
   GITHUB_SCRIPTKIT_TOKEN?: string | undefined
+  KIT_PROMPT_POPUP_WITH_ROUNDED_CORNERS?: string | undefined
+  KIT_PROMPT_OFFSCREEN?: string | undefined
 }
