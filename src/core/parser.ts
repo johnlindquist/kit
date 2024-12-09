@@ -1,5 +1,5 @@
+import { readFile } from "fs/promises"
 import untildify from "untildify"
-import { createReadStream } from 'fs';
 import type { Script, ScriptMetadata, ScriptPathInfo } from "../types"
 import {
 	getMetadata,
@@ -12,6 +12,8 @@ import {
 import { ProcessType } from "./enum.js"
 import { slash } from "./resolvers.js"
 import { path } from "../globals/path.js"
+
+const shebangRegex = /^#!(.+)/m
 
 export let postprocessMetadata = (
 	metadata: Metadata,
@@ -40,12 +42,10 @@ export let postprocessMetadata = (
 		result.img = slash(untildify(metadata.image))
 	}
 
-	if (metadata.index) {
-		if (typeof metadata.index === "string") {
-			result.index = Number.parseInt(metadata.index, 10)
-		} else {
-			result.index = metadata.index
-		}
+	if (metadata.index !== undefined) {
+		result.index = typeof metadata.index === "string"
+			? Number.parseInt(metadata.index, 10)
+			: metadata.index
 	}
 
 	result.type = metadata.schedule
@@ -58,12 +58,16 @@ export let postprocessMetadata = (
 					? ProcessType.Background
 					: ProcessType.Prompt
 
-	const tabsMatch = fileContents.match(/(?<=^onTab\(['"])(.+?)(?=['"])/gim)
+	// Extract tabs
+	const onTabRegex = /(?<=^onTab\(['"])(.+?)(?=['"])/gim
+	const tabsMatch = fileContents.match(onTabRegex)
 	if (tabsMatch?.length) {
 		result.tabs = tabsMatch
 	}
 
-	if (/preview(:|\s*=)/gi.test(fileContents)) {
+	// Detect hasPreview
+	// Matches `preview:` `preview =` `preview:true` `preview=true` with optional spaces
+	if (/\bpreview\b\s*[:=]/i.test(fileContents)) {
 		result.hasPreview = true
 	}
 
@@ -72,13 +76,9 @@ export let postprocessMetadata = (
 
 export let parseMetadata = (fileContents: string): ScriptMetadata => {
 	let metadata: Metadata = getMetadata(fileContents)
-
-	let processedMetadata = postprocessMetadata(metadata, fileContents)
-
-	return processedMetadata
+	return postprocessMetadata(metadata, fileContents)
 }
 
-const shebangRegex = /^#!(.+)/m
 export let getShebangFromContents = (contents: string): string | undefined => {
 	let match = contents.match(shebangRegex)
 	return match ? match[1].trim() : undefined
@@ -89,7 +89,6 @@ export let commandFromFilePath = (filePath: string) =>
 
 export let iconFromKenv = async (kenv: string) => {
 	let iconPath = kenv ? kenvPath("kenvs", kenv, "icon.png") : ""
-
 	return kenv && (await isFile(iconPath)) ? iconPath : ""
 }
 
@@ -110,36 +109,18 @@ export let parseFilePath = async (
 }
 
 export let parseScript = async (filePath: string): Promise<Script> => {
-    const parsedFilePath = await parseFilePath(filePath);
-    const stream = createReadStream(filePath, { encoding: 'utf8' });
+    const contents = await readFile(filePath, "utf8")
+    const metadata = parseMetadata(contents)
+    const shebang = getShebangFromContents(contents)
+    const needsDebugger = /^\s*debugger/gim.test(contents)
+    const parsedFilePath = await parseFilePath(filePath)
 
-    let contents = '';
-    return new Promise<Script>((resolve, reject) => {
-        stream.on('data', chunk => {
-            contents += chunk;
-        });
-
-        stream.on('end', () => {
-            try {
-                const metadata = parseMetadata(contents);
-                const shebang = getShebangFromContents(contents);
-                const needsDebugger = Boolean(contents.match(/^\s*debugger/gim));
-
-                const result = {
-                    shebang,
-                    ...metadata,
-                    ...parsedFilePath,
-                    needsDebugger,
-                    name: metadata.name || metadata.menu || parsedFilePath.command,
-                    description: metadata.description || ""
-                } as Script;
-
-                resolve(result);
-            } catch (error) {
-                reject(error);
-            }
-        });
-
-        stream.on('error', reject);
-    });
-};
+    return {
+        shebang,
+        ...metadata,
+        ...parsedFilePath,
+        needsDebugger,
+        name: metadata.name || metadata.menu || parsedFilePath.command,
+        description: metadata.description || ""
+    } as Script
+}

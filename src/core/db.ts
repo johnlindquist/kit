@@ -18,13 +18,9 @@ import {
 	processInBatches,
 	parseSnippets
 } from "./utils.js"
-
 import { parseScript } from "./parser.js"
-
 import { parseScriptlets } from "./scriptlets.js"
-
-import { writeJson, readJson } from "../globals/fs-extra.js"
-
+import { writeJson, readJson, ensureDir } from "../globals/fs-extra.js"
 import type { Choice, Script, PromptDb } from "../types/core"
 import { Low } from "lowdb"
 import { JSONFile } from "lowdb/node"
@@ -32,11 +28,22 @@ import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-meth
 import type { Keyv } from "keyv"
 import type { DBData, DBKeyOrPath, DBReturnType } from "../types/kit.js"
 
+declare global {
+	var __kitDbMap: Map<string, any>
+	var __kitScriptsFromCache: boolean
+	var __kitScriptCache: {
+		lastParseTime?: number
+		scripts?: Script[]
+		fileStats?: Map<string, number>
+	}
+}
+
+global.__kitDbMap = global.__kitDbMap || new Map()
+
 export const resolveKenv = (...parts: string[]) => {
 	if (global.kitScript) {
 		return path.resolve(global.kitScript, "..", "..", ...parts)
 	}
-
 	return kenvPath(...parts)
 }
 
@@ -49,12 +56,14 @@ export let store = async (
 	let { KeyvFile } = await import("keyv-file")
 	let dbPath = isPath ? nameOrPath : kenvPath("db", `${nameOrPath}.json`)
 
+	// Ensure directory exists
+	await ensureDir(path.dirname(dbPath))
+
 	let fileExists = await isFile(dbPath)
 
 	let keyv = new Keyv({
 		store: new KeyvFile({
 			filename: dbPath
-			// Not all options are required...
 		} as any)
 	})
 
@@ -89,90 +98,85 @@ export async function db<T>(
 		dataOrKeyOrPath = "_" + resolveScriptToCommand(global.kitScript)
 	}
 
-	// Handle case when 'dataOrKeyOrPath' is a string (key or path)
 	if (typeof dataOrKeyOrPath === "string") {
-		// Initialize or reset the cache map based on 'fromCache'
-		global.__kitDbMap = fromCache ? global.__kitDbMap || new Map() : new Map()
-
 		// Return cached database if available
-		if (global.__kitDbMap.has(dataOrKeyOrPath)) {
+		if (fromCache && global.__kitDbMap.has(dataOrKeyOrPath)) {
 			return global.__kitDbMap.get(dataOrKeyOrPath)
 		}
 
-		dbPath = dataOrKeyOrPath
-
-		// Ensure the database file has a '.json' extension and resolve its full path
-		if (!dbPath.endsWith(".json")) {
-			dbPath = resolveKenv("db", `${dbPath}.json`)
+		if (dataOrKeyOrPath.includes("/") || dataOrKeyOrPath.includes("\\")) {
+			dbPath = dataOrKeyOrPath
+		} else {
+			dbPath = kenvPath("db", `${dataOrKeyOrPath}.json`)
 		}
+	} else {
+		// If no string key given, derive from global.kitScript
+		const generatedKey = "_" + resolveScriptToCommand(global.kitScript)
+		dbPath = kenvPath("db", `${generatedKey}.json`)
 	}
 
-	// Check if the parent directory of 'dbPath' exists
-	const parentExists = await isDir(path.dirname(dbPath))
-	if (!parentExists) {
-		dbPath = kenvPath("db", `${path.basename(dbPath)}`)
-		await ensureDir(path.dirname(dbPath))
-	}
+	// Ensure directory exists before reading/writing
+	await ensureDir(path.dirname(dbPath))
 
 	let _db: Low<any>
+	const jsonFile = new JSONFile(dbPath)
+	const result = await jsonFile.read()
+	_db = new Low(jsonFile, result)
 
-	// Initialize the database
-	const init = async () => {
-		const jsonFile = new JSONFile(dbPath)
-		const result = await jsonFile.read()
+	try {
+		await _db.read()
+	} catch (error) {
+		global.warn?.(error)
 		_db = new Low(jsonFile, result)
+		await _db.read()
+	}
 
-		try {
-			// Read existing data
-			await _db.read()
-		} catch (error) {
-			// Log error and attempt to recover if possible
-			global.warn?.(error)
-
-			if (path.dirname(dbPath) === kitPath("db")) {
-				// Attempt to reinitialize the database
-				// await rm(dbPath); // This line is commented out in the original code
-				_db = new Low(jsonFile, result)
-				await _db.read()
+	if (!_db.data || !fromCache) {
+		const getData = async () => {
+			if (typeof data === "function") {
+				const result = await (data as () => Promise<T>)()
+				return Array.isArray(result) ? { items: result } : result
 			}
+			return Array.isArray(data) ? { items: data } : data
 		}
 
-		// If no data or not using cache, initialize with provided data
-		if (!_db.data || !fromCache) {
-			const getData = async () => {
-				if (typeof data === "function") {
-					const result = await (data as () => Promise<T>)()
-					return Array.isArray(result) ? { items: result } : result
-				}
-				return Array.isArray(data) ? { items: data } : data
-			}
+		_db.data = await getData()
 
-			_db.data = await getData()
-
-			try {
-				// Write initial data to the database
-				await _db.write()
-			} catch (error) {
-				global.log?.(error)
-			}
+		try {
+			await _db.write()
+		} catch (error) {
+			global.log?.(error)
 		}
 	}
 
-	await init()
-
-	// Define database API with additional methods
 	const dbAPI = {
 		dbPath,
 		clear: async () => {
-			await rm(dbPath)
+			await rm(dbPath, { force: true })
 		},
 		reset: async () => {
-			await rm(dbPath)
-			await init()
+			await rm(dbPath, { force: true })
+			await ensureDir(path.dirname(dbPath))
+			_db = new Low(jsonFile, {})
+			_db.data = await (async () => {
+				if (typeof data === "function") {
+					const d = await (data as () => Promise<T>)()
+					return Array.isArray(d) ? { items: d } : d
+				}
+				return Array.isArray(data) ? { items: data } : data
+			})()
+			await _db.write()
+		},
+		async write() {
+			await ensureDir(path.dirname(dbPath))
+			return _db.write()
+		},
+		update(callback: (data: any) => void) {
+			callback(_db.data)
+			return this.write()
 		}
 	}
 
-	// Create a proxy to handle property access and modification
 	const dbProxy = new Proxy(dbAPI as any, {
 		get: (_target, key: string) => {
 			if (key === "then") return _db
@@ -191,19 +195,14 @@ export async function db<T>(
 		},
 		set: (_target: any, key: string, value: any) => {
 			try {
-				;(_db as any).data[key] = value
-				// Optionally send data to a parent process if connected
-				// if (process.send) {
-				//   send(`DB_SET_${key}` as any, value);
-				// }
+				(_db as any).data[key] = value
 				return true
-			} catch (error) {
+			} catch {
 				return false
 			}
 		}
 	})
 
-	// Cache the database instance if a key/path is provided
 	if (typeof dataOrKeyOrPath === "string") {
 		global.__kitDbMap.set(dataOrKeyOrPath, dbProxy)
 	}
@@ -214,33 +213,73 @@ export async function db<T>(
 global.db = db
 global.store = store
 
+global.__kitScriptCache = global.__kitScriptCache || {
+	lastParseTime: 0,
+	scripts: [],
+	fileStats: new Map<string, number>()
+}
+
 export let parseScripts = async (ignoreKenvPattern = /^ignore$/) => {
+	const scriptCache = global.__kitScriptCache
 	let scriptFiles = await getScriptFiles()
-	let kenvDirs = await getKenvs(ignoreKenvPattern)
+	const kenvDirs = await getKenvs(ignoreKenvPattern)
 
-	for await (let kenvDir of kenvDirs) {
-		let scripts = await getScriptFiles(kenvDir)
-		scriptFiles = [...scriptFiles, ...scripts]
+	for (const kenvDir of kenvDirs) {
+		const kenvScripts = await getScriptFiles(kenvDir)
+		if (kenvScripts.length > 0) scriptFiles.push(...kenvScripts)
 	}
 
-	let scriptInfoPromises = []
+	const existingFiles = new Set<string>(scriptFiles)
+	const filesToParse: string[] = []
+
 	for (const file of scriptFiles) {
-		let asyncScriptInfoFunction = parseScript(file)
-
-		scriptInfoPromises.push(asyncScriptInfoFunction)
+		try {
+			const { mtimeMs } = await (await import("fs")).promises.stat(file)
+			const cachedMtime = scriptCache.fileStats.get(file)
+			if (!cachedMtime || cachedMtime !== mtimeMs) {
+				filesToParse.push(file)
+				scriptCache.fileStats.set(file, mtimeMs)
+			}
+		} catch {}
 	}
 
-	let scriptInfo = await processInBatches(scriptInfoPromises, 5)
+	if (scriptCache.scripts.length > 0) {
+		scriptCache.scripts = scriptCache.scripts.filter(s =>
+			existingFiles.has(s.filePath)
+		)
+	}
 
-	let timestamps = []
-	try {
-		let timestampsDb = await getTimestamps()
-		timestamps = timestampsDb.stamps
-	} catch {}
+	if (filesToParse.length > 0) {
+		const concurrency = 20
+		const scriptInfoPromises = filesToParse.map(file => () => parseScript(file))
+		const parseInBatches = async (tasks: (() => Promise<Script>)[], batchSize: number) => {
+			const results: Script[] = []
+			for (let i = 0; i < tasks.length; i += batchSize) {
+				const batch = tasks.slice(i, i + batchSize).map(fn => fn())
+				const res = await Promise.all(batch)
+				results.push(...res)
+			}
+			return results
+		}
 
-	scriptInfo.sort(scriptsSort(timestamps))
+		const newlyParsed = await parseInBatches(scriptInfoPromises, concurrency)
 
-	return scriptInfo
+		const updatedMap = new Map(scriptCache.scripts.map(s => [s.filePath, s]))
+		for (const script of newlyParsed) {
+			updatedMap.set(script.filePath, script)
+		}
+		scriptCache.scripts = Array.from(updatedMap.values())
+
+		let timestamps: Stamp[] = []
+		try {
+			let timestampsDb = await getTimestamps()
+			timestamps = timestampsDb.stamps
+		} catch {}
+
+		scriptCache.scripts.sort(scriptsSort(timestamps))
+	}
+
+	return scriptCache.scripts
 }
 
 export let getScriptsDb = async (
@@ -267,11 +306,21 @@ export let getScriptsDb = async (
 	return dbResult
 }
 
+export type Stamp = {
+	filePath: string
+	timestamp?: number
+	compileStamp?: number
+	compileMessage?: string
+	executionTime?: number
+	changeStamp?: number
+	exitStamp?: number
+	runStamp?: number
+	runCount?: number
+}
+
 export let setScriptTimestamp = async (stamp: Stamp): Promise<Script[]> => {
 	let timestampsDb = await getTimestamps()
-	let index = timestampsDb.stamps.findIndex(
-		(s) => s.filePath === stamp.filePath
-	)
+	let index = timestampsDb.stamps.findIndex(s => s.filePath === stamp.filePath)
 
 	let oldStamp = timestampsDb.stamps[index]
 
@@ -280,10 +329,7 @@ export let setScriptTimestamp = async (stamp: Stamp): Promise<Script[]> => {
 		stamp.runCount = oldStamp?.runCount ? oldStamp.runCount + 1 : 1
 	}
 	if (oldStamp) {
-		timestampsDb.stamps[index] = {
-			...oldStamp,
-			...stamp
-		}
+		timestampsDb.stamps[index] = { ...oldStamp, ...stamp }
 	} else {
 		timestampsDb.stamps.push(stamp)
 	}
@@ -295,7 +341,7 @@ export let setScriptTimestamp = async (stamp: Stamp): Promise<Script[]> => {
 	}
 
 	let scriptsDb = await getScriptsDb(false)
-	let script = scriptsDb.scripts.find((s) => s.filePath === stamp.filePath)
+	let script = scriptsDb.scripts.find(s => s.filePath === stamp.filePath)
 
 	if (script) {
 		scriptsDb.scripts = scriptsDb.scripts.sort(scriptsSort(timestampsDb.stamps))
@@ -307,24 +353,6 @@ export let setScriptTimestamp = async (stamp: Stamp): Promise<Script[]> => {
 	return scriptsDb.scripts
 }
 
-// export let removeScriptFromDb = async (
-//   filePath: string
-// ): Promise<Script[]> => {
-//   let scriptsDb = await getScriptsDb()
-//   let script = scriptsDb.scripts.find(
-//     s => s.filePath === filePath
-//   )
-
-//   if (script) {
-//     scriptsDb.scripts = scriptsDb.scripts.filter(
-//       s => s.filePath !== filePath
-//     )
-//     await scriptsDb.write()
-//   }
-
-//   return scriptsDb.scripts
-// }
-
 global.__kitScriptsFromCache = true
 export let refreshScripts = async () => {
 	await getScripts(false)
@@ -332,18 +360,6 @@ export let refreshScripts = async () => {
 
 export let getPrefs = async () => {
 	return await db(kitPath("db", "prefs.json"))
-}
-
-export type Stamp = {
-	filePath: string
-	timestamp?: number
-	compileStamp?: number
-	compileMessage?: string
-	executionTime?: number
-	changeStamp?: number
-	exitStamp?: number
-	runStamp?: number
-	runCount?: number
 }
 
 export let getTimestamps = async (fromCache = true) => {
@@ -363,8 +379,7 @@ export let getScriptFromString = async (script: string): Promise<Script> => {
 
 	if (!script.includes(path.sep)) {
 		let result = scripts.find(
-			(s) =>
-				s.name === script || s.command === script.replace(extensionRegex, "")
+			s => s.name === script || s.command === script.replace(extensionRegex, "")
 		)
 
 		if (!result) {
@@ -374,7 +389,7 @@ export let getScriptFromString = async (script: string): Promise<Script> => {
 		return result
 	}
 	let result = scripts.find(
-		(s) => path.normalize(s.filePath) === path.normalize(script)
+		s => path.normalize(s.filePath) === path.normalize(script)
 	)
 
 	if (!result) {
@@ -399,7 +414,6 @@ export type ScriptValue = (
 
 export let scriptValue: ScriptValue = (pluck, fromCache) => async () => {
 	let menuItems: Script[] = await getScripts(fromCache)
-
 	return menuItems.map((script: Script) => ({
 		...script,
 		value: script[pluck]
@@ -436,7 +450,7 @@ export let getUserJson = async (): Promise<UserDb> => {
 	if (userDbExists) {
 		try {
 			user = await readJson(userDbPath)
-		} catch (error) {
+		} catch {
 			await setUserJson({})
 			user = {}
 		}

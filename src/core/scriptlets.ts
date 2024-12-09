@@ -90,11 +90,40 @@ export let parseMarkdownAsScriptlets = async (
 
 	let insideCodeFence = false
 
+	let globalPrependScript = ""          // Will hold code fence content under H1
+	let sawH1 = false                     // Track if we've encountered an H1
+	let inH1CodeFence = false             // Track if we are inside the code fence after H1
+	let h1CodeFenceTool = ""              // The tool/lang specified in H1 code fence
+	let h1CodeFenceLines: string[] = []   // Lines inside the H1 code fence
+
 	for (const untrimmedLine of lines) {
 		let line = untrimmedLine?.length > 0 ? untrimmedLine.trim() : ""
 
+		// Handle code fences and insideCodeFence toggling
 		if (line.startsWith("```") || line.startsWith("~~~")) {
 			insideCodeFence = !insideCodeFence
+
+			// Check if we're within the H1 section and haven't yet started H2 sections
+			if (sawH1 && !currentScriptlet && insideCodeFence) {
+				// Starting the H1 code fence
+				inH1CodeFence = true
+				h1CodeFenceTool = line.replace("```", "").replace("~~~", "").trim()
+				if (!h1CodeFenceTool) {
+					h1CodeFenceTool = process.platform === "win32" ? "cmd" : "bash"
+				}
+				continue
+			} else if (inH1CodeFence && !insideCodeFence) {
+				// Ending the H1 code fence
+				inH1CodeFence = false
+				globalPrependScript = h1CodeFenceLines.join("\n").trim()
+				continue
+			}
+		}
+
+		if (inH1CodeFence) {
+			// We are inside the H1 code fence, store lines
+			h1CodeFenceLines.push(line)
+			continue
 		}
 
 		if (!insideCodeFence) {
@@ -102,6 +131,7 @@ export let parseMarkdownAsScriptlets = async (
 			if (line.match(h1Regex)) {
 				currentGroup = line.replace(h1Regex, "").trim()
 				parsingMarkdownMetadata = true
+				sawH1 = true
 				continue
 			}
 
@@ -109,6 +139,10 @@ export let parseMarkdownAsScriptlets = async (
 				parsingMarkdownMetadata = false
 				if (currentScriptlet) {
 					let metadata = postprocessMetadata(currentMetadata, "")
+					// Prepend global script if exists
+					if (globalPrependScript && currentScriptlet.scriptlet) {
+						currentScriptlet.scriptlet = `${globalPrependScript}\n${currentScriptlet.scriptlet}`
+					}
 					scriptlets.push({ ...metadata, ...currentScriptlet })
 				}
 				let name = line.replace(h2Regex, "").trim()
@@ -139,7 +173,7 @@ export let parseMarkdownAsScriptlets = async (
 			continue
 		}
 
-		if (line.startsWith("```") || line.startsWith("~~~")) {
+		if ((line.startsWith("```") || line.startsWith("~~~")) && currentScriptlet) {
 			if (currentScriptlet.tool) {
 				parsingValue = false
 			} else {
@@ -152,9 +186,7 @@ export let parseMarkdownAsScriptlets = async (
 				currentScriptlet.tool = tool
 
 				const toolHTML = `
-
 <p class="hljs-tool-topper">${tool}</p>
-
 `.trim()
 				currentScriptlet.preview = `${toolHTML}\n${currentScriptlet.preview}`
 				parsingValue = true
@@ -162,8 +194,8 @@ export let parseMarkdownAsScriptlets = async (
 			continue
 		}
 
-		if (parsingValue) {
-			currentScriptlet.scriptlet = currentScriptlet.scriptlet 
+		if (parsingValue && currentScriptlet) {
+			currentScriptlet.scriptlet = currentScriptlet.scriptlet
 				? `${currentScriptlet.scriptlet}\n${line}`
 				: line
 		}
@@ -190,9 +222,14 @@ export let parseMarkdownAsScriptlets = async (
 		}
 	}
 
+	// Close out the last scriptlet
 	if (currentScriptlet) {
 		let metadata = postprocessMetadata(currentMetadata, "")
 		currentScriptlet.scriptlet = currentScriptlet.scriptlet.trim()
+		// Prepend global script if exists
+		if (globalPrependScript && currentScriptlet.scriptlet) {
+			currentScriptlet.scriptlet = `${globalPrependScript}\n${currentScriptlet.scriptlet}`
+		}
 		scriptlets.push({ ...metadata, ...currentScriptlet })
 	}
 
@@ -236,7 +273,6 @@ ${await highlight(preview, "")}`)
 			command: stripName(currentGroup),
 			group: metadata.exclude ? undefined : currentGroup,
 			tool: "kit",
-			// TODO: Extract to a file
 			scriptlet: `
 const scripts = await getScripts(true);
 let focused;
@@ -302,6 +338,7 @@ List all the scriptlets in the ${currentGroup} group
 
 	return scriptlets
 }
+
 
 export let parseScriptletsFromPath = async (
 	filePath: string

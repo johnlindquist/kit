@@ -328,17 +328,21 @@ ava("formatChoices - index property determines position within groups", (t) => {
 
 
 import test from 'ava'
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { performance } from 'node:perf_hooks'
-import path from 'node:path'
-import os from 'node:os'
+import { dirname } from 'node:path'
 
-function loadPreviousResults(filename = path.resolve(os.homedir(), '.benchmark-results.json')) {
+const DEFAULT_BENCHMARK_FILENAME = `${process.env.HOME}/.benchmarks/${
+    new URL(import.meta.url).pathname.split('/').pop()?.replace(/\.test\.ts$/, '-benchmark.json')
+}`
+
+function loadPreviousResults(filename = DEFAULT_BENCHMARK_FILENAME) {
   if (!existsSync(filename)) return {}
   return JSON.parse(readFileSync(filename, 'utf8'))
 }
 
-function saveResults(results, filename = path.resolve(os.homedir(), '.benchmark-results.json')) {
+function saveResults(results, filename = DEFAULT_BENCHMARK_FILENAME) {
+  mkdirSync(dirname(filename), { recursive: true })
   writeFileSync(filename, JSON.stringify(results, null, 2), 'utf8')
 }
 
@@ -377,7 +381,8 @@ test.serial('benchmark - formatChoices', (t) => {
     const improvement = ((opsPerSecond - oldOps) / oldOps) * 100
     t.log(`Previous OPS: ${oldOps.toFixed(2)}`)
     t.log(`Current OPS: ${opsPerSecond.toFixed(2)}`)
-    t.log(`Change: ${improvement.toFixed(2)}%`)
+    const emoji = improvement > 0 ? "🚀" : "🐌"
+    t.log(`${emoji} Change: ${improvement.toFixed(2)}%`)
   } else {
     t.log('No previous benchmark to compare against.')
   }
@@ -394,4 +399,152 @@ test.serial('benchmark - formatChoices', (t) => {
   saveResults(newResults)
 
   t.pass()
+})
+
+// Add these after the existing tests in src/core/format.test.ts
+
+// --------------------------------------------
+// Additional Height Logic Tests
+// --------------------------------------------
+
+ava("formatChoices - height at exact max boundary remains unchanged", (t) => {
+    const choices = [{
+        name: "Max Height",
+        height: PROMPT.ITEM.HEIGHT.XXL
+    }] as Choice[]
+
+    const result = formatChoices(choices)
+    t.is(result[0].height, PROMPT.ITEM.HEIGHT.XXL)
+})
+
+ava("formatChoices - height at exact min boundary remains unchanged", (t) => {
+    const choices = [{
+        name: "Min Height",
+        height: PROMPT.ITEM.HEIGHT.XXXS
+    }] as Choice[]
+
+    const result = formatChoices(choices)
+    t.is(result[0].height, PROMPT.ITEM.HEIGHT.XXXS)
+})
+
+ava("formatChoices - height just above max boundary is clamped to max", (t) => {
+    const choices = [{
+        name: "Just Above Max",
+        height: PROMPT.ITEM.HEIGHT.XXL + 10
+    }] as Choice[]
+
+    const result = formatChoices(choices)
+    t.is(result[0].height, PROMPT.ITEM.HEIGHT.XXL)
+})
+
+ava("formatChoices - height just below min boundary is clamped to min", (t) => {
+    const choices = [{
+        name: "Just Below Min",
+        height: PROMPT.ITEM.HEIGHT.XXXS - 5
+    }] as Choice[]
+
+    const result = formatChoices(choices)
+    t.is(result[0].height, PROMPT.ITEM.HEIGHT.XXXS)
+})
+
+ava("formatChoices - no height specified on a normal item defaults to undefined", (t) => {
+    // Non-grouped items do not get a default height assigned
+    const choices = [{
+        name: "No Height Specified"
+    }] as Choice[]
+
+    const result = formatChoices(choices)
+    t.is(result[0].height, undefined)
+})
+
+// --------------------------------------------
+// Additional General Tests
+// --------------------------------------------
+
+ava("formatChoices - preview property on nested choices sets hasPreview to true", (t) => {
+    const choices = [{
+        name: "Group with Preview",
+        choices: [
+            { name: "Has Preview", preview: "some preview content" },
+            { name: "No Preview" }
+        ]
+    }] as Choice[]
+
+    const result = formatChoices(choices)
+    // result[0] is the group header
+    t.true(result[1].hasPreview, "Nested item with preview should have hasPreview = true")
+    t.false(result[2].hasPreview, "Nested item without preview should have hasPreview = false")
+})
+
+ava("formatChoices - skip logic respects info property being false", (t) => {
+    const choices = [
+        { name: "No Info", value: "no-info" },
+        { name: "False Info", info: false, value: "false-info" }
+    ] as Choice[]
+
+    const result = formatChoices(choices)
+    t.false(result[0].skip, "Item without info should not skip by default")
+    t.false(result[1].skip, "Item with info: false should not skip")
+})
+
+ava("formatChoices - short names and descriptions are sliced safely", (t) => {
+    const choices = [{
+        name: "Short",
+        value: "short",
+        description: "desc"
+    }] as Choice[]
+
+    const result = formatChoices(choices)
+    t.is(result[0].slicedName, "Short", "Short names remain intact")
+    t.is(result[0].slicedDescription, "desc", "Short descriptions remain intact")
+})
+
+ava("formatChoices - empty name for a group still creates a group header", (t) => {
+    const choices = [{
+        name: "",
+        choices: ["option1", "option2"]
+    }] as unknown as Choice[]
+
+    const result = formatChoices(choices)
+
+    // The first item is the group header with an empty name
+    t.is(result[0].name, "")
+    t.true(result[0].skip, "Group headers skip by default")
+    t.is(result[1].name, "option1")
+    t.is(result[1].group, "")
+    t.is(result[2].name, "option2")
+    t.is(result[2].group, "")
+})
+
+
+ava("formatChoices - group headers default to minimum height if none provided", (t) => {
+    const choices = [{
+        name: "Some Group",
+        choices: ["option1", "option2"]
+        // No height specified
+    }] as unknown as Choice[]
+
+    const result = formatChoices(choices)
+
+    t.is(result[0].name, "Some Group")
+    t.is(result[0].height, PROMPT.ITEM.HEIGHT.XXXS, "Group headers default to XXXS height")
+    // Sub-choices shouldn't get a forced height
+    t.is(result[1].height, undefined, "Non-group items don't get a forced height")
+})
+
+ava("formatChoices - group headers with an out-of-bound height are clamped", (t) => {
+    const choices = [{
+        name: "Tall Group",
+        height: PROMPT.ITEM.HEIGHT.XXL + 50, // Way too tall
+        choices: [
+            { name: "Inside Group", height: PROMPT.ITEM.HEIGHT.XXXS - 10 } // Too small
+        ]
+    }] as unknown as Choice[]
+
+    const result = formatChoices(choices)
+
+    t.is(result[0].name, "Tall Group")
+    t.is(result[0].height, PROMPT.ITEM.HEIGHT.XXL, "Group header height is clamped to XXL")
+    t.is(result[1].name, "Inside Group")
+    t.is(result[1].height, PROMPT.ITEM.HEIGHT.XXXS, "Sub-choice height is clamped to XXXS")
 })

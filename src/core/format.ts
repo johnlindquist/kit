@@ -80,11 +80,10 @@ function normalizeSingleChoice(choice: unknown, index: number, className: string
       id: index + "-" + slicedName,
       hasPreview: false,
       className,
-      height: PROMPT.ITEM.HEIGHT.BASE, // Default height
     }
 
     // Clamp after assignment
-    finalChoice.height = clampHeight(finalChoice.height) || PROMPT.ITEM.HEIGHT.BASE
+    finalChoice.height = clampHeight(finalChoice.height)
     return finalChoice
   }
 
@@ -116,11 +115,11 @@ function normalizeSingleChoice(choice: unknown, index: number, className: string
     skip: skipVal,
     className: cls,
     hasPreview,
-    height: c.height !== undefined ? c.height : PROMPT.ITEM.HEIGHT.BASE,
+    height: c.height,
   }
 
   // Clamp height
-  finalChoice.height = clampHeight(finalChoice.height) || PROMPT.ITEM.HEIGHT.BASE
+  finalChoice.height = clampHeight(finalChoice.height)
 
   return finalChoice
 }
@@ -135,12 +134,13 @@ function normalizeGroupChoice(
 ): Choice[] {
   const groupHeader = normalizeSingleChoice(groupChoice, index, className)
   groupHeader.group = groupHeader.name
+  groupHeader.height ||= PROMPT.ITEM.HEIGHT.XXXS
   groupHeader.skip = groupChoice.skip === undefined ? true : groupChoice.skip
   if (!groupHeader.className) groupHeader.className = defaultGroupClassName
   if (!groupHeader.nameClassName) groupHeader.nameClassName = defaultGroupNameClassName
 
   // Clamp height
-  groupHeader.height = clampHeight(groupHeader.height) || PROMPT.ITEM.HEIGHT.BASE
+  groupHeader.height = clampHeight(groupHeader.height)
 
   const groupName = groupHeader.name
   const subChoicesRaw = groupChoice.choices
@@ -182,11 +182,11 @@ function normalizeGroupChoice(
         group: groupName,
         className: cls,
         hasPreview: prev,
-        height: sc.height !== undefined ? sc.height : PROMPT.ITEM.HEIGHT.BASE,
+        height: sc.height,
       }
 
       // Clamp height
-      finalSubChoice.height = clampHeight(finalSubChoice.height) || PROMPT.ITEM.HEIGHT.BASE
+      finalSubChoice.height = clampHeight(finalSubChoice.height)
 
       subChoices[i] = finalSubChoice
     } else {
@@ -200,12 +200,11 @@ function normalizeGroupChoice(
         group: groupName,
         className,
         id: uuid(),
-        height: PROMPT.ITEM.HEIGHT.BASE,
         hasPreview: false,
       }
 
       // Clamp height
-      finalSubChoice.height = clampHeight(finalSubChoice.height) || PROMPT.ITEM.HEIGHT.BASE
+      finalSubChoice.height = clampHeight(finalSubChoice.height)
 
       subChoices[i] = finalSubChoice
     }

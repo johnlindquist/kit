@@ -1339,3 +1339,209 @@ John`
   t.deepEqual(scripts[0].inputs, ["refCode"])
 })
 
+ava("H1 with code fence prepends to subsequent H2 scriptlets", async (t) => {
+  let markdown = `
+# Global Setup
+\`\`\`bash
+export GLOBAL_VAR="Hello World"
+\`\`\`
+
+## Scriptlet One
+\`\`\`bash
+echo $GLOBAL_VAR from Scriptlet One
+\`\`\`
+
+## Scriptlet Two
+\`\`\`bash
+echo $GLOBAL_VAR from Scriptlet Two
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 2)
+  t.is(scripts[0].name, "Scriptlet One")
+  t.true(scripts[0].scriptlet.startsWith(`export GLOBAL_VAR="Hello World"`))
+  t.regex(scripts[0].scriptlet, /echo \$GLOBAL_VAR from Scriptlet One/)
+
+  t.is(scripts[1].name, "Scriptlet Two")
+  t.true(scripts[1].scriptlet.startsWith(`export GLOBAL_VAR="Hello World"`))
+  t.regex(scripts[1].scriptlet, /echo \$GLOBAL_VAR from Scriptlet Two/)
+})
+
+ava("H1 without code fence does not prepend anything", async (t) => {
+  let markdown = `
+# Global Setup (No code fence)
+
+## Scriptlet One
+\`\`\`bash
+echo "Scriptlet One"
+\`\`\`
+
+## Scriptlet Two
+\`\`\`bash
+echo "Scriptlet Two"
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 2)
+  t.is(scripts[0].name, "Scriptlet One")
+  t.is(scripts[0].scriptlet, `echo "Scriptlet One"`)
+  t.is(scripts[1].name, "Scriptlet Two")
+  t.is(scripts[1].scriptlet, `echo "Scriptlet Two"`)
+})
+
+ava("No H1 present means no global prepend", async (t) => {
+  let markdown = `
+## Scriptlet One
+\`\`\`bash
+echo "Scriptlet One"
+\`\`\`
+
+## Scriptlet Two
+\`\`\`bash
+echo "Scriptlet Two"
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 2)
+  t.is(scripts[0].scriptlet, `echo "Scriptlet One"`)
+  t.is(scripts[1].scriptlet, `echo "Scriptlet Two"`)
+})
+
+ava("H1 with empty code fence does nothing", async (t) => {
+  let markdown = `
+# Global Setup
+\`\`\`bash
+\`\`\`
+
+## Scriptlet One
+\`\`\`bash
+echo "Scriptlet One"
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].scriptlet, `echo "Scriptlet One"`)
+})
+
+ava("H1 with complex code fence (multiple lines, conditionals, etc.)", async (t) => {
+  let markdown = `
+# Global Setup
+\`\`\`bash
+# This is some global setup
+export GLOBAL_VAR="42"
+{{#if debug}}echo "Debug mode ON"{{/if}}
+
+\${1|OptionA,OptionB|}
+\`\`\`
+
+## Scriptlet One
+\`\`\`bash
+echo $GLOBAL_VAR from Scriptlet One
+\`\`\`
+
+## Scriptlet Two
+\`\`\`bash
+echo $GLOBAL_VAR from Scriptlet Two
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 2)
+
+  // Check scriptlet one
+  t.is(scripts[0].name, "Scriptlet One")
+  t.true(scripts[0].scriptlet.includes(`# This is some global setup`))
+  t.true(scripts[0].scriptlet.includes(`export GLOBAL_VAR="42"`))
+  t.true(scripts[0].scriptlet.includes(`{{#if debug}}echo "Debug mode ON"{{/if}}`))
+  t.true(scripts[0].scriptlet.includes(`\${1|OptionA,OptionB|}`))
+  t.true(scripts[0].scriptlet.includes(`echo $GLOBAL_VAR from Scriptlet One`))
+
+  // Check scriptlet two
+  t.is(scripts[1].name, "Scriptlet Two")
+  t.true(scripts[1].scriptlet.includes(`# This is some global setup`))
+  t.true(scripts[1].scriptlet.includes(`export GLOBAL_VAR="42"`))
+  t.true(scripts[1].scriptlet.includes(`{{#if debug}}echo "Debug mode ON"{{/if}}`))
+  t.true(scripts[1].scriptlet.includes(`\${1|OptionA,OptionB|}`))
+  t.true(scripts[1].scriptlet.includes(`echo $GLOBAL_VAR from Scriptlet Two`))
+})
+
+ava("Multiple scriptlets and only one global code fence under the first H1", async (t) => {
+  let markdown = `
+# Global Setup
+\`\`\`bash
+export GLOBAL_VAR="Hello"
+\`\`\`
+
+## First Scriptlet
+\`\`\`bash
+echo $GLOBAL_VAR from the first
+\`\`\`
+
+## Second Scriptlet
+\`\`\`bash
+echo $GLOBAL_VAR from the second
+\`\`\`
+
+## Third Scriptlet
+\`\`\`bash
+echo $GLOBAL_VAR from the third
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 3)
+
+  for (let s of scripts) {
+    t.true(s.scriptlet.includes(`export GLOBAL_VAR="Hello"`), `${s.name} should contain global code`)
+  }
+
+  t.regex(scripts[0].scriptlet, /echo \$GLOBAL_VAR from the first/)
+  t.regex(scripts[1].scriptlet, /echo \$GLOBAL_VAR from the second/)
+  t.regex(scripts[2].scriptlet, /echo \$GLOBAL_VAR from the third/)
+})
+
+ava("If a second H1 appears later, its code fence does not override the first", async (t) => {
+  let markdown = `
+# Global Setup
+\`\`\`bash
+echo "First Global Code"
+\`\`\`
+
+## Scriptlet One
+\`\`\`bash
+echo "Scriptlet One"
+\`\`\`
+
+# Another H1
+\`\`\`bash
+echo "Second Global Code"
+\`\`\`
+
+## Scriptlet Two
+\`\`\`bash
+echo "Scriptlet Two"
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+
+  // We only apply the first H1 code to all scriptlets below it until maybe another top-level scenario changes that logic.
+  // For this feature, we assume only the first encountered H1 code fence is applied globally.
+  // If you'd like the second H1 to reset or override global code, that logic would have to be explicitly implemented.
+
+  t.is(scripts.length, 2)
+
+  // The first scriptlet is after the first H1, so it gets "First Global Code".
+  t.true(scripts[0].scriptlet.includes(`echo "First Global Code"`))
+  t.false(scripts[0].scriptlet.includes(`echo "Second Global Code"`))
+
+  // The second scriptlet comes after the second H1, but per our current logic, we don't re-parse or override.
+  // If we wanted multiple H1 sections each with their own global code, we'd need additional logic.
+  // For now, assume only the first encountered H1 code fence applies to all scriptlets.
+  t.true(scripts[1].scriptlet.includes(`echo "First Global Code"`))
+  t.false(scripts[1].scriptlet.includes(`echo "Second Global Code"`))
+})
