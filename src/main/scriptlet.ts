@@ -71,6 +71,44 @@ export let runScriptlet = async (
 		flag
 	)
 
+	formattedScriptlet = await replacePlaceholders(formattedScriptlet, focusedScriptlet, remainingInputs)
+
+	if (process.env.KIT_CONTEXT === "app") {
+		send(Channel.STAMP_SCRIPT, focusedScriptlet as Script)
+	}
+
+	const formattedFocusedScriptlet = structuredClone(focusedScriptlet)
+	formattedFocusedScriptlet.scriptlet = formattedScriptlet
+
+	switch (formattedFocusedScriptlet.tool) {
+		case "":
+		case "kit":
+		case "ts":
+		case "js": {
+			return await handleJsTsKitScriptlet(formattedFocusedScriptlet, formattedScriptlet)
+		}
+		case "transform": {
+			return await handleTransformScriptlet(formattedFocusedScriptlet, formattedScriptlet)
+		}
+		case "template": {
+			await handleTemplateScriptlet(formattedScriptlet)
+			break
+		}
+		case "open":
+		case "edit":
+		case "paste":
+		case "type": {
+			await handleActionScriptlet(formattedFocusedScriptlet, formattedScriptlet)
+			break
+		}
+		default: {
+			return await handleDefaultScriptlet(formattedFocusedScriptlet, formattedScriptlet)
+		}
+	}
+}
+
+// Replaces placeholders in the scriptlet with user inputs
+async function replacePlaceholders(formattedScriptlet: string, focusedScriptlet: Scriptlet, remainingInputs: string[]): Promise<string> {
 	const unixPattern = /\$\{?(\d+)\}?/g
 	const windowsPattern = /%(\d+)/g
 
@@ -92,125 +130,118 @@ export let runScriptlet = async (
 			formattedScriptlet = formattedScriptlet.replaceAll(`{{${need}}}`, result)
 		}
 	}
+	return formattedScriptlet
+}
 
-	if (process.env.KIT_CONTEXT === "app") {
-		send(Channel.STAMP_SCRIPT, focusedScriptlet as Script)
-	}
+// Handles scriptlets with "kit", "ts", or "js" tools
+async function handleJsTsKitScriptlet(formattedFocusedScriptlet: Scriptlet, formattedScriptlet: string) {
+	const quickPath = kenvPath(
+		"tmp",
+		`scriptlet-${formattedFocusedScriptlet.command}.ts`
+	)
+	await writeFile(quickPath, formattedScriptlet)
+	return await run(quickPath)
+}
 
-	const formattedFocusedScriptlet = structuredClone(focusedScriptlet)
-	formattedFocusedScriptlet.scriptlet = formattedScriptlet
-
-	switch (formattedFocusedScriptlet.tool) {
-		case "":
-		case "kit":
-		case "ts":
-		case "js": {
-			const quickPath = kenvPath(
-				"tmp",
-				`scriptlet-${formattedFocusedScriptlet.command}.ts`
-			)
-			await writeFile(quickPath, formattedScriptlet)
-			return await run(quickPath)
-		}
-		case "transform": {
-			const quickPath = kenvPath(
-				"tmp",
-				`scriptlet-${formattedFocusedScriptlet.command}.ts`
-			)
-			const content = `let text = await getSelectedText()
+// Handles scriptlets with the "transform" tool
+async function handleTransformScriptlet(formattedFocusedScriptlet: Scriptlet, formattedScriptlet: string) {
+	const quickPath = kenvPath(
+		"tmp",
+		`scriptlet-${formattedFocusedScriptlet.command}.ts`
+	)
+	const content = `let text = await getSelectedText()
 let result = ${formattedScriptlet}
 await setSelectedText(result)`
-			await writeFile(quickPath, content)
-			return await run(quickPath)
-		}
-		case "template": {
-			const result = await template(formattedScriptlet, {
-                shortcuts: [
-                    {
-                        name: "Submit",
-                        key: `${cmd}+s`,
-                        bar: "right",
-                        onPress: (input) => {
-                            submit(input)
-                        }
-                    }
-                ]
-            });
-			await setSelectedText(result)
-			process.exit(0)
-			break
-		}
-		case "open":
-		case "edit":
-		case "paste":
-		case "type": {
-			await hide()
-			if (formattedFocusedScriptlet.tool === "open") {
-				await open(formattedScriptlet)
-				await wait(1000)
-			} else if (formattedFocusedScriptlet.tool === "edit") {
-				await edit(formattedScriptlet)
-				await wait(1000)
-			} else if (formattedFocusedScriptlet.tool === "paste") {
-				await setSelectedText(formattedScriptlet)
-			} else if (formattedFocusedScriptlet.tool === "type") {
-				await keyboard.type(formattedScriptlet)
-			}
-			process.exit(0)
-			break
-		}
-		default: {
-			const extension =
-				toolExtensionMap.get(formattedFocusedScriptlet.tool) ||
-				formattedFocusedScriptlet.tool
-			const scriptPath = kenvPath(
-				"tmp",
-				`scriptlet-${formattedFocusedScriptlet.command}.${extension}`
-			)
-			await writeFile(scriptPath, formattedScriptlet)
+	await writeFile(quickPath, content)
+	return await run(quickPath)
+}
 
-			const commandGenerator = toolCommandMap.get(
-				formattedFocusedScriptlet.tool
-			)
-			if (!commandGenerator) {
-				throw new Error(`Unsupported tool: ${formattedFocusedScriptlet.tool}`)
-			}
-
-			let command = commandGenerator(scriptPath)
-
-			if (formattedFocusedScriptlet.prepend) {
-				command = `${formattedFocusedScriptlet.prepend} ${command}`
-			}
-
-			if (formattedFocusedScriptlet.append) {
-				command = `${command} ${formattedFocusedScriptlet.append}`
-			}
-
-			const cwd = formattedFocusedScriptlet?.cwd
-				? slash(untildify(formattedFocusedScriptlet.cwd))
-				: undefined
-
-			const useExec =
-				SHELL_TOOLS.includes(formattedFocusedScriptlet.tool) &&
-				!formattedFocusedScriptlet.term
-
-			if (process.env.KIT_CONTEXT === "app") {
-				if (!useExec) {
-					return await term({ command, cwd })
-				}
-
-				if (formattedFocusedScriptlet.shebang) {
-					const shebang = parseShebang(formattedFocusedScriptlet)
-					return await sendWait(Channel.SHEBANG, shebang)
+// Handles scriptlets with the "template" tool
+async function handleTemplateScriptlet(formattedScriptlet: string) {
+	const result = await template(formattedScriptlet, {
+		shortcuts: [
+			{
+				name: "Submit",
+				key: `${cmd}+s`,
+				bar: "right",
+				onPress: (input) => {
+					submit(input)
 				}
 			}
+		]
+	});
+	await setSelectedText(result)
+	process.exit(0)
+}
 
-			return await exec(command, {
-				shell: true,
-				stdio: "inherit",
-				cwd,
-				windowsHide: true
-			})
+// Handles scriptlets with "open", "edit", "paste", or "type" tools
+async function handleActionScriptlet(formattedFocusedScriptlet: Scriptlet, formattedScriptlet: string) {
+	await hide()
+	if (formattedFocusedScriptlet.tool === "open") {
+		await open(formattedScriptlet)
+		await wait(1000)
+	} else if (formattedFocusedScriptlet.tool === "edit") {
+		await edit(formattedScriptlet)
+		await wait(1000)
+	} else if (formattedFocusedScriptlet.tool === "paste") {
+		await setSelectedText(formattedScriptlet)
+	} else if (formattedFocusedScriptlet.tool === "type") {
+		await keyboard.type(formattedScriptlet)
+	}
+	process.exit(0)
+}
+
+// Handles scriptlets with other tools (e.g., "bash", "python", etc.)
+async function handleDefaultScriptlet(formattedFocusedScriptlet: Scriptlet, formattedScriptlet: string) {
+	const extension =
+		toolExtensionMap.get(formattedFocusedScriptlet.tool) ||
+		formattedFocusedScriptlet.tool
+	const scriptPath = kenvPath(
+		"tmp",
+		`scriptlet-${formattedFocusedScriptlet.command}.${extension}`
+	)
+	await writeFile(scriptPath, formattedScriptlet)
+
+	const commandGenerator = toolCommandMap.get(
+		formattedFocusedScriptlet.tool
+	)
+	if (!commandGenerator) {
+		throw new Error(`Unsupported tool: ${formattedFocusedScriptlet.tool}`)
+	}
+
+	let command = commandGenerator(scriptPath)
+
+	if (formattedFocusedScriptlet.prepend) {
+		command = `${formattedFocusedScriptlet.prepend} ${command}`
+	}
+
+	if (formattedFocusedScriptlet.append) {
+		command = `${command} ${formattedFocusedScriptlet.append}`
+	}
+
+	const cwd = formattedFocusedScriptlet?.cwd
+		? slash(untildify(formattedFocusedScriptlet.cwd))
+		: undefined
+
+	const useExec =
+		SHELL_TOOLS.includes(formattedFocusedScriptlet.tool) &&
+		!formattedFocusedScriptlet.term
+
+	if (process.env.KIT_CONTEXT === "app") {
+		if (!useExec) {
+			return await term({ command, cwd })
+		}
+
+		if (formattedFocusedScriptlet.shebang) {
+			const shebang = parseShebang(formattedFocusedScriptlet)
+			return await sendWait(Channel.SHEBANG, shebang)
 		}
 	}
+
+	return await exec(command, {
+		shell: true,
+		stdio: "inherit",
+		cwd,
+		windowsHide: true
+	})
 }

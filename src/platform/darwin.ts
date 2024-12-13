@@ -8,6 +8,7 @@ import {
 } from "../core/utils.js"
 
 import { refreshScripts } from "../core/db.js"
+import { existsSync } from "fs"
 
 global.applescript = async (script, options = { silent: true }) => {
 	let applescriptPath = kenvTmpPath("latest.scpt")
@@ -174,7 +175,23 @@ global.selectKitEditor = async (reset = false) => {
 
 	let possibleEditors = () => {
 		let filteredMacEditors = macEditors
-			.map((editor) => globalBins.find(({ name }) => name === editor))
+			.map((editor) => {
+				if (editor === "windsurf") {
+					const windsurfPath = "/Users/johnlindquist/.codeium/windsurf/bin/windsurf"
+					try {
+						if (existsSync(windsurfPath)) {
+							return {
+								name: "windsurf",
+								description: windsurfPath,
+								value: windsurfPath
+							}
+						}
+					} catch (error) {
+						// Ignore error if path doesn't exist
+					}
+				}
+				return globalBins.find(({ name }) => name === editor)
+			})
 			.filter(Boolean)
 
 		filteredMacEditors.push({

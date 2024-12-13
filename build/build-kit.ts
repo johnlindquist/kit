@@ -122,14 +122,14 @@ if (existsSync(kitEditorDtsPath)) {
 }
 
 console.log(`Building ESM to ${kitPath()}`);
-await exec(`npx tsc --outDir ${kitPath()}`).catch((e) => {
+await exec(`pnpm exec tsc --outDir ${kitPath()}`).catch((e) => {
   console.error(e);
   process.exit(1);
 });
 
 console.log(`Building declarations to ${kitPath()}`);
 await exec(
-  `npx tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
+  `pnpm exec tsc --project ./tsconfig-declaration.json --outDir ${kitPath()}`
 ).catch((e) => {
   console.error(e);
   process.exit(1);
