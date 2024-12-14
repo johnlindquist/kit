@@ -41,7 +41,6 @@
     "commit": "cz",
     "rebuild-kit": "tsx ./build/rebuild-kit.ts",
     "download-md": "node ./build/download-md.js",
-    "dev": "tsc --watch --outDir ~/.kit",
     "declaration": "tsc -p ./tsconfig-declaration.json --watch",
     "pretest:core": "node ./scripts/test-pre.js",
     "test:core": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/*.test.js --no-worker-threads",

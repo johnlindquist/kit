@@ -54,9 +54,7 @@ export type kenvEnv = {
   KIT_TYPING_RATE?: string | undefined
   KIT_WEBCAM?: string | undefined
   KIT_WIDTH?: string | undefined
-  KIT_WINDOWS_PRERENDER_SHOW_INACTIVE_TIMEOUT?:
-    | string
-    | undefined
+  KIT_WINDOWS_PRERENDER_SHOW_INACTIVE_TIMEOUT?: string | undefined
   KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
   KIT_SEARCH_MIN_SCORE?: string | undefined
   KIT_SEARCH_MAX_ITERATIONS?: string | undefined
@@ -67,4 +65,5 @@ export type kenvEnv = {
   GITHUB_SCRIPTKIT_TOKEN?: string | undefined
   KIT_PROMPT_POPUP_WITH_ROUNDED_CORNERS?: string | undefined
   KIT_PROMPT_OFFSCREEN?: string | undefined
+  KIT_WINDOWS_OPACITY?: string | undefined
 }

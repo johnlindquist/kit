@@ -1,6 +1,6 @@
-import { pathToFileURL } from "node:url"
-import { Channel } from "../core/enum.js"
-import type { Bounds } from "../types/platform"
+import { pathToFileURL } from 'node:url'
+import { Channel } from '../core/enum.js'
+import type { Bounds } from '../types/platform'
 
 let utils = String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
 set AppleScript's text item delimiters to theSearchString
@@ -81,8 +81,7 @@ end tell
 }
 
 global.getWindowsBounds = async () => {
-  let result =
-    await applescript(String.raw`set listOfWindows to ""
+  let result = await applescript(String.raw`set listOfWindows to ""
 	tell application "System Events"
 		
 		set listOfProcesses to name of every process whose visible is true
@@ -127,12 +126,7 @@ global.setWindowPosition = async (process, title, x, y) => {
 end tell`)
 }
 
-global.setWindowSizeByIndex = async (
-  process,
-  index,
-  x,
-  y
-) => {
+global.setWindowSizeByIndex = async (process, index, x, y) => {
   return await applescript(String.raw`
 		tell application "System Events"
 		set theProcessWindow to window of process "${process}"
@@ -146,14 +140,7 @@ global.setWindowSizeByIndex = async (
 	end tell`)
 }
 
-global.setWindowBoundsByIndex = async (
-  process,
-  index,
-  x,
-  y,
-  width,
-  height
-) => {
+global.setWindowBoundsByIndex = async (process, index, x, y, width, height) => {
   return await applescript(String.raw`
 		  tell application "System Events"
 		  set theProcessWindow to window of process "${process}"
@@ -228,28 +215,13 @@ global.organizeWindows = async () => {
     //   windowWidth,
     //   windowHeight,
     // })
-    await setWindowSizeByIndex(
-      process,
-      index,
-      windowWidth,
-      windowHeight
-    )
+    await setWindowSizeByIndex(process, index, windowWidth, windowHeight)
 
-    await setWindowPositionByIndex(
-      process,
-      index,
-      windowX,
-      windowY
-    )
+    await setWindowPositionByIndex(process, index, windowX, windowY)
   })
 }
 
-global.setWindowPositionByIndex = async (
-  process,
-  index,
-  x,
-  y
-) => {
+global.setWindowPositionByIndex = async (process, index, x, y) => {
   return await applescript(String.raw`
 		tell application "System Events"
 		set theProcessWindow to window of process "${process}"
@@ -277,32 +249,17 @@ global.setWindowSize = async (process, title, x, y) => {
   end tell`)
 }
 
-global.getScreens = async () =>
-  (
-    await global.getDataFromApp(
-      Channel.GET_SCREENS_INFO,
-      undefined,
-      5000
-    )
-  ).displays
+global.getScreens = async () => (await global.getDataFromApp(Channel.GET_SCREENS_INFO, undefined, 5000)).displays
 
 global.selectDisplay = async (includeThumbnails = true) => {
-  let displays = (
-    await global.getDataFromApp(
-      Channel.GET_SCREENS_INFO,
-      includeThumbnails,
-      5000
-    )
-  ).displays
+  let displays = (await global.getDataFromApp(Channel.GET_SCREENS_INFO, includeThumbnails, 5000)).displays
   return await arg(
-    "Select Display",
-    displays.map(d => {
+    'Select Display',
+    displays.map((d) => {
       return {
         name: d.label,
         value: d,
-        preview: `<img src="${
-          pathToFileURL(d.thumbnailPath).href
-        }" />`,
+        preview: `<img src="${pathToFileURL(d.thumbnailPath).href}" />`
       }
     })
   )
@@ -319,43 +276,47 @@ end tell
 	`)
 }
 
-global.getActiveScreen = async () =>
-  (await global.getDataFromApp(Channel.GET_SCREEN_INFO))
-    .activeScreen
+global.getActiveScreen = async () => (await global.getDataFromApp(Channel.GET_SCREEN_INFO)).activeScreen
 
-global.getMousePosition = async () =>
-  (await global.getDataFromApp(Channel.GET_MOUSE))
-    .mouseCursor
+global.getMousePosition = async () => (await global.getDataFromApp(Channel.GET_MOUSE)).mouseCursor
 
-global.getProcesses = async () =>
-  (await global.getDataFromApp(Channel.GET_PROCESSES))
-    .processes
-
+global.getProcesses = async () => (await global.getDataFromApp(Channel.GET_PROCESSES)).processes
 
 global.attemptScriptFocus = async (): Promise<boolean> => {
   const prompts = await getPrompts()
   const scriptName = global.path.basename(global.kitScript)
-  
+
   for (const prompt of prompts) {
     if (prompt.isVisible && prompt.name === scriptName) {
       await prompt.focus()
       return true
     }
   }
-  
+
   return false
 }
 
 global.getPrompts = async () => {
-  let { prompts } = await global.getDataFromApp(
-    Channel.GET_PROMPTS
-  )
+  let { prompts } = await global.getDataFromApp(Channel.GET_PROMPTS)
   if (!prompts) return []
   for (let prompt of prompts) {
     prompt.focus = async () => {
       await hide()
       await sendWait(Channel.FOCUS_PROMPT, {
-        pid: prompt.pid,
+        pid: prompt.pid
+      })
+    }
+
+    prompt.exit = async () => {
+      await hide()
+      await sendWait(Channel.TERMINATE_PROMPT, {
+        pid: prompt.pid
+      })
+    }
+
+    prompt.hide = async () => {
+      await sendWait(Channel.HIDE_PROMPT, {
+        pid: prompt.pid
       })
     }
   }
@@ -363,9 +324,7 @@ global.getPrompts = async () => {
 }
 
 global.getKitWindows = async () => {
-  let message = await global.getDataFromApp(
-    Channel.GET_KIT_WINDOWS
-  )
+  let message = await global.getDataFromApp(Channel.GET_KIT_WINDOWS)
 
   return message.windows
 }
@@ -374,19 +333,12 @@ global.focusKitWindow = async (id: string) => {
   return sendWait(Channel.FOCUS_KIT_WINDOW, { id })
 }
 
-global.setActiveAppBounds = async ({
-  left,
-  top,
-  right,
-  bottom,
-}) => {
+global.setActiveAppBounds = async ({ left, top, right, bottom }) => {
   await applescript(
     `tell application "System Events"
       set processName to name of first application process whose frontmost is true as text
       tell process processName to set the position of front window to {${left}, ${top}}
-      tell process processName to set the size of front window to {${
-        right - left
-      }, ${bottom - top}}
+      tell process processName to set the size of front window to {${right - left}, ${bottom - top}}
     end tell`
   )
 }
@@ -408,8 +360,7 @@ global.setActiveAppSize = async ({ width, height }) => {
   )
 }
 
-global.getActiveAppInfo = async () =>
-  (await global.getDataFromApp(Channel.GET_ACTIVE_APP)).app
+global.getActiveAppInfo = async () => (await global.getDataFromApp(Channel.GET_ACTIVE_APP)).app
 
 global.getActiveAppBounds = async () => {
   let stringBounds = await applescript(String.raw`
@@ -436,11 +387,8 @@ get V's JSON
 
   let jsonBounds = JSON.parse(stringBounds)[0]
 
-  return Object.entries(jsonBounds).reduce(
-    (acc, [key, value]: [string, string]) => {
-      acc[key] = parseInt(value, 10)
-      return acc
-    },
-    {}
-  ) as Bounds
+  return Object.entries(jsonBounds).reduce((acc, [key, value]: [string, string]) => {
+    acc[key] = parseInt(value, 10)
+    return acc
+  }, {}) as Bounds
 }
