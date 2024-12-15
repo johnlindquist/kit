@@ -1,60 +1,60 @@
-import fs from "node:fs/promises"
-import { KIT_FIRST_PATH } from "../core/utils.js"
+import fs from 'node:fs/promises'
+import { KIT_FIRST_PATH } from '../core/utils.js'
 
-let examplesDir = kenvPath("kenvs", "examples")
-if (await isDir(examplesDir)) {
-	cd(examplesDir)
+async function downloadAndSetupExamples() {
+  let destination = kenvPath('tmp')
+  await download('https://github.com/johnlindquist/kit-examples-ts/archive/main.zip', destination, {
+    extract: true,
+    rejectUnauthorized: false
+  })
 
-	if (isDir(kenvPath("kenvs", "examples", ".git"))) {
-		await exec("git stash", {
-			cwd: examplesDir
-		})
-		await exec("git pull", {
-			cwd: examplesDir
-		})
-	}
-} else {
-	if (await isBin("git")) {
-		await exec(
-			"git clone https://github.com/johnlindquist/kit-examples-ts examples",
-			{
-				cwd: kenvPath("kenvs")
-			}
-		)
-	} else {
-		let destination = kenvPath("tmp")
-		await download(
-			"https://github.com/johnlindquist/kit-examples-ts/archive/main.zip",
-			destination,
-			{
-				extract: true,
-				rejectUnauthorized: false
-			}
-		)
+  let source = path.join(destination, 'kit-examples-main')
+  let newDestination = kenvPath('kenvs', 'examples')
+  await fs.rename(source, newDestination)
 
-		// move diretory destination to kenvPath("kenvs", "kit-examples")
-		let source = path.join(destination, "kit-examples-main")
-		let newDestination = kenvPath("kenvs", "examples")
-		await fs.rename(source, newDestination)
-
-		// find the first file in the new destination and touch it
-		let files = await fs.readdir(path.join(newDestination, "scripts"))
-		let firstFile = path.join(newDestination, "scripts", files[0])
-		// if firstFile exists, touch it
-		if (await fs.stat(firstFile)) {
-			await wait(1000)
-			await fs.utimes(firstFile, new Date(), new Date())
-		}
-	}
-	try {
-		await exec("npm i", {
-			cwd: kenvPath("kenvs", "examples"),
-			env: {
-				...global.env,
-				PATH: KIT_FIRST_PATH
-			}
-		})
-	} catch (error) {}
+  let files = await fs.readdir(path.join(newDestination, 'scripts'))
+  let firstFile = path.join(newDestination, 'scripts', files[0])
+  if (await fs.stat(firstFile)) {
+    await wait(1000)
+    await fs.utimes(firstFile, new Date(), new Date())
+  }
 }
+
+let examplesDir = kenvPath('kenvs', 'examples')
+if (await isDir(examplesDir)) {
+  cd(examplesDir)
+
+  if (isDir(kenvPath('kenvs', 'examples', '.git'))) {
+    await exec('git stash', {
+      cwd: examplesDir
+    })
+    await exec('git pull', {
+      cwd: examplesDir
+    })
+  }
+} else if (await isBin('git')) {
+  try {
+    await exec(
+      'git clone --depth 1 --verbose --progress https://github.com/johnlindquist/kit-examples-ts.git examples',
+      {
+        cwd: kenvPath('kenvs')
+      }
+    )
+  } catch (error) {
+    await downloadAndSetupExamples()
+  }
+} else {
+  await downloadAndSetupExamples()
+}
+
+try {
+  await exec('npm i', {
+    cwd: kenvPath('kenvs', 'examples'),
+    env: {
+      ...global.env,
+      PATH: KIT_FIRST_PATH
+    }
+  })
+} catch (error) {}
 
 export {}
