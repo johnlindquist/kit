@@ -1,6 +1,6 @@
-import { Channel, UI } from "../core/enum.js"
-import { KIT_FIRST_PATH } from "../core/utils.js"
-import type { Action } from "../types/core.js"
+import { Channel, UI } from '../core/enum.js'
+import { KIT_FIRST_PATH } from '../core/utils.js'
+import type { Action } from '../types/core.js'
 import type {
   TerminalOptions as TerminalConfig,
   ViteAPI,
@@ -10,26 +10,17 @@ import type {
   Widget,
   WidgetAPI,
   WidgetHandler,
-  WidgetMessage,
-} from "../types/pro.js"
+  WidgetMessage
+} from '../types/pro.js'
 
-let createBaseWidgetAPI = (
-  widgetId: number,
-  off: () => void
-) => {
+let createBaseWidgetAPI = (widgetId: number, off: () => void) => {
   let closeHandler: WidgetHandler = () => {
     process.exit()
   }
 
   let api = {
     capturePage: async () => {
-      return (
-        await global.getDataFromApp(
-          Channel.WIDGET_CAPTURE_PAGE,
-          { widgetId },
-          false
-        )
-      )?.imagePath
+      return (await global.getDataFromApp(Channel.WIDGET_CAPTURE_PAGE, { widgetId }, false))?.imagePath
     },
     // update: (html, options = {}) => {
     //   global.send(Channel.WIDGET_UPDATE, {
@@ -41,7 +32,7 @@ let createBaseWidgetAPI = (
     setState: (state: any) => {
       global.send(Channel.WIDGET_SET_STATE, {
         widgetId,
-        state,
+        state
       })
     },
     close: () => {
@@ -54,64 +45,64 @@ let createBaseWidgetAPI = (
     show: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "show",
-        args: [],
+        method: 'show',
+        args: []
       })
     },
     hide: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "hide",
-        args: [],
+        method: 'hide',
+        args: []
       })
     },
     showInactive: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "showInactive",
-        args: [],
+        method: 'showInactive',
+        args: []
       })
     },
     setAlwaysOnTop: (flag: boolean) => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "setAlwaysOnTop",
-        args: [flag],
+        method: 'setAlwaysOnTop',
+        args: [flag]
       })
     },
     focus: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "focus",
-        args: [],
+        method: 'focus',
+        args: []
       })
     },
     blur: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "blur",
-        args: [],
+        method: 'blur',
+        args: []
       })
     },
     minimize: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "minimize",
-        args: [],
+        method: 'minimize',
+        args: []
       })
     },
     maximize: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "maximize",
-        args: [],
+        method: 'maximize',
+        args: []
       })
     },
     restore: () => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
-        method: "restore",
-        args: [],
+        method: 'restore',
+        args: []
       })
     },
 
@@ -119,47 +110,44 @@ let createBaseWidgetAPI = (
       global.send(Channel.WIDGET_SET_SIZE, {
         widgetId,
         width,
-        height,
+        height
       })
     },
     setPosition: (x, y) => {
       global.send(Channel.WIDGET_SET_POSITION, {
         widgetId,
         x,
-        y,
+        y
       })
     },
     call: (method, ...args) => {
       global.send(Channel.WIDGET_CALL, {
         widgetId,
         method,
-        args,
+        args
       })
     },
-    executeJavaScript: async js => {
-      return await global.sendWaitLong(
-        Channel.WIDGET_EXECUTE_JAVASCRIPT,
-        {
-          widgetId,
-          value: js,
-        }
-      )
+    executeJavaScript: async (js) => {
+      return await global.sendWaitLong(Channel.WIDGET_EXECUTE_JAVASCRIPT, {
+        widgetId,
+        value: js
+      })
     },
     onClose: (handler: WidgetHandler) => {
       closeHandler = handler
-    },
+    }
   }
 
   let messageHandler = (data: ViteMessage) => {
     if (data.channel === Channel.WIDGET_END) {
       if (data.widgetId === widgetId) {
-        process.off("message", messageHandler)
+        process.off('message', messageHandler)
         closeHandler(data)
       }
     }
   }
 
-  process.on("message", messageHandler)
+  process.on('message', messageHandler)
 
   return api
 }
@@ -173,13 +161,13 @@ let createViteAPI = (widgetId: number): ViteAPI => {
     }
   }
 
-  process.on("message", (data: ViteMessage) => {
+  process.on('message', (data: ViteMessage) => {
     if (data.channel === Channel.VITE_WIDGET_SEND) {
       messageHandler(data)
     }
   })
   let off = () => {
-    process.off("message", messageHandler)
+    process.off('message', messageHandler)
   }
   return {
     ...createBaseWidgetAPI(widgetId, off),
@@ -194,9 +182,9 @@ let createViteAPI = (widgetId: number): ViteAPI => {
       global.send(Channel.VITE_WIDGET_SEND, {
         channel,
         widgetId,
-        data,
+        data
       })
-    },
+    }
   }
 }
 
@@ -211,66 +199,42 @@ let createWidgetAPI = (widgetId: number) => {
   let initHandler: WidgetHandler = () => {}
 
   let messageHandler = (data: WidgetMessage) => {
-    if (
-      data.channel === Channel.WIDGET_CUSTOM &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_CUSTOM && data.widgetId === widgetId) {
       customHandler(data)
       return
     }
 
-    if (
-      data.channel === Channel.WIDGET_CLICK &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_CLICK && data.widgetId === widgetId) {
       clickHandler(data)
       return
     }
 
-    if (
-      data.channel === Channel.WIDGET_DROP &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_DROP && data.widgetId === widgetId) {
       dropHandler(data)
       return
     }
 
-    if (
-      data.channel === Channel.WIDGET_MOUSE_DOWN &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_MOUSE_DOWN && data.widgetId === widgetId) {
       mouseDownHandler(data)
       return
     }
 
-    if (
-      data.channel === Channel.WIDGET_INPUT &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_INPUT && data.widgetId === widgetId) {
       inputHandler(data)
       return
     }
 
-    if (
-      data.channel === Channel.WIDGET_RESIZED &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_RESIZED && data.widgetId === widgetId) {
       resizedHandler(data)
       return
     }
 
-    if (
-      data.channel === Channel.WIDGET_MOVED &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_MOVED && data.widgetId === widgetId) {
       movedHandler(data)
       return
     }
 
-    if (
-      data.channel === Channel.WIDGET_INIT &&
-      data.widgetId === widgetId
-    ) {
+    if (data.channel === Channel.WIDGET_INIT && data.widgetId === widgetId) {
       initHandler(data)
       return
     }
@@ -278,9 +242,9 @@ let createWidgetAPI = (widgetId: number) => {
     // global.warn(`No handler for ${data.channel}`)
   }
 
-  process.on("message", messageHandler)
+  process.on('message', messageHandler)
   let off = () => {
-    process.off("message", messageHandler)
+    process.off('message', messageHandler)
   }
 
   let api: WidgetAPI = {
@@ -309,20 +273,19 @@ let createWidgetAPI = (widgetId: number) => {
       initHandler = handler
     },
 
-    ...createBaseWidgetAPI(widgetId, off),
+    ...createBaseWidgetAPI(widgetId, off)
   }
 
   return api
 }
 
 let vite: ViteWidget = async (dir, options = {}) => {
-  let viteRoot = kenvPath("vite")
-  let dirRoot = kenvPath("vite", dir)
+  let viteRoot = kenvPath('vite')
+  let dirRoot = kenvPath('vite', dir)
   let widgetDirExists = await pathExists(dirRoot)
   if (!widgetDirExists) {
     await ensureDir(viteRoot)
-    const clearCommand =
-      process.platform === "win32" ? "cls" : "clear"
+    const clearCommand = process.platform === 'win32' ? 'cls' : 'clear'
     await global.term({
       preview: md(
         `
@@ -341,17 +304,17 @@ ${dirRoot}
       cwd: viteRoot,
       shortcuts: [
         {
-          name: "Exit",
+          name: 'Exit',
           key: `${cmd}+w`,
-          bar: "right",
+          bar: 'right',
           onPress: () => {
             exit()
-          },
-        },
-      ],
+          }
+        }
+      ]
     })
 
-    let sourcePath = path.resolve(dirRoot, "src")
+    let sourcePath = path.resolve(dirRoot, 'src')
     if (await pathExists(sourcePath)) {
       let dTsContents = `
 declare global {
@@ -361,35 +324,30 @@ declare global {
 
 export type {};
 			`.trim()
-      await writeFile(
-        path.resolve(sourcePath, "global.d.ts"),
-        dTsContents
-      )
+      await writeFile(path.resolve(sourcePath, 'global.d.ts'), dTsContents)
     }
   }
 
-  const { createServer } = await import("vite")
+  const { createServer } = await import('vite')
   global.log(`Setting vite server root to ${dirRoot}`)
   let server = await createServer({
     root: dirRoot,
-    mode: options?.mode || "development",
+    mode: options?.mode || 'development'
   })
   let viteServer = await server.listen(options?.port)
 
   const closeServer = () => {
     if (server) {
-      global.log(
-        `Closing vite server on port ${viteServer.config.server.port}`
-      )
+      global.log(`Closing vite server on port ${viteServer.config.server.port}`)
       server.close()
       server = null
     }
   }
 
-  process.once("exit", closeServer)
-  process.once("SIGINT", closeServer)
-  process.once("SIGTERM", closeServer)
-  process.once("uncaughtException", closeServer)
+  process.once('exit', closeServer)
+  process.once('SIGINT', closeServer)
+  process.once('SIGTERM', closeServer)
+  process.once('uncaughtException', closeServer)
 
   let url = `http://localhost:${viteServer.config.server.port}`
 
@@ -401,12 +359,11 @@ export type {};
       command: global.kitCommand,
       html: url,
       options: {
-        containerClass:
-          "overflow-auto flex justify-center items-center v-screen h-screen",
+        containerClass: 'overflow-auto flex justify-center items-center v-screen h-screen',
         draggable: true,
         resizable: true,
-        ...options,
-      },
+        ...options
+      }
     },
     false
   )
@@ -428,12 +385,11 @@ let widget: Widget = async (html, options = {}) => {
       command: global.kitCommand,
       html,
       options: {
-        containerClass:
-          "overflow-auto flex justify-center items-center v-screen h-screen",
+        containerClass: 'overflow-auto flex justify-center items-center v-screen h-screen',
         draggable: true,
         resizable: true,
-        ...options,
-      },
+        ...options
+      }
     },
     false
   )
@@ -441,75 +397,70 @@ let widget: Widget = async (html, options = {}) => {
   return createWidgetAPI(widgetId)
 }
 
-let menu = async (
-  label: string,
-  scripts: string[] = []
-) => {
+let menu = async (label: string, scripts: string[] = []) => {
   return sendWait(Channel.SET_TRAY, {
     label,
-    scripts,
+    scripts
   })
 }
 
-global.term = async (
-  commandOrConfig: string | TerminalConfig = "",
-  actions?: Action[]
-) => {
+global.term = async (commandOrConfig: string | TerminalConfig = '', actions?: Action[]) => {
   let config: TerminalConfig = {
-    command: "",
+    command: '',
+    enter: '',
     env: {
       ...global.env,
       PATH: KIT_FIRST_PATH,
-      DISABLE_AUTO_UPDATE: "true", // Disable auto-update for zsh
+      DISABLE_AUTO_UPDATE: 'true' // Disable auto-update for zsh
     },
     height: PROMPT.HEIGHT.BASE,
     previewWidthPercent: 40,
     actions,
     shortcuts: [
       {
-        name: "Exit",
+        name: 'Exit',
         key: `${cmd}+w`,
-        bar: "right",
+        bar: 'right',
         onPress: () => {
           exit()
-        },
+        }
       },
       {
-        name: "Continue",
+        name: 'Continue',
         key: `${cmd}+enter`,
-        bar: "right",
+        bar: 'right',
         onPress: () => {
-          send(Channel.TERM_EXIT, "")
-        },
-      },
-    ],
+          send(Channel.TERM_EXIT, '')
+        }
+      }
+    ]
   }
 
-  if (typeof commandOrConfig === "string") {
+  if (typeof commandOrConfig === 'string') {
     config.command = commandOrConfig
-  } else if (typeof commandOrConfig === "object") {
+  } else if (typeof commandOrConfig === 'object') {
     config = {
       ...config,
-      ...(commandOrConfig as TerminalConfig),
+      ...(commandOrConfig as TerminalConfig)
     }
   }
 
   if (global.__kitCurrentUI === UI.term) {
     // Hack to clear the terminal when it's already open.
     await div({
-      html: "",
+      html: '',
       height: PROMPT.HEIGHT.BASE,
       onInit: async () => {
         await wait(100)
-        submit("")
-      },
+        submit('')
+      }
     })
   }
 
   return await global.kitPrompt({
     input: config.command,
     ui: UI.term,
-    ...config,
+    ...config
   })
 }
 
@@ -521,6 +472,6 @@ global.widget = widget
 global.menu = menu
 global.vite = vite
 
-global.showLogWindow = async (scriptPath = "") => {
+global.showLogWindow = async (scriptPath = '') => {
   await sendWait(Channel.SHOW_LOG_WINDOW, scriptPath)
 }
