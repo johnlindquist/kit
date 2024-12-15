@@ -96,21 +96,21 @@
     "chrome-trace-event": "^1.0.4",
     "color-name": "2.0.0",
     "date-fns": "4.1.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "dotenv-flow": "4.1.0",
     "download": "8.0.0",
     "enquirer": "2.4.1",
     "esbuild": "0.24.0",
-    "execa": "9.5.1",
+    "execa": "9.5.2",
     "filesize": "10.1.6",
     "fs-extra": "^11.2.0",
     "globby": "^14.0.2",
     "handlebars": "4.7.8",
-    "highlight.js": "^11.10.0",
+    "highlight.js": "^11.11.0",
     "isomorphic-git": "1.27.2",
     "jsonfile": "6.1.0",
-    "keyv": "^5.2.1",
-    "keyv-file": "^5.0.3",
+    "keyv": "^5.2.2",
+    "keyv-file": "^5.0.4",
     "lowdb": "7.0.1",
     "marked": "4.3.0",
     "minimist": "1.2.8",
@@ -131,12 +131,12 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",
     "cz-conventional-changelog": "^3.3.0",
-    "debug": "4.3.7",
+    "debug": "4.4.0",
     "node-stream-zip": "^1.15.0",
     "semantic-release": "24.2.0",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
@@ -144,7 +144,7 @@
     "tsx": "4.19.2",
     "typescript": "5.7.2",
     "unzipper": "0.12.3",
-    "vite": "6.0.2"
+    "vite": "6.0.3"
   },
   "ava": {
     "environmentVariables": {
@@ -202,5 +202,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@9.14.4"
+  "packageManager": "pnpm@9.15.0"
 }
