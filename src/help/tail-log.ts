@@ -1,3 +1,3 @@
-await terminal(`tail -f ~/.kit/logs/kit.log`)
+await terminal(`tail -f ~/.kit/logs/main.log`)
 
 export {}

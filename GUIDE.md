@@ -1205,7 +1205,7 @@ tail -f ~/.kenv/logs/my-script.log
 If you want to watch the main log, you can use:
 
 ```sh
-tail -f ~/.kit/logs/kit.log
+tail -f ~/.kit/logs/main.log
 ```
 
 ## Save webpage as a PDF

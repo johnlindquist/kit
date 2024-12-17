@@ -1,51 +1,43 @@
 // Name: Error
 // Description: An error has occurred
 
-import { cmd, extensionRegex } from "../core/utils.js"
-import { Channel, ErrorAction } from "../core/enum.js"
+import { cmd, extensionRegex } from '../core/utils.js'
+import { Channel, ErrorAction } from '../core/enum.js'
 
 if (args?.length > 5) {
-  warn(`Too many error args: ${args.slice(4).join(", ")}`)
+  warn(`Too many error args: ${args.slice(4).join(', ')}`)
 }
 
 if (args?.length < 5) {
-  warn(`Not enough error args: ${args.join(", ")}`)
-  let requiredArgs = [
-    "script",
-    "stackFile",
-    "errorFile",
-    "line",
-    "col",
-  ]
+  warn(`Not enough error args: ${args.join(', ')}`)
+  let requiredArgs = ['script', 'stackFile', 'errorFile', 'line', 'col']
   let missingArgs = requiredArgs.slice(args.length)
   for (let arg of missingArgs) {
     args.push(arg)
   }
 }
-let script = args.shift() || "No script reported"
-let stackFile = args.shift() || "No stack file reported"
-let errorFile = args.shift() || "No error file reported"
-let line = args.shift() || "No line reported"
-let col = args.shift() || "No column reported"
+let script = args.shift() || 'No script reported'
+let stackFile = args.shift() || 'No stack file reported'
+let errorFile = args.shift() || 'No error file reported'
+let line = args.shift() || 'No line reported'
+let col = args.shift() || 'No column reported'
 
-let stack = await readFile(stackFile, "utf-8")
+let stack = await readFile(stackFile, 'utf-8')
 
-stack = stack.replace(/\?uuid.*/g, "")
+stack = stack.replace(/\?uuid.*/g, '')
 
 // if errorFile a ".mjs" file, convert the path to the .ts file
-if (errorFile.endsWith(".mjs")) {
-  errorFile = errorFile
-    .replace(".scripts", "scripts")
-    .replace(/\.mjs$/, ".ts")
+if (errorFile.endsWith('.mjs')) {
+  errorFile = errorFile.replace('.scripts', 'scripts').replace(/\.mjs$/, '.ts')
 }
 
-let errorMessage = stack.split("\n")[0]
+let errorMessage = stack.split('\n')[0]
 
 // if errorMessage contains "_ is not defined"
 // Tell user that lodash is no longer global, they need to import it
-if (errorMessage.includes("_ is not defined")) {
+if (errorMessage.includes('_ is not defined')) {
   await div({
-    enter: "Add Lodash to Script",
+    enter: 'Add Lodash to Script',
     html: md(`# ⚠️ Global Lodash is No Longer Supported
 
 To save on Kit SDK filesize, Lodash is no longer global. 
@@ -55,21 +47,15 @@ Press enter to add \`import _ from "lodash"\` to the top of your script.
 ~~~js
 import _ from "lodash"
 ~~~
-`),
+`)
   })
 
   // insert import _ from "lodash" under the import "@johnlindquist/kit" line
-  let contents = await readFile(errorFile, "utf-8")
-  let lines = contents.split("\n")
-  let kitImportLine = lines.findIndex(line =>
-    line.match(/import.*['"]@johnlindquist\/kit['"]/)
-  )
-  lines.splice(
-    kitImportLine + 1,
-    0,
-    `import _ from "lodash"`
-  )
-  await writeFile(errorFile, lines.join("\n"))
+  let contents = await readFile(errorFile, 'utf-8')
+  let lines = contents.split('\n')
+  let kitImportLine = lines.findIndex((line) => line.match(/import.*['"]@johnlindquist\/kit['"]/))
+  lines.splice(kitImportLine + 1, 0, `import _ from "lodash"`)
+  await writeFile(errorFile, lines.join('\n'))
 
   await edit(errorFile, kenvPath(), line, col)
   exit()
@@ -77,25 +63,21 @@ import _ from "lodash"
 
 send(Channel.ERROR, {
   script,
-  stack: stack || "",
-  message: errorMessage || "",
+  stack: stack || '',
+  message: errorMessage || ''
 })
 
 // if errorMessage contains "Cannot find package"
-if (errorMessage.includes("Cannot find package")) {
-  let pkg = errorMessage.match(
-    /(?<=Cannot find package ').*(?=' imported)/g
-  )[0]
+if (errorMessage.includes('Cannot find package')) {
+  let pkg = errorMessage.match(/(?<=Cannot find package ').*(?=' imported)/g)[0]
 
   await installMissingPackage(pkg)
   await wait(500)
-  await writeFile(kitPath("run.txt"), errorFile)
+  await writeFile(kitPath('run.txt'), errorFile)
 } else {
-  let errorLog = `${path
-    .basename(errorFile)
-    .replace(extensionRegex, "")}.log`
+  let errorLog = `${path.basename(errorFile).replace(extensionRegex, '')}.log`
 
-  let errorLogPath = kenvPath("logs", errorLog)
+  let errorLogPath = kenvPath('logs', errorLog)
 
   let errorActions: {
     [key in ErrorAction]: () => Promise<void>
@@ -108,27 +90,25 @@ if (errorMessage.includes("Cannot find package")) {
       exit()
     },
     [ErrorAction.KitLog]: async () => {
-      await edit(kitPath("logs", "kit.log"), kenvPath())
+      await edit(kitPath('logs', 'main.log'), kenvPath())
     },
     [ErrorAction.Log]: async () => {
       await edit(errorLogPath, kenvPath())
     },
     [ErrorAction.Ask]: async () => {
       await copy(stack)
-      await exec(
-        `open "https://github.com/johnlindquist/kit/discussions/categories/errors"`
-      )
+      await exec(`open "https://github.com/johnlindquist/kit/discussions/categories/errors"`)
     },
     [ErrorAction.CopySyncPath]: async () => {
-      await cli("sync-path-instructions")
-    },
+      await cli('sync-path-instructions')
+    }
   }
 
   // console.log(stack)
 
-  let hint = stack.split("\n")[0]
+  let hint = stack.split('\n')[0]
   let showCopyCommand = false
-  if (hint?.includes("command not found")) {
+  if (hint?.includes('command not found')) {
     showCopyCommand = true
     hint = `${hint}.<br/><br/>
   Running "~/.kit/bin/kit sync-path" in the terminal may help find expected commands.`
@@ -140,132 +120,120 @@ if (errorMessage.includes("Cannot find package")) {
       hint,
       shortcuts: [
         {
-          name: "Close",
+          name: 'Close',
           key: `${cmd}+w`,
           onPress: async (input, state) => {
             exit()
           },
-          bar: "right",
+          bar: 'right'
         },
         {
-          name: "Edit Script",
+          name: 'Edit Script',
           key: `${cmd}+o`,
           onPress: async (input, { focused }) => {
-            await run(
-              kitPath("cli", "edit-script.js"),
-              errorFile
-            )
+            await run(kitPath('cli', 'edit-script.js'), errorFile)
           },
-          bar: "right",
-        },
+          bar: 'right'
+        }
       ],
-      resize: false,
+      resize: false
     },
     [
       ...(showCopyCommand
         ? [
             {
               name: "Copy 'sync-path' command to clipboard",
-              value: ErrorAction.CopySyncPath,
-            },
+              value: ErrorAction.CopySyncPath
+            }
           ]
         : []),
       {
         name: `Copy Error to Clipboard`,
         value: ErrorAction.Copy,
-        enter: "Copy Error",
+        enter: 'Copy Error',
         preview: async () => {
           return highlight(
             `## ${path.basename(errorFile)}\n\n
 ~~~bash
 ${stack}
 ~~~`,
-            ""
+            ''
           )
-        },
+        }
       },
       {
         name: `Open ${errorLog} in editor`,
         value: ErrorAction.Log,
-        enter: "Open Log",
+        enter: 'Open Log',
         preview: async () => {
           try {
-            let logFile = await readFile(
-              errorLogPath,
-              "utf-8"
-            )
+            let logFile = await readFile(errorLogPath, 'utf-8')
 
             return highlight(
               `## ${errorLog}\n\n    
 ~~~bash          
 ${logFile
-  .split("\n")
-  .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+  .split('\n')
+  .map((line) => line.replace(/[^\s]+?(?=\s\d)\s/, '['))
   .reverse()
-  .join("\n")}
+  .join('\n')}
 ~~~`,
-              "",
+              '',
               `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
             )
           } catch (error) {
             return highlight(
               `## ${path.basename(errorLogPath)}\n\n
 Your script's log doesn't exist yet. Adding logging to your script with \`log("message")\` or \`console.log("message")\` and the log file will be created automatically.`,
-              "",
+              '',
               `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
             )
           }
-        },
+        }
       },
       {
         name: `Open ${path.basename(errorFile)} in editor`,
         value: ErrorAction.Open,
-        enter: "Open Script",
+        enter: 'Open Script',
         preview: async () => {
-          let scriptContents = await readFile(
-            errorFile,
-            "utf-8"
-          )
+          let scriptContents = await readFile(errorFile, 'utf-8')
 
           return highlight(
             `## ${path.basename(errorFile)}\n\n    
 ~~~bash          
 ${scriptContents}
 ~~~`,
-            "",
+            '',
             `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
           )
-        },
+        }
       },
       {
-        name: `Open log kit.log in editor`,
+        name: `Open log main.log in editor`,
         value: ErrorAction.KitLog,
         preview: async () => {
-          let logFile = await readFile(
-            kitPath("logs", "kit.log"),
-            "utf-8"
-          )
+          let logFile = await readFile(kitPath('logs', 'main.log'), 'utf-8')
 
           return highlight(
-            `## kit.log\n\n    
+            `## main.log\n\n    
   ~~~bash          
   ${logFile
-    .split("\n")
-    .map(line => line.replace(/[^\s]+?(?=\s\d)\s/, "["))
+    .split('\n')
+    .map((line) => line.replace(/[^\s]+?(?=\s\d)\s/, '['))
     .slice(-100)
     .reverse()
-    .join("\n")}
+    .join('\n')}
   ~~~`,
-            "",
+            '',
             `.hljs.language-bash {font-size: .75rem; margin-top:0; padding-top:0}`
           )
-        },
+        }
       },
       {
         name: `Ask for help on forum`,
         description: `Copy error to clipboard and open discussions in browser`,
-        value: ErrorAction.Ask,
-      },
+        value: ErrorAction.Ask
+      }
     ]
   )
 

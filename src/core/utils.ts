@@ -1,52 +1,34 @@
-import "../globals/index.js"
-import { config } from "dotenv-flow"
-import {
-  md as globalMd,
-  marked,
-} from "../globals/marked.js"
+import '../globals/index.js'
+import { config } from 'dotenv-flow'
+import { md as globalMd, marked } from '../globals/marked.js'
 
-import * as path from "node:path"
+import * as path from 'node:path'
 
-import type {
-  Script,
-  Metadata,
-  Shortcut,
-  Scriptlet,
-  Snippet,
-} from "../types/core"
-import { lstatSync, realpathSync } from "node:fs"
-import { lstat, readdir } from "node:fs/promises"
-import { execSync } from "node:child_process"
+import type { Script, Metadata, Shortcut, Scriptlet, Snippet } from '../types/core'
+import { lstatSync, realpathSync } from 'node:fs'
+import { lstat, readdir } from 'node:fs/promises'
+import { execSync } from 'node:child_process'
 
-import { Channel } from "./enum.js"
-import {
-  type AssignmentExpression,
-  type Identifier,
-  type ObjectExpression,
-  Parser,
-  type Program,
-} from "acorn"
-import tsPlugin from "acorn-typescript"
-import type { Stamp } from "./db"
-import { pathToFileURL } from "node:url"
-import { parseScript } from "./parser.js"
-import { kitPath, kenvPath } from "./resolvers.js"
-import { cmd } from "./constants.js"
-import { isBin, isJsh, isDir, isWin, isMac } from "./is.js"
-import pRetry from "p-retry"
+import { Channel } from './enum.js'
+import { type AssignmentExpression, type Identifier, type ObjectExpression, Parser, type Program } from 'acorn'
+import tsPlugin from 'acorn-typescript'
+import type { Stamp } from './db'
+import { pathToFileURL } from 'node:url'
+import { parseScript } from './parser.js'
+import { kitPath, kenvPath } from './resolvers.js'
+import { cmd } from './constants.js'
+import { isBin, isJsh, isDir, isWin, isMac } from './is.js'
+import pRetry from 'p-retry'
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 
-export let wait = async (time: number): Promise<void> =>
-  new Promise(res => setTimeout(res, time))
+export let wait = async (time: number): Promise<void> => new Promise((res) => setTimeout(res, time))
 
 export let checkProcess = (pid: string | number) => {
   return execSync(`kill -0 ` + pid).buffer.toString()
 }
 
-export let combinePath = (
-  arrayOfPaths: string[]
-): string => {
+export let combinePath = (arrayOfPaths: string[]): string => {
   const pathSet = new Set<string>()
 
   for (const p of arrayOfPaths) {
@@ -63,37 +45,21 @@ export let combinePath = (
   return Array.from(pathSet).join(path.delimiter)
 }
 
-const UNIX_DEFAULT_PATH = combinePath([
-  "/usr/local/bin",
-  "/usr/bin",
-  "/bin",
-  "/usr/sbin",
-  "/sbin",
-])
+const UNIX_DEFAULT_PATH = combinePath(['/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin'])
 
 const WIN_DEFAULT_PATH = combinePath([])
 
-export const KIT_DEFAULT_PATH = isWin
-  ? WIN_DEFAULT_PATH
-  : UNIX_DEFAULT_PATH
+export const KIT_DEFAULT_PATH = isWin ? WIN_DEFAULT_PATH : UNIX_DEFAULT_PATH
 
 export const KIT_BIN_PATHS = combinePath([
-  kitPath("bin"),
-  ...(isWin ? [] : [kitPath("override", "code")]),
-  kenvPath("bin"),
+  kitPath('bin'),
+  ...(isWin ? [] : [kitPath('override', 'code')]),
+  kenvPath('bin')
 ])
 
-export const KIT_FIRST_PATH = combinePath([
-  KIT_BIN_PATHS,
-  process?.env?.PATH,
-  KIT_DEFAULT_PATH,
-])
+export const KIT_FIRST_PATH = combinePath([KIT_BIN_PATHS, process?.env?.PATH, KIT_DEFAULT_PATH])
 
-export const KIT_LAST_PATH = combinePath([
-  process.env.PATH,
-  KIT_DEFAULT_PATH,
-  KIT_BIN_PATHS,
-])
+export const KIT_LAST_PATH = combinePath([process.env.PATH, KIT_DEFAULT_PATH, KIT_BIN_PATHS])
 
 export let assignPropsTo = (
   source: { [s: string]: unknown } | ArrayLike<unknown>,
@@ -108,7 +74,7 @@ export let assignPropsTo = (
 let fileExists = (path: string) => {
   try {
     return lstatSync(path, {
-      throwIfNoEntry: false,
+      throwIfNoEntry: false
     })?.isFile()
   } catch {
     return false
@@ -116,131 +82,96 @@ let fileExists = (path: string) => {
 }
 
 export let isScriptletPath = (filePath: unknown) => {
-  return (
-    typeof filePath === "string" &&
-    filePath.includes(".md#")
-  )
+  return typeof filePath === 'string' && filePath.includes('.md#')
 }
 
 //app
-export let resolveToScriptPath = (
-  rawScript: string,
-  cwd: string = process.cwd()
-): string => {
-  let extensions = ["", ".js", ".ts", ".md"]
-  let resolvedScriptPath = ""
+export let resolveToScriptPath = (rawScript: string, cwd: string = process.cwd()): string => {
+  let extensions = ['', '.js', '.ts', '.md']
+  let resolvedScriptPath = ''
 
   // Remove anchor from the end
-  let script = rawScript.replace(/\#.*$/, "")
+  let script = rawScript.replace(/\#.*$/, '')
 
   // if (!script.match(/(.js|.mjs|.ts)$/)) script += ".js"
   if (fileExists(script)) return script
 
   // Check sibling scripts
   if (global.kitScript) {
-    let currentRealScriptPath = realpathSync(
-      global.kitScript
-    )
-    let maybeSiblingScriptPath = path.join(
-      path.dirname(currentRealScriptPath),
-      script
-    )
+    let currentRealScriptPath = realpathSync(global.kitScript)
+    let maybeSiblingScriptPath = path.join(path.dirname(currentRealScriptPath), script)
     if (fileExists(maybeSiblingScriptPath)) {
       return maybeSiblingScriptPath
     }
 
-    if (fileExists(maybeSiblingScriptPath + ".js")) {
-      return maybeSiblingScriptPath + ".js"
+    if (fileExists(maybeSiblingScriptPath + '.js')) {
+      return maybeSiblingScriptPath + '.js'
     }
 
-    if (fileExists(maybeSiblingScriptPath + ".ts")) {
-      return maybeSiblingScriptPath + ".ts"
+    if (fileExists(maybeSiblingScriptPath + '.ts')) {
+      return maybeSiblingScriptPath + '.ts'
     }
   }
 
   // Check main kenv
 
   for (let ext of extensions) {
-    resolvedScriptPath = kenvPath("scripts", script + ext)
-    if (fileExists(resolvedScriptPath))
-      return resolvedScriptPath
+    resolvedScriptPath = kenvPath('scripts', script + ext)
+    if (fileExists(resolvedScriptPath)) return resolvedScriptPath
   }
 
   // Check other kenvs
-  let [k, s] = script.split("/")
+  let [k, s] = script.split('/')
   if (s) {
     for (let ext of extensions) {
-      resolvedScriptPath = kenvPath(
-        "kenvs",
-        k,
-        "scripts",
-        s + ext
-      )
-      if (fileExists(resolvedScriptPath))
-        return resolvedScriptPath
+      resolvedScriptPath = kenvPath('kenvs', k, 'scripts', s + ext)
+      if (fileExists(resolvedScriptPath)) return resolvedScriptPath
     }
   }
 
   // Check scripts dir
 
   for (let ext of extensions) {
-    resolvedScriptPath = path.resolve(
-      cwd,
-      "scripts",
-      script + ext
-    )
-    if (fileExists(resolvedScriptPath))
-      return resolvedScriptPath
+    resolvedScriptPath = path.resolve(cwd, 'scripts', script + ext)
+    if (fileExists(resolvedScriptPath)) return resolvedScriptPath
   }
 
   // Check anywhere
 
   for (let ext of extensions) {
     resolvedScriptPath = path.resolve(cwd, script + ext)
-    if (fileExists(resolvedScriptPath))
-      return resolvedScriptPath
+    if (fileExists(resolvedScriptPath)) return resolvedScriptPath
   }
 
   throw new Error(`${script} not found`)
 }
 
 export let resolveScriptToCommand = (script: string) => {
-  return path
-    .basename(script)
-    .replace(new RegExp(`\\${path.extname(script)}$`), "")
+  return path.basename(script).replace(new RegExp(`\\${path.extname(script)}$`), '')
 }
 
 //app
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
-        .replace(
-          /(option|opt|alt)/i,
-          isMac ? "Option" : "Alt"
-        )
-        .replace(/(ctl|cntrl|ctrl|control)/, "Control")
-        .replace(
-          /(command|cmd)/i,
-          isMac ? "Command" : "Control"
-        )
-        .replace(/(shift|shft)/i, "Shift")
+        .replace(/(option|opt|alt)/i, isMac ? 'Option' : 'Alt')
+        .replace(/(ctl|cntrl|ctrl|control)/, 'Control')
+        .replace(/(command|cmd)/i, isMac ? 'Command' : 'Control')
+        .replace(/(shift|shft)/i, 'Shift')
         .split(/\s/)
         .filter(Boolean)
-        .map(part =>
-          (part[0].toUpperCase() + part.slice(1)).trim()
-        )
-        .join("+")
-    : ""
+        .map((part) => (part[0].toUpperCase() + part.slice(1)).trim())
+        .join('+')
+    : ''
 
 export const friendlyShortcut = (shortcut: string) => {
-  let f = ""
-  if (shortcut.includes("Command+")) f += "cmd+"
-  if (shortcut.match(/(?<!Or)Control\+/)) f += "ctrl+"
-  if (shortcut.includes("Alt+")) f += "alt+"
-  if (shortcut.includes("Option+")) f += "opt+"
-  if (shortcut.includes("Shift+")) f += "shift+"
-  if (shortcut.includes("+"))
-    f += shortcut.split("+").pop()?.toLowerCase()
+  let f = ''
+  if (shortcut.includes('Command+')) f += 'cmd+'
+  if (shortcut.match(/(?<!Or)Control\+/)) f += 'ctrl+'
+  if (shortcut.includes('Alt+')) f += 'alt+'
+  if (shortcut.includes('Option+')) f += 'opt+'
+  if (shortcut.includes('Shift+')) f += 'shift+'
+  if (shortcut.includes('+')) f += shortcut.split('+').pop()?.toLowerCase()
 
   return f
 }
@@ -254,29 +185,20 @@ export let setMetadata = (
   Object.entries(overrides).forEach(([key, value]) => {
     let k = key[0].toUpperCase() + key.slice(1)
     // if not exists, then add
-    if (
-      !contents.match(
-        new RegExp(`^\/\/\\s*(${key}|${k}):.*`, "gm")
-      )
-    ) {
+    if (!contents.match(new RegExp(`^\/\/\\s*(${key}|${k}):.*`, 'gm'))) {
       // uppercase first letter
       contents = `// ${k}: ${value}
 ${contents}`.trim()
     } else {
       // if exists, then replace
-      contents = contents.replace(
-        new RegExp(`^\/\/\\s*(${key}|${k}):.*$`, "gm"),
-        `// ${k}: ${value}`
-      )
+      contents = contents.replace(new RegExp(`^\/\/\\s*(${key}|${k}):.*$`, 'gm'), `// ${k}: ${value}`)
     }
   })
   return contents
 }
 
-const getMetadataFromComments = (
-  contents: string
-): Record<string, string> => {
-  const lines = contents.split("\n")
+const getMetadataFromComments = (contents: string): Record<string, string> => {
+  const lines = contents.split('\n')
   const metadata = {}
   let commentStyle = null
   let spaceRegex = null
@@ -292,26 +214,23 @@ const getMetadataFromComments = (
     // Check for the start of a multiline comment block
     if (
       !inMultilineComment &&
-      (line.trim().startsWith("/*") ||
+      (line.trim().startsWith('/*') ||
         line.trim().startsWith("'''") ||
         line.trim().startsWith('"""') ||
         line.trim().match(/^: '/))
     ) {
       inMultilineComment = true
-      multilineCommentEnd = line.trim().startsWith("/*")
-        ? "*/"
+      multilineCommentEnd = line.trim().startsWith('/*')
+        ? '*/'
         : line.trim().startsWith(": '")
-        ? "'"
-        : line.trim().startsWith("'''")
-        ? "'''"
-        : '"""'
+          ? "'"
+          : line.trim().startsWith("'''")
+            ? "'''"
+            : '"""'
     }
 
     // Check for the end of a multiline comment block
-    if (
-      inMultilineComment &&
-      line.trim().endsWith(multilineCommentEnd)
-    ) {
+    if (inMultilineComment && line.trim().endsWith(multilineCommentEnd)) {
       inMultilineComment = false
       multilineCommentEnd = null
       continue // Skip the end line of a multiline comment block
@@ -322,37 +241,25 @@ const getMetadataFromComments = (
 
     // Determine the comment style based on the first encountered comment line
     if (commentStyle === null) {
-      if (
-        line.startsWith("//") &&
-        (line[2] === " " || /[a-zA-Z]/.test(line[2]))
-      ) {
-        setCommentStyle("//")
-      } else if (
-        line.startsWith("#") &&
-        (line[1] === " " || /[a-zA-Z]/.test(line[1]))
-      ) {
-        setCommentStyle("#")
+      if (line.startsWith('//') && (line[2] === ' ' || /[a-zA-Z]/.test(line[2]))) {
+        setCommentStyle('//')
+      } else if (line.startsWith('#') && (line[1] === ' ' || /[a-zA-Z]/.test(line[1]))) {
+        setCommentStyle('#')
       }
     }
 
     // Skip lines that don't start with the determined comment style
-    if (
-      commentStyle === null ||
-      (commentStyle && !line.startsWith(commentStyle))
-    )
-      continue
+    if (commentStyle === null || (commentStyle && !line.startsWith(commentStyle))) continue
 
     // Check for 0 or 1 space after the comment style
     if (!line.match(spaceRegex)) continue
 
     // Find the index of the first colon
-    const colonIndex = line.indexOf(":")
+    const colonIndex = line.indexOf(':')
     if (colonIndex === -1) continue
 
     // Extract key and value based on the colon index
-    let key = line
-      .substring(commentStyle.length, colonIndex)
-      .trim()
+    let key = line.substring(commentStyle.length, colonIndex).trim()
 
     if (key?.length > 0) {
       key = key[0].toLowerCase() + key.slice(1)
@@ -368,13 +275,13 @@ const getMetadataFromComments = (
     let lowerValue = value.toLowerCase()
     let lowerKey = key.toLowerCase()
     switch (true) {
-      case lowerValue === "true":
+      case lowerValue === 'true':
         parsedValue = true
         break
-      case lowerValue === "false":
+      case lowerValue === 'false':
         parsedValue = false
         break
-      case lowerKey === "timeout":
+      case lowerKey === 'timeout':
         parsedValue = parseInt(value, 10)
         break
       default:
@@ -396,37 +303,30 @@ function parseTypeScript(code: string) {
     tsPlugin({ allowSatisfies: true })
   )
   return parser.parse(code, {
-    sourceType: "module",
-    ecmaVersion: "latest",
+    sourceType: 'module',
+    ecmaVersion: 'latest'
   })
 }
 
-function isOfType<
-  T extends { type: string },
-  TType extends string
->(node: T, type: TType): node is T & { type: TType } {
+function isOfType<T extends { type: string }, TType extends string>(node: T, type: TType): node is T & { type: TType } {
   return node.type === type
 }
 
-function parseMetadataProperties(
-  properties: ObjectExpression["properties"]
-) {
+function parseMetadataProperties(properties: ObjectExpression['properties']) {
   return properties.reduce((acc, prop) => {
-    if (!isOfType(prop, "Property")) {
-      throw Error("Not a Property")
+    if (!isOfType(prop, 'Property')) {
+      throw Error('Not a Property')
     }
 
     const key = prop.key
     const value = prop.value
 
-    if (!isOfType(key, "Identifier")) {
-      throw Error("Key is not an Identifier")
+    if (!isOfType(key, 'Identifier')) {
+      throw Error('Key is not an Identifier')
     }
 
-    if (!isOfType(value, "Literal")) {
-      throw Error(
-        `value is not a Literal, but a ${value.type}`
-      )
+    if (!isOfType(value, 'Literal')) {
+      throw Error(`value is not a Literal, but a ${value.type}`)
     }
 
     acc[key.name] = value.value
@@ -434,25 +334,16 @@ function parseMetadataProperties(
   }, {})
 }
 
-function getMetadataFromExport(
-  ast: Program
-): Partial<Metadata> {
+function getMetadataFromExport(ast: Program): Partial<Metadata> {
   for (const node of ast.body) {
-    const isExpressionStatement = isOfType(
-      node,
-      "ExpressionStatement"
-    )
+    const isExpressionStatement = isOfType(node, 'ExpressionStatement')
 
     if (isExpressionStatement) {
-      const expression =
-        node.expression as AssignmentExpression
+      const expression = node.expression as AssignmentExpression
 
-      const isMetadata =
-        (expression.left as Identifier).name === "metadata"
-      const isEquals = expression.operator === "="
-      const properties = (
-        expression.right as ObjectExpression
-      ).properties
+      const isMetadata = (expression.left as Identifier).name === 'metadata'
+      const isEquals = expression.operator === '='
+      const properties = (expression.right as ObjectExpression).properties
 
       const isGlobalMetadata = isMetadata && isEquals
 
@@ -461,10 +352,7 @@ function getMetadataFromExport(
       }
     }
 
-    const isExportNamedDeclaration = isOfType(
-      node,
-      "ExportNamedDeclaration"
-    )
+    const isExportNamedDeclaration = isOfType(node, 'ExportNamedDeclaration')
 
     if (!isExportNamedDeclaration || !node.declaration) {
       continue
@@ -472,23 +360,17 @@ function getMetadataFromExport(
 
     const declaration = node.declaration
 
-    if (
-      declaration.type !== "VariableDeclaration" ||
-      !declaration.declarations[0]
-    ) {
+    if (declaration.type !== 'VariableDeclaration' || !declaration.declarations[0]) {
       continue
     }
 
     const namedExport = declaration.declarations[0]
 
-    if (
-      !("name" in namedExport.id) ||
-      namedExport.id.name !== "metadata"
-    ) {
+    if (!('name' in namedExport.id) || namedExport.id.name !== 'metadata') {
       continue
     }
 
-    if (namedExport.init?.type !== "ObjectExpression") {
+    if (namedExport.init?.type !== 'ObjectExpression') {
       continue
     }
 
@@ -532,25 +414,16 @@ export let getMetadata = (contents: string): Metadata => {
   }
 }
 
-export let getLastSlashSeparated = (
-  string: string,
-  count: number
-) => {
-  return (
-    string
-      .replace(/\/$/, "")
-      .split("/")
-      .slice(-count)
-      .join("/") || ""
-  )
+export let getLastSlashSeparated = (string: string, count: number) => {
+  return string.replace(/\/$/, '').split('/').slice(-count).join('/') || ''
 }
 
 export let kenvFromFilePath = (filePath: string) => {
   let { dir } = path.parse(filePath)
   let { name: scriptsName, dir: kenvDir } = path.parse(dir)
-  if (scriptsName !== "scripts") return ".kit"
+  if (scriptsName !== 'scripts') return '.kit'
   let { name: kenv } = path.parse(kenvDir)
-  if (path.relative(kenvDir, kenvPath()) === "") return ""
+  if (path.relative(kenvDir, kenvPath()) === '') return ''
   return kenv
 }
 
@@ -558,54 +431,36 @@ export let kenvFromFilePath = (filePath: string) => {
 export let getLogFromScriptPath = (filePath: string) => {
   let { name, dir } = path.parse(filePath)
   let { name: scriptsName, dir: kenvDir } = path.parse(dir)
-  if (scriptsName !== "scripts")
-    return kitPath("logs", "kit.log")
+  if (scriptsName !== 'scripts') return kitPath('logs', 'main.log')
 
-  return path.resolve(kenvDir, "logs", `${name}.log`)
+  return path.resolve(kenvDir, 'logs', `${name}.log`)
 }
 
 //new RegExp(`(^//([^(:|\W)]+
 
-export let stripMetadata = (
-  fileContents: string,
-  exclude: string[] = []
-) => {
-  let excludeWithCommon = [
-    `http`,
-    `https`,
-    `TODO`,
-    `FIXME`,
-    `NOTE`,
-  ].concat(exclude)
+export let stripMetadata = (fileContents: string, exclude: string[] = []) => {
+  let excludeWithCommon = [`http`, `https`, `TODO`, `FIXME`, `NOTE`].concat(exclude)
 
-  let negBehind = exclude.length
-    ? `(?<!(${excludeWithCommon.join("|")}))`
-    : ``
+  let negBehind = exclude.length ? `(?<!(${excludeWithCommon.join('|')}))` : ``
 
-  return fileContents.replace(
-    new RegExp(`(^//[^(:|\W|\n)]+${negBehind}:).+`, "gim"),
-    "$1"
-  )
+  return fileContents.replace(new RegExp(`(^//[^(:|\W|\n)]+${negBehind}:).+`, 'gim'), '$1')
 }
 
 export let stripName = (name: string) => {
   let strippedName = path.parse(name).name
-  strippedName = strippedName
-    .trim()
-    .replace(/\s+/g, "-")
-    .toLowerCase()
-  strippedName = strippedName.replace(/[^\w-]+/g, "")
-  strippedName = strippedName.replace(/-{2,}/g, "-")
+  strippedName = strippedName.trim().replace(/\s+/g, '-').toLowerCase()
+  strippedName = strippedName.replace(/[^\w-]+/g, '')
+  strippedName = strippedName.replace(/-{2,}/g, '-')
   return strippedName
 }
 
 //validator
 export let checkIfCommandExists = async (input: string) => {
-  if (await isBin(kenvPath("bin", input))) {
+  if (await isBin(kenvPath('bin', input))) {
     return global.chalk`{red.bold ${input}} already exists. Try again:`
   }
 
-  if (await isDir(kenvPath("bin", input))) {
+  if (await isDir(kenvPath('bin', input))) {
     return global.chalk`{red.bold ${input}} exists as group. Enter different name:`
   }
 
@@ -620,44 +475,35 @@ export let checkIfCommandExists = async (input: string) => {
   return true
 }
 
-export let getKenvs = async (
-  ignorePattern = /^ignore$/
-): Promise<string[]> => {
-  if (!(await isDir(kenvPath("kenvs")))) return []
+export let getKenvs = async (ignorePattern = /^ignore$/): Promise<string[]> => {
+  if (!(await isDir(kenvPath('kenvs')))) return []
 
-  let dirs = await readdir(kenvPath("kenvs"), {
-    withFileTypes: true,
+  let dirs = await readdir(kenvPath('kenvs'), {
+    withFileTypes: true
   })
 
   let kenvs = []
   for (let dir of dirs) {
-    if (
-      !dir.name.match(ignorePattern) &&
-      (dir.isDirectory() || dir.isSymbolicLink())
-    ) {
-      kenvs.push(kenvPath("kenvs", dir.name))
+    if (!dir.name.match(ignorePattern) && (dir.isDirectory() || dir.isSymbolicLink())) {
+      kenvs.push(kenvPath('kenvs', dir.name))
     }
   }
 
   return kenvs
 }
 
-export let kitMode = () =>
-  (process.env.KIT_MODE || "ts").toLowerCase()
+export let kitMode = () => (process.env.KIT_MODE || 'ts').toLowerCase()
 
 global.__kitRun = false
 
 let kitGlobalRunCount = 0
-export let run = async (
-  command: string,
-  ...commandArgs: string[]
-) => {
-  performance.mark("run")
+export let run = async (command: string, ...commandArgs: string[]) => {
+  performance.mark('run')
   kitGlobalRunCount++
   let kitLocalRunCount = kitGlobalRunCount
 
   let scriptArgs = []
-  let script = ""
+  let script = ''
   let match
   // This regex splits the command string into parts:
   // - Matches single-quoted strings: '[^']+?'
@@ -670,11 +516,11 @@ export let run = async (
 
   for (let item of parts) {
     if (!script) {
-      script = item.replace(quoteRegex, "")
+      script = item.replace(quoteRegex, '')
     } else if (!item.match(quoteRegex)) {
       scriptArgs.push(...item.trim().split(/\s+/))
     } else {
-      scriptArgs.push(item.replace(quoteRegex, ""))
+      scriptArgs.push(item.replace(quoteRegex, ''))
     }
   }
   // In case a script is passed with a path, we want to use the full command
@@ -683,25 +529,21 @@ export let run = async (
     scriptArgs = []
   }
   let resolvedScript = resolveToScriptPath(script)
-  global.projectPath = (...args) =>
-    path.resolve(
-      path.dirname(path.dirname(resolvedScript)),
-      ...args
-    )
+  global.projectPath = (...args) => path.resolve(path.dirname(path.dirname(resolvedScript)), ...args)
 
   global.onTabs = []
   global.kitScript = resolvedScript
   global.kitCommand = resolveScriptToCommand(resolvedScript)
   let realProjectPath = projectPath()
   updateEnv(realProjectPath)
-  if (process.env.KIT_CONTEXT === "app") {
+  if (process.env.KIT_CONTEXT === 'app') {
     let script = await parseScript(global.kitScript)
 
     if (commandArgs.includes(`--${cmd}`)) {
       script.debug = true
       global.send(Channel.DEBUG_SCRIPT, script)
 
-      return await Promise.resolve("Debugging...")
+      return await Promise.resolve('Debugging...')
     }
 
     cd(realProjectPath)
@@ -709,22 +551,18 @@ export let run = async (
     global.send(Channel.SET_SCRIPT, script)
   }
 
-  let result = await global.attemptImport(
-    resolvedScript,
-    ...scriptArgs,
-    ...commandArgs
-  )
+  let result = await global.attemptImport(resolvedScript, ...scriptArgs, ...commandArgs)
 
-  global.flag.tab = ""
+  global.flag.tab = ''
 
   return result
 }
 
 export let updateEnv = (scriptProjectPath: string) => {
   let { parsed, error } = config({
-    node_env: process.env.NODE_ENV || "development",
+    node_env: process.env.NODE_ENV || 'development',
     path: scriptProjectPath,
-    silent: true,
+    silent: true
   })
 
   if (parsed) {
@@ -732,13 +570,8 @@ export let updateEnv = (scriptProjectPath: string) => {
   }
 
   if (error) {
-    let isCwdKenv =
-      path.normalize(cwd()) === path.normalize(kenvPath())
-    if (
-      isCwdKenv &&
-      !error?.message?.includes("files matching pattern") &&
-      !process.env.CI
-    ) {
+    let isCwdKenv = path.normalize(cwd()) === path.normalize(kenvPath())
+    if (isCwdKenv && !error?.message?.includes('files matching pattern') && !process.env.CI) {
       global.log(error.message)
     }
   }
@@ -746,31 +579,21 @@ export let updateEnv = (scriptProjectPath: string) => {
 
 export let configEnv = () => {
   let { parsed, error } = config({
-    node_env: process.env.NODE_ENV || "development",
+    node_env: process.env.NODE_ENV || 'development',
     path: process.env.KIT_DOTENV_PATH || kenvPath(),
-    silent: true,
+    silent: true
   })
 
   if (error) {
-    let isCwdKenv =
-      path.normalize(cwd()) === path.normalize(kenvPath())
-    if (
-      isCwdKenv &&
-      !error?.message?.includes("files matching pattern") &&
-      !process.env.CI
-    ) {
+    let isCwdKenv = path.normalize(cwd()) === path.normalize(kenvPath())
+    if (isCwdKenv && !error?.message?.includes('files matching pattern') && !process.env.CI) {
       global.log(error.message)
     }
   }
 
-  process.env.PATH_FROM_DOTENV = combinePath([
-    parsed?.PATH || process.env.PATH,
-  ])
+  process.env.PATH_FROM_DOTENV = combinePath([parsed?.PATH || process.env.PATH])
 
-  process.env.PATH = combinePath([
-    process.env.PARSED_PATH,
-    KIT_FIRST_PATH,
-  ])
+  process.env.PATH = combinePath([process.env.PARSED_PATH, KIT_FIRST_PATH])
 
   assignPropsTo(process.env, global.env)
 
@@ -779,41 +602,26 @@ export let configEnv = () => {
 
 export let trashScriptBin = async (script: Script) => {
   let { command, kenv, filePath } = script
-  let { pathExists } = await import(
-    "fs-extra"
-  )
+  let { pathExists } = await import('fs-extra')
 
   let binJSPath = isJsh()
-    ? kenvPath("node_modules", ".bin", command + ".js")
-    : kenvPath(
-        kenv && `kenvs/${kenv}`,
-        "bin",
-        command + ".js"
-      )
+    ? kenvPath('node_modules', '.bin', command + '.js')
+    : kenvPath(kenv && `kenvs/${kenv}`, 'bin', command + '.js')
 
   let binJS = await pathExists(binJSPath)
   let { name, dir } = path.parse(filePath)
-  let commandBinPath = path.resolve(
-    path.dirname(dir),
-    "bin",
-    name
-  )
+  let commandBinPath = path.resolve(path.dirname(dir), 'bin', name)
 
-  if (process.platform === "win32") {
-    if (!commandBinPath.endsWith(".cmd")) {
-      commandBinPath += ".cmd"
+  if (process.platform === 'win32') {
+    if (!commandBinPath.endsWith('.cmd')) {
+      commandBinPath += '.cmd'
     }
   }
 
   if (binJS) {
-    let binPath = isJsh()
-      ? kenvPath("node_modules", ".bin", command)
-      : commandBinPath
+    let binPath = isJsh() ? kenvPath('node_modules', '.bin', command) : commandBinPath
 
-    await global.trash([
-      binPath,
-      ...(binJS ? [binJSPath] : []),
-    ])
+    await global.trash([binPath, ...(binJS ? [binJSPath] : [])])
   }
 
   if (await pathExists(commandBinPath)) {
@@ -826,24 +634,20 @@ export let trashScript = async (script: Script) => {
 
   await trashScriptBin(script)
 
-  let { pathExists } = await import(
-    "fs-extra"
-  )
+  let { pathExists } = await import('fs-extra')
 
-  await global.trash([
-    ...((await pathExists(filePath)) ? [filePath] : []),
-  ])
+  await global.trash([...((await pathExists(filePath)) ? [filePath] : [])])
 
   await wait(100)
 }
 
 export let getScriptFiles = async (kenv = kenvPath()) => {
-  let scriptsPath = path.join(kenv, "scripts")
+  let scriptsPath = path.join(kenv, 'scripts')
   try {
     let dirEntries = await readdir(scriptsPath)
     let scriptFiles = []
     for (let fileName of dirEntries) {
-      if (!fileName.startsWith(".")) {
+      if (!fileName.startsWith('.')) {
         let fullPath = path.join(scriptsPath, fileName)
         if (!path.extname(fileName)) {
           try {
@@ -865,169 +669,139 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
   }
 }
 
-export let scriptsSort =
-  (timestamps: Stamp[]) => (a: Script, b: Script) => {
-    let aTimestamp = timestamps.find(
-      t => t.filePath === a.filePath
-    )
-    let bTimestamp = timestamps.find(
-      t => t.filePath === b.filePath
-    )
+export let scriptsSort = (timestamps: Stamp[]) => (a: Script, b: Script) => {
+  let aTimestamp = timestamps.find((t) => t.filePath === a.filePath)
+  let bTimestamp = timestamps.find((t) => t.filePath === b.filePath)
 
-    if (aTimestamp && bTimestamp) {
-      return bTimestamp.timestamp - aTimestamp.timestamp
-    }
+  if (aTimestamp && bTimestamp) {
+    return bTimestamp.timestamp - aTimestamp.timestamp
+  }
 
-    if (aTimestamp) {
+  if (aTimestamp) {
+    return -1
+  }
+
+  if (bTimestamp) {
+    return 1
+  }
+
+  if (a?.index || b?.index) {
+    if ((a?.index || 9999) < (b?.index || 9999)) {
       return -1
     }
-
-    if (bTimestamp) {
-      return 1
-    }
-
-    if (a?.index || b?.index) {
-      if ((a?.index || 9999) < (b?.index || 9999)) {
-        return -1
-      }
-      return 1
-    }
-
-    let aName = (a?.name || "").toLowerCase()
-    let bName = (b?.name || "").toLowerCase()
-
-    return aName > bName ? 1 : aName < bName ? -1 : 0
+    return 1
   }
 
-export let isParentOfDir = (
-  parent: string,
-  dir: string
-) => {
-  let relative = path.relative(parent, dir)
-  return (
-    relative &&
-    !relative.startsWith("..") &&
-    !path.isAbsolute(relative)
-  )
+  let aName = (a?.name || '').toLowerCase()
+  let bName = (b?.name || '').toLowerCase()
+
+  return aName > bName ? 1 : aName < bName ? -1 : 0
 }
 
-export let isInDir =
-  (parentDir: string) => (dir: string) => {
-    const relative = path.relative(parentDir, dir)
-    return (
-      relative &&
-      !relative.startsWith("..") &&
-      !path.isAbsolute(relative)
-    )
-  }
+export let isParentOfDir = (parent: string, dir: string) => {
+  let relative = path.relative(parent, dir)
+  return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+}
+
+export let isInDir = (parentDir: string) => (dir: string) => {
+  const relative = path.relative(parentDir, dir)
+  return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+}
 
 export let escapeShortcut: Shortcut = {
   name: `Escape`,
   key: `escape`,
-  bar: "left",
+  bar: 'left',
   onPress: async () => {
     exit()
-  },
+  }
 }
 
 export let backToMainShortcut: Shortcut = {
   name: `Back`,
   key: `escape`,
-  bar: "left",
+  bar: 'left',
   onPress: async () => {
     await mainScript()
-  },
+  }
 }
 
 export let closeShortcut: Shortcut = {
-  name: "Exit",
+  name: 'Exit',
   key: `${cmd}+w`,
-  bar: "right",
+  bar: 'right',
   onPress: () => {
     exit()
-  },
+  }
 }
 
 export let editScriptShortcut: Shortcut = {
-  name: "Edit Script",
+  name: 'Edit Script',
   key: `${cmd}+o`,
   onPress: async (input, { script }) => {
-    await run(
-      kitPath("cli", "edit-script.js"),
-      script?.filePath
-    )
+    await run(kitPath('cli', 'edit-script.js'), script?.filePath)
     exit()
   },
-  bar: "right",
+  bar: 'right'
 }
 
 export let submitShortcut: Shortcut = {
-  name: "Submit",
+  name: 'Submit',
   key: `${cmd}+s`,
-  bar: "right",
-  onPress: async input => {
+  bar: 'right',
+  onPress: async (input) => {
     await submit(input)
-  },
+  }
 }
 
 export let viewLogShortcut: Shortcut = {
-  name: "View Log",
+  name: 'View Log',
   key: `${cmd}+l`,
   onPress: async (input, { focused }) => {
-    await run(
-      kitPath("cli", "open-script-log.js"),
-      focused?.value?.scriptPath
-    )
+    await run(kitPath('cli', 'open-script-log.js'), focused?.value?.scriptPath)
   },
-  bar: "right",
-  visible: true,
+  bar: 'right',
+  visible: true
 }
 
 export let terminateProcessShortcut: Shortcut = {
-  name: "Terminate Process",
+  name: 'Terminate Process',
   key: `${cmd}+enter`,
   onPress: async (input, { focused }) => {
-    await sendWait(
-      Channel.TERMINATE_PROCESS,
-      focused?.value?.pid
-    )
+    await sendWait(Channel.TERMINATE_PROCESS, focused?.value?.pid)
   },
-  bar: "right",
-  visible: true,
+  bar: 'right',
+  visible: true
 }
 
 export let terminateAllProcessesShortcut: Shortcut = {
-  name: "Terminate All Processes",
+  name: 'Terminate All Processes',
   key: `${cmd}+shift+enter`,
   onPress: async () => {
     await sendWait(Channel.TERMINATE_ALL_PROCESSES)
   },
-  bar: "right",
-  visible: true,
+  bar: 'right',
+  visible: true
 }
 
 export let smallShortcuts: Shortcut[] = [
   // escapeShortcut,
-  closeShortcut,
+  closeShortcut
 ]
 
 export let argShortcuts: Shortcut[] = [
   // escapeShortcut,
   closeShortcut,
-  editScriptShortcut,
+  editScriptShortcut
 ]
 
-export let editorShortcuts: Shortcut[] = [
-  closeShortcut,
-  editScriptShortcut,
-  submitShortcut,
-]
+export let editorShortcuts: Shortcut[] = [closeShortcut, editScriptShortcut, submitShortcut]
 
 export let defaultShortcuts: Shortcut[] = [
   // escapeShortcut,
   closeShortcut,
   editScriptShortcut,
-  submitShortcut,
+  submitShortcut
 ]
 
 export let divShortcuts: Shortcut[] = [
@@ -1035,34 +809,33 @@ export let divShortcuts: Shortcut[] = [
   closeShortcut,
   {
     ...editScriptShortcut,
-    bar: "",
-  },
+    bar: ''
+  }
 ]
 
 export let formShortcuts: Shortcut[] = [
   // escapeShortcut,
   {
     ...editScriptShortcut,
-    bar: "",
+    bar: ''
   },
   closeShortcut,
   {
-    name: "Reset",
+    name: 'Reset',
     key: `${cmd}+alt+r`,
-    bar: "",
-  },
+    bar: ''
+  }
 ]
 
 export let cliShortcuts: Shortcut[] = [
   // escapeShortcut,
-  closeShortcut,
+  closeShortcut
 ]
 
-let kitFilePath = (...paths: string[]) =>
-  pathToFileURL(kitPath("images", ...paths)).href
-let iconPath = kitFilePath("icon.svg")
-let kentPath = kitFilePath("kent.jpg")
-let mattPath = kitFilePath("matt.jpg")
+let kitFilePath = (...paths: string[]) => pathToFileURL(kitPath('images', ...paths)).href
+let iconPath = kitFilePath('icon.svg')
+let kentPath = kitFilePath('kent.jpg')
+let mattPath = kitFilePath('matt.jpg')
 
 const checkmarkStyles = `
   <style>
@@ -1165,41 +938,33 @@ export let proPane = () =>
 `
 
 export const getShellSeparator = () => {
-  let separator = "&&"
-  if (process.platform === "win32") {
-    separator = "&"
+  let separator = '&&'
+  if (process.platform === 'win32') {
+    separator = '&'
   }
   // if powershell
   if (
-    process.env.KIT_SHELL?.includes("pwsh") ||
-    process.env.KIT_SHELL?.includes("powershell") ||
-    process.env.SHELL?.includes("pwsh") ||
-    process.env.SHELL?.includes("powershell") ||
-    process.env.ComSpec?.includes("powershell") ||
-    process.env.ComSpec?.includes("pwsh")
+    process.env.KIT_SHELL?.includes('pwsh') ||
+    process.env.KIT_SHELL?.includes('powershell') ||
+    process.env.SHELL?.includes('pwsh') ||
+    process.env.SHELL?.includes('powershell') ||
+    process.env.ComSpec?.includes('powershell') ||
+    process.env.ComSpec?.includes('pwsh')
   ) {
-    separator = ";"
+    separator = ';'
   }
 
-  if (
-    process.env.KIT_SHELL?.includes("fish") ||
-    process.env.SHELL?.includes("fish")
-  ) {
-    separator = ";"
+  if (process.env.KIT_SHELL?.includes('fish') || process.env.SHELL?.includes('fish')) {
+    separator = ';'
   }
 
   return separator
 }
 
 export let getTrustedKenvsKey = () => {
-  let username =
-    process.env?.USER ||
-    process.env?.USERNAME ||
-    "NO_USER_ENV_FOUND"
+  let username = process.env?.USER || process.env?.USERNAME || 'NO_USER_ENV_FOUND'
 
-  let formattedUsername = username
-    .replace(/[^a-zA-Z0-9]/g, "_")
-    .toUpperCase()
+  let formattedUsername = username.replace(/[^a-zA-Z0-9]/g, '_').toUpperCase()
 
   let trustedKenvKey = `KIT_${formattedUsername}_DANGEROUSLY_TRUST_KENVS`
 
@@ -1208,7 +973,7 @@ export let getTrustedKenvsKey = () => {
 
 export const uniq = (array: any[]): any[] => {
   if (!Array.isArray(array)) {
-    throw new Error("Input should be an array")
+    throw new Error('Input should be an array')
   }
   return [...new Set(array)]
 }
@@ -1220,9 +985,7 @@ interface DebounceSettings {
 
 type Procedure = (...args: any[]) => void
 
-type DebouncedFunc<T extends Procedure> = (
-  ...args: Parameters<T>
-) => void
+type DebouncedFunc<T extends Procedure> = (...args: Parameters<T>) => void
 
 export const debounce = <T extends Procedure>(
   func: T,
@@ -1240,8 +1003,7 @@ export const debounce = <T extends Procedure>(
       }
     }
 
-    const shouldCallNow =
-      options.leading && timeoutId === undefined
+    const shouldCallNow = options.leading && timeoutId === undefined
 
     // Always clear the timeout
     if (timeoutId !== undefined) {
@@ -1257,27 +1019,15 @@ export const debounce = <T extends Procedure>(
   }
 }
 
-export const range = (
-  start: number,
-  end: number,
-  step = 1
-): number[] => {
-  return Array.from(
-    { length: Math.ceil((end - start) / step) },
-    (_, i) => start + i * step
-  )
+export const range = (start: number, end: number, step = 1): number[] => {
+  return Array.from({ length: Math.ceil((end - start) / step) }, (_, i) => start + i * step)
 }
 
 type Iteratee<T> = ((item: T) => any) | keyof T
 
-export let sortBy = <T>(
-  collection: T[],
-  iteratees: Iteratee<T>[]
-): T[] => {
-  const iterateeFuncs = iteratees.map(iteratee =>
-    typeof iteratee === "function"
-      ? iteratee
-      : (item: T) => item[iteratee as keyof T]
+export let sortBy = <T>(collection: T[], iteratees: Iteratee<T>[]): T[] => {
+  const iterateeFuncs = iteratees.map((iteratee) =>
+    typeof iteratee === 'function' ? iteratee : (item: T) => item[iteratee as keyof T]
   )
 
   return [...collection].sort((a, b) => {
@@ -1296,48 +1046,40 @@ export let sortBy = <T>(
   })
 }
 
-export let isUndefined = (
-  value: any
-): value is undefined => {
+export let isUndefined = (value: any): value is undefined => {
   return value === undefined
 }
 
 export let isString = (value: any): value is string => {
-  return typeof value === "string"
+  return typeof value === 'string'
 }
 
-export let getCachePath = (
-  filePath: string,
-  type: string
-) => {
+export let getCachePath = (filePath: string, type: string) => {
   // Normalize file path
   const normalizedPath = path.normalize(filePath)
 
   // Replace all non-alphanumeric characters and path separators with dashes
-  let dashedName = normalizedPath.replace(
-    /[^a-zA-Z0-9]/g,
-    "-"
-  )
+  let dashedName = normalizedPath.replace(/[^a-zA-Z0-9]/g, '-')
 
   // Remove leading dashes
-  while (dashedName.charAt(0) === "-") {
+  while (dashedName.charAt(0) === '-') {
     dashedName = dashedName.substr(1)
   }
 
   // Replace multiple consecutive dashes with a single dash
-  dashedName = dashedName.replace(/-+/g, "-")
+  dashedName = dashedName.replace(/-+/g, '-')
 
   // Append .json extension
-  return kitPath("cache", type, `${dashedName}.json`)
+  return kitPath('cache', type, `${dashedName}.json`)
 }
 
 export let adjustPackageName = (packageName: string) => {
-  let adjustedPackageName = ""
-  if (packageName.startsWith("@")) {
-    let parts = packageName.split("/")
+  let adjustedPackageName = ''
+  if (packageName.startsWith('@')) {
+    let parts = packageName.split('/')
     adjustedPackageName = `${parts[0]}/${parts[1]}`
   } else {
-    adjustedPackageName = packageName.split("/")[0]
+    adjustedPackageName = packageName.split('/')[0]
   }
 
   return adjustedPackageName
@@ -1346,26 +1088,23 @@ export let adjustPackageName = (packageName: string) => {
 export let keywordInputTransformer = (keyword: string) => {
   if (!keyword) return (input: string) => input
 
-  let keywordRegex = new RegExp(
-    `(?<=${global.arg.keyword}\\s)(.*)`,
-    "gi"
-  )
+  let keywordRegex = new RegExp(`(?<=${global.arg.keyword}\\s)(.*)`, 'gi')
 
   return (input: string) => {
-    return input.match(keywordRegex)?.[0] || ""
+    return input.match(keywordRegex)?.[0] || ''
   }
 }
 
 export let escapeHTML = (text: string) => {
   // Handle null or undefined input
-  if (!text || typeof text !== "string") return ""
+  if (!text || typeof text !== 'string') return ''
 
   const map = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
   }
 
   // Perform HTML escape on the updated text
@@ -1374,30 +1113,24 @@ export let escapeHTML = (text: string) => {
   })
 
   // Convert tabs to spaces
-  text = text.replace(/\t/g, "    ")
+  text = text.replace(/\t/g, '    ')
 
   // Convert newline characters to <br/>
-  return text.replace(/\n/g, "<br/>")
+  return text.replace(/\n/g, '<br/>')
 }
 
-export let processInBatches = async <T>(
-  items: Promise<T>[],
-  batchSize: number,
-  maxRetries = 3
-): Promise<T[]> => {
+export let processInBatches = async <T>(items: Promise<T>[], batchSize: number, maxRetries = 3): Promise<T[]> => {
   let result: T[] = []
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize)
     const batchResults = await Promise.all(
-      batch.map(item => {
+      batch.map((item) => {
         return pRetry(
           async () => {
             try {
               return await item
             } catch (error) {
-              console.error(
-                `Error processing item: ${error.message}`
-              )
+              console.error(`Error processing item: ${error.message}`)
               throw error // Rethrow to trigger retry
             }
           },
@@ -1405,34 +1138,21 @@ export let processInBatches = async <T>(
         )
       })
     )
-    result = result.concat(
-      batchResults.filter(
-        (item): item is Awaited<T> => item !== undefined
-      )
-    )
+    result = result.concat(batchResults.filter((item): item is Awaited<T> => item !== undefined))
   }
   return result
 }
 
-export let md = (
-  content = "",
-  containerClasses = "p-5 prose prose-sm"
-) => {
-  return globalMd(content + "\n", containerClasses)
+export let md = (content = '', containerClasses = 'p-5 prose prose-sm') => {
+  return globalMd(content + '\n', containerClasses)
 }
 
-export let highlight = async (
-  markdown: string,
-  containerClass = "p-5 leading-loose",
-  injectStyles = ""
-) => {
-  let { default: highlight } =
-    global.__kitHighlight || (await import("highlight.js"))
-  if (!global.__kitHighlight)
-    global.__kitHighlight = { default: highlight }
+export let highlight = async (markdown: string, containerClass = 'p-5 leading-loose', injectStyles = '') => {
+  let { default: highlight } = global.__kitHighlight || (await import('highlight.js'))
+  if (!global.__kitHighlight) global.__kitHighlight = { default: highlight }
 
   let renderer = new marked.Renderer()
-  renderer.paragraph = p => {
+  renderer.paragraph = (p) => {
     // Convert a tag with href .mov, .mp4, or .ogg video links to video tags
     if (p.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
       let url = p.match(/href="(.*)"/)[1]
@@ -1442,26 +1162,24 @@ export let highlight = async (
     return `<p>${p}</p>`
   }
 
-  renderer.text = text => {
+  renderer.text = (text) => {
     return `<span>${text}</span>`
   }
   marked.setOptions({
     renderer,
     // biome-ignore lint/complexity/useArrowFunction: <explanation>
     highlight: function (code, lang) {
-      const language = highlight.getLanguage(lang)
-        ? lang
-        : "plaintext"
+      const language = highlight.getLanguage(lang) ? lang : 'plaintext'
       return highlight.highlight(code, { language }).value
     },
-    langPrefix: "hljs language-", // highlight.js css expects a top-level 'hljs' class.
+    langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class.
     pedantic: false,
     gfm: true,
     breaks: false,
     sanitize: false,
     smartLists: true,
     smartypants: false,
-    xhtml: false,
+    xhtml: false
   })
 
   let highlightedMarkdown = marked(markdown)
@@ -1489,38 +1207,24 @@ export let tagger = (script: Script) => {
     if (script.friendlyShortcut) {
       tags.push(script.friendlyShortcut)
     } else if (script.shortcut) {
-      tags.push(
-        friendlyShortcut(
-          shortcutNormalizer(script.shortcut)
-        )
-      )
+      tags.push(friendlyShortcut(shortcutNormalizer(script.shortcut)))
     }
 
-    if (script.kenv && script.kenv !== ".kit") {
+    if (script.kenv && script.kenv !== '.kit') {
       tags.push(script.kenv)
     }
-    if (script.trigger)
-      tags.push(`trigger: ${script.trigger}`)
-    if (script.keyword)
-      tags.push(`keyword: ${script.keyword}`)
-    if (script.snippet)
-      tags.push(`snippet ${script.snippet}`)
+    if (script.trigger) tags.push(`trigger: ${script.trigger}`)
+    if (script.keyword) tags.push(`keyword: ${script.keyword}`)
+    if (script.snippet) tags.push(`snippet ${script.snippet}`)
     if (script.expand) {
       tags.push(`expand: ${script.expand}`)
     }
 
-    if (
-      typeof script.pass === "string" &&
-      script.pass !== "true"
-    ) {
-      tags.push(
-        script.pass.startsWith("/")
-          ? `pattern: ${script.pass}`
-          : `postfix: ${script.pass}`
-      )
+    if (typeof script.pass === 'string' && script.pass !== 'true') {
+      tags.push(script.pass.startsWith('/') ? `pattern: ${script.pass}` : `postfix: ${script.pass}`)
     }
 
-    script.tag = tags.join(" ")
+    script.tag = tags.join(' ')
   }
 }
 
@@ -1529,69 +1233,46 @@ export let getKenvFromPath = (filePath: string): string => {
   let normalizedKenvPath = path.normalize(kenvPath())
 
   if (!normalizedPath.startsWith(normalizedKenvPath)) {
-    return ""
+    return ''
   }
 
-  let relativePath = normalizedPath.replace(
-    normalizedKenvPath,
-    ""
-  )
-  if (!relativePath.includes("kenvs")) {
-    return ""
+  let relativePath = normalizedPath.replace(normalizedKenvPath, '')
+  if (!relativePath.includes('kenvs')) {
+    return ''
   }
 
   let parts = relativePath.split(path.sep)
-  let kenvIndex = parts.indexOf("kenvs")
-  return kenvIndex !== -1 && parts[kenvIndex + 1]
-    ? parts[kenvIndex + 1]
-    : ""
+  let kenvIndex = parts.indexOf('kenvs')
+  return kenvIndex !== -1 && parts[kenvIndex + 1] ? parts[kenvIndex + 1] : ''
 }
 
-export let isScriptlet = (
-  script: Script | Scriptlet
-): script is Scriptlet => {
-  return "scriptlet" in script
+export let isScriptlet = (script: Script | Scriptlet): script is Scriptlet => {
+  return 'scriptlet' in script
 }
 
-export let isSnippet = (
-  script: Script
-): script is Snippet => {
-  return "text" in script
+export let isSnippet = (script: Script): script is Snippet => {
+  return 'text' in script
 }
 
-export let processPlatformSpecificTheme = (
-  cssString: string
-): string => {
+export let processPlatformSpecificTheme = (cssString: string): string => {
   const platform = process.platform
-  const platformSuffix =
-    platform === "darwin"
-      ? "-mac"
-      : platform === "win32"
-      ? "-win"
-      : "-other"
+  const platformSuffix = platform === 'darwin' ? '-mac' : platform === 'win32' ? '-win' : '-other'
 
   // Split the CSS string into lines
-  const lines = cssString.split("\n")
+  const lines = cssString.split('\n')
 
   // Process each line
-  const processedLines = lines.map(line => {
+  const processedLines = lines.map((line) => {
     // Check if the line contains a CSS variable
-    if (line.includes("--") && line.includes(":")) {
-      const parts = line.split(":")
+    if (line.includes('--') && line.includes(':')) {
+      const parts = line.split(':')
       const variableName = parts[0].trim()
 
       // Check if the variable ends with a platform suffix
-      if (
-        variableName.endsWith("-mac") ||
-        variableName.endsWith("-win") ||
-        variableName.endsWith("-other")
-      ) {
+      if (variableName.endsWith('-mac') || variableName.endsWith('-win') || variableName.endsWith('-other')) {
         // If it matches the current platform, remove the suffix
         if (variableName.endsWith(platformSuffix)) {
-          return `    ${variableName.slice(
-            0,
-            -platformSuffix.length
-          )}: ${parts[1].trim()}`
+          return `    ${variableName.slice(0, -platformSuffix.length)}: ${parts[1].trim()}`
         }
         // If it doesn't match, remove the line
         return null
@@ -1602,15 +1283,10 @@ export let processPlatformSpecificTheme = (
   })
 
   // Join the processed lines, filtering out null values
-  return processedLines
-    .filter(line => line !== null)
-    .join("\n")
+  return processedLines.filter((line) => line !== null).join('\n')
 }
 
-export let infoPane = (
-  title: string,
-  description?: string
-) => {
+export let infoPane = (title: string, description?: string) => {
   return `<div class="w-full h-full flex items-center justify-center -mt-4">
 	<div class="text-center -mt-2">
 		<h1 class="text-2xl font-bold">${title}</h1>
@@ -1627,23 +1303,23 @@ export {
   iconFromKenv,
   parseFilePath,
   parseMetadata,
-  postprocessMetadata,
-} from "./parser.js"
+  postprocessMetadata
+} from './parser.js'
 
 export {
   defaultGroupClassName,
   defaultGroupNameClassName,
-  formatChoices,
-} from "./format.js"
+  formatChoices
+} from './format.js'
 
-export { groupChoices } from "./group.js"
+export { groupChoices } from './group.js'
 export {
   parseScriptletsFromPath,
   parseMarkdownAsScriptlets,
-  parseScriptlets,
-} from "./scriptlets.js"
+  parseScriptlets
+} from './scriptlets.js'
 
-export { getSnippet, parseSnippets } from "./snippets.js"
+export { getSnippet, parseSnippets } from './snippets.js'
 
 export {
   createPathResolver,
@@ -1651,8 +1327,8 @@ export {
   kitPath,
   kenvPath,
   kitPnpmPath,
-  kitDotEnvPath,
-} from "./resolvers.js"
+  kitDotEnvPath
+} from './resolvers.js'
 
 export {
   isBin,
@@ -1661,8 +1337,8 @@ export {
   isDir,
   isLinux,
   isMac,
-  isWin,
-} from "./is.js"
+  isWin
+} from './is.js'
 export {
   cmd,
   returnOrEnter,
@@ -1683,5 +1359,5 @@ export {
   KIT_APP,
   KIT_APP_PROMPT,
   KIT_APP_INDEX,
-  SHELL_TOOLS,
-} from "./constants.js"
+  SHELL_TOOLS
+} from './constants.js'
