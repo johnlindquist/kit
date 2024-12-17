@@ -10,6 +10,7 @@ import untildify from 'untildify'
 const toolExtensionMap = new Map([
   ['ruby', 'rb'],
   ['python', 'py'],
+  ['python3', 'py'],
   ['perl', 'pl'],
   ['php', 'php'],
   ['node', 'js'],
@@ -26,12 +27,20 @@ const toolExtensionMap = new Map([
   ['clojure', 'clj'],
   ['elixir', 'ex'],
   ['erlang', 'erl'],
-  ['ocaml', 'ml']
+  ['ocaml', 'ml'],
+  ['osascript', 'scpt'],
+  ['deno', 'ts'],
+  ['kotlin', 'kt'],
+  ['julia', 'jl'],
+  ['dart', 'dart'],
+  ['haskell', 'hs'],
+  ['csharp', 'cs']
 ])
 
 const toolCommandMap = new Map([
   ['ruby', (scriptPath) => `ruby ${scriptPath}`],
   ['python', (scriptPath) => `python ${scriptPath}`],
+  ['python3', (scriptPath) => `python3 ${scriptPath}`],
   ['perl', (scriptPath) => `perl ${scriptPath}`],
   ['php', (scriptPath) => `php ${scriptPath}`],
   ['node', (scriptPath) => `node ${scriptPath}`],
@@ -49,7 +58,14 @@ const toolCommandMap = new Map([
   ['clojure', (scriptPath) => `clojure ${scriptPath}`],
   ['elixir', (scriptPath) => `elixir ${scriptPath}`],
   ['erlang', (scriptPath) => `escript ${scriptPath}`],
-  ['ocaml', (scriptPath) => `ocaml ${scriptPath}`]
+  ['ocaml', (scriptPath) => `ocaml ${scriptPath}`],
+  ['osascript', (scriptPath) => `osascript ${scriptPath}`],
+  ['deno', (scriptPath) => `deno run ${scriptPath}`],
+  ['kotlin', (scriptPath) => `kotlinc -script ${scriptPath}`],
+  ['julia', (scriptPath) => `julia ${scriptPath}`],
+  ['dart', (scriptPath) => `dart run ${scriptPath}`],
+  ['haskell', (scriptPath) => `runhaskell ${scriptPath}`],
+  ['csharp', (scriptPath) => `dotnet script ${scriptPath}`]
 ])
 
 export let runScriptlet = async (focusedScriptlet: Scriptlet, inputs: string[], flag?: Flags) => {
