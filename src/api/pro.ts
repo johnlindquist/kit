@@ -300,7 +300,7 @@ ${dirRoot}
 ~~~
 				`.trim()
       ),
-      command: `npm create vite "${dir}" && ${clearCommand} && cd "${dir}" && npm i && exit`,
+      command: `pnpm create vite "${dir}" && ${clearCommand} && cd "${dir}" && pnpm i && exit`,
       cwd: viteRoot,
       shortcuts: [
         {

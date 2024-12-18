@@ -34,12 +34,9 @@ if (await isDir(examplesDir)) {
   }
 } else if (await isBin('git')) {
   try {
-    await exec(
-      'git clone --depth 1 --verbose --progress https://github.com/johnlindquist/kit-examples-ts.git examples',
-      {
-        cwd: kenvPath('kenvs')
-      }
-    )
+    await exec('git clone --depth 1 --verbose --progress git://github.com/johnlindquist/kit-examples-ts.git examples', {
+      cwd: kenvPath('kenvs')
+    })
   } catch (error) {
     await downloadAndSetupExamples()
   }
@@ -48,7 +45,7 @@ if (await isDir(examplesDir)) {
 }
 
 try {
-  await exec('npm i', {
+  await exec('pnpm i', {
     cwd: kenvPath('kenvs', 'examples'),
     env: {
       ...global.env,
@@ -56,5 +53,3 @@ try {
     }
   })
 } catch (error) {}
-
-export {}

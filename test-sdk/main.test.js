@@ -61,7 +61,7 @@ ava.serial('app-prompt.js', async (t) => {
           channel: Channel.VALUE_SUBMITTED,
           value
         },
-        (error) => {}
+        (error) => { }
       );
     });
   });
@@ -353,7 +353,7 @@ console.log(value)
   t.log(pkgJson);
 
   cd(kenvPath());
-  let { stdout, stderr } = await exec(`npm run ${npmScript}`);
+  let { stdout, stderr } = await exec(`pnpm run ${npmScript}`);
 
   t.is(stderr, '');
   t.regex(stdout, new RegExp(`${message}`));
