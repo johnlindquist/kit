@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises'
 import { KIT_FIRST_PATH } from '../core/utils.js'
 
 async function downloadAndSetupExamples() {
@@ -10,46 +9,35 @@ async function downloadAndSetupExamples() {
 
   let source = path.join(destination, 'kit-examples-main')
   let newDestination = kenvPath('kenvs', 'examples')
-  await fs.rename(source, newDestination)
-
-  let files = await fs.readdir(path.join(newDestination, 'scripts'))
-  let firstFile = path.join(newDestination, 'scripts', files[0])
-  if (await fs.stat(firstFile)) {
-    await wait(1000)
-    await fs.utimes(firstFile, new Date(), new Date())
-  }
+  await rename(source, newDestination)
 }
 
-let examplesDir = kenvPath('kenvs', 'examples')
-if (await isDir(examplesDir)) {
-  cd(examplesDir)
-
-  if (isDir(kenvPath('kenvs', 'examples', '.git'))) {
-    await exec('git stash', {
-      cwd: examplesDir
-    })
-    await exec('git pull', {
-      cwd: examplesDir
-    })
-  }
-} else if (await isBin('git')) {
-  try {
-    await exec('git clone --depth 1 --verbose --progress git://github.com/johnlindquist/kit-examples-ts.git examples', {
-      cwd: kenvPath('kenvs')
-    })
-  } catch (error) {
-    await downloadAndSetupExamples()
-  }
-} else {
-  await downloadAndSetupExamples()
-}
-
-try {
+async function pnpmInstallExamples() {
   await exec('pnpm i', {
     cwd: kenvPath('kenvs', 'examples'),
     env: {
       ...global.env,
       PATH: KIT_FIRST_PATH
     }
+  }).catch((error) => {
+    console.error(error)
   })
-} catch (error) {}
+}
+
+let examplesDir = kenvPath('kenvs', 'examples')
+
+if (await isDir(examplesDir)) {
+  await exec('git pull --rebase --autostash --stat', {
+    cwd: examplesDir
+  })
+} else {
+  try {
+    await exec('git clone --depth 1 https://github.com/johnlindquist/kit-examples-ts examples', {
+      cwd: kenvPath('kenvs')
+    })
+  } catch (error) {
+    await downloadAndSetupExamples()
+  }
+}
+
+await pnpmInstallExamples()
