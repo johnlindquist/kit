@@ -3,7 +3,6 @@
 // Description: Unlock Debugger, Logger, and Support Development
 // Enter: Open Sponsorship Page
 // PreviewPath: $KIT/SPONSOR.md
-// Exclude: sponsor
 // FocusedClassName: shadow-md shadow-primary/25 bg-gradient-to-r from-transparent to-primary-50
 // Index: 0
 
