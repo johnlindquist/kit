@@ -1503,7 +1503,7 @@ let groupScripts = (scripts) => {
   return groupChoices(scripts, {
     groupKey: 'kenv',
     missingGroupName: 'Main',
-    order: splitEnvVarIntoArray(process?.env?.KIT_MAIN_ORDER, ['Favorite', 'Main', 'Scriptlets']),
+    order: splitEnvVarIntoArray(process?.env?.KIT_MAIN_ORDER, ['Favorite', 'Main', 'Scriptlets', 'Kit']),
 
     endOrder: splitEnvVarIntoArray(process?.env?.KIT_MAIN_END_ORDER, ['Apps', 'Pass']),
     recentKey: 'timestamp',

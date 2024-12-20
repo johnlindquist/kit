@@ -66,4 +66,5 @@ export type kenvEnv = {
   KIT_PROMPT_POPUP_WITH_ROUNDED_CORNERS?: string | undefined
   KIT_PROMPT_OFFSCREEN?: string | undefined
   KIT_WINDOWS_OPACITY?: string | undefined
+  KIT_LOGIN?: string | undefined
 }

@@ -110,14 +110,14 @@
     "isomorphic-git": "1.27.2",
     "jsonfile": "6.1.0",
     "keyv": "^5.2.2",
-    "keyv-file": "^5.0.4",
+    "keyv-file": "^5.1.1",
     "lowdb": "7.0.1",
     "marked": "4.3.0",
     "minimist": "1.2.8",
     "p-retry": "6.2.1",
     "project-name-generator": "2.1.9",
     "quick-score": "^0.2.0",
-    "replace-in-file": "8.2.0",
+    "replace-in-file": "8.3.0",
     "rimraf": "6.0.1",
     "rxjs": "7.8.1",
     "safe-stable-stringify": "^2.5.0",
@@ -144,7 +144,7 @@
     "tsx": "4.19.2",
     "typescript": "5.7.2",
     "unzipper": "0.12.3",
-    "vite": "6.0.3"
+    "vite": "6.0.4"
   },
   "ava": {
     "environmentVariables": {

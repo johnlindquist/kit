@@ -31,6 +31,7 @@ import { JSONFile } from 'lowdb/node'
 import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods'
 import type { Keyv } from 'keyv'
 import type { DBData, DBKeyOrPath, DBReturnType } from '../types/kit.js'
+import { Env } from './enum.js'
 
 export const resolveKenv = (...parts: string[]) => {
   if (global.kitScript) {
@@ -402,6 +403,7 @@ export type AppDb = {
 export type UserDb = Partial<RestEndpointMethodTypes['users']['getAuthenticated']['response']['data']>
 
 export let setUserJson = async (user: UserDb) => {
+  await global.cli('set-env-var', 'KIT_LOGIN', user?.login || Env.REMOVE)
   await writeJson(userDbPath, user)
 }
 

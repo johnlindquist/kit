@@ -1,19 +1,11 @@
-import type { Script } from "../types/core"
-import Bottleneck from "bottleneck"
-import {
-  getGroupedScripts,
-  processScriptPreview,
-  scriptFlags,
-} from "../api/kit.js"
-import { Channel } from "../core/enum.js"
-import { formatChoices } from "../core/utils.js"
-import { parentPort } from "node:worker_threads"
-import {
-  type Stamp,
-  getScriptsDb,
-  getTimestamps,
-} from "../core/db.js"
-import { scriptsSort } from "../core/utils.js"
+import type { Script } from '../types/core'
+import Bottleneck from 'bottleneck'
+import { getGroupedScripts, processScriptPreview, scriptFlags } from '../api/kit.js'
+import { Channel } from '../core/enum.js'
+import { formatChoices } from '../core/utils.js'
+import { parentPort } from 'node:worker_threads'
+import { type Stamp, getScriptsDb, getTimestamps } from '../core/db.js'
+import { scriptsSort } from '../core/utils.js'
 
 // --------------------
 // Logging to Parent
@@ -21,7 +13,7 @@ import { scriptsSort } from "../core/utils.js"
 const logToParent = (message: string) => {
   parentPort?.postMessage({
     channel: Channel.LOG_TO_PARENT,
-    value: message,
+    value: message
   })
 }
 
@@ -50,7 +42,7 @@ let cachedStampFilePath: string | null = null
 // --------------------
 const updateTimestampsDb = async (stamp: Stamp) => {
   const timestampsDb = await getTimestamps()
-  const index = timestampsDb.stamps.findIndex(s => s.filePath === stamp.filePath)
+  const index = timestampsDb.stamps.findIndex((s) => s.filePath === stamp.filePath)
   const oldStamp = timestampsDb.stamps[index]
 
   stamp.timestamp = Date.now()
@@ -79,12 +71,9 @@ const updateTimestampsDb = async (stamp: Stamp) => {
 const parseMainMenu = async (stamp: Stamp | null) => {
   // If we have a stamp, try to update timestamps and scriptsDb
   if (stamp) {
-    const [timestampsDb, scriptsDb] = await Promise.all([
-      updateTimestampsDb(stamp),
-      getScriptsDb(false),
-    ])
+    const [timestampsDb, scriptsDb] = await Promise.all([updateTimestampsDb(stamp), getScriptsDb(false)])
 
-    const script = scriptsDb.scripts.find(s => s.filePath === stamp.filePath)
+    const script = scriptsDb.scripts.find((s) => s.filePath === stamp.filePath)
     if (script) {
       // Only resort and write if we actually found the script
       scriptsDb.scripts = scriptsDb.scripts.sort(scriptsSort(timestampsDb.stamps))
@@ -100,8 +89,8 @@ const parseMainMenu = async (stamp: Stamp | null) => {
   const groupedScripts = await getGroupedScripts(false)
   const scripts = formatChoices(groupedScripts)
 
-  const firstScript = scripts.find(script => !script.skip) as Script | undefined
-  let preview = ""
+  const firstScript = scripts.find((script) => !script.skip) as Script | undefined
+  let preview = ''
   if (firstScript) {
     try {
       preview = await processScriptPreview(firstScript)()
@@ -111,9 +100,9 @@ const parseMainMenu = async (stamp: Stamp | null) => {
   }
 
   // Sanitize scripts so no preview functions or values remain
-  const sanitizedScripts = scripts.map(s => {
+  const sanitizedScripts = scripts.map((s) => {
     s.value = undefined
-    if (typeof s.preview === "function") {
+    if (typeof s.preview === 'function') {
       s.preview = undefined
     }
     return s
@@ -123,17 +112,14 @@ const parseMainMenu = async (stamp: Stamp | null) => {
     channel: Channel.CACHE_MAIN_SCRIPTS,
     scripts: sanitizedScripts,
     scriptFlags: sanitizedScriptFlags,
-    preview,
+    preview
   }
 }
 
 // --------------------
 // Cache Main Scripts Logic
 // --------------------
-const cacheMainScripts = async (
-  id: string,
-  stamp: Stamp | null
-) => {
+const cacheMainScripts = async (id: string, stamp: Stamp | null) => {
   try {
     // Optimization: If we received the same stamp filePath consecutively
     // and have cached results, we can skip re-computation if stamp is null or unchanged.
@@ -164,8 +150,8 @@ const cacheMainScripts = async (
       error,
       scripts: [],
       scriptFlags: {},
-      preview: "",
-      id,
+      preview: '',
+      id
     })
   }
 }
@@ -182,7 +168,7 @@ const limitedCacheMainScripts = limiter.wrap(cacheMainScripts)
 const removeTimestamp = async (id: string, stamp: Stamp) => {
   logToParent(`Removing timestamp: ${stamp.filePath}`)
   const stampDb = await getTimestamps()
-  const stampIndex = stampDb.stamps.findIndex(s => s.filePath === stamp.filePath)
+  const stampIndex = stampDb.stamps.findIndex((s) => s.filePath === stamp.filePath)
 
   if (stampIndex !== -1) {
     stampDb.stamps.splice(stampIndex, 1)
@@ -210,16 +196,22 @@ const clearTimestamps = async (id: string) => {
 // Message Handler
 // --------------------
 parentPort?.on(
-  "message",
+  'message',
   ({
     channel,
     value,
     id,
+    state
   }: {
     channel: Channel
     value?: any
     id?: string
+    state?: {
+      isSponsor: boolean
+    }
   }) => {
+    // This is received from the app from kitState.isSponsor
+    process.env.KIT_SPONSOR = state?.isSponsor ? 'true' : 'false'
     if (channel === Channel.CACHE_MAIN_SCRIPTS) {
       limitedCacheMainScripts(id, value)
       return
