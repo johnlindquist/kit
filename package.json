@@ -69,7 +69,7 @@
   "pnpm": {
     "overrides": {
       "typescript": "5.7.2",
-      "esbuild": "0.24.0"
+      "esbuild": "0.24.2"
     }
   },
   "dependencies": {
@@ -100,7 +100,7 @@
     "dotenv-flow": "4.1.0",
     "download": "8.0.0",
     "enquirer": "2.4.1",
-    "esbuild": "0.24.0",
+    "esbuild": "0.24.2",
     "execa": "9.5.2",
     "filesize": "10.1.6",
     "fs-extra": "^11.2.0",
@@ -144,7 +144,7 @@
     "tsx": "4.19.2",
     "typescript": "5.7.2",
     "unzipper": "0.12.3",
-    "vite": "6.0.4"
+    "vite": "6.0.5"
   },
   "ava": {
     "environmentVariables": {
@@ -202,5 +202,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.1"
 }
