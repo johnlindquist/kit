@@ -115,6 +115,7 @@
     "marked": "4.3.0",
     "minimist": "1.2.8",
     "p-retry": "6.2.1",
+    "pnpm": "10.0.0",
     "project-name-generator": "2.1.9",
     "quick-score": "^0.2.0",
     "replace-in-file": "8.3.0",
@@ -202,5 +203,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@9.15.4"
+  "packageManager": "pnpm@10.0.0"
 }
