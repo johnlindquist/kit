@@ -5,8 +5,8 @@
 
 import "@johnlindquist/kit"
 import slugify from "slugify"
-import { closeShortcut, parseSnippets, getSnippet } from "../core/utils.js"
-import type { Script, Snippet } from "../types/core.js"
+import { closeShortcut, parseSnippets, getSnippet, templatePlaceholdersRegex } from "../core/utils.js"
+import type { Snippet } from "../types/core.js"
 
 let snippetChoices = await parseSnippets()
 let defaultSnippetTemplate = `// Name: \${1:Required}
@@ -24,7 +24,7 @@ let snippet = await arg(
 
 				name: "New Snippet",
 				onPress: async () => {
-					setInput(``) // clearing keyword
+					setInput("") // clearing keyword
 
 					let contents = await template(defaultSnippetTemplate, {
 						shortcuts: [
@@ -32,7 +32,7 @@ let snippet = await arg(
 							{
 								key: `${cmd}+s`,
 								name: "Save Snippet",
-								onPress: async (input) => {
+								onPress: (input) => {
 									submit(input)
 								},
 								bar: "right"
@@ -95,14 +95,14 @@ if (snippet.includes("$CLIPBOARD")) {
 	snippet = snippet.replaceAll("$CLIPBOARD", clipboardText)
 }
 
-if (snippet.match(/\$\d+|\${(.+)?}/)) {
-	setInput(``) // clearing keyword
+if (snippet.match(templatePlaceholdersRegex)) {
+	setInput("") // clearing keyword
 	snippet = await template(snippet, {
 		shortcuts: [
 			{
 				key: `${cmd}+s`,
 				name: "Paste Snippet",
-				onPress: async (input) => {
+				onPress: (input) => {
 					submit(input)
 				},
 				bar: "right"

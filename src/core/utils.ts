@@ -21,6 +21,12 @@ import { isBin, isJsh, isDir, isWin, isMac } from './is.js'
 import pRetry from 'p-retry'
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
+// Regex to detect VS Code snippet variables like:
+// $1, $2 - Simple numbered placeholders
+// ${1:default} - Numbered placeholders with default values
+// ${foo|bar} - Choice placeholders with options
+// ${name} - Named placeholders
+export let templatePlaceholdersRegex = /\$(?:\d+|\{(?:\d+:[^{}]*|[^{}|]+(?:\|[^{}|]+)*|[^{}|]+)\})/
 
 export let wait = async (time: number): Promise<void> => new Promise((res) => setTimeout(res, time))
 
@@ -45,6 +51,10 @@ export let combinePath = (arrayOfPaths: string[]): string => {
   return Array.from(pathSet).join(path.delimiter)
 }
 
+const DEFAULT_PATH = process.env.PATH
+export const resetPATH = () => {
+  process.env.PATH = DEFAULT_PATH
+}
 const UNIX_DEFAULT_PATH = combinePath(['/usr/local/bin', '/usr/bin', '/bin', '/usr/sbin', '/sbin'])
 
 const WIN_DEFAULT_PATH = combinePath([])
@@ -154,14 +164,14 @@ export let resolveScriptToCommand = (script: string) => {
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
-        .replace(/(option|opt|alt)/i, isMac ? 'Option' : 'Alt')
-        .replace(/(ctl|cntrl|ctrl|control)/, 'Control')
-        .replace(/(command|cmd)/i, isMac ? 'Command' : 'Control')
-        .replace(/(shift|shft)/i, 'Shift')
-        .split(/\s/)
-        .filter(Boolean)
-        .map((part) => (part[0].toUpperCase() + part.slice(1)).trim())
-        .join('+')
+      .replace(/(option|opt|alt)/i, isMac ? 'Option' : 'Alt')
+      .replace(/(ctl|cntrl|ctrl|control)/, 'Control')
+      .replace(/(command|cmd)/i, isMac ? 'Command' : 'Control')
+      .replace(/(shift|shft)/i, 'Shift')
+      .split(/\s/)
+      .filter(Boolean)
+      .map((part) => (part[0].toUpperCase() + part.slice(1)).trim())
+      .join('+')
     : ''
 
 export const friendlyShortcut = (shortcut: string) => {

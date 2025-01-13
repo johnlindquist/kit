@@ -318,12 +318,14 @@ const runScript = async (script: Script | string) => {
 
   if (isScriptlet(script)) {
     let { runScriptlet } = await import("./scriptlet.js")
+    updateArgs(args)
     await runScriptlet(script, script.inputs || [], flag)
     return
   }
 
   if (Array.isArray(script)) {
     let { runScriptlet } = await import("./scriptlet.js")
+    updateArgs(args)
     await runScriptlet(focused as Scriptlet, script, flag)
     return
   }

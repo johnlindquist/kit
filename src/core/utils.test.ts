@@ -9,7 +9,8 @@ import {
 	processPlatformSpecificTheme,
 	parseSnippets,
 	parseScriptletsFromPath,
-	scriptsSort
+	scriptsSort,
+	templatePlaceholdersRegex
 } from "./utils"
 import { outputTmpFile } from "../api/kit"
 import slugify from "slugify"
@@ -811,4 +812,30 @@ ava("scriptsSort - falls back to name when no timestamps or index", (t) => {
   t.is(sortedScripts[0].name, "Alpha")
   t.is(sortedScripts[1].name, "Bravo")
   t.is(sortedScripts[2].name, "Charlie")
+})
+
+
+ava("templatePlaceholdersRegex - detects VS Code snippet variables", (t) => {
+	// Valid patterns
+	t.true(templatePlaceholdersRegex.test("${1:default}"))
+	t.true(templatePlaceholdersRegex.test("${foo|bar}"))
+	t.true(templatePlaceholdersRegex.test("${name}"))
+	t.true(templatePlaceholdersRegex.test("$1"))
+	t.true(templatePlaceholdersRegex.test("${1}"))
+	t.true(templatePlaceholdersRegex.test("${foo|bar|baz}")) // Multiple choices
+	t.true(templatePlaceholdersRegex.test("${1:foo bar}")) // Spaces in default
+	t.true(templatePlaceholdersRegex.test("${foo-bar}")) // Dashes in names
+	t.true(templatePlaceholdersRegex.test("${1:foo:bar}")) // Colons in default value
+
+	// Invalid patterns
+	t.false(templatePlaceholdersRegex.test("$"))
+	t.false(templatePlaceholdersRegex.test("${"))
+	t.false(templatePlaceholdersRegex.test("${}"))
+	t.false(templatePlaceholdersRegex.test("${|}"))
+	t.false(templatePlaceholdersRegex.test("$foo"))
+	t.false(templatePlaceholdersRegex.test("${nested{}}"))
+	t.false(templatePlaceholdersRegex.test("${foo|}")) // Empty last choice
+	t.false(templatePlaceholdersRegex.test("${|foo}")) // Empty first choice
+	t.false(templatePlaceholdersRegex.test("${foo||bar}")) // Double pipe
+	t.false(templatePlaceholdersRegex.test("${foo|bar|}")) // Trailing pipe
 })

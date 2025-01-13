@@ -64,6 +64,7 @@ import {
   adjustPackageName,
   editorShortcuts,
   processPlatformSpecificTheme,
+  resetPATH,
 } from "../core/utils.js"
 import { keyCodeFromKey } from "../core/keyboard.js"
 import {
@@ -215,20 +216,21 @@ global.app = {
 }
 
 let _exec = global.exec
-;(global as any).exec = (
-  command: string,
-  options = {
-    shell: true,
-    all: true,
-    cwd: process.cwd(),
-    windowsHide: true,
+  ; (global as any).exec = (
+    command: string,
+    options = {
+      shell: true,
+      all: true,
+      cwd: process.cwd(),
+      windowsHide: true,
+      node: false,
+    }
+  ) => {
+    options.windowsHide = true
+    let child = _exec(command, options)
+    if (child?.all) child.all.pipe(process.stdout)
+    return child as any
   }
-) => {
-  options.windowsHide = true
-  let child = _exec(command, options)
-  if (child?.all) child.all.pipe(process.stdout)
-  return child as any
-}
 
 let displayChoices = async ({
   choices,
@@ -2238,8 +2240,8 @@ global.updateArgs = arrayOfArgs => {
     .filter(([key]) => key !== "_")
     .flatMap(([key, value]) => {
       if (typeof value === "boolean") {
-        if (value) return [`--${key}`]
-        if (!value) return [`--no-${key}`]
+        if (value) { return [`--${key}`] }
+        if (!value) { return [`--no-${key}`] }
       }
       return [`--${key}`, value as string]
     })
@@ -3062,10 +3064,10 @@ let addKitLibs = async (): Promise<ExtraLib[]> => {
   //   // let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
   //   let filePath = `file:///node_modules/@johnlindquist/globals/${name}/index.d.ts`
 
-    // extraLibs.push({
-    //   content,
-    //   filePath,
-    // })
+  // extraLibs.push({
+  //   content,
+  //   filePath,
+  // })
   // }
 
   // node_modules/@johnlindquist/globals/types/index.d.ts

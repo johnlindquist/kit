@@ -1,13 +1,18 @@
 // Name: Paste Snippet
 
 import "@johnlindquist/kit"
-import { getSnippet } from "../core/utils.js"
+import { getSnippet, templatePlaceholdersRegex } from "../core/utils.js"
 
 let snippet = ""
 
 let contents = await readFile(arg.filePath, "utf8")
 let { metadata, snippet: snippetFromFile } = getSnippet(contents)
 snippet = snippetFromFile.trim()
+
+updateArgs(args);
+if (args?.length > 0 && snippet.includes("$0")) {
+    snippet = snippet.replaceAll("$0", args?.shift());
+}
 
 // Find ${selection} and replace with selected text
 if (snippet.includes("$SELECTION")) {
@@ -24,15 +29,15 @@ if (snippet.includes("$HOME")) {
 	snippet = snippet.replaceAll("$HOME", home())
 }
 
-if (snippet.match(/\$(?:\d+|\{(?:\d+:|[^}]*\|[^}]*|[^}]+)\})/)) {
-	setInput(``) // clearing keyword
+if (snippet.match(templatePlaceholdersRegex)) {
+	setInput("") // clearing keyword
 	snippet = await template(snippet, {
 		description: "Fill in the template",
 		shortcuts: [
 			{
 				key: `${cmd}+s`,
 				name: "Paste Snippet",
-				onPress: async (input) => {
+				onPress: (input) => {
 					submit(input)
 				},
 				bar: "right"

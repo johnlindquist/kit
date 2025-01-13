@@ -176,6 +176,7 @@ export let runCli = async () => {
 
 			if (scriptlet) {
 				let { runScriptlet } = await import("../main/scriptlet.js")
+				updateArgs(args)
 				await runScriptlet(scriptlet, args, flag)
 				return
 			}

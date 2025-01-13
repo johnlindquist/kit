@@ -43,6 +43,13 @@ let name = await arg(
 let response = await get(arg?.url)
 let content = await response.data
 
+await dev({
+  content,
+  name,
+  template: arg?.template,
+  url: arg?.url,
+})
+
 let preview = await highlightJavaScript(content)
 
 if (process?.env?.KIT_TRUST_SCRIPTS !== "true") {

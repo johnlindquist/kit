@@ -154,6 +154,7 @@ if (choices?.length) {
     )
   }
   let { runScriptlet } = await import('../main/scriptlet.js')
+  updateArgs(args)
   await runScriptlet(scriptlet, inputs, flag)
 } else {
   if (script.includes('.md')) {

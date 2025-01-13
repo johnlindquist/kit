@@ -7,6 +7,7 @@ let script = await selectScript("Which script do you want to run?", true)
 let runScript = async (script) => {
 	if (isScriptlet(script)) {
 		console.log("Running scriptlet", script)
+		updateArgs(args)
 		return await runScriptlet(script, [], flag)
 	}
 	if (isSnippet(script)) {
