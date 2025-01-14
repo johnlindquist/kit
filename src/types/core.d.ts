@@ -274,6 +274,7 @@ export interface PromptData {
   show?: boolean
   scriptlet?: boolean
   actionsConfig?: ActionsConfig
+  grid?: boolean
 }
 
 export type GenerateChoices = (input: string) => Choice<any>[] | Promise<Choice<any>[]>

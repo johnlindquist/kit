@@ -5,6 +5,124 @@ export type EnsureReadFile = (path: string, defaultContent?: string, options?: R
 export type EnsureReadJson = 
   <T>(path: string, defaultContent: T, options?: Parameters<typeof readJson>[1]) => Promise<T>
 
+export type Md = (markdown: string, containerClasses?: string) => string
+
+
+// Core types
+interface MarkedOptions {
+  async?: boolean
+  baseUrl?: string | null
+  breaks?: boolean
+  extensions?: MarkedExtensions | null
+  gfm?: boolean
+  headerIds?: boolean
+  headerPrefix?: string
+  highlight?: ((code: string, lang: string, callback: (error: any, html?: string) => void) => void) | null
+  hooks?: Hooks | null
+  langPrefix?: string
+  mangle?: boolean
+  pedantic?: boolean
+  smartLists?: boolean
+  renderer?: Renderer | null
+  sanitize?: boolean
+  sanitizer?: ((html: string) => string) | null
+  silent?: boolean
+  smartypants?: boolean
+  tokenizer?: Tokenizer | null
+  walkTokens?: ((token: Token) => void) | null
+  xhtml?: boolean
+}
+
+interface Token {
+  type: string
+  raw: string
+  text?: string
+  tokens?: Token[]
+  [key: string]: any
+}
+
+interface MarkedExtensions {
+  renderers?: { [key: string]: (...args: any[]) => string | false }
+  childTokens?: { [key: string]: string[] }
+  [key: string]: any
+}
+
+// Declare the marked function types
+interface MarkedFunction {
+  (src: string, options?: MarkedOptions): string
+  (src: string, callback: (error: any, html: string) => void): void
+  (src: string, options: MarkedOptions, callback: (error: any, html: string) => void): void
+  
+  parse: typeof _marked.parse
+  parseInline: typeof _marked.parseInline
+  options: typeof _marked.options
+  setOptions: (options: MarkedOptions) => MarkedFunction
+  getDefaults: () => MarkedOptions
+  defaults: MarkedOptions
+  use: (...extensions: any[]) => void
+  walkTokens: (tokens: Token[], callback: (token: Token) => void) => any[]
+  Parser: typeof _marked.Parser
+  parser: typeof _marked.parser
+  smartypants: typeof _marked.smartypants
+  Renderer: typeof _marked.Renderer
+  TextRenderer: typeof _marked.TextRenderer
+  Lexer: typeof _marked.Lexer
+  lexer: typeof _marked.lexer
+  Tokenizer: typeof _marked.Tokenizer
+  Slugger: typeof _marked.Slugger
+  Hooks: typeof _marked.Hooks
+}
+
+interface Renderer {
+  code(code: string, language: string | undefined, isEscaped: boolean): string
+  blockquote(quote: string): string
+  html(html: string): string
+  heading(text: string, level: number, raw: string, slugger: any): string
+  hr(): string
+  list(body: string, ordered: boolean, start: number): string
+  listitem(text: string, task: boolean, checked: boolean): string
+  checkbox(checked: boolean): string
+  paragraph(text: string): string
+  table(header: string, body: string): string
+  tablerow(content: string): string
+  tablecell(content: string, flags: { header: boolean; align: string | null }): string
+  strong(text: string): string
+  em(text: string): string
+  codespan(text: string): string
+  br(): string
+  del(text: string): string
+  link(href: string, title: string | null, text: string): string
+  image(href: string, title: string | null, text: string): string
+  text(text: string): string
+}
+
+interface Hooks {
+  preprocess(markdown: string): string
+  postprocess(html: string): string
+  options?: MarkedOptions
+}
+
+interface Tokenizer {
+  space(src: string): Token | undefined
+  code(src: string): Token | undefined
+  fences(src: string): Token | undefined
+  heading(src: string): Token | undefined
+  hr(src: string): Token | undefined
+  blockquote(src: string): Token | undefined
+  list(src: string): Token | undefined
+  html(src: string): Token | undefined
+  def(src: string): Token | undefined
+  table(src: string): Token | undefined
+  lheading(src: string): Token | undefined
+  paragraph(src: string): Token | undefined
+  text(src: string): Token | undefined
+  escape(src: string): Token | undefined
+  tag(src: string): Token | undefined
+  link(src: string): Token | undefined
+  reflink(src: string, links: any): Token | undefined
+  emStrong(src: string, maskedSrc: string, prevChar: string): Token | undefined
+}
+
 declare global {
     //process
     var cwd: typeof process.cwd
@@ -104,7 +222,7 @@ declare global {
   
     //marked
     var md: Md
-    var marked: typeof import('marked').marked
+    var marked: MarkedFunction
     //uuid
     var uuid: typeof import('node:crypto').randomUUID
   

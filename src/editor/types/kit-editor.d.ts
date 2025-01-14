@@ -1,3 +1,5 @@
+import type { MarkedFunction } from "../../types/globals.ts"
+
 declare module "@johnlindquist/kit" {
   import type { ChildProcess } from "node:child_process"
   import type {
@@ -13051,26 +13053,19 @@ declare module "@johnlindquist/kit" {
     var term: Terminal
     var showLogWindow: ShowLogWindow
   }
-  export interface Md {
-    (markdown: string, containerClasses?: string): string
-  }
+  export type Md = (markdown: string, containerClasses?: string) => string
 
   type ReadFileOptions = Parameters<typeof readFile>[1]
-  export interface EnsureReadFile {
-    (
+  export type EnsureReadFile = (
       path: string,
       defaultContent?: string,
-      options?: ReadFileOptions
-    ): Promise<string>
-  }
+      options?: ReadFileOptions) => Promise<string>
 
-  export interface EnsureReadJson {
+  export type EnsureReadJson = 
     <T>(
       path: string,
       defaultContent: T,
-      options?: Parameters<typeof readJson>[1]
-    ): Promise<T>
-  }
+      options?: Parameters<typeof readJson>[1]) => Promise<T>
 
   export interface GlobalsApi {
     cwd: typeof process.cwd
@@ -13123,35 +13118,35 @@ declare module "@johnlindquist/kit" {
     writeJsonSync: typeof import("./fs-extra").writeJsonSync
     move: typeof import("./fs-extra").move
     moveSync: typeof import("./fs-extra").moveSync
-    readFile: typeof import("fs/promises").readFile
-    readFileSync: typeof import("fs").readFileSync
-    writeFile: typeof import("fs/promises").writeFile
-    writeFileSync: typeof import("fs").writeFileSync
-    appendFile: typeof import("fs/promises").appendFile
-    appendFileSync: typeof import("fs").appendFileSync
-    readdir: typeof import("fs/promises").readdir
-    readdirSync: typeof import("fs").readdirSync
-    copyFile: typeof import("fs/promises").copyFile
-    copyFileSync: typeof import("fs").copyFileSync
+    readFile: typeof import("node:fs/promises").readFile
+    readFileSync: typeof import("node:fs").readFileSync
+    writeFile: typeof import("node:fs/promises").writeFile
+    writeFileSync: typeof import("node:fs").writeFileSync
+    appendFile: typeof import("node:fs/promises").appendFile
+    appendFileSync: typeof import("node:fs").appendFileSync
+    readdir: typeof import("node:fs/promises").readdir
+    readdirSync: typeof import("node:fs").readdirSync
+    copyFile: typeof import("node:fs/promises").copyFile
+    copyFileSync: typeof import("node:fs").copyFileSync
 
-    stat: typeof import("fs/promises").stat
-    lstat: typeof import("fs/promises").lstat
+    stat: typeof import("node:fs/promises").stat
+    lstat: typeof import("node:fs/promises").lstat
 
-    rmdir: typeof import("fs/promises").rmdir
-    unlink: typeof import("fs/promises").unlink
-    symlink: typeof import("fs/promises").symlink
-    readlink: typeof import("fs/promises").readlink
-    realpath: typeof import("fs/promises").realpath
-    access: typeof import("fs/promises").access
-    rename: typeof import("fs/promises").rename
+    rmdir: typeof import("node:fs/promises").rmdir
+    unlink: typeof import("node:fs/promises").unlink
+    symlink: typeof import("node:fs/promises").symlink
+    readlink: typeof import("node:fs/promises").readlink
+    realpath: typeof import("node:fs/promises").realpath
+    access: typeof import("node:fs/promises").access
+    rename: typeof import("node:fs/promises").rename
 
-    chown: typeof import("fs/promises").chown
-    lchown: typeof import("fs/promises").lchown
-    utimes: typeof import("fs/promises").utimes
-    lutimes: typeof import("fs/promises").lutimes
+    chown: typeof import("node:fs/promises").chown
+    lchown: typeof import("node:fs/promises").lchown
+    utimes: typeof import("node:fs/promises").utimes
+    lutimes: typeof import("node:fs/promises").lutimes
 
-    createReadStream: typeof import("fs").createReadStream
-    createWriteStream: typeof import("fs").createWriteStream
+    createReadStream: typeof import("node:fs").createReadStream
+    createWriteStream: typeof import("node:fs").createWriteStream
     Writable: typeof import("stream").Writable
     Readable: typeof import("stream").Readable
     Duplex: typeof import("stream").Duplex
@@ -13231,44 +13226,44 @@ declare module "@johnlindquist/kit" {
     var move: typeof import("./fs-extra").move
     var moveSync: typeof import("./fs-extra").moveSync
     //fs/promises
-    var readFile: typeof import("fs/promises").readFile
-    var readFileSync: typeof import("fs").readFileSync
-    var writeFile: typeof import("fs/promises").writeFile
-    var writeFileSync: typeof import("fs").writeFileSync
-    var appendFile: typeof import("fs/promises").appendFile
-    var appendFileSync: typeof import("fs").appendFileSync
-    var readdir: typeof import("fs/promises").readdir
-    var readdirSync: typeof import("fs").readdirSync
-    var copyFile: typeof import("fs/promises").copyFile
-    var copyFileSync: typeof import("fs").copyFileSync
+    var readFile: typeof import("node:fs/promises").readFile
+    var readFileSync: typeof import("node:fs").readFileSync
+    var writeFile: typeof import("node:fs/promises").writeFile
+    var writeFileSync: typeof import("node:fs").writeFileSync
+    var appendFile: typeof import("node:fs/promises").appendFile
+    var appendFileSync: typeof import("node:fs").appendFileSync
+    var readdir: typeof import("node:fs/promises").readdir
+    var readdirSync: typeof import("node:fs").readdirSync
+    var copyFile: typeof import("node:fs/promises").copyFile
+    var copyFileSync: typeof import("node:fs").copyFileSync
 
-    var stat: typeof import("fs/promises").stat
-    var lstat: typeof import("fs/promises").lstat
+    var stat: typeof import("node:fs/promises").stat
+    var lstat: typeof import("node:fs/promises").lstat
 
-    var rmdir: typeof import("fs/promises").rmdir
-    var unlink: typeof import("fs/promises").unlink
-    var symlink: typeof import("fs/promises").symlink
-    var readlink: typeof import("fs/promises").readlink
-    var realpath: typeof import("fs/promises").realpath
-    var access: typeof import("fs/promises").access
+    var rmdir: typeof import("node:fs/promises").rmdir
+    var unlink: typeof import("node:fs/promises").unlink
+    var symlink: typeof import("node:fs/promises").symlink
+    var readlink: typeof import("node:fs/promises").readlink
+    var realpath: typeof import("node:fs/promises").realpath
+    var access: typeof import("node:fs/promises").access
 
-    var chown: typeof import("fs/promises").chown
-    var lchown: typeof import("fs/promises").lchown
-    var utimes: typeof import("fs/promises").utimes
-    var lutimes: typeof import("fs/promises").lutimes
+    var chown: typeof import("node:fs/promises").chown
+    var lchown: typeof import("node:fs/promises").lchown
+    var utimes: typeof import("node:fs/promises").utimes
+    var lutimes: typeof import("node:fs/promises").lutimes
 
-    var rename: typeof import("fs/promises").rename
+    var rename: typeof import("node:fs/promises").rename
 
     //fs
-    var createReadStream: typeof import("fs").createReadStream
-    var createWriteStream: typeof import("fs").createWriteStream
+    var createReadStream: typeof import("node:fs").createReadStream
+    var createWriteStream: typeof import("node:fs").createWriteStream
 
     //handlebars
     var compile: typeof import("./handlebars").compile
 
     //marked
     var md: Md
-    var marked: typeof import("./marked").marked
+    var marked: MarkedFunction
     //uuid
     var uuid: typeof import("crypto").randomUUID
 
@@ -13333,31 +13328,31 @@ declare module "@johnlindquist/kit" {
   export var writeJson: typeof import("./fs-extra").writeJson
   export var move: typeof import("./fs-extra").move
   //fs/promises
-  export var readFile: typeof import("fs/promises").readFile
-  export var writeFile: typeof import("fs/promises").writeFile
-  export var appendFile: typeof import("fs/promises").appendFile
-  export var readdir: typeof import("fs/promises").readdir
-  export var copyFile: typeof import("fs/promises").copyFile
+  export var readFile: typeof import("node:fs/promises").readFile
+  export var writeFile: typeof import("node:fs/promises").writeFile
+  export var appendFile: typeof import("node:fs/promises").appendFile
+  export var readdir: typeof import("node:fs/promises").readdir
+  export var copyFile: typeof import("node:fs/promises").copyFile
 
-  export var stat: typeof import("fs/promises").stat
-  export var lstat: typeof import("fs/promises").lstat
+  export var stat: typeof import("node:fs/promises").stat
+  export var lstat: typeof import("node:fs/promises").lstat
 
-  export var rmdir: typeof import("fs/promises").rmdir
-  export var unlink: typeof import("fs/promises").unlink
-  export var symlink: typeof import("fs/promises").symlink
-  export var readlink: typeof import("fs/promises").readlink
-  export var realpath: typeof import("fs/promises").realpath
-  export var access: typeof import("fs/promises").access
+  export var rmdir: typeof import("node:fs/promises").rmdir
+  export var unlink: typeof import("node:fs/promises").unlink
+  export var symlink: typeof import("node:fs/promises").symlink
+  export var readlink: typeof import("node:fs/promises").readlink
+  export var realpath: typeof import("node:fs/promises").realpath
+  export var access: typeof import("node:fs/promises").access
 
-  export var chown: typeof import("fs/promises").chown
-  export var lchown: typeof import("fs/promises").lchown
-  export var utimes: typeof import("fs/promises").utimes
-  export var lutimes: typeof import("fs/promises").lutimes
-  export var rename: typeof import("fs/promises").rename
+  export var chown: typeof import("node:fs/promises").chown
+  export var lchown: typeof import("node:fs/promises").lchown
+  export var utimes: typeof import("node:fs/promises").utimes
+  export var lutimes: typeof import("node:fs/promises").lutimes
+  export var rename: typeof import("node:fs/promises").rename
 
   //fs
-  export var createReadStream: typeof import("fs").createReadStream
-  export var createWriteStream: typeof import("fs").createWriteStream
+  export var createReadStream: typeof import("node:fs").createReadStream
+  export var createWriteStream: typeof import("node:fs").createWriteStream
   //handlebars
   export var compile: typeof import("./handlebars").compile
 

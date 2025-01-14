@@ -135,6 +135,9 @@ importers:
       minimist:
         specifier: 1.2.8
         version: 1.2.8
+      open:
+        specifier: 10.1.0
+        version: 10.1.0
       p-retry:
         specifier: 6.2.1
         version: 6.2.1
@@ -177,13 +180,6 @@ importers:
       untildify:
         specifier: 5.0.0
         version: 5.0.0
-    optionalDependencies:
-      file-icon:
-        specifier: 5.1.1
-        version: 5.1.1
-      get-app-icon:
-        specifier: 1.0.1
-        version: 1.0.1
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -233,6 +229,13 @@ importers:
       vite:
         specifier: 6.0.7
         version: 6.0.7(@types/node@22.10.6)(jiti@1.21.6)(tsx@4.19.2)
+    optionalDependencies:
+      file-icon:
+        specifier: 5.1.1
+        version: 5.1.1
+      get-app-icon:
+        specifier: 1.0.1
+        version: 1.0.1
 
 packages:
 
@@ -2957,6 +2960,10 @@ packages:
   onetime@6.0.0:
     resolution: {integrity: sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==}
     engines: {node: '>=12'}
+
+  open@10.1.0:
+    resolution: {integrity: sha512-mnkeQ1qP5Ue2wd+aivTD3NHd/lZ96Lu0jgf0pwktLPtx6cTZiH7tyeGRRHs0zX0rbrahXPnXlUnbeXyaBBuIaw==}
+    engines: {node: '>=18'}
 
   ora@5.4.1:
     resolution: {integrity: sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==}
@@ -6930,6 +6937,13 @@ snapshots:
   onetime@6.0.0:
     dependencies:
       mimic-fn: 4.0.0
+
+  open@10.1.0:
+    dependencies:
+      default-browser: 5.2.1
+      define-lazy-prop: 3.0.0
+      is-inside-container: 1.0.0
+      is-wsl: 3.1.0
 
   ora@5.4.1:
     dependencies:

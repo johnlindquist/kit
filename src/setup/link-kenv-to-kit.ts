@@ -38,13 +38,15 @@ await cli("install", `"${kitPath()}"`)
 
 // ensure kenvPath('package.json') has a "type": "module"
 
+
+
 let defaultPackageJson = {
   type: "module",
   engines: {
-    node: "20.18.1",
+    node: "22.9.0",
   },
   devDependencies: {
-    "@johnlindquist/kit": "file:../.kit",
+    "@johnlindquist/kit": `link:${(process.env.KIT || home(".kit"))?.replace(/\\/g, '/')}`,
     "@typescript/lib-dom":
       "npm:@johnlindquist/no-dom@^1.0.2",
   },
