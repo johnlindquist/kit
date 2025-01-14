@@ -260,4 +260,6 @@ await tmp.withDir(async (dir) => {
     t.is(parsed.POSIX_RELATIVE, posixRelative)
   })
 
+}, {
+	unsafeCleanup: true
 })
