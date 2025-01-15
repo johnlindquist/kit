@@ -27,7 +27,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.9.0
+          node-version: 20.18.1
           cache: 'pnpm'
 
       - name: Check node $PATH version
@@ -42,25 +42,25 @@ jobs:
           cd "${{ env.wd_path }}"
           pnpm i
 
-      - name: pnpm run ava
+      - name: pnpm ava
         shell: bash
         run: |
-          pnpm run ava
+          pnpm ava
 
-      - name: pnpm run build-kit
+      - name: pnpm build-kit
         shell: bash
         env:
           KIT: ${{ env.kit_path }}
         run: |
-          pnpm run build-kit
+          pnpm build-kit
 
-      - name: pnpm run test
+      - name: pnpm test
         uses: nick-invision/retry@v3
         with:
           max_attempts: 3
           timeout_minutes: 30
           command: |
-            pnpm run test
+            pnpm test
         env:
           KIT: ${{ env.kit_path }}
 
@@ -90,7 +90,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.9.0
+          node-version: 20.18.1
           cache: 'pnpm'
 
       - name: Build Kit
@@ -129,13 +129,13 @@ jobs:
           pnpm i          
 
 
-      - name: pnpm run ava
+      - name: pnpm ava
         run: |
-          pnpm run ava
+          pnpm ava
 
-      - name: npm run test
+      - name: pnpm test
         run: |
-          npm run test
+          pnpm test
         env:
           KIT: ${{ env.kit_path }}
 
@@ -162,7 +162,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.9.0
+          node-version: 20.18.1
           cache: 'pnpm'
       
 
