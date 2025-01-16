@@ -15,6 +15,7 @@ import { keywordInputTransformer } from "../core/utils.js"
 
 await ensureDir(kenvPath("scriptlets"))
 let scriptletsPath = kenvPath("scriptlets", "scriptlets.md")
+await ensureFile(scriptletsPath)
 
 let name = arg?.pass || await arg({
 	placeholder: "Scriptlet Name",

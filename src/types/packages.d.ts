@@ -51,8 +51,8 @@ export type Git = {
 		options?: Partial<Parameters<typeof addRemote>[0]>
 	) => ReturnType<typeof addRemote>
 }
-export type Open = typeof import("open/index").default
-export type OpenApp = typeof import("open/index").openApp
+export type Open = typeof import("open").default
+export type OpenApp = typeof import("open").openApp
 
 export type OnTab = (name: string, fn: () => void) => void
 
