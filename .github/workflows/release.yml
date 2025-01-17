@@ -27,8 +27,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.18.1
-          cache: 'pnpm'
+          node-version: 22.9.0
+          cache: "pnpm"
 
       - name: Check node $PATH version
         shell: bash
@@ -64,7 +64,6 @@ jobs:
         env:
           KIT: ${{ env.kit_path }}
 
-
   test-mac-and-ubuntu:
     strategy:
       matrix:
@@ -90,8 +89,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.18.1
-          cache: 'pnpm'
+          node-version: 22.9.0
+          cache: "pnpm"
 
       - name: Build Kit
         run: |
@@ -121,13 +120,12 @@ jobs:
 
       - name: Log ./.kit
         run: |
-          ls ./.kit/*/*        
+          ls ./.kit/*/*
 
       - name: pnpm i
         run: |
           cd "${{ env.wd_path }}"
-          pnpm i          
-
+          pnpm i
 
       - name: pnpm ava
         run: |
@@ -162,9 +160,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.18.1
-          cache: 'pnpm'
-      
+          node-version: 22.9.0
+          cache: "pnpm"
 
       - name: Build Kit
         run: |
@@ -189,7 +186,7 @@ jobs:
           node --version
           pnpm --version
 
-      - name: Semantic Release      
+      - name: Semantic Release
         run: |
           cd "${{ env.wd_path }}"
           npx semantic-release

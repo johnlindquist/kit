@@ -148,9 +148,9 @@ export type Toast = (
 
 export type Prompt = {
   closeActions(): Promise<void>
-  close(): Promise<void>
-  openActions(): Promise<void>
-  setInput(input: string): Promise<void>
+  close(): void
+  openActions(): void
+  setInput(input: string): void
   focus(): Promise<void>
   blur(): Promise<void>
   hide(): Promise<void>

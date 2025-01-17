@@ -2412,18 +2412,18 @@ global.setFooter = (footer: string) => {
   global.send(Channel.SET_FOOTER, footer)
 }
 
-global.setDiv = async (h, containerClasses = "") => {
+global.setDiv = (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PANEL, html)
 }
 
-global.setPreview = async (h, containerClasses = "") => {
+global.setPreview = (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
   global.send(Channel.SET_PREVIEW, html)
   // setLoading(false)
 }
 
-global.setHint = async hint => {
+global.setHint = hint => {
   global.send(Channel.SET_HINT, hint)
 }
 
@@ -2445,8 +2445,8 @@ global.scrollTo = async location => {
   return await global.sendWait(Channel.SCROLL_TO, location)
 }
 
-global.setFilterInput = async inputFilter => {
-  global.send(Channel.SET_FILTER_INPUT, inputFilter)
+global.setFilterInput = inputFilter => {
+  return global.sendWait(Channel.SET_FILTER_INPUT, inputFilter)
 }
 
 global.showDeprecated = async (markdown: string) => {
@@ -2461,7 +2461,7 @@ All prompts now ignore blur by default
   `)
 }
 
-global.setResize = async ignore => {
+global.setResize = ignore => {
   global.send(Channel.SET_RESIZE, ignore)
 }
 
@@ -2469,7 +2469,7 @@ global.setPauseResize = async pause => {
   await global.sendWait(Channel.SET_PAUSE_RESIZE, pause)
 }
 
-global.setValue = async value => {
+global.setValue = value => {
   global.send(Channel.SET_VALUE, value)
 }
 
@@ -2485,7 +2485,7 @@ global.getDataFromApp = global.sendWait = async (
 ) => {
   if (process?.send) {
     return await new Promise((res, rej) => {
-      let timeoutId = null
+      let timeoutId: NodeJS.Timeout | null = null
       let messageHandler = data => {
         // if (data?.promptId !== global.__kitPromptId) {
         //   log(
@@ -3497,7 +3497,7 @@ global.prompt = {
   openActions: async () => {
     return await sendWait(Channel.OPEN_ACTIONS)
   },
-  close: async () => {
+  close: () => {
     return exit()
   },
   setInput: (input: string) => {
