@@ -1,4 +1,4 @@
-import { readFile } from "fs/promises"
+import { readFile } from "node:fs/promises"
 import untildify from "untildify"
 import type { Script, ScriptMetadata, ScriptPathInfo } from "../types"
 import {
@@ -15,6 +15,7 @@ import { path } from "../globals/path.js"
 
 const shebangRegex = /^#!(.+)/m
 
+const previewRegex = /\bpreview\b\s*[:=]/i
 export let postprocessMetadata = (
 	metadata: Metadata,
 	fileContents: string
@@ -61,13 +62,13 @@ export let postprocessMetadata = (
 	// Extract tabs
 	const onTabRegex = /(?<=^onTab\(['"])(.+?)(?=['"])/gim
 	const tabsMatch = fileContents.match(onTabRegex)
-	if (tabsMatch?.length) {
+	if (tabsMatch?.length > 0) {
 		result.tabs = tabsMatch
 	}
 
 	// Detect hasPreview
 	// Matches `preview:` `preview =` `preview:true` `preview=true` with optional spaces
-	if (/\bpreview\b\s*[:=]/i.test(fileContents)) {
+	if (previewRegex.test(fileContents)) {
 		result.hasPreview = true
 	}
 

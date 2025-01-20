@@ -103,7 +103,7 @@
     "esbuild": "0.24.2",
     "execa": "9.5.2",
     "filesize": "10.1.6",
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "globby": "^14.0.2",
     "handlebars": "4.7.8",
     "highlight.js": "^11.11.1",
@@ -112,7 +112,10 @@
     "keyv": "^5.2.3",
     "keyv-file": "^5.1.1",
     "lowdb": "7.0.1",
-    "marked": "4.3.0",
+    "marked": "15.0.6",
+    "marked-extended-tables": "1.1.0",
+    "marked-gfm-heading-id": "4.1.1",
+    "marked-highlight": "2.2.1",
     "minimist": "1.2.8",
     "open": "10.1.0",
     "p-retry": "6.2.1",
@@ -133,7 +136,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.10.6",
+    "@types/node": "^22.10.7",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",
@@ -146,7 +149,7 @@
     "tsx": "4.19.2",
     "typescript": "5.7.3",
     "unzipper": "0.12.3",
-    "vite": "6.0.7"
+    "vite": "6.0.10"
   },
   "ava": {
     "environmentVariables": {

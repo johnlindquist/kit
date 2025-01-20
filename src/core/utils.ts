@@ -1164,33 +1164,14 @@ export let highlight = async (markdown: string, containerClass = 'p-5 leading-lo
   let renderer = new marked.Renderer()
   renderer.paragraph = (p) => {
     // Convert a tag with href .mov, .mp4, or .ogg video links to video tags
-    if (p.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
-      let url = p.match(/href="(.*)"/)[1]
+    const text = p.text || ''
+    if (text.match(/<a href=".*\.(mov|mp4|ogg)">.*<\/a>/)) {
+      let url = text.match(/href="(.*)"/)[1]
       return `<video controls src="${url}" style="max-width: 100%;"></video>`
     }
 
-    return `<p>${p}</p>`
+    return `<p>${p.text}</p>`
   }
-
-  renderer.text = (text) => {
-    return `<span>${text}</span>`
-  }
-  marked.setOptions({
-    renderer,
-    // biome-ignore lint/complexity/useArrowFunction: <explanation>
-    highlight: function (code, lang) {
-      const language = highlight.getLanguage(lang) ? lang : 'plaintext'
-      return highlight.highlight(code, { language }).value
-    },
-    langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class.
-    pedantic: false,
-    gfm: true,
-    breaks: false,
-    sanitize: false,
-    smartLists: true,
-    smartypants: false,
-    xhtml: false
-  })
 
   let highlightedMarkdown = marked(markdown)
 

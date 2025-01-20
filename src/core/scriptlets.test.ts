@@ -494,7 +494,7 @@ Type whatever you want!
 	const scripts = await parseMarkdownAsScriptlets(markdown)
 	// t.is(scripts.length, 2)
 
-	const preview1 = `<div class="p-5 prose dark:prose-dark"><h1 id="open-script-kit"><span>Open Script Kit</span></h1>
+	const preview1 =`<div class="p-5 prose dark:prose-dark"><h1 id="open-script-kit">Open Script Kit</h1>
 <div class="">
   <style>
   p{
@@ -504,19 +504,21 @@ Type whatever you want!
     margin-bottom: .25rem;
   }
   
-<p><span>  </span></style><span>
-  </span><p class="hljs-tool-topper"><span>bash</span></p></p><!--
+<p>  </style>
+  <p class="hljs-tool-topper">bash</p></p>
+<!--
 Trigger: sk
 Alias:
 Enabled: Yes
 -->
 
-<pre><code class="hljs language-bash">open -a <span class="hljs-string">&#x27;Google Chrome&#x27;</span> https://scriptkit.com/{{user}}
-</code></pre>
-<p><span>This Script Opens the Script Kit URL</span></p><p><span>I hope you enjoy!</span></p>
+<pre><code class="language-bash">open -a <span class="hljs-string">&#x27;Google Chrome&#x27;</span> https://scriptkit.com/{{user}}
+</code></pre><p>This Script Opens the Script Kit URL</p>
+<p>I hope you enjoy!</p>
+
 </div></div>`
 
-	const preview2 = `<div class="p-5 prose dark:prose-dark"><h1 id="append-note"><span>Append Note</span></h1>
+	const preview2 = `<div class="p-5 prose dark:prose-dark"><h1 id="append-note">Append Note</h1>
 <div class="">
   <style>
   p{
@@ -526,11 +528,12 @@ Enabled: Yes
     margin-bottom: .25rem;
   }
   
-<p><span>  </span></style><span>
-  </span><p class="hljs-tool-topper"><span>kit</span></p></p><pre><code class="hljs language-kit">await appendFile(home(&quot;{{File Name}}.txt&quot;), {{Note}})
-</code></pre>
-<h3 id="quickly-append-text-to-a-txt-file"><span>Quickly Append Text to a .txt File</span></h3>
-<p><span>Type whatever you want!</span></p>
+<p>  </style>
+  <p class="hljs-tool-topper">kit</p></p>
+<pre><code class="language-kit">await appendFile(home(&quot;{{File Name}}.txt&quot;), {{Note}})
+</code></pre><h3 id="quickly-append-text-to-a-txt-file">Quickly Append Text to a .txt File</h3>
+<p>Type whatever you want!</p>
+
 </div></div>`
 
 	// await writeFile(home("test-1.txt"), scripts[0].preview)
