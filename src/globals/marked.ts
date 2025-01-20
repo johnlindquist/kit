@@ -25,9 +25,7 @@ _marked.use(
     pedantic: false,
     silent: false,
     hooks: {
-      postprocess(html) {
-        console.log('Before processing:', JSON.stringify(html))
-        
+      postprocess(html) {      
         // Fix table formatting
         html = html.replace(/<table>.*?<\/table>/gs, match => {
           return match
