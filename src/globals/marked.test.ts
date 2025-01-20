@@ -19,7 +19,8 @@ ava("marked - basic markdown parsing", (t) => {
 ava("marked - code fence with language", (t) => {
   const input = "```typescript\nconst x = 42;\n```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code class="language-typescript"><span class="hljs-keyword">const</span> x = <span class="hljs-number">42</span>;
+</code></pre>`)
 })
 
 ava("marked - code fence without language", (t) => {
@@ -68,7 +69,9 @@ const x = 42;
 \`\`\`
 `.trim()
   const result = md(input)
-  t.snapshot(result)
+  t.is(result, `<div class="p-5 prose dark:prose-dark"><h1 id="title">Title</h1>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> x = <span class="hljs-number">42</span>;
+</code></pre></div>`)
 })
 
 ava("marked - blockquotes with markdown", (t) => {
@@ -110,31 +113,44 @@ ava("md - without container classes", (t) => {
 ava("marked - code fence with empty lines", (t) => {
   const input = "```js\n\nconst x = 42;\n\n```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code class="language-js">
+<span class="hljs-keyword">const</span> x = <span class="hljs-number">42</span>;
+</code></pre>`)
 })
 
 ava("marked - code fence with spaces before language", (t) => {
   const input = "```   javascript   \nconst x = 42;\n```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code class="language-javascript"><span class="hljs-keyword">const</span> x = <span class="hljs-number">42</span>;
+</code></pre>`)
 })
 
 ava("marked - nested code fences in blockquotes", (t) => {
   const input = "> Here's some code:\n> ```js\n> const x = 42;\n> ```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<blockquote>
+<p>Here&#39;s some code:</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> x = <span class="hljs-number">42</span>;
+</code></pre></blockquote>
+`)
 })
 
 ava("marked - code fence with html inside", (t) => {
   const input = "```html\n<div class='test'>\n  <span>content</span>\n</div>\n```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&#x27;test&#x27;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>content<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>`)
 })
 
 ava("marked - code fence with backticks inside", (t) => {
   const input = "````\n```js\nconst x = 42;\n```\n````"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code>\`\`\`js
+const x = 42;
+\`\`\`
+</code></pre>`)
 })
 
 ava("marked - code fence with markdown inside", (t) => {
@@ -146,7 +162,10 @@ ava("marked - code fence with markdown inside", (t) => {
 ava("marked - code fence with mixed indentation", (t) => {
   const input = "```js\n  const x = 1;\n    const y = 2;\n\tconst z = 3;\n```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code class="language-js">  <span class="hljs-keyword">const</span> x = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">const</span> y = <span class="hljs-number">2</span>;
+	<span class="hljs-keyword">const</span> z = <span class="hljs-number">3</span>;
+</code></pre>`)
 })
 
 ava("marked - code fence with escaped backticks", (t) => {
@@ -158,11 +177,15 @@ ava("marked - code fence with escaped backticks", (t) => {
 ava("marked - code fence with unicode characters", (t) => {
   const input = "```js\nconst greeting = '你好';\nconsole.log('🚀');\n```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code class="language-js"><span class="hljs-keyword">const</span> greeting = <span class="hljs-string">&#x27;你好&#x27;</span>;
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;🚀&#x27;</span>);
+</code></pre>`)
 })
 
 ava("marked - code fence with tabs at line start", (t) => {
   const input = "```js\n\tlet x = 1;\n\t\tlet y = 2;\n```"
   const result = marked.parse(input)
-  t.snapshot(result)
+  t.is(result, `<pre><code class="language-js">	<span class="hljs-keyword">let</span> x = <span class="hljs-number">1</span>;
+		<span class="hljs-keyword">let</span> y = <span class="hljs-number">2</span>;
+</code></pre>`)
 }) 
