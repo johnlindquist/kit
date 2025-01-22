@@ -17,8 +17,8 @@ import type {
   Script,
   Shortcut,
   Flags,
-} from "./core"
-import { ChannelHandler } from "./core"
+} from "./core.js"
+import { ChannelHandler } from "./core.js"
 import type { ConfigOptions, Options } from "quick-score"
 
 export interface Arg {

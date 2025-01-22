@@ -1,62 +1,10 @@
-type ReadFileOptions = Parameters<typeof readFile>[1]
+type ReadFileOptions = Parameters<typeof import('node:fs/promises').readFile>[1]
 
 export type EnsureReadFile = (path: string, defaultContent?: string, options?: ReadFileOptions) => Promise<string>
 
 export type EnsureReadJson = 
-  <T>(path: string, defaultContent: T, options?: Parameters<typeof readJson>[1]) => Promise<T>
+  <T>(path: string, defaultContent: T, options?: Parameters<typeof import('fs-extra').readJson>[1]) => Promise<T>
 
-export type Md = (markdown: string, containerClasses?: string) => string
-
-
-interface Renderer {
-  code(code: string, language: string | undefined, isEscaped: boolean): string
-  blockquote(quote: string): string
-  html(html: string): string
-  heading(text: string, level: number, raw: string, slugger: any): string
-  hr(): string
-  list(body: string, ordered: boolean, start: number): string
-  listitem(text: string, task: boolean, checked: boolean): string
-  checkbox(checked: boolean): string
-  paragraph(text: string): string
-  table(header: string, body: string): string
-  tablerow(content: string): string
-  tablecell(content: string, flags: { header: boolean; align: string | null }): string
-  strong(text: string): string
-  em(text: string): string
-  codespan(text: string): string
-  br(): string
-  del(text: string): string
-  link(href: string, title: string | null, text: string): string
-  image(href: string, title: string | null, text: string): string
-  text(text: string): string
-}
-
-interface Hooks {
-  preprocess(markdown: string): string
-  postprocess(html: string): string
-  options?: MarkedOptions
-}
-
-interface Tokenizer {
-  space(src: string): Token | undefined
-  code(src: string): Token | undefined
-  fences(src: string): Token | undefined
-  heading(src: string): Token | undefined
-  hr(src: string): Token | undefined
-  blockquote(src: string): Token | undefined
-  list(src: string): Token | undefined
-  html(src: string): Token | undefined
-  def(src: string): Token | undefined
-  table(src: string): Token | undefined
-  lheading(src: string): Token | undefined
-  paragraph(src: string): Token | undefined
-  text(src: string): Token | undefined
-  escape(src: string): Token | undefined
-  tag(src: string): Token | undefined
-  link(src: string): Token | undefined
-  reflink(src: string, links: any): Token | undefined
-  emStrong(src: string, maskedSrc: string, prevChar: string): Token | undefined
-}
 
 declare global {
     //process
@@ -156,7 +104,7 @@ declare global {
     var compile: typeof import('handlebars').compile
   
     //marked
-    var md: Md
+    var md: typeof import('../globals/marked').md
     var marked: typeof import('marked').marked
     //uuid
     var uuid: typeof import('node:crypto').randomUUID

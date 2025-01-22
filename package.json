@@ -149,7 +149,7 @@
     "tsx": "4.19.2",
     "typescript": "5.7.3",
     "unzipper": "0.12.3",
-    "vite": "6.0.10"
+    "vite": "6.0.11"
   },
   "ava": {
     "environmentVariables": {

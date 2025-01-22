@@ -236,8 +236,8 @@ importers:
         specifier: 0.12.3
         version: 0.12.3
       vite:
-        specifier: 6.0.10
-        version: 6.0.10(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2)
+        specifier: 6.0.11
+        version: 6.0.11(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2)
     optionalDependencies:
       file-icon:
         specifier: 5.1.1
@@ -4015,8 +4015,8 @@ packages:
     resolution: {integrity: sha512-ZZKSmDAEFOijERBLkmYfJ+vmk3w+7hOLYDNkRCuRuMJGEmqYNCNLyBBFwWKVMhfwaEF3WOd0Zlw86U/WC/+nYw==}
     engines: {'0': node >=0.6.0}
 
-  vite@6.0.10:
-    resolution: {integrity: sha512-MEszunEcMo6pFsfXN1GhCFQqnE25tWRH0MA4f0Q7uanACi4y1Us+ZGpTMnITwCTnYzB2b9cpmnelTlxgTBmaBA==}
+  vite@6.0.11:
+    resolution: {integrity: sha512-4VL9mQPKoHy4+FE0NnRE/kbY51TOfaknxAjt3fJbGJxhIpBZiqVzlZDEesWWsuREXHwNdAoOFZ9MkPEVXczHwg==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
@@ -8067,7 +8067,7 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.3.0
 
-  vite@6.0.10(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2):
+  vite@6.0.11(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2):
     dependencies:
       esbuild: 0.24.2
       postcss: 8.4.49

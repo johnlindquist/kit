@@ -3,12 +3,12 @@ import type { editor } from "./editor.api"
 
 import {
   type Key,
-  Key as CoreKeyEnum,
+  type Key as CoreKeyEnum,
   Channel,
   Mode,
   type statuses,
   type PROMPT as PROMPT_OBJECT,
-} from "../core/enum"
+} from "../core/enum.js"
 
 import type { AppDb } from "../core/db.js"
 
@@ -24,12 +24,12 @@ import {
   type ScoredChoice,
   type Script,
   type Shortcut,
-} from "./core"
+} from "./core.js"
 import type {
   BrowserWindowConstructorOptions,
   Display,
   Rectangle,
-} from "./electron"
+} from "./electron.js"
 
 import type { Trash } from "./packages"
 import type { marked } from "../globals/marked.ts"
@@ -38,11 +38,11 @@ import type {
   UiohookKeyboardEvent,
   UiohookMouseEvent,
   UiohookWheelEvent,
-} from "./io"
-import type { FileSearchOptions } from "./platform"
+} from "./io.js"
+import type { FileSearchOptions } from "./platform.js"
 import { ReadStream, WriteStream } from "node:fs"
-import type { NotificationConstructorOptions } from "./notify"
-import type { ShebangConfig } from "../core/shebang"
+import type { NotificationConstructorOptions } from "./notify.js"
+import type { ShebangConfig } from "../core/shebang.js"
 
 export type Status = (typeof statuses)[number]
 

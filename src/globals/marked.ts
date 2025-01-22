@@ -42,8 +42,7 @@ _marked.use(
     }
   }
 )
-
-export let marked = (globalThis.marked = _marked)
+export let marked = (globalThis.marked = _marked) as typeof _marked
 
 const _md = (markdown: string, containerClasses = "p-5 prose dark:prose-dark"):string => {
   let html = ''
@@ -59,4 +58,4 @@ const _md = (markdown: string, containerClasses = "p-5 prose dark:prose-dark"):s
   return html
 }
 
-export let md = (globalThis.md = _md)
+export let md = (globalThis.md = _md) as typeof _md

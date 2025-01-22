@@ -1,5 +1,5 @@
-import type { ProcessInfo } from './core'
-import type { Display, Point } from './electron'
+import type { ProcessInfo } from './core.js'
+import type { Display, Point } from './electron.js'
 import type { BrowserContextOptions, Page, PageScreenshotOptions } from 'playwright'
 
 type PlayAudioFile = (path: string, options?: any) => Promise<string>

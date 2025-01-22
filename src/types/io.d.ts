@@ -1,4 +1,4 @@
-import { EventEmitter } from "events"
+import { EventEmitter } from "node:events"
 export declare enum EventType {
   EVENT_KEY_PRESSED = 4,
   EVENT_KEY_RELEASED = 5,

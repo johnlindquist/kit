@@ -1,11 +1,11 @@
 import type { ForkOptions } from "node:child_process"
-import type { Channel } from "../core/enum"
-import type { PromptConfig } from "./core"
+import type { Channel } from "../core/enum.js"
+import type { PromptConfig } from "./core.js"
 import type {
   BrowserWindowConstructorOptions,
   Display,
   Rectangle,
-} from "./electron"
+} from "./electron.js"
 
 export type BaseWidgetOptions =
   BrowserWindowConstructorOptions & {
