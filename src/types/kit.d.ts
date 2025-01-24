@@ -1,9 +1,6 @@
-import type { Low } from "lowdb"
-import type {
-  format,
-  formatDistanceToNow,
-} from "date-fns"
-import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
+import type { Low } from 'lowdb'
+import type { format, formatDistanceToNow } from 'date-fns'
+import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods'
 import type {
   Action,
   Choice,
@@ -16,10 +13,10 @@ import type {
   ScoredChoice,
   Script,
   Shortcut,
-  Flags,
-} from "./core.js"
-import { ChannelHandler } from "./core.js"
-import type { ConfigOptions, Options } from "quick-score"
+  Flags
+} from './core.js'
+import { ChannelHandler } from './core.js'
+import type { ConfigOptions, Options } from 'quick-score'
 
 export interface Arg {
   [key: string]: any
@@ -46,13 +43,7 @@ export interface EnvConfig extends PromptConfig {
   reset?: boolean
 }
 export interface Env {
-  (
-    envKey: string,
-    promptConfig?:
-      | string
-      | EnvConfig
-      | (() => Promise<string>)
-  ): Promise<string>
+  (envKey: string, promptConfig?: string | EnvConfig | (() => Promise<string>)): Promise<string>
   [key: string]: any
 }
 
@@ -62,15 +53,9 @@ export type UpdateArgs = (args: string[]) => void
 
 export type PathFn = (...pathParts: string[]) => string
 
-export type Inspect = (
-  data: any,
-  extension?: string
-) => Promise<void>
+export type Inspect = (data: any, extension?: string) => Promise<void>
 
-export type Store = (
-  key: string,
-  initialData?: any
-) => Promise<InstanceType<typeof import("keyv").default>>
+export type Store = (key: string, initialData?: any) => Promise<InstanceType<typeof import('keyv').default>>
 
 type DBExtensions<T> = {
   data: T extends string[] ? { items: T } : T
@@ -83,10 +68,7 @@ type DBItems<T> = T extends string[] ? { items: T } : {}
 
 export type DBKeyOrPath<T> = string | T | (() => Promise<T>)
 export type DBData<T> = T | (() => Promise<T>)
-export type DBReturnType<T> = Low<T> &
-  DBItems<T> &
-  DBExtensions<T> &
-  T
+export type DBReturnType<T> = Low<T> & DBItems<T> & DBExtensions<T> & T
 
 export type DB = <
   T = {
@@ -98,115 +80,51 @@ export type DB = <
   fromCache?: boolean
 ) => Promise<DBReturnType<T>>
 
-export type OnTab = (
-  name: string,
-  fn: (input?: string) => void | Promise<void>
-) => void
+export type OnTab = (name: string, fn: (input?: string) => void | Promise<void>) => void
 
 export interface Trace {
   enabled: boolean
-  begin: (
-    fields: Parameters<
-      InstanceType<
-        typeof import("chrome-trace-event").Tracer
-      >["begin"]
-    >[0]
-  ) => void
-  end: (
-    fields: Parameters<
-      InstanceType<
-        typeof import("chrome-trace-event").Tracer
-      >["end"]
-    >[0]
-  ) => void
-  instant: (
-    fields: Parameters<
-      InstanceType<
-        typeof import("chrome-trace-event").Tracer
-      >["instantEvent"]
-    >[0]
-  ) => void
+  begin: (fields: Parameters<InstanceType<typeof import('chrome-trace-event').Tracer>['begin']>[0]) => void
+  end: (fields: Parameters<InstanceType<typeof import('chrome-trace-event').Tracer>['end']>[0]) => void
+  instant: (fields: Parameters<InstanceType<typeof import('chrome-trace-event').Tracer>['instantEvent']>[0]) => void
   flush: () => void
 }
 
 export type OnExit = (fn: () => void) => void
 
-export type KitModuleLoader = (
-  packageName: string,
-  ...moduleArgs: string[]
-) => Promise<any>
-export type Edit = (
-  file: string,
-  dir?: string,
-  line?: string | number,
-  col?: string | number
-) => Promise<void>
+export type KitModuleLoader = (packageName: string, ...moduleArgs: string[]) => Promise<any>
+export type Edit = (file: string, dir?: string, line?: string | number, col?: string | number) => Promise<void>
 
-export type Browse = (
-  url: string
-) => ReturnType<typeof import("@johnlindquist/open")>
+export type Browse = (url: string) => ReturnType<typeof import('@johnlindquist/open')>
 
-export type Wait = (
-  time: number,
-  submitValue?: any
-) => Promise<void>
+export type Wait = (time: number, submitValue?: any) => Promise<void>
 
 export type IsCheck = (file: string) => Promise<boolean>
 
-export type PathResolver = (
-  dir: string
-) => (...pathParts: string[]) => string
+export type PathResolver = (dir: string) => (...pathParts: string[]) => string
 
-export type GetScripts = (
-  fromCache?: boolean
-) => Promise<Script[]>
+export type GetScripts = (fromCache?: boolean) => Promise<Script[]>
 
-export type FlagFn = (
-  flags: FlagsObject,
-  options?: ActionsConfig
-) => Promise<void>
-export type ActionsFn = (
-  actions: Action[],
-  options?: ActionsConfig
-) => Promise<void>
+export type FlagFn = (flags: FlagsObject, options?: ActionsConfig) => Promise<void>
+export type ActionsFn = (actions: Action[], options?: ActionsConfig) => Promise<void>
 export type PrepFlags = (flags: FlagsObject) => FlagsObject
 
-export type SelectKitEditor = (
-  reset: boolean
-) => Promise<string>
+export type SelectKitEditor = (reset: boolean) => Promise<string>
 
 export interface SelectScript {
-  (
-    message?: string,
-    fromCache?: boolean,
-    xf?: (x: Script[]) => Script[]
-  ): Promise<Script>
-  (
-    message: PromptConfig,
-    fromCache?: boolean,
-    xf?: (x: Script[]) => Script[]
-  ): Promise<Script | string>
+  (message?: string, fromCache?: boolean, xf?: (x: Script[]) => Script[]): Promise<Script>
+  (message: PromptConfig, fromCache?: boolean, xf?: (x: Script[]) => Script[]): Promise<Script | string>
 }
 
 export interface Kenv {
   name: string
   dirPath: string
 }
-export type SelectKenv = (
-  config?: PromptConfig,
-  ignorePattern?: RegExp
-) => Promise<Kenv>
+export type SelectKenv = (config?: PromptConfig, ignorePattern?: RegExp) => Promise<Kenv>
 
-export type Highlight = (
-  markdown: string,
-  containerClass?: string,
-  injectStyles?: string
-) => Promise<string>
+export type Highlight = (markdown: string, containerClass?: string, injectStyles?: string) => Promise<string>
 
-export type PathDefaultMissingValues =
-  | "select-anyway"
-  | "create-file"
-  | "create-folder"
+export type PathDefaultMissingValues = 'select-anyway' | 'create-file' | 'create-folder'
 export interface PathConfig extends PromptConfig {
   startPath?: string
   onlyDirs?: boolean
@@ -214,12 +132,8 @@ export interface PathConfig extends PromptConfig {
   missingChoices?: Choice[]
 }
 
-type PathPicker = (
-  config?: string | PathConfig,
-  actions?: Action[]
-) => Promise<string>
-export type PathSelector = typeof import("path") &
-  PathPicker
+type PathPicker = (config?: string | PathConfig, actions?: Action[]) => Promise<string>
+export type PathSelector = typeof import('path') & PathPicker
 
 type GistOptions = {
   fileName?: string
@@ -229,13 +143,9 @@ type GistOptions = {
 export type CreateGist = (
   content: string,
   options?: GistOptions
-) => Promise<
-  RestEndpointMethodTypes["gists"]["create"]["response"]["data"]
->
+) => Promise<RestEndpointMethodTypes['gists']['create']['response']['data']>
 
-export type SetShortcuts = (
-  shortcuts: Shortcut[]
-) => Promise<void>
+export type SetShortcuts = (shortcuts: Shortcut[]) => Promise<void>
 export interface KitApi {
   path: PathSelector
   db: DB
@@ -339,7 +249,7 @@ export interface KitApi {
   isWin: boolean
   isMac: boolean
   isLinux: boolean
-  cmd: "cmd" | "ctrl"
+  cmd: 'cmd' | 'ctrl'
   formatDate: typeof format
   formatDateToNow: typeof formatDistanceToNow
 }
@@ -348,12 +258,9 @@ interface KeyValue {
   [key: string]: any
 }
 
-export type Run = (
-  command?: string,
-  ...args: string[]
-) => Promise<any>
+export type Run = (command?: string, ...args: string[]) => Promise<any>
 
-type Utils = typeof import("../core/utils")
+type Utils = typeof import('../core/utils')
 
 declare global {
   var path: PathSelector
@@ -370,9 +277,7 @@ declare global {
   /** @deprecated Use standard or dynamic imports instead. */
   var npm: KitModuleLoader
   var npmInstall: (packageName: string) => Promise<void>
-  var installMissingPackage: (
-    packageName: string
-  ) => Promise<void>
+  var installMissingPackage: (packageName: string) => Promise<void>
   var run: Run
   var setup: KitModuleLoader
 
@@ -435,23 +340,21 @@ declare global {
   var isWin: boolean
   var isMac: boolean
   var isLinux: boolean
-  var cmd: "cmd" | "ctrl"
+  var cmd: 'cmd' | 'ctrl'
   var formatDate: typeof format
   var formatDateToNow: typeof formatDistanceToNow
 
-  var debounce: Utils["debounce"]
-  var sortBy: Utils["sortBy"]
-  var isUndefined: Utils["isUndefined"]
-  var isString: Utils["isString"]
+  var debounce: Utils['debounce']
+  var sortBy: Utils['sortBy']
+  var isUndefined: Utils['isUndefined']
+  var isString: Utils['isString']
 
   var createChoiceSearch: (
     choices: Choice[],
     config: Partial<Options & ConfigOptions>
   ) => Promise<(query: string) => ScoredChoice[]>
 
-  var setScoredChoices: (
-    scoredChoices: ScoredChoice[]
-  ) => Promise<void>
+  var setScoredChoices: (scoredChoices: ScoredChoice[]) => Promise<void>
 
   var groupChoices: (
     choices: Choice[],
@@ -466,19 +369,14 @@ declare global {
     }
   ) => Choice[]
 
-  var formatChoices: (
-    choices: Choice[],
-    className?: string
-  ) => Choice[]
+  var formatChoices: (choices: Choice[], className?: string) => Choice[]
 
   var preload: (scriptPath?: string) => void
 
-  var setSelectedChoices: (
-    choices: Choice[]
-  ) => Promise<void>
+  var setSelectedChoices: (choices: Choice[]) => Promise<void>
   var toggleAllSelectedChoices: () => Promise<void>
   var trace: Trace
 
-  type Metadata = import("./core").Metadata
+  type Metadata = import('./core.js').Metadata
   var metadata: Metadata
 }

@@ -1,16 +1,9 @@
-import { execaCommand as exec } from "execa"
-import type { editor } from "./editor.api"
+import { execaCommand as exec } from 'execa'
+import type { editor as editorApi } from './editor.api.d.ts'
 
-import {
-  type Key,
-  type Key as CoreKeyEnum,
-  Channel,
-  Mode,
-  type statuses,
-  type PROMPT as PROMPT_OBJECT,
-} from "../core/enum.js"
+import { type Key as CoreKeyEnum, Channel, Mode, type statuses, type PROMPT as PROMPT_OBJECT } from '../core/enum.js'
 
-import type { AppDb } from "../core/db.js"
+import type { AppDb } from '../core/db.js'
 
 import {
   type Action,
@@ -23,26 +16,18 @@ import {
   type PromptData,
   type ScoredChoice,
   type Script,
-  type Shortcut,
-} from "./core.js"
-import type {
-  BrowserWindowConstructorOptions,
-  Display,
-  Rectangle,
-} from "./electron.js"
+  type Shortcut
+} from './core.js'
+import type { BrowserWindowConstructorOptions, Display, Rectangle } from './electron.js'
 
-import type { Trash } from "./packages"
-import type { marked } from "../globals/marked.ts"
-import type { ChildProcess } from "node:child_process"
-import type {
-  UiohookKeyboardEvent,
-  UiohookMouseEvent,
-  UiohookWheelEvent,
-} from "./io.js"
-import type { FileSearchOptions } from "./platform.js"
-import { ReadStream, WriteStream } from "node:fs"
-import type { NotificationConstructorOptions } from "./notify.js"
-import type { ShebangConfig } from "../core/shebang.js"
+import type { Trash } from './packages.js'
+import type { marked } from '../globals/marked.js'
+import type { ChildProcess } from 'node:child_process'
+import type { UiohookKeyboardEvent, UiohookMouseEvent, UiohookWheelEvent } from './io.js'
+import type { KeyEnum } from './keyboard.js'
+import type { FileSearchOptions } from './platform.js'
+import type { NotificationConstructorOptions } from './notify.js'
+import type { ShebangConfig } from '../core/shebang.js'
 
 export type Status = (typeof statuses)[number]
 
@@ -79,7 +64,7 @@ export interface IMessage extends BaseMessage {
   forwarded: boolean
   replyButton: boolean
   removeButton: boolean
-  status: "waiting" | "sent" | "received" | "read"
+  status: 'waiting' | 'sent' | 'received' | 'read'
   copiableDate?: boolean
   retracted: boolean
   className?: string
@@ -88,14 +73,9 @@ export interface IMessage extends BaseMessage {
 
 export type Message = string | Partial<IMessage>
 
-export type Notify = (
-  bodyOrOptions: NotificationConstructorOptions | string
-) => Promise<void>
+export type Notify = (bodyOrOptions: NotificationConstructorOptions | string) => Promise<void>
 
-export type Chat = ((
-  config?: PromptConfig,
-  actions?: Action[]
-) => Promise<Message[]>) & {
+export type Chat = ((config?: PromptConfig, actions?: Action[]) => Promise<Message[]>) & {
   addMessage: (message: Message) => void
   setMessage: (index: number, message: Message) => void
   getMessages: () => Promise<BaseMessage[]>
@@ -134,17 +114,14 @@ interface ToastOptions {
    * Allow toast to be draggable
    * `Default: 'touch'`
    */
-  draggable?: boolean | "mouse" | "touch"
+  draggable?: boolean | 'mouse' | 'touch'
   /**
    * The percentage of the toast's width it takes for a drag to dismiss a toast
    * `Default: 80`
    */
   draggablePercent?: number
 }
-export type Toast = (
-  toast: string,
-  options?: ToastOptions
-) => void
+export type Toast = (toast: string, options?: ToastOptions) => void
 
 export type Prompt = {
   closeActions(): Promise<void>
@@ -156,47 +133,30 @@ export type Prompt = {
   hide(): Promise<void>
 }
 
-export type Mic = ((
-  config?: MicConfig
-) => Promise<Buffer>) & {
+export type Mic = ((config?: MicConfig) => Promise<Buffer>) & {
   stop: () => Promise<Buffer>
   start: (config?: MicConfig) => Promise<string>
   stream: Readable
 }
 
-export type WebCam = (
-  config?: PromptConfig
-) => Promise<string>
+export type WebCam = (config?: PromptConfig) => Promise<string>
 
-export type Speech = (
-  config?: PromptConfig
-) => Promise<string>
+export type Speech = (config?: PromptConfig) => Promise<string>
 
-export type Screenshot = (
-  displayId?: number,
-  bounds?: Rectangle
-) => Promise<Buffer>
+export type Screenshot = (displayId?: number, bounds?: Rectangle) => Promise<Buffer>
 
 export type ScreenshotConfig = {
   displayId?: Parameters<Screenshot>[0]
   bounds?: Parameters<Screenshot>[1]
 }
 
-export type GetMediaDevices = () => Promise<
-  MediaDeviceInfo[]
->
+export type GetMediaDevices = () => Promise<MediaDeviceInfo[]>
 
 export type GetTypedText = () => Promise<string>
 
-export type Find = (
-  placeholderOrConfig?: string | PromptConfig,
-  options?: FileSearchOptions
-) => Promise<string>
+export type Find = (placeholderOrConfig?: string | PromptConfig, options?: FileSearchOptions) => Promise<string>
 
-export type Editor = ((
-  config?: EditorConfig & { hint?: string },
-  actions?: Action[]
-) => Promise<string>) & {
+export type Editor = ((config?: EditorConfig & { hint?: string }, actions?: Action[]) => Promise<string>) & {
   setSuggestions: (suggestions: string[]) => Promise<void>
   setConfig: (config: EditorConfig) => Promise<void>
   append: (text: string) => Promise<void>
@@ -217,27 +177,24 @@ export interface EditorProps {
   width: number
 }
 
-export type EditorOptions =
-  editor.IStandaloneEditorConstructionOptions & {
-    file?: string
-    footer?: string
-    scrollTo?: "top" | "center" | "bottom"
-    hint?: string
-    onInput?: PromptConfig["onInput"]
-    onEscape?: PromptConfig["onEscape"]
-    onAbandon?: PromptConfig["onAbandon"]
-    onPaste?: PromptConfig["onPaste"]
-    onBlur?: PromptConfig["onBlur"]
-    onDrop?: PromptConfig["onDrop"]
-    extraLibs?: { content: string; filePath: string }[]
-    template?: string
-    suggestions?: string[]
-    actions?: Action[]
-  }
+export type EditorOptions = editorApi.IStandaloneEditorConstructionOptions & {
+  file?: string
+  footer?: string
+  scrollTo?: 'top' | 'center' | 'bottom'
+  hint?: string
+  onInput?: PromptConfig['onInput']
+  onEscape?: PromptConfig['onEscape']
+  onAbandon?: PromptConfig['onAbandon']
+  onPaste?: PromptConfig['onPaste']
+  onBlur?: PromptConfig['onBlur']
+  onDrop?: PromptConfig['onDrop']
+  extraLibs?: { content: string; filePath: string }[]
+  template?: string
+  suggestions?: string[]
+  actions?: Action[]
+}
 
-export type EditorConfig =
-  | string
-  | (PromptConfig & EditorOptions)
+export type EditorConfig = string | (PromptConfig & EditorOptions)
 
 export type MicConfig = PromptConfig & {
   filePath?: string
@@ -248,7 +205,7 @@ export interface TextareaConfig extends PromptConfig {
   value?: string
 }
 
-export type EditorRef = editor.IStandaloneCodeEditor
+export type EditorRef = editorApi.IStandaloneCodeEditor
 
 export type PromptBounds = {
   x: number
@@ -265,19 +222,10 @@ export type PromptDb = {
   }
 }
 
-export type TextArea = (
-  placeholderOrOptions?: string | TextareaConfig
-) => Promise<string | void>
+export type TextArea = (placeholderOrOptions?: string | TextareaConfig) => Promise<string | void>
 
-export type Drop = (
-  placeholder?: string | PromptConfig,
-  actions?: Action[]
-) => Promise<any>
-export type Template = (
-  template: string,
-  config?: EditorConfig,
-  actions?: Action[]
-) => Promise<string>
+export type Drop = (placeholder?: string | PromptConfig, actions?: Action[]) => Promise<any>
+export type Template = (template: string, config?: EditorConfig, actions?: Action[]) => Promise<string>
 export type OldForm = (
   html?:
     | string
@@ -288,11 +236,7 @@ export type OldForm = (
   formData?: any
 ) => Promise<any>
 
-export type Form = (
-  html: string | PromptConfig,
-  formData?: any,
-  actions?: Action[]
-) => Promise<any>
+export type Form = (html: string | PromptConfig, formData?: any, actions?: Action[]) => Promise<any>
 
 type Field =
   | {
@@ -309,10 +253,7 @@ type Field =
     }
   | string
 
-export type Fields = (
-  fields: Field[] | (PromptConfig & { fields: Field[] }),
-  actions?: Action[]
-) => Promise<string[]>
+export type Fields = (fields: Field[] | (PromptConfig & { fields: Field[] }), actions?: Action[]) => Promise<string[]>
 
 export type AudioOptions = {
   filePath: string
@@ -327,9 +268,7 @@ type EmojiObject = {
   unifiedWithoutSkinTone: string
 }
 
-export type Emoji = (
-  config?: PromptConfig
-) => Promise<EmojiObject>
+export type Emoji = (config?: PromptConfig) => Promise<EmojiObject>
 
 export interface DivConfig extends PromptConfig {
   html: string
@@ -339,10 +278,7 @@ export interface DivConfig extends PromptConfig {
   containerClasses?: string
 }
 
-export type Div = (
-  html?: string | DivConfig,
-  actions?: Action[]
-) => Promise<any>
+export type Div = (html?: string | DivConfig, actions?: Action[]) => Promise<any>
 
 export interface KeyData {
   key: KeyEnum
@@ -358,9 +294,7 @@ export interface KeyData {
   win: boolean
   shortcut: string
 }
-export interface Hotkey {
-  (placeholder?: string | PromptConfig): Promise<KeyData>
-}
+export type Hotkey = (placeholder?: string | PromptConfig) => Promise<KeyData>
 
 type SetImage = string | { src: string }
 
@@ -400,17 +334,11 @@ export interface KitStatus {
   message: string
 }
 
-export type Appearance = "light" | "dark"
+export type Appearance = 'light' | 'dark'
 
 type DisabledThottlingConfig = Pick<
   PromptConfig,
-  | "headerClassName"
-  | "footerClassName"
-  | "ui"
-  | "inputHeight"
-  | "itemHeight"
-  | "placeholder"
-  | "scriptPath"
+  'headerClassName' | 'footerClassName' | 'ui' | 'inputHeight' | 'itemHeight' | 'placeholder' | 'scriptPath'
 >
 
 export type GetAppData =
@@ -612,7 +540,7 @@ export interface ChannelMap {
   [Channel.SET_KIT_STATE]: any
   [Channel.SET_INPUT]: string
   [Channel.APPEND_INPUT]: string
-  [Channel.SCROLL_TO]: "top" | "bottom" | "center" | null
+  [Channel.SCROLL_TO]: 'top' | 'bottom' | 'center' | null
   [Channel.SET_FILTER_INPUT]: string
   [Channel.SET_FOCUSED]: string
   [Channel.SET_FOOTER]: string
@@ -671,8 +599,8 @@ export interface ChannelMap {
 
   [Channel.KEYBOARD_CONFIG]: { autoDelayMs: number }
   [Channel.KEYBOARD_TYPE]: string
-  [Channel.KEYBOARD_PRESS_KEY]: Key[]
-  [Channel.KEYBOARD_RELEASE_KEY]: Key[]
+  [Channel.KEYBOARD_PRESS_KEY]: CoreKeyEnum[]
+  [Channel.KEYBOARD_RELEASE_KEY]: CoreKeyEnum[]
 
   [Channel.SCRIPT_CHANGED]: Script
   [Channel.SCRIPT_REMOVED]: Script
@@ -706,10 +634,7 @@ export interface ChannelMap {
 }
 export interface Send {
   (channel: Channel | GetAppData | SendNoOptions): void
-  <C extends keyof ChannelMap, T extends ChannelMap[C]>(
-    channel: C,
-    data: T
-  ): void
+  <C extends keyof ChannelMap, T extends ChannelMap[C]>(channel: C, data: T): void
 }
 
 export interface SendData<C extends keyof ChannelMap> {
@@ -729,9 +654,7 @@ export type SetDescription = (description: string) => void
 
 export type SetInput = (input: string) => Promise<void>
 
-export type ScrollTo = (
-  location: "top" | "bottom" | "center"
-) => Promise<void>
+export type ScrollTo = (location: 'top' | 'bottom' | 'center') => Promise<void>
 
 export type SetTextareaValue = (value: string) => void
 
@@ -742,21 +665,19 @@ export type SetResize = (resize: boolean) => void
 export type SetLoading = (loading: boolean) => void
 
 export type SetProgress = (progress: number) => void
-export type ShowDeprecated = (
-  message: string
-) => Promise<void>
+export type ShowDeprecated = (message: string) => Promise<void>
 
 export type SetStatus = (status: KitStatus) => void
 
 export interface KitTheme {
-  "--color-primary-light": string
-  "--color-secondary-light": string
-  "--color-primary": string
-  "--color-secondary-dark": string
-  "--color-background-light": string
-  "--color-background-dark": string
-  "--opacity-themelight": string
-  "--opacity-themedark": string
+  '--color-primary-light': string
+  '--color-secondary-light': string
+  '--color-primary': string
+  '--color-secondary-dark': string
+  '--color-background-light': string
+  '--color-background-dark': string
+  '--opacity-themelight': string
+  '--opacity-themedark': string
   name: string
   foreground: string
   background: string
@@ -771,25 +692,15 @@ export type SetPlaceholder = (placeholder: string) => void
 
 export type SetEnter = (text: string) => void
 
-export type SetPanel = (
-  html: string,
-  containerClasses?: string
-) => void
+export type SetPanel = (html: string, containerClasses?: string) => void
 
 export type SetFooter = (footer: string) => void
 
-export type SetPrompt = (
-  config: Partial<PromptData>
-) => void
-export type SetPreview = (
-  html: string,
-  containerClasses?: string
-) => void
+export type SetPrompt = (config: Partial<PromptData>) => void
+export type SetPreview = (html: string, containerClasses?: string) => void
 export type SetBounds = (bounds: Partial<Rectangle>) => void
 
-export type SendKeystroke = (
-  keyData: Partial<KeyData>
-) => void
+export type SendKeystroke = (keyData: Partial<KeyData>) => void
 
 export type GetBounds = () => Promise<Rectangle>
 
@@ -802,20 +713,15 @@ export type GetEditorHistory = () => Promise<
   }[]
 >
 
-export interface Submit {
-  (value: any): Promise<void>
+export type Submit = (value: any) => Promise<void>
+
+export type ShowOptions = BrowserWindowConstructorOptions & {
+  ttl?: number
+  draggable?: boolean
+  center?: boolean
 }
 
-export type ShowOptions =
-  BrowserWindowConstructorOptions & {
-    ttl?: number
-    draggable?: boolean
-    center?: boolean
-  }
-
-export interface ShowAppWindow {
-  (content: string, options?: ShowOptions): Promise<void>
-}
+export type ShowAppWindow = (content: string, options?: ShowOptions) => Promise<void>
 
 export interface ClipboardItem {
   id: string
@@ -841,9 +747,7 @@ export interface System {
  * @param script The script that was added, changed, or removed.
  */
 type ScriptHandler = (scriptPath: string) => void
-type ScriptEventHandler = (
-  handler: ScriptHandler
-) => removeListener
+type ScriptEventHandler = (handler: ScriptHandler) => removeListener
 
 export type App = {
   /**
@@ -879,17 +783,17 @@ export interface Keyboard {
    * Presses a key.
    * @param keys The keys to press.
    */
-  pressKey: (...keys: Key[]) => Promise<void>
+  pressKey: (...keys: CoreKeyEnum[]) => Promise<void>
   /**
    * Releases a key.
    * @param keys The keys to release.
    */
-  releaseKey: (...keys: Key[]) => Promise<void>
+  releaseKey: (...keys: CoreKeyEnum[]) => Promise<void>
   /**
    * Taps a key.
    * @param keys The keys to tap.
    */
-  tap: (...keys: Key[]) => Promise<void>
+  tap: (...keys: CoreKeyEnum[]) => Promise<void>
   /**
    * @deprecated Use `keyboard.typeDelayed` or set `KIT_TYPING_RATE` and use `keyboard.type` instead.
    */
@@ -899,9 +803,7 @@ export interface Keyboard {
 export interface Mouse {
   leftClick: () => Promise<void>
   rightClick: () => Promise<void>
-  move: (
-    points: [{ x: number; y: number }]
-  ) => Promise<void>
+  move: (points: [{ x: number; y: number }]) => Promise<void>
   setPosition: (position: {
     x: number
     y: number
@@ -931,14 +833,9 @@ export interface KitClipboard {
   clear: () => Promise<void>
 }
 
-export type RegisterShortcut = (
-  shortcut: string,
-  callback: () => void
-) => Promise<void>
+export type RegisterShortcut = (shortcut: string, callback: () => void) => Promise<void>
 
-export type UnregisterShortcut = (
-  shortcut: string
-) => Promise<void>
+export type UnregisterShortcut = (shortcut: string) => Promise<void>
 
 export type GuideSection = {
   name: string
@@ -952,16 +849,10 @@ export type Docs<T = any> = (
   markdownPath: string,
   options?:
     | Partial<PromptConfig>
-    | ((
-        sections?: GuideSection[],
-        tokens?: marked.Token[]
-      ) => Promise<Partial<PromptConfig>>)
+    | ((sections?: GuideSection[], tokens?: marked.Token[]) => Promise<Partial<PromptConfig>>)
 ) => Promise<T>
 
-export type ExecLog = (
-  command: string,
-  logger?: typeof console.log
-) => ChildProcess
+export type ExecLog = (command: string, logger?: typeof console.log) => ChildProcess
 
 export interface AppApi {
   textarea: TextArea
@@ -1012,10 +903,7 @@ export interface AppApi {
   clearTabs: () => void
   getDataFromApp: (channel: Channel) => Promise<any>
   sendWait: (channel: Channel, value: any) => Promise<any>
-  sendWaitLong: (
-    channel: Channel,
-    value: any
-  ) => Promise<any>
+  sendWaitLong: (channel: Channel, value: any) => Promise<any>
   getBackgroundTasks: () => Promise<{
     channel: string
     tasks: Background[]
@@ -1042,10 +930,7 @@ export interface AppApi {
   removeClipboardItem: (id: string) => void
   setTab: (tabName: string) => void
   submit: Submit
-  mainScript: (
-    input?: string,
-    tab?: string
-  ) => Promise<void>
+  mainScript: (input?: string, tab?: string) => Promise<void>
 
   appKeystroke: SendKeystroke
   Key: Key
@@ -1053,7 +938,7 @@ export interface AppApi {
   log: typeof console.log
   warn: typeof console.warn
 
-  keyboard: Keyboard
+  keyboard: CoreKeyEnumboard
   clipboard: KitClipboard
   execLog: ExecLog
 
@@ -1094,21 +979,10 @@ declare global {
 
   var hotkey: Hotkey
   var send: Send
-  var sendWait: (
-    channel: Channel,
-    value?: any,
-    timeout?: number
-  ) => Promise<any>
+  var sendWait: (channel: Channel, value?: any, timeout?: number) => Promise<any>
   var headers: Record<string, string>
-  var sendResponse: (
-    body: any,
-    headers?: Record<string, string>
-  ) => Promise<any>
-  var sendWaitLong: (
-    channel: Channel,
-    value?: any,
-    timeout?: number
-  ) => Promise<any>
+  var sendResponse: (body: any, headers?: Record<string, string>) => Promise<any>
+  var sendWaitLong: (channel: Channel, value?: any, timeout?: number) => Promise<any>
 
   var setFocused: SetFocused
   var setEnter: SetEnter
@@ -1157,10 +1031,7 @@ declare global {
   var removeClipboardItem: (id: string) => Promise<void>
   var setTab: (tabName: string) => void
   var submit: Submit
-  var mainScript: (
-    input?: string,
-    tab?: string
-  ) => Promise<void>
+  var mainScript: (input?: string, tab?: string) => Promise<void>
 
   var appKeystroke: SendKeystroke
   var Key: typeof CoreKeyEnum
@@ -1175,19 +1046,14 @@ declare global {
   var execLog: ExecLog
 
   var focus: () => Promise<void>
-  var setAlwaysOnTop: (
-    alwaysOnTop: boolean
-  ) => Promise<void>
+  var setAlwaysOnTop: (alwaysOnTop: boolean) => Promise<void>
 
   var docs: Docs
   var getAppState: any
 
   var registerShortcut: RegisterShortcut
   var unregisterShortcut: UnregisterShortcut
-  var startDrag: (
-    filePath: string,
-    iconPath?: string
-  ) => void
+  var startDrag: (filePath: string, iconPath?: string) => void
   var eyeDropper: () => Promise<{
     sRGBHex: string
   }>
@@ -1215,50 +1081,38 @@ declare global {
    * @param callback - The callback to call when the event is fired.
    * @returns A function to disable the listener.
    */
-  var onClick: (
-    callback: (event: UiohookMouseEvent) => void
-  ) => removeListener
+  var onClick: (callback: (event: UiohookMouseEvent) => void) => removeListener
 
   /**
    * Registers a global system onMousedown event listener.
    * @param callback - The callback to call when the event is fired.
    * @returns A function to disable the listener.
    */
-  var onMousedown: (
-    callback: (event: UiohookMouseEvent) => void
-  ) => removeListener
+  var onMousedown: (callback: (event: UiohookMouseEvent) => void) => removeListener
   /**
    * Registers a global system onMouseup event listener.
    * @param callback - The callback to call when the event is fired.
    * @returns A function to disable the listener.
    */
-  var onMouseup: (
-    callback: (event: UiohookMouseEvent) => void
-  ) => removeListener
+  var onMouseup: (callback: (event: UiohookMouseEvent) => void) => removeListener
   /**
    * Registers a global system onWheel event listener.
    * @param callback - The callback to call when the event is fired.
    * @returns A function to disable the listener.
    */
-  var onWheel: (
-    callback: (event: UiohookWheelEvent) => void
-  ) => removeListener
+  var onWheel: (callback: (event: UiohookWheelEvent) => void) => removeListener
   /**
    * Registers a global system onKeydown event listener.
    * @param callback - The callback to call when the event is fired.
    * @returns A function to disable the listener.
    */
-  var onKeydown: (
-    callback: (event: UiohookKeyboardEvent) => void
-  ) => removeListener
+  var onKeydown: (callback: (event: UiohookKeyboardEvent) => void) => removeListener
   /**
    * Registers a global system onKeyup event listener.
    * @param callback - The callback to call when the event is fired.
    * @returns A function to disable the listener.
    */
-  var onKeyup: (
-    callback: (event: UiohookKeyboardEvent) => void
-  ) => removeListener
+  var onKeyup: (callback: (event: UiohookKeyboardEvent) => void) => removeListener
 
   var system: System
   var app: App

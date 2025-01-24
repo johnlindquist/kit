@@ -28,7 +28,9 @@
     "./platform/*": "./platform/*.js",
     "./run/*": "./run/*.js",
     "./core/*": "./core/*.js",
-    "./workers": "./workers/index.js"
+    "./workers": "./workers/index.js",
+    "./types/*": "./types/*.js"
+
   },
   "types": "./types/index.d.ts",
   "scripts": {
@@ -136,7 +138,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.10.10",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",
