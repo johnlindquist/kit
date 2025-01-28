@@ -234,6 +234,15 @@ export let actionFlags: ActionFlag[] = [
 
 export let findApps = async (includePrefs = false) => {
   if (process.platform === 'darwin') {
+    const isBrokenSymlink = async (filePath: string) => {
+      try {
+        await realpath(filePath)
+        return false
+      } catch {
+        return true
+      }
+    }
+
     let foundApps = await fileSearch('', {
       onlyin: '/',
       kMDItemContentType: 'com.apple.application-bundle'
@@ -254,6 +263,18 @@ export let findApps = async (includePrefs = false) => {
     let apps = manualAppDir
       .concat(chromeApps, manualUtilitiesDir, systemUtilitiesDir)
       .filter((app) => app.endsWith('.app'))
+
+    // Filter out broken symlinks
+    apps = (
+      await Promise.all(
+        apps.map(async (app) => {
+          if (await isBrokenSymlink(app)) {
+            return null
+          }
+          return app
+        })
+      )
+    ).filter((app): app is string => app !== null)
 
     for (let a of foundApps) {
       let base = path.basename(a)

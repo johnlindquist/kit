@@ -1,80 +1,71 @@
-import { default as enquirer } from "enquirer"
-import { default as minimist } from "minimist"
-import type { PromptConfig } from "../types/core"
-import {
-  adjustPackageName,
-  assignPropsTo,
-  debounce,
-  isString,
-  kenvPath,
-  isUndefined,
-} from "../core/utils.js"
-import type { Rectangle } from "../types/electron"
-import type { EditorOptions } from "../types/kitapp"
+import { default as enquirer } from 'enquirer'
+import { default as minimist } from 'minimist'
+import type { PromptConfig } from '../types/core'
+import { adjustPackageName, assignPropsTo, debounce, isString, kenvPath, isUndefined } from '../core/utils.js'
+import type { Rectangle } from '../types/electron'
+import type { EditorOptions } from '../types/kitapp'
 
-type Enquirer =
-  typeof import("enquirer")
-type Prompt = Enquirer["prompt"]
+type Enquirer = typeof import('enquirer')
+type Prompt = Enquirer['prompt']
 type EnquirerPromptConfig = Parameters<Prompt>[0]
 
 let notSupported = async (method: string) => {
   console.warn(`${method} is not supported in the terminal`)
 }
 
+let notSupportedDebug = async (method: string) => {
+  if (process.env.DEBUG) {
+    notSupported(method)
+  }
+}
+
 global.kitPrompt = async (config: any) => {
   if (config?.choices) {
     let choices = config.choices
-    if (typeof choices === "function") {
+    if (typeof choices === 'function') {
       choices = await choices()
     }
 
     config = {
       ...config,
-      type: "autocomplete",
-      choices: choices?.map(c => {
-        if (typeof c === "string") return c
+      type: 'autocomplete',
+      choices: choices?.map((c) => {
+        if (typeof c === 'string') return c
         else
           return {
             name: c?.name || c?.value,
-            value:
-              typeof c?.value !== "undefined"
-                ? c?.value
-                : c?.name,
+            value: typeof c?.value !== 'undefined' ? c?.value : c?.name
           }
-      }),
+      })
     }
   }
   if (config?.secret) {
-    config = { type: "password", ...config }
+    config = { type: 'password', ...config }
   }
 
-  config = { type: "input", name: "value", ...config }
+  config = { type: 'input', name: 'value', ...config }
 
-  if (typeof config.choices === "function") {
+  if (typeof config.choices === 'function') {
     let f = config.choices
 
     if (config.choices.length === 0) {
       let choices = config.choices()
-      if (typeof choices?.then === "function")
-        choices = await choices
+      if (typeof choices?.then === 'function') choices = await choices
       choices = choices.map(({ name, value }) => ({
         name,
-        value,
+        value
       }))
       config = {
         ...config,
-        choices,
+        choices
       }
     } else {
       let suggest = debounce(async function (input) {
         let results = await f(input)
 
-        if (isUndefined(results) || isString(results))
-          results = [input]
+        if (isUndefined(results) || isString(results)) results = [input]
 
-        this.choices = await this.toChoices(
-          results?.choices || results
-        )
+        this.choices = await this.toChoices(results?.choices || results)
         await this.render()
 
         return this.choices
@@ -82,49 +73,39 @@ global.kitPrompt = async (config: any) => {
       config = {
         ...config,
         choices: config?.input ? [config?.input] : [],
-        suggest,
+        suggest
       }
     }
   }
 
   let promptConfig: EnquirerPromptConfig = {
     ...config,
-    message: config.placeholder,
+    message: config.placeholder
   }
   let { prompt }: Enquirer = enquirer
   // TODO: Strip out enquirer autocomplete
-  ;(prompt as any).on("cancel", () => process.exit())
+  ;(prompt as any).on('cancel', () => process.exit())
 
   let result = (await prompt(promptConfig)) as any
 
   return result.value
 }
 
-global.arg = async (messageOrConfig = "Input", choices) => {
+global.arg = async (messageOrConfig = 'Input', choices) => {
   if (Array.isArray(choices)) {
-    choices = (choices as any[]).filter(
-      c => !(c?.info || c?.disableSubmit)
-    )
+    choices = (choices as any[]).filter((c) => !(c?.info || c?.disableSubmit))
   }
 
-  let firstArg = global.args.length
-    ? global.args.shift()
-    : null
+  let firstArg = global.args.length ? global.args.shift() : null
   if (firstArg) {
     let valid = true
-    if (
-      typeof messageOrConfig !== "string" &&
-      (messageOrConfig as PromptConfig)?.validate
-    ) {
+    if (typeof messageOrConfig !== 'string' && (messageOrConfig as PromptConfig)?.validate) {
       let { validate } = messageOrConfig as PromptConfig
       let validOrMessage = await validate(firstArg)
-      if (typeof validOrMessage === "string") {
+      if (typeof validOrMessage === 'string') {
         console.log(validOrMessage)
       }
-      if (
-        typeof validOrMessage === "string" ||
-        !validOrMessage
-      ) {
+      if (typeof validOrMessage === 'string' || !validOrMessage) {
         valid = false
       }
     }
@@ -134,9 +115,9 @@ global.arg = async (messageOrConfig = "Input", choices) => {
     }
   }
 
-  let config: PromptConfig = { placeholder: "" }
+  let config: PromptConfig = { placeholder: '' }
 
-  if (typeof messageOrConfig === "string") {
+  if (typeof messageOrConfig === 'string') {
     config.placeholder = messageOrConfig
   } else {
     config = messageOrConfig
@@ -159,14 +140,14 @@ global.grid = async (messageOrConfig, choices) => {
 
 global.select = async (messageOrConfig, choices) => {
   let config: PromptConfig = {
-    grid: true,
+    grid: true
   }
-  if (typeof messageOrConfig === "string") {
+  if (typeof messageOrConfig === 'string') {
     config.placeholder = messageOrConfig
   } else {
     config = {
       ...config,
-      ...messageOrConfig,
+      ...messageOrConfig
     }
   }
   return await global.arg(messageOrConfig, choices)
@@ -179,14 +160,14 @@ global.textarea = global.arg
 
 global.args ||= []
 
-global.updateArgs = arrayOfArgs => {
+global.updateArgs = (arrayOfArgs) => {
   let argv = minimist(arrayOfArgs)
 
   global.args = [...argv._, ...global.args]
   global.argOpts = Object.entries(argv)
-    .filter(([key]) => key !== "_")
+    .filter(([key]) => key !== '_')
     .flatMap(([key, value]) => {
-      if (typeof value === "boolean") {
+      if (typeof value === 'boolean') {
         if (value) return [`--${key}`]
         if (!value) return [`--no-${key}`]
       }
@@ -199,15 +180,12 @@ global.updateArgs = arrayOfArgs => {
 }
 global.updateArgs(process.argv.slice(2))
 
-let terminalInstall = async packageName => {
+let terminalInstall = async (packageName) => {
   packageName = adjustPackageName(packageName)
 
   if (!global.flag?.trust) {
     let installMessage = global.chalk`\n{green ${global.kitScript}} needs to install the npm library: {yellow ${packageName}}`
-    let response = await global.get<any>(
-      `https://api.npmjs.org/downloads/point/last-week/` +
-        packageName
-    )
+    let response = await global.get<any>(`https://api.npmjs.org/downloads/point/last-week/` + packageName)
     let downloadsMessage = global.chalk`{yellow ${packageName}} has had {yellow ${response.data?.downloads}} downloads from npm in the past week`
     let packageLink = `https://npmjs.com/package/${packageName}`
     let readMore = global.chalk`
@@ -220,9 +198,9 @@ let terminalInstall = async packageName => {
     let config: PromptConfig = {
       placeholder: message,
       choices: [
-        { name: "No", value: false },
-        { name: "Yes", value: true },
-      ],
+        { name: 'No', value: false },
+        { name: 'Yes', value: true }
+      ]
     }
     let trust = await global.kitPrompt(config)
     if (!trust) {
@@ -230,39 +208,37 @@ let terminalInstall = async packageName => {
       global.exit()
     }
   }
-  global.echo(
-    global.chalk`Installing {yellow ${packageName}} into ${kenvPath()} and continuing...`
-  )
+  global.echo(global.chalk`Installing {yellow ${packageName}} into ${kenvPath()} and continuing...`)
 
   try {
     args.unshift(packageName)
-    await import("../cli/install.js")
+    await import('../cli/install.js')
   } catch (error) {
     global.echo(global.chalk`{red ${error}}`)
     global.exit(1)
   }
 }
 
-let { createNpm } = await import("../api/npm.js")
+let { createNpm } = await import('../api/npm.js')
 global.npm = createNpm(terminalInstall)
 
 global.getBackgroundTasks = async () => ({
-  channel: "",
-  tasks: [],
+  channel: '',
+  tasks: []
 })
 
 global.getSchedule = async () => ({
-  channel: "",
-  schedule: [],
+  channel: '',
+  schedule: []
 })
 
 global.getScriptsState = async () => ({
-  channel: "",
+  channel: '',
   tasks: [],
-  schedule: [],
+  schedule: []
 })
 
-global.div = async (html = "") => {
+global.div = async (html = '') => {
   if (global.flag?.log === false) return
 
   // let { default: cliHtml } = await import("cli-html")
@@ -275,32 +251,26 @@ global.textarea = async () => {
   global.exit()
 }
 
-global.edit = async filePath => {
+global.edit = async (filePath) => {
   if (global.flag?.edit === false) return
   if (global?.env?.KIT_TERMINAL_EDITOR) {
-    if (global?.env?.KIT_TERMINAL_EDITOR === "kit") {
+    if (global?.env?.KIT_TERMINAL_EDITOR === 'kit') {
       try {
-        await exec(
-          `~/.kit/kar ~/.kit/cli/edit.js '${filePath}'`
-        )
+        await exec(`~/.kit/kar ~/.kit/cli/edit.js '${filePath}'`)
       } catch (error) {}
     } else {
-      await spawn(
-        global.env.KIT_TERMINAL_EDITOR,
-        [filePath],
-        {
-          stdio: "inherit",
-        }
-      )
+      await spawn(global.env.KIT_TERMINAL_EDITOR, [filePath], {
+        stdio: 'inherit'
+      })
     }
   } else {
-    if (global?.env?.KIT_EDITOR === "kit") {
-      await spawn("vim", [filePath], {
-        stdio: "inherit",
+    if (global?.env?.KIT_EDITOR === 'kit') {
+      await spawn('vim', [filePath], {
+        stdio: 'inherit'
       })
     } else {
       await spawn(global.env.KIT_EDITOR, [filePath], {
-        stdio: "inherit",
+        stdio: 'inherit'
       })
     }
   }
@@ -310,16 +280,13 @@ global.editor = (async (options: EditorOptions) => {
   if (global.flag?.edit === false) return
   global.edit(options.file)
 
-  return ""
+  return ''
 }) as any
 
-global.template = async (
-  template: string,
-  options: EditorOptions
-) => {
-  notSupported("template")
+global.template = async (template: string, options: EditorOptions) => {
+  notSupported('template')
 
-  return ""
+  return ''
 }
 
 global.drop = async () => {
@@ -331,18 +298,12 @@ global.drop = async () => {
 global.setChoices = async () => {}
 global.clearTabs = async () => {}
 
-global.setPanel = async (html, containerClasses = "") => {}
-global.setPreview = async (
-  html,
-  containerClasses = ""
-) => {}
-global.setPanelContainer = async (
-  html,
-  containerClasses = ""
-) => {}
+global.setPanel = async (html, containerClasses = '') => {}
+global.setPreview = async (html, containerClasses = '') => {}
+global.setPanelContainer = async (html, containerClasses = '') => {}
 
-global.setIgnoreBlur = async ignore => {}
-global.setResize = async resize => {}
+global.setIgnoreBlur = async (ignore) => {}
+global.setResize = async (resize) => {}
 
 global.setBounds = (bounds: Partial<Rectangle>) => {}
 
@@ -357,67 +318,63 @@ global.setBounds = (bounds: Partial<Rectangle>) => {}
 global.setPauseResize = (pause: boolean) => {}
 
 global.getScriptsState = () => {
-  notSupported("getScriptsState")
+  notSupported('getScriptsState')
 }
 
 global.setBounds = (bounds: Partial<Rectangle>) => {
-  notSupported("setBounds")
+  notSupported('setBounds')
 }
 
 global.getClipboardHistory = async () => {
-  notSupported("getClipboardHistory")
+  notSupported('getClipboardHistory')
   return []
 }
 
 global.removeClipboardItem = async (id: string) => {
-  notSupported("removeClipboardItem")
+  notSupported('removeClipboardItem')
 }
 
 global.clearClipboardHistory = async () => {
-  notSupported("clearClipboardHistory")
+  notSupported('clearClipboardHistory')
 }
 
 global.submit = async (value: any) => {
-  notSupported("submit")
+  notSupported('submit')
 }
 
 global.setLoading = (loading: boolean) => {}
 global.setRunning = (running: boolean) => {}
 
-global.copy = async text => {
-  let c = await npm("clipboardy")
+global.copy = async (text) => {
+  let c = await npm('clipboardy')
   c.write(text)
 }
 
 global.paste = async () => {
-  let c = await npm("clipboardy")
+  let c = await npm('clipboardy')
   return c.read()
 }
 
 type pathConfig = { startPath?: string; hint?: string }
-let __pathSelector = async (
-  config: string | pathConfig = home()
-) => {
-  return await arg(
-    (config as pathConfig)?.hint || "Select Path"
-  )
+let __pathSelector = async (config: string | pathConfig = home()) => {
+  return await arg((config as pathConfig)?.hint || 'Select Path')
 }
 
 let __path = global.path
 global.path = new Proxy(__pathSelector, {
   get: (target, k: string) => {
-    if (k === "then") return __pathSelector
+    if (k === 'then') return __pathSelector
     return __path[k]
-  },
+  }
 }) as any
 
 global.setShortcuts = async () => {
-  notSupported("setShortcuts")
+  notSupported('setShortcuts')
 }
 
 global.revealFile = async () => {
-  notSupported("revealFile")
-  return ""
+  notSupported('revealFile')
+  return ''
 }
 ;(global as any).clipboard = new Proxy(
   {},
@@ -426,7 +383,7 @@ global.revealFile = async () => {
       return () => {
         notSupported(`clipboard.${k}`)
       }
-    },
+    }
   }
 )
 ;(global as any).keyboard = new Proxy(
@@ -436,33 +393,34 @@ global.revealFile = async () => {
       return () => {
         notSupported(`keyboard.${k}`)
       }
-    },
+    }
   }
 )
 
-global.term = async commandOrConfig => {
+global.term = async (commandOrConfig) => {
   let defaultConfig = {
-    shell: true,
+    shell: true
   }
-  let command =
-    (typeof commandOrConfig === "string"
-      ? commandOrConfig
-      : commandOrConfig?.command) || ""
+  let command = (typeof commandOrConfig === 'string' ? commandOrConfig : commandOrConfig?.command) || ''
   let task = global.exec(command, {
     ...defaultConfig,
-    ...(typeof commandOrConfig === "object"
-      ? commandOrConfig
-      : {}),
+    ...(typeof commandOrConfig === 'object' ? commandOrConfig : {})
   })
 
   global.log(`Running: ${command}`, {
     command,
-    commandOrConfig,
+    commandOrConfig
   })
   task.stdout.pipe(process.stdout)
   task.stderr.pipe(process.stderr)
   let result = await task
-  return result?.stdout || result?.stderr || ""
+  return result?.stdout || result?.stderr || ''
 }
 
 global.mainScript = async () => {}
+global.sendWait = async () => {
+  notSupportedDebug('sendWait')
+}
+global.send = async () => {
+  notSupportedDebug('send')
+}
