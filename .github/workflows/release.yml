@@ -132,7 +132,7 @@ jobs:
           mkdir -p ~/dev
           cd ~/dev
           git clone https://github.com/johnlindquist/kit-examples-ts.git
-          cd kit-examples
+          cd kit-examples-ts
           pnpm i ${{ env.kit_path }}
           pnpm i typescript
           # Run tsc against every file in the ./scripts directory
