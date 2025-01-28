@@ -73,6 +73,12 @@ jobs:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
 
+      - name: Set env vars
+        run: |
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
+
       - name: Get Time
         id: time
         uses: nanzm/get-time-action@v2.0
@@ -100,12 +106,6 @@ jobs:
         env:
           KIT: ${{ env.kit_path }}
 
-      - name: Set env vars
-        run: |
-          echo "wd_path=$PWD" >> $GITHUB_ENV
-          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
-          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
-
       - name: Add node and kit to PATH
         run: |
           echo "${{ env.kit_path }}/bin" >> $GITHUB_PATH
@@ -127,6 +127,17 @@ jobs:
           cd "${{ env.wd_path }}"
           pnpm i
 
+      - name: Verify Types
+        run: |
+          mkdir -p ~/dev
+          cd ~/dev
+          git clone https://github.com/johnlindquist/kit-examples-ts.git
+          cd kit-examples
+          pnpm i ${{ env.kit_path }}
+          pnpm i typescript
+          # Run tsc against every file in the ./scripts directory
+          find ./scripts -name '*.ts' -exec pnpm exec tsc {} \;
+
       - name: pnpm ava
         run: |
           pnpm ava
@@ -143,6 +154,12 @@ jobs:
     steps:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
+
+      - name: Set env vars
+        run: |
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Get Time
         id: time
@@ -167,12 +184,6 @@ jobs:
         run: |
           pnpm install
           KIT=./.kit pnpm node ./build/build-ci.js
-
-      - name: Set env vars
-        run: |
-          echo "wd_path=$PWD" >> $GITHUB_ENV
-          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
-          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Add node and kit to PATH
         run: |
