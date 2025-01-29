@@ -136,7 +136,7 @@ jobs:
           pnpm i ${{ env.kit_path }}
           pnpm i typescript
           # Run tsc against every file in the ./scripts directory
-          find ./scripts -name '*.ts' -exec pnpm exec tsc {} \;
+          find ./scripts -name '*.ts' -exec pnpm exec tsc --skipLibCheck {} \; || exit 1
 
       - name: pnpm ava
         run: |
