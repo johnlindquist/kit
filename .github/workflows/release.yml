@@ -135,8 +135,25 @@ jobs:
           cd kit-examples-ts
           pnpm i ${{ env.kit_path }}
           pnpm i typescript
-          # Run tsc against every file in the ./scripts directory
-          find ./scripts -name '*.ts' -exec pnpm exec tsc --skipLibCheck {} \; || exit 1
+          # Create temporary tsconfig for type checking
+          echo '{
+            "compilerOptions": {
+              "skipLibCheck": true,
+              "types": ["@johnlindquist/kit"],
+              "typeRoots": ["./node_modules/@johnlindquist"],
+              "module": "nodenext",
+              "target": "esnext",
+              "moduleResolution": "nodenext",
+              "esModuleInterop": true
+            }
+          }' > tsconfig.temp.json
+          # Run tsc and store output
+          TYPECHECK_OUTPUT=$(find ./scripts -name '*.ts' -exec pnpm exec tsc --project tsconfig.temp.json {} \; 2>&1)
+          if [ $? -ne 0 ]; then
+            echo "Type checking failed:"
+            echo "$TYPECHECK_OUTPUT"
+            exit 1
+          fi
 
       - name: pnpm ava
         run: |
