@@ -147,12 +147,18 @@ jobs:
               "esModuleInterop": true
             }
           }' > tsconfig.temp.json
+
+          echo "Running type check on all .ts files..."
           # Run tsc and store output
           TYPECHECK_OUTPUT=$(find ./scripts -name '*.ts' -exec pnpm exec tsc --project tsconfig.temp.json {} \; 2>&1)
           if [ $? -ne 0 ]; then
-            echo "Type checking failed:"
+            echo "❌ Type checking failed:"
             echo "$TYPECHECK_OUTPUT"
             exit 1
+          else
+            echo "✅ Type checking passed for all files"
+            echo "Files checked:"
+            find ./scripts -name '*.ts' | wc -l
           fi
 
       - name: pnpm ava
