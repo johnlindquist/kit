@@ -42,17 +42,17 @@ jobs:
           cd "${{ env.wd_path }}"
           pnpm i
 
-      - name: pnpm ava
-        shell: bash
-        run: |
-          pnpm ava
-
       - name: pnpm build-kit
         shell: bash
         env:
           KIT: ${{ env.kit_path }}
         run: |
           pnpm build-kit
+
+      - name: pnpm ava
+        shell: bash
+        run: |
+          pnpm ava
 
       - name: pnpm test
         uses: nick-invision/retry@v3
