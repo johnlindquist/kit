@@ -51,6 +51,8 @@ jobs:
 
       - name: pnpm ava
         shell: bash
+        env:
+          KIT: ${{ env.kit_path }}
         run: |
           pnpm ava
 
