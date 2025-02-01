@@ -100,7 +100,7 @@ const parseMainMenu = async (stamp: Stamp | null) => {
   let preview = ''
   if (firstScript) {
     try {
-      preview = await processScriptPreview(firstScript)()
+      preview = (await processScriptPreview(firstScript)()) as string
     } catch (error) {
       logToParent(`Error processing script preview: ${error}`)
     }
