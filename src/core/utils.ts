@@ -164,14 +164,14 @@ export let resolveScriptToCommand = (script: string) => {
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
-      .replace(/(option|opt|alt)/i, isMac ? 'Option' : 'Alt')
-      .replace(/(ctl|cntrl|ctrl|control)/, 'Control')
-      .replace(/(command|cmd)/i, isMac ? 'Command' : 'Control')
-      .replace(/(shift|shft)/i, 'Shift')
-      .split(/\s/)
-      .filter(Boolean)
-      .map((part) => (part[0].toUpperCase() + part.slice(1)).trim())
-      .join('+')
+        .replace(/(option|opt|alt)/i, isMac ? 'Option' : 'Alt')
+        .replace(/(ctl|cntrl|ctrl|control)/, 'Control')
+        .replace(/(command|cmd)/i, isMac ? 'Command' : 'Control')
+        .replace(/(shift|shft)/i, 'Shift')
+        .split(/\s/)
+        .filter(Boolean)
+        .map((part) => (part[0].toUpperCase() + part.slice(1)).trim())
+        .join('+')
     : ''
 
 export const friendlyShortcut = (shortcut: string) => {
@@ -655,11 +655,13 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
   let scriptsPath = path.join(kenv, 'scripts')
   try {
     let dirEntries = await readdir(scriptsPath)
-    let scriptFiles = []
+    let scriptFiles: string[] = []
     for (let fileName of dirEntries) {
       if (!fileName.startsWith('.')) {
         let fullPath = path.join(scriptsPath, fileName)
-        if (!path.extname(fileName)) {
+        if (path.extname(fileName)) {
+          scriptFiles.push(fullPath)
+        } else {
           try {
             let stats = await lstat(fullPath)
             if (!stats.isDirectory()) {
@@ -668,8 +670,6 @@ export let getScriptFiles = async (kenv = kenvPath()) => {
           } catch (error) {
             log(error)
           }
-        } else {
-          scriptFiles.push(fullPath)
         }
       }
     }

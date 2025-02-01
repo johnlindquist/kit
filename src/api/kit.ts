@@ -1800,6 +1800,9 @@ export let processPreviewPath = (s: Script) => {
 export let processScriptPreview =
   (script: Script, infoBlock = '') =>
   async () => {
+    if ((script as Scriptlet)?.scriptlet) {
+      return script.preview
+    }
     let previewPath = getPreviewPath(script)
     let preview = ``
 
@@ -1839,7 +1842,7 @@ ${stamp.compileMessage}
       }
     }
     if (!(s as Scriptlet)?.scriptlet) {
-      s.preview = processScriptPreview(s, infoBlock)
+      s.preview = processScriptPreview(s, infoBlock) as () => Promise<string>
     }
 
     return s
@@ -1873,7 +1876,7 @@ export let processWithStringPreview = async (s: Script, infoBlock: string) => {
   } else {
     try {
       let content = await readFile(path.resolve(path.dirname(s.filePath), s?.preview as string), 'utf-8')
-      processedPreview = infoBlock ? md(infoBlock) : `` + (md(content))
+      processedPreview = infoBlock ? md(infoBlock) : `` + md(content)
     } catch (error) {
       processedPreview = `Error: ${error.message}`
     }

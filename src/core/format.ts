@@ -1,175 +1,188 @@
-import type { Choice } from "../types"
-import { PROMPT } from "./enum.js"
-import { randomUUID as uuid } from "node:crypto"
+import type { Choice } from '../types'
+import { PROMPT } from './enum.js'
+import { randomUUID as uuid } from 'node:crypto'
 
-export let defaultGroupClassName = "border-t-1 border-t-ui-border"
-export let defaultGroupNameClassName =
-	"font-medium text-xxs text-text-base/60 uppercase"
+export let defaultGroupClassName = 'border-t-1 border-t-ui-border'
+export let defaultGroupNameClassName = 'font-medium text-xxs text-text-base/60 uppercase'
 
-const sortByIndex = (items: Choice[]) => {
-	const indexed = items.filter(item => typeof item.index === 'number')
-	const nonIndexed = items.filter(item => typeof item.index !== 'number')
-	
-	indexed.sort((a, b) => (a.index ?? 0) - (b.index ?? 0))
-	
-	const result = []
-	let indexedPos = 0
-	let nonIndexedPos = 0
-	
-	while (indexedPos < indexed.length || nonIndexedPos < nonIndexed.length) {
-		const nextIndexed = indexed[indexedPos]
-		
-		if (!nextIndexed) {
-			result.push(...nonIndexed.slice(nonIndexedPos))
-			break
-		}
-		
-		if (nextIndexed.index === undefined || nextIndexed.index > result.length) {
-			if (nonIndexedPos < nonIndexed.length) {
-				result.push(nonIndexed[nonIndexedPos++])
-			} else {
-				result.push(nextIndexed)
-				indexedPos++
-			}
-		} else {
-			result.push(nextIndexed)
-			indexedPos++
-		}
-	}
-	
-	return result
+/**
+ * Given an array of items, separate those with an index property from those without,
+ * and then insert the indexed items into the non-indexed array at the positions specified
+ * by their index values. (If an index is too high, the item is appended.)
+ */
+const insertIndexedItems = (items: Choice[]): Choice[] => {
+  const nonIndexed: Choice[] = []
+  const indexed: Choice[] = []
+
+  items.forEach((item) => {
+    if (typeof item.index === 'number') {
+      indexed.push(item)
+    } else {
+      nonIndexed.push(item)
+    }
+  })
+
+  // Ensure indexed items are in ascending order of their index.
+  indexed.sort((a, b) => (a.index as number) - (b.index as number))
+
+  // Insert each indexed item into the non-indexed array.
+  indexed.forEach((item) => {
+    const pos = item.index! < 0 ? 0 : item.index!
+    if (pos >= nonIndexed.length) {
+      nonIndexed.push(item)
+    } else {
+      nonIndexed.splice(pos, 0, item)
+    }
+  })
+
+  return nonIndexed
 }
 
-export let formatChoices = (choices: Choice[], className = ""): Choice[] => {
-	if (Array.isArray(choices)) {
-		const formattedChoices = (choices as Choice<any>[]).flatMap((choice, index) => {
-			const isChoiceObject = typeof choice === "object"
+/**
+ * Formats an array of choices.
+ *
+ * - If a choice is not an object, it is converted to a basic choice object.
+ * - If a choice has a nested `choices` array (i.e. represents a group), then:
+ *    1. The group header is formatted (its `group` property is preserved if already set,
+ *       or defaulted to its name).
+ *    2. Its sub-choices are formatted in their original order.
+ *    3. After processing the sub‑choices, any items with an `index` property are re‑inserted
+ *       at the appropriate positions.
+ * - For top‑level non-group items, if every item is non‑group, then we re‑insert the indexed items
+ *   in the final array.
+ *
+ * @param choices An array of choices or simple values.
+ * @param className An optional default className.
+ * @returns The formatted array of choices.
+ */
+export let formatChoices = (choices: Choice[], className = ''): Choice[] => {
+  if (!Array.isArray(choices)) {
+    throw new Error(`Choices must be an array. Received ${typeof choices}`)
+  }
 
-			if (!isChoiceObject) {
-				let name = String(choice)
-				let slicedName = (choice as string).slice(0, 63)
-				return {
-					name,
-					slicedName,
-					value: choice,
-					id: `${index}-${slicedName}`,
-					hasPreview: false,
-					className
-				}
-			}
+  // Determine if all top-level items are non-group (i.e. do not have a "choices" property).
+  const isPureNonGroup = choices.every((choice) => typeof choice !== 'object' || !('choices' in choice))
 
-			let hasPreview = Boolean(choice?.preview || choice?.hasPreview)
-			let slicedName = choice?.name?.slice(0, 63) || ""
-			let properChoice = {
-				id: choice?.id || `${index}-${slicedName || ""}`,
-				name: choice?.name || "",
-				slicedName,
-				slicedDescription: choice?.description?.slice(0, 63) || "",
-				value: choice?.value || choice,
-				nameClassName: choice?.info ? "text-primary" : "",
-				skip: !!choice?.info,
-				className: choice?.className || choice?.choices ? "" : className,
-				index: choice?.index,
-				...choice,
-				hasPreview
-			}
+  const result: Choice[] = []
 
-			if (properChoice.height > PROMPT.ITEM.HEIGHT.XXL) {
-				properChoice.height = PROMPT.ITEM.HEIGHT.XXL
-			}
-			if (properChoice.height < PROMPT.ITEM.HEIGHT.XXXS) {
-				properChoice.height = PROMPT.ITEM.HEIGHT.XXXS
-			}
+  choices.forEach((choice, index) => {
+    // --- Non-object choices – wrap them in an object.
+    if (typeof choice !== 'object') {
+      const name = String(choice)
+      const slicedName = name.slice(0, 63)
+      result.push({
+        name,
+        slicedName,
+        value: choice,
+        id: `${index}-${slicedName}`,
+        hasPreview: false,
+        className
+      })
+      return
+    }
 
-			const choiceChoices = properChoice?.choices
-			if (!choiceChoices) {
-				return properChoice
-			}
+    // --- Format a base choice object.
+    const hasPreview = Boolean(choice.preview || choice.hasPreview)
+    const slicedName = choice.name ? choice.name.slice(0, 63) : ''
+    let formatted: Choice = {
+      id: choice.id || `${index}-${slicedName}`,
+      name: choice.name || '',
+      slicedName,
+      slicedDescription: choice.description ? choice.description.slice(0, 63) : '',
+      value: choice.value || choice,
+      nameClassName: choice.info ? 'text-primary' : '',
+      skip: !!choice.info,
+      className: choice.className || className,
+      index: choice.index,
+      ...choice,
+      hasPreview
+    }
 
-			let isArray = Array.isArray(choiceChoices)
-			if (!isArray) {
-				throw new Error(
-					`Group choices must be an array.`
-				)
-			}
+    // Clamp height if specified.
+    if (typeof formatted.height === 'number') {
+      if (formatted.height > PROMPT.ITEM.HEIGHT.XXL) {
+        formatted.height = PROMPT.ITEM.HEIGHT.XXL
+      }
+      if (formatted.height < PROMPT.ITEM.HEIGHT.XXXS) {
+        formatted.height = PROMPT.ITEM.HEIGHT.XXXS
+      }
+    }
 
-			let groupedChoices = []
+    // --- If the choice is a group (has nested choices), process it.
+    if (formatted.choices !== undefined) {
+      if (!Array.isArray(formatted.choices)) {
+        throw new Error('Group choices must be an array.')
+      }
+      if (formatted.choices.some((subChoice) => subChoice === undefined)) {
+        throw new Error(`Undefined choice in ${formatted.name}`)
+      }
+      // Process the group header.
+      formatted.group = formatted.group || formatted.name
+      formatted.skip = choice.skip === undefined ? true : choice.skip
+      formatted.className = formatted.className || defaultGroupClassName
+      formatted.nameClassName = formatted.nameClassName || defaultGroupNameClassName
+      if (!formatted.height) {
+        formatted.height = PROMPT.ITEM.HEIGHT.XXXS
+      }
+      // Create a copy of the header without nested choices.
+      const groupHeader: Choice = { ...formatted }
+      delete groupHeader.choices
 
-			properChoice.group = properChoice.name
-			properChoice.skip =
-				typeof choice?.skip === "undefined" ? true : choice.skip
-			properChoice.className ||= defaultGroupClassName
-			properChoice.nameClassName ||= defaultGroupNameClassName
-			properChoice.height ||= PROMPT.ITEM.HEIGHT.XXXS
+      // Process sub-choices.
+      const subChoices = formatted.choices.map((subChoice, subIndex) => {
+        if (subChoice === undefined) {
+          throw new Error(`Undefined choice in ${formatted.name}`)
+        }
+        if (typeof subChoice !== 'object') {
+          const name = String(subChoice)
+          const slicedName = name.slice(0, 63)
+          return {
+            name,
+            slicedName,
+            value: subChoice,
+            id: `${subIndex}-${slicedName}`,
+            group: groupHeader.group,
+            className,
+            hasPreview: false
+          }
+        }
+        const subHasPreview = Boolean(subChoice.preview || subChoice.hasPreview)
+        const subSlicedName = subChoice.name ? subChoice.name.slice(0, 63) : ''
+        let formattedSub: Choice = {
+          id: subChoice.id || uuid(),
+          name: subChoice.name || '',
+          slicedName: subSlicedName,
+          slicedDescription: subChoice.description ? subChoice.description.slice(0, 63) : '',
+          value: subChoice.value || subChoice,
+          group: groupHeader.group, // use parent's group
+          className,
+          index: subChoice.index,
+          ...subChoice,
+          hasPreview: subHasPreview
+        }
+        if (typeof formattedSub.height === 'number') {
+          if (formattedSub.height > PROMPT.ITEM.HEIGHT.XXL) {
+            formattedSub.height = PROMPT.ITEM.HEIGHT.XXL
+          }
+          if (formattedSub.height < PROMPT.ITEM.HEIGHT.XXXS) {
+            formattedSub.height = PROMPT.ITEM.HEIGHT.XXXS
+          }
+        }
+        return formattedSub
+      })
 
-			delete properChoice.choices
-			groupedChoices.push(properChoice)
+      // Reinsert any sub-choices that have index properties.
+      const orderedSubChoices = insertIndexedItems(subChoices)
+      result.push(groupHeader, ...orderedSubChoices)
+    } else {
+      // Non-group item.
+      result.push(formatted)
+    }
+  })
 
-			const subChoices = choiceChoices.map((subChoice) => {
-				if (typeof subChoice === "undefined") {
-					throw new Error(`Undefined choice in ${properChoice.name}`)
-				}
-
-				if (typeof subChoice === "object") {
-					return {
-						name: subChoice?.name,
-						slicedName: subChoice?.name?.slice(0, 63) || "",
-						slicedDescription: subChoice?.description?.slice(0, 63) || "",
-						value: subChoice?.value || subChoice,
-						id: subChoice?.id || uuid(),
-						group: choice?.name,
-						className,
-						index: subChoice?.index,
-						...subChoice,
-						hasPreview: Boolean(subChoice?.preview || subChoice?.hasPreview),
-						height: subChoice?.height < PROMPT.ITEM.HEIGHT.XXXS ? PROMPT.ITEM.HEIGHT.XXXS : subChoice?.height
-					}
-				} else {
-					return {
-						name: String(subChoice),
-						value: String(subChoice),
-						slicedName: String(subChoice)?.slice(0, 63) || "",
-						slicedDescription: "",
-						group: choice?.name,
-						className,
-						id: uuid()
-					}
-				}
-			})
-
-			// Sort and add sub-choices
-			groupedChoices.push(...sortByIndex(subChoices))
-			return groupedChoices
-		})
-
-		// Sort top-level items while preserving groups
-		const groups = new Map<string | undefined, Choice[]>()
-		formattedChoices.forEach(choice => {
-			const group = choice.group
-			if (!groups.has(group)) {
-				groups.set(group, [])
-			}
-			groups.get(group)?.push(choice)
-		})
-
-		const result: Choice[] = []
-		for (const [group, items] of groups) {
-			if (group === undefined) {
-				result.push(...sortByIndex(items))
-			} else {
-				const groupHeader = items.find(item => item.name === group)
-				const groupItems = items.filter(item => item.name !== group)
-				if (groupHeader) {
-					result.push(groupHeader)
-				}
-				result.push(...sortByIndex(groupItems))
-			}
-		}
-
-		return result
-	}
-
-	if (choices) {
-		throw new Error(`Choices must be an array. Received ${typeof choices}`)
-	}
+  // If all top-level items are non-group, reinsert index ordering.
+  if (isPureNonGroup) {
+    return insertIndexedItems(result)
+  }
+  return result
 }

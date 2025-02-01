@@ -33,7 +33,7 @@ const sanitizedScriptFlags = (() => {
 // --------------------
 // Caching Variables
 // --------------------
-let cachedMessage: ReturnType<typeof parseMainMenu> | null = null
+let cachedMessage: Awaited<ReturnType<typeof parseMainMenu>> | null = null
 
 let cachedStampFilePath: string | null = null
 
@@ -87,7 +87,14 @@ const parseMainMenu = async (stamp: Stamp | null) => {
 
   // Fetch grouped scripts and format
   const groupedScripts = await getGroupedScripts(false)
+  logToParent(`Grouped scripts: ${groupedScripts.map((s) => s.name).join(', ')}`)
   const scripts = formatChoices(groupedScripts)
+  logToParent(
+    `Formatted scripts: ${scripts
+      .slice(0, 10)
+      .map((s) => s.name)
+      .join(', ')}`
+  )
 
   const firstScript = scripts.find((script) => !script.skip) as Script | undefined
   let preview = ''
@@ -129,6 +136,7 @@ const cacheMainScripts = async (id: string, stamp: Stamp | null) => {
     if (!stampFilePath || stampFilePath === cachedStampFilePath) {
       if (cachedMessage) {
         // Reuse cached result
+        logToParent(`${id}: Reusing cached result for ${stampFilePath}`)
         parentPort?.postMessage({ ...cachedMessage, id })
         return
       }
@@ -142,6 +150,7 @@ const cacheMainScripts = async (id: string, stamp: Stamp | null) => {
     cachedMessage
     cachedStampFilePath = stampFilePath
 
+    logToParent(`${id}: Sending fresh result for ${stampFilePath}`)
     parentPort?.postMessage({ ...message, id })
   } catch (error) {
     logToParent(`Error caching main scripts: ${error}`)

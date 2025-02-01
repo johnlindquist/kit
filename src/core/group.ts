@@ -71,10 +71,11 @@ export let groupChoices = (choices: Choice[], options = {}) => {
       choice.exclude = true
     }
 
+    const effectiveGroup = choice.group || choice[groupKey] || missingGroupName
     if (
       choice[recentKey] &&
       !choice.pass &&
-      choice.group !== 'Favorite' &&
+      effectiveGroup !== 'Favorite' &&
       !(typeof choice?.recent === 'boolean' && choice?.recent === false) &&
       recentGroup.choices?.length < getRecentLimit()
     ) {

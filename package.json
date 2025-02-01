@@ -138,7 +138,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.10.10",
+    "@types/node": "^22.13.0",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",

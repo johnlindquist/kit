@@ -73,6 +73,8 @@ const toolCommandMap = new Map([
 ])
 
 export let runScriptlet = async (focusedScriptlet: Scriptlet, inputs: string[], flag?: Flags) => {
+  global.kitScript = focusedScriptlet?.filePath
+
   if (!focusedScriptlet.tool) {
     throw new Error(`No tool found for ${focusedScriptlet.value.name}`)
   }
@@ -121,7 +123,7 @@ async function replacePlaceholders(
   focusedScriptlet: Scriptlet,
   remainingInputs: string[]
 ): Promise<string> {
-  const unixPattern = /\$\{?(\d+)\}?/g
+  const unixPattern = /\$\{(\d+)\}|\$(\d+)/g
   const windowsPattern = /%(\d+)/g
 
   const matches = formattedScriptlet.match(unixPattern) || formattedScriptlet.match(windowsPattern)

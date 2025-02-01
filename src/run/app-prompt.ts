@@ -137,10 +137,11 @@ process.once('beforeExit', () => {
 
 performance.mark('run')
 
-if (choices?.length) {
-  let inputs = []
+if (choices?.length > 0) {
+  global.kitScript = scriptlet?.filePath
+  let inputs: string[] = []
 
-  if (choices[0].inputs?.length) {
+  if (choices[0].inputs?.length > 0) {
     inputs = await arg<string[]>(
       {
         name,

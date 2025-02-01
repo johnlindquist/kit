@@ -152,6 +152,8 @@ export type Scriptlet = Script & {
 export type Snippet = Script & {
   group: 'Snippets'
   text: string
+  snippetKey?: string
+  postfix?: string
 }
 
 export type PromptBounds = {
