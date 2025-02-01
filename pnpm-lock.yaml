@@ -239,6 +239,9 @@ importers:
         specifier: 6.0.11
         version: 6.0.11(@types/node@22.13.0)(jiti@1.21.6)(tsx@4.19.2)
     optionalDependencies:
+      '@johnlindquist/mac-windows':
+        specifier: 1.0.2
+        version: 1.0.2
       file-icon:
         specifier: 5.1.1
         version: 5.1.1
@@ -486,6 +489,11 @@ packages:
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
+
+  '@johnlindquist/mac-windows@1.0.2':
+    resolution: {integrity: sha512-mcVSQ3O9NszFmeGUQDI7TBzdHnWtKuYwwoPBqNM3KViJJmPkKXIJ+YyrrKzcD7pnXarK5KQF5q30vbwEaKTO2g==}
+    engines: {node: '>=18'}
+    os: [darwin, '!win32', '!linux']
 
   '@johnlindquist/no-dom@1.0.2':
     resolution: {integrity: sha512-LsbpAKEG68+pMsQRXOOvYFUSsq5mzfvgmg5WSh5tu9onF+farAD3wpsZW1gOuCTLkQ22QoBJ0hHorN6p12S9Ew==}
@@ -4304,6 +4312,9 @@ snapshots:
       strip-ansi-cjs: strip-ansi@6.0.1
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
+
+  '@johnlindquist/mac-windows@1.0.2':
+    optional: true
 
   '@johnlindquist/no-dom@1.0.2': {}
 

@@ -30,7 +30,6 @@
     "./core/*": "./core/*.js",
     "./workers": "./workers/index.js",
     "./types/*": "./types/*.js"
-
   },
   "types": "./types/index.d.ts",
   "scripts": {
@@ -72,7 +71,10 @@
     "overrides": {
       "typescript": "5.7.3",
       "esbuild": "0.24.2"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@johnlindquist/mac-windows"
+    ]
   },
   "dependencies": {
     "@johnlindquist/open": "^10.1.1",
@@ -206,6 +208,7 @@
     }
   },
   "optionalDependencies": {
+    "@johnlindquist/mac-windows": "1.0.2",
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
