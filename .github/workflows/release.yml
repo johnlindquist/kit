@@ -18,6 +18,16 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
+
+      - name: Set env vars
+        run: |
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "KIT=$PWD/.kit" >> $GITHUB_ENV
+          echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
+
       - name: Checkout kit
         uses: actions/checkout@master
 
@@ -51,8 +61,10 @@ jobs:
 
       - name: pnpm ava
         shell: bash
+        env:
+          KIT: ${{ env.kit_path }}
         run: |
-          KIT=${{ env.kit_path }} pnpm ava
+          pnpm ava
 
       - name: pnpm test
         uses: nick-invision/retry@v3
@@ -77,6 +89,7 @@ jobs:
         run: |
           echo "wd_path=$PWD" >> $GITHUB_ENV
           echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "KIT=$PWD/.kit" >> $GITHUB_ENV
           echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Get Time
@@ -182,6 +195,7 @@ jobs:
         run: |
           echo "wd_path=$PWD" >> $GITHUB_ENV
           echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "KIT=$PWD/.kit" >> $GITHUB_ENV
           echo "release_channel=${{ env.GITHUB_REF_SLUG_URL }}" >> $GITHUB_ENV
 
       - name: Get Time
