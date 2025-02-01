@@ -10,7 +10,8 @@ import type { Choice } from '../types/core.js'
 let isMac = process.platform === 'darwin'
 
 if (isMac) {
-  let { getWindowsList } = await import('@johnlindquist/mac-windows')
+  let importKey = '@johnlindquist/mac-windows'
+  let { getWindowsList } = await import(importKey)
 
   let apps = await db<{ choices: Choice[] }>(kitPath('db', 'apps.json'))
 
