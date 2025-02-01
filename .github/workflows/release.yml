@@ -51,10 +51,8 @@ jobs:
 
       - name: pnpm ava
         shell: bash
-        env:
-          KIT: ${{ env.kit_path }}
         run: |
-          pnpm ava
+          KIT=${{ env.kit_path }} pnpm ava
 
       - name: pnpm test
         uses: nick-invision/retry@v3
