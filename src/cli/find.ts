@@ -22,6 +22,8 @@ let kenvs = await getKenvs()
 let allKenvs = [kenvPath(), ...kenvs]
 let searchDirs = [
   ...allKenvs.map(k => path.resolve(k, "scripts")),
+  ...allKenvs.map(k => path.resolve(k, "scriptlets")),
+  ...allKenvs.map(k => path.resolve(k, "snippets")),
   //   ...allKenvs.map(k => path.resolve(k, "logs")),
 ]
 let searchExistingDirs = []
