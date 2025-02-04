@@ -98,7 +98,7 @@ export interface ScriptMetadata extends Metadata {
   schedule?: string
   system?: string
   watch?: string
-  background?: boolean | 'auto'
+  background?: boolean | 'auto' | 'true' | 'false'
   type: ProcessType
   timeout?: number
   tabs?: string[]

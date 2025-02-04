@@ -62,7 +62,7 @@ const toolRegex = /^(```|~~~)\s*$/m
 const emptyCodeFenceRegex = /^(```|~~~)\s*$/gm
 const ifElseRegex = /{{(?!#if|else\s?if|else|\/if)([^}]+)}}/g
 
-export let parseMarkdownAsScriptlets = async (markdown: string): Promise<Scriptlet[]> => {
+export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: string): Promise<Scriptlet[]> => {
   let lines = markdown.trim().split('\n')
 
   let markdownMetadata: Metadata = {
@@ -238,6 +238,14 @@ export let parseMarkdownAsScriptlets = async (markdown: string): Promise<Scriptl
     scriptlets.push({ ...metadata, ...currentScriptlet })
   }
 
+  // Assign kenv from filePath
+  if (typeof filePath === 'string') {
+    const kenvFromPath = getKenvFromPath(filePath)
+    scriptlets.forEach(scriptlet => {
+      scriptlet.kenv = kenvFromPath
+    })
+  }
+
   for (let scriptlet of scriptlets) {
     let preview = (scriptlet.preview as string).trim()
 
@@ -348,11 +356,9 @@ export let parseScriptletsFromPath = async (filePath: string): Promise<Scriptlet
   let filePathWithoutAnchor = filePath.split('#')[0]
   let allScriptlets: Scriptlet[] = []
   let fileContents = await readFile(filePathWithoutAnchor, 'utf8')
-  let scriptlets = await parseMarkdownAsScriptlets(fileContents)
+  let scriptlets = await parseMarkdownAsScriptlets(fileContents, filePathWithoutAnchor)
   for (let scriptlet of scriptlets) {
-    // scriptlet.group = path.parse(filePathWithoutAnchor).name
     scriptlet.filePath = `${filePathWithoutAnchor}#${slugify(scriptlet.name)}`
-    scriptlet.kenv = getKenvFromPath(filePathWithoutAnchor)
     scriptlet.value = Object.assign({}, scriptlet)
     allScriptlets.push(scriptlet)
   }
@@ -369,10 +375,9 @@ export let parseScriptlets = async (): Promise<Scriptlet[]> => {
   let allScriptlets: Scriptlet[] = []
   for (let scriptletsPath of allScriptletsPaths) {
     let fileContents = await readFile(scriptletsPath, 'utf8')
-    let scriptlets = await parseMarkdownAsScriptlets(fileContents)
+    let scriptlets = await parseMarkdownAsScriptlets(fileContents, scriptletsPath)
     for (let scriptlet of scriptlets) {
       scriptlet.filePath = `${scriptletsPath}#${slugify(scriptlet.name)}`
-      scriptlet.kenv = getKenvFromPath(scriptletsPath)
       scriptlet.value = Object.assign({}, scriptlet)
       allScriptlets.push(scriptlet)
     }

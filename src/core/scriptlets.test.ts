@@ -1680,3 +1680,19 @@ console.log('Multiple metadata test')
   t.is(scripts[0].system, "darwin")
   t.is(scripts[0].schedule, "*/5 * * * *")
 })
+
+ava('parseMarkdownAsScriptlets assigns proper kenv from filePath', async (t) => {
+  // Simulate a markdown file located in a kenv folder
+  const path = await import('node:path')
+  const dummyFilePath = path.join(kenvPath('kenvs', 'test', 'scriptlets', 'dummy.md'))
+
+  const markdown = `
+## Dummy Scriptlet
+\`\`\`bash
+echo "dummy"
+\`\`\`
+  `.trim()
+
+  const scriptlets = await parseMarkdownAsScriptlets(markdown, dummyFilePath)
+  t.is(scriptlets[0].kenv, 'test')
+})
