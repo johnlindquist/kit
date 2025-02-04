@@ -195,9 +195,15 @@ export let parseMarkdownAsScriptlets = async (markdown: string): Promise<Scriptl
       let key = line.slice(0, indexOfColon).trim()
       let value = line.slice(indexOfColon + 1).trim()
       let lowerCaseKey = key.toLowerCase()
-      let ignore = ['background', 'schedule', 'watch', 'system'].includes(lowerCaseKey)
+      let ignore = ['background', 'watch', 'system'].includes(lowerCaseKey)
       if (ignore) {
         continue
+      }
+      if (lowerCaseKey === 'schedule') {
+        const cronRegex = /^(\S+\s+){4,5}\S+$/
+        if (!cronRegex.test(value)) {
+          throw new Error(`Invalid cron syntax in schedule metadata: ${value}`)
+        }
       }
       if (parsingMarkdownMetadata) {
         markdownMetadata[lowerCaseKey] = value

@@ -1548,3 +1548,21 @@ echo "Scriptlet Two"
   t.true(scripts[1].scriptlet.includes(`echo "First Global Code"`))
   t.false(scripts[1].scriptlet.includes(`echo "Second Global Code"`))
 })
+
+ava("parseMarkdownAsScriptlets parses schedule metadata", async (t) => {
+  const markdown = `
+## Silly
+
+<!-- 
+schedule: */5 * * * * *
+-->
+
+\`\`\`ts
+say('poop')
+\`\`\`
+  `.trim()
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "Silly")
+  t.is(scripts[0].schedule, "*/5 * * * * *")
+})
