@@ -195,16 +195,30 @@ export let parseMarkdownAsScriptlets = async (markdown: string): Promise<Scriptl
       let key = line.slice(0, indexOfColon).trim()
       let value = line.slice(indexOfColon + 1).trim()
       let lowerCaseKey = key.toLowerCase()
-      let ignore = ['background', 'watch', 'system'].includes(lowerCaseKey)
-      if (ignore) {
-        continue
-      }
+      
+      // Validate schedule metadata if present
       if (lowerCaseKey === 'schedule') {
         const cronRegex = /^(\S+\s+){4,5}\S+$/
         if (!cronRegex.test(value)) {
           throw new Error(`Invalid cron syntax in schedule metadata: ${value}`)
         }
       }
+
+      // Validate background metadata if present
+      if (lowerCaseKey === 'background') {
+        const validValues = ['true', 'false']
+        if (!validValues.includes(value.toLowerCase())) {
+          throw new Error(`Invalid background value: ${value}. Must be 'true' or 'false'`)
+        }
+      }
+
+      // Validate watch metadata if present
+      if (lowerCaseKey === 'watch') {
+        if (!value.trim()) {
+          throw new Error('Watch metadata must have a value')
+        }
+      }
+
       if (parsingMarkdownMetadata) {
         markdownMetadata[lowerCaseKey] = value
       } else {

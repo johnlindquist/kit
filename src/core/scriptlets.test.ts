@@ -1566,3 +1566,117 @@ say('poop')
   t.is(scripts[0].name, "Silly")
   t.is(scripts[0].schedule, "*/5 * * * * *")
 })
+
+ava("parseMarkdownAsScriptlets parses background metadata", async (t) => {
+  const markdown = `
+## Background Task
+
+<!-- 
+background: true
+-->
+
+\`\`\`ts
+console.log('Running in background')
+\`\`\`
+  `.trim()
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "Background Task")
+  t.is(scripts[0].background, "true")
+})
+
+ava("parseMarkdownAsScriptlets validates background metadata", async (t) => {
+  const markdown = `
+## Invalid Background
+
+<!-- 
+background: invalid
+-->
+
+\`\`\`ts
+console.log('test')
+\`\`\`
+  `.trim()
+  
+  await t.throwsAsync(async () => {
+    await parseMarkdownAsScriptlets(markdown)
+  }, { message: "Invalid background value: invalid. Must be 'true' or 'false'" })
+})
+
+ava("parseMarkdownAsScriptlets parses watch metadata", async (t) => {
+  const markdown = `
+## Watch Files
+
+<!-- 
+watch: src/**/*.ts
+-->
+
+\`\`\`ts
+console.log('Watching files')
+\`\`\`
+  `.trim()
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "Watch Files")
+  t.is(scripts[0].watch, "src/**/*.ts")
+})
+
+ava("parseMarkdownAsScriptlets validates watch metadata", async (t) => {
+  const markdown = `
+## Invalid Watch
+
+<!-- 
+watch:
+-->
+
+\`\`\`ts
+console.log('test')
+\`\`\`
+  `.trim()
+  
+  await t.throwsAsync(async () => {
+    await parseMarkdownAsScriptlets(markdown)
+  }, { message: "Watch metadata must have a value" })
+})
+
+ava("parseMarkdownAsScriptlets parses system metadata", async (t) => {
+  const markdown = `
+## System Task
+
+<!-- 
+system: darwin
+-->
+
+\`\`\`ts
+console.log('Running on Mac')
+\`\`\`
+  `.trim()
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "System Task")
+  t.is(scripts[0].system, "darwin")
+})
+
+ava("parseMarkdownAsScriptlets parses multiple metadata", async (t) => {
+  const markdown = `
+## Multi Metadata
+
+<!-- 
+background: true
+watch: src/**/*.ts
+system: darwin
+schedule: */5 * * * *
+-->
+
+\`\`\`ts
+console.log('Multiple metadata test')
+\`\`\`
+  `.trim()
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "Multi Metadata")
+  t.is(scripts[0].background, "true")
+  t.is(scripts[0].watch, "src/**/*.ts")
+  t.is(scripts[0].system, "darwin")
+  t.is(scripts[0].schedule, "*/5 * * * *")
+})
