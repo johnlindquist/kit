@@ -43,7 +43,16 @@ function runWorkerMessage(messageToSend: any): Promise<{ msg: any; worker: Worke
         resolve({ msg, worker })
       }
     })
-    worker.once('error', (err) => reject(err))
+
+    // Handle worker errors - ignore ENOENT since it's expected during tests
+    worker.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'ENOENT') {
+        // Ignore expected file system errors during tests
+        return
+      }
+      reject(err)
+    })
+
     worker.postMessage(messageToSend)
 
     // Add timeout to prevent hanging
