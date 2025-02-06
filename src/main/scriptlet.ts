@@ -107,6 +107,7 @@ export let runScriptlet = async (focusedScriptlet: Scriptlet, inputs: string[], 
     case 'open':
     case 'edit':
     case 'paste':
+    case 'submit':
     case 'type': {
       await handleActionScriptlet(formattedFocusedScriptlet, formattedScriptlet)
       break
@@ -193,6 +194,9 @@ async function handleActionScriptlet(formattedFocusedScriptlet: Scriptlet, forma
     await setSelectedText(formattedScriptlet)
   } else if (formattedFocusedScriptlet.tool === 'type') {
     await keyboard.type(formattedScriptlet)
+  } else if (formattedFocusedScriptlet.tool === 'submit') {
+    await setSelectedText(formattedScriptlet)
+    await keyboard.tap(Key.Enter)
   }
   process.exit(0)
 }
