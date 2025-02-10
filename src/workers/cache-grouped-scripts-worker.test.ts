@@ -60,7 +60,7 @@ function runWorkerMessage(messageToSend: any): Promise<{ msg: any; worker: Worke
       if (!resolved) {
         reject(new Error('Timeout waiting for CACHE_MAIN_SCRIPTS message'))
       }
-    }, 5000)
+    }, 30000)
   })
 }
 
