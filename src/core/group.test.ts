@@ -712,7 +712,7 @@ ava('groupChoices - exclude:true items are not added to recent group', (t) => {
     { name: 'B1', group: 'B', lastUsed: 2 },
     { name: 'C1', group: 'C', lastUsed: 4, exclude: true },
     { name: 'D1', group: 'D', lastUsed: 5 }
-  ] as Choice[]
+  ] as (Choice & { lastUsed: number })[]
 
   const result = groupChoices(choices, {
     recentKey: 'lastUsed',
