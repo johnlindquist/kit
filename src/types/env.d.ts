@@ -67,4 +67,6 @@ export type kenvEnv = {
   KIT_PROMPT_OFFSCREEN?: string | undefined
   KIT_WINDOWS_OPACITY?: string | undefined
   KIT_LOGIN?: string | undefined
+  KIT_BONJOUR_HOST?: string | undefined
+  KIT_ALLOWED_ORIGINS?: string | undefined
 }
