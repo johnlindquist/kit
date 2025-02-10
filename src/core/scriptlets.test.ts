@@ -74,10 +74,14 @@ https://github.com/time-loop/pr-ai-action-playground
 
 	const scripts = await parseMarkdownAsScriptlets(markdown)
 
+	t.log(scripts[0])
+
 	t.is(scripts.length, 4)
 	t.is(scripts[0].name, "Projects")
 	t.is(scripts[0].exclude, true)
 	t.is(scripts[0].group, undefined)
+	
+	t.not(typeof scripts[0].kenv, "undefined")
 
 	t.is(scripts[1].name, "Github PR AI Review")
 	t.is(scripts[1].group, "Projects")

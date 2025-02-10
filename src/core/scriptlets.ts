@@ -101,7 +101,9 @@ export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: strin
           h1CodeFenceTool = process.platform === 'win32' ? 'cmd' : 'bash'
         }
         continue
-      } else if (inH1CodeFence && !insideCodeFence) {
+      }
+      
+      if (inH1CodeFence && !insideCodeFence) {
         // Ending the H1 code fence
         inH1CodeFence = false
         globalPrependScript = h1CodeFenceLines.join('\n').trim()
@@ -280,12 +282,16 @@ ${await highlight(preview, '')}`)
   const metadataKeys = Object.keys(markdownMetadata)
   if (metadataKeys.length > 1) {
     let metadata = postprocessMetadata(markdownMetadata, '')
+    // @ts-ignore
+    const exclude = metadata?.exclude
     scriptlets.unshift({
       ...metadata,
       name: currentGroup,
+      kenv: filePath ? getKenvFromPath(filePath) : '',
       command: stripName(currentGroup),
-      group: metadata.exclude ? undefined : currentGroup,
+      group: exclude ? undefined : currentGroup,
       tool: 'kit',
+      exclude,
       scriptlet: `
 const scripts = await getScripts(true);
 let focused;

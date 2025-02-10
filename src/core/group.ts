@@ -75,6 +75,7 @@ export let groupChoices = (choices: Choice[], options = {}) => {
     if (
       choice[recentKey] &&
       !choice.pass &&
+      !choice.exclude &&
       effectiveGroup !== 'Favorite' &&
       !(typeof choice?.recent === 'boolean' && choice?.recent === false) &&
       recentGroup.choices?.length < getRecentLimit()
@@ -137,26 +138,26 @@ export let groupChoices = (choices: Choice[], options = {}) => {
     const bGroup = b.group.toLowerCase()
     const aOrder = lowerOrder.indexOf(aGroup)
     const bOrder = lowerOrder.indexOf(bGroup)
-    const endAOrder = lowerEndOrder.indexOf(aGroup)
-    const endBOrder = lowerEndOrder.indexOf(bGroup)
+    const aEndOrder = lowerEndOrder.indexOf(aGroup)
+    const bEndOrder = lowerEndOrder.indexOf(bGroup)
 
     // If both elements are in the order array, sort them as per the order array
     if (aOrder !== -1 && bOrder !== -1) {
       return aOrder - bOrder
     }
     // If a is in the order array, or b is in the endOrder array, a comes first
-    if (aOrder !== -1 || endBOrder !== -1) {
+    if (aOrder !== -1 || bEndOrder !== -1) {
       return -1
     }
 
     // If b is in the order array, or a is in the endOrder array, b comes first
-    if (bOrder !== -1 || endAOrder !== -1) {
+    if (bOrder !== -1 || aEndOrder !== -1) {
       return 1
     }
 
     // If both elements are in the endOrder array, sort them as per the endOrder array
-    if (endAOrder !== -1 && endBOrder !== -1) {
-      return endAOrder - endBOrder
+    if (aEndOrder !== -1 && bEndOrder !== -1) {
+      return aEndOrder - bEndOrder
     }
 
     // Sort "userGrouped" "true" before "false"

@@ -427,6 +427,7 @@ ava('groupChoices - mixed indexed and non-indexed choices', (t) => {
   t.is(result[0].choices[2].name, 'A3')
   t.is(result[0].choices[3].name, 'A4')
 })
+
 // Test using kenv as the group key with timestamps, order, and endOrder
 ava('groupChoices - using kenv as groupKey with timestamps and order options', (t) => {
   const scripts = [
@@ -440,7 +441,7 @@ ava('groupChoices - using kenv as groupKey with timestamps and order options', (
     { name: 'ScriptApps', kenv: 'Apps', timestamp: 120 },
     // A pass script is handled separately
     { name: 'ScriptPass', pass: true, kenv: 'Anything', timestamp: 80 },
-    // Additional scripts that don’t qualify for recent because the limit is reached
+    // Additional scripts that don't qualify for recent because the limit is reached
     { name: 'ScriptKit2', kenv: 'Kit', timestamp: 180 },
     { name: 'ScriptScriptlets2', kenv: 'Scriptlets', timestamp: 90 }
   ]
@@ -702,4 +703,36 @@ ava('groupChoices - using tagger with kenv', (t) => {
     })
   })
   t.pass()
+})
+
+ava('groupChoices - exclude:true items are not added to recent group', (t) => {
+  const choices: Choice[] = [
+    { name: 'A1', group: 'A', lastUsed: 3 },
+    { name: 'A2', group: 'A', lastUsed: 1, exclude: true },
+    { name: 'B1', group: 'B', lastUsed: 2 },
+    { name: 'C1', group: 'C', lastUsed: 4, exclude: true },
+    { name: 'D1', group: 'D', lastUsed: 5 }
+  ] as Choice[]
+
+  const result = groupChoices(choices, {
+    recentKey: 'lastUsed',
+    recentLimit: 3
+  })
+
+  // Recent group should only contain non-excluded items
+  t.is(result[0].name, 'Recent')
+  t.is(result[0].choices.length, 3)
+  t.deepEqual(
+    result[0].choices.map((c: Choice) => c.name),
+    ['D1', 'A1', 'B1']
+  )
+
+  // Verify excluded items still appear in their regular groups
+  const groupA = result.find(g => g.name === 'A')
+  t.truthy(groupA)
+  t.true(groupA!.choices.some((c: Choice) => c.name === 'A2' && c.exclude === true))
+
+  const groupC = result.find(g => g.name === 'C')
+  t.truthy(groupC)
+  t.true(groupC!.choices.some((c: Choice) => c.name === 'C1' && c.exclude === true))
 })
