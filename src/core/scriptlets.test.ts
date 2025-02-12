@@ -1586,7 +1586,7 @@ console.log('Running in background')
   const scripts = await parseMarkdownAsScriptlets(markdown)
   t.is(scripts.length, 1)
   t.is(scripts[0].name, "Background Task")
-  t.is(scripts[0].background, "true")
+  t.is(scripts[0].background, true)
 })
 
 ava("parseMarkdownAsScriptlets validates background metadata", async (t) => {
@@ -1648,7 +1648,7 @@ ava("parseMarkdownAsScriptlets parses system metadata", async (t) => {
 ## System Task
 
 <!-- 
-system: darwin
+system: resume
 -->
 
 \`\`\`ts
@@ -1658,7 +1658,7 @@ console.log('Running on Mac')
   const scripts = await parseMarkdownAsScriptlets(markdown)
   t.is(scripts.length, 1)
   t.is(scripts[0].name, "System Task")
-  t.is(scripts[0].system, "darwin")
+  t.is(scripts[0].system, "resume")
 })
 
 ava("parseMarkdownAsScriptlets parses multiple metadata", async (t) => {
@@ -1668,7 +1668,7 @@ ava("parseMarkdownAsScriptlets parses multiple metadata", async (t) => {
 <!-- 
 background: true
 watch: src/**/*.ts
-system: darwin
+system: resume
 schedule: */5 * * * *
 -->
 
@@ -1679,9 +1679,9 @@ console.log('Multiple metadata test')
   const scripts = await parseMarkdownAsScriptlets(markdown)
   t.is(scripts.length, 1)
   t.is(scripts[0].name, "Multi Metadata")
-  t.is(scripts[0].background, "true")
+  t.is(scripts[0].background, true)
   t.is(scripts[0].watch, "src/**/*.ts")
-  t.is(scripts[0].system, "darwin")
+  t.is(scripts[0].system, "resume")
   t.is(scripts[0].schedule, "*/5 * * * *")
 })
 

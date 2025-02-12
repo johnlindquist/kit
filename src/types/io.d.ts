@@ -227,4 +227,3 @@ declare class UiohookNapi extends EventEmitter {
   keyToggle(key: number, toggle: "down" | "up"): void
 }
 export declare const uIOhook: UiohookNapi
-export {}

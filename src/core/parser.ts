@@ -27,6 +27,13 @@ export let postprocessMetadata = (
 		result.friendlyShortcut = friendlyShortcut(result.shortcut)
 	}
 
+	if (metadata.background) {
+		if (metadata.background !== "auto") {
+			// @ts-ignore
+			result.background = metadata.background === "true"
+		}
+	}
+
 	if (metadata.shortcode) {
 		result.shortcode = metadata.shortcode.trim().toLowerCase()
 	}

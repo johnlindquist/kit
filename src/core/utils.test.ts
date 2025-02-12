@@ -15,7 +15,7 @@ import {
 import { outputTmpFile, getGroupedScripts } from '../api/kit'
 import slugify from 'slugify'
 import type { Stamp } from './db'
-import type { Script } from '../types'
+import type { CronExpression, Script } from '../types'
 
 // Helper function to create a temporary snippet file
 process.env.KENV = home('.mock-kenv')
@@ -68,7 +68,7 @@ import "@johnlindquist/kit"
   let script = await parseScript(scriptPath)
   t.is(script.name, name)
   t.is(script.description, description)
-  t.is(script.schedule, schedule)
+  t.is(script.schedule, schedule as CronExpression)
   t.is(script.filePath, scriptPath)
   t.is(script.shortcut, normalizedShortcut)
 })

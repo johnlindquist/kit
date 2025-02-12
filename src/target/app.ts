@@ -921,7 +921,7 @@ let onEscapeDefault: ChannelHandler = (
   input: string,
   state: AppState
 ) => {
-  global.log(`onEscapeDefault ${state.input}`)
+  // global.log(`onEscapeDefault ${state.input}`)
   exit()
 }
 
@@ -2813,7 +2813,7 @@ global.mouse = {
     await sendWait(Channel.MOUSE_RIGHT_CLICK)
   },
   move: async points => {
-    await sendWait(Channel.MOUSE_LEFT_CLICK, points)
+    await sendWait(Channel.MOUSE_MOVE, points)
   },
   setPosition: async position => {
     await sendWait(Channel.MOUSE_SET_POSITION, position)

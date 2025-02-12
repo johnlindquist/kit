@@ -36,7 +36,7 @@ export interface Choice<Value = any> {
       }
     | string
   onFocus?: (input: string, state: AppState) => string | Promise<string>
-  onSubmit?: (input: string, state: AppState) => void | Symbol | Promise<void | Symbol>
+  onSubmit?: (input: string, state: AppState) => void | symbol | Promise<void | symbol>
   enter?: string
   disableSubmit?: boolean
   info?: boolean
@@ -95,10 +95,7 @@ export interface ScriptMetadata extends Metadata {
   social?: string
   social_url?: string
   exclude?: boolean
-  schedule?: string
-  system?: string
   watch?: string
-  background?: boolean | 'auto' | 'true' | 'false'
   type: ProcessType
   timeout?: number
   tabs?: string[]
@@ -393,7 +390,7 @@ export interface AppState {
 
 export type ChannelHandler = (input?: string, state?: AppState) => void | Promise<void>
 
-export type SubmitHandler = (input?: string, state?: AppState) => void | Symbol | Promise<void | Symbol>
+export type SubmitHandler = (input?: string, state?: AppState) => void | symbol | Promise<void | symbol>
 
 export type PromptConfig = {
   validate?: (input: string) => boolean | string | Promise<boolean | string>
@@ -523,9 +520,14 @@ export interface Metadata {
 
   /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
   schedule?: CronExpression
+  /** Indicates whether the script can be run through the rest API */
   access?: 'public' | 'key' | 'private'
+  /** Indicates whether the script can return a response through the rest API */
   response?: boolean
+  /** Indicates the order of the script in its group in the main menu */
   index?: number
+  /** Indicates whether to disable logs for the script */
+  log?: boolean
 }
 
 export interface ProcessInfo {

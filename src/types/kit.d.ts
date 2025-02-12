@@ -95,7 +95,7 @@ export type OnExit = (fn: () => void) => void
 export type KitModuleLoader = (packageName: string, ...moduleArgs: string[]) => Promise<any>
 export type Edit = (file: string, dir?: string, line?: string | number, col?: string | number) => Promise<void>
 
-export type Browse = (url: string) => ReturnType<typeof import('@johnlindquist/open')>
+export type Browse = (url: string) => Promise<void>
 
 export type Wait = (time: number, submitValue?: any) => Promise<void>
 

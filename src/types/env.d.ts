@@ -13,7 +13,6 @@ export type kenvEnv = {
   KIT_DEBUG_PROMPT?: string | undefined
   KIT_DOCK?: string | undefined
   KIT_ALWAYS_ON_TOP?: string | undefined
-  KIT_AUTO_UPDATE?: string | undefined
   KIT_BACKGROUND_THROTTLE?: string | undefined
   KIT_SHADOW?: string | undefined
   KIT_BLUR?: string | undefined
@@ -48,7 +47,6 @@ export type kenvEnv = {
   KIT_TERM_FONT?: string | undefined
   KIT_THEME_DARK?: string | undefined
   KIT_THEME_LIGHT?: string | undefined
-  KIT_TRANSPARENT?: string | undefined
   KIT_TRAY?: string | undefined
   KIT_TYPED_LIMIT?: string | undefined
   KIT_TYPING_RATE?: string | undefined

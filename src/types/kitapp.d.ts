@@ -22,12 +22,14 @@ import type { BrowserWindowConstructorOptions, Display, Rectangle } from './elec
 
 import type { Trash } from './packages.js'
 import type { marked } from '../globals/marked.js'
+import type { Token as MarkedToken } from "marked"
 import type { ChildProcess } from 'node:child_process'
 import type { UiohookKeyboardEvent, UiohookMouseEvent, UiohookWheelEvent } from './io.js'
-import type { KeyEnum } from './keyboard.js'
+import type { KeyEnum } from '../core/keyboard.js'
 import type { FileSearchOptions } from './platform.js'
 import type { NotificationConstructorOptions } from './notify.js'
 import type { ShebangConfig } from '../core/shebang.js'
+import type { Readable } from 'node:stream'
 
 export type Status = (typeof statuses)[number]
 
@@ -148,6 +150,22 @@ export type Screenshot = (displayId?: number, bounds?: Rectangle) => Promise<Buf
 export type ScreenshotConfig = {
   displayId?: Parameters<Screenshot>[0]
   bounds?: Parameters<Screenshot>[1]
+}
+
+export type MediaDeviceInfo = {
+  name: string
+  description: string
+  group: string
+  value: {
+    deviceId: string
+    kind: string
+    label: string
+    groupId: string
+  }
+  deviceId: string
+  kind: string
+  label: string
+  groupId: string
 }
 
 export type GetMediaDevices = () => Promise<MediaDeviceInfo[]>
@@ -622,7 +640,6 @@ export interface ChannelMap {
   [Channel.START_MIC]: MicConfig
   [Channel.SCREENSHOT]: ScreenshotConfig
   [Channel.SYSTEM_CLICK]: boolean
-  [Channel.SYSTEM_MOVE]: boolean
   [Channel.SYSTEM_KEYDOWN]: boolean
   [Channel.SYSTEM_KEYUP]: boolean
   [Channel.SYSTEM_MOUSEDOWN]: boolean
@@ -657,6 +674,8 @@ export type SetInput = (input: string) => Promise<void>
 export type ScrollTo = (location: 'top' | 'bottom' | 'center') => Promise<void>
 
 export type SetTextareaValue = (value: string) => void
+
+export type SetIgnoreBlur = (ignoreBlur: boolean) => void
 
 export type SetFocused = (id: string) => void
 
@@ -849,7 +868,7 @@ export type Docs<T = any> = (
   markdownPath: string,
   options?:
     | Partial<PromptConfig>
-    | ((sections?: GuideSection[], tokens?: marked.Token[]) => Promise<Partial<PromptConfig>>)
+    | ((sections?: GuideSection[], tokens?: MarkedToken[]) => Promise<Partial<PromptConfig>>)
 ) => Promise<T>
 
 export type ExecLog = (command: string, logger?: typeof console.log) => ChildProcess
@@ -938,7 +957,7 @@ export interface AppApi {
   log: typeof console.log
   warn: typeof console.warn
 
-  keyboard: CoreKeyEnumboard
+  keyboard: Keyboard
   clipboard: KitClipboard
   execLog: ExecLog
 
@@ -1073,7 +1092,7 @@ declare global {
   var getMediaDevices: GetMediaDevices
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
-  var preventSubmit: Symbol
+  var preventSubmit: symbol
 
   type removeListener = () => void
   /**
