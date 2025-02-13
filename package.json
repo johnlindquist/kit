@@ -72,9 +72,7 @@
       "typescript": "5.7.3",
       "esbuild": "0.25.0"
     },
-    "onlyBuiltDependencies": [
-      "@johnlindquist/mac-windows"
-    ]
+    "onlyBuiltDependencies": ["@johnlindquist/mac-windows", "esbuild"]
   },
   "dependencies": {
     "@johnlindquist/open": "^10.1.1",
@@ -123,7 +121,7 @@
     "minimist": "1.2.8",
     "open": "10.1.0",
     "p-retry": "6.2.1",
-    "pnpm": "10.2.1",
+    "pnpm": "10.3.0",
     "project-name-generator": "2.1.9",
     "quick-score": "^0.2.0",
     "replace-in-file": "8.3.0",
@@ -140,7 +138,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.2",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",
@@ -160,11 +158,7 @@
       "KIT_TEST": "true"
     },
     "verbose": true,
-    "files": [
-      "src/**/*.test.js",
-      "test/**/*.test.js",
-      "test-sdk/**/*.test.js"
-    ]
+    "files": ["src/**/*.test.js", "test/**/*.test.js", "test-sdk/**/*.test.js"]
   },
   "release": {
     "branches": [
@@ -192,9 +186,7 @@
       [
         "semantic-release-plugin-update-version-in-files",
         {
-          "files": [
-            "./.kit/package.json"
-          ]
+          "files": ["./.kit/package.json"]
         }
       ]
     ]
@@ -212,5 +204,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@10.2.1"
+  "packageManager": "pnpm@10.3.0"
 }

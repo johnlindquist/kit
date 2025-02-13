@@ -3,6 +3,7 @@ import fs from "fs-extra"
 import { db } from "./db.js" // Adjust the import path accordingly
 import { kenvPath, resolveScriptToCommand } from "./utils.js"
 import tmp from "tmp-promise"
+import { Choice } from "../types/core.js"
 
 await tmp.withDir(async (dir) => {
 	process.env.KENV = dir.path
@@ -114,5 +115,23 @@ await tmp.withDir(async (dir) => {
 		})
 
 		t.deepEqual(fruitDb.data.items, ["apple", "banana", "grape", "orange"])
+	})
+
+	test.serial("testing array objects assign self to value in db", async (t) => {
+		let fruitDb = await db({
+			people: [
+				{
+					name: "John",
+					age: 30
+				},
+				{
+					name: "Jane",
+					age: 25
+				}
+			]
+		})
+
+		t.is((fruitDb.people[0] as Choice).value, undefined)
+		t.is((fruitDb.people[1] as Choice).value, undefined)
 	})
 })
