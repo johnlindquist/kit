@@ -988,153 +988,14 @@ export interface HideOptions {
 }
 declare global {
   var textarea: TextArea
-  /**
-   * Use `await drop()` to prompt the user to drop a file or folder.
-   * #### drop example
-   * ```ts
-   * // Note: Dropping one or more files returns an array of file information
-   * // Dropping text or an image from the browser returns a string
-   * let fileInfos = await drop()
-   * let filePaths = fileInfos.map(f => f.path).join(",")
-   * await div(md(filePaths))
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#drop
-   */
   var drop: Drop
-  /**
-   * `div` displays HTML. Pass a string of HTML to `div` to render it. `div` is commonly used in conjunction with `md` to render markdown.
-   * 1. Just like arg, the first argument is a string or a prompt configuration object.
-   * 2. Optional:The second argument is a string of tailwind class to apply to the container, e.g., `bg-white p-4`.
-   * #### div example
-   * ```ts
-   * await div(`Hello world!`)
-   * ```
-   * #### div with markdown
-   * ```ts
-   * await div(md(`
-   * # example!
-   * @see https://johnlindquist.github.io/kit-docs/#div
-   */
   var div: Div
-  /**
-   * Use an HTML form which returns an Object based on the names of the form fields.
-   * #### form example
-   * ```ts
-   * let result = await form(`
-   * <div class="p-4">
-   *     <input type="text" name="textInput" placeholder="Text Input" />
-   *     <input type="password" name="passwordInput" placeholder="Password" />
-   *     <input type="email" name="emailInput" placeholder="Email" />
-   *     <input type="number" name="numberInput" placeholder="Number" />
-   *     <input type="date" name="dateInput" placeholder="Date" />
-   *     <input type="time" name="timeInput" placeholder="Time" />
-   *     <input type="datetime-local" name="dateTimeInput" placeholder="Date and Time" />
-   *     <input type="month" name="monthInput" placeholder="Month" />
-   *     <input type="week" name="weekInput" placeholder="Week" />
-   *     <input type="url" name="urlInput" placeholder="URL" />
-   *     <input type="search" name="searchInput" placeholder="Search" />
-   *     <input type="tel" name="telInput" placeholder="Telephone" />
-   *     <input type="color" name="colorInput" placeholder="Color" />
-   *     <textarea name="textareaInput" placeholder="Textarea"></textarea>
-   * </div>
-   * `)
-   * inspect(result)
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#form
-   */
   var form: Form
-  /**
-   * The `fields` prompt allows you to rapidly create a form with fields. 
-   * 1. An array of labels or objects with label and field properties.
-   * #### fields example
-   * ```ts
-   * let [first, last] = await fields(["First name", "Last name"])
-   * ```
-   * #### fields with field properties
-   * ```ts
-   * let [name, age] = await fields([
-   *     {
-   *         name: "name",
-   *         label: "Name",
-   *         type: "text",
-   *         placeholder: "John"
-   *     },
-   *     {
-   *         name: "age",
-   *         label: "Age",
-   *         type: "number",
-   *         placeholder: "40"
-   *     }
-   * ])
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#fields
-   */
   var fields: Fields
   var emoji: Emoji
-  /**
-   * The `editor` function opens a text editor with the given text. The editor is a full-featured "Monaco" editor with syntax highlighting, find/replace, and more. The editor is a great way to edit or update text to write a file. The default language is markdown.
-   * #### editor example
-   * ```ts
-   * let content = await editor()
-   * ```
-   * #### editor load remote text content
-   * ```ts
-   * let response = await get(`https://raw.githubusercontent.com/johnlindquist/kit/main/API.md`)
-   * let content = await editor(response.data)
-   * ```
-   * #### editor with initial content
-   * ```ts
-   * let content = await editor("Hello world!")
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#editor
-   */
   var editor: Editor
-  /**
-   * The `template` prompt will present the editor populated by your template. You can then tab through each variable in your template and edit it. 
-   * 1. The first argument is a string template. Add variables using $1, $2, etc. You can also use 
-   * [//]: # (\${1:default value} to set a default value.&#41;)
-   * #### template example
-   * ```ts
-   * let text = await template(`Hello $1!`)
-   * ```
-   * #### template standard usage
-   * ```ts
-   * let text = await template(`
-   * Dear \${1:name},
-   * Please meet me at \${2:address}
-   * Sincerely, John`)
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#template
-   */
   var template: Template
 
-  /**
-   * The `hotkey` prompt allows you to press modifier keys, then submits once you've pressed a non-monodifier key. For example, press `command` then `e` to submit key info about the `command` and `e` keys:
-   * ```json
-   * {
-   *   "key": "e",
-   *   "command": true,
-   *   "shift": false,
-   *   "option": false,
-   *   "control": false,
-   *   "fn": false,
-   *   "hyper": false,
-   *   "os": false,
-   *   "super": false,
-   *   "win": false,
-   *   "shortcut": "command e",
-   *   "keyCode": "KeyE"
-   * }
-   * ```
-   * This can be useful when you want to use a palette of commands and trigger each of them by switching on a hotkey.
-   * 1. Optional: The first argument is a string to display in the prompt.
-   * #### hotkey example
-   * ```ts
-   * let keyInfo = await hotkey()
-   * await editor(JSON.stringify(keyInfo, null, 2))
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#hotkey
-   */
   var hotkey: Hotkey
   var send: Send
   var sendWait: (channel: Channel, value?: any, timeout?: number) => Promise<any>
@@ -1145,14 +1006,6 @@ declare global {
   var setFocused: SetFocused
   var setEnter: SetEnter
   var setPlaceholder: SetPlaceholder
-  /**
-   * Sets the panel content.
-   * #### setPanel example
-   * ```ts
-   * await setPanel("<h1>Hello, world!</h1>")
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setpanel
-   */
   var setPanel: SetPanel
   var setFooter: SetFooter
   var addChoice: AddChoice
@@ -1161,23 +1014,7 @@ declare global {
   var setFormData: SetFormData
   var clearTabs: () => void
   var setDiv: SetPanel
-  /**
-   * Sets the preview content.
-   * #### setPreview example
-   * ```ts
-   * await setPreview("<h1>Preview</h1>")
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setpreview
-   */
   var setPreview: SetPreview
-  /**
-   * Sets the prompt content.
-   * #### setPrompt example
-   * ```ts
-   * await setPrompt("<h1>Enter your name:</h1>")
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setprompt
-   */
   var setPrompt: SetPrompt
   var setBounds: SetBounds
   var getBounds: GetBounds
@@ -1190,96 +1027,26 @@ declare global {
   var scrollTo: ScrollTo
   var setFilterInput: SetInput
   var setTextareaValue: SetTextareaValue
-  /**
-   * Sets whether to ignore blur events.
-   * #### setIgnoreBlur example
-   * ```ts
-   * await setIgnoreBlur(true)
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setignoreblur
-   */
   var setIgnoreBlur: SetIgnoreBlur
   var setResize: SetResize
   var setPauseResize: SetResize
   var setLoading: SetLoading
   var setProgress: SetProgress
   var setRunning: SetLoading
-  /**
-   * Set the system menu bar icon and message. 
-   * Each status message will be appended to a list. 
-   * Clicking on the menu will display the list of messages. 
-   * The status and messages will be dismissed once the tray closes, so use `log` if you want to persist messages.
-   * #### setStatus example
-   * ```ts
-   * await setStatus({
-   *   message: "Working on it...",
-   *   status: "busy",
-   * })
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setstatus
-   */
   var setStatus: SetStatus
   var setTheme: SetTheme
   var setScriptTheme: SetTheme
 
   var showImage: ShowAppWindow
 
-  /**
-   * Shows the main prompt.
-   * #### show example
-   * ```ts
-   * await show()
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#show
-   */
   var show: () => Promise<void>
-  /**
-   * Hides the main prompt.
-   * #### hide example
-   * ```ts
-   * await hide()
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#hide
-   */
   var hide: (hideOptions?: HideOptions) => Promise<void>
   var blur: () => Promise<void>
 
-  /**
-   * `dev` Opens a standalone instance of Chrome Dev Tools so you can play with JavaScript in the console. Passing in an object will set the variable `x` to your object in the console making it easy to inspect.
-   * 1. Optional: the first argument is an object to set to the variable `x` to in the console.
-   * #### dev example
-   * ```ts
-   * dev()
-   * ```
-   * #### dev with object
-   * ```ts
-   * dev({
-   *     name: "John",
-   *     age: 40
-   * })
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#dev
-   */
   var dev: (object?: any) => Promise<void>
   var getClipboardHistory: () => Promise<ClipboardItem[]>
-  /**
-   * Clears the clipboard history.
-   * #### clearClipboardHistory example
-   * ```ts
-   * await clearClipboardHistory()
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#clearclipboardhistory
-   */
   var clearClipboardHistory: () => Promise<void>
   var getEditorHistory: GetEditorHistory
-  /**
-   * Removes an item from the clipboard.
-   * #### removeClipboardItem example
-   * ```ts
-   * await removeClipboardItem(item)
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#removeclipboarditem
-   */
   var removeClipboardItem: (id: string) => Promise<void>
   var setTab: (tabName: string) => void
   var submit: Submit
@@ -1309,65 +1076,8 @@ declare global {
   var eyeDropper: () => Promise<{
     sRGBHex: string
   }>
-  /**
-   * A chat prompt. Use `chat.addMessage()` to insert messages into the chat.
-   * > Note: Manually invoke `submit` inside of a shortcut/action/etc to end the chat.
-   * Also see the included "chatgpt" example for a much more advanced scenario.
-   * #### chat example
-   * ```ts
-   * // Name: Testing Chat
-   * import "@johnlindquist/kit"
-   * await chat({
-   *   onInit: async () => {
-   *     chat.addMessage({
-   *       // Note: text and position are implemented, there are other properties that are a WIP
-   *       text: "You like Script Kit",
-   *       position: "left",
-   *     })
-   * await wait(1000)
-   * chat.addMessage({
-   *       text: "Yeah! It's awesome!",
-   *       position: "right",
-   *     })
-   * await wait(1000)
-   * chat.addMessage({
-   *       text: "I know, right?!?",
-   *       position: "left",
-   *     })
-   * await wait(1000)
-   * chat.addMessage({
-   *       text: `<img src="https://media0.giphy.com/media/yeE6B8nEKcTMWWvBzD/giphy.gif?cid=0b9ef2f49arnbs4aajuycirjsclpbtimvib6a76g7afizgr5&ep=v1_gifs_search&rid=giphy.gif" width="200px" />`,
-   *       position: "right",
-   *     })
-   *   },
-   * })
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#chat
-   */
   var chat: Chat
-  /**
-   * Displays a small pop-up notification inside the Script Kit window.
-   * #### toast example
-   * ```ts
-   * await toast("Hello from Script Kit!", {
-   *   autoClose: 3000, // close after 3 seconds
-   *   pauseOnFocusLoss: false
-   * })
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#toast
-   */
   var toast: Toast
-  /**
-   * A file search prompt
-   * #### find example
-   * ```ts
-   * let filePath = await find("Search in the Downloads directory", {
-   *   onlyin: home("Downloads"),
-   * })
-   * await revealFile(filePath)
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#find
-   */
   var find: Find
   var mic: Mic
   /**
@@ -1377,37 +1087,9 @@ declare global {
    * @returns A Promise that resolves to a Buffer containing the screenshot data.
    */
   var screenshot: Screenshot
-  /**
-   * Prompt for webcam access. Press enter to capture an image buffer:
-   * ## Alerts
-   * #### webcam example
-   * ```ts
-   * let buffer = await webcam()
-   * let imagePath = tmpPath("image.jpg")
-   * await writeFile(imagePath, buffer)
-   * await revealFile(imagePath)
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#webcam
-   */
   var webcam: WebCam
   var prompt: Prompt
-  /**
-   * Retrieves available media devices.
-   * #### getMediaDevices example
-   * ```ts
-   * let devices = await getMediaDevices()
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#getmediadevices
-   */
   var getMediaDevices: GetMediaDevices
-  /**
-   * Retrieves typed text from the user.
-   * #### getTypedText example
-   * ```ts
-   * let text = await getTypedText()
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#gettypedtext
-   */
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
   var preventSubmit: symbol
@@ -1456,16 +1138,5 @@ declare global {
 
   var getTheme: () => Promise<KitTheme>
 
-  /**
-   * Send a system notification
-   * > Note: osx notifications require permissions for "Terminal Notifier" in the system preferences. Due to the complicated nature of configuring notifications, please use a search engine to find the latest instructions for your osx version.
-   * > In the Script Kit menu bar icon: "Permissions -> Request Notification Permissions" might help.
-   * ## Widget
-   * #### notify example
-   * ```ts
-   * await notify("Attention!")
-   * ```
-   * @see https://johnlindquist.github.io/kit-docs/#notify
-   */
   var notify: Notify
 }
