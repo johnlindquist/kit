@@ -76,9 +76,9 @@
   },
   "dependencies": {
     "@johnlindquist/open": "^10.1.1",
-    "@octokit/auth-oauth-device": "7.1.2",
-    "@octokit/core": "6.1.3",
-    "@octokit/plugin-paginate-rest": "11.4.0",
+    "@octokit/auth-oauth-device": "7.1.3",
+    "@octokit/core": "6.1.4",
+    "@octokit/plugin-paginate-rest": "11.4.2",
     "@octokit/plugin-rest-endpoint-methods": "13.3.1",
     "@octokit/plugin-retry": "7.1.3",
     "@octokit/plugin-throttling": "9.4.0",
@@ -121,7 +121,7 @@
     "minimist": "1.2.8",
     "open": "10.1.0",
     "p-retry": "6.2.1",
-    "pnpm": "10.3.0",
+    "pnpm": "10.4.0",
     "project-name-generator": "2.1.9",
     "quick-score": "^0.2.0",
     "replace-in-file": "8.3.0",
@@ -138,7 +138,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/debug": "4.1.12",
-    "@types/node": "^22.13.2",
+    "@types/node": "^22.13.4",
     "@types/node-ipc": "9.2.3",
     "ava": "^6.2.0",
     "cross-env": "^7.0.3",
@@ -204,5 +204,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@10.3.0"
+  "packageManager": "pnpm@10.4.0"
 }
