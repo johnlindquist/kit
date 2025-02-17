@@ -38,23 +38,6 @@ const insertIndexedItems = (items: Choice[]): Choice[] => {
   return nonIndexed
 }
 
-/**
- * Formats an array of choices.
- *
- * - If a choice is not an object, it is converted to a basic choice object.
- * - If a choice has a nested `choices` array (i.e. represents a group), then:
- *    1. The group header is formatted (its `group` property is preserved if already set,
- *       or defaulted to its name).
- *    2. Its sub-choices are formatted in their original order.
- *    3. After processing the sub‑choices, any items with an `index` property are re‑inserted
- *       at the appropriate positions.
- * - For top‑level non-group items, if every item is non‑group, then we re‑insert the indexed items
- *   in the final array.
- *
- * @param choices An array of choices or simple values.
- * @param className An optional default className.
- * @returns The formatted array of choices.
- */
 export let formatChoices = (choices: Choice[], className = ''): Choice[] => {
   if (!Array.isArray(choices)) {
     throw new Error(`Choices must be an array. Received ${typeof choices}`)

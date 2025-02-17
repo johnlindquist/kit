@@ -1,6 +1,6 @@
-import { homedir } from "os"
-import path from "path"
-import { URL, fileURLToPath } from "url"
+import "./path/path.js"
+
+import { URL, fileURLToPath } from "node:url"
 
 let kitRun = async (command?: string, ..._args: string[]) => {
 	process.env.KIT =
@@ -22,6 +22,7 @@ if (!process?.env?.KIT_TARGET) {
 
 export * from "./api/kit.js"
 export * from "./core/utils.js"
+
 
 let dirs = ["cli", "main"]
 

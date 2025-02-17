@@ -8,7 +8,7 @@ import type {
   PromptConfig,
   PromptData,
   Shortcut,
-} from "../types/core"
+} from "../types/core.js"
 
 import type {
   GetAppData,
@@ -24,7 +24,7 @@ import type {
   ChannelMap,
   ScreenshotConfig,
   DivConfig,
-} from "../types/kitapp"
+} from "../types/kitapp.js"
 
 import {
   filter,
@@ -72,8 +72,7 @@ import {
   getFlagsFromActions,
   tmpPath,
 } from "../api/kit.js"
-import type { Rectangle } from "../types/electron"
-import "./path/path.js"
+import type { Rectangle } from "../types/electron.js"
 
 export let shortcutsShortcut: Shortcut = {
   name: "Display Shortcuts",
@@ -1136,6 +1135,7 @@ let prepPrompt = async (config: PromptConfig) => {
       "tag",
       "group",
       "command",
+      "alias"
     ],
   }
 

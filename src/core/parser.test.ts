@@ -1,7 +1,7 @@
 import ava from "ava"
-import { postprocessMetadata } from "./parser"
+import { postprocessMetadata } from "./parser.js"
 import { ProcessType } from "./enum.js"
-import type { Metadata, ScriptMetadata } from "../types"
+import type { Metadata, ScriptMetadata } from "../types/core.js"
 
 ava("postprocessMetadata - basic metadata processing", (t) => {
 	const metadata = {
@@ -10,7 +10,7 @@ ava("postprocessMetadata - basic metadata processing", (t) => {
 		trigger: "TEST_TRIGGER",
 		alias: "Test Alias",
 		image: "~/images/test.png"
-	}
+	} satisfies Metadata
 	const fileContents = ""
 
 	const result = postprocessMetadata(metadata, fileContents)

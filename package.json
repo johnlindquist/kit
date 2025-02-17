@@ -80,7 +80,7 @@
     "@octokit/core": "6.1.4",
     "@octokit/plugin-paginate-rest": "11.4.2",
     "@octokit/plugin-rest-endpoint-methods": "13.3.1",
-    "@octokit/plugin-retry": "7.1.3",
+    "@octokit/plugin-retry": "7.1.4",
     "@octokit/plugin-throttling": "9.4.0",
     "@types/chalk": "2.2.4",
     "@types/date-fns": "2.6.3",
@@ -121,7 +121,7 @@
     "minimist": "1.2.8",
     "open": "10.1.0",
     "p-retry": "6.2.1",
-    "pnpm": "10.4.0",
+    "pnpm": "10.4.1",
     "project-name-generator": "2.1.9",
     "quick-score": "^0.2.0",
     "replace-in-file": "8.3.0",
@@ -145,7 +145,7 @@
     "cz-conventional-changelog": "^3.3.0",
     "debug": "4.4.0",
     "node-stream-zip": "^1.15.0",
-    "semantic-release": "24.2.2",
+    "semantic-release": "24.2.3",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
     "tsc-watch": "6.2.1",
     "tsx": "4.19.2",
@@ -204,5 +204,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@10.4.0"
+  "packageManager": "pnpm@10.4.1"
 }

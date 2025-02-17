@@ -37,7 +37,7 @@ try {
 }
 let userJson = await getUserJson()
 let appState = await getAppState()
-if (userJson.login) {
+if (userJson.login && process.env.KIT_LOGIN) {
   let option = await arg(
     {
       placeholder: "Account",
@@ -66,7 +66,7 @@ if (userJson.login) {
               name: "Check Pro Status",
               preview: md(`# Ping the Script Kit Pro Server
       
-      This will check your Pro status and update your account if successful.
+This will check your Pro status and update your account if successful.
               `),
               value: "pro-status",
               enter: "Check Status",

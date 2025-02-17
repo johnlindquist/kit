@@ -453,6 +453,23 @@ export type CronExpression =
   | `${string} ${string} ${string} ${string} ${string}`
   | `${string} ${string} ${string} ${string} ${string} ${string}`
 
+type OptModifier = "opt" | "option" | "alt";
+type CmdModifier = "cmd" | "command";
+type CtrlModifier = "ctrl" | "control";
+type ShiftModifier = "shift";
+
+type Modifier = OptModifier | CmdModifier | CtrlModifier | ShiftModifier;
+type Key = string;
+type Separator = " " | "+";
+
+type ModifierCombination =
+  | Modifier
+  | `${Modifier}${Separator}${Modifier}`
+  | `${Modifier}${Separator}${Modifier}${Separator}${Modifier}`
+  | `${Modifier}${Separator}${Modifier}${Separator}${Modifier}${Separator}${Modifier}`;
+
+export type MetadataShortcut = `${ModifierCombination}${Separator}${Key}`;
+
 export interface Metadata {
   /** The author's name */
   author?: string
@@ -470,7 +487,7 @@ export interface Metadata {
   /** Defines the path to an image to be used for the script */
   image?: string
   /** Defines a global keyboard shortcut to trigger the script. */
-  shortcut?: string
+  shortcut?: MetadataShortcut
   /**
    * Similar to {@link trigger}, defines a string that, when typed in the main menu
    * followed by a space, immediately executes the script.
