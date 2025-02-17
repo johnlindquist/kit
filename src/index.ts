@@ -1,4 +1,4 @@
-import "./path/path.js"
+import "./target/path/path.js"
 
 import { URL, fileURLToPath } from "node:url"
 
