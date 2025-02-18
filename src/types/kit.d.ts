@@ -250,9 +250,7 @@ declare global {
    * });
    * await editor(projectPath);
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#path
-   * More examples:
-   * @see https://scriptkit.com?query=path
+    [Docs](https://johnlindquist.github.io/kit-docs/#path) | [Examples](https://scriptkit.com?query=path)
    */
   var path: PathSelector
   /**
@@ -263,9 +261,7 @@ declare global {
    * const zshrcPath = home(".zshrc");
    * await edit(zshrcPath);
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#edit
-   * More examples:
-   * @see https://scriptkit.com?query=edit
+    [Docs](https://johnlindquist.github.io/kit-docs/#edit) | [Examples](https://scriptkit.com?query=edit)
    */
   var edit: Edit
   /**
@@ -276,9 +272,7 @@ declare global {
    * await hide();
    * await browse("https://scriptkit.com");
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#browse
-   * More examples:
-   * @see https://scriptkit.com?query=browse
+    [Docs](https://johnlindquist.github.io/kit-docs/#browse) | [Examples](https://scriptkit.com?query=browse)
    */
   var browse: Browse
 
@@ -293,9 +287,7 @@ declare global {
    * ```ts
    * let module = await attemptImport("lodash")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#attemptImport
-   * More examples:
-   * @see https://scriptkit.com?query=attemptImport
+    [Docs](https://johnlindquist.github.io/kit-docs/#attemptImport) | [Examples](https://scriptkit.com?query=attemptImport)
    */
   var attemptImport: KitModuleLoader
   /**
@@ -306,9 +298,7 @@ declare global {
    * ```ts
    * let module = await silentAttemptImport("lodash")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#silentAttemptImport
-   * More examples:
-   * @see https://scriptkit.com?query=silentAttemptImport
+    [Docs](https://johnlindquist.github.io/kit-docs/#silentAttemptImport) | [Examples](https://scriptkit.com?query=silentAttemptImport)
    */
   var silentAttemptImport: KitModuleLoader
   /**
@@ -320,9 +310,7 @@ declare global {
    * ```ts
    * await npm("lodash")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#npm
-   * More examples:
-   * @see https://scriptkit.com?query=npm
+    [Docs](https://johnlindquist.github.io/kit-docs/#npm) | [Examples](https://scriptkit.com?query=npm)
    */
   var npm: KitModuleLoader
   var npmInstall: (packageName: string) => Promise<void>
@@ -347,9 +335,7 @@ declare global {
    *   })
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#env
-   * More examples:
-   * @see https://scriptkit.com?query=env
+    [Docs](https://johnlindquist.github.io/kit-docs/#env) | [Examples](https://scriptkit.com?query=env)
    */
   var env: Env
   /**
@@ -422,9 +408,7 @@ declare global {
    *     return response?.data?.results.map((p) => p.name);
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#arg
-   * More examples:
-   * @see https://scriptkit.com?query=arg
+    [Docs](https://johnlindquist.github.io/kit-docs/#arg) | [Examples](https://scriptkit.com?query=arg)
    */
   var arg: Arg
   /**
@@ -509,9 +493,7 @@ declare global {
    *   return input.trim().split(new RegExp("[.,;/-_\n]", "g"))
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#select
-   * More examples:
-   * @see https://scriptkit.com?query=select
+    [Docs](https://johnlindquist.github.io/kit-docs/#select) | [Examples](https://scriptkit.com?query=select)
    */
   var select: Select
   /**
@@ -523,9 +505,7 @@ declare global {
    *   ["John", "Nghia", "Mindy", "Joy"]
    * )
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#grid
-   * More examples:
-   * @see https://scriptkit.com?query=grid
+    [Docs](https://johnlindquist.github.io/kit-docs/#grid) | [Examples](https://scriptkit.com?query=grid)
    */
   var grid: Grid
   var basePrompt: Arg
@@ -535,9 +515,7 @@ declare global {
    * ```ts
    * let name = await mini("Enter your name")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#mini
-   * More examples:
-   * @see https://scriptkit.com?query=mini
+    [Docs](https://johnlindquist.github.io/kit-docs/#mini) | [Examples](https://scriptkit.com?query=mini)
    */
   var mini: Arg
   /**
@@ -546,9 +524,7 @@ declare global {
    * ```ts
    * let name = await micro("Enter your name")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#micro
-   * More examples:
-   * @see https://scriptkit.com?query=micro
+    [Docs](https://johnlindquist.github.io/kit-docs/#micro) | [Examples](https://scriptkit.com?query=micro)
    */
   var micro: Arg
   /**
@@ -562,9 +538,7 @@ declare global {
    *   await arg("Select an animal", ["Dog", "Cat", "Bird"]);
    * });
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#onTab
-   * More examples:
-   * @see https://scriptkit.com?query=onTab
+    [Docs](https://johnlindquist.github.io/kit-docs/#onTab) | [Examples](https://scriptkit.com?query=onTab)
    */
   var onTab: OnTab
   var onExit: OnExit
@@ -589,9 +563,7 @@ declare global {
    * let response = await get("https://swapi.dev/api/people/1/")
    * await inspect(response.data)
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#inspect
-   * More examples:
-   * @see https://scriptkit.com?query=inspect
+    [Docs](https://johnlindquist.github.io/kit-docs/#inspect) | [Examples](https://scriptkit.com?query=inspect)
    */
   var inspect: Inspect
 
@@ -660,9 +632,7 @@ declare global {
    * await fruitDb.write()
    * }
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#db
-   * More examples:
-   * @see https://scriptkit.com?query=db
+    [Docs](https://johnlindquist.github.io/kit-docs/#db) | [Examples](https://scriptkit.com?query=db)
    */
   var db: DB
   /**
@@ -674,9 +644,7 @@ declare global {
    * await store.set("myKey", "myValue")
    * let value = await store.get("myKey")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#store
-   * More examples:
-   * @see https://scriptkit.com?query=store
+    [Docs](https://johnlindquist.github.io/kit-docs/#store) | [Examples](https://scriptkit.com?query=store)
    */
   var store: Store
 
@@ -687,9 +655,7 @@ declare global {
    * memoryMap.set("myKey", { myObject: true })
    * let value = memoryMap.get("myKey")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#memoryMap
-   * More examples:
-   * @see https://scriptkit.com?query=memoryMap
+    [Docs](https://johnlindquist.github.io/kit-docs/#memoryMap) | [Examples](https://scriptkit.com?query=memoryMap)
    */
   var memoryMap: Map<string, any>
 
@@ -725,9 +691,7 @@ declare global {
    *   ]
    * );
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#openActions
-   * More examples:
-   * @see https://scriptkit.com?query=openActions
+    [Docs](https://johnlindquist.github.io/kit-docs/#openActions) | [Examples](https://scriptkit.com?query=openActions)
    */
   var openActions: () => Promise<void>
   var closeActions: () => Promise<void>
@@ -760,9 +724,7 @@ declare global {
    *   }
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#createGist
-   * More examples:
-   * @see https://scriptkit.com?query=createGist
+    [Docs](https://johnlindquist.github.io/kit-docs/#createGist) | [Examples](https://scriptkit.com?query=createGist)
    */
   var createGist: CreateGist
   var setShortcuts: SetShortcuts
@@ -772,9 +734,7 @@ declare global {
   var cmd: 'cmd' | 'ctrl'
   /**
    * Formats a date
-   * @see https://johnlindquist.github.io/kit-docs/#formatDate
-   * More examples:
-   * @see https://scriptkit.com?query=formatDate
+    [Docs](https://johnlindquist.github.io/kit-docs/#formatDate) | [Examples](https://scriptkit.com?query=formatDate)
    */
   var formatDate: typeof format
   var formatDateToNow: typeof formatDistanceToNow
@@ -799,9 +759,7 @@ declare global {
    *   { name: "Joy", score: 0.7 }
    * ])
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setScoredChoices
-   * More examples:
-   * @see https://scriptkit.com?query=setScoredChoices
+    [Docs](https://johnlindquist.github.io/kit-docs/#setScoredChoices) | [Examples](https://scriptkit.com?query=setScoredChoices)
    */
   var setScoredChoices: (scoredChoices: ScoredChoice[]) => Promise<void>
 
@@ -814,9 +772,7 @@ declare global {
    *   { name: "Group 2", choices: ["Joy"] }
    * ])
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#groupChoices
-   * More examples:
-   * @see https://scriptkit.com?query=groupChoices
+    [Docs](https://johnlindquist.github.io/kit-docs/#groupChoices) | [Examples](https://scriptkit.com?query=groupChoices)
    */
   var groupChoices: (
     choices: Choice[],
@@ -858,9 +814,7 @@ declare global {
    * const choices = formatChoices(people);
    * await arg("Select a person from their group", choices);
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#formatChoices
-   * More examples:
-   * @see https://scriptkit.com?query=formatChoices
+    [Docs](https://johnlindquist.github.io/kit-docs/#formatChoices) | [Examples](https://scriptkit.com?query=formatChoices)
    */
   var formatChoices: (choices: Choice[], className?: string) => Choice[]
 
@@ -873,9 +827,7 @@ declare global {
    *   age: 40
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#preload
-   * More examples:
-   * @see https://scriptkit.com?query=preload
+    [Docs](https://johnlindquist.github.io/kit-docs/#preload) | [Examples](https://scriptkit.com?query=preload)
    */
   var preload: (scriptPath?: string) => void
 
@@ -885,9 +837,7 @@ declare global {
    * ```ts
    * await setSelectedChoices(["John", "Mindy"])
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setSelectedChoices
-   * More examples:
-   * @see https://scriptkit.com?query=setSelectedChoices
+    [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedChoices) | [Examples](https://scriptkit.com?query=setSelectedChoices)
    */
   var setSelectedChoices: (choices: Choice[]) => Promise<void>
   var toggleAllSelectedChoices: () => Promise<void>
@@ -928,9 +878,7 @@ declare global {
    *   author: "John Lindquist",
    * };
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#metadata
-   * More examples:
-   * @see https://scriptkit.com?query=metadata
+    [Docs](https://johnlindquist.github.io/kit-docs/#metadata) | [Examples](https://scriptkit.com?query=metadata)
    */
   var metadata: Metadata
 }

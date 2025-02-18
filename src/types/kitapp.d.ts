@@ -997,9 +997,7 @@ declare global {
    * let filePaths = fileInfos.map(f => f.path).join(",")
    * await div(md(filePaths))
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#drop
-   * More examples:
-   * @see https://scriptkit.com?query=drop
+    [Docs](https://johnlindquist.github.io/kit-docs/#drop) | [Examples](https://scriptkit.com?query=drop)
    */
   var drop: Drop
   /**
@@ -1014,9 +1012,7 @@ declare global {
    * ```ts
    * await div(md(`
    * # example!
-   * @see https://johnlindquist.github.io/kit-docs/#div
-   * More examples:
-   * @see https://scriptkit.com?query=div
+    [Docs](https://johnlindquist.github.io/kit-docs/#div) | [Examples](https://scriptkit.com?query=div)
    */
   var div: Div
   /**
@@ -1043,9 +1039,7 @@ declare global {
    * `)
    * inspect(result)
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#form
-   * More examples:
-   * @see https://scriptkit.com?query=form
+    [Docs](https://johnlindquist.github.io/kit-docs/#form) | [Examples](https://scriptkit.com?query=form)
    */
   var form: Form
   /**
@@ -1091,9 +1085,7 @@ declare global {
    *     }
    * ])
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#fields
-   * More examples:
-   * @see https://scriptkit.com?query=fields
+    [Docs](https://johnlindquist.github.io/kit-docs/#fields) | [Examples](https://scriptkit.com?query=fields)
    */
   var fields: Fields
   var emoji: Emoji
@@ -1112,9 +1104,7 @@ declare global {
    * ```ts
    * let content = await editor("Hello world!")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#editor
-   * More examples:
-   * @see https://scriptkit.com?query=editor
+    [Docs](https://johnlindquist.github.io/kit-docs/#editor) | [Examples](https://scriptkit.com?query=editor)
    */
   var editor: Editor
   /**
@@ -1132,9 +1122,7 @@ declare global {
    * Please meet me at \${2:address}
    * Sincerely, John`)
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#template
-   * More examples:
-   * @see https://scriptkit.com?query=template
+    [Docs](https://johnlindquist.github.io/kit-docs/#template) | [Examples](https://scriptkit.com?query=template)
    */
   var template: Template
 
@@ -1163,9 +1151,7 @@ declare global {
    * let keyInfo = await hotkey()
    * await editor(JSON.stringify(keyInfo, null, 2))
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#hotkey
-   * More examples:
-   * @see https://scriptkit.com?query=hotkey
+    [Docs](https://johnlindquist.github.io/kit-docs/#hotkey) | [Examples](https://scriptkit.com?query=hotkey)
    */
   var hotkey: Hotkey
   var send: Send
@@ -1183,9 +1169,7 @@ declare global {
    * ```ts
    * await setPanel("<h1>Hello, world!</h1>")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setPanel
-   * More examples:
-   * @see https://scriptkit.com?query=setPanel
+    [Docs](https://johnlindquist.github.io/kit-docs/#setPanel) | [Examples](https://scriptkit.com?query=setPanel)
    */
   var setPanel: SetPanel
   var setFooter: SetFooter
@@ -1201,9 +1185,7 @@ declare global {
    * ```ts
    * await setPreview("<h1>Preview</h1>")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setPreview
-   * More examples:
-   * @see https://scriptkit.com?query=setPreview
+    [Docs](https://johnlindquist.github.io/kit-docs/#setPreview) | [Examples](https://scriptkit.com?query=setPreview)
    */
   var setPreview: SetPreview
   /**
@@ -1212,9 +1194,7 @@ declare global {
    * ```ts
    * await setPrompt("<h1>Enter your name:</h1>")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setPrompt
-   * More examples:
-   * @see https://scriptkit.com?query=setPrompt
+    [Docs](https://johnlindquist.github.io/kit-docs/#setPrompt) | [Examples](https://scriptkit.com?query=setPrompt)
    */
   var setPrompt: SetPrompt
   var setBounds: SetBounds
@@ -1234,9 +1214,7 @@ declare global {
    * ```ts
    * await setIgnoreBlur(true)
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setIgnoreBlur
-   * More examples:
-   * @see https://scriptkit.com?query=setIgnoreBlur
+    [Docs](https://johnlindquist.github.io/kit-docs/#setIgnoreBlur) | [Examples](https://scriptkit.com?query=setIgnoreBlur)
    */
   var setIgnoreBlur: SetIgnoreBlur
   var setResize: SetResize
@@ -1256,9 +1234,7 @@ declare global {
    *   status: "busy",
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#setStatus
-   * More examples:
-   * @see https://scriptkit.com?query=setStatus
+    [Docs](https://johnlindquist.github.io/kit-docs/#setStatus) | [Examples](https://scriptkit.com?query=setStatus)
    */
   var setStatus: SetStatus
   var setTheme: SetTheme
@@ -1272,9 +1248,7 @@ declare global {
    * ```ts
    * await show()
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#show
-   * More examples:
-   * @see https://scriptkit.com?query=show
+    [Docs](https://johnlindquist.github.io/kit-docs/#show) | [Examples](https://scriptkit.com?query=show)
    */
   var show: () => Promise<void>
   /**
@@ -1283,9 +1257,7 @@ declare global {
    * ```ts
    * await hide()
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#hide
-   * More examples:
-   * @see https://scriptkit.com?query=hide
+    [Docs](https://johnlindquist.github.io/kit-docs/#hide) | [Examples](https://scriptkit.com?query=hide)
    */
   var hide: (hideOptions?: HideOptions) => Promise<void>
   var blur: () => Promise<void>
@@ -1304,9 +1276,7 @@ declare global {
    *     age: 40
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#dev
-   * More examples:
-   * @see https://scriptkit.com?query=dev
+    [Docs](https://johnlindquist.github.io/kit-docs/#dev) | [Examples](https://scriptkit.com?query=dev)
    */
   var dev: (object?: any) => Promise<void>
   var getClipboardHistory: () => Promise<ClipboardItem[]>
@@ -1316,9 +1286,7 @@ declare global {
    * ```ts
    * await clearClipboardHistory()
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#clearClipboardHistory
-   * More examples:
-   * @see https://scriptkit.com?query=clearClipboardHistory
+    [Docs](https://johnlindquist.github.io/kit-docs/#clearClipboardHistory) | [Examples](https://scriptkit.com?query=clearClipboardHistory)
    */
   var clearClipboardHistory: () => Promise<void>
   var getEditorHistory: GetEditorHistory
@@ -1328,9 +1296,7 @@ declare global {
    * ```ts
    * await removeClipboardItem(item)
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#removeClipboardItem
-   * More examples:
-   * @see https://scriptkit.com?query=removeClipboardItem
+    [Docs](https://johnlindquist.github.io/kit-docs/#removeClipboardItem) | [Examples](https://scriptkit.com?query=removeClipboardItem)
    */
   var removeClipboardItem: (id: string) => Promise<void>
   var setTab: (tabName: string) => void
@@ -1392,9 +1358,7 @@ declare global {
    *   },
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#chat
-   * More examples:
-   * @see https://scriptkit.com?query=chat
+    [Docs](https://johnlindquist.github.io/kit-docs/#chat) | [Examples](https://scriptkit.com?query=chat)
    */
   var chat: Chat
   /**
@@ -1406,9 +1370,7 @@ declare global {
    *   pauseOnFocusLoss: false
    * })
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#toast
-   * More examples:
-   * @see https://scriptkit.com?query=toast
+    [Docs](https://johnlindquist.github.io/kit-docs/#toast) | [Examples](https://scriptkit.com?query=toast)
    */
   var toast: Toast
   /**
@@ -1420,9 +1382,7 @@ declare global {
    * })
    * await revealFile(filePath)
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#find
-   * More examples:
-   * @see https://scriptkit.com?query=find
+    [Docs](https://johnlindquist.github.io/kit-docs/#find) | [Examples](https://scriptkit.com?query=find)
    */
   var find: Find
   var mic: Mic
@@ -1442,9 +1402,7 @@ declare global {
    * await writeFile(imagePath, buffer)
    * await revealFile(imagePath)
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#webcam
-   * More examples:
-   * @see https://scriptkit.com?query=webcam
+    [Docs](https://johnlindquist.github.io/kit-docs/#webcam) | [Examples](https://scriptkit.com?query=webcam)
    */
   var webcam: WebCam
   var prompt: Prompt
@@ -1454,9 +1412,7 @@ declare global {
    * ```ts
    * let devices = await getMediaDevices()
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#getMediaDevices
-   * More examples:
-   * @see https://scriptkit.com?query=getMediaDevices
+    [Docs](https://johnlindquist.github.io/kit-docs/#getMediaDevices) | [Examples](https://scriptkit.com?query=getMediaDevices)
    */
   var getMediaDevices: GetMediaDevices
   /**
@@ -1465,9 +1421,7 @@ declare global {
    * ```ts
    * let text = await getTypedText()
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#getTypedText
-   * More examples:
-   * @see https://scriptkit.com?query=getTypedText
+    [Docs](https://johnlindquist.github.io/kit-docs/#getTypedText) | [Examples](https://scriptkit.com?query=getTypedText)
    */
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
@@ -1525,9 +1479,7 @@ declare global {
    * ```ts
    * await notify("Attention!")
    * ```
-   * @see https://johnlindquist.github.io/kit-docs/#notify
-   * More examples:
-   * @see https://scriptkit.com?query=notify
+    [Docs](https://johnlindquist.github.io/kit-docs/#notify) | [Examples](https://scriptkit.com?query=notify)
    */
   var notify: Notify
 }

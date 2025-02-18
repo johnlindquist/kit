@@ -29,6 +29,8 @@ import {
 } from "../api/kit.js"
 import type { Open } from "../types/packages.js"
 import { parseShebang } from "../core/shebang.js"
+import "./../target/path/path.js"
+
 
 console.clear()
 
