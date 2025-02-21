@@ -1,4 +1,4 @@
-import type { Metadata, Snippet } from '../types'
+import type { Metadata, Snippet } from '../types/index.js'
 import { kenvPath } from './resolvers.js'
 import { escapeHTML, getKenvFromPath, getMetadata, postprocessMetadata } from './utils.js'
 
@@ -8,7 +8,7 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
     kenvPath('kenvs', '*', 'snippets', '**', '*.txt').replaceAll('\\', '/')
   ])
 
-  let snippetChoices = []
+  let snippetChoices:Partial<Snippet>[] = []
   for await (let s of snippetPaths) {
     let contents = await readFile(s, 'utf8')
     let { metadata, snippet } = getSnippet(contents)
@@ -33,12 +33,12 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
       kenv: getKenvFromPath(s),
       value: snippet.trim(),
       expand,
-      postfix,
-      snippetKey: expand
+      postfix: postfix ? 'true' : 'false',
+      snippetKey: expand,
     })
   }
 
-  return snippetChoices
+  return snippetChoices as Snippet[]
 }
 
 const snippetRegex = /(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/

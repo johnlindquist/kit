@@ -167,9 +167,106 @@ export type ShowLogWindow = (
 ) => Promise<void>
 
 declare global {
+  /**
+   * A `widget` creates a new window using HTML. The HTML can be styled via [Tailwind CSS](https://tailwindcss.com/docs/utility-first) class names.
+   * Templating and interactivity can be added via [petite-vue](https://github.com/vuejs/petite-vue).
+   * 1. The first argument is a string of HTML to render in the window.
+   * 2. Optional: the second argument is ["Browser Window Options"](https://www.electronjs.org/docs/latest/api/browser-window#new-browserwindowoptions)
+   * #### widget example
+   * ```ts
+   * await widget(`<h1 class="p-4 text-4xl">Hello World!</h1>`)
+   * ```
+   * #### widget clock
+   * ```ts
+   * let clock = await widget(`<h1 class="text-7xl p-5 whitespace-nowrap">{{date}}</h1>`, {
+   *     transparent: true,
+   *     draggable: true,
+   *     hasShadow: false,
+   *     alwaysOnTop: true,
+   * })
+   * setInterval(()=> {
+   *     clock.setState({
+   *         date: new Date().toLocaleTimeString()
+   *     })
+   * }, 1000)
+   * ```
+   * #### widget events
+   * ```ts
+   * let text = ""
+   * let count = 0
+   * let w = await widget(`
+   * <div class="p-5">
+   *     <h1>Widget Events</h1>
+   *     <input autofocus type="text" class="border dark:bg-black"/>
+   *     <button id="myButton" class="border px-2 py-1">+</button>
+   *     <span>{{count}}</span>    
+   * </div>
+   * `)
+   * w.onClick((event) => {
+   *     if (event.targetId === "myButton") {
+   *         w.setState({count: count++})
+   *     }
+   * })
+   * w.onClose(async () => {
+   *     await widget(`
+   * <div class="p-5">
+   *     <h1>You closed the other widget</h1>
+   *     <p>${text}</p>
+   * </div>
+   * `)
+   * })
+   * w.onInput((event) => {
+   *     text = event.value
+   * })
+   * w.onMoved(({ x, y}) => {
+   *     // e.g., save position
+   * })
+   * w.onResized(({ width, height }) => {
+   *     // e.g., save size
+   * })
+   * ```
+   [Examples](https://scriptkit.com?query=widget) | [Docs](https://johnlindquist.github.io/kit-docs/#widget) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=widget)
+   */
   var widget: Widget
   var vite: ViteWidget
+  /**
+   * Set the system menu to a custom message/emoji with a list of scripts to run.
+   * #### menu example
+   * ```ts
+   * // Set the menu to a custom message/emoji with a list of scripts to run
+   * await menu(`👍`, ["my-script", "another-script"])
+   * ```
+   * #### menu reset example
+   * ```ts
+   * // Reset the menu to the default icon and scripts by passing an empty string
+   * await menu(``)
+   * ```
+   [Examples](https://scriptkit.com?query=menu) | [Docs](https://johnlindquist.github.io/kit-docs/#menu) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=menu)
+   */
   var menu: Menubar
+  /**
+   * Opens a built-in Terminal window.
+   * - Can run interactive commands
+   * - Supports custom working directory and shell
+   * #### term example
+   * ```ts
+   * await term(`cd ~/.kenv/scripts && ls`)
+   * ```
+   * #### term with command
+   * ```ts
+   * await term(`cd ~/.kenv/scripts && ls`)
+   * ```
+   [Examples](https://scriptkit.com?query=term) | [Docs](https://johnlindquist.github.io/kit-docs/#term) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=term)
+   */
   var term: Terminal
+  /**
+   * Opens a logs window to display script output.
+   * - Displays output from all scripts run in the current session
+   * #### showLogWindow example
+   * ```ts
+   * await showLogWindow()
+   * ```
+   [Examples](https://scriptkit.com?query=showLogWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#showLogWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=showLogWindow)
+   */
   var showLogWindow: ShowLogWindow
 }

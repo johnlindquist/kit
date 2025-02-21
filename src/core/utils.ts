@@ -458,7 +458,11 @@ export let stripMetadata = (fileContents: string, exclude: string[] = []) => {
 
 export let stripName = (name: string) => {
   let strippedName = path.parse(name).name
-  strippedName = strippedName.trim().replace(/\s+/g, '-').toLowerCase()
+  strippedName = strippedName.trim().replace(/\s+/g, '-')
+  // Only lowercase if there's no hyphen in the original input
+  if (!name.includes('-')) {
+    strippedName = strippedName.toLowerCase()
+  }
   strippedName = strippedName.replace(/[^\w-]+/g, '')
   strippedName = strippedName.replace(/-{2,}/g, '-')
   return strippedName

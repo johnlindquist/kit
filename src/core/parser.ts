@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises"
 import untildify from "untildify"
-import type { Script, ScriptMetadata, ScriptPathInfo } from "../types"
+import type { Script, ScriptMetadata, ScriptPathInfo } from "../types/index.js"
 import {
 	getMetadata,
 	isFile,

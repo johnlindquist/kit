@@ -10624,8 +10624,6 @@ declare module "@johnlindquist/kit" {
     flush: () => void
   }
 
-  export type OnExit = (fn: () => void) => void
-
   export type KitModuleLoader = (
     packageName: string,
     ...moduleArgs: string[]
@@ -10792,7 +10790,6 @@ declare module "@johnlindquist/kit" {
     inspect: Inspect
 
     onTab: OnTab
-    onExit: OnExit
 
     attemptImport: KitModuleLoader
     npm: KitModuleLoader
@@ -10882,7 +10879,6 @@ declare module "@johnlindquist/kit" {
     var mini: Arg
     var micro: Arg
     var onTab: OnTab
-    var onExit: OnExit
     var args: Args
 
     var updateArgs: UpdateArgs

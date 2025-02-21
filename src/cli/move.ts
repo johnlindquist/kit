@@ -6,7 +6,7 @@ import { createBinFromScript } from "./lib/utils.js"
 
 import { Bin } from "../core/enum.js"
 import { refreshScripts } from "../core/db.js"
-import { Script } from "../types/core.js"
+import type { Script } from "../types/core.js"
 
 let script = await selectScript()
 
@@ -16,7 +16,7 @@ let selectedKenvDir = kenvPath()
 
 selectedKenvDir = await arg(
   {
-    placeholder: `Select target kenv`,
+    placeholder: "Select target kenv",
     hint: script.filePath,
   },
   [
@@ -44,11 +44,12 @@ let target = filePath =>
   )
 
 while (true) {
+  let command = ""
   if (!script) {
     script = (await selectScript({
       placeholder: exists
-        ? `Sorry, ${script.command} already exists. Pick another`
-        : `Move another script to kenv?`,
+        ? `Sorry, ${command} already exists. Pick another`
+        : 'Move another script to kenv?',
       hint: selectedKenvDir,
     })) as Script
   }
@@ -56,7 +57,9 @@ while (true) {
   let targetPath = target(script.filePath)
   exists = await isFile(targetPath)
 
-  if (!exists) {
+  if (exists) {
+    command = script.command
+  } else {
     await trashScriptBin(script)
     mv(script.filePath, targetPath)
     await refreshScripts()
@@ -68,5 +71,3 @@ while (true) {
 
   script = null
 }
-
-export {}

@@ -2,11 +2,27 @@ import {
   formatDistanceToNow,
   parseISO,
 } from "date-fns"
-import { KIT_FIRST_PATH } from "../core/utils.js"
+import { getKenvFromPath, KIT_FIRST_PATH } from "../core/utils.js"
 import { createPackageManagerCommand } from "./lib/install.js"
+import { stat, readlink } from "node:fs/promises"
 
 let install = async (packageNames: string[]) => {
-  let cwd = kenvPath()
+  let cwd = (global.installCwd || kenvPath()) as string
+  
+  if (global?.errorScriptPath) {
+    try{
+      const kenv = getKenvFromPath(global.errorScriptPath)
+      if(kenv){
+        const kenvDir = kenvPath("kenvs", kenv)
+        const stats = await stat(kenvDir)
+        if (stats.isDirectory() || (stats.isSymbolicLink() && (await stat(await readlink(kenvDir))).isDirectory())) {
+          cwd = kenvPath("kenvs", kenv)
+        }
+      }
+    } catch (e) {
+      
+    }
+  }  
 
   // if (process.env.SCRIPTS_DIR) {
   // 	cwd = kenvPath(process.env.SCRIPTS_DIR)

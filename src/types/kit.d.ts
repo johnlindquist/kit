@@ -90,8 +90,6 @@ export interface Trace {
   flush: () => void
 }
 
-export type OnExit = (fn: () => void) => void
-
 export type KitModuleLoader = (packageName: string, ...moduleArgs: string[]) => Promise<any>
 export type Edit = (file: string, dir?: string, line?: string | number, col?: string | number) => Promise<void>
 
@@ -174,7 +172,6 @@ export interface KitApi {
   inspect: Inspect
 
   onTab: OnTab
-  onExit: OnExit
 
   attemptImport: KitModuleLoader
   silentAttemptImport: KitModuleLoader
@@ -250,7 +247,7 @@ declare global {
    * });
    * await editor(projectPath);
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#path) | [Examples](https://scriptkit.com?query=path)
+   [Examples](https://scriptkit.com?query=path) | [Docs](https://johnlindquist.github.io/kit-docs/#path) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=path)
    */
   var path: PathSelector
   /**
@@ -261,7 +258,7 @@ declare global {
    * const zshrcPath = home(".zshrc");
    * await edit(zshrcPath);
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#edit) | [Examples](https://scriptkit.com?query=edit)
+   [Examples](https://scriptkit.com?query=edit) | [Docs](https://johnlindquist.github.io/kit-docs/#edit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=edit)
    */
   var edit: Edit
   /**
@@ -272,12 +269,50 @@ declare global {
    * await hide();
    * await browse("https://scriptkit.com");
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#browse) | [Examples](https://scriptkit.com?query=browse)
+   [Examples](https://scriptkit.com?query=browse) | [Docs](https://johnlindquist.github.io/kit-docs/#browse) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=browse)
    */
   var browse: Browse
 
+  /**
+   * Create a path relative to the kit directory.
+   * #### kitPath example
+   * ```ts
+   * const kitLogs = kitPath("logs"); //~/.kit/logs
+   * ```
+   [Examples](https://scriptkit.com?query=kitPath) | [Docs](https://johnlindquist.github.io/kit-docs/#kitPath) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=kitPath)
+   */
   var kitPath: PathFn
+  /**
+   * Create a path relative to the "kenv" (kit environment) directory
+   * #### kenvPath example
+   * ```ts
+   * const scriptsPath = kenvPath("scripts");
+   * const scripts = await readdir(scriptsPath);
+   * await editor(JSON.stringify(scripts, null, 2));
+   * ```
+   [Examples](https://scriptkit.com?query=kenvPath) | [Docs](https://johnlindquist.github.io/kit-docs/#kenvPath) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=kenvPath)
+   */
   var kenvPath: PathFn
+  /**
+   * Create a path relative to a "kit" directory in the system temp directory
+   * > Note: The tmp directory is symlinked to the ~/.kenv/tmp directory for easy access
+   * #### tmpPath example
+   * ```ts
+   * const tmpTestTxtPath = tmpPath("test.txt");
+   * const content = await ensureReadFile(tmpTestTxtPath, "Hello World");
+   * await editor(
+   *   JSON.stringify(
+   *     {
+   *       tmpTestTxtPath,
+   *       content,
+   *     },
+   *     null,
+   *     2
+   *   )
+   * );
+   * ```
+   [Examples](https://scriptkit.com?query=tmpPath) | [Docs](https://johnlindquist.github.io/kit-docs/#tmpPath) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=tmpPath)
+   */
   var tmpPath: PathFn
   var kenvTmpPath: PathFn
 
@@ -287,7 +322,7 @@ declare global {
    * ```ts
    * let module = await attemptImport("lodash")
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#attemptImport) | [Examples](https://scriptkit.com?query=attemptImport)
+   [Examples](https://scriptkit.com?query=attemptImport) | [Docs](https://johnlindquist.github.io/kit-docs/#attemptImport) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=attemptImport)
    */
   var attemptImport: KitModuleLoader
   /**
@@ -298,7 +333,7 @@ declare global {
    * ```ts
    * let module = await silentAttemptImport("lodash")
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#silentAttemptImport) | [Examples](https://scriptkit.com?query=silentAttemptImport)
+   [Examples](https://scriptkit.com?query=silentAttemptImport) | [Docs](https://johnlindquist.github.io/kit-docs/#silentAttemptImport) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=silentAttemptImport)
    */
   var silentAttemptImport: KitModuleLoader
   /**
@@ -310,11 +345,25 @@ declare global {
    * ```ts
    * await npm("lodash")
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#npm) | [Examples](https://scriptkit.com?query=npm)
+   [Examples](https://scriptkit.com?query=npm) | [Docs](https://johnlindquist.github.io/kit-docs/#npm) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=npm)
    */
   var npm: KitModuleLoader
   var npmInstall: (packageName: string) => Promise<void>
   var installMissingPackage: (packageName: string) => Promise<void>
+  /**
+   * Run another script from the same kenv
+   * #### run example
+   * ```ts
+   * // Assuming you have a "hello-world.ts" script next to this file
+   * await run("hello-world");
+   * ```
+   * #### run example arg
+   * ```ts
+   * // Assuming the hello-world script has an: await arg("Enter your name")
+   * await run("hello-world", "John");
+   * ```
+   [Examples](https://scriptkit.com?query=run) | [Docs](https://johnlindquist.github.io/kit-docs/#run) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=run)
+   */
   var run: Run
   var setup: KitModuleLoader
 
@@ -335,7 +384,7 @@ declare global {
    *   })
    * })
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#env) | [Examples](https://scriptkit.com?query=env)
+   [Examples](https://scriptkit.com?query=env) | [Docs](https://johnlindquist.github.io/kit-docs/#env) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=env)
    */
   var env: Env
   /**
@@ -408,7 +457,7 @@ declare global {
    *     return response?.data?.results.map((p) => p.name);
    * })
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#arg) | [Examples](https://scriptkit.com?query=arg)
+   [Examples](https://scriptkit.com?query=arg) | [Docs](https://johnlindquist.github.io/kit-docs/#arg) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=arg)
    */
   var arg: Arg
   /**
@@ -493,7 +542,7 @@ declare global {
    *   return input.trim().split(new RegExp("[.,;/-_\n]", "g"))
    * })
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#select) | [Examples](https://scriptkit.com?query=select)
+   [Examples](https://scriptkit.com?query=select) | [Docs](https://johnlindquist.github.io/kit-docs/#select) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=select)
    */
   var select: Select
   /**
@@ -505,7 +554,7 @@ declare global {
    *   ["John", "Nghia", "Mindy", "Joy"]
    * )
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#grid) | [Examples](https://scriptkit.com?query=grid)
+   [Examples](https://scriptkit.com?query=grid) | [Docs](https://johnlindquist.github.io/kit-docs/#grid) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=grid)
    */
   var grid: Grid
   var basePrompt: Arg
@@ -515,7 +564,7 @@ declare global {
    * ```ts
    * let name = await mini("Enter your name")
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#mini) | [Examples](https://scriptkit.com?query=mini)
+   [Examples](https://scriptkit.com?query=mini) | [Docs](https://johnlindquist.github.io/kit-docs/#mini) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=mini)
    */
   var mini: Arg
   /**
@@ -524,7 +573,7 @@ declare global {
    * ```ts
    * let name = await micro("Enter your name")
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#micro) | [Examples](https://scriptkit.com?query=micro)
+   [Examples](https://scriptkit.com?query=micro) | [Docs](https://johnlindquist.github.io/kit-docs/#micro) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=micro)
    */
   var micro: Arg
   /**
@@ -538,10 +587,9 @@ declare global {
    *   await arg("Select an animal", ["Dog", "Cat", "Bird"]);
    * });
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#onTab) | [Examples](https://scriptkit.com?query=onTab)
+   [Examples](https://scriptkit.com?query=onTab) | [Docs](https://johnlindquist.github.io/kit-docs/#onTab) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=onTab)
    */
   var onTab: OnTab
-  var onExit: OnExit
   var args: Args
 
   var updateArgs: UpdateArgs
@@ -549,9 +597,41 @@ declare global {
 
   var wait: Wait
 
+  /**
+   * Create a path relative to the user's home directory
+   * #### home example
+   * ```ts
+   * const downloadsPath = home("Downloads");
+   * const downloadedFileNames = await readdir(downloadsPath);
+   * await editor(JSON.stringify(downloadedFileNames, null, 2));
+   * ```
+   [Examples](https://scriptkit.com?query=home) | [Docs](https://johnlindquist.github.io/kit-docs/#home) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=home)
+   */
   var home: PathFn
+  /**
+   * Check if a path is a file
+   * #### isFile example
+   * ```ts
+   * const testingIsFileTxtPath = home("testing-isFile.txt");
+   * const isTestingFile = await isFile(testingIsFileTxtPath);
+   * if (!isTestingFile) {
+   *   await writeFile(testingIsFileTxtPath, "Hello World");
+   * }
+   * const content = await readFile(testingIsFileTxtPath, "utf8");
+   * await editor(content);
+   * ```
+   [Examples](https://scriptkit.com?query=isFile) | [Docs](https://johnlindquist.github.io/kit-docs/#isFile) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=isFile)
+   */
   var isFile: IsCheck
+  /**
+   * Check if a path is a directory
+   [Examples](https://scriptkit.com?query=isDir) | [Docs](https://johnlindquist.github.io/kit-docs/#isDir) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=isDir)
+   */
   var isDir: IsCheck
+  /**
+   * Check if a path can be executed
+   [Examples](https://scriptkit.com?query=isBin) | [Docs](https://johnlindquist.github.io/kit-docs/#isBin) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=isBin)
+   */
   var isBin: IsCheck
   var createPathResolver: PathResolver
 
@@ -563,7 +643,7 @@ declare global {
    * let response = await get("https://swapi.dev/api/people/1/")
    * await inspect(response.data)
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#inspect) | [Examples](https://scriptkit.com?query=inspect)
+   [Examples](https://scriptkit.com?query=inspect) | [Docs](https://johnlindquist.github.io/kit-docs/#inspect) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=inspect)
    */
   var inspect: Inspect
 
@@ -632,7 +712,7 @@ declare global {
    * await fruitDb.write()
    * }
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#db) | [Examples](https://scriptkit.com?query=db)
+   [Examples](https://scriptkit.com?query=db) | [Docs](https://johnlindquist.github.io/kit-docs/#db) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=db)
    */
   var db: DB
   /**
@@ -644,7 +724,7 @@ declare global {
    * await store.set("myKey", "myValue")
    * let value = await store.get("myKey")
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#store) | [Examples](https://scriptkit.com?query=store)
+   [Examples](https://scriptkit.com?query=store) | [Docs](https://johnlindquist.github.io/kit-docs/#store) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=store)
    */
   var store: Store
 
@@ -655,7 +735,7 @@ declare global {
    * memoryMap.set("myKey", { myObject: true })
    * let value = memoryMap.get("myKey")
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#memoryMap) | [Examples](https://scriptkit.com?query=memoryMap)
+   [Examples](https://scriptkit.com?query=memoryMap) | [Docs](https://johnlindquist.github.io/kit-docs/#memoryMap) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=memoryMap)
    */
   var memoryMap: Map<string, any>
 
@@ -663,6 +743,17 @@ declare global {
 
   var selectKitEditor: SelectKitEditor
 
+  /**
+   * Get all scripts
+   * #### getScripts example
+   * ```ts
+   * // Get all scripts from ~/.kit/db/scripts.json
+   * const scripts = await getScripts();
+   * const script = await arg("Select a script", scripts);
+   * await editor(JSON.stringify(script, null, 2));
+   * ```
+   [Examples](https://scriptkit.com?query=getScripts) | [Docs](https://johnlindquist.github.io/kit-docs/#getScripts) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getScripts)
+   */
   var getScripts: GetScripts
   var blur: () => Promise<void>
   var flag: Flags
@@ -671,7 +762,7 @@ declare global {
   var setActions: ActionsFn
   /**
    * Manually open the actions menu
-   * #### openactions example
+   * #### openActions example
    * ```ts
    * await arg(
    *   {
@@ -691,13 +782,27 @@ declare global {
    *   ]
    * );
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#openActions) | [Examples](https://scriptkit.com?query=openActions)
+   [Examples](https://scriptkit.com?query=openActions) | [Docs](https://johnlindquist.github.io/kit-docs/#openActions) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=openActions)
    */
   var openActions: () => Promise<void>
   var closeActions: () => Promise<void>
   var setFlagValue: (value: any) => Promise<void>
   var prepFlags: PrepFlags
 
+  /**
+   * Allows you to build a custom script selection menu
+   * #### selectScript example
+   * ```ts
+   * import type { Script } from "@johnlindquist/kit";
+   * const script = await selectScript(
+   *   "Select a Shortcut Script to Edit",
+   *   true, // "true" will load from ~/.kit/db/scripts.json cache
+   *   (scripts: Script[]) => scripts.filter((script) => script.shortcut)
+   * );
+   * await edit(script.filePath);
+   * ```
+   [Examples](https://scriptkit.com?query=selectScript) | [Docs](https://johnlindquist.github.io/kit-docs/#selectScript) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=selectScript)
+   */
   var selectScript: SelectScript
   var selectKenv: SelectKenv
   var highlight: Highlight
@@ -724,7 +829,7 @@ declare global {
    *   }
    * })
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#createGist) | [Examples](https://scriptkit.com?query=createGist)
+   [Examples](https://scriptkit.com?query=createGist) | [Docs](https://johnlindquist.github.io/kit-docs/#createGist) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=createGist)
    */
   var createGist: CreateGist
   var setShortcuts: SetShortcuts
@@ -734,7 +839,7 @@ declare global {
   var cmd: 'cmd' | 'ctrl'
   /**
    * Formats a date
-    [Docs](https://johnlindquist.github.io/kit-docs/#formatDate) | [Examples](https://scriptkit.com?query=formatDate)
+   [Examples](https://scriptkit.com?query=formatDate) | [Docs](https://johnlindquist.github.io/kit-docs/#formatDate) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=formatDate)
    */
   var formatDate: typeof format
   var formatDateToNow: typeof formatDistanceToNow
@@ -759,7 +864,7 @@ declare global {
    *   { name: "Joy", score: 0.7 }
    * ])
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#setScoredChoices) | [Examples](https://scriptkit.com?query=setScoredChoices)
+   [Examples](https://scriptkit.com?query=setScoredChoices) | [Docs](https://johnlindquist.github.io/kit-docs/#setScoredChoices) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setScoredChoices)
    */
   var setScoredChoices: (scoredChoices: ScoredChoice[]) => Promise<void>
 
@@ -772,7 +877,7 @@ declare global {
    *   { name: "Group 2", choices: ["Joy"] }
    * ])
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#groupChoices) | [Examples](https://scriptkit.com?query=groupChoices)
+   [Examples](https://scriptkit.com?query=groupChoices) | [Docs](https://johnlindquist.github.io/kit-docs/#groupChoices) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=groupChoices)
    */
   var groupChoices: (
     choices: Choice[],
@@ -814,7 +919,7 @@ declare global {
    * const choices = formatChoices(people);
    * await arg("Select a person from their group", choices);
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#formatChoices) | [Examples](https://scriptkit.com?query=formatChoices)
+   [Examples](https://scriptkit.com?query=formatChoices) | [Docs](https://johnlindquist.github.io/kit-docs/#formatChoices) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=formatChoices)
    */
   var formatChoices: (choices: Choice[], className?: string) => Choice[]
 
@@ -827,7 +932,7 @@ declare global {
    *   age: 40
    * })
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#preload) | [Examples](https://scriptkit.com?query=preload)
+   [Examples](https://scriptkit.com?query=preload) | [Docs](https://johnlindquist.github.io/kit-docs/#preload) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=preload)
    */
   var preload: (scriptPath?: string) => void
 
@@ -837,7 +942,7 @@ declare global {
    * ```ts
    * await setSelectedChoices(["John", "Mindy"])
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedChoices) | [Examples](https://scriptkit.com?query=setSelectedChoices)
+   [Examples](https://scriptkit.com?query=setSelectedChoices) | [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedChoices) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setSelectedChoices)
    */
   var setSelectedChoices: (choices: Choice[]) => Promise<void>
   var toggleAllSelectedChoices: () => Promise<void>
@@ -878,7 +983,7 @@ declare global {
    *   author: "John Lindquist",
    * };
    * ```
-    [Docs](https://johnlindquist.github.io/kit-docs/#metadata) | [Examples](https://scriptkit.com?query=metadata)
+   [Examples](https://scriptkit.com?query=metadata) | [Docs](https://johnlindquist.github.io/kit-docs/#metadata) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=metadata)
    */
   var metadata: Metadata
 }

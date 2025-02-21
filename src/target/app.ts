@@ -120,10 +120,6 @@ let promptId = 0
 
 global.__kitPromptId = ""
 
-global.onExit = handler => {
-  process.once("beforeExit", handler)
-}
-
 let createHandlerWrapper = (
   channel: keyof ChannelMap,
   handler: (data: any) => void
@@ -984,7 +980,7 @@ let onSubmitDefault = async (input, state) => { }
 let onValidationFailedDefault = async (input, state) => { }
 let onAudioDataDefault = async (input, state) => { }
 
-global.setPrompt = (data: Partial<PromptData>) => {
+global.setPrompt = async (data: Partial<PromptData>) => {
   let { tabs } = data
   if (tabs) global.onTabs = tabs
 
@@ -997,7 +993,7 @@ global.setPrompt = (data: Partial<PromptData>) => {
       data?.actionsConfig?.placeholder || "Actions",
     active: data?.actionsConfig?.active || "Actions",
   }
-  global.send(Channel.SET_PROMPT_DATA, {
+  const result = await global.sendWait(Channel.SET_PROMPT_DATA, {
     id,
     scriptPath: global.kitScript,
     flags: prepFlags(data?.flags),
@@ -1026,6 +1022,8 @@ global.setPrompt = (data: Partial<PromptData>) => {
   })
 
   performance.measure("SET_PROMPT_DATA", "run")
+
+  return result
 }
 
 let prepPrompt = async (config: PromptConfig) => {
@@ -2338,6 +2336,7 @@ export let appInstallMultiple = async (
 }
 
 export let appInstall = async (packageName: string) => {
+  global.installCwd = global.flag?.cwd as string || ''
   // don't try to install explicit built-in node modules
   if (packageName.startsWith("node:")) return
 
@@ -2392,7 +2391,7 @@ export let appInstall = async (packageName: string) => {
 
   setHint(`Installing ${packageName}...`)
 
-  await global.cli("install", packageName)
+	await global.cli("install", packageName);
   console.clear()
 }
 
@@ -2408,18 +2407,18 @@ global.setPanel = async (h, containerClasses = "") => {
   global.send(Channel.SET_PANEL, html)
 }
 
-global.setFooter = (footer: string) => {
-  global.send(Channel.SET_FOOTER, footer)
+global.setFooter = async (footer: string) => {
+  await global.sendWait(Channel.SET_FOOTER, footer)
 }
 
-global.setDiv = (h, containerClasses = "") => {
+global.setDiv = async (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
-  global.send(Channel.SET_PANEL, html)
+  await global.sendWait(Channel.SET_PANEL, html)
 }
 
-global.setPreview = (h, containerClasses = "") => {
+global.setPreview = async (h, containerClasses = "") => {
   let html = maybeWrapHtml(h, containerClasses)
-  global.send(Channel.SET_PREVIEW, html)
+  await global.sendWait(Channel.SET_PREVIEW, html)
   // setLoading(false)
 }
 

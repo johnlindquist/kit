@@ -41,22 +41,54 @@ let cachedStampFilePath: string | null = null
 // Update Timestamps DB
 // --------------------
 const updateTimestampsDb = async (stamp: Stamp) => {
-  const timestampsDb = await getTimestamps()
-  const index = timestampsDb.stamps.findIndex((s) => s.filePath === stamp.filePath)
-  const oldStamp = timestampsDb.stamps[index]
-
-  stamp.timestamp = Date.now()
-  if (stamp.runCount) {
-    stamp.runCount = oldStamp?.runCount ? oldStamp.runCount + 1 : 1
+  if (!stamp?.filePath) {
+    logToParent('Invalid stamp received: missing filePath')
+    return null
   }
 
-  if (oldStamp) {
-    timestampsDb.stamps[index] = { ...oldStamp, ...stamp }
+  const originalFilePath = stamp.filePath
+  const timestampsDb = await getTimestamps()
+  const index = timestampsDb.stamps.findIndex((s) => s.filePath === originalFilePath)
+
+  // Double-check we found the correct script
+  if (index !== -1) {
+    const foundStamp = timestampsDb.stamps[index]
+    if (foundStamp.filePath !== originalFilePath) {
+      logToParent(`Path mismatch - Original: ${originalFilePath}, Found: ${foundStamp.filePath}`)
+      return null
+    }
+  }
+
+  // Always set current timestamp
+  const updatedStamp = { ...stamp, timestamp: Date.now(), filePath: originalFilePath }
+
+  if (index === -1) {
+    // New stamp
+    if (updatedStamp.runCount) {
+      updatedStamp.runCount = 1
+    }
+    logToParent(`Creating new stamp for: ${originalFilePath}`)
+    timestampsDb.stamps.push(updatedStamp)
   } else {
-    timestampsDb.stamps.push(stamp)
+    // Existing stamp
+    const oldStamp = timestampsDb.stamps[index]
+    if (updatedStamp.runCount) {
+      updatedStamp.runCount = (oldStamp?.runCount || 0) + 1
+    }
+    // Ensure filePath consistency
+    updatedStamp.filePath = originalFilePath
+    timestampsDb.stamps[index] = { ...oldStamp, ...updatedStamp }
+    logToParent(`Updated existing stamp for: ${originalFilePath} (runCount: ${updatedStamp.runCount})`)
   }
 
   try {
+    // Final validation before write
+    const finalStamp = index === -1 ? timestampsDb.stamps[timestampsDb.stamps.length - 1] : timestampsDb.stamps[index]
+    if (finalStamp.filePath !== originalFilePath) {
+      logToParent(`Critical error: Path mismatch before write - Expected: ${originalFilePath}, Got: ${finalStamp.filePath}`)
+      return null
+    }
+
     await timestampsDb.write()
   } catch (error) {
     logToParent(`Error writing timestampsDb: ${error}`)

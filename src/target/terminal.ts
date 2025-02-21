@@ -305,7 +305,7 @@ global.setPanelContainer = async (html, containerClasses = '') => {}
 global.setIgnoreBlur = async (ignore) => {}
 global.setResize = async (resize) => {}
 
-global.setBounds = (bounds: Partial<Rectangle>) => {}
+global.setBounds = async (bounds: Partial<Rectangle>) => {}
 
 global.setDescription = (description: string) => {
   // console.log({ description })
@@ -314,15 +314,10 @@ global.setName = (name: string) => {
   // console.log({ name })
 }
 
-global.setBounds = (bounds: Partial<Rectangle>) => {}
 global.setPauseResize = (pause: boolean) => {}
 
 global.getScriptsState = () => {
   notSupported('getScriptsState')
-}
-
-global.setBounds = (bounds: Partial<Rectangle>) => {
-  notSupported('setBounds')
 }
 
 global.getClipboardHistory = async () => {

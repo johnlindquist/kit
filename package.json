@@ -72,7 +72,10 @@
       "typescript": "5.7.3",
       "esbuild": "0.25.0"
     },
-    "onlyBuiltDependencies": ["@johnlindquist/mac-windows", "esbuild"]
+    "onlyBuiltDependencies": [
+      "@johnlindquist/mac-windows",
+      "esbuild"
+    ]
   },
   "dependencies": {
     "@johnlindquist/open": "^10.1.1",
@@ -84,6 +87,7 @@
     "@octokit/plugin-throttling": "9.4.0",
     "@types/chalk": "2.2.4",
     "@types/date-fns": "2.6.3",
+    "@types/download": "8.0.5",
     "@types/fs-extra": "11.0.4",
     "@types/shelljs": "0.8.15",
     "@typescript/lib-dom": "npm:@johnlindquist/no-dom@^1.0.2",
@@ -148,17 +152,21 @@
     "semantic-release": "24.2.3",
     "semantic-release-plugin-update-version-in-files": "1.1.0",
     "tsc-watch": "6.2.1",
-    "tsx": "4.19.2",
+    "tsx": "4.19.3",
     "typescript": "5.7.3",
     "unzipper": "0.12.3",
-    "vite": "6.1.0"
+    "vite": "6.1.1"
   },
   "ava": {
     "environmentVariables": {
       "KIT_TEST": "true"
     },
     "verbose": true,
-    "files": ["src/**/*.test.js", "test/**/*.test.js", "test-sdk/**/*.test.js"]
+    "files": [
+      "src/**/*.test.js",
+      "test/**/*.test.js",
+      "test-sdk/**/*.test.js"
+    ]
   },
   "release": {
     "branches": [
@@ -186,7 +194,9 @@
       [
         "semantic-release-plugin-update-version-in-files",
         {
-          "files": ["./.kit/package.json"]
+          "files": [
+            "./.kit/package.json"
+          ]
         }
       ]
     ]

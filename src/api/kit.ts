@@ -409,12 +409,12 @@ Please use the new \`widget\` function instead.
   // global.send(Channel.SHOW, { options, html })
 }
 
-global.setPlaceholder = (text) => {
-  global.send(Channel.SET_PLACEHOLDER, stripAnsi(text))
+global.setPlaceholder = async (text) => {
+  await global.sendWait(Channel.SET_PLACEHOLDER, stripAnsi(text))
 }
 
 global.setEnter = async (text) => {
-  global.send(Channel.SET_ENTER, text)
+  await global.sendWait(Channel.SET_ENTER, text)
 }
 
 global.main = async (scriptPath: string, ..._args) => {
@@ -1765,9 +1765,6 @@ export let selectScript = async (
 ): Promise<Script> => {
   let scripts: Script[] = xf(await getScripts(fromCache, ignoreKenvPattern))
   let scriptsConfig = buildScriptConfig(message)
-
-  // let scraps = await parseScraps()
-  // let scriptsAndScraps = scripts.concat(scraps)
 
   if (process.env.KIT_CONTEXT === 'terminal') {
     let script = await global.arg(scriptsConfig, scripts)

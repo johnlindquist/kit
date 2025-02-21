@@ -17,7 +17,7 @@ declare global {
   interface Global extends GlobalApi {}
 }
 
-export type * from "./core.d.ts"
-export type * from "../core/utils.d.ts"
+export * from "./core.js"
+export * from "../core/utils.js"
 
 export default kit

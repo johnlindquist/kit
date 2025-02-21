@@ -18,7 +18,12 @@ if (args?.length < 5) {
 }
 let script = args.shift() || 'No script reported'
 let stackFile = args.shift() || 'No stack file reported'
-let errorFile = args.shift() || 'No error file reported'
+let errorFile = args.shift()
+if(errorFile){
+  global.errorScriptPath = errorFile
+}else{
+  errorFile =  'No error file reported'
+}
 let line = args.shift() || 'No line reported'
 let col = args.shift() || 'No column reported'
 
