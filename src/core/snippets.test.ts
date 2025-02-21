@@ -161,8 +161,11 @@ ava('parseSnippets - empty snippet file', async (t) => {
 	const filePath = path.join(kenvPath('snippets'), 'empty-snippet.txt')
 	await outputTmpFile(filePath, snippetContent)
 	const snippets = await parseSnippets()
-	const found = snippets.find(s => s.filePath === filePath)
-	t.truthy(found)
+	
+	// Normalize paths for comparison
+	const normalizedFilePath = path.normalize(filePath)
+	const found = snippets.find(s => path.normalize(s.filePath) === normalizedFilePath)
+	t.truthy(found, `Expected to find snippet with path ${normalizedFilePath} in snippets: ${JSON.stringify(snippets.map(s => ({ path: s.filePath, name: s.name })), null, 2)}`)
 	t.is(found!.text, '')
 })
 
