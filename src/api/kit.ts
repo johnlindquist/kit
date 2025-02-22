@@ -1270,11 +1270,17 @@ ${lastRunBlock}
     shortcut: `${cmd}+.`,
     description: "Open {{name}}'s markdown in your editor"
   },
+  'share-script-to-scriptkit': {
+    group: 'Share',
+    name: 'Share to ScriptKit.com',
+    description: 'Share {{name}} to the community script library',
+    shortcut: `${cmd}+s`
+  },
   'share-script-as-discussion': {
     group: 'Share',
     name: 'Post to Community Scripts',
     description: 'Share {{name}} on GitHub Discussions',
-    shortcut: `${cmd}+s`
+    shortcut: `${cmd}+opt+s`
   },
   'share-script-as-link': {
     group: 'Share',

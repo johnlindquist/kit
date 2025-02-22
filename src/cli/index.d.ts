@@ -70,6 +70,9 @@ export interface CLI {
   "search-docs": Promise<typeof import("./search-docs")>
   "view-docs": Promise<typeof import("./view-docs")>
   "share-copy": Promise<typeof import("./share-copy")>
+  "share-script-to-scriptkit": Promise<
+    typeof import("./share-script-to-scriptkit")
+  >
   "share-script-as-discussion": Promise<
     typeof import("./share-script-as-discussion")
   >

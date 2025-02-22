@@ -16,6 +16,12 @@ let how: keyof CLI = await arg(
   },
   [
     {
+      name: "Share on ScriptKit.com",
+      description:
+        "Post script to the community script library",
+      value: "share-script-to-scriptkit",
+    },
+    {
       name: "Create Github Discussion",
       description:
         "Post script as gist and open Github discussion in browser",
