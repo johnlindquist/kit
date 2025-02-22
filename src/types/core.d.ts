@@ -97,7 +97,6 @@ export interface ScriptMetadata extends Metadata {
   exclude?: boolean
   watch?: string
   type: ProcessType
-  timeout?: number
   tabs?: string[]
   tag?: string
   log?: boolean
@@ -521,8 +520,6 @@ export interface Metadata {
   log?: boolean
   /** Designates the script as a background process, running continuously in the background. */
   background?: boolean | 'auto'
-  /** Defines the number of seconds after which the script will be terminated */
-  timeout?: number
   /** Associates the script with system events such as sleep, wake, or shutdown. */
   system?:
     | 'suspend'

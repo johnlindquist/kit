@@ -559,7 +559,7 @@ declare global {
   var grid: Grid
   var basePrompt: Arg
   /**
-   * Prompts the user for input in a compact format.
+   * Same API as `arg`, but with a compact format.
    * #### mini example
    * ```ts
    * let name = await mini("Enter your name")
@@ -568,7 +568,7 @@ declare global {
    */
   var mini: Arg
   /**
-   * Prompts the user for input in a tiny, adorable format.
+   * Same API as `arg`, but with a tiny, adorable UI.
    * #### micro example
    * ```ts
    * let name = await micro("Enter your name")
@@ -595,6 +595,18 @@ declare global {
   var updateArgs: UpdateArgs
   var argOpts: string[]
 
+  /**
+   * Wait for a number of milliseconds
+   * #### wait example
+   * ```ts
+   * div(md(`Enjoying your wait?`));
+   * await wait(1000);
+   * div(md(`I waited 1 second. Let's wait some more!`));
+   * await wait(1000);
+   * await div(md(`All done!`));
+   * ```
+   [Examples](https://scriptkit.com?query=wait) | [Docs](https://johnlindquist.github.io/kit-docs/#wait) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=wait)
+   */
   var wait: Wait
 
   /**
@@ -755,6 +767,34 @@ declare global {
    [Examples](https://scriptkit.com?query=getScripts) | [Docs](https://johnlindquist.github.io/kit-docs/#getScripts) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getScripts)
    */
   var getScripts: GetScripts
+  /**
+   * Returns focus to the previous app.
+   * #### blur example
+   * ```ts
+   * import { URL, fileURLToPath } from "node:url";
+   * await editor({
+   *   onInit: async () => {
+   *     const { workArea } = await getActiveScreen();
+   *     const topLeft = { x: workArea.x, y: workArea.y };
+   *     const size = { height: 900, width: 200 };
+   *     await setBounds({
+   *       ...topLeft,
+   *       ...size,
+   *     });
+   *     await blur();
+   * // get path to current file
+   *     const currentScript = fileURLToPath(new URL(import.meta.url));
+   *     const content = await readFile(currentScript, "utf8");
+   *     const lines = content.split("\n");
+   *     for await (const line of lines) {
+   *       editor.append(`${line}\n`);
+   *       await wait(100);
+   *     }
+   *   },
+   * });
+   * ```
+   [Examples](https://scriptkit.com?query=blur) | [Docs](https://johnlindquist.github.io/kit-docs/#blur) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=blur)
+   */
   var blur: () => Promise<void>
   var flag: Flags
   var actionFlag: string
@@ -949,16 +989,16 @@ declare global {
   var trace: Trace
 
   type Metadata = import('./core.js').Metadata
+ 
   /**
-   * Define additional information and capabilities for your script:
    * The `metadata` object can include:
-   * - `author`: Creator's name
    * - `name`: Display name in Script Kit UI (defaults to filename)
+   * - `author`: Creator's name
    * - `description`: Brief script summary
    * - `enter`: Text shown on Enter button
    * - `alias`: Alternative search term
    * - `image`: Path to script icon
-   * - `shortcut`: Global keyboard shortcut
+   * - `shortcut`: Global keyboard shortcut, e.g, cmd+opt+4
    * - `shortcode`: Execute when typed + space in menu
    * - `trigger`: Execute when typed in menu
    * - `expand`: Text expansion trigger (replaces deprecated `snippet`)
@@ -969,12 +1009,11 @@ declare global {
    * - `watch`: File/dir to watch for changes
    * - `log`: Disable logging if false
    * - `background`: Run as background process
-   * - `timeout`: Auto-terminate after seconds
    * - `system`: Trigger on system events (sleep/wake/etc)
    * - `schedule`: Cron expression for timing
    * - `access`: REST API access level (public/key/private)
    * - `response`: Allow REST API response
-   * - `index`: Order within group
+   * - `index`: Order within group### Metadata
    * #### metadata example
    * ```ts
    * metadata = {

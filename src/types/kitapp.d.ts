@@ -1260,6 +1260,34 @@ declare global {
    [Examples](https://scriptkit.com?query=hide) | [Docs](https://johnlindquist.github.io/kit-docs/#hide) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=hide)
    */
   var hide: (hideOptions?: HideOptions) => Promise<void>
+  /**
+   * Returns focus to the previous app.
+   * #### blur example
+   * ```ts
+   * import { URL, fileURLToPath } from "node:url";
+   * await editor({
+   *   onInit: async () => {
+   *     const { workArea } = await getActiveScreen();
+   *     const topLeft = { x: workArea.x, y: workArea.y };
+   *     const size = { height: 900, width: 200 };
+   *     await setBounds({
+   *       ...topLeft,
+   *       ...size,
+   *     });
+   *     await blur();
+   * // get path to current file
+   *     const currentScript = fileURLToPath(new URL(import.meta.url));
+   *     const content = await readFile(currentScript, "utf8");
+   *     const lines = content.split("\n");
+   *     for await (const line of lines) {
+   *       editor.append(`${line}\n`);
+   *       await wait(100);
+   *     }
+   *   },
+   * });
+   * ```
+   [Examples](https://scriptkit.com?query=blur) | [Docs](https://johnlindquist.github.io/kit-docs/#blur) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=blur)
+   */
   var blur: () => Promise<void>
 
   /**
@@ -1279,6 +1307,16 @@ declare global {
    [Examples](https://scriptkit.com?query=dev) | [Docs](https://johnlindquist.github.io/kit-docs/#dev) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=dev)
    */
   var dev: (object?: any) => Promise<void>
+  /**
+   * Gets the clipboard history from the in-memory clipboard
+   * #### getClipboardHistory example
+   * ```ts
+   * const history = await getClipboardHistory();
+   * const text = await arg("Select from clipboard history", history);
+   * await editor(text);
+   * ```
+   [Examples](https://scriptkit.com?query=getClipboardHistory) | [Docs](https://johnlindquist.github.io/kit-docs/#getClipboardHistory) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getClipboardHistory)
+   */
   var getClipboardHistory: () => Promise<ClipboardItem[]>
   /**
    * Clears the clipboard history.
@@ -1300,6 +1338,25 @@ declare global {
    */
   var removeClipboardItem: (id: string) => Promise<void>
   var setTab: (tabName: string) => void
+  /**
+   * Forcefully submit a value from an open prompt
+   * #### submit example
+   * ```ts
+   * const result = await arg(
+   *   {
+   *     placeholder: "Pick one in under 3 seconds or I'll pick one for you",
+   *     onInit: async () => {
+   *       await wait(3000);
+   *       submit("broccoli"); //forces a submission
+   *     },
+   *   },
+   *   ["cookie", "donut"]
+   * );
+   * // Wait for 1 second
+   * await editor(result);
+   * ```
+   [Examples](https://scriptkit.com?query=submit) | [Docs](https://johnlindquist.github.io/kit-docs/#submit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=submit)
+   */
   var submit: Submit
   var mainScript: (input?: string, tab?: string) => Promise<void>
 
@@ -1385,6 +1442,17 @@ declare global {
    [Examples](https://scriptkit.com?query=find) | [Docs](https://johnlindquist.github.io/kit-docs/#find) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=find)
    */
   var find: Find
+  /**
+   * Record from the mic, get a buffer back
+   * #### mic example
+   * ```ts
+   * const tmpMicPath = tmpPath("mic.webm");
+   * const buffer = await mic();
+   * await writeFile(tmpMicPath, buffer);
+   * await playAudioFile(tmpMicPath);
+   * ```
+   [Examples](https://scriptkit.com?query=mic) | [Docs](https://johnlindquist.github.io/kit-docs/#mic) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=mic)
+   */
   var mic: Mic
   /**
    * Captures a screenshot. Defaults to the display where the current mouse cursor is located and captures the full screen if no bounds are specified.
@@ -1425,6 +1493,25 @@ declare global {
    */
   var getTypedText: GetTypedText
   var PROMPT: typeof PROMPT_OBJECT
+  /**
+   * A symbol used to block submitting a prompt
+   * #### preventSubmit example
+   * ```ts
+   * await arg({
+   *   placeholder: "Try to submit text less than 10 characters",
+   *   onSubmit: async (input) => {
+   *     if (input.length < 10) {
+   *       setHint(
+   *         "Text must be at least 10 characters. You entered " + input.length
+   *       );
+   *       setEnter("Try Again");
+   *       return preventSubmit;
+   *     }
+   *   },
+   * });
+   * ```
+   [Examples](https://scriptkit.com?query=preventSubmit) | [Docs](https://johnlindquist.github.io/kit-docs/#preventSubmit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=preventSubmit)
+   */
   var preventSubmit: symbol
 
   type removeListener = () => void
