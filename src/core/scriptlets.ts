@@ -186,7 +186,7 @@ export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: strin
     }
 
     if (parsingValue && currentScriptlet) {
-      currentScriptlet.scriptlet = currentScriptlet.scriptlet ? `${currentScriptlet.scriptlet}\n${line}` : line
+      currentScriptlet.scriptlet = currentScriptlet.scriptlet ? `${currentScriptlet.scriptlet}\n${untrimmedLine}` : untrimmedLine
     }
 
     if (parsingMetadata) {

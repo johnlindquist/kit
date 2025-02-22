@@ -1700,3 +1700,20 @@ echo "dummy"
   const scriptlets = await parseMarkdownAsScriptlets(markdown, dummyFilePath)
   t.is(scriptlets[0].kenv, 'test')
 })
+
+ava("parseMarkdownAsScriptlets preserves whitespace in Python scripts", async (t) => {
+  const markdown = `
+## Python Test
+\`\`\`python
+with open('~/hello-python.txt', 'w') as f:
+    f.write('Hello from Python!')
+\`\`\`
+`.trim()
+
+  const scripts = await parseMarkdownAsScriptlets(markdown)
+  t.is(scripts.length, 1)
+  t.is(scripts[0].name, "Python Test")
+  t.is(scripts[0].tool, "python")
+  t.is(scripts[0].scriptlet, `with open('~/hello-python.txt', 'w') as f:
+    f.write('Hello from Python!')`)
+})
