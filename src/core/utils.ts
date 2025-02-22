@@ -211,13 +211,18 @@ const getMetadataFromComments = (contents: string): Record<string, string> => {
   const lines = contents.split('\n')
   const metadata = {}
   let commentStyle = null
-  let spaceRegex = null
   let inMultilineComment = false
   let multilineCommentEnd = null
 
-  const setCommentStyle = (style: string) => {
-    commentStyle = style
-    spaceRegex = new RegExp(`^${commentStyle} ?[^ ]`)
+  // Valid metadata key pattern: starts with a letter, can contain letters, numbers, and underscores
+  const validKeyPattern = /^[a-zA-Z][a-zA-Z0-9_]*$/
+  // Common prefixes to ignore
+  const ignoreKeyPrefixes = ['TODO', 'FIXME', 'NOTE', 'HACK', 'XXX', 'BUG']
+
+  // Regex to match comment lines with metadata
+  const commentRegex = {
+    '//': /^\/\/\s*([^:]+):(.*)$/,
+    '#': /^#\s*([^:]+):(.*)$/
   }
 
   for (const line of lines) {
@@ -249,40 +254,42 @@ const getMetadataFromComments = (contents: string): Record<string, string> => {
     // Skip lines that are part of a multiline comment block
     if (inMultilineComment) continue
 
-    // Determine the comment style based on the first encountered comment line
-    if (commentStyle === null) {
-      if (line.startsWith('//') && (line[2] === ' ' || /[a-zA-Z]/.test(line[2]))) {
-        setCommentStyle('//')
-      } else if (line.startsWith('#') && (line[1] === ' ' || /[a-zA-Z]/.test(line[1]))) {
-        setCommentStyle('#')
-      }
+    // Determine comment style and try to match metadata
+    let match = null
+    if (line.startsWith('//')) {
+      match = line.match(commentRegex['//'])
+      commentStyle = '//'
+    } else if (line.startsWith('#')) {
+      match = line.match(commentRegex['#'])
+      commentStyle = '#'
     }
 
-    // Skip lines that don't start with the determined comment style
-    if (commentStyle === null || (commentStyle && !line.startsWith(commentStyle))) continue
+    if (!match) continue
 
-    // Check for 0 or 1 space after the comment style
-    if (!line.match(spaceRegex)) continue
+    // Extract and trim the key and value
+    const [, rawKey, value] = match
+    const trimmedKey = rawKey.trim()
+    const trimmedValue = value.trim()
 
-    // Find the index of the first colon
-    const colonIndex = line.indexOf(':')
-    if (colonIndex === -1) continue
+    // Skip if key starts with common prefixes to ignore
+    if (ignoreKeyPrefixes.some(prefix => trimmedKey.toUpperCase().startsWith(prefix))) continue
 
-    // Extract key and value based on the colon index
-    let key = line.substring(commentStyle.length, colonIndex).trim()
+    // Skip if key doesn't match valid pattern
+    if (!validKeyPattern.test(trimmedKey)) continue
 
+    // Transform the key case
+    let key = trimmedKey
     if (key?.length > 0) {
       key = key[0].toLowerCase() + key.slice(1)
     }
-    const value = line.substring(colonIndex + 1).trim()
 
     // Skip empty keys or values
-    if (!key || !value) {
+    if (!key || !trimmedValue) {
       continue
     }
 
     let parsedValue: string | boolean | number
-    let lowerValue = value.toLowerCase()
+    let lowerValue = trimmedValue.toLowerCase()
     let lowerKey = key.toLowerCase()
     switch (true) {
       case lowerValue === 'true':
@@ -292,10 +299,10 @@ const getMetadataFromComments = (contents: string): Record<string, string> => {
         parsedValue = false
         break
       case lowerKey === 'timeout':
-        parsedValue = parseInt(value, 10)
+        parsedValue = Number.parseInt(trimmedValue, 10)
         break
       default:
-        parsedValue = value
+        parsedValue = trimmedValue
     }
 
     // Only assign if the key hasn't been assigned before

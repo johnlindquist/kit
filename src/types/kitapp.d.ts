@@ -1566,6 +1566,13 @@ declare global {
    * ```ts
    * await notify("Attention!")
    * ```
+   * #### notify example body
+   * ```ts
+   * await notify({
+   *   title: "Title text goes here",
+   *   body: "Body text goes here",
+   * });
+   * ```
    [Examples](https://scriptkit.com?query=notify) | [Docs](https://johnlindquist.github.io/kit-docs/#notify) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=notify)
    */
   var notify: Notify

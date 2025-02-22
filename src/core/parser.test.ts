@@ -1,5 +1,6 @@
 import ava from "ava"
 import { postprocessMetadata } from "./parser.js"
+import { getMetadata } from "./utils.js"
 import { ProcessType } from "./enum.js"
 import type { Metadata, ScriptMetadata } from "../types/core.js"
 
@@ -94,4 +95,65 @@ ava("postprocessMetadata - empty input", (t) => {
 	const result = postprocessMetadata({}, "")
 
 	t.deepEqual(result, { type: ProcessType.Prompt })
+})
+
+ava("postprocessMetadata - ignores URLs in comments", (t) => {
+	const fileContents = `
+// Get the API key (https://google.com)
+// TODO: Check docs at http://example.com
+// Regular metadata: value
+	`
+	const result = postprocessMetadata({}, fileContents)
+
+	// Should only have type since URLs should be ignored
+	t.deepEqual(result, { type: ProcessType.Prompt })
+})
+
+ava("getMetadata - ignores invalid metadata keys", (t) => {
+	const fileContents = `
+// Get the API key (https://google.com): some value
+// TODO: Check docs at http://example.com
+// Regular metadata: value
+// Name: Test Script
+// Description: A test script
+// Invalid key with spaces: value
+// Invalid/key/with/slashes: value
+// Invalid-key-with-hyphens: value
+	`
+	const result = getMetadata(fileContents)
+
+	// Should only parse valid metadata keys
+	t.deepEqual(result, {
+		name: "Test Script",
+		description: "A test script"
+	})
+})
+
+ava("getMetadata - handles various whitespace patterns", (t) => {
+	const fileContents = `
+//Name:First Value
+//Name: Second Value
+// Name:Third Value
+// Name: Fourth Value
+//  Name:Fifth Value
+//  Name: Sixth Value
+//	Name:Tab Value
+//	Name: Tabbed Value
+	`
+	const result = getMetadata(fileContents)
+
+	// Should use the first occurrence of each key and handle all whitespace patterns
+	t.deepEqual(result, {
+		name: "First Value"
+	})
+
+	// Test each pattern individually to ensure they all work
+	t.deepEqual(getMetadata("//Name:Test"), { name: "Test" })
+	t.deepEqual(getMetadata("//Name: Test"), { name: "Test" })
+	t.deepEqual(getMetadata("// Name:Test"), { name: "Test" })
+	t.deepEqual(getMetadata("// Name: Test"), { name: "Test" })
+	t.deepEqual(getMetadata("//  Name:Test"), { name: "Test" })
+	t.deepEqual(getMetadata("//  Name: Test"), { name: "Test" })
+	t.deepEqual(getMetadata("//\tName:Test"), { name: "Test" })
+	t.deepEqual(getMetadata("//\tName: Test"), { name: "Test" })
 })

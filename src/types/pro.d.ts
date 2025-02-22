@@ -228,6 +228,33 @@ declare global {
    [Examples](https://scriptkit.com?query=widget) | [Docs](https://johnlindquist.github.io/kit-docs/#widget) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=widget)
    */
   var widget: Widget
+  /**
+   * A `vite` generates a vite project and opens it in its own window.
+   * 1. The first argument is the name of the folder you want generated in ~/.kenv/vite/your-folder
+   * 2. Optional: the second argument is ["Browser Window Options"](https://www.electronjs.org/docs/latest/api/browser-window#new-browserwindowoptions)
+   * #### vite example
+   * ```ts
+   * const { workArea } = await getActiveScreen();
+   * // Generates/opens a vite project in ~/.kenv/vite/project-path
+   * const viteWidget = await vite("project-path", {
+   *   x: workArea.x + 100,
+   *   y: workArea.y + 100,
+   *   width: 640,
+   *   height: 480,
+   * });
+   * // In your ~/.kenv/vite/project-path/src/App.tsx (if you picked React)
+   * // use the "send" api to send messages. "send" is injected on the window object
+   * // <input type="text" onInput={(e) => send("input", e.target.value)} />
+   * const filePath = home("vite-example.txt");
+   * viteWidget.on(
+   *   "input",
+   *   debounce(async (input) => {
+   *     await writeFile(filePath, input);
+   *   }, 1000)
+   * );
+   * ```
+   [Examples](https://scriptkit.com?query=vite) | [Docs](https://johnlindquist.github.io/kit-docs/#vite) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=vite)
+   */
   var vite: ViteWidget
   /**
    * Set the system menu to a custom message/emoji with a list of scripts to run.

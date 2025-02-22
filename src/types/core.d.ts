@@ -542,6 +542,8 @@ export interface Metadata {
   index?: number
   /** Indicates whether to disable logs for the script */
   log?: boolean
+  /** Optimization: if this script won't require a prompt, set this to false */
+  prompt?:boolean
 }
 
 export interface ProcessInfo {
