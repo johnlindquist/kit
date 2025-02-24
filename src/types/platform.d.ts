@@ -564,6 +564,15 @@ declare global {
   var setActiveAppBounds: SetActiveAppBounds
   var setActiveAppPosition: SetActiveAppPosition
   var setActiveAppSize: SetActiveAppSize
+  /**
+   * Paste text into the focused app. Literally triggers a "cmd/ctrl+v", so expect a similar behavior.
+   * #### setSelectedText example
+   * ```ts
+   * await setSelectedText("Hello from Script Kit!");
+   * ```
+   * Grab text from the focused app. Literally triggers a "cmd?ctrl+c", so expect a similar behavior.
+   [Examples](https://scriptkit.com?query=setSelectedText) | [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedText) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setSelectedText)
+   */
   var setSelectedText: SetSelectedText
   var setSelectedFile: SetSelectedFile
   var setWindowBoundsByIndex: SetWindowBoundsByIndex

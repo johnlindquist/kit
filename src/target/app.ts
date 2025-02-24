@@ -2774,13 +2774,13 @@ global.setFocused = (id: string) => {
 
 global.keyboard = {
   type: async (...textOrKeys: (string | Key)[]) => {
-    await sendWait(Channel.KEYBOARD_TYPE, textOrKeys, 0)
+    await sendWaitLong(Channel.KEYBOARD_TYPE, textOrKeys, 0)
   },
   typeDelayed: async (config: {
     rate: number
     textOrKeys: string | Key[]
   }) => {
-    await sendWait(
+    await sendWaitLong(
       Channel.KEYBOARD_TYPE_RATE,
       {
         rate: config?.rate || 600,
@@ -2812,7 +2812,7 @@ global.mouse = {
     await sendWait(Channel.MOUSE_RIGHT_CLICK)
   },
   move: async points => {
-    await sendWait(Channel.MOUSE_MOVE, points)
+    await sendWaitLong(Channel.MOUSE_MOVE, points)
   },
   setPosition: async position => {
     await sendWait(Channel.MOUSE_SET_POSITION, position)

@@ -123,7 +123,16 @@ declare global {
 	var test: typeof shelljs.test
 	var which: typeof shelljs.which
 
+	/**
+	 * Grab a string from the clipboard into the script. A simple alias for "clipboard.readText()"
+	 * > Note: This is often confused with `setSelectedText` which pastes a string where your text cursor is.
+	 [Examples](https://scriptkit.com?query=paste) | [Docs](https://johnlindquist.github.io/kit-docs/#paste) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=paste)
+	 */
 	var paste: () => Promise<string>
+	/**
+	 * Copy a string to the clipboard. A simple alias for "clipboard.writeText()"
+	 [Examples](https://scriptkit.com?query=copy) | [Docs](https://johnlindquist.github.io/kit-docs/#copy) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=copy)
+	 */
 	var copy: (text: string) => Promise<void>
 
 	/**

@@ -822,7 +822,7 @@ export interface Keyboard {
 export interface Mouse {
   leftClick: () => Promise<void>
   rightClick: () => Promise<void>
-  move: (points: [{ x: number; y: number }]) => Promise<void>
+  move: (points: { x: number; y: number }[]) => Promise<void>
   setPosition: (position: {
     x: number
     y: number
@@ -1366,8 +1366,72 @@ declare global {
   var log: typeof console.log
   var warn: typeof console.warn
 
+  /**
+   * > Note: Please use with caution
+   * Type and/or tap keys on your keyboard
+   * #### keyboard example
+   * ```ts
+   * metadata = {
+   *   prompt: false, // 99% of the time you'll want to hide the prompt
+   * };
+   * await keyboard.type("Hello, world!");
+   * ```
+   * #### keyboard example keys
+   * ```ts
+   * metadata = {
+   *   prompt: false,
+   * };
+   * await keyboard.tap(Key.LeftSuper, Key.A);
+   * await wait(100);
+   * await keyboard.tap(Key.LeftSuper, Key.C);
+   * await wait(100);
+   * await keyboard.tap(Key.LeftSuper, Key.N);
+   * await wait(100);
+   * await keyboard.tap(Key.LeftSuper, Key.V);
+   * ```
+   [Examples](https://scriptkit.com?query=keyboard) | [Docs](https://johnlindquist.github.io/kit-docs/#keyboard) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=keyboard)
+   */
   var keyboard: Keyboard
+  /**
+   * > Note: Please use with caution
+   * move and click the system mouse
+   * #### mouse example
+   * ```ts
+   * await mouse.move([
+   *   { x: 100, y: 100 },
+   *   { x: 200, y: 200 },
+   * ]);
+   * await mouse.leftClick();
+   * await wait(100);
+   * await mouse.rightClick();
+   * await wait(100);
+   * await mouse.setPosition({ x: 1000, y: 1000 });
+   * ```
+   [Examples](https://scriptkit.com?query=mouse) | [Docs](https://johnlindquist.github.io/kit-docs/#mouse) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=mouse)
+   */
   var mouse: Mouse
+  /**
+   * Read and write to the system clipboard
+   * #### clipboard example
+   * ```ts
+   * // Write and read text to the clipboard
+   * await clipboard.writeText("Hello from Script Kit!");
+   * const result = await clipboard.readText();
+   * await editor(result);
+   * ```
+   * #### clipboard example image
+   * ```ts
+   * const iconPath = kitPath("images", "icon.png");
+   * const imageBuffer = await readFile(iconPath);
+   * // Write and read image buffers to the clipboard
+   * await clipboard.writeImage(imageBuffer);
+   * const resultBuffer = await clipboard.readImage();
+   * const outputPath = home("Downloads", "icon-copy.png");
+   * await writeFile(outputPath, resultBuffer);
+   * await revealFile(outputPath);
+   * ```
+   [Examples](https://scriptkit.com?query=clipboard) | [Docs](https://johnlindquist.github.io/kit-docs/#clipboard) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=clipboard)
+   */
   var clipboard: KitClipboard
 
   var execLog: ExecLog
@@ -1381,6 +1445,26 @@ declare global {
   var registerShortcut: RegisterShortcut
   var unregisterShortcut: UnregisterShortcut
   var startDrag: (filePath: string, iconPath?: string) => void
+  /**
+   * Grab a color from your desktop
+   * > Note: Behaves best on Mac. Windows _might_ be locked to only the Script Kit app prompt.
+   * ```
+   * {
+   *     "sRGBHex": "#e092d9",
+   *     "rgb": "rgb(224, 146, 217)",
+   *     "rgba": "rgba(224, 146, 217, 1)",
+   *     "hsl": "hsl(305, 56%, 73%)",
+   *     "hsla": "hsla(305, 56%, 73%, 1)",
+   *     "cmyk": "cmyk(0%, 35%, 3%, 12%)"
+   *   }
+   * ```
+   * #### eyeDropper example
+   * ```ts
+   * const result = await eyeDropper();
+   * await editor(JSON.stringify(result, null, 2));
+   * ```
+   [Examples](https://scriptkit.com?query=eyeDropper) | [Docs](https://johnlindquist.github.io/kit-docs/#eyeDropper) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=eyeDropper)
+   */
   var eyeDropper: () => Promise<{
     sRGBHex: string
   }>
