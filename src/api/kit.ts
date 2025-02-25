@@ -6,7 +6,7 @@ import * as os from 'node:os'
 import { pathToFileURL } from 'node:url'
 import * as JSONSafe from 'safe-stable-stringify'
 import { QuickScore, quickScore, createConfig, type Options, type ConfigOptions } from 'quick-score'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from '../utils/date.js'
 import type {
   Action,
   Choice,
@@ -1190,7 +1190,7 @@ export let scriptFlags: FlagsObject = {
       let compileMessage = stamp?.compileMessage?.trim() || ''
       let compileStamp = stamp?.compileStamp
         ? `Last compiled: ${formatDistanceToNow(new Date(stamp?.compileStamp), {
-            includeSeconds: true
+            addSuffix: false
           })} ago`
         : ''
       let executionTime = stamp?.executionTime ? `Last run duration: ${stamp?.executionTime}ms` : ''
@@ -1305,7 +1305,7 @@ ${lastRunBlock}
   },
   'share-copy': {
     group: 'Copy',
-    name: 'Copy',
+    name: 'Copy script contents to clipboard',
     description: 'Copy script contents to clipboard',
     shortcut: `${cmd}+c`
   },
@@ -1834,14 +1834,9 @@ export let processScript =
 
       if (stamp.compileMessage && stamp.compileStamp) {
         infoBlock = `~~~
-⚠️ Last compiled ${formatDistanceToNow(new Date(stamp.compileStamp))} ago
-
-${stamp.compileMessage}
-~~~
-
-<p/>
-
-`
+⚠️ Last compiled ${formatDistanceToNow(new Date(stamp.compileStamp), {
+            addSuffix: false
+          })} ago`
       }
     }
     if (!(s as Scriptlet)?.scriptlet) {

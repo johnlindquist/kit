@@ -18,7 +18,7 @@ import type { PromptConfig } from "../types/core"
 import {
   format,
   formatDistanceToNow,
-} from "date-fns"
+} from "../utils/date.js"
 import { kitPnpmPath } from "../core/resolvers.js"
 
 global.actionFlag = ""

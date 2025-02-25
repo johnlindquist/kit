@@ -3867,12 +3867,12 @@ declare module "@johnlindquist/kit" {
       wrappingStrategy?: "simple" | "advanced"
       /**
        * Configure word wrapping characters. A break will be introduced before these characters.
-       * Defaults to '([{‘“〈《「『【〔（［｛｢£¥＄￡￥+＋'.
+       * Defaults to '([{‘"〈《「『【〔（［｛｢£¥＄￡￥+＋'.
        */
       wordWrapBreakBeforeCharacters?: string
       /**
        * Configure word wrapping characters. A break will be introduced after these characters.
-       * Defaults to ' \t})]?|/&.,;¢°′″‰℃、。｡､￠，．：；？！％・･ゝゞヽヾーァィゥェォッャュョヮヵヶぁぃぅぇぉっゃゅょゎゕゖㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿ々〻ｧｨｩｪｫｬｭｮｯｰ”〉》」』】〕）］｝｣'.
+       * Defaults to ' \t})]?|/&.,;¢°′″‰℃、。｡､￠，．：；？！％・･ゝゞヽヾーァィゥェォッャュョヮヵヶぁぃぅぇぉっゃゅょゎゕゖㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿ々〻ｧｨｩｪｫｬｭｮｯｰ"〉》」』】〕）］｝｣'.
        */
       wordWrapBreakAfterCharacters?: string
       /**
@@ -10505,7 +10505,7 @@ declare module "@johnlindquist/kit" {
   import type {
     format,
     formatDistanceToNow,
-  } from "date-fns"
+  } from "../../utils/date.js"
   import type { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods"
   import type {
     Action,

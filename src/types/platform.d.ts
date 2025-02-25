@@ -318,7 +318,7 @@ declare global {
    * end tell
    * `)
    * ```
-   [Examples](https://scriptkit.com?query=applescript) | [Docs](https://johnlindquist.github.io/kit-docs/#applescript) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=applescript)
+   * [Examples](https://scriptkit.com?query=applescript) | [Docs](https://johnlindquist.github.io/kit-docs/#applescript) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=applescript)
    */
   var applescript: AppleScript
   /**
@@ -327,7 +327,7 @@ declare global {
    * ```ts
    * await beep()
    * ```
-   [Examples](https://scriptkit.com?query=beep) | [Docs](https://johnlindquist.github.io/kit-docs/#beep) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=beep)
+   * [Examples](https://scriptkit.com?query=beep) | [Docs](https://johnlindquist.github.io/kit-docs/#beep) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=beep)
    */
   var beep: Beep
   /**
@@ -338,7 +338,7 @@ declare global {
    * ```ts
    * await copyPathAsImage("/path/to/file.txt")
    * ```
-   [Examples](https://scriptkit.com?query=copyPathAsImage) | [Docs](https://johnlindquist.github.io/kit-docs/#copyPathAsImage) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=copyPathAsImage)
+   * [Examples](https://scriptkit.com?query=copyPathAsImage) | [Docs](https://johnlindquist.github.io/kit-docs/#copyPathAsImage) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=copyPathAsImage)
    */
   var copyPathAsImage: CopyPathAsImage
   /**
@@ -352,7 +352,7 @@ declare global {
    *   ...
    * }): Promise<string[]>
    * ```
-   [Examples](https://scriptkit.com?query=fileSearch) | [Docs](https://johnlindquist.github.io/kit-docs/#fileSearch) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=fileSearch)
+   * [Examples](https://scriptkit.com?query=fileSearch) | [Docs](https://johnlindquist.github.io/kit-docs/#fileSearch) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=fileSearch)
    */
   var fileSearch: FileSearch
   var focusTab: FocusTab
@@ -364,7 +364,7 @@ declare global {
    * ```ts
    * await focusWindow(12345)
    * ```
-   [Examples](https://scriptkit.com?query=focusWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#focusWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=focusWindow)
+   * [Examples](https://scriptkit.com?query=focusWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#focusWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=focusWindow)
    */
   var focusWindow: FocusWindow
   var getActiveAppInfo: GetActiveAppInfo
@@ -382,7 +382,7 @@ declare global {
    * ```ts
    * await attemptScriptFocus()
    * ```
-   [Examples](https://scriptkit.com?query=attemptScriptFocus) | [Docs](https://johnlindquist.github.io/kit-docs/#attemptScriptFocus) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=attemptScriptFocus)
+   * [Examples](https://scriptkit.com?query=attemptScriptFocus) | [Docs](https://johnlindquist.github.io/kit-docs/#attemptScriptFocus) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=attemptScriptFocus)
    */
   var attemptScriptFocus: AttemptScriptFocus
   /**
@@ -393,7 +393,7 @@ declare global {
    * ```ts
    * let windows = await getKitWindows()
    * ```
-   [Examples](https://scriptkit.com?query=getKitWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#getKitWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getKitWindows)
+   * [Examples](https://scriptkit.com?query=getKitWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#getKitWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getKitWindows)
    */
   var getKitWindows: GetKitWindows
   /**
@@ -404,7 +404,7 @@ declare global {
    * ```ts
    * await focusKitWindow()
    * ```
-   [Examples](https://scriptkit.com?query=focusKitWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#focusKitWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=focusKitWindow)
+   * [Examples](https://scriptkit.com?query=focusKitWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#focusKitWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=focusKitWindow)
    */
   var focusKitWindow: FocusAppWindow
   var getScreens: GetScreens
@@ -417,7 +417,7 @@ declare global {
    * ```ts
    * let filePath = await selectFile()
    * ```
-   [Examples](https://scriptkit.com?query=selectFile) | [Docs](https://johnlindquist.github.io/kit-docs/#selectFile) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=selectFile)
+   * [Examples](https://scriptkit.com?query=selectFile) | [Docs](https://johnlindquist.github.io/kit-docs/#selectFile) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=selectFile)
    */
   var selectFile: SelectFile
   /**
@@ -426,7 +426,7 @@ declare global {
    * ```ts
    * let folderPath = await selectFolder()
    * ```
-   [Examples](https://scriptkit.com?query=selectFolder) | [Docs](https://johnlindquist.github.io/kit-docs/#selectFolder) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=selectFolder)
+   * [Examples](https://scriptkit.com?query=selectFolder) | [Docs](https://johnlindquist.github.io/kit-docs/#selectFolder) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=selectFolder)
    */
   var selectFolder: SelectFolder
   var revealFile: RevealFile
@@ -441,7 +441,7 @@ declare global {
    * ```ts
    * let windows = await getWindows()
    * ```
-   [Examples](https://scriptkit.com?query=getWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#getWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getWindows)
+   * [Examples](https://scriptkit.com?query=getWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#getWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getWindows)
    */
   var getWindows: GetWindows
   /**
@@ -452,7 +452,7 @@ declare global {
    * ```ts
    * let bounds = await getWindowsBounds()
    * ```
-   [Examples](https://scriptkit.com?query=getWindowsBounds) | [Docs](https://johnlindquist.github.io/kit-docs/#getWindowsBounds) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getWindowsBounds)
+   * [Examples](https://scriptkit.com?query=getWindowsBounds) | [Docs](https://johnlindquist.github.io/kit-docs/#getWindowsBounds) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getWindowsBounds)
    */
   var getWindowsBounds: GetWindowsBounds
   var getSelectedDir: GetSelectedDir
@@ -460,12 +460,12 @@ declare global {
   /**
    * Logs out the current user.
    * - Only tested on macOS
-   * - May require additional permissions or configurations  
+   * - May require additional permissions or configurations
    * #### logout example
    * ```ts
    * await logout()
    * ```
-   [Examples](https://scriptkit.com?query=logout) | [Docs](https://johnlindquist.github.io/kit-docs/#logout) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=logout)
+   * [Examples](https://scriptkit.com?query=logout) | [Docs](https://johnlindquist.github.io/kit-docs/#logout) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=logout)
    */
   var logout: Logout
   /**
@@ -476,7 +476,7 @@ declare global {
    * ```ts
    * await lock()
    * ```
-   [Examples](https://scriptkit.com?query=lock) | [Docs](https://johnlindquist.github.io/kit-docs/#lock) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=lock)
+   * [Examples](https://scriptkit.com?query=lock) | [Docs](https://johnlindquist.github.io/kit-docs/#lock) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=lock)
    */
   var lock: Lock
   var openLog: () => void
@@ -492,7 +492,7 @@ declare global {
    *   ...
    * }): Promise<string>
    * ```
-   [Examples](https://scriptkit.com?query=organizeWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#organizeWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=organizeWindows)
+   * [Examples](https://scriptkit.com?query=organizeWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#organizeWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=organizeWindows)
    */
   var organizeWindows: OrganizeWindows
   var playAudioFile: PlayAudioFile
@@ -504,7 +504,7 @@ declare global {
    * ```ts
    * await say("Done!")
    * ```
-   [Examples](https://scriptkit.com?query=say) | [Docs](https://johnlindquist.github.io/kit-docs/#say) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=say)
+   * [Examples](https://scriptkit.com?query=say) | [Docs](https://johnlindquist.github.io/kit-docs/#say) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=say)
    */
   var say: Say
   /**
@@ -515,7 +515,7 @@ declare global {
    * ```ts
    * await scatterWindows()
    * ```
-   [Examples](https://scriptkit.com?query=scatterWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#scatterWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=scatterWindows)
+   * [Examples](https://scriptkit.com?query=scatterWindows) | [Docs](https://johnlindquist.github.io/kit-docs/#scatterWindows) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=scatterWindows)
    */
   var scatterWindows: ScatterWindows
   /**
@@ -524,7 +524,7 @@ declare global {
    * ```ts
    * let src = await scrapeAttribute("https://example.com", "img", "src")
    * ```
-   [Examples](https://scriptkit.com?query=scrapeAttribute) | [Docs](https://johnlindquist.github.io/kit-docs/#scrapeAttribute) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=scrapeAttribute)
+   * [Examples](https://scriptkit.com?query=scrapeAttribute) | [Docs](https://johnlindquist.github.io/kit-docs/#scrapeAttribute) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=scrapeAttribute)
    */
   var scrapeAttribute: ScrapeAttribute
   /**
@@ -533,7 +533,7 @@ declare global {
    * ```ts
    * let text = await scrapeSelector("https://example.com", "#main-content")
    * ```
-   [Examples](https://scriptkit.com?query=scrapeSelector) | [Docs](https://johnlindquist.github.io/kit-docs/#scrapeSelector) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=scrapeSelector)
+   * [Examples](https://scriptkit.com?query=scrapeSelector) | [Docs](https://johnlindquist.github.io/kit-docs/#scrapeSelector) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=scrapeSelector)
    */
   var scrapeSelector: ScrapeSelector
   /**
@@ -546,7 +546,7 @@ declare global {
    *   ...
    * }): Promise<Buffer>
    * ```
-   [Examples](https://scriptkit.com?query=getScreenshotFromWebpage) | [Docs](https://johnlindquist.github.io/kit-docs/#getScreenshotFromWebpage) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getScreenshotFromWebpage)
+   * [Examples](https://scriptkit.com?query=getScreenshotFromWebpage) | [Docs](https://johnlindquist.github.io/kit-docs/#getScreenshotFromWebpage) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getScreenshotFromWebpage)
    */
   var getScreenshotFromWebpage: GetScreenshotFromWebpage
   /**
@@ -558,7 +558,7 @@ declare global {
    *   height: 600
    * })
    * ```
-   [Examples](https://scriptkit.com?query=getWebpageAsPdf) | [Docs](https://johnlindquist.github.io/kit-docs/#getWebpageAsPdf) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getWebpageAsPdf)
+   * [Examples](https://scriptkit.com?query=getWebpageAsPdf) | [Docs](https://johnlindquist.github.io/kit-docs/#getWebpageAsPdf) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getWebpageAsPdf)
    */
   var getWebpageAsPdf: GetWebpageAsPdf
   var setActiveAppBounds: SetActiveAppBounds
@@ -571,7 +571,7 @@ declare global {
    * await setSelectedText("Hello from Script Kit!");
    * ```
    * Grab text from the focused app. Literally triggers a "cmd?ctrl+c", so expect a similar behavior.
-   [Examples](https://scriptkit.com?query=setSelectedText) | [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedText) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setSelectedText)
+   * [Examples](https://scriptkit.com?query=setSelectedText) | [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedText) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setSelectedText)
    */
   var setSelectedText: SetSelectedText
   var setSelectedFile: SetSelectedFile
@@ -584,7 +584,7 @@ declare global {
    * ```ts
    * await setWindowPosition(12345, 100, 200)
    * ```
-   [Examples](https://scriptkit.com?query=setWindowPosition) | [Docs](https://johnlindquist.github.io/kit-docs/#setWindowPosition) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setWindowPosition)
+   * [Examples](https://scriptkit.com?query=setWindowPosition) | [Docs](https://johnlindquist.github.io/kit-docs/#setWindowPosition) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setWindowPosition)
    */
   var setWindowPosition: SetWindowPosition
   /**
@@ -595,7 +595,7 @@ declare global {
    * ```ts
    * await setWindowPositionByIndex(0, 100, 200)
    * ```
-   [Examples](https://scriptkit.com?query=setWindowPositionByIndex) | [Docs](https://johnlindquist.github.io/kit-docs/#setWindowPositionByIndex) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setWindowPositionByIndex)
+   * [Examples](https://scriptkit.com?query=setWindowPositionByIndex) | [Docs](https://johnlindquist.github.io/kit-docs/#setWindowPositionByIndex) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setWindowPositionByIndex)
    */
   var setWindowPositionByIndex: SetWindowPositionByIndex
   var setWindowSize: SetWindowSize
@@ -608,7 +608,7 @@ declare global {
    * ```ts
    * await shutdown()
    * ```
-   [Examples](https://scriptkit.com?query=shutdown) | [Docs](https://johnlindquist.github.io/kit-docs/#shutdown) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=shutdown)
+   * [Examples](https://scriptkit.com?query=shutdown) | [Docs](https://johnlindquist.github.io/kit-docs/#shutdown) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=shutdown)
    */
   var shutdown: Shutdown
   /**
@@ -619,7 +619,7 @@ declare global {
    * ```ts
    * await sleep()
    * ```
-   [Examples](https://scriptkit.com?query=sleep) | [Docs](https://johnlindquist.github.io/kit-docs/#sleep) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=sleep)
+   * [Examples](https://scriptkit.com?query=sleep) | [Docs](https://johnlindquist.github.io/kit-docs/#sleep) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=sleep)
    */
   var sleep: Sleep
   /**
@@ -633,7 +633,7 @@ declare global {
    *   padding: 10
    * })
    * ```
-   [Examples](https://scriptkit.com?query=tileWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#tileWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=tileWindow)
+   * [Examples](https://scriptkit.com?query=tileWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#tileWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=tileWindow)
    */
   var tileWindow: TileWindow
 }

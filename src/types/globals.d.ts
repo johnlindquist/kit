@@ -34,7 +34,7 @@ declare global {
      *   await keyboard.releaseKey(Key.LeftSuper, Key.T)
      * }
      * ```
-     [Examples](https://scriptkit.com?query=get) | [Docs](https://johnlindquist.github.io/kit-docs/#get) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=get)
+     * [Examples](https://scriptkit.com?query=get) | [Docs](https://johnlindquist.github.io/kit-docs/#get) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=get)
      */
     var get: import('axios').AxiosInstance['get']
     /**
@@ -46,7 +46,7 @@ declare global {
      * });
      * await editor(JSON.stringify(result.data));
      * ```
-     [Examples](https://scriptkit.com?query=put) | [Docs](https://johnlindquist.github.io/kit-docs/#put) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=put)
+     * [Examples](https://scriptkit.com?query=put) | [Docs](https://johnlindquist.github.io/kit-docs/#put) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=put)
      */
     var put: import('axios').AxiosInstance['put']
     /**
@@ -60,7 +60,7 @@ declare global {
      * });
      * await editor(JSON.stringify(result.data));
      * ```
-     [Examples](https://scriptkit.com?query=post) | [Docs](https://johnlindquist.github.io/kit-docs/#post) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=post)
+     * [Examples](https://scriptkit.com?query=post) | [Docs](https://johnlindquist.github.io/kit-docs/#post) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=post)
      */
     var post: import('axios').AxiosInstance['post']
     /**
@@ -72,7 +72,7 @@ declare global {
      * });
      * await editor(JSON.stringify(result.data));
      * ```
-     [Examples](https://scriptkit.com?query=patch) | [Docs](https://johnlindquist.github.io/kit-docs/#patch) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=patch)
+     * [Examples](https://scriptkit.com?query=patch) | [Docs](https://johnlindquist.github.io/kit-docs/#patch) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=patch)
      */
     var patch: import('axios').AxiosInstance['patch']
     /**
@@ -82,7 +82,7 @@ declare global {
      * const result = await del("https://jsonplaceholder.typicode.com/posts/1");
      * await editor(JSON.stringify(result.data));
      * ```
-     [Examples](https://scriptkit.com?query=del) | [Docs](https://johnlindquist.github.io/kit-docs/#del) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=del)
+     * [Examples](https://scriptkit.com?query=del) | [Docs](https://johnlindquist.github.io/kit-docs/#del) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=del)
      */
     var del: import('axios').AxiosInstance['delete']
     //chalk
@@ -123,7 +123,7 @@ declare global {
      *   },
      * })
      * ```
-     [Examples](https://scriptkit.com?query=exec) | [Docs](https://johnlindquist.github.io/kit-docs/#exec) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=exec)
+     * [Examples](https://scriptkit.com?query=exec) | [Docs](https://johnlindquist.github.io/kit-docs/#exec) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=exec)
      */
     var exec: typeof import('execa').execaCommand
     var execa: typeof import('execa').execa
@@ -140,7 +140,7 @@ declare global {
      * const destination = home("Downloads");
      * await download(url, destination);
      * ```
-     [Examples](https://scriptkit.com?query=download) | [Docs](https://johnlindquist.github.io/kit-docs/#download) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=download)
+     * [Examples](https://scriptkit.com?query=download) | [Docs](https://johnlindquist.github.io/kit-docs/#download) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=download)
      */
     var download: typeof import('download')
     var emptyDir: typeof import('fs-extra').emptyDir
@@ -222,7 +222,7 @@ declare global {
      * });
      * await div(result);
      * ```
-     [Examples](https://scriptkit.com?query=compile) | [Docs](https://johnlindquist.github.io/kit-docs/#compile) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=compile)
+     * [Examples](https://scriptkit.com?query=compile) | [Docs](https://johnlindquist.github.io/kit-docs/#compile) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=compile)
      */
     var compile: typeof import('handlebars').compile
   
@@ -235,7 +235,7 @@ declare global {
      * `);
      * await div(html);
      * ```
-     [Examples](https://scriptkit.com?query=md) | [Docs](https://johnlindquist.github.io/kit-docs/#md) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=md)
+     * [Examples](https://scriptkit.com?query=md) | [Docs](https://johnlindquist.github.io/kit-docs/#md) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=md)
      */
     var md: typeof import('../globals/marked').md
     var marked: typeof import('marked').marked
@@ -247,7 +247,7 @@ declare global {
      * const id = uuid();
      * await editor(id);
      * ```
-     [Examples](https://scriptkit.com?query=uuid) | [Docs](https://johnlindquist.github.io/kit-docs/#uuid) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=uuid)
+     * [Examples](https://scriptkit.com?query=uuid) | [Docs](https://johnlindquist.github.io/kit-docs/#uuid) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=uuid)
      */
     var uuid: typeof import('node:crypto').randomUUID
   
@@ -263,7 +263,7 @@ declare global {
      *   to: "great",
      * });
      * ```
-     [Examples](https://scriptkit.com?query=replace) | [Docs](https://johnlindquist.github.io/kit-docs/#replace) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=replace)
+     * [Examples](https://scriptkit.com?query=replace) | [Docs](https://johnlindquist.github.io/kit-docs/#replace) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=replace)
      */
     var replace: typeof import('replace-in-file').replaceInFile
     // stream
@@ -284,7 +284,7 @@ declare global {
      * ]);
      * await editor(JSON.stringify(pathsForScriptsAndScriptlets, null, 2));
      * ```
-     [Examples](https://scriptkit.com?query=globby) | [Docs](https://johnlindquist.github.io/kit-docs/#globby) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=globby)
+     * [Examples](https://scriptkit.com?query=globby) | [Docs](https://johnlindquist.github.io/kit-docs/#globby) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=globby)
      */
     var globby: typeof import('globby').globby
   }

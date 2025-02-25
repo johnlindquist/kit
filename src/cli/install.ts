@@ -1,7 +1,7 @@
 import {
   formatDistanceToNow,
   parseISO,
-} from "date-fns"
+} from "../utils/date.js"
 import { getKenvFromPath, KIT_FIRST_PATH } from "../core/utils.js"
 import { createPackageManagerCommand } from "./lib/install.js"
 import { stat, readlink } from "node:fs/promises"

@@ -36,7 +36,7 @@ import {
   tap,
   Subject,
   merge,
-} from "rxjs"
+} from "../lib/mini-rxjs.js"
 import { default as minimist } from "minimist"
 import { default as stripAnsi } from "strip-ansi"
 
@@ -1019,7 +1019,7 @@ global.setPrompt = async (data: Partial<PromptData>) => {
     env: global.env,
     show: true,
     ...(data as PromptData),
-  })
+  }, 0)
 
   performance.measure("SET_PROMPT_DATA", "run")
 
@@ -1834,6 +1834,10 @@ global.editor.insertText = async (text: string) => {
     text
   )
   return message?.state?.value
+}
+
+global.editor.setText = async (text: string) => {
+  await setInput(text)
 }
 
 // global.editor.setCodeHint = async (value: string) => {

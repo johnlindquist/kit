@@ -13,7 +13,7 @@ import {
   formatDistanceToNowStrict,
   format,
   compareAsc,
-} from "date-fns"
+} from "../utils/date.js"
 
 let { schedule } = await global.getSchedule()
 

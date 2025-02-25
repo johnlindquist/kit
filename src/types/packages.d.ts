@@ -109,7 +109,7 @@ declare global {
 	 * }, 1000);
 	 * await arg("I will exit in 1 second");
 	 * ```
-	 [Examples](https://scriptkit.com?query=exit) | [Docs](https://johnlindquist.github.io/kit-docs/#exit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=exit)
+	 * [Examples](https://scriptkit.com?query=exit) | [Docs](https://johnlindquist.github.io/kit-docs/#exit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=exit)
 	 */
 	var exit: typeof shelljs.exit
 	var grep: typeof shelljs.grep
@@ -126,12 +126,12 @@ declare global {
 	/**
 	 * Grab a string from the clipboard into the script. A simple alias for "clipboard.readText()"
 	 * > Note: This is often confused with `setSelectedText` which pastes a string where your text cursor is.
-	 [Examples](https://scriptkit.com?query=paste) | [Docs](https://johnlindquist.github.io/kit-docs/#paste) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=paste)
+	 * [Examples](https://scriptkit.com?query=paste) | [Docs](https://johnlindquist.github.io/kit-docs/#paste) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=paste)
 	 */
 	var paste: () => Promise<string>
 	/**
 	 * Copy a string to the clipboard. A simple alias for "clipboard.writeText()"
-	 [Examples](https://scriptkit.com?query=copy) | [Docs](https://johnlindquist.github.io/kit-docs/#copy) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=copy)
+	 * [Examples](https://scriptkit.com?query=copy) | [Docs](https://johnlindquist.github.io/kit-docs/#copy) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=copy)
 	 */
 	var copy: (text: string) => Promise<void>
 
@@ -143,7 +143,7 @@ declare global {
 	 * ```ts
 	 * await trash("/path/to/file.txt")
 	 * ```
-	 [Examples](https://scriptkit.com?query=trash) | [Docs](https://johnlindquist.github.io/kit-docs/#trash) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=trash)
+	 * [Examples](https://scriptkit.com?query=trash) | [Docs](https://johnlindquist.github.io/kit-docs/#trash) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=trash)
 	 */
 	var trash: Trash
 	var open: Open
@@ -155,7 +155,7 @@ declare global {
 	 * ```ts
 	 * await openApp("Google Chrome")
 	 * ```
-	 [Examples](https://scriptkit.com?query=openApp) | [Docs](https://johnlindquist.github.io/kit-docs/#openApp) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=openApp)
+	 * [Examples](https://scriptkit.com?query=openApp) | [Docs](https://johnlindquist.github.io/kit-docs/#openApp) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=openApp)
 	 */
 	var openApp: OpenApp
 	var rm: Trash
@@ -167,7 +167,7 @@ declare global {
 	 * ```ts
 	 * await git.clone("https://github.com/user/repo.git", "/path/to/repo")
 	 * ```
-	 [Examples](https://scriptkit.com?query=git) | [Docs](https://johnlindquist.github.io/kit-docs/#git) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=git)
+	 * [Examples](https://scriptkit.com?query=git) | [Docs](https://johnlindquist.github.io/kit-docs/#git) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=git)
 	 */
 	var git: Git
 	/**
@@ -178,7 +178,7 @@ declare global {
 	 * ```ts
 	 * await degit("https://github.com/user/repo.git", "/path/to/repo")
 	 * ```
-	 [Examples](https://scriptkit.com?query=degit) | [Docs](https://johnlindquist.github.io/kit-docs/#degit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=degit)
+	 * [Examples](https://scriptkit.com?query=degit) | [Docs](https://johnlindquist.github.io/kit-docs/#degit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=degit)
 	 */
 	var degit: Degit
 	var tmpPromise: TmpPromise
@@ -189,7 +189,7 @@ declare global {
 	 * memoryMap.set("myKey", { myObject: true })
 	 * let value = memoryMap.get("myKey")
 	 * ```
-	 [Examples](https://scriptkit.com?query=memoryMap) | [Docs](https://johnlindquist.github.io/kit-docs/#memoryMap) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=memoryMap)
+	 * [Examples](https://scriptkit.com?query=memoryMap) | [Docs](https://johnlindquist.github.io/kit-docs/#memoryMap) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=memoryMap)
 	 */
 	var memoryMap: Map<string, any>
 

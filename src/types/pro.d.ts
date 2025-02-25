@@ -225,7 +225,7 @@ declare global {
    *     // e.g., save size
    * })
    * ```
-   [Examples](https://scriptkit.com?query=widget) | [Docs](https://johnlindquist.github.io/kit-docs/#widget) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=widget)
+   * [Examples](https://scriptkit.com?query=widget) | [Docs](https://johnlindquist.github.io/kit-docs/#widget) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=widget)
    */
   var widget: Widget
   /**
@@ -253,7 +253,7 @@ declare global {
    *   }, 1000)
    * );
    * ```
-   [Examples](https://scriptkit.com?query=vite) | [Docs](https://johnlindquist.github.io/kit-docs/#vite) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=vite)
+   * [Examples](https://scriptkit.com?query=vite) | [Docs](https://johnlindquist.github.io/kit-docs/#vite) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=vite)
    */
   var vite: ViteWidget
   /**
@@ -268,7 +268,7 @@ declare global {
    * // Reset the menu to the default icon and scripts by passing an empty string
    * await menu(``)
    * ```
-   [Examples](https://scriptkit.com?query=menu) | [Docs](https://johnlindquist.github.io/kit-docs/#menu) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=menu)
+   * [Examples](https://scriptkit.com?query=menu) | [Docs](https://johnlindquist.github.io/kit-docs/#menu) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=menu)
    */
   var menu: Menubar
   /**
@@ -283,7 +283,7 @@ declare global {
    * ```ts
    * await term(`cd ~/.kenv/scripts && ls`)
    * ```
-   [Examples](https://scriptkit.com?query=term) | [Docs](https://johnlindquist.github.io/kit-docs/#term) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=term)
+   * [Examples](https://scriptkit.com?query=term) | [Docs](https://johnlindquist.github.io/kit-docs/#term) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=term)
    */
   var term: Terminal
   /**
@@ -293,7 +293,7 @@ declare global {
    * ```ts
    * await showLogWindow()
    * ```
-   [Examples](https://scriptkit.com?query=showLogWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#showLogWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=showLogWindow)
+   * [Examples](https://scriptkit.com?query=showLogWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#showLogWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=showLogWindow)
    */
   var showLogWindow: ShowLogWindow
 }

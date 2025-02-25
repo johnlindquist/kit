@@ -126,7 +126,7 @@ const detectEditors = async () => {
 const editorCommands = {
   code: async (file, dir, line = 0, col = 0) => {
     const args = ['--goto', `"${file}:${line}:${col}"`]
-    if (dir) args.push('--folder-uri', `"${dir}"`)
+    if (dir) args.push('--folder-uri', `"file://${dir}"`)
     return `code ${args.join(' ')}`
   },
 
@@ -142,13 +142,13 @@ const editorCommands = {
 
   cursor: async (file, dir, line = 0, col = 0) => {
     const args = ['--goto', `"${file}:${line}:${col}"`]
-    if (dir) args.push('--folder-uri', `"${dir}"`)
+    if (dir) args.push('--folder-uri', `"file://${dir}"`)
     return `cursor ${args.join(' ')}`
   },
 
   windsurf: async (file, dir, line = 0, col = 0) => {
     const args = ['--goto', `"${file}:${line}:${col}"`]
-    if (dir) args.push('--folder-uri', `"${dir}"`)
+    if (dir) args.push('--folder-uri', `"file://${dir}"`)
     return `windsurf ${args.join(' ')}`
   },
 
@@ -184,7 +184,16 @@ global.edit = async (p, dir, line, col) => {
   let e = async () => {
     if (env?.KIT_EDITOR) {
       let isPath = await isFile(env.KIT_EDITOR)
-      return isPath ? `"${env.KIT_EDITOR}"` : env.KIT_EDITOR
+      if(isPath){
+        return `"${env.KIT_EDITOR}"`
+      }
+      const editors = await detectEditors();
+
+      let foundEditor = editors.find(e => e.name.toLowerCase() === env.KIT_EDITOR.toLowerCase());
+      if (foundEditor) {
+        return foundEditor.value
+      }
+      return env.KIT_EDITOR
     }
 
     if (env?.PATH?.toLowerCase().includes('code')) return 'code'
@@ -203,6 +212,8 @@ global.edit = async (p, dir, line, col) => {
       command = `${editor} "${p}"`
       if (typeof dir === 'string') command += ` "${dir}"`
     }
+
+    command = command.replace(/\\/g, '/')
 
     await global.exec(command, {
       shell: true,
