@@ -126,7 +126,7 @@ const detectEditors = async () => {
 const editorCommands = {
   code: async (file, dir, line = 0, col = 0) => {
     const args = ['--goto', `"${file}:${line}:${col}"`]
-    if (dir) args.push('--folder-uri', `"file://${dir}"`)
+    if (dir) args.push('--folder-uri', `"file:///${dir}"`)
     return `code ${args.join(' ')}`
   },
 
@@ -142,13 +142,13 @@ const editorCommands = {
 
   cursor: async (file, dir, line = 0, col = 0) => {
     const args = ['--goto', `"${file}:${line}:${col}"`]
-    if (dir) args.push('--folder-uri', `"file://${dir}"`)
+    if (dir) args.push('--folder-uri', `"file:///${dir}"`)
     return `cursor ${args.join(' ')}`
   },
 
   windsurf: async (file, dir, line = 0, col = 0) => {
     const args = ['--goto', `"${file}:${line}:${col}"`]
-    if (dir) args.push('--folder-uri', `"file://${dir}"`)
+    if (dir) args.push('--folder-uri', `"file:///${dir}"`)
     return `windsurf ${args.join(' ')}`
   },
 
