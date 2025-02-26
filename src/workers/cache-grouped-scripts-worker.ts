@@ -6,6 +6,7 @@ import { formatChoices } from '../core/utils.js'
 import { parentPort } from 'node:worker_threads'
 import { type Stamp, getScriptsDb, getTimestamps } from '../core/db.js'
 import { scriptsSort } from '../core/utils.js'
+import { stat } from 'node:fs/promises'
 
 // --------------------
 // Logging to Parent
@@ -43,6 +44,13 @@ let cachedStampFilePath: string | null = null
 const updateTimestampsDb = async (stamp: Stamp) => {
   if (!stamp?.filePath) {
     logToParent('Invalid stamp received: missing filePath')
+    return null
+  }
+
+  // Get file stats. Make sure it has changed in the last 30 seconds
+  const fileStats = await stat(stamp.filePath)
+  if (fileStats.mtime.getTime() < Date.now() - 30000) {
+    logToParent(`File has not changed in the last 30 seconds: ${stamp.filePath}`)
     return null
   }
 
