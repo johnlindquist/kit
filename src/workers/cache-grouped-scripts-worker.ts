@@ -47,13 +47,6 @@ const updateTimestampsDb = async (stamp: Stamp) => {
     return null
   }
 
-  // Get file stats. Make sure it has changed in the last 30 seconds
-  const fileStats = await stat(stamp.filePath)
-  if (fileStats.mtime.getTime() < Date.now() - 30000) {
-    logToParent(`File has not changed in the last 30 seconds: ${stamp.filePath}`)
-    return null
-  }
-
   const originalFilePath = stamp.filePath
   const timestampsDb = await getTimestamps()
   const index = timestampsDb.stamps.findIndex((s) => s.filePath === originalFilePath)
@@ -93,7 +86,9 @@ const updateTimestampsDb = async (stamp: Stamp) => {
     // Final validation before write
     const finalStamp = index === -1 ? timestampsDb.stamps[timestampsDb.stamps.length - 1] : timestampsDb.stamps[index]
     if (finalStamp.filePath !== originalFilePath) {
-      logToParent(`Critical error: Path mismatch before write - Expected: ${originalFilePath}, Got: ${finalStamp.filePath}`)
+      logToParent(
+        `Critical error: Path mismatch before write - Expected: ${originalFilePath}, Got: ${finalStamp.filePath}`
+      )
       return null
     }
 
