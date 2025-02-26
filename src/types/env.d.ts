@@ -68,4 +68,5 @@ export type kenvEnv = {
   KIT_BONJOUR_HOST?: string | undefined
   KIT_ALLOWED_ORIGINS?: string | undefined
   KIT_HEALTH_CHECK_INTERVAL?: string | undefined
+  KIT_CHANGE_COOL_DOWN?: string | undefined
 }
