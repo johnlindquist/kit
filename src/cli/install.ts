@@ -87,7 +87,7 @@ let packages = await arg(
   }
 )
 
-let installNames = [...packages.split(" "), ...args];
+let installNames = [...packages.split(" "), ...(args || [])];
 args = [];
 if (process?.send) global.setChoices([])
 
