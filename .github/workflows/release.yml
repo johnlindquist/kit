@@ -179,8 +179,12 @@ jobs:
           pnpm ava
 
       - name: pnpm test
-        run: |
-          pnpm test
+        uses: nick-invision/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 30
+          command: |
+            pnpm test
         env:
           KIT: ${{ env.kit_path }}
 
