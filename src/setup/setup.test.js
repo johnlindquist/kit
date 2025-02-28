@@ -77,5 +77,5 @@ ava.serial("chmod", async (t) => {
 })
 
 ava.serial("example script exists", async (t) => {
-	t.truthy(await pathExists(kenvPath("scripts", "browse-scriptkit.js")))
+	t.truthy(await pathExists(kenvPath("scripts", "browse-scriptkit.ts")))
 })
