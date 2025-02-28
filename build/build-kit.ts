@@ -330,6 +330,31 @@ if (packageJsonChanged) {
     console.error('Error installing dependencies:', error)
     process.exit(1)
   }
+} else {
+  // Verify node_modules exists even if package.json hasn't changed
+  const nodeModulesPath = kitPath('node_modules')
+  if (!existsSync(nodeModulesPath) || !existsSync(path.join(nodeModulesPath, '.pnpm'))) {
+    console.log('node_modules directory missing or incomplete. Installing dependencies...')
+    try {
+      console.log('Downloading and installing pnpm...')
+      await downloadAndInstallPnpm()
+      console.log('pnpm installation completed')
+      
+      const pnpmPath = kitPath('pnpm')
+      console.log(`Installing production dependencies using ${pnpmPath}...`)
+      await exec(`"${pnpmPath}" i --prod`, options)
+      console.log('Production dependencies installed successfully')
+      
+      console.log('Installing development tools (esbuild, vite, tsx)...')
+      await exec(`"${pnpmPath}" i esbuild vite tsx`, options)
+      console.log('Development tools installed successfully')
+    } catch (error) {
+      console.error('Error installing dependencies:', error)
+      process.exit(1)
+    }
+  } else {
+    console.log('node_modules directory exists. Skipping dependency installation.')
+  }
 }
 
 console.log('Download docs')

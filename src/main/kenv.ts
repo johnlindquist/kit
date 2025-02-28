@@ -2,7 +2,7 @@
 
 import { Choice } from "../types/core"
 import { CLI } from "../cli"
-import { addPreview, findDoc } from "../cli/lib/utils.js"
+import { addPreview } from "../cli/lib/utils.js"
 
 let otherOptions: Choice<keyof CLI>[] = [
   {

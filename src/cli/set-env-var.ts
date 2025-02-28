@@ -21,6 +21,9 @@ Usage: set-env-var [env key:] [env value:]
   throw new Error("Environment value cannot be null or undefined.")
 }
 
+// Ensure envValue is a string
+envValue = String(envValue)
+
 const envFilePath = kenvPath(".env")
 const dotEnvPath = kitDotEnvPath()
 

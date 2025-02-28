@@ -1,74 +1,37 @@
-// Name: Annoucements
-// Description: Browse Annoucements
+// Name: Announcements
+// Description: Script Kit Announcements
+// Keyword: announcements
 // Pass: true
-// Cache: true
+// Enter: Open Announcements
 
-let noChoices = false
-let onNoChoices = async input => {
-  noChoices = true
-  setPanel(
-    md(`# No Examples Found for "${input}"
+import { createGuideConfig } from "./main-helper.js"
 
-- Share one! ❤️ [Share on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/share)
-- Request one 💡 [Request on GitHub Discussions](https://github.com/johnlindquist/kit/discussions/categories/ideas)
-`)
-  )
-}
-
-let getHot = async () => {
-  let hotPath = kitPath("data", "hot.json")
-  if (await isFile(hotPath)) {
-    return await readJson(hotPath)
-  }
-
-  return []
-}
-
-let loadHotChoices = async () => {
-  try {
-    let hot = await getHot()
-
-    return hot
-      .filter(choice => choice?.category?.name !== "Share")
-      .map(choice => {
-        choice.preview = async () => {
-          if (choice?.body) {
-            return await highlight(choice?.body)
-          }
-
-          return ""
-        }
-        return choice
-      })
-  } catch (error) {
-    return [error.message]
-  }
-}
-
-let choices = await loadHotChoices()
-
-let url = await arg(
-  {
+let selectedDoc = await docs(
+  kitPath("ANNOUNCEMENTS.md"),
+  createGuideConfig({
     name: "Announcements",
-    placeholder: `Announcements`,
-    input: arg?.input,
+    guidePath: kitPath("ANNOUNCEMENTS.md"),
+    itemHeight: PROMPT.ITEM.HEIGHT.SM,
+    input: arg?.input || arg?.input || "",
+    placeholder: "Browse Announcements",
+    enter: `Open ANNOUNCEMENTS.md`,
     preventCollapse: true,
-    onNoChoices,
-    onChoiceFocus: () => {
-      noChoices = false
+    onNoChoices: async input => {
+      setPanel(
+        md(`# Expected ${input} in the Announcements?
+This guide is constantly evolving. If you're missing something, [suggest an edit](https://github.com/johnlindquist/kit-docs/blob/main/ANNOUNCEMENTS.md) to the guide or open an issue on GitHub.
+`)
+      )
     },
-    shortcuts: [],
-    enter: "Open in Browser",
-  },
-  choices
+  })
 )
 
-if (noChoices) {
-  browse(
-    `https://github.com/johnlindquist/kit/discussions/categories/share`
-  )
+// if selected docs is a url, then open it
+if (selectedDoc.startsWith("http")) {
+  open(selectedDoc)
 } else {
-  browse(url)
+  await run(kitPath("cli", selectedDoc))
+  await mainScript("", "Announcements")
 }
 
 export {}

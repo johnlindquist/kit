@@ -27,7 +27,7 @@ export let createGuideConfig =
 
     let shortcuts: Shortcut[] = [
       {
-        name: `Playground`,
+        name: `Create Script`,
         key: `${cmd}+p`,
         bar: "right",
         visible: true,
@@ -47,7 +47,7 @@ export let createGuideConfig =
           // remove any emoji
           name = name.replace(/:.+?:/g, "")
 
-          name = `playground-${name}`
+          name = `docs-generated-${name}`
 
           // comment out every line of contents that has text
           contents = contents
@@ -116,6 +116,35 @@ ${contents}`
     return {
       ...config,
       shortcuts,
+    } as PromptConfig
+  }
+
+export let createScriptletsConfig =
+  (
+    config: Partial<PromptConfig> & { guidePath?: string }
+  ) =>
+  async (sections: GuideSection[]) => {
+    let getCodeblocks =
+      global.getCodeblocksFromSections(sections)
+
+    return {
+      ...config,
+      shortcuts: [
+        {
+          name: "Copy Scriptlet",
+          key: `${cmd}+c`,
+          bar: "right",
+          visible: true,
+          onPress: async (input, { focused }) => {
+            let codeBlocks = getCodeblocks(focused?.name)
+            await copy(codeBlocks)
+            toast("Copied to Clipboard!")
+          },
+        },
+      ],
+      onSubmit: async (input, { focused }) => {
+        await edit(kenvPath("scriptlets", "scriptlets.md"))
+      },
     } as PromptConfig
   }
 

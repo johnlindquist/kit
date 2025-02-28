@@ -2,7 +2,7 @@
 // Description: Script Kit Docs
 // Enter: Open Docs
 // Keyword: docs
-// Pass: true
+// Index: 0
 
 delete arg?.pass
 delete arg?.keyword
@@ -12,16 +12,16 @@ onTab("API", async (input = "") => {
   await main("api", "--input", input)
 })
 
+onTab("Scriptlets", async (input = "") => {
+  await main("scriptlets", "--input", input)
+})
+
 onTab("Guide", async (input = "") => {
   await main("guide", "--input", input)
 })
 
 onTab("Tips", async (input = "") => {
   await main("tips", "--input", input)
-})
-
-onTab("Community Scripts", async (input = "") => {
-  await main("community", "--input", input)
 })
 
 onTab("Announcements", async (input = "") => {

@@ -2268,6 +2268,7 @@ export let appInstallMultiple = async (
   )
 
   let i = 0
+  let confirmedPackages = []
   for await (let packageName of adjustedPackageNames) {
     let placeholder = `${packageName} is required for this script`
     setDescription(placeholder)
@@ -2329,13 +2330,14 @@ export let appInstallMultiple = async (
     }
 
     i++
+    confirmedPackages.push(packageName)
   }
 
   setHint(
-    `Installing ${adjustedPackageNames.join(", ")}...`
+    `Installing ${confirmedPackages.join(", ")}...`
   )
 
-  await global.cli("install", ...adjustedPackageNames)
+  await global.cli("install", ...confirmedPackages)
   console.clear()
 }
 
