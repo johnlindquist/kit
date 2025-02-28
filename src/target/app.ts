@@ -2337,7 +2337,8 @@ export let appInstallMultiple = async (
     `Installing ${confirmedPackages.join(", ")}...`
   )
 
-  await global.cli("install", ...confirmedPackages)
+  global.confirmedPackages = confirmedPackages
+  await global.cli("install")
   console.clear()
 }
 

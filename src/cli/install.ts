@@ -8,11 +8,11 @@ import { stat, readlink } from "node:fs/promises"
 
 let install = async (packageNames: string[]) => {
   let cwd = (global.installCwd || kenvPath()) as string
-  
+
   if (global?.errorScriptPath) {
-    try{
+    try {
       const kenv = getKenvFromPath(global.errorScriptPath)
-      if(kenv){
+      if (kenv) {
         const kenvDir = kenvPath("kenvs", kenv)
         const stats = await stat(kenvDir)
         if (stats.isDirectory() || (stats.isSymbolicLink() && (await stat(await readlink(kenvDir))).isDirectory())) {
@@ -20,9 +20,9 @@ let install = async (packageNames: string[]) => {
         }
       }
     } catch (e) {
-      
+
     }
-  }  
+  }
 
   // if (process.env.SCRIPTS_DIR) {
   // 	cwd = kenvPath(process.env.SCRIPTS_DIR)
@@ -44,53 +44,53 @@ let install = async (packageNames: string[]) => {
   })
 }
 
-let packages = await arg(
-  {
-    enter: "Install",
-    placeholder:
-      "Which npm package/s would you like to install?",
-  },
-  async input => {
-    if (!input || input?.length < 3) {
-      return [
-        {
-          info: true,
-          miss: true,
-          name: 'Search for npm packages',
-        },
-      ]
-    }
-    type pkgs = {
-      objects: {
-        package: {
-          name: string
-          description: string
-          date: string
-        }
-      }[]
-    }
-    let response = await get<pkgs>(
-      `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
-    )
-    let packages = response.data.objects
-    return packages.map(o => {
-      return {
-        name: o.package.name,
-        value: o.package.name,
-        description: `${
-          o.package.description
-        } - ${formatDistanceToNow(
-          parseISO(o.package.date)
-        )} ago`,
+if (!global.confirmedPackages) {
+  let packages = await arg(
+    {
+      enter: "Install",
+      placeholder:
+        "Which npm package would you like to install?",
+    },
+    async input => {
+      if (!input || input?.length < 3) {
+        return [
+          {
+            info: true,
+            miss: true,
+            name: 'Search for npm packages',
+          },
+        ]
       }
-    })
-  }
-)
+      type pkgs = {
+        objects: {
+          package: {
+            name: string
+            description: string
+            date: string
+          }
+        }[]
+      }
+      let response = await get<pkgs>(
+        `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
+      )
+      let packages = response.data.objects
+      return packages.map(o => {
+        return {
+          name: o.package.name,
+          value: o.package.name,
+          description: `${o.package.description
+            } - ${formatDistanceToNow(
+              parseISO(o.package.date)
+            )} ago`,
+        }
+      })
+    }
+  )
 
-let installNames = [...packages.split(" "), ...(args || [])];
-args = [];
+  global.confirmedPackages ||= [packages]
+}
+
 if (process?.send) global.setChoices([])
-
-await install([...installNames, ...argOpts])
-
+await install([...global.confirmedPackages, ...argOpts])
+const packages = global.confirmedPackages
 export { packages }
