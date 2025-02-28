@@ -462,6 +462,7 @@ declare global {
    * const result = await arg(
    *   "What is your name?",
    *   ["John", "Mindy", "Ben"],
+   *   //   Define an Array of Actions
    *   [
    *     {
    *       name: "Submit Joy",
@@ -826,6 +827,37 @@ declare global {
    * ```ts
    * flag.debug = true
    * flag.exclude = "*.md"
+   * ```
+   * #### flag example
+   * ```ts
+   * // This concept is replaced by "Actions", but you will see it in older/legacy scripts
+   * const result = await arg({
+   *   placeholder: "What is your name?",
+   *   flags: {
+   *     post: {
+   *       // This will submit the prompt with the "post" flag
+   *       shortcut: `${cmd}+p`,
+   *     },
+   *     put: {
+   *       // This will submit the prompt with the "put" flag
+   *       shortcut: `${cmd}+u`,
+   *     },
+   *     delete: {
+   *       // This will submit the prompt with the "delete" flag
+   *       shortcut: `${cmd}+d`,
+   *     },
+   *   },
+   * });
+   * await editor(
+   *   JSON.stringify(
+   *     {
+   *       result,
+   *       flag: global.flag, // Inspect which flag was used when submitting
+   *     },
+   *     null,
+   *     2
+   *   )
+   * );
    * ```
    * [Examples](https://scriptkit.com?query=flag) | [Docs](https://johnlindquist.github.io/kit-docs/#flag) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=flag)
    */
