@@ -529,7 +529,9 @@ export interface Metadata {
     | 'shutdown'
     | 'lock-screen'
     | 'unlock-screen'
+    /** macOS only */
     | 'user-did-become-active'
+    /** macOS only */
     | 'user-did-resign-active'
 
   /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
