@@ -159,11 +159,11 @@ ${contents.startsWith("/") ? contents : "\n" + contents}
 
     if ((await getEnvVar("KIT_MODE", "ts")) === "ts") {
       // Direct type annotation
-      parts.push("export const metadata: Metadata = {")
+      parts.push("metadata = {")
     } else {
       // JSDoc type comment
       parts.push("/** @type Metadata */")
-      parts.push("export const metadata = {")
+      parts.push("metadata = {")
     }
 
     parts.push(`  name: "${nameMetadata}",`)
