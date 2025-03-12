@@ -107,10 +107,10 @@ export async function initTrace() {
 }
 
 global.trace ||= {
-  begin: () => {},
-  end: () => {},
-  instant: () => {},
-  flush: () => {},
+  begin: () => { },
+  end: () => { },
+  instant: () => { },
+  flush: () => { },
   enabled: false
 }
 
@@ -147,10 +147,10 @@ export let errorPrompt = async (error: Error) => {
     if (secondLine?.match('at file://')) {
       if (isWin) {
         errorFile = path.normalize(secondLine.replace('at file:///', '').replace(/:\d+/g, '').trim())
-        ;[, , line, col] = secondLine.replace('at file:///', '').split(':')
+          ;[, , line, col] = secondLine.replace('at file:///', '').split(':')
       } else {
         errorFile = secondLine.replace('at file://', '').replace(/:.*/, '').trim()
-        ;[, line, col] = secondLine.replace('at file://', '').split(':')
+          ;[, line, col] = secondLine.replace('at file://', '').split(':')
       }
     }
 
@@ -264,7 +264,7 @@ global.silentAttemptImport = async (scriptPath, ..._args) => {
     let href = pathToFileURL(scriptPath).href
     let kitImport = `${href}?now=${Date.now()}.kit`
     importResult = await import(kitImport)
-  } catch (error) {}
+  } catch (error) { }
 
   return importResult
 }
@@ -1085,23 +1085,23 @@ export let actions: Action[] = [
       let helpActions: Action[] = [
         ...(loggedIn
           ? [
-              {
-                name: 'Sign Out',
-                description: 'Sign out of Script Kit',
-                onAction: async () => {
-                  await deauthenticate()
-                }
+            {
+              name: 'Sign Out',
+              description: 'Sign out of Script Kit',
+              onAction: async () => {
+                await deauthenticate()
               }
-            ]
+            }
+          ]
           : [
-              {
-                name: 'Sign In',
-                description: 'Sign in to Script Kit',
-                onAction: async () => {
-                  await run(kitPath('main', 'account-v2.js'))
-                }
+            {
+              name: 'Sign In',
+              description: 'Sign in to Script Kit',
+              onAction: async () => {
+                await run(kitPath('main', 'account-v2.js'))
               }
-            ]),
+            }
+          ]),
         {
           name: 'Read Docs',
           description: 'Read the docs',
@@ -1190,8 +1190,8 @@ export let scriptFlags: FlagsObject = {
       let compileMessage = stamp?.compileMessage?.trim() || ''
       let compileStamp = stamp?.compileStamp
         ? `Last compiled: ${formatDistanceToNow(new Date(stamp?.compileStamp), {
-            addSuffix: false
-          })} ago`
+          addSuffix: false
+        })} ago`
         : ''
       let executionTime = stamp?.executionTime ? `Last run duration: ${stamp?.executionTime}ms` : ''
       let runCount = stamp?.runCount ? `Run count: ${stamp?.runCount}` : ''
@@ -1213,13 +1213,13 @@ export let scriptFlags: FlagsObject = {
         let lastRunDate = new Date(stamp.timestamp)
         lastRunBlock = `### Last Run
   - ${lastRunDate.toLocaleString()}
-  - ${formatDistanceToNow(lastRunDate)} ago
+  - ${formatDistanceToNow(lastRunDate, { addSuffix: false })} ago
   `.trim()
       }
 
       let modifiedBlock = `### Last Modified 
 - ${lastModified.toLocaleString()}      
-- ${formatDistanceToNow(lastModified)} ago`
+- ${formatDistanceToNow(lastModified, { addSuffix: false })} ago`
 
       let info = md(
         `# Stats
@@ -1497,9 +1497,9 @@ export let getApps = async () => {
 export let splitEnvVarIntoArray = (envVar: string | undefined, fallback: string[]) => {
   return envVar
     ? envVar
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
     : fallback
 }
 
@@ -1803,49 +1803,49 @@ export let processPreviewPath = (s: Script) => {
 
 export let processScriptPreview =
   (script: Script, infoBlock = '') =>
-  async () => {
-    if ((script as Scriptlet)?.scriptlet) {
-      return script.preview
-    }
-    let previewPath = getPreviewPath(script)
-    let preview = ``
+    async () => {
+      if ((script as Scriptlet)?.scriptlet) {
+        return script.preview
+      }
+      let previewPath = getPreviewPath(script)
+      let preview = ``
 
-    if (await isFile(previewPath)) {
-      preview = await processWithPreviewFile(script, previewPath, infoBlock)
-    } else if (typeof script?.preview === 'string') {
-      preview = await processWithStringPreview(script, infoBlock)
-    } else {
-      preview = await processWithNoPreview(script, infoBlock)
-    }
+      if (await isFile(previewPath)) {
+        preview = await processWithPreviewFile(script, previewPath, infoBlock)
+      } else if (typeof script?.preview === 'string') {
+        preview = await processWithStringPreview(script, infoBlock)
+      } else {
+        preview = await processWithNoPreview(script, infoBlock)
+      }
 
-    return preview
-  }
+      return preview
+    }
 
 // TODO: The logic around scripts + stats/timestamps is confusing. Clean it up.
 export let processScript =
   (timestamps: Stamp[] = []) =>
-  async (s: Script): Promise<Script> => {
-    let stamp = timestamps.find((t) => t.filePath === s.filePath)
+    async (s: Script): Promise<Script> => {
+      let stamp = timestamps.find((t) => t.filePath === s.filePath)
 
-    let infoBlock = ``
-    if (stamp) {
-      s.compileStamp = stamp.compileStamp
-      s.compileMessage = stamp.compileMessage
-      s.timestamp = stamp.timestamp
+      let infoBlock = ``
+      if (stamp) {
+        s.compileStamp = stamp.compileStamp
+        s.compileMessage = stamp.compileMessage
+        s.timestamp = stamp.timestamp
 
-      if (stamp.compileMessage && stamp.compileStamp) {
-        infoBlock = `~~~
+        if (stamp.compileMessage && stamp.compileStamp) {
+          infoBlock = `~~~
 ⚠️ Last compiled ${formatDistanceToNow(new Date(stamp.compileStamp), {
             addSuffix: false
           })} ago`
+        }
       }
-    }
-    if (!(s as Scriptlet)?.scriptlet) {
-      s.preview = processScriptPreview(s, infoBlock) as () => Promise<string>
-    }
+      if (!(s as Scriptlet)?.scriptlet) {
+        s.preview = processScriptPreview(s, infoBlock) as () => Promise<string>
+      }
 
-    return s
-  }
+      return s
+    }
 
 export let getPreviewPath = (s: Script): string => {
   if (s?.previewPath) {

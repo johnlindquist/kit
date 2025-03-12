@@ -100,6 +100,7 @@
     "chalk-template": "1.1.0",
     "chrome-trace-event": "^1.0.4",
     "color-name": "2.0.0",
+    "date-fns": "4.1.0",
     "dotenv": "^16.4.7",
     "dotenv-flow": "4.1.0",
     "download": "8.0.0",
