@@ -412,19 +412,25 @@ declare global {
   var getSelectedFile: GetSelectedFile
   var revealInFinder: RevealInFinder
   /**
-   * Prompt the user to select a file using the Finder dialog:
+   * Prompt the user to select a file using the Finder dialog. You can pass a string as a customized message:
    * #### selectFile example
    * ```ts
-   * let filePath = await selectFile()
+   * let filePromptMessage = "Select a file to upload"
+   * let filePath = await selectFile(filePromptMessage)
+   * let text = await readFile(filePath, "utf8")
+   * let gist = await createGist(text)
    * ```
    * [Examples](https://scriptkit.com?query=selectFile) | [Docs](https://johnlindquist.github.io/kit-docs/#selectFile) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=selectFile)
    */
   var selectFile: SelectFile
   /**
-   * Prompt the user to select a folder using the Finder dialog:
+   * Prompt the user to select a folder using the Finder dialog. You can pass a string as a customized message:
    * #### selectFolder example
    * ```ts
-   * let folderPath = await selectFolder()
+   * let promptMessage = "Select a folder for your project"
+   * let folderPath = await selectFolder(promptMessage)
+   * let files = await readdir(folderPath)
+   * await editor(files.join("\n"))
    * ```
    * [Examples](https://scriptkit.com?query=selectFolder) | [Docs](https://johnlindquist.github.io/kit-docs/#selectFolder) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=selectFolder)
    */
