@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { unlink } from 'node:fs/promises'
+import { stat as statAsync, unlink } from 'node:fs/promises'
 import { filesize } from 'filesize'
 import * as ogPath from 'node:path'
 
@@ -13,7 +13,7 @@ import { Channel } from '../../core/enum.js'
 
 export const createPathChoices = async (
   startPath: string,
-  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false } = {}
+  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync } = {}
 ) => {
   const dirFiles = await readdir(startPath, {
     withFileTypes: true
@@ -29,9 +29,9 @@ export const createPathChoices = async (
   const validDirents = []
   const statCache = new Map()
 
-  const getCachedStat = (path: string) => {
+  const getCachedStat = async (path: string) => {
     if (!statCache.has(path)) {
-      statCache.set(path, fs.statSync(path))
+      statCache.set(path, await statFn(path))
     }
     return statCache.get(path)
   }
@@ -42,7 +42,7 @@ export const createPathChoices = async (
       if (dirent.isSymbolicLink()) {
         try {
           const resolved = await fs.promises.realpath(ogPath.resolve(dirent.path, dirent.name))
-          const stats = getCachedStat(resolved)
+          const stats = await getCachedStat(resolved)
 
           Object.assign(dirent, {
             path: path.dirname(resolved),
@@ -69,10 +69,10 @@ export const createPathChoices = async (
   const folders = validDirents.filter((dirent) => folderSet.has(dirent.name))
   const files = onlyDirs ? [] : validDirents.filter((dirent) => !folderSet.has(dirent.name))
 
-  const mapDirents = (dirents: Dirent[]): Choice[] => {
-    return dirents.map((dirent) => {
+  const mapDirents = async (dirents: Dirent[]): Promise<Choice[]> => {
+    const choices = await Promise.all(dirents.map(async (dirent) => {
       const fullPath = ogPath.resolve(dirent.path, dirent.name)
-      const { size, mtime } = getCachedStat(fullPath)
+      const { size, mtime } = await getCachedStat(fullPath)
 
       const type = folderSet.has(dirent.name) ? 'folder' : 'file'
       const description = type === 'folder' ? '' : `${filesize(size)} - Last modified ${formatDistanceToNow(mtime)} ago`
@@ -88,10 +88,11 @@ export const createPathChoices = async (
         mtime,
         size
       } as const
-    })
+    }))
+    return choices
   }
 
-  const mapped = mapDirents(folders.concat(files))
+  const mapped = await mapDirents(folders.concat(files))
 
   return mapped.sort(dirSort)
 }

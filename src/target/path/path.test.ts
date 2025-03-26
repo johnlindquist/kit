@@ -24,26 +24,47 @@ if (process.platform !== "win32") {
 		}
 	}
 
+	// Create a file stats object that will be used in our tests
+	const createMockStats = (options = {}) => {
+		const defaults = {
+			size: 1024,
+			mtime: new Date()
+		};
+
+		const stats = {
+			...defaults,
+			...options,
+			isFile: () => true,
+			isDirectory: () => false,
+			isBlockDevice: () => false,
+			isCharacterDevice: () => false,
+			isFIFO: () => false,
+			isSocket: () => false,
+			isSymbolicLink: () => false,
+		};
+
+		return stats;
+	};
+
 	ava("createPathChoices - basic functionality", async (t) => {
 		const mockDirents = [
 			createMockDirent("file1.txt", false),
 			createMockDirent("folder1", true),
 			createMockDirent("file2.txt", false)
-		]
+		];
 
-		// Mock readdir
-		global.readdir = async () => mockDirents as any
+		global.readdir = async () => mockDirents as any;
 
-		// Mock fs.statSync
-		;(fs as any).statSync = () => ({ size: 1024, mtime: new Date() }) as any
+		// Create a mock stat function to inject
+		const mockStatFn = async () => createMockStats() as any;
 
-		const result = await createPathChoices("/mock/path")
+		const result = await createPathChoices("/mock/path", { statFn: mockStatFn });
 
-		t.is(result.length, 3)
-		t.is(result[0].name, "folder1")
-		t.is(result[1].name, "file1.txt")
-		t.is(result[2].name, "file2.txt")
-	})
+		t.is(result.length, 3);
+		t.is(result[0].name, "folder1");
+		t.is(result[1].name, "file1.txt");
+		t.is(result[2].name, "file2.txt");
+	});
 
 	ava("createPathChoices - only directories", async (t) => {
 		const mockDirents = [
@@ -51,17 +72,22 @@ if (process.platform !== "win32") {
 			createMockDirent("folder1", true),
 			createMockDirent("file2.txt", false),
 			createMockDirent("folder2", true)
-		]
+		];
 
-		global.readdir = async () => mockDirents as any
-		;(fs as any).statSync = () => ({ size: 1024, mtime: new Date() }) as any
+		global.readdir = async () => mockDirents as any;
 
-		const result = await createPathChoices("/mock/path", { onlyDirs: true })
+		// Create a mock stat function to inject
+		const mockStatFn = async () => createMockStats() as any;
 
-		t.is(result.length, 2)
-		t.is(result[0].name, "folder1")
-		t.is(result[1].name, "folder2")
-	})
+		const result = await createPathChoices("/mock/path", {
+			onlyDirs: true,
+			statFn: mockStatFn
+		});
+
+		t.is(result.length, 2);
+		t.is(result[0].name, "folder1");
+		t.is(result[1].name, "folder2");
+	});
 
 	ava("createPathChoices - custom dirFilter", async (t) => {
 		const mockDirents = [
@@ -69,69 +95,76 @@ if (process.platform !== "win32") {
 			createMockDirent("folder1", true),
 			createMockDirent("file2.txt", false),
 			createMockDirent("folder2", true)
-		]
+		];
 
-		global.readdir = async () => mockDirents as any
-		;(fs as any).statSync = () => ({ size: 1024, mtime: new Date() }) as any
+		global.readdir = async () => mockDirents as any;
 
-		const customFilter = (dirent) => dirent.name.includes("2")
+		// Create a mock stat function to inject
+		const mockStatFn = async () => createMockStats() as any;
+
+		const customFilter = (dirent) => dirent.name.includes("2");
 		const result = await createPathChoices("/mock/path", {
-			dirFilter: customFilter
-		})
+			dirFilter: customFilter,
+			statFn: mockStatFn
+		});
 
-		t.is(result.length, 2)
-		t.is(result[0].name, "folder2")
-		t.is(result[1].name, "file2.txt")
-	})
+		t.is(result.length, 2);
+		t.is(result[0].name, "folder2");
+		t.is(result[1].name, "file2.txt");
+	});
 
 	ava("createPathChoices - custom dirSort", async (t) => {
 		const mockDirents = [
 			createMockDirent("b.txt", false),
 			createMockDirent("a", true),
 			createMockDirent("c.txt", false)
-		]
+		];
 
-		global.readdir = async () => mockDirents as any
-		;(fs as any).statSync = () => ({ size: 1024, mtime: new Date() }) as any
+		global.readdir = async () => mockDirents as any;
 
-		const customSort = (a, b) => b.name.localeCompare(a.name)
+		// Create a mock stat function to inject
+		const mockStatFn = async () => createMockStats() as any;
+
+		const customSort = (a, b) => b.name.localeCompare(a.name);
 		const result = await createPathChoices("/mock/path", {
-			dirSort: customSort
-		})
+			dirSort: customSort,
+			statFn: mockStatFn
+		});
 
-		t.is(result.length, 3)
-		t.is(result[0].name, "c.txt")
-		t.is(result[1].name, "b.txt")
-		t.is(result[2].name, "a")
-	})
+		t.is(result.length, 3);
+		t.is(result[0].name, "c.txt");
+		t.is(result[1].name, "b.txt");
+		t.is(result[2].name, "a");
+	});
 
 	ava("createPathChoices - correct Choice object structure", async (t) => {
 		const mockDirents = [
 			createMockDirent("file1.txt", false),
 			createMockDirent("folder1", true)
-		]
+		];
 
-		global.readdir = async () => mockDirents as any
-		;(fs as any).statSync = () =>
-			({ size: 1024, mtime: new Date("2023-01-01") }) as any
+		global.readdir = async () => mockDirents as any;
 
-		const result = await createPathChoices("/mock/path")
+		// Create a mock stat function with specific date
+		const mockStatFn = async () => createMockStats({ mtime: new Date("2023-01-01") }) as any;
 
-		t.is(result.length, 2)
+		const result = await createPathChoices("/mock/path", { statFn: mockStatFn });
 
-		const folderChoice = result[0]
-		t.is(folderChoice.name, "folder1")
-		t.is(folderChoice.value, "/mock/path/folder1")
-		t.is(folderChoice.description, "")
-		t.is(folderChoice.drag, "/mock/path/folder1")
-		t.truthy(folderChoice.img.startsWith("file:"))
-		t.truthy(folderChoice.img.endsWith("folder.svg"))
+		t.is(result.length, 2);
 
-		const fileChoice = result[1]
-		t.is(fileChoice.name, "file1.txt")
-		t.is(fileChoice.value, "/mock/path/file1.txt")
-		t.is(fileChoice.drag, "/mock/path/file1.txt")
-		t.truthy(fileChoice.img.startsWith("file:"))
-		t.truthy(fileChoice.img.endsWith("file.svg"))
-	})
+		const folderChoice = result[0];
+		t.is(folderChoice.name, "folder1");
+		t.is(folderChoice.value, "/mock/path/folder1");
+		t.is(folderChoice.description, "");
+		t.is(folderChoice.drag, "/mock/path/folder1");
+		t.truthy(folderChoice.img && folderChoice.img.startsWith("file:"));
+		t.truthy(folderChoice.img && folderChoice.img.endsWith("folder.svg"));
+
+		const fileChoice = result[1];
+		t.is(fileChoice.name, "file1.txt");
+		t.is(fileChoice.value, "/mock/path/file1.txt");
+		t.is(fileChoice.drag, "/mock/path/file1.txt");
+		t.truthy(fileChoice.img && fileChoice.img.startsWith("file:"));
+		t.truthy(fileChoice.img && fileChoice.img.endsWith("file.svg"));
+	});
 }
