@@ -231,7 +231,8 @@ const VALID_METADATA_KEYS_SET = new Set<keyof Metadata>([
   "schedule",
   "index",
   "access",
-  "response"
+  "response",
+  "tag"
 ]);
 
 const getMetadataFromComments = (contents: string): Record<string, any> => {

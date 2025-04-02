@@ -30,11 +30,11 @@ export interface Choice<Value = any> {
   tag?: string
   shortcut?: string
   drag?:
-    | {
-        format?: string
-        data?: string
-      }
-    | string
+  | {
+    format?: string
+    data?: string
+  }
+  | string
   onFocus?: (input: string, state: AppState) => string | Promise<string>
   onSubmit?: (input: string, state: AppState) => void | symbol | Promise<void | symbol>
   enter?: string
@@ -522,17 +522,17 @@ export interface Metadata {
   background?: boolean | 'auto'
   /** Associates the script with system events such as sleep, wake, or shutdown. */
   system?:
-    | 'suspend'
-    | 'resume'
-    | 'on-ac'
-    | 'on-battery'
-    | 'shutdown'
-    | 'lock-screen'
-    | 'unlock-screen'
-    /** macOS only */
-    | 'user-did-become-active'
-    /** macOS only */
-    | 'user-did-resign-active'
+  | 'suspend'
+  | 'resume'
+  | 'on-ac'
+  | 'on-battery'
+  | 'shutdown'
+  | 'lock-screen'
+  | 'unlock-screen'
+  /** macOS only */
+  | 'user-did-become-active'
+  /** macOS only */
+  | 'user-did-resign-active'
 
   /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
   schedule?: CronExpression
@@ -545,7 +545,9 @@ export interface Metadata {
   /** Indicates whether to disable logs for the script */
   log?: boolean
   /** Optimization: if this script won't require a prompt, set this to false */
-  prompt?:boolean
+  prompt?: boolean
+  /** Indicates the tag of the script */
+  tag?: string
 }
 
 export interface ProcessInfo {
