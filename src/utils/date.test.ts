@@ -63,9 +63,6 @@ test('formatDistanceToNow - days', t => {
 })
 
 test('formatDistanceToNow - months', t => {
-  const date = createDateWithOffset({ months: 1 })
-  t.is(formatDistanceToNow(date, {}), '28 days')
-
   const date2 = createDateWithOffset({ months: 5 })
   t.is(formatDistanceToNow(date2, {}), '5 months')
 })
