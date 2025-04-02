@@ -18,11 +18,11 @@ declare module "@johnlindquist/kit" {
     html?: string
     hasPreview?: boolean
     preview?:
-      | string
-      | ((
-          input: string,
-          state: AppState
-        ) => string | Promise<string>)
+    | string
+    | ((
+      input: string,
+      state: AppState
+    ) => string | Promise<string>)
     previewPath?: string
     previewLang?: string
     id?: string
@@ -38,11 +38,11 @@ declare module "@johnlindquist/kit" {
     tag?: string
     shortcut?: string
     drag?:
-      | {
-          format?: string
-          data?: string
-        }
-      | string
+    | {
+      format?: string
+      data?: string
+    }
+    | string
     onFocus?: (
       input: string,
       state: AppState
@@ -260,11 +260,11 @@ declare module "@johnlindquist/kit" {
     shortcuts: Shortcut[]
     enter: string
     choicesType:
-      | "string"
-      | "array"
-      | "function"
-      | "async"
-      | "null"
+    | "string"
+    | "array"
+    | "function"
+    | "async"
+    | "null"
     x: number
     y: number
     width: number
@@ -435,15 +435,15 @@ declare module "@johnlindquist/kit" {
     flags?: FlagsObject
     actions?: Action[]
     preview?:
+    | string
+    | ((
+      input: string,
+      state: AppState
+    ) =>
       | string
-      | ((
-          input: string,
-          state: AppState
-        ) =>
-          | string
-          | Promise<string>
-          | void
-          | Promise<void>)
+      | Promise<string>
+      | void
+      | Promise<void>)
     panel?: string | (() => string | Promise<string>)
     onNoChoices?: ChannelHandler
     onEscape?: ChannelHandler
@@ -547,15 +547,15 @@ declare module "@johnlindquist/kit" {
     timeout?: number
     /** Associates the script with system events such as sleep, wake, or shutdown. */
     system?:
-      | "suspend"
-      | "resume"
-      | "on-ac"
-      | "on-battery"
-      | "shutdown"
-      | "lock-screen"
-      | "unlock-screen"
-      | "user-did-become-active"
-      | "user-did-resign-active"
+    | "suspend"
+    | "resume"
+    | "on-ac"
+    | "on-battery"
+    | "shutdown"
+    | "lock-screen"
+    | "unlock-screen"
+    | "user-did-become-active"
+    | "user-did-resign-active"
 
     /** Specifies a cron expression for scheduling the script to run at specific times or intervals. */
     schedule?: CronExpression
@@ -1866,9 +1866,9 @@ declare module "@johnlindquist/kit" {
        * Defaults to 'byTheme'.
        */
       "semanticHighlighting.enabled"?:
-        | true
-        | false
-        | "configuredByTheme"
+      | true
+      | false
+      | "configuredByTheme"
       /**
        * Keep peek editors open even when double clicking their content or when hitting `Escape`.
        * Defaults to false.
@@ -1899,7 +1899,7 @@ declare module "@johnlindquist/kit" {
      */
     export interface IStandaloneEditorConstructionOptions
       extends IEditorConstructionOptions,
-        IGlobalEditorOptions {
+      IGlobalEditorOptions {
       /**
        * The initial model associated with this code editor.
        */
@@ -2007,11 +2007,11 @@ declare module "@johnlindquist/kit" {
       resource: Uri
       severity: MarkerSeverity
       code?:
-        | string
-        | {
-            value: string
-            target: Uri
-          }
+      | string
+      | {
+        value: string
+        target: Uri
+      }
       message: string
       source?: string
       startLineNumber: number
@@ -2027,11 +2027,11 @@ declare module "@johnlindquist/kit" {
      */
     export interface IMarkerData {
       code?:
-        | string
-        | {
-            value: string
-            target: Uri
-          }
+      | string
+      | {
+        value: string
+        target: Uri
+      }
       severity: MarkerSeverity
       message: string
       source?: string
@@ -2145,16 +2145,16 @@ declare module "@johnlindquist/kit" {
        * Message to be rendered when hovering over the glyph margin decoration.
        */
       glyphMarginHoverMessage?:
-        | IMarkdownString
-        | IMarkdownString[]
-        | null
+      | IMarkdownString
+      | IMarkdownString[]
+      | null
       /**
        * Array of MarkdownString to render as the decoration message.
        */
       hoverMessage?:
-        | IMarkdownString
-        | IMarkdownString[]
-        | null
+      | IMarkdownString
+      | IMarkdownString[]
+      | null
       /**
        * Should the decoration expand to encompass a whole line.
        */
@@ -3392,7 +3392,7 @@ declare module "@johnlindquist/kit" {
     /**
      * An event describing that the language configuration associated with a model has changed.
      */
-    export interface IModelLanguageConfigurationChangedEvent {}
+    export interface IModelLanguageConfigurationChangedEvent { }
 
     export interface IModelContentChange {
       /**
@@ -3713,9 +3713,9 @@ declare module "@johnlindquist/kit" {
        * Defaults to editable.
        */
       renderValidationDecorations?:
-        | "editable"
-        | "on"
-        | "off"
+      | "editable"
+      | "on"
+      | "off"
       /**
        * Control the behavior and rendering of the scrollbars.
        */
@@ -3748,11 +3748,11 @@ declare module "@johnlindquist/kit" {
        * Defaults to 'blink'.
        */
       cursorBlinking?:
-        | "blink"
-        | "smooth"
-        | "phase"
-        | "expand"
-        | "solid"
+      | "blink"
+      | "smooth"
+      | "phase"
+      | "expand"
+      | "solid"
       /**
        * Zoom the font in the editor when using the mouse wheel in combination with holding Ctrl.
        * Defaults to false.
@@ -3773,12 +3773,12 @@ declare module "@johnlindquist/kit" {
        * Defaults to 'line'.
        */
       cursorStyle?:
-        | "line"
-        | "block"
-        | "underline"
-        | "line-thin"
-        | "block-outline"
-        | "underline-thin"
+      | "line"
+      | "block"
+      | "underline"
+      | "line-thin"
+      | "block-outline"
+      | "underline-thin"
       /**
        * Control the width of the cursor when cursorStyle is set to 'line'
        */
@@ -3856,10 +3856,10 @@ declare module "@johnlindquist/kit" {
        * Defaults to 'same' in vscode and to 'none' in monaco-editor.
        */
       wrappingIndent?:
-        | "none"
-        | "same"
-        | "indent"
-        | "deepIndent"
+      | "none"
+      | "same"
+      | "indent"
+      | "deepIndent"
       /**
        * Controls the wrapping strategy to use.
        * Defaults to 'simple'.
@@ -4006,11 +4006,11 @@ declare module "@johnlindquist/kit" {
        * Defaults to advanced.
        */
       autoIndent?:
-        | "none"
-        | "keep"
-        | "brackets"
-        | "advanced"
-        | "full"
+      | "none"
+      | "keep"
+      | "brackets"
+      | "advanced"
+      | "full"
       /**
        * Emulate selection behaviour of tab characters when using spaces for indentation.
        * This means selection will stick to tab stops.
@@ -4050,10 +4050,10 @@ declare module "@johnlindquist/kit" {
        * Enable snippet suggestions. Default to 'true'.
        */
       snippetSuggestions?:
-        | "top"
-        | "bottom"
-        | "inline"
-        | "none"
+      | "top"
+      | "bottom"
+      | "inline"
+      | "none"
       /**
        * Copying without a selection copies the current line.
        */
@@ -4066,9 +4066,9 @@ declare module "@johnlindquist/kit" {
        * The history mode for suggestions.
        */
       suggestSelection?:
-        | "first"
-        | "recentlyUsed"
-        | "recentlyUsedByPrefix"
+      | "first"
+      | "recentlyUsed"
+      | "recentlyUsedByPrefix"
       /**
        * The font size for the suggest widget.
        * Defaults to the editor font size.
@@ -4149,11 +4149,11 @@ declare module "@johnlindquist/kit" {
        * Defaults to none.
        */
       renderWhitespace?:
-        | "none"
-        | "boundary"
-        | "selection"
-        | "trailing"
-        | "all"
+      | "none"
+      | "boundary"
+      | "selection"
+      | "trailing"
+      | "all"
       /**
        * Enable rendering of control characters.
        * Defaults to false.
@@ -4174,10 +4174,10 @@ declare module "@johnlindquist/kit" {
        * Defaults to all.
        */
       renderLineHighlight?:
-        | "none"
-        | "gutter"
-        | "line"
-        | "all"
+      | "none"
+      | "gutter"
+      | "line"
+      | "all"
       /**
        * Control if the current line highlight should be rendered only the editor is focused.
        * Defaults to false.
@@ -4750,8 +4750,8 @@ declare module "@johnlindquist/kit" {
     export interface InternalEditorRenderLineNumbersOptions {
       readonly renderType: RenderLineNumbersType
       readonly renderFn:
-        | ((lineNumber: number) => string)
-        | null
+      | ((lineNumber: number) => string)
+      | null
     }
 
     export interface IRulerOption {
@@ -5707,8 +5707,8 @@ declare module "@johnlindquist/kit" {
     type FindEditorOptionsKeyById<T extends EditorOption> =
       {
         [K in keyof EditorOptionsType]: EditorOptionsType[K]["id"] extends T
-          ? K
-          : never
+        ? K
+        : never
       }[keyof EditorOptionsType]
 
     type ComputedEditorOptionValue<
@@ -7411,11 +7411,11 @@ declare module "@johnlindquist/kit" {
        * {@link Range.contains contain} the position at which completion has been {@link CompletionItemProvider.provideCompletionItems requested}.
        */
       range:
-        | IRange
-        | {
-            insert: IRange
-            replace: IRange
-          }
+      | IRange
+      | {
+        insert: IRange
+        replace: IRange
+      }
       /**
        * An optional set of characters that when pressed while this completion is active will accept it first and
        * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
@@ -8154,7 +8154,7 @@ declare module "@johnlindquist/kit" {
       ): ProviderResult<SelectionRange[][]>
     }
 
-    export interface FoldingContext {}
+    export interface FoldingContext { }
 
     /**
      * A provider of folding ranges for editor models.
@@ -8745,10 +8745,10 @@ declare module "@johnlindquist/kit" {
       code: number
       /** TypeScriptWorker removes all but the `fileName` property to avoid serializing circular JSON structures. */
       file:
-        | {
-            fileName: string
-          }
-        | undefined
+      | {
+        fileName: string
+      }
+      | undefined
       start: number | undefined
       length: number | undefined
       messageText: string | DiagnosticMessageChain
@@ -9028,53 +9028,53 @@ declare module "@johnlindquist/kit" {
       readonly validate?: boolean
       readonly lint?: {
         readonly compatibleVendorPrefixes?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly vendorPrefix?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly duplicateProperties?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly emptyRules?: "ignore" | "warning" | "error"
         readonly importStatement?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly boxModel?: "ignore" | "warning" | "error"
         readonly universalSelector?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly zeroUnits?: "ignore" | "warning" | "error"
         readonly fontFaceProperties?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly hexColorLength?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly argumentsInColorFunction?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly unknownProperties?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly ieHack?: "ignore" | "warning" | "error"
         readonly unknownVendorSpecificProperties?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly propertyIgnoredDueToDisplay?:
-          | "ignore"
-          | "warning"
-          | "error"
+        | "ignore"
+        | "warning"
+        | "error"
         readonly important?: "ignore" | "warning" | "error"
         readonly float?: "ignore" | "warning" | "error"
         readonly idSelector?: "ignore" | "warning" | "error"
@@ -9367,10 +9367,10 @@ declare module "@johnlindquist/kit" {
       readonly endWithNewline: boolean
       readonly extraLiners: string
       readonly wrapAttributes:
-        | "auto"
-        | "force"
-        | "force-aligned"
-        | "force-expand-multiline"
+      | "auto"
+      | "force"
+      | "force-aligned"
+      | "force-expand-multiline"
     }
     export interface CompletionConfiguration {
       readonly [providerId: string]: boolean
@@ -9567,9 +9567,9 @@ declare module "@johnlindquist/kit" {
      * Can be `available`, `unavailable`, `unknown`.
      */
     accelerometerSupport:
-      | "available"
-      | "unavailable"
-      | "unknown"
+    | "available"
+    | "unavailable"
+    | "unknown"
     /**
      * the bounds of the display in DIP points.
      */
@@ -9809,19 +9809,19 @@ declare module "@johnlindquist/kit" {
      * macOS. Must be used with the `vibrancy` property. Possible values are:
      */
     visualEffectState?:
-      | "followWindow"
-      | "active"
-      | "inactive"
+    | "followWindow"
+    | "active"
+    | "inactive"
     /**
      * The style of window title bar. Default is `default`. Possible values are:
      *
      * @platform darwin,win32
      */
     titleBarStyle?:
-      | "default"
-      | "hidden"
-      | "hiddenInset"
-      | "customButtonsOnHover"
+    | "default"
+    | "hidden"
+    | "hiddenInset"
+    | "customButtonsOnHover"
     /**
      * Set a custom position for the traffic light buttons in frameless windows.
      */
@@ -9853,25 +9853,25 @@ declare module "@johnlindquist/kit" {
      * are deprecated and have been removed in macOS Catalina (10.15).
      */
     vibrancy?:
-      | "appearance-based"
-      | "light"
-      | "dark"
-      | "titlebar"
-      | "selection"
-      | "menu"
-      | "popover"
-      | "sidebar"
-      | "medium-light"
-      | "ultra-dark"
-      | "header"
-      | "sheet"
-      | "window"
-      | "hud"
-      | "fullscreen-ui"
-      | "tooltip"
-      | "content"
-      | "under-window"
-      | "under-page"
+    | "appearance-based"
+    | "light"
+    | "dark"
+    | "titlebar"
+    | "selection"
+    | "menu"
+    | "popover"
+    | "sidebar"
+    | "medium-light"
+    | "ultra-dark"
+    | "header"
+    | "sheet"
+    | "window"
+    | "hud"
+    | "fullscreen-ui"
+    | "tooltip"
+    | "content"
+    | "under-window"
+    | "under-page"
     /**
      * Controls the behavior on macOS when option-clicking the green stoplight button
      * on the toolbar or by clicking the Window > Zoom menu item. If `true`, the window
@@ -9998,9 +9998,9 @@ declare module "@johnlindquist/kit" {
      * `animateOnce` or `noAnimation`.  Default is `animate`.
      */
     imageAnimationPolicy?:
-      | "animate"
-      | "animateOnce"
-      | "noAnimation"
+    | "animate"
+    | "animateOnce"
+    | "noAnimation"
     /**
      * Make TextArea elements resizable. Default is `true`.
      */
@@ -10122,9 +10122,9 @@ declare module "@johnlindquist/kit" {
      * `document-user-activation-required`. Defaults to `no-user-gesture-required`.
      */
     autoplayPolicy?:
-      | "no-user-gesture-required"
-      | "user-gesture-required"
-      | "document-user-activation-required"
+    | "no-user-gesture-required"
+    | "user-gesture-required"
+    | "document-user-activation-required"
     /**
      * Whether to prevent the window from resizing when entering HTML Fullscreen.
      * Default is `false`.
@@ -10147,10 +10147,10 @@ declare module "@johnlindquist/kit" {
      * Enforces the v8 code caching policy used by blink. Accepted values are
      */
     v8CacheOptions?:
-      | "none"
-      | "code"
-      | "bypassHeatCheck"
-      | "bypassHeatCheckAndEagerCompile"
+    | "none"
+    | "code"
+    | "bypassHeatCheck"
+    | "bypassHeatCheckAndEagerCompile"
     /**
      * Whether to enable preferred size mode. The preferred size is the minimum size
      * needed to contain the layout of the document—without requiring scrolling.
@@ -10239,8 +10239,8 @@ declare module "@johnlindquist/kit" {
     KIT_WEBCAM?: string | undefined
     KIT_WIDTH?: string | undefined
     KIT_WINDOWS_PRERENDER_SHOW_INACTIVE_TIMEOUT?:
-      | string
-      | undefined
+    | string
+    | undefined
     KIT_WINDOWS_PRERENDER_TIMEOUT?: string | undefined
     KIT_SEARCH_MIN_SCORE?: string | undefined
     KIT_SEARCH_MAX_ITERATIONS?: string | undefined
@@ -10264,7 +10264,7 @@ declare module "@johnlindquist/kit" {
     var kit: GlobalApi & Run
 
     namespace NodeJS {
-      interface Global extends GlobalApi {}
+      interface Global extends GlobalApi { }
     }
   }
 
@@ -10284,8 +10284,8 @@ declare module "@johnlindquist/kit" {
   }
   export interface UiohookKeyboardEvent {
     type:
-      | EventType.EVENT_KEY_PRESSED
-      | EventType.EVENT_KEY_RELEASED
+    | EventType.EVENT_KEY_PRESSED
+    | EventType.EVENT_KEY_RELEASED
     time: number
     altKey: boolean
     ctrlKey: boolean
@@ -10297,10 +10297,10 @@ declare module "@johnlindquist/kit" {
   }
   export interface UiohookMouseEvent {
     type:
-      | EventType.EVENT_MOUSE_CLICKED
-      | EventType.EVENT_MOUSE_MOVED
-      | EventType.EVENT_MOUSE_PRESSED
-      | EventType.EVENT_MOUSE_RELEASED
+    | EventType.EVENT_MOUSE_CLICKED
+    | EventType.EVENT_MOUSE_MOVED
+    | EventType.EVENT_MOUSE_PRESSED
+    | EventType.EVENT_MOUSE_RELEASED
     time: number
     altKey: boolean
     ctrlKey: boolean
@@ -10534,7 +10534,7 @@ declare module "@johnlindquist/kit" {
 
   export type Select = <T = any[]>(
     placeholderOrConfig: string | PromptConfig,
-    choices: Choices<T>,
+    choices?: Choices<T>,
     actions?: Action[]
   ) => Promise<T>
 
@@ -10558,7 +10558,7 @@ declare module "@johnlindquist/kit" {
     [key: string]: any
   }
 
-  export interface Args extends Array<string> {}
+  export interface Args extends Array<string> { }
 
   export type UpdateArgs = (args: string[]) => void
 
@@ -10580,17 +10580,17 @@ declare module "@johnlindquist/kit" {
     fromCache?: boolean
   ) => Promise<
     T extends string
-      ? {
-          write: () => Promise<void>
-          read: () => Promise<any>
-          data: any
-          [key: string]: any
-        }
-      : {
-          write: () => Promise<void>
-          read: () => Promise<T>
-          data: any
-        } & T
+    ? {
+      write: () => Promise<void>
+      read: () => Promise<any>
+      data: any
+      [key: string]: any
+    }
+    : {
+      write: () => Promise<void>
+      read: () => Promise<T>
+      data: any
+    } & T
   >
 
   export type OnTab = (
@@ -11237,9 +11237,9 @@ declare module "@johnlindquist/kit" {
     html?:
       | string
       | {
-          html?: string
-          hint?: string
-        },
+        html?: string
+        hint?: string
+      },
     formData?: any
   ) => Promise<any>
 
@@ -11251,17 +11251,17 @@ declare module "@johnlindquist/kit" {
 
   type Field =
     | {
-        label?: string
-        placeholder?: string
-        value?: string
-        type?: string
-        required?: boolean
-        min?: number
-        max?: number
-        step?: number
-        pattern?: string
-        [key: string]: string | boolean | number
-      }
+      label?: string
+      placeholder?: string
+      value?: string
+      type?: string
+      required?: boolean
+      min?: number
+      max?: number
+      step?: number
+      pattern?: string
+      [key: string]: string | boolean | number
+    }
     | string
 
   export type Fields = (
@@ -11919,9 +11919,9 @@ declare module "@johnlindquist/kit" {
     options?:
       | Partial<PromptConfig>
       | ((
-          sections?: GuideSection[],
-          tokens?: marked.Token[]
-        ) => Promise<Partial<PromptConfig>>)
+        sections?: GuideSection[],
+        tokens?: marked.Token[]
+      ) => Promise<Partial<PromptConfig>>)
   ) => Promise<T>
 
   export type ExecLog = (
@@ -13053,11 +13053,11 @@ declare module "@johnlindquist/kit" {
 
   type ReadFileOptions = Parameters<typeof readFile>[1]
   export type EnsureReadFile = (
-      path: string,
-      defaultContent?: string,
-      options?: ReadFileOptions) => Promise<string>
+    path: string,
+    defaultContent?: string,
+    options?: ReadFileOptions) => Promise<string>
 
-  export type EnsureReadJson = 
+  export type EnsureReadJson =
     <T>(
       path: string,
       defaultContent: T,
@@ -13273,7 +13273,7 @@ declare module "@johnlindquist/kit" {
 
     var globby: typeof import("globby").globby
     namespace NodeJS {
-      interface Global extends GlobalsApi {}
+      interface Global extends GlobalsApi { }
     }
   }
 

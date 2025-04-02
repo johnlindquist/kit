@@ -164,14 +164,14 @@ export let resolveScriptToCommand = (script: string) => {
 export const shortcutNormalizer = (shortcut: string) =>
   shortcut
     ? shortcut
-        .replace(/(option|opt|alt)/i, isMac ? 'Option' : 'Alt')
-        .replace(/(ctl|cntrl|ctrl|control)/, 'Control')
-        .replace(/(command|cmd)/i, isMac ? 'Command' : 'Control')
-        .replace(/(shift|shft)/i, 'Shift')
-        .split(/\s/)
-        .filter(Boolean)
-        .map((part) => (part[0].toUpperCase() + part.slice(1)).trim())
-        .join('+')
+      .replace(/(option|opt|alt)/i, isMac ? 'Option' : 'Alt')
+      .replace(/(ctl|cntrl|ctrl|control)/, 'Control')
+      .replace(/(command|cmd)/i, isMac ? 'Command' : 'Control')
+      .replace(/(shift|shft)/i, 'Shift')
+      .split(/\s/)
+      .filter(Boolean)
+      .map((part) => (part[0].toUpperCase() + part.slice(1)).trim())
+      .join('+')
     : ''
 
 export const friendlyShortcut = (shortcut: string) => {
@@ -207,7 +207,34 @@ ${contents}`.trim()
   return contents
 }
 
-const getMetadataFromComments = (contents: string): Record<string, string> => {
+// Create a Set directly, type-checked against the Metadata interface keys.
+const VALID_METADATA_KEYS_SET = new Set<keyof Metadata>([
+  "author",
+  "name",
+  "description",
+  "enter",
+  "alias",
+  "image",
+  "shortcut",
+  "shortcode",
+  "trigger",
+  "snippet", // Keep deprecated for now
+  "expand",
+  "keyword",
+  "pass",
+  "group",
+  "exclude",
+  "watch",
+  "log",
+  "background",
+  "system",
+  "schedule",
+  "index",
+  "access",
+  "response"
+]);
+
+const getMetadataFromComments = (contents: string): Record<string, any> => {
   const lines = contents.split('\n')
   const metadata = {}
   let commentStyle = null
@@ -305,8 +332,10 @@ const getMetadataFromComments = (contents: string): Record<string, string> => {
         parsedValue = trimmedValue
     }
 
-    // Only assign if the key hasn't been assigned before
-    if (!(key in metadata)) {
+    // Only assign if the key hasn't been assigned before AND is in the valid set
+    // Cast key to keyof Metadata because Set.has expects this type due to Set<keyof Metadata>.
+    // We trust the string `key` corresponds if .has returns true.
+    if (!(key in metadata) && VALID_METADATA_KEYS_SET.has(key as keyof Metadata)) {
       metadata[key] = parsedValue
     }
   }

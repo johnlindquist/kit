@@ -3,6 +3,38 @@ import { postprocessMetadata } from "./parser.js"
 import { getMetadata } from "./utils.js"
 import { ProcessType } from "./enum.js"
 import type { Metadata, ScriptMetadata } from "../types/core.js"
+import * as path from 'node:path'
+import { readFileSync } from 'node:fs'
+
+// Function to parse Metadata keys from the type definition file (for testing)
+const getValidMetadataKeys = (): Set<string> => {
+	try {
+		const coreTypesPath = path.resolve(process.cwd(), 'src', 'types', 'core.d.ts');
+		const typesContent = readFileSync(coreTypesPath, 'utf-8');
+
+		const metadataInterfaceRegex = /export interface Metadata {([\s\S]*?)}\n/s;
+		const match = typesContent.match(metadataInterfaceRegex);
+
+		if (!match || !match[1]) {
+			console.error("Could not find or parse Metadata interface in core.d.ts");
+			return new Set();
+		}
+
+		const interfaceContent = match[1];
+		const keyRegex = /^\s*(\/\*\*[\s\S]*?\*\/)?\s*([a-zA-Z0-9_-]+)\??:/gm;
+		const keys = new Set<string>();
+		let keyMatch;
+		while ((keyMatch = keyRegex.exec(interfaceContent)) !== null) {
+			keys.add(keyMatch[2]);
+		}
+		return keys;
+	} catch (error) {
+		console.error("Error reading or parsing core.d.ts for metadata keys:", error);
+		return new Set();
+	}
+};
+
+const VALID_METADATA_KEYS_SET = getValidMetadataKeys();
 
 ava("postprocessMetadata - basic metadata processing", (t) => {
 	const metadata = {
@@ -123,6 +155,21 @@ ava("getMetadata - ignores invalid metadata keys", (t) => {
 	const result = getMetadata(fileContents)
 
 	// Should only parse valid metadata keys
+	t.deepEqual(result, {
+		name: "Test Script",
+		description: "A test script"
+	})
+})
+
+ava("getMetadata - ignores keys not defined in Metadata type", t => {
+	const fileContents = `
+// Name: Test Script
+// Description: A test script
+// html: <marquee>This should be ignored</marquee>
+// anotherUndefinedKey: 123
+	`
+	const result = getMetadata(fileContents)
+
 	t.deepEqual(result, {
 		name: "Test Script",
 		description: "A test script"
