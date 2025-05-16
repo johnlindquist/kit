@@ -111,11 +111,17 @@ const parseMainMenu = async (stamp: Stamp | null) => {
     const script = scriptsDb.scripts.find((s) => s.filePath === stamp.filePath)
     if (script) {
       // Only resort and write if we actually found the script
+      const oldOrder = scriptsDb.scripts.map(s => s.filePath).join(',')
       scriptsDb.scripts = scriptsDb.scripts.sort(scriptsSort(timestampsDb.stamps))
-      try {
-        await scriptsDb.write()
-      } catch (error) {
-        logToParent(`Error writing scriptsDb: ${error}`)
+      const newOrder = scriptsDb.scripts.map(s => s.filePath).join(',')
+      if (oldOrder !== newOrder) {
+        try {
+          await scriptsDb.write()
+        } catch (error: any) {
+          if (error.code !== 'ENOENT') {
+            logToParent(`Error writing scriptsDb: ${error}`)
+          }
+        }
       }
     }
   }

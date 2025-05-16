@@ -1170,25 +1170,16 @@ export let escapeHTML = (text: string) => {
   return text.replace(/\n/g, '<br/>')
 }
 
-export let processInBatches = async <T>(items: Promise<T>[], batchSize: number, maxRetries = 3): Promise<T[]> => {
+// Optimized for worker: larger batch size, no retries for local ops, fast path for small arrays
+export let processInBatches = async <T>(items: Promise<T>[], batchSize: number = 500, maxRetries = 0): Promise<T[]> => {
+  if (!items.length) return []
+  if (items.length <= batchSize) {
+    return Promise.all(items)
+  }
   let result: T[] = []
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize)
-    const batchResults = await Promise.all(
-      batch.map((item) => {
-        return pRetry(
-          async () => {
-            try {
-              return await item
-            } catch (error) {
-              console.error(`Error processing item: ${error.message}`)
-              throw error // Rethrow to trigger retry
-            }
-          },
-          { retries: maxRetries }
-        )
-      })
-    )
+    const batchResults = await Promise.all(batch)
     result = result.concat(batchResults.filter((item): item is Awaited<T> => item !== undefined))
   }
   return result

@@ -7,6 +7,7 @@ import os from 'node:os'
 import fs from 'node:fs'
 import { execSync } from 'node:child_process'
 import { Channel } from '../core/enum.js'
+import { loadPreviousResults, saveResults } from '../core/test-utils.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -146,4 +147,61 @@ test('Worker caches results for identical stamp filePath', async (t) => {
   // For caching purposes, the preview should be identical.
   t.deepEqual(firstResponse.preview, secondResponse.preview)
   worker.terminate()
+})
+
+test('benchmark - worker CACHE_MAIN_SCRIPTS', async (t) => {
+  const previousResults = await loadPreviousResults()
+  const runs = 20
+  const times = []
+
+  // Warm-up run (not measured)
+  const warmup = await runWorkerMessage({
+    channel: Channel.CACHE_MAIN_SCRIPTS,
+    value: null,
+    id: 'benchmark-warmup'
+  })
+  warmup.worker.terminate()
+
+  for (let i = 0; i < runs; i++) {
+    const { worker } = await (async () => {
+      const start = performance.now()
+      const result = await runWorkerMessage({
+        channel: Channel.CACHE_MAIN_SCRIPTS,
+        value: null,
+        id: `benchmark-${i}`
+      })
+      const end = performance.now()
+      times.push(end - start)
+      return result
+    })()
+    worker.terminate()
+  }
+
+  const mean = times.reduce((a, b) => a + b, 0) / runs
+  const opsPerSecond = (1000 / mean)
+
+  const testName = 'worker_CACHE_MAIN_SCRIPTS'
+  const oldResult = previousResults[testName]
+  if (oldResult) {
+    const oldOps = oldResult.operationsPerSecond
+    const improvement = ((opsPerSecond - oldOps) / oldOps) * 100
+    t.log(`Previous OPS: ${oldOps.toFixed(2)}`)
+    t.log(`Current OPS: ${opsPerSecond.toFixed(2)}`)
+    const emoji = improvement > 0 ? "🚀" : "🐌"
+    t.log(`${emoji} Change: ${improvement.toFixed(2)}%`)
+  } else {
+    t.log('No previous benchmark to compare against.')
+  }
+
+  const newResults = {
+    ...previousResults,
+    [testName]: {
+      timestamp: new Date().toISOString(),
+      operationsPerSecond: opsPerSecond,
+      meanDurationMs: mean
+    }
+  }
+  await saveResults(newResults)
+
+  t.pass()
 })
