@@ -35,7 +35,7 @@ Kit.app continuously watches the `~/.kenv/scripts` directory for changes. Creati
 
 <!-- value: https://github.com/johnlindquist/kit/blob/main/GUIDE.md -->
 
-The file name of the script is lowercased and dashed like `hello-world.js` by convention. You can add an addionational `//Name: Hello World` to the top of your script for a more friendly name to appear when searching in the prompt. 
+The file name of the script is lowercased and dashed like `hello-world.js` by convention. You can add an additional `//Name: Hello World` to the top of your script for a more friendly name to appear when searching in the prompt. 
 
 ```js
 //Name: Hello World

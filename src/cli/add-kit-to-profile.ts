@@ -1,6 +1,6 @@
 import { existsSync } from "fs"
 
-//Description: Adds the .kenv bin dir to your $PATH
+//Description: Adds the .kit bin dir to your $PATH
 export {}
 
 // if windows

@@ -79,7 +79,7 @@ if (typeof snippet?.text === "string") {
 } else if (typeof snippet?.value === "string") {
 	text = snippet.value
 } else if (typeof snippet === "string") {
-	text === snippet
+	text = snippet
 } else {
 	throw new Error("Couldn't find snippet...")
 }
