@@ -116,27 +116,19 @@ export let parseFilePath = async (
 	}
 }
 
-// Simple in-memory cache for parseScript results within a process
-const parseScriptCache = new Map<string, Script>()
-
 export let parseScript = async (filePath: string): Promise<Script> => {
-	if (parseScriptCache.has(filePath)) {
-		return parseScriptCache.get(filePath) as Script
-	}
 	const contents = await readFile(filePath, "utf8")
 	const metadata = parseMetadata(contents)
 	const shebang = getShebangFromContents(contents)
 	const needsDebugger = /^\s*debugger/gim.test(contents)
 	const parsedFilePath = await parseFilePath(filePath)
 
-	const script: Script = {
+	return {
 		shebang,
 		...metadata,
 		...parsedFilePath,
 		needsDebugger,
 		name: metadata.name || metadata.menu || parsedFilePath.command,
 		description: metadata.description || ""
-	}
-	parseScriptCache.set(filePath, script)
-	return script
+	} as Script
 }
