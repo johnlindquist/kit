@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises"
+import { readFile, stat } from "node:fs/promises"
 import untildify from "untildify"
 import type { Script, ScriptMetadata, ScriptPathInfo } from "../types/index.js"
 import {
@@ -12,6 +12,13 @@ import {
 import { ProcessType } from "./enum.js"
 import { slash } from "./resolvers.js"
 import { path } from "../globals/path.js"
+
+interface ScriptCacheEntry {
+	script: Script
+	mtimeMs: number
+}
+
+const scriptCache = new Map<string, ScriptCacheEntry>()
 
 const shebangRegex = /^#!(.+)/m
 
@@ -117,18 +124,39 @@ export let parseFilePath = async (
 }
 
 export let parseScript = async (filePath: string): Promise<Script> => {
-	const contents = await readFile(filePath, "utf8")
-	const metadata = parseMetadata(contents)
-	const shebang = getShebangFromContents(contents)
-	const needsDebugger = /^\s*debugger/gim.test(contents)
-	const parsedFilePath = await parseFilePath(filePath)
+	try {
+		const fileStat = await stat(filePath)
+		const currentMtimeMs = fileStat.mtimeMs
 
-	return {
-		shebang,
-		...metadata,
-		...parsedFilePath,
-		needsDebugger,
-		name: metadata.name || metadata.menu || parsedFilePath.command,
-		description: metadata.description || ""
-	} as Script
+		const cachedEntry = scriptCache.get(filePath)
+		if (cachedEntry && cachedEntry.mtimeMs === currentMtimeMs) {
+			return cachedEntry.script
+		}
+
+		const contents = await readFile(filePath, "utf8")
+		const metadata = parseMetadata(contents)
+		const shebang = getShebangFromContents(contents)
+		const needsDebugger = /^\s*debugger/gim.test(contents)
+		const parsedFilePath = await parseFilePath(filePath)
+
+		const script: Script = {
+			shebang,
+			...metadata,
+			...parsedFilePath,
+			needsDebugger,
+			name: metadata.name || metadata.menu || parsedFilePath.command,
+			description: metadata.description || ""
+		} as Script // Keep original type assertion for now
+
+		scriptCache.set(filePath, { script, mtimeMs: currentMtimeMs })
+		return script
+	} catch (error) {
+		// If stat or readFile fails (e.g. file not found),
+		// or any other error occurs during parsing,
+		// we should probably not cache and just rethrow or handle.
+		// For now, let's log and rethrow, to ensure visibility.
+		// Depending on requirements, one might want to invalidate cache for this path.
+		console.error(`Error parsing script ${filePath}:`, error)
+		throw error
+	}
 }

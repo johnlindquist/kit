@@ -1,6 +1,15 @@
+import { readFile, stat } from "node:fs/promises";
+import { globby } from "globby";
 import type { Metadata, Snippet } from '../types/index.js'
 import { kenvPath } from './resolvers.js'
 import { escapeHTML, getKenvFromPath, getMetadata, postprocessMetadata } from './utils.js'
+
+interface SnippetFileCacheEntry {
+  snippetObject: Partial<Snippet>;
+  mtimeMs: number;
+}
+
+const snippetCache = new Map<string, SnippetFileCacheEntry>();
 
 export let parseSnippets = async (): Promise<Snippet[]> => {
   let snippetPaths = await globby([
@@ -8,34 +17,52 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
     kenvPath('kenvs', '*', 'snippets', '**', '*.txt').replaceAll('\\', '/')
   ])
 
-  let snippetChoices:Partial<Snippet>[] = []
+  let snippetChoices: Partial<Snippet>[] = []
   for await (let s of snippetPaths) {
-    let contents = await readFile(s, 'utf8')
-    let { metadata, snippet } = getSnippet(contents)
-    let formattedSnippet = escapeHTML(snippet)
+    try {
+      const fileStat = await stat(s);
+      const currentMtimeMs = fileStat.mtimeMs;
 
-    let expand = (metadata?.expand || metadata?.snippet || '').trim()
-    let postfix = false
-    if (expand.startsWith('*')) {
-      postfix = true
-      expand = expand.slice(1)
+      const cachedEntry = snippetCache.get(s);
+      if (cachedEntry && cachedEntry.mtimeMs === currentMtimeMs) {
+        snippetChoices.push(cachedEntry.snippetObject);
+        continue;
+      }
+
+      let contents = await readFile(s, 'utf8')
+      let { metadata, snippet } = getSnippet(contents)
+      let formattedSnippet = escapeHTML(snippet)
+
+      let expand = (metadata?.expand || metadata?.snippet || '').trim()
+      let postfix = false
+      if (expand.startsWith('*')) {
+        postfix = true
+        expand = expand.slice(1)
+      }
+
+      const newSnippetChoice: Partial<Snippet> = {
+        ...metadata,
+        filePath: s,
+        name: metadata?.name || s,
+        tag: metadata?.snippet || '',
+        description: s,
+        text: snippet.trim(),
+        preview: `<div class="p-4">${formattedSnippet}</div>`,
+        group: 'Snippets',
+        kenv: getKenvFromPath(s),
+        value: snippet.trim(),
+        expand,
+        postfix: postfix ? 'true' : 'false',
+        snippetKey: expand,
+      }
+
+      snippetCache.set(s, { snippetObject: newSnippetChoice, mtimeMs: currentMtimeMs });
+      snippetChoices.push(newSnippetChoice);
+
+    } catch (error) {
+      console.error(`Error processing snippet ${s}:`, error);
+      // Skip this snippet and continue with others
     }
-
-    snippetChoices.push({
-      ...metadata,
-      filePath: s,
-      name: metadata?.name || s,
-      tag: metadata?.snippet || '',
-      description: s,
-      text: snippet.trim(),
-      preview: `<div class="p-4">${formattedSnippet}</div>`,
-      group: 'Snippets',
-      kenv: getKenvFromPath(s),
-      value: snippet.trim(),
-      expand,
-      postfix: postfix ? 'true' : 'false',
-      snippetKey: expand,
-    })
   }
 
   return snippetChoices as Snippet[]
