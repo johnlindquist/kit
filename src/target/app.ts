@@ -2398,7 +2398,7 @@ export let appInstall = async (packageName: string) => {
 
   setHint(`Installing ${packageName}...`)
 
-	await global.cli("install", packageName);
+  await global.cli("install", packageName);
   console.clear()
 }
 
@@ -2885,6 +2885,10 @@ global.clipboard = {
       Channel.CLIPBOARD_WRITE_FIND_TEXT,
       findText
     )
+  },
+
+  writeBuffer: async (type: string, buffer: Buffer) => {
+    return await sendWait(Channel.CLIPBOARD_WRITE_BUFFER, { type, buffer })
   },
 
   clear: async () => {

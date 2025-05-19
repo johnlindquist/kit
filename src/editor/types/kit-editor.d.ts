@@ -11894,6 +11894,17 @@ declare module "@johnlindquist/kit" {
     writeBookmark: (bookmark: Bookmark) => Promise<void>
     writeFindText: (text: string) => Promise<void>
 
+    /**
+     * Write a buffer to the clipboard for a custom type (e.g., file URLs, Finder file references).
+     * @param type The clipboard type (e.g., 'public.file-url', 'NSFilenamesPboardType').
+     * @param buffer The buffer to write.
+     * #### Example
+     * ```ts
+     * await clipboard.writeBuffer('public.file-url', Buffer.from(`file://${encodeURI(filePath)}`, 'utf8'))
+     * ```
+     */
+    writeBuffer: (type: string, buffer: Buffer) => Promise<void>
+
     clear: () => Promise<void>
   }
 

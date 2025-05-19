@@ -249,9 +249,9 @@ export type OldForm = (
   html?:
     | string
     | {
-        html?: string
-        hint?: string
-      },
+      html?: string
+      hint?: string
+    },
   formData?: any
 ) => Promise<any>
 
@@ -259,17 +259,17 @@ export type Form = (html: string | PromptConfig, formData?: any, actions?: Actio
 
 type Field =
   | {
-      label?: string
-      placeholder?: string
-      value?: string
-      type?: string
-      required?: boolean
-      min?: number
-      max?: number
-      step?: number
-      pattern?: string
-      [key: string]: string | boolean | number
-    }
+    label?: string
+    placeholder?: string
+    value?: string
+    type?: string
+    required?: boolean
+    min?: number
+    max?: number
+    step?: number
+    pattern?: string
+    [key: string]: string | boolean | number
+  }
   | string
 
 export type Fields = (fields: Field[] | (PromptConfig & { fields: Field[] }), actions?: Action[]) => Promise<string[]>
@@ -849,6 +849,17 @@ export interface KitClipboard {
   writeRTF: (rtf: string) => Promise<void>
   writeBookmark: (bookmark: Bookmark) => Promise<void>
   writeFindText: (text: string) => Promise<void>
+
+  /**
+   * Write a buffer to the clipboard for a custom type (e.g., file URLs, Finder file references).
+   * @param type The clipboard type (e.g., 'public.file-url', 'NSFilenamesPboardType').
+   * @param buffer The buffer to write.
+   * #### Example
+   * ```ts
+   * await clipboard.writeBuffer('public.file-url', Buffer.from(`file://${encodeURI(filePath)}`, 'utf8'))
+   * ```
+   */
+  writeBuffer: (type: string, buffer: Buffer) => Promise<void>
 
   clear: () => Promise<void>
 }
