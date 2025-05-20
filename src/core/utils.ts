@@ -18,8 +18,8 @@ import { parseScript } from './parser.js'
 import { kitPath, kenvPath } from './resolvers.js'
 import { cmd, scriptsDbPath, statsPath } from './constants.js'
 import { isBin, isJsh, isDir, isWin, isMac } from './is.js'
-import pRetry from 'p-retry'
 import { stat } from "node:fs/promises";
+import { parentPort } from 'node:worker_threads';
 
 // Module-level variables to store the last known mtimes for the DB files
 // These are global for this utility, shared by any cache using it.
@@ -51,7 +51,12 @@ export async function checkDbAndInvalidateCache(
     currentScriptsDbMtimeMs !== utilLastScriptsDbMtimeMs ||
     currentStatsPathMtimeMs !== utilLastStatsPathMtimeMs
   ) {
-    // console.log(`DB files changed or inaccessible, clearing ${cacheName} cache.`);
+    if (parentPort) {
+      parentPort.postMessage({
+        channel: Channel.LOG_TO_PARENT,
+        value: `[CacheUtil] '${cacheName}' cache cleared due to ${currentScriptsDbMtimeMs !== utilLastScriptsDbMtimeMs ? 'scriptsDb' : ''} ${currentStatsPathMtimeMs !== utilLastStatsPathMtimeMs ? 'stats' : ''} file changes/inaccessibility.`
+      });
+    }
     cacheMap.clear();
     // Update the utility's last known mtimes
     utilLastScriptsDbMtimeMs = currentScriptsDbMtimeMs;

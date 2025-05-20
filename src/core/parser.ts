@@ -10,9 +10,10 @@ import {
 	friendlyShortcut,
 	checkDbAndInvalidateCache
 } from "./utils.js"
-import { ProcessType } from "./enum.js"
+import { ProcessType, Channel } from "./enum.js"
 import { slash } from "./resolvers.js"
 import { path } from "../globals/path.js"
+import { parentPort } from 'node:worker_threads'
 
 interface ScriptCacheEntry {
 	script: Script
@@ -20,6 +21,16 @@ interface ScriptCacheEntry {
 }
 
 const scriptCache = new Map<string, ScriptCacheEntry>()
+
+export let clearParseScriptCache = () => {
+	scriptCache.clear();
+	if (parentPort) {
+		parentPort.postMessage({
+			channel: Channel.LOG_TO_PARENT,
+			value: `[parseScript] Cache explicitly cleared via clearParseScriptCache()`
+		});
+	}
+};
 
 const shebangRegex = /^#!(.+)/m
 
@@ -126,14 +137,33 @@ export let parseFilePath = async (
 
 export let parseScript = async (filePath: string): Promise<Script> => {
 	try {
-		await checkDbAndInvalidateCache(scriptCache, "script")
 
 		const fileStat = await stat(filePath)
 		const currentMtimeMs = fileStat.mtimeMs
 
 		const cachedEntry = scriptCache.get(filePath)
 		if (cachedEntry && cachedEntry.mtimeMs === currentMtimeMs) {
+			if (parentPort) {
+				parentPort.postMessage({
+					channel: Channel.LOG_TO_PARENT,
+					value: `[parseScript] Cache hit for: ${filePath}`
+				})
+			}
 			return cachedEntry.script
+		} else {
+			if (parentPort) {
+				if (!cachedEntry) {
+					parentPort.postMessage({
+						channel: Channel.LOG_TO_PARENT,
+						value: `[parseScript] Cache miss (file not in cache): ${filePath}`
+					})
+				} else {
+					parentPort.postMessage({
+						channel: Channel.LOG_TO_PARENT,
+						value: `[parseScript] Cache miss (mtime mismatch on ${filePath} - Cached: ${cachedEntry.mtimeMs}, Current: ${currentMtimeMs})`
+					})
+				}
+			}
 		}
 
 		const contents = await readFile(filePath, "utf8")

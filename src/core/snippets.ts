@@ -12,7 +12,7 @@ interface SnippetFileCacheEntry {
 const snippetCache = new Map<string, SnippetFileCacheEntry>();
 
 export let parseSnippets = async (): Promise<Snippet[]> => {
-  await checkDbAndInvalidateCache(snippetCache, "snippet");
+  // await checkDbAndInvalidateCache(snippetCache, "snippet");
 
   let snippetPaths = await globby([
     kenvPath('snippets', '**', '*.txt').replaceAll('\\', '/'),

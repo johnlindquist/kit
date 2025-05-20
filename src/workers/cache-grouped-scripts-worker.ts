@@ -7,6 +7,7 @@ import { parentPort } from 'node:worker_threads'
 import { type Stamp, getScriptsDb, getTimestamps } from '../core/db.js'
 import { scriptsSort } from '../core/utils.js'
 import { stat } from 'node:fs/promises'
+import { clearParseScriptCache } from '../core/parser.js'
 
 // --------------------
 // Logging to Parent
@@ -225,6 +226,9 @@ const removeTimestamp = async (id: string, stamp: Stamp) => {
     await stampDb.write()
   }
 
+  // It might be good to clear the parseScriptCache here too, as removing a script could affect DBs that trigger its invalidation.
+  clearParseScriptCache(); // Explicitly clear the script cache
+
   // After removing timestamp, rebuild the menu
   await limitedCacheMainScripts(id, null)
 }
@@ -234,6 +238,7 @@ const removeTimestamp = async (id: string, stamp: Stamp) => {
 // --------------------
 const clearTimestamps = async (id: string) => {
   logToParent(`${id}: Clearing timestamps`)
+  clearParseScriptCache(); // Explicitly clear the script cache
   const stampDb = await getTimestamps()
   stampDb.stamps = []
   await stampDb.write()
