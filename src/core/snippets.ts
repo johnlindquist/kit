@@ -2,7 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import { globby } from "globby";
 import type { Metadata, Snippet } from '../types/index.js'
 import { kenvPath } from './resolvers.js'
-import { escapeHTML, getKenvFromPath, getMetadata, postprocessMetadata } from './utils.js'
+import { escapeHTML, getKenvFromPath, getMetadata, postprocessMetadata, checkDbAndInvalidateCache } from './utils.js'
 
 interface SnippetFileCacheEntry {
   snippetObject: Partial<Snippet>;
@@ -12,6 +12,8 @@ interface SnippetFileCacheEntry {
 const snippetCache = new Map<string, SnippetFileCacheEntry>();
 
 export let parseSnippets = async (): Promise<Snippet[]> => {
+  await checkDbAndInvalidateCache(snippetCache, "snippet");
+
   let snippetPaths = await globby([
     kenvPath('snippets', '**', '*.txt').replaceAll('\\', '/'),
     kenvPath('kenvs', '*', 'snippets', '**', '*.txt').replaceAll('\\', '/')

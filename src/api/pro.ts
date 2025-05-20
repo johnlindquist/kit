@@ -189,14 +189,14 @@ let createViteAPI = (widgetId: number): ViteAPI => {
 }
 
 let createWidgetAPI = (widgetId: number) => {
-  let customHandler: WidgetHandler = () => {}
-  let clickHandler: WidgetHandler = () => {}
-  let dropHandler: WidgetHandler = () => {}
-  let mouseDownHandler: WidgetHandler = () => {}
-  let inputHandler: WidgetHandler = () => {}
-  let resizedHandler: WidgetHandler = () => {}
-  let movedHandler: WidgetHandler = () => {}
-  let initHandler: WidgetHandler = () => {}
+  let customHandler: WidgetHandler = () => { }
+  let clickHandler: WidgetHandler = () => { }
+  let dropHandler: WidgetHandler = () => { }
+  let mouseDownHandler: WidgetHandler = () => { }
+  let inputHandler: WidgetHandler = () => { }
+  let resizedHandler: WidgetHandler = () => { }
+  let movedHandler: WidgetHandler = () => { }
+  let initHandler: WidgetHandler = () => { }
 
   let messageHandler = (data: WidgetMessage) => {
     if (data.channel === Channel.WIDGET_CUSTOM && data.widgetId === widgetId) {

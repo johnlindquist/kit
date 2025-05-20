@@ -7,7 +7,8 @@ import {
 	kenvPath,
 	kenvFromFilePath,
 	shortcutNormalizer,
-	friendlyShortcut
+	friendlyShortcut,
+	checkDbAndInvalidateCache
 } from "./utils.js"
 import { ProcessType } from "./enum.js"
 import { slash } from "./resolvers.js"
@@ -125,6 +126,8 @@ export let parseFilePath = async (
 
 export let parseScript = async (filePath: string): Promise<Script> => {
 	try {
+		await checkDbAndInvalidateCache(scriptCache, "script")
+
 		const fileStat = await stat(filePath)
 		const currentMtimeMs = fileStat.mtimeMs
 
@@ -151,11 +154,6 @@ export let parseScript = async (filePath: string): Promise<Script> => {
 		scriptCache.set(filePath, { script, mtimeMs: currentMtimeMs })
 		return script
 	} catch (error) {
-		// If stat or readFile fails (e.g. file not found),
-		// or any other error occurs during parsing,
-		// we should probably not cache and just rethrow or handle.
-		// For now, let's log and rethrow, to ensure visibility.
-		// Depending on requirements, one might want to invalidate cache for this path.
 		console.error(`Error parsing script ${filePath}:`, error)
 		throw error
 	}

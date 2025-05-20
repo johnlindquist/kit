@@ -16,9 +16,51 @@ import type { Stamp } from './db'
 import { pathToFileURL } from 'node:url'
 import { parseScript } from './parser.js'
 import { kitPath, kenvPath } from './resolvers.js'
-import { cmd } from './constants.js'
+import { cmd, scriptsDbPath, statsPath } from './constants.js'
 import { isBin, isJsh, isDir, isWin, isMac } from './is.js'
 import pRetry from 'p-retry'
+import { stat } from "node:fs/promises";
+
+// Module-level variables to store the last known mtimes for the DB files
+// These are global for this utility, shared by any cache using it.
+let utilLastScriptsDbMtimeMs: number = 0;
+let utilLastStatsPathMtimeMs: number = 0;
+
+export async function checkDbAndInvalidateCache(
+  cacheMap: Map<any, any>,
+  cacheName: string // For logging/debugging purposes
+): Promise<void> {
+  let currentScriptsDbMtimeMs = 0;
+  let currentStatsPathMtimeMs = 0;
+
+  try {
+    currentScriptsDbMtimeMs = (await stat(scriptsDbPath)).mtimeMs;
+  } catch (dbError) {
+    // console.warn(`Could not stat scriptsDbPath "${scriptsDbPath}" for ${cacheName} cache:`, dbError);
+    currentScriptsDbMtimeMs = -1; // Mark as different/error
+  }
+
+  try {
+    currentStatsPathMtimeMs = (await stat(statsPath)).mtimeMs;
+  } catch (dbError) {
+    // console.warn(`Could not stat statsPath "${statsPath}" for ${cacheName} cache:`, dbError);
+    currentStatsPathMtimeMs = -1; // Mark as different/error
+  }
+
+  if (
+    currentScriptsDbMtimeMs !== utilLastScriptsDbMtimeMs ||
+    currentStatsPathMtimeMs !== utilLastStatsPathMtimeMs
+  ) {
+    // console.log(`DB files changed or inaccessible, clearing ${cacheName} cache.`);
+    cacheMap.clear();
+    // Update the utility's last known mtimes
+    utilLastScriptsDbMtimeMs = currentScriptsDbMtimeMs;
+    utilLastStatsPathMtimeMs = currentStatsPathMtimeMs;
+  } else {
+    // DB files haven't changed AND were accessible (or still inaccessible as before)
+    // No need to clear cache based on DB files.
+  }
+}
 
 export let extensionRegex = /\.(mjs|ts|js)$/g
 // Regex to detect VS Code snippet variables like:

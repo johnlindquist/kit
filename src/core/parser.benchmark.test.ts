@@ -5,9 +5,9 @@ import tmp from 'tmp-promise'
 
 ava.only('benchmark - parseScript', async (t) => {
 	await tmp.withDir(async (dir) => {
-	const previousResults = await loadPreviousResults()
+		const previousResults = await loadPreviousResults()
 
-	const scriptContents = `
+		const scriptContents = `
 // Name: Concat Kenv Examples into a Single File
 // Description: Join all of Kenv Examples Scripts
 
@@ -35,52 +35,52 @@ await appendFile(allKitPath, contents)
 await revealFile(allKitPath)        
 	`
 
-	const scriptPath = path.join(dir.path, "script.ts")
-	await writeFile(scriptPath, scriptContents)
-  
-  
-	// Run the benchmark multiple times to get stable measurements
-	const runs = 1000
-	const times = []
+		const scriptPath = path.join(dir.path, "script.ts")
+		await writeFile(scriptPath, scriptContents)
 
-  
-	for (let i = 0; i < runs; i++) {
-	  const start = performance.now()
-	  await parseScript(scriptPath)
-	  const end = performance.now()
-	  times.push(end - start)
-	}
-  
-	const mean = times.reduce((a, b) => a + b, 0) / runs
-	const opsPerSecond = (1000 / mean)  // If each run counts as 1 operation
-  
-	// Compare to previous results if available
-	const testName = 'formatChoices'
-	const oldResult = previousResults[testName]
-	if (oldResult) {
-	  const oldOps = oldResult.operationsPerSecond
-	  const improvement = ((opsPerSecond - oldOps) / oldOps) * 100
-	  t.log(`Previous OPS: ${oldOps.toFixed(2)}`)
-	  t.log(`Current OPS: ${opsPerSecond.toFixed(2)}`)
-	  const emoji = improvement > 0 ? "🚀" : "🐌"
-	  t.log(`${emoji} Change: ${improvement.toFixed(2)}%`)
-	} else {
-	  t.log('No previous benchmark to compare against.')
-	}
-  
-	// Write new results
-	const newResults = {
-	  ...previousResults,
-	  [testName]: {
-		timestamp: new Date().toISOString(),
-		operationsPerSecond: opsPerSecond,
-		meanDurationMs: mean
-	  }
-	}
-	await saveResults(newResults)
-  
-	t.pass()
-  }, {
-	unsafeCleanup: true
-  })
+
+		// Run the benchmark multiple times to get stable measurements
+		const runs = 1000
+		const times = []
+
+
+		for (let i = 0; i < runs; i++) {
+			const start = performance.now()
+			await parseScript(scriptPath)
+			const end = performance.now()
+			times.push((end - start) as never)
+		}
+
+		const mean = times.reduce((a, b) => a + b, 0) / runs
+		const opsPerSecond = (1000 / mean)  // If each run counts as 1 operation
+
+		// Compare to previous results if available
+		const testName = 'formatChoices'
+		const oldResult = previousResults[testName]
+		if (oldResult) {
+			const oldOps = oldResult.operationsPerSecond
+			const improvement = ((opsPerSecond - oldOps) / oldOps) * 100
+			t.log(`Previous OPS: ${oldOps.toFixed(2)}`)
+			t.log(`Current OPS: ${opsPerSecond.toFixed(2)}`)
+			const emoji = improvement > 0 ? "🚀" : "🐌"
+			t.log(`${emoji} Change: ${improvement.toFixed(2)}%`)
+		} else {
+			t.log('No previous benchmark to compare against.')
+		}
+
+		// Write new results
+		const newResults = {
+			...previousResults,
+			[testName]: {
+				timestamp: new Date().toISOString(),
+				operationsPerSecond: opsPerSecond,
+				meanDurationMs: mean
+			}
+		}
+		await saveResults(newResults)
+
+		t.pass()
+	}, {
+		unsafeCleanup: true
+	})
 })

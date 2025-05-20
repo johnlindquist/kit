@@ -1,7 +1,7 @@
 import { execaCommand as exec } from 'execa'
 import type { editor as editorApi } from './editor.api'
 
-import { type Key as CoreKeyEnum, Channel, Mode, type statuses, type PROMPT as PROMPT_OBJECT } from '../core/enum.js'
+import { type Key as CoreKeyEnum, Channel, Mode, type statuses, type PROMPT as CORE_PROMPT } from '../core/enum.js'
 
 import type { AppDb } from '../core/db.js'
 
@@ -162,22 +162,6 @@ export type clipboardBufferType =
 export type ScreenshotConfig = {
   displayId?: Parameters<Screenshot>[0]
   bounds?: Parameters<Screenshot>[1]
-  writeRTF: (rtf: string) => Promise<void>
-  writeBookmark: (bookmark: Bookmark) => Promise<void>
-  writeFindText: (text: string) => Promise<void>
-
-  /**
-   * Write a buffer to the clipboard for a custom type (e.g., file URLs, Finder file references).
-   * @param type The clipboard type (e.g., 'public.file-url', 'NSFilenamesPboardType').
-   * @param buffer The buffer to write.
-   * #### Example
-   * ```ts
-   * await clipboard.writeBuffer('public.file-url', Buffer.from(`file://${encodeURI(filePath)}`, 'utf8'))
-   * ```
-   */
-  writeBuffer: (type: clipboardBufferType, buffer: Buffer) => Promise<void>
-
-  clear: () => Promise<void>
 }
 
 export type MediaDeviceInfo = {
@@ -1535,4 +1519,220 @@ declare global {
 
   var registerShortcut: RegisterShortcut
   var unregisterShortcut: UnregisterShortcut
+  var startDrag: (filePath: string, iconPath?: string) => void
+  /**
+   * Grab a color from your desktop
+   * > Note: Behaves best on Mac. Windows _might_ be locked to only the Script Kit app prompt.
+   * ```
+   * {
+   *     "sRGBHex": "#e092d9",
+   *     "rgb": "rgb(224, 146, 217)",
+   *     "rgba": "rgba(224, 146, 217, 1)",
+   *     "hsl": "hsl(305, 56%, 73%)",
+   *     "hsla": "hsla(305, 56%, 73%, 1)",
+   *     "cmyk": "cmyk(0%, 35%, 3%, 12%)"
+   *   }
+   * ```
+   * #### eyeDropper example
+   * ```ts
+   * const result = await eyeDropper();
+   * await editor(JSON.stringify(result, null, 2));
+   * ```
+   * [Examples](https://scriptkit.com?query=eyeDropper) | [Docs](https://johnlindquist.github.io/kit-docs/#eyeDropper) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=eyeDropper)
+   */
+  var eyeDropper: () => Promise<{
+    sRGBHex: string
+  }>
+  /**
+   * A chat prompt. Use `chat.addMessage()` to insert messages into the chat.
+   * > Note: Manually invoke `submit` inside of a shortcut/action/etc to end the chat.
+   * Also see the included "chatgpt" example for a much more advanced scenario.
+   * #### chat example
+   * ```ts
+   * await chat({
+   *   onInit: async () => {
+   *     chat.addMessage({
+   *       // Note: text and position are implemented, there are other properties that are a WIP
+   *       text: "You like Script Kit",
+   *       position: "left",
+   *     })
+   * await wait(1000)
+   * chat.addMessage({
+   *       text: "Yeah! It's awesome!",
+   *       position: "right",
+   *     })
+   * await wait(1000)
+   * chat.addMessage({
+   *       text: "I know, right?!?",
+   *       position: "left",
+   *     })
+   * await wait(1000)
+   * chat.addMessage({
+   *       text: `<img src="https://media0.giphy.com/media/yeE6B8nEKcTMWWvBzD/giphy.gif?cid=0b9ef2f49arnbs4aajuycirjsclpbtimvib6a76g7afizgr5&ep=v1_gifs_search&rid=giphy.gif" width="200px" />`,
+   *       position: "right",
+   *     })
+   *   },
+   * })
+   * ```
+   * [Examples](https://scriptkit.com?query=chat) | [Docs](https://johnlindquist.github.io/kit-docs/#chat) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=chat)
+   */
+  var chat: Chat
+  /**
+   * Displays a small pop-up notification inside the Script Kit window.
+   * #### toast example
+   * ```ts
+   * await toast("Hello from Script Kit!", {
+   *   autoClose: 3000, // close after 3 seconds
+   *   pauseOnFocusLoss: false
+   * })
+   * ```
+   * [Examples](https://scriptkit.com?query=toast) | [Docs](https://johnlindquist.github.io/kit-docs/#toast) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=toast)
+   */
+  var toast: Toast
+  /**
+   * A file search prompt
+   * #### find example
+   * ```ts
+   * let filePath = await find("Search in the Downloads directory", {
+   *   onlyin: home("Downloads"),
+   * })
+   * await revealFile(filePath)
+   * ```
+   * [Examples](https://scriptkit.com?query=find) | [Docs](https://johnlindquist.github.io/kit-docs/#find) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=find)
+   */
+  var find: Find
+  /**
+   * Record from the mic, get a buffer back
+   * #### mic example
+   * ```ts
+   * const tmpMicPath = tmpPath("mic.webm");
+   * const buffer = await mic();
+   * await writeFile(tmpMicPath, buffer);
+   * await playAudioFile(tmpMicPath);
+   * ```
+   * [Examples](https://scriptkit.com?query=mic) | [Docs](https://johnlindquist.github.io/kit-docs/#mic) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=mic)
+   */
+  var mic: Mic
+  /**
+   * Captures a screenshot. Defaults to the display where the current mouse cursor is located and captures the full screen if no bounds are specified.
+   * @param displayId - The identifier for the display to capture. If not provided, captures the display with the current mouse cursor.
+   * @param bounds - The specific area of the screen to capture. If not provided, captures the entire screen.
+   * @returns A Promise that resolves to a Buffer containing the screenshot data.
+   */
+  var screenshot: Screenshot
+  /**
+   * Prompt for webcam access. Press enter to capture an image buffer:
+   * #### webcam example
+   * ```ts
+   * let buffer = await webcam()
+   * let imagePath = tmpPath("image.jpg")
+   * await writeFile(imagePath, buffer)
+   * await revealFile(imagePath)
+   * ```
+   * [Examples](https://scriptkit.com?query=webcam) | [Docs](https://johnlindquist.github.io/kit-docs/#webcam) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=webcam)
+   */
+  var webcam: WebCam
+  var prompt: Prompt
+  /**
+   * Retrieves available media devices.
+   * #### getMediaDevices example
+   * ```ts
+   * let devices = await getMediaDevices()
+   * ```
+   * [Examples](https://scriptkit.com?query=getMediaDevices) | [Docs](https://johnlindquist.github.io/kit-docs/#getMediaDevices) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getMediaDevices)
+   */
+  var getMediaDevices: GetMediaDevices
+  /**
+   * Retrieves typed text from the user.
+   * #### getTypedText example
+   * ```ts
+   * let text = await getTypedText()
+   * ```
+   * [Examples](https://scriptkit.com?query=getTypedText) | [Docs](https://johnlindquist.github.io/kit-docs/#getTypedText) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getTypedText)
+   */
+  var getTypedText: GetTypedText
+  var PROMPT: typeof PROMPT_OBJECT
+  /**
+   * A symbol used to block submitting a prompt
+   * #### preventSubmit example
+   * ```ts
+   * await arg({
+   *   placeholder: "Try to submit text less than 10 characters",
+   *   onSubmit: async (input) => {
+   *     if (input.length < 10) {
+   *       setHint(
+   *         "Text must be at least 10 characters. You entered " + input.length
+   *       );
+   *       setEnter("Try Again");
+   *       return preventSubmit;
+   *     }
+   *   },
+   * });
+   * ```
+   * [Examples](https://scriptkit.com?query=preventSubmit) | [Docs](https://johnlindquist.github.io/kit-docs/#preventSubmit) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=preventSubmit)
+   */
+  var preventSubmit: symbol
+
+  type removeListener = () => void
+  /**
+   * Registers a global system onClick event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
+  var onClick: (callback: (event: UiohookMouseEvent) => void) => removeListener
+
+  /**
+   * Registers a global system onMousedown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
+  var onMousedown: (callback: (event: UiohookMouseEvent) => void) => removeListener
+  /**
+   * Registers a global system onMouseup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
+  var onMouseup: (callback: (event: UiohookMouseEvent) => void) => removeListener
+  /**
+   * Registers a global system onWheel event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
+  var onWheel: (callback: (event: UiohookWheelEvent) => void) => removeListener
+  /**
+   * Registers a global system onKeydown event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
+  var onKeydown: (callback: (event: UiohookKeyboardEvent) => void) => removeListener
+  /**
+   * Registers a global system onKeyup event listener.
+   * @param callback - The callback to call when the event is fired.
+   * @returns A function to disable the listener.
+   */
+  var onKeyup: (callback: (event: UiohookKeyboardEvent) => void) => removeListener
+
+  var system: System
+  var app: App
+
+  var getTheme: () => Promise<KitTheme>
+
+  /**
+   * Send a system notification
+   * > Note: osx notifications require permissions for "Terminal Notifier" in the system preferences. Due to the complicated nature of configuring notifications, please use a search engine to find the latest instructions for your osx version.
+   * > In the Script Kit menu bar icon: "Permissions -> Request Notification Permissions" might help.
+   * #### notify example
+   * ```ts
+   * await notify("Attention!")
+   * ```
+   * #### notify example body
+   * ```ts
+   * await notify({
+   *   title: "Title text goes here",
+   *   body: "Body text goes here",
+   * });
+   * ```
+   * [Examples](https://scriptkit.com?query=notify) | [Docs](https://johnlindquist.github.io/kit-docs/#notify) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=notify)
+   */
+  var notify: Notify
 }
