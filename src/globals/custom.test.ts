@@ -3,76 +3,92 @@ import '../core/utils.js'
 import tmp from 'tmp-promise'
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
-import { ensureDir } from 'fs-extra'
+import { ensureDir, remove } from 'fs-extra'
 import { kenvPath, kitPath } from '../core/utils.js'
 
-// biome-ignore lint/suspicious/useAwait: <explanation>
-await tmp.withDir(async (dir) => {
-  process.env.KENV = dir.path
+// Store original env values to restore later
+const originalKENV = process.env.KENV
+const originalKIT_CONTEXT = process.env.KIT_CONTEXT
+
+ava.beforeEach(async (t) => {
+  // Create isolated test directory for each test
+  const tmpDir = await tmp.dir({ unsafeCleanup: true })
+
+  // Set up isolated environment
+  process.env.KENV = path.resolve(tmpDir.path, '.kenv')
   process.env.KIT_CONTEXT = 'workflow'
 
-  // Create the base directory first
-  await ensureDir(dir.path)
-  // Then set KENV to the .kenv subdirectory
-  process.env.KENV = path.resolve(dir.path, '.kenv')
+  global.kitScript = `${randomUUID()}.js`
+  global.__kitDbMap = new Map()
 
-  ava.beforeEach(async (t) => {
-    global.kitScript = `${randomUUID()}.js`
-    global.__kitDbMap = new Map()
+  // Create necessary directories
+  await ensureDir(kenvPath())
+  await ensureDir(kitPath())
 
-    // Create directories after ensuring base directory exists
-    await ensureDir(kenvPath())
-    await ensureDir(kitPath())
+  // Store cleanup function for this test
+  t.context.tmpDir = tmpDir
+  t.context.testDir = tmpDir.path
 
-    t.log({
-      kenvPath: kenvPath(),
-      kitPath: kitPath()
-    })
+  t.log({
+    kenvPath: kenvPath(),
+    kitPath: kitPath(),
+    testDir: tmpDir.path
   })
+})
 
-  ava('ensureReadFile creates file with default content if empty', async t => {
-    const testPath = path.join(dir.path, 'test.txt')
-    const defaultContent = 'default content'
+ava.afterEach(async (t) => {
+  // Clean up the isolated test directory
+  if (t.context.tmpDir) {
+    await t.context.tmpDir.cleanup()
+  }
+})
 
-    const result = await global.ensureReadFile(testPath, defaultContent)
-    t.is(result, defaultContent)
+ava.after(() => {
+  // Restore original environment
+  process.env.KENV = originalKENV
+  process.env.KIT_CONTEXT = originalKIT_CONTEXT
+})
 
-    // Verify content persists
-    const secondRead = await global.ensureReadFile(testPath)
-    t.is(secondRead, defaultContent)
-  })
+ava('ensureReadFile creates file with default content if empty', async t => {
+  const testPath = path.join(t.context.testDir, 'test.txt')
+  const defaultContent = 'default content'
 
-  ava('ensureReadFile preserves existing content', async t => {
-    const testPath = path.join(dir.path, 'existing.txt')
-    const existingContent = 'existing content'
+  const result = await global.ensureReadFile(testPath, defaultContent)
+  t.is(result, defaultContent)
 
-    await global.ensureReadFile(testPath, existingContent)
-    const result = await global.ensureReadFile(testPath, 'different default')
+  // Verify content persists
+  const secondRead = await global.ensureReadFile(testPath)
+  t.is(secondRead, defaultContent)
+})
 
-    t.is(result, existingContent)
-  })
+ava('ensureReadFile preserves existing content', async t => {
+  const testPath = path.join(t.context.testDir, 'existing.txt')
+  const existingContent = 'existing content'
 
-  ava('ensureReadJson creates JSON file with default content', async t => {
-    const testPath = path.join(dir.path, 'test.json')
-    const defaultContent = { test: true, count: 42 }
+  await global.ensureReadFile(testPath, existingContent)
+  const result = await global.ensureReadFile(testPath, 'different default')
 
-    const result = await global.ensureReadJson(testPath, defaultContent)
-    t.deepEqual(result, defaultContent)
+  t.is(result, existingContent)
+})
 
-    // Verify content persists
-    const secondRead = await global.ensureReadJson(testPath, { different: 'content' })
-    t.deepEqual(secondRead, defaultContent)
-  })
+ava('ensureReadJson creates JSON file with default content', async t => {
+  const testPath = path.join(t.context.testDir, 'test.json')
+  const defaultContent = { test: true, count: 42 }
 
-  ava('ensureReadJson preserves existing JSON content', async t => {
-    const testPath = path.join(dir.path, 'existing.json')
-    const existingContent = { existing: true, data: 'test' }
+  const result = await global.ensureReadJson(testPath, defaultContent)
+  t.deepEqual(result, defaultContent)
 
-    await global.ensureReadJson(testPath, existingContent)
-    const result = await global.ensureReadJson(testPath, { different: 'content' })
+  // Verify content persists
+  const secondRead = await global.ensureReadJson(testPath, { different: 'content' })
+  t.deepEqual(secondRead, defaultContent)
+})
 
-    t.deepEqual(result, existingContent)
-  })
-}, {
-  unsafeCleanup: true
+ava('ensureReadJson preserves existing JSON content', async t => {
+  const testPath = path.join(t.context.testDir, 'existing.json')
+  const existingContent = { existing: true, data: 'test' }
+
+  await global.ensureReadJson(testPath, existingContent)
+  const result = await global.ensureReadJson(testPath, { different: 'content' })
+
+  t.deepEqual(result, existingContent)
 })
