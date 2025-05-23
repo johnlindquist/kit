@@ -1,19 +1,5 @@
 import '../globals/index.js'
-
-// Resilient dotenv-flow import with fallback for when dependencies aren't available during installation
-let config: any
-try {
-  const dotenvFlowModule = await import('dotenv-flow')
-  config = dotenvFlowModule.config
-} catch (error) {
-  // Fallback config implementation when dotenv-flow isn't available
-  config = (options: any = {}) => {
-    return {
-      parsed: null,
-      error: new Error('dotenv-flow not available during installation - this is expected during setup')
-    }
-  }
-}
+import { config } from 'dotenv-flow'
 
 import { md as globalMd, marked } from '../globals/marked.js'
 

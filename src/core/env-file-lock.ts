@@ -2,48 +2,7 @@ import { writeFile, readFile, unlink } from 'node:fs/promises'
 import { pathExists } from 'fs-extra'
 import path from 'node:path'
 import { kitDotEnvPath, kenvPath } from './resolvers.js'
-
-// Resilient chalk import with fallback for when dependencies aren't available during installation
-let chalk: any
-try {
-    const chalkModule = await import('chalk')
-    chalk = chalkModule.default
-} catch (error) {
-    // Fallback chalk implementation when package isn't available
-    const fallbackChalk = (text: string) => text
-    const createChalkFunction = () => {
-        const fn = function (strings: TemplateStringsArray | string, ...values: any[]) {
-            if (typeof strings === 'string') {
-                return strings
-            }
-            // Handle template literals
-            let result = ''
-            for (let i = 0; i < strings.length; i++) {
-                result += strings[i]
-                if (i < values.length) {
-                    result += values[i]
-                }
-            }
-            return result
-        }
-
-        // Add color methods
-        fn.red = fallbackChalk
-        fn.yellow = fallbackChalk
-        fn.green = fallbackChalk
-        fn.blue = fallbackChalk
-        fn.cyan = fallbackChalk
-        fn.magenta = fallbackChalk
-        fn.white = fallbackChalk
-        fn.gray = fallbackChalk
-        fn.grey = fallbackChalk
-
-        return fn
-    }
-
-    chalk = createChalkFunction()
-}
-
+import chalk from 'chalk'
 interface LockOptions {
     timeout?: number // milliseconds
     retryInterval?: number // milliseconds
