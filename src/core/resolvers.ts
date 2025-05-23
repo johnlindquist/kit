@@ -31,6 +31,11 @@ export let kitPath = (...parts: string[]) =>
   )(...parts.filter(Boolean))
 
 export let kenvPath = (...parts: string[]) => {
+  // Check for global mock first (used in tests)
+  if (global.__kenvPathMock && typeof global.__kenvPathMock === 'function') {
+    return global.__kenvPathMock(...parts)
+  }
+
   return createPathResolver(
     getEnvOrDefault(process.env.KENV, home(".kenv"))
   )(...parts.filter(Boolean))

@@ -13,6 +13,7 @@ interface TestContext {
     tempDir: string
     envPath: string
     originalKitDotEnvPathMock: (() => string) | undefined
+    originalKenvPathMock: ((...parts: string[]) => string) | undefined
 }
 
 type Context = ExecutionContext<TestContext>
@@ -25,26 +26,34 @@ ava.beforeEach(async (t: Context) => {
     const envPath = join(tempDir.path, ".env")
     mockEnvPath = envPath
 
-    // Store original mock if it exists
-    const originalMock = global.__kitDotEnvPathMock
+    // Store original mocks if they exist
+    const originalKitDotEnvPathMock = global.__kitDotEnvPathMock
+    const originalKenvPathMock = global.__kenvPathMock
 
     // Mock kitDotEnvPath to return our test path
     global.__kitDotEnvPathMock = () => mockEnvPath
-    global.kenvPath = (...parts: string[]) => join(tempDir.path, ...parts)
+    global.__kenvPathMock = (...parts: string[]) => join(tempDir.path, ...parts)
 
     t.context = {
         tempDir: tempDir.path,
         envPath,
-        originalKitDotEnvPathMock: originalMock
+        originalKitDotEnvPathMock,
+        originalKenvPathMock
     }
 })
 
 ava.afterEach.always((t: Context) => {
-    // Restore original mock or delete if it didn't exist
+    // Restore original mocks or delete if they didn't exist
     if (t.context.originalKitDotEnvPathMock) {
         global.__kitDotEnvPathMock = t.context.originalKitDotEnvPathMock
     } else {
         delete global.__kitDotEnvPathMock
+    }
+
+    if (t.context.originalKenvPathMock) {
+        global.__kenvPathMock = t.context.originalKenvPathMock
+    } else {
+        delete global.__kenvPathMock
     }
 })
 
