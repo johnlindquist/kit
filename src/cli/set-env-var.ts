@@ -1,6 +1,47 @@
 import { Env } from "../core/enum.js"
 import { kitDotEnvPath } from "../core/utils.js"
-import chalk from "chalk"
+import { safeReadEnvFile, safeWriteEnvFile } from "../core/env-file-lock.js"
+
+// Resilient chalk import with fallback for when dependencies aren't available during installation
+let chalk: any
+try {
+  const chalkModule = await import('chalk')
+  chalk = chalkModule.default
+} catch (error) {
+  // Fallback chalk implementation when package isn't available
+  const fallbackChalk = (text: string) => text
+  const createChalkFunction = () => {
+    const fn = function (strings: TemplateStringsArray | string, ...values: any[]) {
+      if (typeof strings === 'string') {
+        return strings
+      }
+      // Handle template literals
+      let result = ''
+      for (let i = 0; i < strings.length; i++) {
+        result += strings[i]
+        if (i < values.length) {
+          result += values[i]
+        }
+      }
+      return result
+    }
+
+    // Add color methods
+    fn.red = fallbackChalk
+    fn.yellow = fallbackChalk
+    fn.green = fallbackChalk
+    fn.blue = fallbackChalk
+    fn.cyan = fallbackChalk
+    fn.magenta = fallbackChalk
+    fn.white = fallbackChalk
+    fn.gray = fallbackChalk
+    fn.grey = fallbackChalk
+
+    return fn
+  }
+
+  chalk = createChalkFunction()
+}
 
 let envKey = args.shift() ?? ""
 let envValue = args.shift() ?? ""
@@ -35,27 +76,6 @@ try {
   process.exit(1)
 }
 
-// Helper function to safely read and parse the .env file into an array of lines
-async function readEnvFile(filePath: string): Promise<string[]> {
-  try {
-    const contents = await readFile(filePath, "utf-8")
-    return contents.split(/\r?\n/)
-  } catch (err) {
-    global.log(chalk.red(`Error reading .env file: ${err}`))
-    return []
-  }
-}
-
-// Helper function to write lines array back to the .env file
-async function writeEnvFile(filePath: string, lines: string[]): Promise<void> {
-  try {
-    await writeFile(filePath, lines.join("\n"), "utf-8")
-  } catch (err) {
-    global.log(chalk.red(`Error writing to .env file: ${err}`))
-    throw err
-  }
-}
-
 // Ensure that we keep both `env` and `process.env` updated only after a successful operation.
 function setEnvValue(key: string, value?: string) {
   if (value == null) {
@@ -77,7 +97,7 @@ function formatEnvLine(key: string, value: string) {
 // Update an existing environment variable
 async function updateEnv(envKey: string, envValue: string) {
   try {
-    const lines = await readEnvFile(envFilePath)
+    const lines = await safeReadEnvFile(envFilePath)
     const regex = new RegExp(`^${envKey}=.*$`)
     const lineIndex = lines.findIndex(line => regex.test(line))
 
@@ -87,18 +107,19 @@ async function updateEnv(envKey: string, envValue: string) {
     }
 
     lines[lineIndex] = formatEnvLine(envKey, envValue)
-    await writeEnvFile(envFilePath, lines)
+    await safeWriteEnvFile(lines, envFilePath)
     setEnvValue(envKey, envValue)
     global.log(chalk`Updated {yellow.bold ${envKey}} in ${envFilePath}`)
   } catch (err) {
     global.log(chalk.red(`Failed to update environment variable ${envKey}: ${err}`))
+    throw err
   }
 }
 
 // Append a new environment variable if it does not exist
 async function writeNewEnv(envKey: string, envValue: string) {
   try {
-    const lines = await readEnvFile(envFilePath)
+    const lines = await safeReadEnvFile(envFilePath)
     const regex = new RegExp(`^${envKey}=.*$`)
     const exists = lines.some(line => regex.test(line))
     if (exists) {
@@ -107,18 +128,19 @@ async function writeNewEnv(envKey: string, envValue: string) {
     }
 
     lines.push(formatEnvLine(envKey, envValue))
-    await writeEnvFile(envFilePath, lines)
+    await safeWriteEnvFile(lines, envFilePath)
     setEnvValue(envKey, envValue)
     global.log(chalk`Set {yellow.bold ${envKey}} in ${envFilePath}`)
   } catch (err) {
     global.log(chalk.red(`Failed to write new environment variable ${envKey}: ${err}`))
+    throw err
   }
 }
 
 // Remove an existing environment variable
 async function removeEnv(envKey: string) {
   try {
-    const lines = await readEnvFile(envFilePath)
+    const lines = await safeReadEnvFile(envFilePath)
     const regex = new RegExp(`^${envKey}=.*$`)
     const filteredLines = lines.filter(line => !regex.test(line))
 
@@ -128,17 +150,18 @@ async function removeEnv(envKey: string) {
       return
     }
 
-    await writeEnvFile(envFilePath, filteredLines)
+    await safeWriteEnvFile(filteredLines, envFilePath)
     setEnvValue(envKey, undefined)
     global.log(chalk`Removed {yellow.bold ${envKey}} from ${envFilePath}`)
   } catch (err) {
     global.log(chalk.red(`Failed to remove environment variable ${envKey}: ${err}`))
+    throw err
   }
 }
 
-// Determine which operation to perform
+// Determine which operation to perform with improved error handling
 try {
-  const lines = await readEnvFile(envFilePath)
+  const lines = await safeReadEnvFile(envFilePath)
   const exists = new RegExp(`^${envKey}=.*$`, "m").test(lines.join("\n"))
 
   if (envValue === Env.REMOVE) {
@@ -151,4 +174,6 @@ try {
 
 } catch (err) {
   global.log(chalk.red(`Unexpected error handling environment variable operation: ${err}`))
+  // Don't silently fail - re-throw to let the caller know something went wrong
+  throw err
 }
