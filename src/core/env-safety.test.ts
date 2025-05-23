@@ -236,6 +236,12 @@ ava.serial("should preserve comments and empty lines in env files", async (t: Co
 })
 
 ava.serial("should handle atomic write failures gracefully", async (t: Context) => {
+    // Skip this test on Windows since chmod doesn't work the same way
+    if (process.platform === 'win32') {
+        t.pass('Skipping permission test on Windows (different permission model)')
+        return
+    }
+
     const content = ["VAR1=value1"]
 
     // Make the directory read-only to prevent file creation
