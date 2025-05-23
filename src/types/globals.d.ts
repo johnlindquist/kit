@@ -287,8 +287,4 @@ declare global {
    * [Examples](https://scriptkit.com?query=globby) | [Docs](https://johnlindquist.github.io/kit-docs/#globby) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=globby)
    */
   var globby: typeof import('globby').globby
-
-  // Test mocks (used in test environments)
-  var __kitDotEnvPathMock?: () => string
-  var __kenvPathMock?: (...parts: string[]) => string
 }

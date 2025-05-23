@@ -9,6 +9,12 @@ import { pathExists } from "fs-extra"
 import { backupEnvFile, restoreEnvFile, mergeEnvFiles, cleanupOldBackups } from "./env-backup.js"
 import { EnvFileLock, safeReadEnvFile, safeWriteEnvFile, cleanupStaleLocks } from "./env-file-lock.js"
 
+// Test-only global type declarations
+declare global {
+    var __kitDotEnvPathMock: (() => string) | undefined
+    var __kenvPathMock: ((...parts: string[]) => string) | undefined
+}
+
 interface TestContext {
     tempDir: string
     envPath: string
