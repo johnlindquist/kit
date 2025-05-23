@@ -1,0 +1,18 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+## Follow patterns ".test.ts" and "ava" for writing tests.
+
+## Run all the tests
+`pnpm ava`
+
+## Run a single test, e.g., src/core/env-safety.test.ts
+`pnpm ava src/core/env-safety.test.ts`
+
+## Build. Ask first! Building is disruptive as I'm often running the dev build.
+`pnpm build`
+
+## Avoid `pnpm test`. It's an "integration" test for the SDK. Ask first! Building is disruptive as I'm often running the dev build.
+`pnpm test` requires a build and full test

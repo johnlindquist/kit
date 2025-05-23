@@ -8,9 +8,9 @@ export function slash(p: string): string {
 
 export let createPathResolver =
   (parentDir: string) =>
-  (...parts: string[]) => {
-    return path.resolve(parentDir, ...parts)
-  }
+    (...parts: string[]) => {
+      return path.resolve(parentDir, ...parts)
+    }
 
 export let home = (...pathParts: string[]) => {
   return createPathResolver(homedir())(...pathParts)
@@ -43,6 +43,11 @@ export let kitPnpmPath = (...parts: string[]) => {
 }
 
 export let kitDotEnvPath = () => {
+  // Check for global mock first (used in tests)
+  if (global.__kitDotEnvPathMock && typeof global.__kitDotEnvPathMock === 'function') {
+    return global.__kitDotEnvPathMock()
+  }
+
   return createPathResolver(
     getEnvOrDefault(
       process.env.KIT_DOTENV_PATH,

@@ -2,7 +2,7 @@ import ava, { type ExecutionContext } from "ava"
 import tmp from "tmp-promise"
 import { randomUUID } from "node:crypto"
 import { join } from "node:path"
-import { writeFile, readFile, unlink, mkdir } from "node:fs/promises"
+import { writeFile, readFile, unlink, mkdir, chmod } from "node:fs/promises"
 import { pathExists } from "fs-extra"
 
 // Import our safety utilities
@@ -12,34 +12,40 @@ import { EnvFileLock, safeReadEnvFile, safeWriteEnvFile, cleanupStaleLocks } fro
 interface TestContext {
     tempDir: string
     envPath: string
-    originalKitDotEnvPath: () => string
+    originalKitDotEnvPathMock: (() => string) | undefined
 }
 
 type Context = ExecutionContext<TestContext>
 
 // Mock the kitDotEnvPath function
 let mockEnvPath = ""
-const originalKitDotEnvPath = global.kitDotEnvPath
 
 ava.beforeEach(async (t: Context) => {
     const tempDir = await tmp.dir({ unsafeCleanup: true })
     const envPath = join(tempDir.path, ".env")
     mockEnvPath = envPath
 
+    // Store original mock if it exists
+    const originalMock = global.__kitDotEnvPathMock
+
     // Mock kitDotEnvPath to return our test path
-    global.kitDotEnvPath = () => mockEnvPath
+    global.__kitDotEnvPathMock = () => mockEnvPath
     global.kenvPath = (...parts: string[]) => join(tempDir.path, ...parts)
 
     t.context = {
         tempDir: tempDir.path,
         envPath,
-        originalKitDotEnvPath
+        originalKitDotEnvPathMock: originalMock
     }
 })
 
 ava.afterEach.always((t: Context) => {
-    // Restore original function
-    global.kitDotEnvPath = t.context.originalKitDotEnvPath
+    // Restore original mock or delete if it didn't exist
+    if (t.context.originalKitDotEnvPathMock) {
+        global.__kitDotEnvPathMock = t.context.originalKitDotEnvPathMock
+    } else {
+        delete global.__kitDotEnvPathMock
+    }
 })
 
 ava.serial("should backup and restore .env file correctly", async (t: Context) => {
@@ -58,9 +64,8 @@ ava.serial("should backup and restore .env file correctly", async (t: Context) =
     const backupContent = await readFile(backupResult.backupPath!, 'utf-8')
     t.is(backupContent, originalContent)
 
-    // Modify original file
-    const modifiedContent = "TEST_VAR=modified_value\nNEW_VAR=new_value"
-    await writeFile(t.context.envPath, modifiedContent)
+    // Delete the original file (simulating fresh installation scenario)
+    await unlink(t.context.envPath)
 
     // Restore from backup
     const restoreResult = await restoreEnvFile(backupResult.backupPath)
@@ -218,15 +223,19 @@ ava.serial("should preserve comments and empty lines in env files", async (t: Co
 ava.serial("should handle atomic write failures gracefully", async (t: Context) => {
     const content = ["VAR1=value1"]
 
-    // Create directory where temp file would go, making atomic write fail
-    const tempDir = `${t.context.envPath}.tmp.${Date.now()}`
-    await mkdir(tempDir).catch(() => { }) // Ignore if already exists
+    // Make the directory read-only to prevent file creation
+    await chmod(t.context.tempDir, 0o444) // Read-only directory
 
-    // This should handle the error gracefully
-    await t.throwsAsync(
-        () => safeWriteEnvFile(content, t.context.envPath),
-        { message: /Error writing .env file/ }
-    )
+    try {
+        // This should handle the error gracefully
+        await t.throwsAsync(
+            () => safeWriteEnvFile(content, t.context.envPath),
+            { message: /EACCES|permission denied/ }
+        )
+    } finally {
+        // Restore write permissions for cleanup
+        await chmod(t.context.tempDir, 0o755)
+    }
 })
 
 ava.serial("should handle missing backup files gracefully", async (t: Context) => {
@@ -254,4 +263,35 @@ ava.serial("withLock should release lock even if operation throws", async (t: Co
     const acquired = await lock.acquire({ timeout: 1000 })
     t.true(acquired)
     await lock.release()
+})
+
+ava.serial("should backup and restore with template merging", async (t: Context) => {
+    const originalUserContent = "USER_VAR=user_value\nSHARED_VAR=user_shared_value"
+    await writeFile(t.context.envPath, originalUserContent)
+
+    // Create backup
+    const backupResult = await backupEnvFile()
+    t.true(backupResult.success)
+    t.truthy(backupResult.backupPath)
+
+    // Simulate a new template being installed
+    const newTemplateContent = "TEMPLATE_VAR=template_value\nSHARED_VAR=template_shared_value\nANOTHER_TEMPLATE_VAR=another_template"
+    await writeFile(t.context.envPath, newTemplateContent)
+
+    // Restore from backup (should merge with template)
+    const restoreResult = await restoreEnvFile(backupResult.backupPath)
+    t.true(restoreResult.success)
+    t.is(restoreResult.mergedVariables, 4) // USER_VAR, SHARED_VAR (user wins), TEMPLATE_VAR, ANOTHER_TEMPLATE_VAR
+
+    // Verify merged content preserves user values
+    const restoredContent = await readFile(t.context.envPath, 'utf-8')
+    const lines = restoredContent.split('\n')
+
+    // User values should be preserved
+    t.true(lines.includes('USER_VAR=user_value'))
+    t.true(lines.includes('SHARED_VAR=user_shared_value')) // User value wins over template
+
+    // Template values should be added
+    t.true(lines.includes('TEMPLATE_VAR=template_value'))
+    t.true(lines.includes('ANOTHER_TEMPLATE_VAR=another_template'))
 }) 

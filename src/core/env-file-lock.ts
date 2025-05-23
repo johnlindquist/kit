@@ -2,7 +2,47 @@ import { writeFile, readFile, unlink } from 'node:fs/promises'
 import { pathExists } from 'fs-extra'
 import path from 'node:path'
 import { kitDotEnvPath, kenvPath } from './resolvers.js'
-import chalk from 'chalk'
+
+// Resilient chalk import with fallback for when dependencies aren't available during installation
+let chalk: any
+try {
+    const chalkModule = await import('chalk')
+    chalk = chalkModule.default
+} catch (error) {
+    // Fallback chalk implementation when package isn't available
+    const fallbackChalk = (text: string) => text
+    const createChalkFunction = () => {
+        const fn = function (strings: TemplateStringsArray | string, ...values: any[]) {
+            if (typeof strings === 'string') {
+                return strings
+            }
+            // Handle template literals
+            let result = ''
+            for (let i = 0; i < strings.length; i++) {
+                result += strings[i]
+                if (i < values.length) {
+                    result += values[i]
+                }
+            }
+            return result
+        }
+
+        // Add color methods
+        fn.red = fallbackChalk
+        fn.yellow = fallbackChalk
+        fn.green = fallbackChalk
+        fn.blue = fallbackChalk
+        fn.cyan = fallbackChalk
+        fn.magenta = fallbackChalk
+        fn.white = fallbackChalk
+        fn.gray = fallbackChalk
+        fn.grey = fallbackChalk
+
+        return fn
+    }
+
+    chalk = createChalkFunction()
+}
 
 interface LockOptions {
     timeout?: number // milliseconds
@@ -39,11 +79,15 @@ export class EnvFileLock {
             try {
                 // Check if lock file already exists
                 if (await pathExists(this.lockPath)) {
-                    // Check if lock is stale (older than timeout)
+                    // Check if lock is stale (older than timeout) or corrupted
                     const lockContent = await readFile(this.lockPath, 'utf-8').catch(() => '')
                     const lockData = this.parseLockContent(lockContent)
 
-                    if (lockData && Date.now() - lockData.timestamp > opts.timeout) {
+                    if (!lockData) {
+                        // Corrupted lock file, remove it
+                        global.log?.(chalk.yellow(`🔓 Removing corrupted lock: ${this.lockPath}`))
+                        await unlink(this.lockPath).catch(() => { }) // Ignore errors
+                    } else if (Date.now() - lockData.timestamp > 60000) { // 1 minute staleness threshold
                         global.log?.(chalk.yellow(`🔓 Removing stale lock: ${this.lockPath}`))
                         await unlink(this.lockPath).catch(() => { }) // Ignore errors
                     } else {
