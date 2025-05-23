@@ -10,7 +10,7 @@ import { kenvPath, kitPath } from '../core/utils.js'
 await tmp.withDir(async (dir) => {
   process.env.KENV = dir.path
   process.env.KIT_CONTEXT = 'workflow'
-  
+
   // Create the base directory first
   await ensureDir(dir.path)
   // Then set KENV to the .kenv subdirectory
@@ -33,10 +33,10 @@ await tmp.withDir(async (dir) => {
   ava('ensureReadFile creates file with default content if empty', async t => {
     const testPath = path.join(dir.path, 'test.txt')
     const defaultContent = 'default content'
-    
+
     const result = await global.ensureReadFile(testPath, defaultContent)
     t.is(result, defaultContent)
-    
+
     // Verify content persists
     const secondRead = await global.ensureReadFile(testPath)
     t.is(secondRead, defaultContent)
@@ -45,20 +45,20 @@ await tmp.withDir(async (dir) => {
   ava('ensureReadFile preserves existing content', async t => {
     const testPath = path.join(dir.path, 'existing.txt')
     const existingContent = 'existing content'
-    
+
     await global.ensureReadFile(testPath, existingContent)
     const result = await global.ensureReadFile(testPath, 'different default')
-    
+
     t.is(result, existingContent)
   })
 
   ava('ensureReadJson creates JSON file with default content', async t => {
     const testPath = path.join(dir.path, 'test.json')
     const defaultContent = { test: true, count: 42 }
-    
+
     const result = await global.ensureReadJson(testPath, defaultContent)
     t.deepEqual(result, defaultContent)
-    
+
     // Verify content persists
     const secondRead = await global.ensureReadJson(testPath, { different: 'content' })
     t.deepEqual(secondRead, defaultContent)
@@ -67,11 +67,12 @@ await tmp.withDir(async (dir) => {
   ava('ensureReadJson preserves existing JSON content', async t => {
     const testPath = path.join(dir.path, 'existing.json')
     const existingContent = { existing: true, data: 'test' }
-    
+
     await global.ensureReadJson(testPath, existingContent)
     const result = await global.ensureReadJson(testPath, { different: 'content' })
-    
+
     t.deepEqual(result, existingContent)
   })
+}, {
+  unsafeCleanup: true
 })
-
