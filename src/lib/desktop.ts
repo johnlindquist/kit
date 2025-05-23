@@ -323,6 +323,21 @@ global.getPrompts = async () => {
   return prompts
 }
 
+global.getPromptStatus = async () => {
+  let { status, summary } = await global.getDataFromApp(Channel.GET_PROMPT_STATUS)
+  return { status, summary }
+}
+
+global.cleanupPrompts = async () => {
+  let { cleaned, status, summary } = await global.getDataFromApp(Channel.CLEANUP_PROMPTS)
+  return { cleaned, status, summary }
+}
+
+global.forcePromptCleanup = async () => {
+  let { cleaned, status, summary } = await global.getDataFromApp(Channel.FORCE_PROMPT_CLEANUP)
+  return { cleaned, status, summary }
+}
+
 global.getKitWindows = async () => {
   let message = await global.getDataFromApp(Channel.GET_KIT_WINDOWS)
 

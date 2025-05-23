@@ -172,6 +172,69 @@ export interface Prompt {
 
 type GetPrompts = () => Promise<Prompt[]>
 type AttemptScriptFocus = () => Promise<boolean>
+
+type GetPromptStatus = () => Promise<{
+  status: Array<{
+    windowId: number;
+    pid: number;
+    boundToProcess: boolean;
+    scriptPath: string;
+    isVisible: boolean;
+    isFocused: boolean;
+    isDestroyed: boolean;
+    isIdle: boolean;
+  }>;
+  summary: {
+    total: number;
+    visible: number;
+    bound: number;
+    orphaned: number;
+    idle: number;
+  };
+}>
+
+type CleanupPrompts = () => Promise<{
+  cleaned: number;
+  status: Array<{
+    windowId: number;
+    pid: number;
+    boundToProcess: boolean;
+    scriptPath: string;
+    isVisible: boolean;
+    isFocused: boolean;
+    isDestroyed: boolean;
+    isIdle: boolean;
+  }>;
+  summary: {
+    total: number;
+    visible: number;
+    bound: number;
+    orphaned: number;
+    idle: number;
+  };
+}>
+
+type ForcePromptCleanup = () => Promise<{
+  cleaned: number;
+  status: Array<{
+    windowId: number;
+    pid: number;
+    boundToProcess: boolean;
+    scriptPath: string;
+    isVisible: boolean;
+    isFocused: boolean;
+    isDestroyed: boolean;
+    isIdle: boolean;
+  }>;
+  summary: {
+    total: number;
+    visible: number;
+    bound: number;
+    orphaned: number;
+    idle: number;
+  };
+}>
+
 interface KitWindow {
   name: string
   id: string
@@ -642,4 +705,34 @@ declare global {
    * [Examples](https://scriptkit.com?query=tileWindow) | [Docs](https://johnlindquist.github.io/kit-docs/#tileWindow) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=tileWindow)
    */
   var tileWindow: TileWindow
+  /**
+   * Gets detailed status information about all prompts for debugging purposes.
+   * #### getPromptStatus example
+   * ```ts
+   * let { status, summary } = await getPromptStatus()
+   * console.log(`Total prompts: ${summary.total}, Visible: ${summary.visible}`)
+   * ```
+   * [Examples](https://scriptkit.com?query=getPromptStatus) | [Docs](https://johnlindquist.github.io/kit-docs/#getPromptStatus) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getPromptStatus)
+   */
+  var getPromptStatus: GetPromptStatus
+  /**
+   * Cleans up orphaned prompts that are no longer attached to running processes.
+   * #### cleanupPrompts example
+   * ```ts
+   * let { cleaned, summary } = await cleanupPrompts()
+   * console.log(`Cleaned up ${cleaned} orphaned prompts`)
+   * ```
+   * [Examples](https://scriptkit.com?query=cleanupPrompts) | [Docs](https://johnlindquist.github.io/kit-docs/#cleanupPrompts) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=cleanupPrompts)
+   */
+  var cleanupPrompts: CleanupPrompts
+  /**
+   * Force cleanup of all orphaned prompts, similar to cleanupPrompts but more aggressive.
+   * #### forcePromptCleanup example
+   * ```ts
+   * let { cleaned, summary } = await forcePromptCleanup()
+   * console.log(`Force cleaned ${cleaned} orphaned prompts`)
+   * ```
+   * [Examples](https://scriptkit.com?query=forcePromptCleanup) | [Docs](https://johnlindquist.github.io/kit-docs/#forcePromptCleanup) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=forcePromptCleanup)
+   */
+  var forcePromptCleanup: ForcePromptCleanup
 }
