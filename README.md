@@ -48,9 +48,26 @@ pnpm install
 
 The build command builds the SDK to ~/.kit
 
-#### pnpm link to app (First run only)
+#### Linking kit to app for local development
+
+**Option 1: Workspace approach (Recommended)**
+
+1. cd to wherever you cloned kitapp
+2. Create a `pnpm-workspace.yaml` file with:
+   ```yaml
+   packages:
+     - '~/.kit'
+     - '.'
+   ```
+3. Run `pnpm install` - this will automatically link your local kit build
+4. The workspace file is gitignored, so it won't affect CI builds
+
+**Option 2: Manual linking (Alternative)**
 
 1. cd to ~/.kit
 2. pnpm link
-3. cd to wherever you cloned kitapp
+3. cd to wherever you cloned kitapp  
 4. pnpm link @johnlindquist/kit
+
+**Note:** The workspace approach is preferred as it automatically links your local kit development build and doesn't require manual link/unlink commands.
+
