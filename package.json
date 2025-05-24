@@ -78,6 +78,7 @@
     ]
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.0.15",
     "@johnlindquist/open": "^10.1.1",
     "@octokit/auth-oauth-device": "8.0.1",
     "@octokit/core": "7.0.2",
@@ -93,6 +94,7 @@
     "acorn": "^8.14.1",
     "acorn-typescript": "^1.4.13",
     "advanced-calculator": "1.1.1",
+    "ai": "^4.0.37",
     "axios": "1.9.0",
     "body-parser": "^2.2.0",
     "bottleneck": "^2.19.5",
@@ -134,12 +136,14 @@
     "strip-ansi": "7.1.0",
     "suggestion": "2.1.2",
     "tmp-promise": "3.0.3",
-    "untildify": "5.0.0"
+    "untildify": "5.0.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
     "@types/node": "^22.15.21",
     "@types/node-ipc": "9.2.3",
+    "@types/sinon": "17.0.4",
     "ava": "^6.3.0",
     "cross-env": "^7.0.3",
     "cz-conventional-changelog": "^3.3.0",
@@ -147,6 +151,7 @@
     "node-stream-zip": "^1.15.0",
     "semantic-release": "24.2.4",
     "semantic-release-plugin-update-version-in-files": "2.0.0",
+    "sinon": "20.0.0",
     "tsc-watch": "6.3.1",
     "tsx": "4.19.4",
     "typescript": "5.8.3",

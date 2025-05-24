@@ -17,6 +17,10 @@ import type {
 } from './core.js'
 import { ChannelHandler } from './core.js'
 import type { ConfigOptions, Options } from 'quick-score'
+// Import AI SDK specific types for global declaration
+import type { CoreMessage, Tool, ToolCall, FinishReason, LanguageModel, LanguageModelV1 } from 'ai'
+import type { AssistantGenerateResult, AssistantLastInteraction } from '../lib/ai.js' // Import our custom result types
+import type { z, ZodTypeAny } from 'zod'; // Import Zod types for global declaration
 
 export interface Arg {
   [key: string]: any
@@ -47,7 +51,7 @@ export interface Env {
   [key: string]: any
 }
 
-export interface Args extends Array<string> {}
+export interface Args extends Array<string> { }
 
 export type UpdateArgs = (args: string[]) => void
 
@@ -1054,7 +1058,129 @@ declare global {
   var trace: Trace
 
   type Metadata = import('./core.js').Metadata
- 
+
+  /**
+   * Simple wrapper around AI SDK for text generation with system prompts.
+   * Returns a function that takes user input and resolves to the AI's text response.
+   * #### ai example
+   * ```ts
+   * const translate = ai("Translate to French")
+   * const result = await translate("Hello world!")
+   * // Returns: "Bonjour le monde!"
+   * ```
+   * To generate structured objects, use `ai.object()`.
+   * [Examples](https://scriptkit.com?query=ai) | [Docs](https://johnlindquist.github.io/kit-docs/#ai) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=ai)
+   */
+  var ai: {
+    (systemPrompt: string, options?: {
+      model?: string | LanguageModelV1
+      temperature?: number
+      maxTokens?: number
+    }): (input: string) => Promise<string>;
+
+    /**
+     * Generates a structured JavaScript object based on a Zod schema and a prompt.
+     * #### ai.object example
+     * ```ts
+     * import { z } from 'zod';
+     * const sentimentSchema = z.object({
+     *   sentiment: z.enum(['positive', 'neutral', 'negative']),
+     *   confidence: z.number().min(0).max(1)
+     * });
+     * 
+     * const result = await ai.object(
+     *   "Analyze the sentiment of this text: 'I love programming!'", 
+     *   sentimentSchema
+     * );
+     * // result will be { sentiment: 'positive', confidence: ... }
+     * ```
+     * [Examples](https://scriptkit.com?query=ai.object) | [Docs](https://johnlindquist.github.io/kit-docs/#ai.object) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=ai.object)
+     */
+    object: <Schema extends ZodTypeAny>(
+      promptOrMessages: string | CoreMessage[],
+      schema: Schema,
+      options?: {
+        model?: string | LanguageModelV1
+        temperature?: number
+        maxTokens?: number
+        // Other generateObject-specific options could be added here
+      }
+    ) => Promise<z.infer<Schema>>;
+  }
+
+  /**
+   * Create an AI assistant that maintains conversation context and history,
+   * supports tool calling, and provides detailed interaction results.
+   * #### assistant example
+   * ```ts
+   * const chatbot = assistant("You are a helpful assistant", {
+   *   tools: {
+   *     getCurrentWeather: {
+   *       description: "Get the current weather for a location",
+   *       parameters: z.object({ location: z.string() }),
+   *       execute: async ({ location }) => ({ temperature: "..." })
+   *     }
+   *   }
+   * })
+   * 
+   * chatbot.addUserMessage("What's the weather in London?")
+   * 
+   * // Using generate for full response including tool calls
+   * const result = await chatbot.generate()
+   * if (result.toolCalls && result.toolCalls.length > 0) {
+   *   // ... handle tool calls ...
+   *   for (const toolCall of result.toolCalls) {
+   *      // ... execute tool ...
+   *      chatbot.addMessage({ 
+   *          role: 'tool', 
+   *          toolCallId: toolCall.toolCallId, 
+   *          toolName: toolCall.toolName, 
+   *          content: JSON.stringify({temperature: "15C"})
+   *      });
+   *   }
+   *   const finalResult = await chatbot.generate(); // Get response after tool execution
+   *   console.log(finalResult.text);
+   * }
+   * 
+   * // Or stream text and check lastInteraction for tool calls
+   * for await (const chunk of chatbot.textStream) {
+   *   process.stdout.write(chunk)
+   * }
+   * if (chatbot.lastInteraction?.toolCalls) {
+   *   // ... handle tool calls as above ...
+   *   chatbot.addMessage(...); // add tool results
+   *   for await (const chunk of chatbot.textStream) { // stream again
+   *      process.stdout.write(chunk)
+   *   }
+   * }
+   * 
+   * // Access conversation history (now CoreMessage[])
+   * for (const message of chatbot.messages) {
+   *   console.log(`${message.role}: ${JSON.stringify(message.content)}`)
+   * }
+   * ```
+   */
+  var assistant: (systemPrompt: string, options?: {
+    model?: string | LanguageModelV1
+    temperature?: number
+    maxTokens?: number
+    tools?: Record<string, Tool<any, any>>
+    maxSteps?: number
+    autoExecuteTools?: boolean
+  }) => {
+    addUserMessage: (content: string | any[]) => void
+    addSystemMessage: (content: string) => void
+    addAssistantMessage: (content: string | any[], toolCalls?: ToolCall<string, any>[]) => void
+    addMessage: (message: CoreMessage) => void
+    textStream: AsyncGenerator<string, void, unknown>
+    stop: () => void
+    generate: (abortSignal?: AbortSignal) => Promise<AssistantGenerateResult>
+    messages: CoreMessage[]
+    lastInteraction?: AssistantLastInteraction | null
+    get autoExecuteTools(): boolean
+    set autoExecuteTools(value: boolean)
+  }
+
   /**
    * The `metadata` object can include:
    * - `name`: Display name in Script Kit UI (defaults to filename)
@@ -1078,7 +1204,7 @@ declare global {
    * - `schedule`: Cron expression for timing
    * - `access`: REST API access level (public/key/private)
    * - `response`: Allow REST API response
-   * - `index`: Order within group### Metadata
+   * - `index`: Order within group
    * #### metadata example
    * ```ts
    *   name: "Metadata Example",
