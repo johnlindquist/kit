@@ -446,6 +446,387 @@ The `path` prompt allows you to select a file or folder from the file system. Yo
 let selectedFile = await path()
 ```
 
+## ai
+
+<!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
+
+Simple wrapper around AI SDK for text generation with system prompts. Returns a function that takes user input and resolves to the AI's text response.
+
+### Details
+
+1. The first argument is a string system prompt that defines the AI's behavior and context.
+2. Optional: The second argument is a configuration object with model, temperature, and maxTokens options.
+
+### ai Hello World
+
+```js
+const translate = ai("Translate to French")
+const result = await translate("Hello world!")
+// Returns: "Bonjour le monde!"
+```
+
+### ai with Custom Model
+
+```js
+const coder = ai("You are a helpful coding assistant", {
+  model: "gpt-4o-mini",
+  temperature: 0.3,
+  maxTokens: 500
+})
+const explanation = await coder("Explain how async/await works in JavaScript")
+```
+
+### ai with Provider Swapping
+
+```js
+import { anthropic } from '@ai-sdk/anthropic'
+
+const creative = ai("You are a creative writer", {
+  model: anthropic('claude-3-5-sonnet-20241022'),
+  temperature: 0.9
+})
+const story = await creative("Write a short story about robots")
+```
+
+**Example Script:** [`ai-basic-text-generation.js`](scripts/ai-basic-text-generation.js) | [`ai-provider-swapping.js`](scripts/ai-provider-swapping.js)
+
+## ai.object
+
+<!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
+
+Generates a structured JavaScript object based on a Zod schema and a prompt. Perfect for extracting structured data from unstructured text.
+
+### Details
+
+1. The first argument is a string prompt or array of messages.
+2. The second argument is a Zod schema that defines the expected output structure.
+3. Optional: The third argument is a configuration object with model and generation options.
+
+### ai.object Hello World
+
+```js
+import { z } from 'zod'
+
+const personSchema = z.object({
+  name: z.string(),
+  age: z.number(),
+  occupation: z.string()
+})
+
+const person = await ai.object(
+  "Extract person info: John is a 30-year-old software engineer",
+  personSchema
+)
+// Returns: { name: "John", age: 30, occupation: "software engineer" }
+```
+
+### ai.object with Complex Schema
+
+```js
+import { z } from 'zod'
+
+const sentimentSchema = z.object({
+  sentiment: z.enum(['positive', 'neutral', 'negative']),
+  confidence: z.number().min(0).max(1),
+  reasons: z.array(z.string()).describe("Specific words or phrases that indicate the sentiment")
+})
+
+const analysis = await ai.object(
+  "Analyze sentiment: I absolutely love this new product!",
+  sentimentSchema
+)
+// Returns: { sentiment: 'positive', confidence: 0.95, reasons: ['absolutely love'] }
+```
+
+**Example Script:** [`ai-object-generation.js`](scripts/ai-object-generation.js)
+
+## assistant
+
+<!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
+
+Create an AI assistant that maintains conversation context and history, supports tool calling, and provides detailed interaction results.
+
+### Details
+
+1. The first argument is a string system prompt that defines the assistant's behavior.
+2. Optional: The second argument is a configuration object with model, tools, and behavior options.
+
+### assistant Hello World
+
+```js
+const chatbot = assistant("You are a helpful assistant")
+
+chatbot.addUserMessage("Hello!")
+const response = await chatbot.generate()
+console.log(response.text) // AI's response
+```
+
+### assistant with Tools
+
+```js
+import { z } from 'zod'
+
+const helper = assistant("You are a helpful assistant", {
+  tools: {
+    getCurrentWeather: {
+      description: "Get the current weather for a location",
+      parameters: z.object({ 
+        location: z.string().describe("The city to get weather for") 
+      }),
+      execute: async ({ location }) => {
+        return `The weather in ${location} is sunny, 22°C`
+      }
+    }
+  },
+  autoExecuteTools: true
+})
+
+helper.addUserMessage("What's the weather in Paris?")
+const response = await helper.generate()
+// Tools are automatically executed and results included in response
+```
+
+### assistant with Streaming
+
+```js
+const writer = assistant("You are a creative writer")
+writer.addUserMessage("Write a short story about space exploration")
+
+// Stream text in real-time
+for await (const chunk of writer.textStream) {
+  process.stdout.write(chunk)
+}
+
+// Check for tool calls after streaming
+if (writer.lastInteraction?.toolCalls) {
+  console.log("Tools were called:", writer.lastInteraction.toolCalls)
+}
+```
+
+### assistant Conversation Management
+
+```js
+const chat = assistant("You are a helpful assistant")
+
+// Add different types of messages
+chat.addUserMessage("What is 2 + 2?")
+chat.addSystemMessage("Please be very concise")
+chat.addAssistantMessage("2 + 2 = 4")
+chat.addUserMessage("What about 3 + 3?")
+
+// Access full conversation history
+console.log(chat.messages) // Array of all messages
+
+// Generate response
+const response = await chat.generate()
+```
+
+**Example Scripts:** [`ai-assistant-with-tools.js`](scripts/ai-assistant-with-tools.js) | [`ai-streaming-example.js`](scripts/ai-streaming-example.js) | [`ai-advanced-multi-step.js`](scripts/ai-advanced-multi-step.js)
+
+## AI Practical Examples
+
+<!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
+
+Real-world applications combining multiple AI features for practical automation and analysis tasks.
+
+### AI Code Reviewer
+
+A comprehensive code review system that combines `assistant`, `ai.object`, and custom tools to analyze code quality, security, and performance.
+
+```js
+import { z } from 'zod'
+
+// Define structured output for code review
+const codeReviewSchema = z.object({
+  overallRating: z.number().min(1).max(10),
+  issues: z.array(z.object({
+    type: z.enum(['bug', 'performance', 'style', 'security']),
+    severity: z.enum(['low', 'medium', 'high', 'critical']),
+    description: z.string(),
+    suggestion: z.string()
+  })),
+  recommendations: z.array(z.string())
+})
+
+// Create AI reviewer with specialized tools
+const reviewer = assistant("Expert code reviewer", {
+  tools: {
+    checkSecurity: {
+      description: "Scan for security vulnerabilities",
+      parameters: z.object({ code: z.string() }),
+      execute: async ({ code }) => {
+        // Custom security analysis logic
+        return "Security analysis results..."
+      }
+    }
+  },
+  autoExecuteTools: true
+})
+
+// Analyze code with AI tools and structured output
+reviewer.addUserMessage(`Review this code: ${codeToReview}`)
+const analysis = await reviewer.generate()
+
+const structured = await ai.object(
+  "Create structured review based on analysis",
+  codeReviewSchema
+)
+```
+
+### Key Features Demonstrated
+
+- **Multi-Modal AI**: Combines conversational AI with structured data extraction
+- **Tool Integration**: Custom tools for specialized analysis (security, performance, complexity)
+- **Structured Output**: Zod schemas ensure consistent, typed results
+- **Real-Time Processing**: Streaming for immediate feedback
+- **Provider Flexibility**: Works with any AI provider (OpenAI, Anthropic, Google, etc.)
+
+**Example Script:** [`ai-code-reviewer.js`](scripts/ai-code-reviewer.js)
+
+## Advanced AI Examples
+
+<!-- value: https://github.com/johnlindquist/kit/blob/main/API.md -->
+
+Advanced patterns and real-world applications demonstrating sophisticated AI capabilities.
+
+### Conversation Memory and Context
+
+Maintain persistent memory across conversations and adapt responses based on learned user preferences.
+
+```js
+import { z } from 'zod'
+
+const memorySchema = z.object({
+  user_preferences: z.object({
+    communication_style: z.enum(['formal', 'casual', 'technical']),
+    topics_of_interest: z.array(z.string()),
+    preferred_response_length: z.enum(['brief', 'detailed', 'comprehensive'])
+  }),
+  user_profile: z.object({
+    name: z.string().optional(),
+    profession: z.string().optional(),
+    expertise_areas: z.array(z.string())
+  })
+})
+
+const memoryBot = assistant("You remember user preferences and adapt responses", {
+  tools: {
+    updateMemory: {
+      description: "Update what you remember about the user",
+      parameters: z.object({
+        memory_type: z.enum(['preference', 'fact', 'context']),
+        key: z.string(),
+        value: z.string()
+      }),
+      execute: async ({ memory_type, key, value }) => {
+        return `Memory updated: ${memory_type}:${key} = ${value}`
+      }
+    },
+    recallMemory: {
+      description: "Recall specific information about the user",
+      parameters: z.object({ query: z.string() }),
+      execute: async ({ query }) => {
+        // Implement memory retrieval logic
+        return "Retrieved relevant user information"
+      }
+    }
+  },
+  autoExecuteTools: true
+})
+
+// Extract conversation insights
+let memoryData = await ai.object(conversationText, memorySchema.partial())
+```
+
+### Error Handling and Recovery
+
+Implement robust error handling with graceful degradation and recovery strategies.
+
+```js
+const resilientBot = assistant("Handle errors gracefully", {
+  tools: {
+    unstableNetworkCall: {
+      description: "Network request that might fail",
+      parameters: z.object({ url: z.string() }),
+      execute: async ({ url }) => {
+        if (Math.random() < 0.5) {
+          throw new Error("Network timeout")
+        }
+        return { data: "Success", status: 200 }
+      }
+    },
+    fallbackStrategy: {
+      description: "Provide alternative when tools fail",
+      parameters: z.object({
+        failed_operation: z.string(),
+        error_details: z.string()
+      }),
+      execute: async ({ failed_operation, error_details }) => {
+        return {
+          strategy: "Use cached data or offline mode",
+          recommendation: "Alternative approach for the failed operation"
+        }
+      }
+    }
+  },
+  autoExecuteTools: true
+})
+
+// The assistant will automatically handle tool failures and provide alternatives
+resilientBot.addUserMessage("Fetch data and handle any network issues")
+const result = await resilientBot.generate()
+```
+
+### Performance Monitoring and Optimization
+
+Track performance metrics, costs, and optimize AI application efficiency.
+
+```js
+class PerformanceMonitor {
+  constructor() {
+    this.metrics = []
+  }
+  
+  recordMetrics(result) {
+    return {
+      tokens: result.usage?.totalTokens || 0,
+      cost: this.calculateCost(result.usage),
+      duration: Date.now() - this.startTime
+    }
+  }
+  
+  calculateCost(usage) {
+    const inputCost = (usage.promptTokens / 1000) * 0.0025
+    const outputCost = (usage.completionTokens / 1000) * 0.010
+    return inputCost + outputCost
+  }
+}
+
+const monitor = new PerformanceMonitor()
+const optimizedBot = assistant("Performance-aware assistant", {
+  tools: {
+    analyzePerformance: {
+      description: "Analyze metrics and suggest optimizations",
+      parameters: z.object({ metrics_data: z.string() }),
+      execute: async ({ metrics_data }) => {
+        const metrics = JSON.parse(metrics_data)
+        return {
+          suggestions: ["Optimize prompts", "Use faster model for simple tasks"],
+          efficiency: metrics.tokens_per_second > 50 ? "Good" : "Needs improvement"
+        }
+      }
+    }
+  }
+})
+
+// Monitor performance across requests
+monitor.startTracking()
+const result = await optimizedBot.generate()
+const metrics = monitor.recordMetrics(result)
+```
+
+**Example Scripts:** [`ai-conversation-memory.js`](scripts/ai-conversation-memory.js) | [`ai-error-recovery.js`](scripts/ai-error-recovery.js) | [`ai-performance-monitoring.js`](scripts/ai-performance-monitoring.js)
+
 ## Missing Something?
 
 <!-- enter: Update Docs -->

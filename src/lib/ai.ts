@@ -10,7 +10,11 @@ import type {
     ToolCallPart,
     ToolExecutionOptions // For tool execution context
 } from 'ai';
-import { z } from 'zod'; // Import Zod
+// Import zod types for TypeScript compilation (runtime uses global z)
+import type { ZodTypeAny, infer as ZodInfer } from 'zod';
+
+// Import globals to ensure z is available
+import '../api/global.js';
 
 // Interface for injectable SDK functions for testability
 interface InjectedSdk {
@@ -66,11 +70,11 @@ interface AssistantInstance {
 
 // Type for the generateObject function we'll add to global.ai
 interface AiGenerateObject {
-    <Schema extends z.ZodTypeAny>(
+    <Schema extends ZodTypeAny>(
         promptOrMessages: string | CoreMessage[],
         schema: Schema,
         options?: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'>
-    ): Promise<z.infer<Schema>>;
+    ): Promise<ZodInfer<Schema>>;
 }
 
 // Existing global.ai structure (function returning an input handler)
@@ -106,12 +110,12 @@ const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOpti
 global.ai = aiPoweredInputHandlerFactory as AiGlobal;
 
 // Implementation for global.ai.object
-const generateObjectFunction = async <Schema extends z.ZodTypeAny>(
+const generateObjectFunction = async <Schema extends ZodTypeAny>(
     promptOrMessages: string | CoreMessage[],
     schema: Schema,
     options: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'> = {},
     sdk: Pick<InjectedSdk, 'generateObject'> = aiSdk // Inject only generateObject
-): Promise<z.infer<Schema>> => {
+): Promise<ZodInfer<Schema>> => {
     const { model = 'gpt-4o', temperature, maxTokens } = options;
     const resolvedModel: LanguageModelV1 = typeof model === 'string' ? openai(model) : model as LanguageModelV1;
 

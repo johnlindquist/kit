@@ -20,7 +20,7 @@ import type { ConfigOptions, Options } from 'quick-score'
 // Import AI SDK specific types for global declaration
 import type { CoreMessage, Tool, ToolCall, FinishReason, LanguageModel, LanguageModelV1 } from 'ai'
 import type { AssistantGenerateResult, AssistantLastInteraction } from '../lib/ai.js' // Import our custom result types
-import type { z, ZodTypeAny } from 'zod'; // Import Zod types for global declaration
+import type { ZodTypeAny } from 'zod'; // Import Zod types for global declaration
 
 export interface Arg {
   [key: string]: any
@@ -1215,4 +1215,19 @@ declare global {
    * [Examples](https://scriptkit.com?query=metadata) | [Docs](https://johnlindquist.github.io/kit-docs/#metadata) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=metadata)
    */
   var metadata: Metadata
+
+  /**
+   * Zod schema validation library. Create and validate data schemas.
+   * #### z example
+   * ```ts
+   * const UserSchema = z.object({
+   *   name: z.string(),
+   *   age: z.number().min(18)
+   * });
+   * 
+   * const user = UserSchema.parse({ name: "John", age: 25 });
+   * ```
+   * [Examples](https://scriptkit.com?query=z) | [Docs](https://johnlindquist.github.io/kit-docs/#z) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=z)
+   */
+  var z: typeof import('zod').z
 }
