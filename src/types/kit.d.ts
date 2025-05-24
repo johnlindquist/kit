@@ -1182,6 +1182,35 @@ declare global {
   }
 
   /**
+   * Generates a structured JavaScript object based on a Zod schema and a prompt.
+   * This is the standalone version of ai.object() available as a global function.
+   * #### generate example
+   * ```ts
+   * import { z } from 'zod';
+   * const sentimentSchema = z.object({
+   *   sentiment: z.enum(['positive', 'neutral', 'negative']),
+   *   confidence: z.number().min(0).max(1)
+   * });
+   * 
+   * const result = await generate(
+   *   "Analyze the sentiment of this text: 'I love programming!'", 
+   *   sentimentSchema
+   * );
+   * // result will be { sentiment: 'positive', confidence: ... }
+   * ```
+   * [Examples](https://scriptkit.com?query=generate) | [Docs](https://johnlindquist.github.io/kit-docs/#generate) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=generate)
+   */
+  var generate: <Schema extends ZodTypeAny>(
+    promptOrMessages: string | CoreMessage[],
+    schema: Schema,
+    options?: {
+      model?: string | LanguageModelV1
+      temperature?: number
+      maxTokens?: number
+    }
+  ) => Promise<z.infer<Schema>>
+
+  /**
    * The `metadata` object can include:
    * - `name`: Display name in Script Kit UI (defaults to filename)
    * - `author`: Creator's name

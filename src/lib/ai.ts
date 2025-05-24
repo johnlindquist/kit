@@ -68,6 +68,15 @@ interface AssistantInstance {
     set autoExecuteTools(value: boolean) // Setter
 }
 
+// Type for the generateObject function we'll add as global.generate
+interface GlobalGenerate {
+    <Schema extends ZodTypeAny>(
+        promptOrMessages: string | CoreMessage[],
+        schema: Schema,
+        options?: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'>
+    ): Promise<ZodInfer<Schema>>;
+}
+
 // Type for the generateObject function we'll add to global.ai
 interface AiGenerateObject {
     <Schema extends ZodTypeAny>(
@@ -109,7 +118,7 @@ const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOpti
 // Re-assign to global.ai with the extended AiGlobal interface
 global.ai = aiPoweredInputHandlerFactory as AiGlobal;
 
-// Implementation for global.ai.object
+// Implementation for global.generate and global.ai.object
 const generateObjectFunction = async <Schema extends ZodTypeAny>(
     promptOrMessages: string | CoreMessage[],
     schema: Schema,
@@ -141,7 +150,11 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
     }
 };
 
-// Assign the .object function to the existing global.ai
+// Assign the global.generate function
+global.generate = (promptOrMessages, schema, options) =>
+    generateObjectFunction(promptOrMessages, schema, options, aiSdk);
+
+// Assign the .object function to the existing global.ai for backward compatibility
 if (global.ai) {
     (global.ai as AiGlobal).object = (promptOrMessages, schema, options) =>
         generateObjectFunction(promptOrMessages, schema, options, aiSdk);
@@ -149,6 +162,14 @@ if (global.ai) {
 
 // Export for testing with SDK injection
 export const __test_generate_object_with_sdk = generateObjectFunction;
+
+// Export for testing the global generate function with SDK injection
+export const __test_global_generate_with_sdk = (
+    promptOrMessages: string | CoreMessage[],
+    schema: ZodTypeAny,
+    options: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'> = {},
+    sdk: Pick<InjectedSdk, 'generateObject'> = aiSdk
+) => generateObjectFunction(promptOrMessages, schema, options, sdk);
 
 // Internal function to create assistant instance, allowing SDK injection for tests
 const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}, sdkForTest?: InjectedSdk): AssistantInstance => {

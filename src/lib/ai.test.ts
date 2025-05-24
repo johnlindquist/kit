@@ -13,7 +13,7 @@ import type {
 // import * as aiSdkApi from './ai-sdk-api.js'; // Not directly mocking aiSdkApi for these tests
 
 // Import the specific function we want to use for testing with injected SDKs
-import { __test_assistant_with_sdk, __test_generate_object_with_sdk } from './ai.js'
+import { __test_assistant_with_sdk, __test_generate_object_with_sdk, __test_global_generate_with_sdk } from './ai.js'
 import './ai.js' // This ensures global.ai is set up
 
 let mockGenerateText: sinon.SinonStub<any[], Promise<any>>;
@@ -1524,4 +1524,187 @@ test.serial('conversation context: context switching between different topics', 
     t.is(conversation[3].content, "To make pasta, boil water and add salt");
     t.is(conversation[4].content, "What did I ask about earlier?");
     t.is(conversation[5].content, "Earlier you asked about 2 + 2, which equals 4, and pasta cooking.");
+});
+
+// --- global.generate Tests ---
+
+test.serial('global.generate (injected) should call injected generateObject and return parsed object', async t => {
+    const expectedObject: Sentiment = {
+        sentiment: 'positive',
+        confidence: 0.95,
+        reasoning: "The user expressed clear happiness."
+    };
+    const mockSdkResult: GenerateObjectResult<Sentiment> = {
+        object: expectedObject,
+        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
+        finishReason: 'stop',
+        response: undefined,
+        warnings: undefined,
+        logprobs: undefined
+    };
+    mockGenerateObject.resolves(mockSdkResult);
+
+    const prompt = "This is a great day!";
+    const options = { model: mockLanguageModel, temperature: 0.5 };
+
+    const result = await __test_global_generate_with_sdk(
+        prompt,
+        sentimentSchema,
+        options,
+        { generateObject: mockGenerateObject }
+    );
+
+    t.true(mockGenerateObject.calledOnce);
+    const generateObjectCallArgs = mockGenerateObject.getCall(0).args[0];
+    t.deepEqual(generateObjectCallArgs.messages, [{ role: 'user', content: prompt }]);
+    t.is(generateObjectCallArgs.schema, sentimentSchema);
+    t.is(generateObjectCallArgs.model, mockLanguageModel);
+    t.is(generateObjectCallArgs.temperature, 0.5);
+
+    t.deepEqual(result, expectedObject);
+});
+
+test.serial('global.generate (injected) should handle CoreMessage array input', async t => {
+    const expectedObject: Sentiment = { sentiment: 'negative', confidence: 0.88 };
+    const mockSdkResult: GenerateObjectResult<Sentiment> = {
+        object: expectedObject,
+        usage: { promptTokens: 15, completionTokens: 10, totalTokens: 25 },
+        finishReason: 'stop',
+        response: undefined,
+        warnings: undefined,
+        logprobs: undefined
+    };
+    mockGenerateObject.resolves(mockSdkResult);
+
+    const messages: CoreMessage[] = [
+        { role: 'system', content: "You are a sentiment analyzer." },
+        { role: 'user', content: "I am very unhappy with the service." }
+    ];
+    const options = { model: mockLanguageModel };
+
+    const result = await __test_global_generate_with_sdk(
+        messages,
+        sentimentSchema,
+        options,
+        { generateObject: mockGenerateObject }
+    );
+
+    t.true(mockGenerateObject.calledOnce);
+    const generateObjectCallArgs = mockGenerateObject.getCall(0).args[0];
+    t.deepEqual(generateObjectCallArgs.messages, messages);
+    t.deepEqual(result, expectedObject);
+});
+
+test.serial('global.generate (injected) should throw if sdk.generateObject throws', async t => {
+    const errorMessage = "SDK exploded";
+    mockGenerateObject.rejects(new Error(errorMessage));
+
+    const prompt = "Analyze this.";
+
+    await t.throwsAsync(
+        async () => {
+            await __test_global_generate_with_sdk(
+                prompt,
+                sentimentSchema,
+                { model: mockLanguageModel },
+                { generateObject: mockGenerateObject }
+            );
+        },
+        { instanceOf: Error, message: `AI object generation failed: ${errorMessage}` }
+    );
+});
+
+test.serial('global.generate should be available and callable (integration smoke test)', async t => {
+    t.is(typeof global.generate, 'function');
+    t.pass("global.generate is defined. Deeper integration test would require effective global mocks or live API call.");
+});
+
+test.serial('global.generate: complex nested schema with validation', async t => {
+    const complexSchema = z.object({
+        metadata: z.object({
+            author: z.string(),
+            version: z.string(),
+            timestamp: z.string()
+        }),
+        analysis: z.object({
+            sentiment: z.enum(['positive', 'neutral', 'negative']),
+            confidence: z.number().min(0).max(1),
+            keywords: z.array(z.string()),
+            categories: z.array(z.enum(['technical', 'business', 'personal']))
+        }),
+        recommendations: z.array(z.object({
+            action: z.string(),
+            priority: z.enum(['low', 'medium', 'high']),
+            estimatedTime: z.string()
+        }))
+    });
+
+    const complexObject = {
+        metadata: {
+            author: "AI Assistant Global",
+            version: "2.0",
+            timestamp: "2024-01-01T00:00:00Z"
+        },
+        analysis: {
+            sentiment: 'positive' as const,
+            confidence: 0.92,
+            keywords: ['innovation', 'efficiency', 'growth', 'global'],
+            categories: ['technical' as const, 'business' as const]
+        },
+        recommendations: [
+            {
+                action: "Implement global generate function",
+                priority: 'high' as const,
+                estimatedTime: "1 week"
+            },
+            {
+                action: "Update documentation",
+                priority: 'medium' as const,
+                estimatedTime: "3 days"
+            }
+        ]
+    };
+
+    const mockResult: GenerateObjectResult<typeof complexObject> = {
+        object: complexObject,
+        usage: { promptTokens: 60, completionTokens: 120, totalTokens: 180 },
+        finishReason: 'stop',
+        response: undefined,
+        warnings: undefined,
+        logprobs: undefined
+    };
+
+    mockGenerateObject.resolves(mockResult);
+
+    const result = await __test_global_generate_with_sdk(
+        "Analyze this development proposal and provide structured recommendations for the global generate function",
+        complexSchema,
+        { model: mockLanguageModel, temperature: 0.1 },
+        { generateObject: mockGenerateObject }
+    );
+
+    // Verify complex structure
+    t.is(result.metadata.author, "AI Assistant Global");
+    t.is(result.metadata.version, "2.0");
+    t.is(result.analysis.sentiment, 'positive');
+    t.is(result.analysis.confidence, 0.92);
+    t.is(result.analysis.keywords.length, 4);
+    t.true(result.analysis.keywords.includes('global'));
+    t.is(result.recommendations.length, 2);
+    t.is(result.recommendations[0].action, "Implement global generate function");
+    t.is(result.recommendations[0].priority, 'high');
+
+    // Verify call parameters
+    const callArgs = mockGenerateObject.getCall(0).args[0];
+    t.is(callArgs.temperature, 0.1);
+    t.is(callArgs.schema, complexSchema);
+});
+
+// Test backward compatibility - both global.generate and ai.object should work
+test.serial('backward compatibility: both global.generate and ai.object should be available', async t => {
+    t.is(typeof global.generate, 'function', 'global.generate should be available');
+    t.is(typeof global.ai.object, 'function', 'ai.object should still be available for backward compatibility');
+
+    // Both should reference the same underlying functionality
+    t.pass("Both global.generate and ai.object are available for usage");
 }); 
