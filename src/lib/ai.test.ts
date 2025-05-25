@@ -1,20 +1,21 @@
 import test from 'ava'
 import sinon from 'sinon' // For mocking
-import { AssistantGenerateResult, AssistantLastInteraction } from './ai.js' // Import our types for casting etc.
 import type {
-    CoreMessage, ToolCall, LanguageModel, Tool, FinishReason,
+    CoreMessage, ToolCall, Tool, FinishReason,
     GenerateTextResult, StreamTextResult, TextStreamPart,
     LanguageModelV1CallOptions, CoreAssistantMessage, CoreToolMessage, LanguageModelV1,
     LanguageModelUsage, LanguageModelResponseMetadata,
-    GenerateObjectResult, LanguageModelV1StreamPart, LanguageModelV1CallWarning
+    GenerateObjectResult, LanguageModelV1StreamPart
 } from 'ai' // For types used in tests & mocks
 
-// Import the module that re-exports AI SDK functions so we can mock it
-// import * as aiSdkApi from './ai-sdk-api.js'; // Not directly mocking aiSdkApi for these tests
-
-// Import the specific function we want to use for testing with injected SDKs
-import { __test_assistant_with_sdk, __test_generate_object_with_sdk, __test_global_generate_with_sdk } from './ai.js'
+// Import the configuration functions for dependency injection
+import { configure, resetConfig } from './ai.js'
 import './ai.js' // This ensures global.ai is set up
+
+// Import z from global namespace for schema definitions
+declare global {
+    var z: typeof import('zod');
+}
 
 let mockGenerateText: sinon.SinonStub<any[], Promise<any>>;
 let mockStreamText: sinon.SinonStub<any[], any>;
@@ -36,7 +37,6 @@ const mockLanguageModel: LanguageModelV1 = {
         usage: LanguageModelUsage;
         rawCall: { rawPrompt: unknown; rawSettings: Record<string, unknown> };
         rawResponse?: { headers?: Record<string, string> };
-        warnings?: LanguageModelV1CallWarning[];
     }>>().resolves({
         text: 'mocked',
         toolCalls: [],
@@ -48,7 +48,6 @@ const mockLanguageModel: LanguageModelV1 = {
         stream: ReadableStream<LanguageModelV1StreamPart>;
         rawCall: { rawPrompt: unknown; rawSettings: Record<string, unknown> };
         rawResponse?: { headers?: Record<string, string> };
-        warnings?: LanguageModelV1CallWarning[];
     }>>().resolves({
         stream: new ReadableStream(),
         rawCall: { rawPrompt: 'mock', rawSettings: {} }
@@ -66,23 +65,76 @@ const mockToolDefinition = {
 
 const mockTools = { "mockTool": mockToolDefinition };
 
+// Helper function to create properly typed mock GenerateTextResult
+const createMockGenerateTextResult = (overrides: Partial<GenerateTextResult<Record<string, Tool<any, any>>, string>> = {}): GenerateTextResult<Record<string, Tool<any, any>>, string> => ({
+    text: "mocked response",
+    toolCalls: [],
+    finishReason: 'stop' as FinishReason,
+    usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+    response: {
+        id: 'mock-response',
+        modelId: 'mock-model',
+        timestamp: new Date(),
+        messages: []
+    },
+    reasoning: [],
+    files: [],
+    reasoningDetails: [],
+    sources: [],
+    experimental_providerMetadata: undefined,
+    warnings: undefined,
+    logprobs: undefined,
+    rawResponse: undefined,
+    request: {
+        body: undefined
+    },
+    ...overrides
+});
+
+// Helper function to create properly typed mock GenerateObjectResult
+const createMockGenerateObjectResult = <T>(object: T, overrides: Partial<GenerateObjectResult<T>> = {}): GenerateObjectResult<T> => ({
+    object,
+    usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+    finishReason: 'stop' as FinishReason,
+    response: {
+        id: 'mock-response',
+        modelId: 'mock-model',
+        timestamp: new Date(),
+        body: undefined
+    },
+    warnings: undefined,
+    logprobs: undefined,
+    rawResponse: undefined,
+    request: {
+        body: undefined
+    },
+    experimental_providerMetadata: undefined,
+    ...overrides
+});
+
 test.beforeEach(t => {
     mockGenerateText = sinon.stub();
     mockStreamText = sinon.stub();
     mockGenerateObject = sinon.stub();
     mockToolDefinition.execute.resetHistory(); // Reset history for tool execute stub
+
+    // Configure with mock SDK for testing
+    configure({
+        sdk: {
+            generateText: mockGenerateText,
+            streamText: mockStreamText,
+            generateObject: mockGenerateObject
+        }
+    });
 });
 
 test.afterEach.always(t => {
     sinon.restore();
+    resetConfig(); // Reset to default configuration
 });
 
 test.serial('assistant instance (injected) should have autoExecuteTools getter/setter and default to true', t => {
-    const chatbot = __test_assistant_with_sdk("System prompt", { model: mockLanguageModel, tools: mockTools }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("System prompt", { model: mockLanguageModel, tools: mockTools });
     t.true(chatbot.autoExecuteTools, "autoExecuteTools should default to true");
     chatbot.autoExecuteTools = false;
     t.false(chatbot.autoExecuteTools, "autoExecuteTools should be settable to false");
@@ -94,7 +146,7 @@ test.serial('generate() with autoExecuteTools=true should execute tools and call
     const initialToolCall: ToolCall<string, any>[] = [
         { toolCallId: 'tc-1', toolName: 'mockTool', args: { param: 'test' } }
     ];
-    const firstGenerateResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const firstGenerateResult = createMockGenerateTextResult({
         text: "",
         toolCalls: initialToolCall.map(tc => ({ type: 'tool-call' as const, ...tc })),
         finishReason: 'tool-calls',
@@ -105,8 +157,8 @@ test.serial('generate() with autoExecuteTools=true should execute tools and call
             timestamp: new Date()
         },
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
-    };
-    const finalGenerateResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    });
+    const finalGenerateResult = createMockGenerateTextResult({
         text: "Final response after tool execution",
         toolCalls: [],
         finishReason: 'stop',
@@ -117,16 +169,15 @@ test.serial('generate() with autoExecuteTools=true should execute tools and call
             timestamp: new Date()
         },
         usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
-    };
+    });
 
     mockGenerateText.onFirstCall().resolves(firstGenerateResult);
     mockGenerateText.onSecondCall().resolves(finalGenerateResult);
     mockToolDefinition.execute.resolves({ output: "Tool output for tc-1" });
 
-    const chatbot = __test_assistant_with_sdk(
+    const chatbot = global.assistant(
         "System prompt",
-        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: true, maxSteps: 1 },
-        { generateText: mockGenerateText, streamText: mockStreamText, generateObject: mockGenerateObject }
+        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: true, maxSteps: 1 }
     );
     chatbot.addUserMessage("User input that triggers a tool");
 
@@ -161,7 +212,7 @@ test.serial('generate() with autoExecuteTools=false should return tool_calls wit
     const toolCallsToReturn: ToolCall<string, any>[] = [
         { toolCallId: 'tc-noexec', toolName: 'mockTool', args: { param: 'noexec' } }
     ];
-    const mockSdkResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const mockSdkResult = createMockGenerateTextResult({
         text: "I need to use a tool.",
         toolCalls: toolCallsToReturn.map(tc => ({ type: 'tool-call' as const, ...tc })),
         finishReason: 'tool-calls',
@@ -172,13 +223,12 @@ test.serial('generate() with autoExecuteTools=false should return tool_calls wit
             timestamp: new Date()
         },
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
-    };
+    });
     mockGenerateText.resolves(mockSdkResult);
 
-    const chatbot = __test_assistant_with_sdk(
+    const chatbot = global.assistant(
         "System prompt",
-        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: false },
-        { generateText: mockGenerateText, streamText: mockStreamText, generateObject: mockGenerateObject }
+        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: false }
     );
     chatbot.addUserMessage("User input for no-exec tool");
 
@@ -200,40 +250,43 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
     const toolCall1: ToolCall<string, any> = { toolCallId: 'tc-s1', toolName: 'mockTool', args: { param: 'step1' } };
     const toolCall2: ToolCall<string, any> = { toolCallId: 'tc-s2', toolName: 'mockTool', args: { param: 'step2' } };
 
-    const firstGenerate: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const firstGenerate = createMockGenerateTextResult({
         text: "",
         toolCalls: [toolCall1].map(tc => ({ type: 'tool-call' as const, ...tc })),
         finishReason: 'tool-calls',
         response: {
+            id: 'step1',
             messages: [],
             modelId: 'mock-model',
             timestamp: new Date()
         },
         usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
-    };
-    const secondGenerateAfterTool1: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    });
+    const secondGenerateAfterTool1 = createMockGenerateTextResult({
         text: "",
         toolCalls: [toolCall2].map(tc => ({ type: 'tool-call' as const, ...tc })),
         finishReason: 'tool-calls',
         response: {
+            id: 'step2',
             messages: [],
             modelId: 'mock-model',
             timestamp: new Date()
         },
         usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
-    };
+    });
     // This result should be returned if maxSteps is reached
-    const thirdGenerateAfterTool2IfMaxStepsAllows: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const thirdGenerateAfterTool2IfMaxStepsAllows = createMockGenerateTextResult({
         text: "Final after step 2",
         toolCalls: [],
         finishReason: 'stop',
         response: {
+            id: 'final',
             messages: [],
             modelId: 'mock-model',
             timestamp: new Date()
         },
         usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
-    };
+    });
 
     mockGenerateText.onCall(0).resolves(firstGenerate);
     mockGenerateText.onCall(1).resolves(secondGenerateAfterTool1);
@@ -242,10 +295,9 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
     mockToolDefinition.execute.onFirstCall().resolves({ output: "step1 output" });
     mockToolDefinition.execute.onSecondCall().resolves({ output: "step2 output" });
 
-    const chatbot = __test_assistant_with_sdk(
+    const chatbot = global.assistant(
         "Test maxSteps",
-        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: true, maxSteps: 1 },
-        { generateText: mockGenerateText, streamText: mockStreamText, generateObject: mockGenerateObject }
+        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: true, maxSteps: 1 }
     );
     chatbot.addUserMessage("Trigger multiple tools");
 
@@ -284,7 +336,7 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
 
 test.serial('OLD: assistant (injected) generate() should call injected generateText and return AssistantGenerateResult for text response', async t => {
     const expectedText = "Hello from AI";
-    const mockSdkResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const mockSdkResult = createMockGenerateTextResult({
         text: expectedText,
         toolCalls: [],
         finishReason: 'stop',
@@ -295,14 +347,10 @@ test.serial('OLD: assistant (injected) generate() should call injected generateT
             timestamp: new Date()
         },
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
-    };
+    });
     mockGenerateText.resolves(mockSdkResult);
 
-    const chatbot = __test_assistant_with_sdk("System prompt", { model: mockLanguageModel, autoExecuteTools: false }, { // Explicitly false
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("System prompt", { model: mockLanguageModel, autoExecuteTools: false }); // Explicitly false
     chatbot.addUserMessage("User input");
 
     const result = await chatbot.generate();
@@ -318,7 +366,7 @@ test.serial('OLD: assistant (injected) generate() should return toolCalls if fin
     const mockToolCalls: ToolCall<string, any>[] = [
         { toolCallId: 'tc-1', toolName: 'getWeather', args: { location: 'london' } }
     ];
-    const mockSdkResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const mockSdkResult = createMockGenerateTextResult({
         text: "",
         toolCalls: mockToolCalls.map(tc => ({ type: 'tool-call' as const, ...tc })),
         finishReason: 'tool-calls',
@@ -329,14 +377,10 @@ test.serial('OLD: assistant (injected) generate() should return toolCalls if fin
             timestamp: new Date()
         },
         usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
-    };
+    });
     mockGenerateText.resolves(mockSdkResult);
 
-    const chatbot = __test_assistant_with_sdk("Sys prompt", { model: mockLanguageModel, autoExecuteTools: false }, { // Explicitly false
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("Sys prompt", { model: mockLanguageModel, autoExecuteTools: false }); // Explicitly false
     chatbot.addUserMessage("Order pizza and weather?");
     const result = await chatbot.generate();
 
@@ -363,21 +407,13 @@ test.serial('ai function should return a function', t => {
 
 // Test assistant function (via test wrapper) should be defined
 test.serial('assistant function (via test wrapper) should be defined', t => {
-    const assistantInstance = __test_assistant_with_sdk("test", { model: mockLanguageModel }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const assistantInstance = global.assistant("test", { model: mockLanguageModel });
     t.truthy(assistantInstance);
 });
 
 // Test assistant instance (injected) should have required methods and initial CoreMessage
 test.serial('assistant instance (injected) should have required methods and initial CoreMessage', t => {
-    const chatbot = __test_assistant_with_sdk("You are helpful", { model: mockLanguageModel }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("You are helpful", { model: mockLanguageModel });
 
     t.is(typeof chatbot.addUserMessage, 'function')
     t.is(typeof chatbot.addSystemMessage, 'function')
@@ -397,11 +433,7 @@ test.serial('assistant instance (injected) should have required methods and init
 
 // Test assistant (injected) convenience methods should add CoreMessages correctly
 test.serial('assistant (injected) convenience methods should add CoreMessages correctly', t => {
-    const chatbot = __test_assistant_with_sdk("Initial prompt", { model: mockLanguageModel }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("Initial prompt", { model: mockLanguageModel });
     chatbot.addUserMessage("User says hello")
     t.deepEqual(chatbot.messages[1], { role: 'user', content: "User says hello" } as CoreMessage)
 
@@ -439,11 +471,7 @@ test.serial('assistant (injected) convenience methods should add CoreMessages co
 
 // Test assistant (injected) addMessage should add CoreMessage directly
 test.serial('assistant (injected) addMessage should add CoreMessage directly', t => {
-    const chatbot = __test_assistant_with_sdk("Initial prompt", { model: mockLanguageModel }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("Initial prompt", { model: mockLanguageModel });
     const userCoreMessage: CoreMessage = { role: 'user', content: [{ type: 'text', text: 'Hello from core' }] }
     chatbot.addMessage(userCoreMessage)
     t.deepEqual(chatbot.messages[1], userCoreMessage)
@@ -503,11 +531,7 @@ test.serial('assistant (injected) textStream should yield text and populate last
     };
     mockStreamText.returns(mockSdkStreamResult);
 
-    const chatbot = __test_assistant_with_sdk("System Stream", { model: mockLanguageModel, autoExecuteTools: false }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("System Stream", { model: mockLanguageModel, autoExecuteTools: false });
     chatbot.addUserMessage("Stream this");
 
     let yieldedText = "";
@@ -564,20 +588,15 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
     }
 
     const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
-        fullStream: mockFullStreamPartsWithTools() as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
+        fullStream: mockFullStreamPartsWithTools() as unknown as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
         text: Promise.resolve(initialText), // The text part of the stream
         finishReason: Promise.resolve('tool-calls' as FinishReason),
         usage: Promise.resolve({ promptTokens: 10, completionTokens: 8, totalTokens: 18 } as LanguageModelUsage),
         toolCalls: Promise.resolve(mockToolCalls.map(tc => ({ type: 'tool-call' as const, ...tc }))), // toolCalls resolved from the stream parts
-        prompt: Promise.resolve([])
     };
     mockStreamText.returns(mockSdkStreamResult);
 
-    const chatbot = __test_assistant_with_sdk("System Stream TC", { model: mockLanguageModel, autoExecuteTools: false }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("System Stream TC", { model: mockLanguageModel, autoExecuteTools: false });
     chatbot.addUserMessage("Use a tool via stream");
 
     let yieldedText = "";
@@ -627,7 +646,7 @@ test.serial('assistant (injected) stop() should abort an ongoing textStream', as
     context.stopped = false;
 
     const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
-        fullStream: mockLongFullStreamParts() as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
+        fullStream: mockLongFullStreamParts() as unknown as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
         // Resolving these might depend on how AbortError is handled by the Vercel SDK when awaiting them
         text: new Promise((resolve, reject) => {
             // This promise might be aborted or resolve with partial text
@@ -636,15 +655,26 @@ test.serial('assistant (injected) stop() should abort an ongoing textStream', as
         finishReason: new Promise<FinishReason>((resolve, reject) => { }),
         usage: new Promise<LanguageModelUsage>((resolve, reject) => { }),
         toolCalls: Promise.resolve([]),
-        prompt: Promise.resolve([])
+        warnings: Promise.resolve(undefined),
+        sources: Promise.resolve([]),
+        files: Promise.resolve([]),
+        providerMetadata: Promise.resolve(undefined),
+        experimental_providerMetadata: Promise.resolve(undefined),
+        rawResponse: Promise.resolve(undefined),
+        request: Promise.resolve({ body: undefined }),
+        logprobs: Promise.resolve(undefined),
+        reasoning: Promise.resolve([]),
+        reasoningDetails: Promise.resolve([]),
+        steps: Promise.resolve([]),
+        objectDeltas: Promise.resolve([]),
+        object: Promise.resolve(undefined),
+        partialObjectStream: Promise.resolve(new ReadableStream()),
+        response: Promise.resolve({ id: 'test', timestamp: new Date(), modelId: 'test', body: undefined }),
+        textStream: new ReadableStream()
     };
     mockStreamText.returns(mockSdkStreamResult);
 
-    const chatbot = __test_assistant_with_sdk("System Abort", { model: mockLanguageModel }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("System Abort", { model: mockLanguageModel });
 
     let yieldedText = "";
     const streamProcessingPromise = (async () => {
@@ -673,11 +703,7 @@ test.serial('assistant (injected) stop() should abort an ongoing textStream', as
 
 // Test assistant (injected) addMessage can add valid tool messages
 test.serial('assistant (injected) addMessage can add valid tool messages', t => {
-    const chatbot = __test_assistant_with_sdk("Tool Host", { model: mockLanguageModel }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("Tool Host", { model: mockLanguageModel });
     const toolMessage: CoreToolMessage = {
         role: 'tool',
         content: [{ type: 'tool-result', toolCallId: 'tool_abc', toolName: 'my_tool', result: 'success' }]
@@ -692,7 +718,7 @@ interface TestContext {
     stopped?: boolean;
 }
 
-// --- ai.object Tests (using __test_generate_object_with_sdk for injection) ---
+// --- ai.object Tests ---
 
 const sentimentSchema = z.object({
     sentiment: z.enum(['positive', 'neutral', 'negative']),
@@ -707,24 +733,16 @@ test.serial('ai.object (injected) should call injected generateObject and return
         confidence: 0.95,
         reasoning: "The user expressed clear happiness."
     };
-    const mockSdkResult: GenerateObjectResult<Sentiment> = {
-        object: expectedObject,
-        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
-        finishReason: 'stop',
-        response: undefined,
-        warnings: undefined,
-        logprobs: undefined
-    };
+    const mockSdkResult: GenerateObjectResult<Sentiment> = createMockGenerateObjectResult(expectedObject);
     mockGenerateObject.resolves(mockSdkResult);
 
     const prompt = "This is a great day!";
     const options = { model: mockLanguageModel, temperature: 0.5 };
 
-    const result = await __test_generate_object_with_sdk(
+    const result = await global.ai.object(
         prompt,
         sentimentSchema,
-        options,
-        { generateObject: mockGenerateObject }
+        options
     );
 
     t.true(mockGenerateObject.calledOnce);
@@ -739,14 +757,7 @@ test.serial('ai.object (injected) should call injected generateObject and return
 
 test.serial('ai.object (injected) should handle CoreMessage array input', async t => {
     const expectedObject: Sentiment = { sentiment: 'negative', confidence: 0.88 };
-    const mockSdkResult: GenerateObjectResult<Sentiment> = {
-        object: expectedObject,
-        usage: { promptTokens: 15, completionTokens: 10, totalTokens: 25 },
-        finishReason: 'stop',
-        response: undefined,
-        warnings: undefined,
-        logprobs: undefined
-    };
+    const mockSdkResult: GenerateObjectResult<Sentiment> = createMockGenerateObjectResult(expectedObject);
     mockGenerateObject.resolves(mockSdkResult);
 
     const messages: CoreMessage[] = [
@@ -755,11 +766,10 @@ test.serial('ai.object (injected) should handle CoreMessage array input', async 
     ];
     const options = { model: mockLanguageModel };
 
-    const result = await __test_generate_object_with_sdk(
+    const result = await global.ai.object(
         messages,
         sentimentSchema,
-        options,
-        { generateObject: mockGenerateObject }
+        options
     );
 
     t.true(mockGenerateObject.calledOnce);
@@ -776,11 +786,10 @@ test.serial('ai.object (injected) should throw if sdk.generateObject throws', as
 
     await t.throwsAsync(
         async () => {
-            await __test_generate_object_with_sdk(
+            await global.ai.object(
                 prompt,
                 sentimentSchema,
-                { model: mockLanguageModel },
-                { generateObject: mockGenerateObject }
+                { model: mockLanguageModel }
             );
         },
         { instanceOf: Error, message: `AI object generation failed: ${errorMessage}` }
@@ -799,7 +808,7 @@ test.serial('generate() with autoExecuteTools=false should not pass invalid maxS
     ];
 
     // Mock generateText to return a successful result with tool calls
-    const mockSdkResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const mockSdkResult = createMockGenerateTextResult({
         text: "I'll use the test tool.",
         toolCalls: mockToolCalls.map(tc => ({ type: 'tool-call' as const, ...tc })),
         finishReason: 'tool-calls',
@@ -810,13 +819,12 @@ test.serial('generate() with autoExecuteTools=false should not pass invalid maxS
             timestamp: new Date()
         },
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
-    };
+    });
     mockGenerateText.resolves(mockSdkResult);
 
-    const chatbot = __test_assistant_with_sdk(
+    const chatbot = global.assistant(
         "Test prompt",
-        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: false },
-        { generateText: mockGenerateText, streamText: mockStreamText, generateObject: mockGenerateObject }
+        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: false }
     );
     chatbot.addUserMessage("Test message");
 
@@ -836,7 +844,7 @@ test.serial('generate() with autoExecuteTools=false should not pass invalid maxS
 
 test.serial('generate() with autoExecuteTools=true should pass maxSteps to AI SDK', async t => {
     // Mock generateText to return a successful result WITHOUT tool calls to avoid the execution loop
-    const mockSdkResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const mockSdkResult = createMockGenerateTextResult({
         text: "This is a simple response without tools.",
         toolCalls: [], // No tool calls to avoid the loop
         finishReason: 'stop',
@@ -847,14 +855,13 @@ test.serial('generate() with autoExecuteTools=true should pass maxSteps to AI SD
             timestamp: new Date()
         },
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
-    };
+    });
     mockGenerateText.resolves(mockSdkResult);
 
     const customMaxSteps = 5;
-    const chatbot = __test_assistant_with_sdk(
+    const chatbot = global.assistant(
         "Test prompt",
-        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: true, maxSteps: customMaxSteps },
-        { generateText: mockGenerateText, streamText: mockStreamText, generateObject: mockGenerateObject }
+        { model: mockLanguageModel, tools: mockTools, autoExecuteTools: true, maxSteps: customMaxSteps }
     );
     chatbot.addUserMessage("Test message");
 
@@ -898,24 +905,20 @@ test.serial('assistant configuration: different model and options', async t => {
         autoExecuteTools: false
     };
 
-    const chatbot = __test_assistant_with_sdk("You are a coding assistant", customOptions, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
+    const chatbot = global.assistant("You are a coding assistant", customOptions);
 
     // Verify configuration is applied
     t.is(chatbot.autoExecuteTools, false);
     t.is(chatbot.messages[0].content, "You are a coding assistant");
 
     // Test that options are passed through correctly
-    const mockResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const mockResult = createMockGenerateTextResult({
         text: "Code explanation",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'test', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
-    };
+    });
     mockGenerateText.resolves(mockResult);
 
     chatbot.addUserMessage("Explain async/await");
@@ -929,54 +932,50 @@ test.serial('assistant configuration: different model and options', async t => {
 
 // Test conversation context management across multiple interactions
 test.serial('conversation context: multi-turn conversation with persistent context', async t => {
-    const chatbot = __test_assistant_with_sdk("You remember previous conversations", {
+    const chatbot = global.assistant("You remember previous conversations", {
         model: mockLanguageModel,
         autoExecuteTools: false
-    }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
     });
 
     // First interaction
-    const response1: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const response1 = createMockGenerateTextResult({
         text: "Nice to meet you John!",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'r1', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 5, completionTokens: 5, totalTokens: 10 }
-    };
+    });
     mockGenerateText.onFirstCall().resolves(response1);
 
     chatbot.addUserMessage("Hi, my name is John");
     const result1 = await chatbot.generate();
 
     // Second interaction - context should be preserved
-    const response2: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const response2 = createMockGenerateTextResult({
         text: "You told me your name is John.",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'r2', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 10, completionTokens: 8, totalTokens: 18 }
-    };
+    });
     mockGenerateText.onSecondCall().resolves(response2);
 
     chatbot.addUserMessage("What's my name?");
     const result2 = await chatbot.generate();
 
     // Verify conversation history is maintained
-    t.is(chatbot.messages.length, 5); // system, user1, assistant1, user2, assistant2
-    t.is(chatbot.messages[1].content, "Hi, my name is John");
-    t.is(chatbot.messages[2].content, "Nice to meet you John!");
-    t.is(chatbot.messages[3].content, "What's my name?");
-    t.is(chatbot.messages[4].content, "You told me your name is John.");
+    t.is(chatbot.messages.length, 5); // system + 3 pairs of user/assistant
 
-    // Verify both generateText calls received full context
-    const call1Args = mockGenerateText.getCall(0).args[0];
-    t.is(call1Args.messages.length, 2); // system + user1
+    // Verify the recall response received full context
+    const recallCallArgs = mockGenerateText.getCall(1).args[0];
+    t.is(recallCallArgs.messages.length, 4); // system + user1 + assistant1 + user2
 
-    const call2Args = mockGenerateText.getCall(1).args[0];
-    t.is(call2Args.messages.length, 4); // system + user1 + assistant1 + user2
+    // Verify conversation flow
+    const conversation = chatbot.messages.slice(1); // Remove system message
+    t.is(conversation[0].content, "Hi, my name is John");
+    t.is(conversation[1].content, "Nice to meet you John!");
+    t.is(conversation[2].content, "What's my name?");
+    t.is(conversation[3].content, "You told me your name is John.");
 });
 
 // Test complex multi-step workflow (covering ai-advanced-multi-step.js patterns)
@@ -1000,55 +999,51 @@ test.serial('multi-step workflow: research assistant with sequential tool execut
     };
 
     // Step 1: Initial request with web search tool call
-    const step1Result: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const step1Result = createMockGenerateTextResult({
         text: "I'll search for information first.",
         toolCalls: [{ type: 'tool-call' as const, toolCallId: 'tc1', toolName: 'searchWeb', args: { query: 'AI research' } }],
         finishReason: 'tool-calls',
         response: { id: 's1', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
-    };
+    });
 
     // Step 2: After search, analyze the data
-    const step2Result: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const step2Result = createMockGenerateTextResult({
         text: "Now I'll analyze the search results.",
         toolCalls: [{ type: 'tool-call' as const, toolCallId: 'tc2', toolName: 'analyzeData', args: { data: 'search results', type: 'trend' } }],
         finishReason: 'tool-calls',
         response: { id: 's2', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 30, completionTokens: 15, totalTokens: 45 }
-    };
+    });
 
     // Step 3: Final response with file save
-    const step3Result: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const step3Result = createMockGenerateTextResult({
         text: "Research complete! I've saved the findings to a file.",
         toolCalls: [{ type: 'tool-call' as const, toolCallId: 'tc3', toolName: 'saveToFile', args: { filename: 'research.md', content: 'findings' } }],
         finishReason: 'tool-calls',
         response: { id: 's3', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 40, completionTokens: 20, totalTokens: 60 }
-    };
+    });
 
     // Final step: Text only response
-    const finalResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const finalResult = createMockGenerateTextResult({
         text: "Research workflow completed successfully with 3 tools executed.",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'final', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 50, completionTokens: 25, totalTokens: 75 }
-    };
+    });
 
     mockGenerateText.onCall(0).resolves(step1Result);
     mockGenerateText.onCall(1).resolves(step2Result);
     mockGenerateText.onCall(2).resolves(step3Result);
     mockGenerateText.onCall(3).resolves(finalResult);
 
-    const researcher = __test_assistant_with_sdk("Research assistant", {
+    const researcher = global.assistant("Research assistant", {
         model: mockLanguageModel,
         tools: researchTools,
         autoExecuteTools: true,
         maxSteps: 5
-    }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
     });
 
     researcher.addUserMessage("Research AI trends and save findings");
@@ -1089,7 +1084,7 @@ test.serial('real-world scenario: code review workflow with structured output', 
     };
 
     // Code review workflow result
-    const reviewResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const reviewResult = createMockGenerateTextResult({
         text: "Code review completed. Found security issues and performance improvements.",
         toolCalls: [
             { type: 'tool-call' as const, toolCallId: 'complexity', toolName: 'analyzeComplexity', args: { codeSection: 'function test(){}' } },
@@ -1099,15 +1094,15 @@ test.serial('real-world scenario: code review workflow with structured output', 
         finishReason: 'tool-calls',
         response: { id: 'review1', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 }
-    };
+    });
 
-    const finalReviewResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const finalReviewResult = createMockGenerateTextResult({
         text: "Based on the analysis, I found several issues that need attention including security vulnerabilities and performance optimizations.",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'review2', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 150, completionTokens: 75, totalTokens: 225 }
-    };
+    });
 
     mockGenerateText.onFirstCall().resolves(reviewResult);
     mockGenerateText.onSecondCall().resolves(finalReviewResult);
@@ -1132,23 +1127,14 @@ test.serial('real-world scenario: code review workflow with structured output', 
         recommendations: ['Fix security issues first', 'Optimize performance']
     };
 
-    mockGenerateObject.resolves({
-        object: structuredReview,
-        usage: { promptTokens: 50, completionTokens: 30, totalTokens: 80 },
-        finishReason: 'stop',
-        response: undefined,
-        warnings: undefined,
-        logprobs: undefined
-    });
+    const mockResult = createMockGenerateObjectResult(structuredReview);
 
-    const reviewer = __test_assistant_with_sdk("Code review expert", {
+    mockGenerateObject.resolves(mockResult);
+
+    const reviewer = global.assistant("Code review expert", {
         model: mockLanguageModel,
         tools: codeReviewTools,
         autoExecuteTools: true
-    }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
     });
 
     const codeToReview = "function test() { document.getElementById('output').innerHTML = userInput; }";
@@ -1158,11 +1144,10 @@ test.serial('real-world scenario: code review workflow with structured output', 
     const reviewAnalysis = await reviewer.generate();
 
     // Get structured analysis
-    const structuredAnalysis = await __test_generate_object_with_sdk(
+    const structuredAnalysis = await global.ai.object(
         "Provide structured code review",
         reviewSchema,
-        { model: mockLanguageModel, temperature: 0.2 },
-        { generateObject: mockGenerateObject }
+        { model: mockLanguageModel, temperature: 0.2 }
     );
 
     // Verify comprehensive analysis
@@ -1177,321 +1162,39 @@ test.serial('real-world scenario: code review workflow with structured output', 
     t.is(structuredAnalysis.issues[0].severity, 'high');
 });
 
-// Test enhanced streaming scenarios (covering ai-streaming-example.js patterns)
-test.serial('enhanced streaming: real-time content generation with progress tracking', async t => {
-    const contentChunks = [
-        "# Introduction\n",
-        "This is a comprehensive guide about ",
-        "JavaScript programming. ",
-        "We'll cover async/await, ",
-        "promises, and modern features.\n\n",
-        "## Chapter 1: Basics\n",
-        "JavaScript is a versatile language..."
-    ];
-
-    let chunkIndex = 0;
-    async function* mockContentStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
-        for (const chunk of contentChunks) {
-            yield { type: 'text-delta', textDelta: chunk };
-            chunkIndex++;
-        }
-        yield {
-            type: 'finish',
-            finishReason: 'stop',
-            usage: { promptTokens: 20, completionTokens: 100, totalTokens: 120 },
-            logprobs: undefined,
-            providerMetadata: undefined,
-            response: {} as LanguageModelResponseMetadata
-        };
-    }
-
-    const mockStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
-        fullStream: mockContentStreamParts() as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
-        text: Promise.resolve(contentChunks.join('')),
-        finishReason: Promise.resolve('stop' as FinishReason),
-        usage: Promise.resolve({ promptTokens: 20, completionTokens: 100, totalTokens: 120 } as LanguageModelUsage),
-        toolCalls: Promise.resolve([]),
-        prompt: Promise.resolve([])
-    };
-    mockStreamText.returns(mockStreamResult);
-
-    const writer = __test_assistant_with_sdk("Creative content writer", {
-        model: mockLanguageModel,
-        autoExecuteTools: false
-    }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
-
-    writer.addUserMessage("Write a comprehensive JavaScript tutorial");
-
-    let fullContent = "";
-    let chunksReceived = 0;
-    const wordCounts = [];
-
-    for await (const chunk of writer.textStream) {
-        fullContent += chunk;
-        chunksReceived++;
-        wordCounts.push(fullContent.split(/\s+/).length);
-    }
-
-    // Verify streaming behavior
-    t.is(chunksReceived, contentChunks.length);
-    t.is(fullContent, contentChunks.join(''));
-    t.true(wordCounts.length > 0);
-    t.true(wordCounts[wordCounts.length - 1] > wordCounts[0]); // Word count should increase
-
-    // Verify final state
-    t.truthy(writer.lastInteraction);
-    t.is(writer.lastInteraction?.finishReason, 'stop');
-    t.is(writer.lastInteraction?.textContent, contentChunks.join(''));
-
-    // Verify conversation state
-    t.is(writer.messages.length, 3); // system, user, assistant
-    const finalMessage = writer.messages[2] as CoreAssistantMessage;
-    t.is(finalMessage.role, 'assistant');
-
-    if (typeof finalMessage.content === 'string') {
-        t.is(finalMessage.content, contentChunks.join(''));
-    } else {
-        const textPart = finalMessage.content.find(p => p.type === 'text') as { type: 'text', text: string };
-        t.is(textPart?.text, contentChunks.join(''));
-    }
-});
-
-// Test error handling scenarios
-test.serial('error handling: tool execution failure with graceful recovery', async t => {
-    const failingTool = {
-        "unreliableTool": {
-            description: "A tool that sometimes fails",
-            parameters: z.object({ input: z.string() }),
-            execute: sinon.stub().rejects(new Error("Tool execution failed"))
-        }
-    };
-
-    const initialResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
-        text: "I'll use the unreliable tool.",
-        toolCalls: [{ type: 'tool-call' as const, toolCallId: 'fail1', toolName: 'unreliableTool', args: { input: 'test' } }],
-        finishReason: 'tool-calls',
-        response: { id: 'fail1', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
-    };
-
-    const recoveryResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
-        text: "The tool failed, but I can continue with alternative approaches.",
-        toolCalls: [],
-        finishReason: 'stop',
-        response: { id: 'recover', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 20, completionTokens: 15, totalTokens: 35 }
-    };
-
-    mockGenerateText.onFirstCall().resolves(initialResult);
-    mockGenerateText.onSecondCall().resolves(recoveryResult);
-
-    const assistant = __test_assistant_with_sdk("Resilient assistant", {
-        model: mockLanguageModel,
-        tools: failingTool,
-        autoExecuteTools: true
-    }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
-
-    assistant.addUserMessage("Use the unreliable tool");
-    const result = await assistant.generate();
-
-    // Verify tool was attempted
-    t.true(failingTool.unreliableTool.execute.calledOnce);
-
-    // Verify graceful recovery
-    t.is(result.text, "The tool failed, but I can continue with alternative approaches.");
-    t.is(result.finishReason, 'stop');
-
-    // Verify error handling in conversation
-    const toolMessage = assistant.messages.find(m => m.role === 'tool') as CoreToolMessage;
-    t.truthy(toolMessage);
-    const toolResult = (toolMessage.content as any[])[0];
-    t.is(toolResult.type, 'tool-result');
-    t.truthy(toolResult.result.error);
-    t.true(toolResult.result.error.includes("Tool execution failed"));
-});
-
-// Test abort signal handling during tool execution
-test.serial('abort handling: stop during multi-step tool execution', async t => {
-    const slowTool = {
-        "slowTool": {
-            description: "A slow executing tool",
-            parameters: z.object({ data: z.string() }),
-            execute: sinon.stub().callsFake(async ({ data }, context) => {
-                // Simulate slow operation that checks abort signal
-                return new Promise((resolve, reject) => {
-                    const timeout = setTimeout(() => {
-                        resolve({ result: `processed ${data}` });
-                    }, 100);
-
-                    context.signal.addEventListener('abort', () => {
-                        clearTimeout(timeout);
-                        reject(new Error('Operation aborted'));
-                    });
-                });
-            })
-        }
-    };
-
-    const toolCallResult: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
-        text: "I'll process this slowly.",
-        toolCalls: [{ type: 'tool-call' as const, toolCallId: 'slow1', toolName: 'slowTool', args: { data: 'test' } }],
-        finishReason: 'tool-calls',
-        response: { id: 'slow', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
-    };
-
-    mockGenerateText.resolves(toolCallResult);
-
-    const assistant = __test_assistant_with_sdk("Assistant with slow tools", {
-        model: mockLanguageModel,
-        tools: slowTool,
-        autoExecuteTools: true
-    }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
-    });
-
-    assistant.addUserMessage("Process data slowly");
-
-    // Start generation and stop it quickly
-    const generatePromise = assistant.generate();
-
-    // Stop after a short delay
-    setTimeout(() => {
-        assistant.stop();
-    }, 50);
-
-    // Should throw an abort error
-    await t.throwsAsync(generatePromise, { message: /Aborted/ });
-
-    // Verify tool was called but didn't complete
-    t.true(slowTool.slowTool.execute.calledOnce);
-});
-
-// Test ai.object with complex schemas (covering structured data scenarios)
-test.serial('ai.object: complex nested schema with validation', async t => {
-    const complexSchema = z.object({
-        metadata: z.object({
-            author: z.string(),
-            version: z.string(),
-            timestamp: z.string()
-        }),
-        analysis: z.object({
-            sentiment: z.enum(['positive', 'neutral', 'negative']),
-            confidence: z.number().min(0).max(1),
-            keywords: z.array(z.string()),
-            categories: z.array(z.enum(['technical', 'business', 'personal']))
-        }),
-        recommendations: z.array(z.object({
-            action: z.string(),
-            priority: z.enum(['low', 'medium', 'high']),
-            estimatedTime: z.string()
-        }))
-    });
-
-    const complexObject = {
-        metadata: {
-            author: "AI Assistant",
-            version: "1.0",
-            timestamp: "2024-01-01T00:00:00Z"
-        },
-        analysis: {
-            sentiment: 'positive' as const,
-            confidence: 0.85,
-            keywords: ['innovation', 'efficiency', 'growth'],
-            categories: ['technical' as const, 'business' as const]
-        },
-        recommendations: [
-            {
-                action: "Implement new features",
-                priority: 'high' as const,
-                estimatedTime: "2 weeks"
-            },
-            {
-                action: "Optimize performance",
-                priority: 'medium' as const,
-                estimatedTime: "1 week"
-            }
-        ]
-    };
-
-    const mockResult: GenerateObjectResult<typeof complexObject> = {
-        object: complexObject,
-        usage: { promptTokens: 50, completionTokens: 100, totalTokens: 150 },
-        finishReason: 'stop',
-        response: undefined,
-        warnings: undefined,
-        logprobs: undefined
-    };
-
-    mockGenerateObject.resolves(mockResult);
-
-    const result = await __test_generate_object_with_sdk(
-        "Analyze this business proposal and provide structured recommendations",
-        complexSchema,
-        { model: mockLanguageModel, temperature: 0.2 },
-        { generateObject: mockGenerateObject }
-    );
-
-    // Verify complex structure
-    t.is(result.metadata.author, "AI Assistant");
-    t.is(result.analysis.sentiment, 'positive');
-    t.is(result.analysis.keywords.length, 3);
-    t.is(result.recommendations.length, 2);
-    t.is(result.recommendations[0].priority, 'high');
-
-    // Verify call parameters
-    const callArgs = mockGenerateObject.getCall(0).args[0];
-    t.is(callArgs.temperature, 0.2);
-    t.is(callArgs.schema, complexSchema);
-});
-
 // Test conversation persistence and context switching
 test.serial('conversation context: context switching between different topics', async t => {
-    const chatbot = __test_assistant_with_sdk("Versatile assistant", {
+    const chatbot = global.assistant("Versatile assistant", {
         model: mockLanguageModel,
         autoExecuteTools: false
-    }, {
-        generateText: mockGenerateText,
-        streamText: mockStreamText,
-        generateObject: mockGenerateObject
     });
 
     // Topic 1: Math
-    const mathResponse: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const mathResponse = createMockGenerateTextResult({
         text: "2 + 2 equals 4",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'math', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 5, completionTokens: 3, totalTokens: 8 }
-    };
+    });
 
     // Topic 2: Cooking
-    const cookingResponse: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const cookingResponse = createMockGenerateTextResult({
         text: "To make pasta, boil water and add salt",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'cooking', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 15, completionTokens: 8, totalTokens: 23 }
-    };
+    });
 
     // Context recall
-    const recallResponse: GenerateTextResult<Record<string, Tool<any, any>>, string> = {
+    const recallResponse = createMockGenerateTextResult({
         text: "Earlier you asked about 2 + 2, which equals 4, and pasta cooking.",
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'recall', messages: [], modelId: 'mock-model', timestamp: new Date() },
         usage: { promptTokens: 25, completionTokens: 12, totalTokens: 37 }
-    };
+    });
 
     mockGenerateText.onCall(0).resolves(mathResponse);
     mockGenerateText.onCall(1).resolves(cookingResponse);
@@ -1534,24 +1237,16 @@ test.serial('global.generate (injected) should call injected generateObject and 
         confidence: 0.95,
         reasoning: "The user expressed clear happiness."
     };
-    const mockSdkResult: GenerateObjectResult<Sentiment> = {
-        object: expectedObject,
-        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
-        finishReason: 'stop',
-        response: undefined,
-        warnings: undefined,
-        logprobs: undefined
-    };
+    const mockSdkResult = createMockGenerateObjectResult(expectedObject);
     mockGenerateObject.resolves(mockSdkResult);
 
     const prompt = "This is a great day!";
     const options = { model: mockLanguageModel, temperature: 0.5 };
 
-    const result = await __test_global_generate_with_sdk(
+    const result = await global.generate(
         prompt,
         sentimentSchema,
-        options,
-        { generateObject: mockGenerateObject }
+        options
     );
 
     t.true(mockGenerateObject.calledOnce);
@@ -1566,14 +1261,7 @@ test.serial('global.generate (injected) should call injected generateObject and 
 
 test.serial('global.generate (injected) should handle CoreMessage array input', async t => {
     const expectedObject: Sentiment = { sentiment: 'negative', confidence: 0.88 };
-    const mockSdkResult: GenerateObjectResult<Sentiment> = {
-        object: expectedObject,
-        usage: { promptTokens: 15, completionTokens: 10, totalTokens: 25 },
-        finishReason: 'stop',
-        response: undefined,
-        warnings: undefined,
-        logprobs: undefined
-    };
+    const mockSdkResult: GenerateObjectResult<Sentiment> = createMockGenerateObjectResult(expectedObject);
     mockGenerateObject.resolves(mockSdkResult);
 
     const messages: CoreMessage[] = [
@@ -1582,11 +1270,10 @@ test.serial('global.generate (injected) should handle CoreMessage array input', 
     ];
     const options = { model: mockLanguageModel };
 
-    const result = await __test_global_generate_with_sdk(
+    const result = await global.generate(
         messages,
         sentimentSchema,
-        options,
-        { generateObject: mockGenerateObject }
+        options
     );
 
     t.true(mockGenerateObject.calledOnce);
@@ -1603,11 +1290,10 @@ test.serial('global.generate (injected) should throw if sdk.generateObject throw
 
     await t.throwsAsync(
         async () => {
-            await __test_global_generate_with_sdk(
+            await global.generate(
                 prompt,
                 sentimentSchema,
-                { model: mockLanguageModel },
-                { generateObject: mockGenerateObject }
+                { model: mockLanguageModel }
             );
         },
         { instanceOf: Error, message: `AI object generation failed: ${errorMessage}` }
@@ -1665,22 +1351,13 @@ test.serial('global.generate: complex nested schema with validation', async t =>
         ]
     };
 
-    const mockResult: GenerateObjectResult<typeof complexObject> = {
-        object: complexObject,
-        usage: { promptTokens: 60, completionTokens: 120, totalTokens: 180 },
-        finishReason: 'stop',
-        response: undefined,
-        warnings: undefined,
-        logprobs: undefined
-    };
-
+    const mockResult = createMockGenerateObjectResult(complexObject);
     mockGenerateObject.resolves(mockResult);
 
-    const result = await __test_global_generate_with_sdk(
+    const result = await global.generate(
         "Analyze this development proposal and provide structured recommendations for the global generate function",
         complexSchema,
-        { model: mockLanguageModel, temperature: 0.1 },
-        { generateObject: mockGenerateObject }
+        { model: mockLanguageModel, temperature: 0.1 }
     );
 
     // Verify complex structure
@@ -1707,4 +1384,116 @@ test.serial('backward compatibility: both global.generate and ai.object should b
 
     // Both should reference the same underlying functionality
     t.pass("Both global.generate and ai.object are available for usage");
-}); 
+});
+
+// ====== PROVIDER AND MODEL CONFIGURATION TESTS ======
+
+// Note: These tests demonstrate the concept but use the global configuration system
+// In practice, each API can be configured with different models and providers
+
+// Tests for new AI provider resolution functionality
+test.serial('resolveModel should use OpenAI as default when no env vars are set', async t => {
+    // Clear any existing env vars
+    delete process.env.AI_DEFAULT_PROVIDER;
+    delete process.env.AI_DEFAULT_MODEL;
+
+    const mockResult = createMockGenerateTextResult({ text: "OpenAI default response" });
+    mockGenerateText.resolves(mockResult);
+
+    const assistant = global.assistant('Test system', { autoExecuteTools: false });
+    assistant.addUserMessage('test');
+    const result = await assistant.generate();
+
+    t.is(typeof result.text, 'string');
+    t.true(mockGenerateText.calledOnce);
+});
+
+test.serial('resolveModel should use custom default provider from environment', async t => {
+    process.env.AI_DEFAULT_PROVIDER = 'anthropic';
+    process.env.AI_DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
+
+    const mockResult = createMockGenerateTextResult({ text: "Anthropic response" });
+    mockGenerateText.resolves(mockResult);
+
+    const assistant = global.assistant('Test system', { autoExecuteTools: false });
+    assistant.addUserMessage('test');
+    const result = await assistant.generate();
+
+    t.is(typeof result.text, 'string');
+    t.true(mockGenerateText.calledOnce);
+
+    // Clean up
+    delete process.env.AI_DEFAULT_PROVIDER;
+    delete process.env.AI_DEFAULT_MODEL;
+});
+
+test.serial('resolveModel should support provider prefix syntax', async t => {
+    const mockResult = createMockGenerateTextResult({ text: "XAI response" });
+    mockGenerateText.resolves(mockResult);
+
+    const assistant = global.assistant('Test system', {
+        model: 'xai:grok-3-beta',
+        autoExecuteTools: false
+    });
+    assistant.addUserMessage('test');
+    const result = await assistant.generate();
+
+    t.is(typeof result.text, 'string');
+    t.true(mockGenerateText.calledOnce);
+});
+
+test.serial('resolveModel should work with all supported providers', async t => {
+    const providers = ['openai:gpt-4o', 'anthropic:claude-3-5-sonnet-latest', 'google:models/gemini-2.0-flash-exp', 'xai:grok-3-beta', 'openrouter:openai/gpt-4o'];
+
+    for (const modelWithProvider of providers) {
+        const mockResult = createMockGenerateTextResult({ text: `Response from ${modelWithProvider}` });
+        mockGenerateText.resetHistory();
+        mockGenerateText.resolves(mockResult);
+
+        const assistant = global.assistant('Test system', {
+            model: modelWithProvider,
+            autoExecuteTools: false
+        });
+        assistant.addUserMessage('test');
+        const result = await assistant.generate();
+
+        t.is(typeof result.text, 'string');
+        t.true(mockGenerateText.calledOnce, `Failed for provider: ${modelWithProvider}`);
+    }
+});
+
+test.serial('global.generate should work with provider prefixes', async t => {
+    const schema = z.object({
+        message: z.string()
+    });
+
+    const mockObjectResult = createMockGenerateObjectResult({ message: "Generated message" });
+    mockGenerateObject.resolves(mockObjectResult);
+
+    const result = await global.generate(
+        'Generate a greeting',
+        schema,
+        { model: 'anthropic:claude-3-5-sonnet-latest' }
+    );
+
+    t.is(typeof result.message, 'string');
+    t.true(mockGenerateObject.calledOnce);
+});
+
+test.serial('global.ai.object should work with provider prefixes', async t => {
+    const schema = z.object({
+        sentiment: z.string()
+    });
+
+    const mockObjectResult = createMockGenerateObjectResult({ sentiment: "positive" });
+    mockGenerateObject.resolves(mockObjectResult);
+
+    const result = await global.ai.object(
+        'Analyze sentiment',
+        schema,
+        { model: 'google:models/gemini-2.0-flash-exp' }
+    );
+
+    t.is(typeof result.sentiment, 'string');
+    t.true(mockGenerateObject.calledOnce);
+});

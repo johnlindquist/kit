@@ -78,7 +78,10 @@
     ]
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "1.2.12",
+    "@ai-sdk/google": "1.2.18",
     "@ai-sdk/openai": "^1.0.15",
+    "@ai-sdk/xai": "1.2.16",
     "@johnlindquist/open": "^10.1.1",
     "@octokit/auth-oauth-device": "8.0.1",
     "@octokit/core": "7.0.2",
@@ -86,6 +89,7 @@
     "@octokit/plugin-rest-endpoint-methods": "15.0.0",
     "@octokit/plugin-retry": "8.0.1",
     "@octokit/plugin-throttling": "11.0.1",
+    "@openrouter/ai-sdk-provider": "0.4.6",
     "@types/chalk": "2.2.4",
     "@types/download": "8.0.5",
     "@types/fs-extra": "11.0.4",

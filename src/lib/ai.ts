@@ -1,14 +1,16 @@
 import { openai } from '@ai-sdk/openai'
+import { anthropic } from '@ai-sdk/anthropic'
+import { google } from '@ai-sdk/google'
+import { xai } from '@ai-sdk/xai'
+import { openrouter } from '@openrouter/ai-sdk-provider'
 // Import AI SDK functions from our local wrapper for mocking
-import * as aiSdk from './ai-sdk-api.js';
+import * as aiSdk from 'ai';
 // Import types directly from 'ai' or from our wrapper, direct is fine for types.
 import type {
-    CoreMessage, Tool, ToolCall, ToolResult, FinishReason, LanguageModel,
-    GenerateTextResult, StreamTextResult, TextStreamPart, CoreAssistantMessage,
-    LanguageModelV1, GenerateObjectResult,
-    ToolChoice, // For generateText options
-    ToolCallPart,
-    ToolExecutionOptions // For tool execution context
+    CoreMessage, Tool, ToolCall, FinishReason, LanguageModel,
+    GenerateTextResult, StreamTextResult, CoreAssistantMessage,
+    LanguageModelV1,
+    ToolCallPart
 } from 'ai';
 // Import zod types for TypeScript compilation (runtime uses global z)
 import type { ZodTypeAny, infer as ZodInfer } from 'zod';
@@ -16,12 +18,84 @@ import type { ZodTypeAny, infer as ZodInfer } from 'zod';
 // Import globals to ensure z is available
 import '../api/global.js';
 
+// Type for supported AI providers
+type AIProvider = 'openai' | 'anthropic' | 'google' | 'xai' | 'openrouter';
+
+// Function to resolve model based on provider and model string
+const resolveModel = (modelString?: string, providerOverride?: AIProvider): LanguageModelV1 => {
+    // Use environment variables for defaults
+    const defaultProvider = (process.env.AI_DEFAULT_PROVIDER as AIProvider) || 'openai';
+    const defaultModel = process.env.AI_DEFAULT_MODEL || 'gpt-4o';
+
+    // If no model string provided, use defaults
+    if (!modelString) {
+        const provider = providerOverride || defaultProvider;
+        switch (provider) {
+            case 'openai': return openai(defaultModel);
+            case 'anthropic': return anthropic(defaultModel);
+            case 'google': return google(defaultModel);
+            case 'xai': return xai(defaultModel);
+            case 'openrouter': return openrouter(defaultModel);
+            default: return openai(defaultModel);
+        }
+    }
+
+    // Check if model string contains provider prefix (e.g., "anthropic:claude-3-5-sonnet-latest")
+    const providerMatch = modelString.match(/^(openai|anthropic|google|xai|openrouter):(.+)$/);
+
+    if (providerMatch) {
+        const [, provider, model] = providerMatch;
+        switch (provider as AIProvider) {
+            case 'openai': return openai(model);
+            case 'anthropic': return anthropic(model);
+            case 'google': return google(model);
+            case 'xai': return xai(model);
+            case 'openrouter': return openrouter(model);
+            default: return openai(model);
+        }
+    }
+
+    // Use provider override or default provider
+    const provider = providerOverride || defaultProvider;
+    switch (provider) {
+        case 'openai': return openai(modelString);
+        case 'anthropic': return anthropic(modelString);
+        case 'google': return google(modelString);
+        case 'xai': return xai(modelString);
+        case 'openrouter': return openrouter(modelString);
+        default: return openai(modelString);
+    }
+};
+
 // Interface for injectable SDK functions for testability
 interface InjectedSdk {
-    generateText: typeof aiSdk.generateText;
-    streamText: typeof aiSdk.streamText;
-    generateObject: typeof aiSdk.generateObject;
+    generateText: typeof import('ai').generateText;
+    streamText: typeof import('ai').streamText;
+    generateObject: typeof import('ai').generateObject;
 }
+
+// Configuration system for dependency injection
+interface AiConfig {
+    sdk: InjectedSdk;
+}
+
+// Default configuration using the real AI SDK
+let currentConfig: AiConfig = {
+    sdk: aiSdk
+};
+
+// Configuration API for dependency injection (useful for testing and custom providers)
+export const configure = (config: Partial<AiConfig>) => {
+    currentConfig = { ...currentConfig, ...config };
+};
+
+// Reset configuration to defaults
+export const resetConfig = () => {
+    currentConfig = { sdk: aiSdk };
+};
+
+// Get current SDK instance
+const getSdk = () => currentConfig.sdk;
 
 interface AiOptions {
     model?: string | LanguageModel
@@ -93,13 +167,15 @@ interface AiGlobal {
 }
 
 // This is the actual function that creates the AI-powered input handler
-const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOptions, 'autoExecuteTools' | 'tools' | 'maxSteps'> = {}, sdk: InjectedSdk = aiSdk) => {
-    const { model = 'gpt-4o', temperature = 0.7, maxTokens = 1000 } = options;
-    const resolvedModel: LanguageModelV1 = typeof model === 'string' ? openai(model) : model as LanguageModelV1;
+const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOptions, 'autoExecuteTools' | 'tools' | 'maxSteps'> = {}) => {
+    const { model, temperature = Number(process.env.AI_DEFAULT_TEMPERATURE) || 0.7, maxTokens = Number(process.env.AI_DEFAULT_MAX_TOKENS) || 1000 } = options;
+    const resolvedModel: LanguageModelV1 = typeof model === 'string' || typeof model === 'undefined'
+        ? resolveModel(model)
+        : model as LanguageModelV1;
 
     return async (input: string): Promise<string> => {
         try {
-            const result = await sdk.generateText<Record<string, Tool<any, any>>, string>({
+            const result = await getSdk().generateText<Record<string, Tool<any, any>>, string>({
                 model: resolvedModel,
                 temperature,
                 maxTokens,
@@ -122,11 +198,12 @@ global.ai = aiPoweredInputHandlerFactory as AiGlobal;
 const generateObjectFunction = async <Schema extends ZodTypeAny>(
     promptOrMessages: string | CoreMessage[],
     schema: Schema,
-    options: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'> = {},
-    sdk: Pick<InjectedSdk, 'generateObject'> = aiSdk // Inject only generateObject
+    options: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'> = {}
 ): Promise<ZodInfer<Schema>> => {
-    const { model = 'gpt-4o', temperature, maxTokens } = options;
-    const resolvedModel: LanguageModelV1 = typeof model === 'string' ? openai(model) : model as LanguageModelV1;
+    const { model, temperature, maxTokens } = options;
+    const resolvedModel: LanguageModelV1 = typeof model === 'string' || typeof model === 'undefined'
+        ? resolveModel(model)
+        : model as LanguageModelV1;
 
     let messages: CoreMessage[];
     if (typeof promptOrMessages === 'string') {
@@ -136,7 +213,7 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
     }
 
     try {
-        const { object } = await sdk.generateObject<Schema>({
+        const { object } = await getSdk().generateObject<Schema>({
             model: resolvedModel,
             temperature,
             maxTokens,
@@ -152,34 +229,21 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
 
 // Assign the global.generate function
 global.generate = (promptOrMessages, schema, options) =>
-    generateObjectFunction(promptOrMessages, schema, options, aiSdk);
+    generateObjectFunction(promptOrMessages, schema, options);
 
 // Assign the .object function to the existing global.ai for backward compatibility
 if (global.ai) {
     (global.ai as AiGlobal).object = (promptOrMessages, schema, options) =>
-        generateObjectFunction(promptOrMessages, schema, options, aiSdk);
+        generateObjectFunction(promptOrMessages, schema, options);
 }
 
-// Export for testing with SDK injection
-export const __test_generate_object_with_sdk = generateObjectFunction;
-
-// Export for testing the global generate function with SDK injection
-export const __test_global_generate_with_sdk = (
-    promptOrMessages: string | CoreMessage[],
-    schema: ZodTypeAny,
-    options: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'> = {},
-    sdk: Pick<InjectedSdk, 'generateObject'> = aiSdk
-) => generateObjectFunction(promptOrMessages, schema, options, sdk);
-
-// Internal function to create assistant instance, allowing SDK injection for tests
-const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}, sdkForTest?: InjectedSdk): AssistantInstance => {
-    const sdk = sdkForTest || aiSdk;
+// Internal function to create assistant instance
+const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}): AssistantInstance => {
+    const sdk = getSdk();
     const resolvedModelOption = options.model;
-    const resolvedModel: LanguageModelV1 = sdkForTest
-        ? resolvedModelOption as LanguageModelV1 // Assume it's a mock LanguageModelV1 if sdkForTest is active
-        : (typeof resolvedModelOption === 'string' || typeof resolvedModelOption === 'undefined'
-            ? openai(resolvedModelOption || 'gpt-4o')
-            : resolvedModelOption as LanguageModelV1);
+    const resolvedModel: LanguageModelV1 = typeof resolvedModelOption === 'string' || typeof resolvedModelOption === 'undefined'
+        ? resolveModel(resolvedModelOption)
+        : resolvedModelOption as LanguageModelV1;
 
     const {
         temperature = 0.7,
@@ -533,15 +597,5 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}, 
 
 // Assign the factory function to global.assistant
 global.assistant = createAssistantInstance;
-
-export const __test_assistant_with_sdk = (
-    systemPrompt: string,
-    options: AiOptions = {},
-    testSdk: InjectedSdk
-): AssistantInstance => {
-    // Call the internal factory directly, passing the testSdk
-    // Return the instance directly to preserve closure context
-    return createAssistantInstance(systemPrompt, options, testSdk);
-};
 
 export { } 
