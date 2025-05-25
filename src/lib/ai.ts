@@ -499,15 +499,19 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             let streamedToolCalls: ToolCall<string, any>[] = [];
 
             try {
-                streamResult = sdk.streamText<Record<string, Tool<any, any>>>({
+                const streamOptions: any = {
                     model: resolvedModel,
                     temperature,
                     maxTokens,
                     messages: [...messages],
                     tools: _definedTools,
-                    maxSteps: 0,
                     abortSignal: currentAbortController.signal
-                });
+                };
+
+                // For streaming, we don't auto-execute tools, so don't pass maxSteps
+                // This avoids the "maxSteps must be at least 1" validation error
+
+                streamResult = sdk.streamText<Record<string, Tool<any, any>>>(streamOptions);
 
                 for await (const part of streamResult.fullStream) {
                     if (currentAbortController.signal.aborted) {

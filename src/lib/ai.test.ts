@@ -1497,3 +1497,53 @@ test.serial('global.ai.object should work with provider prefixes', async t => {
     t.is(typeof result.sentiment, 'string');
     t.true(mockGenerateObject.calledOnce);
 });
+
+// Test for streaming without passing invalid maxSteps
+test.serial('assistant (injected) textStream should not pass maxSteps to avoid validation error', async t => {
+    const responseChunks = ["Test", " stream", " response"];
+    const fullText = responseChunks.join("");
+
+    async function* mockFullStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
+        for (const chunk of responseChunks) {
+            yield { type: 'text-delta', textDelta: chunk };
+        }
+        yield {
+            type: 'finish',
+            finishReason: 'stop',
+            usage: { promptTokens: 5, completionTokens: 5, totalTokens: 10 },
+            logprobs: undefined,
+            providerMetadata: undefined,
+            response: {} as LanguageModelResponseMetadata
+        };
+    }
+
+    const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
+        fullStream: mockFullStreamParts() as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
+        text: Promise.resolve(fullText),
+        finishReason: Promise.resolve('stop' as FinishReason),
+        usage: Promise.resolve({ promptTokens: 5, completionTokens: 5, totalTokens: 10 } as LanguageModelUsage),
+        toolCalls: Promise.resolve([])
+    };
+    mockStreamText.returns(mockSdkStreamResult);
+
+    const chatbot = global.assistant("System Stream", { model: mockLanguageModel, autoExecuteTools: false });
+    chatbot.addUserMessage("Stream this");
+
+    let yieldedText = "";
+    for await (const chunk of chatbot.textStream) {
+        yieldedText += chunk;
+    }
+
+    t.true(mockStreamText.calledOnce);
+    const streamTextCallArgs = mockStreamText.getCall(0).args[0];
+
+    // Verify that maxSteps is NOT passed to avoid validation error
+    t.false('maxSteps' in streamTextCallArgs, "maxSteps should not be passed in streaming to avoid validation error");
+
+    // Verify other expected parameters are passed
+    t.truthy(streamTextCallArgs.model);
+    t.truthy(streamTextCallArgs.messages);
+    t.truthy(streamTextCallArgs.abortSignal);
+
+    t.is(yieldedText, fullText);
+});
