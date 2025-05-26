@@ -83,10 +83,6 @@ ${code}
   t.is(
     strippedFile,
     `
-// Name:
-// Shortcode:
-// Alias:
-// Other:
 
 ${code}
 `
@@ -108,10 +104,9 @@ ${code}
   t.is(
     strippedFile,
     `
-//Menu:
-//  Shortcode:
-// Alias:
-//   Other:
+//  Shortcode:a,b,c
+// Alias: al
+//   Other:  hi
 
 ${code}
 `
@@ -134,9 +129,7 @@ ${code}
     strippedFile,
     `
 // Name: This is a Menu
-// Shortcode:
 // Alias: al
-// Other:
 
 ${code}
 `
