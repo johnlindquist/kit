@@ -104,6 +104,10 @@ ${code}
   t.is(
     strippedFile,
     `
+//  Shortcode:a,b,c
+// Alias: al
+//   Other:  hi
+
 ${code}
 `
   )
