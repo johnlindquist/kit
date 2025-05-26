@@ -6,7 +6,8 @@ import type {
     LanguageModelV1CallOptions, CoreAssistantMessage, CoreToolMessage, LanguageModelV1,
     LanguageModelUsage, LanguageModelResponseMetadata,
     GenerateObjectResult, LanguageModelV1StreamPart,
-    ToolCallPart
+    ToolCallPart,
+    LanguageModelToolCall // Import for explicit mock typing
 } from 'ai' // For types used in tests & mocks
 
 // Import the configuration functions for dependency injection
@@ -68,7 +69,7 @@ const mockTools = { "mockTool": mockToolDefinition };
 // Helper function to create properly typed mock GenerateTextResult
 const createMockGenerateTextResult = (overrides: Partial<GenerateTextResult<Record<string, Tool<any, any>>, string>> = {}): GenerateTextResult<Record<string, Tool<any, any>>, string> => ({
     text: "mocked response",
-    toolCalls: [],
+    toolCalls: [], // Default to empty LanguageModelToolCall[]
     finishReason: 'stop' as FinishReason,
     usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
     response: {
@@ -95,6 +96,7 @@ const createMockGenerateObjectResult = <T>(object: T, overrides: Partial<Generat
     object,
     usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
     finishReason: 'stop' as FinishReason,
+    providerMetadata: undefined, // Added to satisfy linter if it thinks it's required
     response: {
         id: 'mock-response',
         modelId: 'mock-model',
@@ -141,12 +143,12 @@ test.serial('assistant instance (injected) should have autoExecuteTools getter/s
 });
 
 test.serial('generate() with autoExecuteTools=true should execute tools and call generateText multiple times', async t => {
-    const initialToolCall: ToolCallPart[] = [
+    const initialToolCallParts: ToolCallPart[] = [
         { type: 'tool-call', toolCallId: 'tc-1', toolName: 'mockTool', args: { param: 'test' } }
     ];
     const firstGenerateResult = createMockGenerateTextResult({
         text: "",
-        toolCalls: initialToolCall.map(tc => ({ type: 'tool-call', ...tc })),
+        toolCalls: initialToolCallParts.map(({ toolCallId, toolName, args }) => ({ toolCallId, toolName, args })),
         finishReason: 'tool-calls',
         response: {
             id: 'res-tc-1',
@@ -209,12 +211,12 @@ test.serial('generate() with autoExecuteTools=true should execute tools and call
 });
 
 test.serial('generate() with autoExecuteTools=false should return tool_calls without execution', async t => {
-    const toolCallsToReturn: ToolCallPart[] = [
+    const toolCallsToReturnParts: ToolCallPart[] = [
         { type: 'tool-call', toolCallId: 'tc-noexec', toolName: 'mockTool', args: { param: 'noexec' } }
     ];
     const mockSdkResult = createMockGenerateTextResult({
         text: "I need to use a tool.",
-        toolCalls: toolCallsToReturn.map(tc => ({ type: 'tool-call', ...tc })),
+        toolCalls: toolCallsToReturnParts.map(({ toolCallId, toolName, args }) => ({ toolCallId, toolName, args })),
         finishReason: 'tool-calls',
         response: {
             id: 'res-noexec',
@@ -240,9 +242,8 @@ test.serial('generate() with autoExecuteTools=false should return tool_calls wit
     // Updated assertions for AssistantOutcome
     t.is(result.kind, 'toolCalls');
     if (result.kind === 'toolCalls') {
-        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })), toolCallsToReturn.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
-        // Assuming `text` is not present when kind is 'toolCalls' based on typical SDK behavior
-        // If the underlying generateText can return text AND tool calls, this might need adjustment or ai.ts needs to decide priority
+        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })),
+            toolCallsToReturnParts.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
     } else if (result.kind === 'text') {
         t.is(result.text, "I need to use a tool."); // This was the previous expectation
     }
@@ -253,12 +254,12 @@ test.serial('generate() with autoExecuteTools=false should return tool_calls wit
 });
 
 test.serial('generate() respects maxSteps for tool execution', async t => {
-    const toolCall1: ToolCallPart = { type: 'tool-call', toolCallId: 'tc-s1', toolName: 'mockTool', args: { param: 'step1' } };
-    const toolCall2: ToolCallPart = { type: 'tool-call', toolCallId: 'tc-s2', toolName: 'mockTool', args: { param: 'step2' } };
+    const toolCall1Part: ToolCallPart = { type: 'tool-call', toolCallId: 'tc-s1', toolName: 'mockTool', args: { param: 'step1' } };
+    const toolCall2Part: ToolCallPart = { type: 'tool-call', toolCallId: 'tc-s2', toolName: 'mockTool', args: { param: 'step2' } };
 
     const firstGenerate = createMockGenerateTextResult({
         text: "",
-        toolCalls: [toolCall1].map(tc => ({ type: 'tool-call', ...tc })),
+        toolCalls: [{ toolCallId: toolCall1Part.toolCallId, toolName: toolCall1Part.toolName, args: toolCall1Part.args }],
         finishReason: 'tool-calls',
         response: {
             id: 'step1',
@@ -270,7 +271,7 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
     });
     const secondGenerateAfterTool1 = createMockGenerateTextResult({
         text: "",
-        toolCalls: [toolCall2].map(tc => ({ type: 'tool-call', ...tc })),
+        toolCalls: [{ toolCallId: toolCall2Part.toolCallId, toolName: toolCall2Part.toolName, args: toolCall2Part.args }],
         finishReason: 'tool-calls',
         response: {
             id: 'step2',
@@ -317,7 +318,8 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
     // The LLM still returns tool_calls, but the loop stops.
     t.is(result.kind, 'toolCalls', "Finish reason is tool-calls because maxSteps was reached");
     if (result.kind === 'toolCalls') {
-        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })), [toolCall2].map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
+        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })),
+            [toolCall2Part].map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
     }
     t.is(chatbot.messages.length, 4); // System, User, Assistant (tc1), Tool (res1)
     // Assistant (tc2) is NOT added because loop breaks before next generate
@@ -375,12 +377,12 @@ test.serial('OLD: assistant (injected) generate() should call injected generateT
 });
 
 test.serial('OLD: assistant (injected) generate() should return toolCalls if finishReason is tool-calls (and autoExecuteTools=false)', async t => {
-    const mockToolCalls: ToolCallPart[] = [
+    const mockToolCallParts: ToolCallPart[] = [
         { type: 'tool-call', toolCallId: 'tc-1', toolName: 'getWeather', args: { location: 'london' } }
     ];
     const mockSdkResult = createMockGenerateTextResult({
         text: "",
-        toolCalls: mockToolCalls.map(tc => ({ type: 'tool-call', ...tc })),
+        toolCalls: mockToolCallParts.map(({ toolCallId, toolName, args }) => ({ toolCallId, toolName, args })),
         finishReason: 'tool-calls',
         response: {
             id: 'res-tc',
@@ -400,7 +402,8 @@ test.serial('OLD: assistant (injected) generate() should return toolCalls if fin
     // Updated assertions for AssistantOutcome
     t.is(result.kind, 'toolCalls');
     if (result.kind === 'toolCalls') {
-        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })), mockToolCalls.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
+        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })),
+            mockToolCallParts.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
     }
     t.is(chatbot.messages.length, 2, "Assistant message with tool_calls is NOT added by generate if autoExecuteTools is false");
 });
@@ -605,7 +608,7 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
         yield { type: 'text-delta', textDelta: initialText };
         // Simulate tool_calls being part of the stream *before* finish
         for (const tc of mockToolCalls) {
-            yield { type: 'tool-call', ...tc };
+            yield tc;
         }
         yield {
             type: 'finish',
@@ -619,10 +622,10 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
 
     const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
         fullStream: mockFullStreamPartsWithTools() as unknown as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
-        text: Promise.resolve(initialText), // The text part of the stream
+        text: Promise.resolve(initialText),
         finishReason: Promise.resolve('tool-calls' as FinishReason),
         usage: Promise.resolve({ promptTokens: 10, completionTokens: 8, totalTokens: 18 } as LanguageModelUsage),
-        toolCalls: Promise.resolve(mockToolCalls), // toolCalls resolved from the stream parts
+        toolCalls: Promise.resolve(mockToolCalls.map(({ toolCallId, toolName, args }) => ({ toolCallId, toolName, args }))),
         warnings: Promise.resolve(undefined),
         sources: Promise.resolve([]),
         files: Promise.resolve([]),
@@ -691,10 +694,7 @@ test.serial('assistant (injected) stop() should abort an ongoing textStream', as
 
     const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
         fullStream: mockLongFullStreamParts() as unknown as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
-        // Resolving these might depend on how AbortError is handled by the Vercel SDK when awaiting them
         text: new Promise((resolve, reject) => {
-            // This promise might be aborted or resolve with partial text
-            // Simulating it resolves with whatever was processed
         }),
         finishReason: new Promise<FinishReason>((resolve, reject) => { }),
         usage: new Promise<LanguageModelUsage>((resolve, reject) => { }),
@@ -731,8 +731,7 @@ test.serial('assistant (injected) stop() should abort an ongoing textStream', as
                 }
             }
         } catch (error) {
-            if (error.name !== 'AbortError') { // AbortError is expected from the SDK sometimes
-                // t.fail(`Stream processing threw unexpected error: ${error.message}`);
+            if (error.name !== 'AbortError') {
                 console.warn(`Stream processing error (may be expected if AbortController signals before stream fully closes): ${error.message}`)
             }
         }
@@ -777,7 +776,7 @@ test.serial('ai.object (injected) should call injected generateObject and return
         confidence: 0.95,
         reasoning: "The user expressed clear happiness."
     };
-    const mockSdkResult: GenerateObjectResult<Sentiment> = createMockGenerateObjectResult(expectedObject);
+    const mockSdkResult = createMockGenerateObjectResult(expectedObject);
     mockGenerateObject.resolves(mockSdkResult);
 
     const prompt = "This is a great day!";
@@ -801,7 +800,7 @@ test.serial('ai.object (injected) should call injected generateObject and return
 
 test.serial('ai.object (injected) should handle CoreMessage array input', async t => {
     const expectedObject: Sentiment = { sentiment: 'negative', confidence: 0.88 };
-    const mockSdkResult: GenerateObjectResult<Sentiment> = createMockGenerateObjectResult(expectedObject);
+    const mockSdkResult = createMockGenerateObjectResult(expectedObject);
     mockGenerateObject.resolves(mockSdkResult);
 
     const messages: CoreMessage[] = [
@@ -847,14 +846,14 @@ test.serial('global.ai.object should be available and callable (integration smok
 
 test.serial('generate() with autoExecuteTools=false should not pass invalid maxSteps to AI SDK', async t => {
     // This test verifies the fix for the maxSteps validation error
-    const mockToolCalls: ToolCallPart[] = [
+    const mockToolCallParts: ToolCallPart[] = [
         { type: 'tool-call', toolCallId: 'tc-validation', toolName: 'testTool', args: { param: 'test' } }
     ];
 
     // Mock generateText to return a successful result with tool calls
     const mockSdkResult = createMockGenerateTextResult({
         text: "I'll use the test tool.",
-        toolCalls: mockToolCalls.map(tc => ({ type: 'tool-call', ...tc })),
+        toolCalls: mockToolCallParts.map(({ toolCallId, toolName, args }) => ({ toolCallId, toolName, args })),
         finishReason: 'tool-calls',
         response: {
             id: 'res-validation',
@@ -884,7 +883,8 @@ test.serial('generate() with autoExecuteTools=false should not pass invalid maxS
     // Updated assertions for AssistantOutcome
     t.is(result.kind, 'toolCalls');
     if (result.kind === 'toolCalls') {
-        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })), mockToolCalls.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
+        t.deepEqual(result.calls.map(c => ({ toolCallId: c.toolCallId, toolName: c.toolName, args: c.args })),
+            mockToolCallParts.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args })));
     }
     t.false(mockToolDefinition.execute.called, "Tools should not be executed when autoExecuteTools is false");
 });
