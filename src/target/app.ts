@@ -2151,6 +2151,9 @@ global.chat = (async (
     width: PROMPT.WIDTH.BASE,
     height: PROMPT.HEIGHT.XL,
     enter: "",
+    onEscape: async () => {
+
+    },
     shortcuts: [
       {
         name: "Done",
@@ -2161,6 +2164,7 @@ global.chat = (async (
         },
         bar: "right",
       },
+      closeShortcut,
     ],
     ...options,
     actions,

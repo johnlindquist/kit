@@ -19,7 +19,7 @@ import { ChannelHandler } from './core.js'
 import type { ConfigOptions, Options } from 'quick-score'
 // Import AI SDK specific types for global declaration
 import type { CoreMessage, Tool, ToolCall, FinishReason, LanguageModel, LanguageModelV1 } from 'ai'
-import type { AssistantGenerateResult, AssistantLastInteraction } from '../lib/ai.js' // Import our custom result types
+import type { AssistantOutcome, AssistantLastInteraction, ToolCallPart } from '../lib/ai.js' // Import our custom result types
 import type { ZodTypeAny } from 'zod'; // Import Zod types for global declaration
 
 export interface Arg {
@@ -1167,18 +1167,20 @@ declare global {
     tools?: Record<string, Tool<any, any>>
     maxSteps?: number
     autoExecuteTools?: boolean
+    maxHistory?: number
   }) => {
     addUserMessage: (content: string | any[]) => void
     addSystemMessage: (content: string) => void
-    addAssistantMessage: (content: string | any[], toolCalls?: ToolCall<string, any>[]) => void
+    addAssistantMessage: (text?: string, options?: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] }) => void
     addMessage: (message: CoreMessage) => void
     textStream: AsyncGenerator<string, void, unknown>
     stop: () => void
-    generate: (abortSignal?: AbortSignal) => Promise<AssistantGenerateResult>
+    generate: (abortSignal?: AbortSignal) => Promise<AssistantOutcome>
     messages: CoreMessage[]
     lastInteraction?: AssistantLastInteraction | null
     get autoExecuteTools(): boolean
     set autoExecuteTools(value: boolean)
+    get maxHistory(): number
   }
 
   /**

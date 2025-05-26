@@ -7,16 +7,46 @@ import { openrouter } from '@openrouter/ai-sdk-provider'
 import * as aiSdk from 'ai';
 // Import types directly from 'ai' or from our wrapper, direct is fine for types.
 import type {
-    CoreMessage, Tool, ToolCall, FinishReason, LanguageModel,
+    CoreMessage, Tool, FinishReason, LanguageModel,
     GenerateTextResult, StreamTextResult, CoreAssistantMessage,
-    LanguageModelV1,
-    ToolCallPart
+    LanguageModelV1
 } from 'ai';
 // Import zod types for TypeScript compilation (runtime uses global z)
 import type { ZodTypeAny, infer as ZodInfer } from 'zod';
 
 // Import globals to ensure z is available
 import '../api/global.js';
+import { EventEmitter } from 'events';
+
+// Define branded type for ToolCallId
+export type ToolCallId = string & { readonly __brand: unique symbol };
+
+// Redefine ToolCallPart with branded ToolCallId
+export interface ToolCallPart {
+    type: 'tool-call';
+    toolCallId: ToolCallId;
+    toolName: string;
+    args: unknown;
+}
+
+// Observability events interface
+export interface AiObservabilityEvents {
+    'assistant:created': { systemPrompt: string; options: AiOptions };
+    'assistant:generate:start': { messages: CoreMessage[]; options: any };
+    'assistant:generate:complete': { result: AssistantOutcome; duration: number };
+    'assistant:generate:error': { error: Error; duration: number };
+    'assistant:tool:execute:start': { toolName: string; args: unknown; toolCallId: ToolCallId };
+    'assistant:tool:execute:complete': { toolName: string; result: unknown; duration: number; toolCallId: ToolCallId };
+    'assistant:tool:execute:error': { toolName: string; error: Error; duration: number; toolCallId: ToolCallId };
+    'assistant:stream:start': { messages: CoreMessage[] };
+    'assistant:stream:chunk': { chunk: string };
+    'assistant:stream:complete': { fullText: string; duration: number };
+    'assistant:stream:error': { error: Error; duration: number };
+    'assistant:history:trimmed': { beforeCount: number; afterCount: number; maxHistory: number };
+}
+
+// Global event emitter for AI observability
+export const aiObservability = new EventEmitter();
 
 // Type for supported AI providers
 type AIProvider = 'openai' | 'anthropic' | 'google' | 'xai' | 'openrouter';
@@ -96,6 +126,8 @@ interface AiOptions {
     tools?: Record<string, Tool<any, any>>
     maxSteps?: number
     autoExecuteTools?: boolean // New option
+    maxHistory?: number; // NEW maxHistory option
+    streamingToolExecution?: boolean; // ALPHA: Enable tool execution during streaming
 }
 
 // Define Tokens type (assuming similar to existing usage structure)
@@ -142,6 +174,7 @@ interface AssistantInstance {
     lastInteraction?: AssistantLastInteraction | null
     get autoExecuteTools(): boolean // Getter
     set autoExecuteTools(value: boolean) // Setter
+    get maxHistory(): number // Getter for maxHistory
 }
 
 // Define AssistantContent type for addAssistantMessage
@@ -175,18 +208,7 @@ interface AiGlobalFull extends AiGlobal {
     assistant: (
         systemPrompt: string,
         options?: AiOptions
-    ) => {
-        addUserMessage: (content: string | any[]) => void;
-        addSystemMessage: (content: string) => void;
-        addAssistantMessage: (text?: string, options?: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] }) => void; // Updated signature here
-        addMessage: (message: CoreMessage) => void;
-        textStream: AsyncGenerator<string, void, unknown>;
-        stop: () => void;
-        generate: (abortSignal?: AbortSignal) => Promise<AssistantOutcome>;
-        messages: CoreMessage[];
-        lastInteraction?: AssistantLastInteraction | null;
-        autoExecuteTools: boolean;
-    };
+    ) => AssistantInstance;
 }
 
 interface AiGlobal {
@@ -267,6 +289,9 @@ if (global.ai) {
 
 // Internal function to create assistant instance
 const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}): AssistantInstance => {
+    // Emit observability event for assistant creation
+    aiObservability.emit('assistant:created', { systemPrompt, options });
+
     const sdk = getSdk();
     const resolvedModelOption = options.model;
     const resolvedModel: LanguageModelV1 = typeof resolvedModelOption === 'string' || typeof resolvedModelOption === 'undefined'
@@ -278,11 +303,15 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         maxTokens = 1000,
         tools: providedTools,
         maxSteps = 3,
-        autoExecuteTools: initialAutoExecuteTools = true // Default to true
+        autoExecuteTools: initialAutoExecuteTools = true, // Default to true
+        maxHistory,
+        streamingToolExecution = false // ALPHA feature, defaults to false
     } = options;
 
     const _definedTools = providedTools;
     let _autoExecuteTools = initialAutoExecuteTools;
+    const _maxHistory = options.maxHistory ?? 50;
+    const _streamingToolExecution = streamingToolExecution;
 
     const messages: CoreMessage[] = [
         { role: 'system', content: systemPrompt }
@@ -293,10 +322,12 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
 
     const addUserMessage = (content: string | any[]) => {
         messages.push({ role: 'user', content: typeof content === 'string' ? content : content })
+        trimHistory(); // Call trim after adding
     }
 
     const addSystemMessage = (content: string) => {
         messages.push({ role: 'system', content: content })
+        trimHistory(); // Call trim after adding (though system messages aren't directly trimmed by current logic)
     }
 
     const addAssistantMessage = (text?: string, options?: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] }) => {
@@ -340,6 +371,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             assistantMsg.content = messageContentParts.filter(p => p != null);
         }
         messages.push(assistantMsg);
+        trimHistory(); // Call trim after adding
     }
 
     const addMessage = (message: CoreMessage) => {
@@ -372,10 +404,10 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             // Legacy tool_calls property handling
             if ('tool_calls' in message && message.tool_calls && Array.isArray(message.tool_calls)) {
                 hasComplexParts = true; // Presence of legacy tool_calls implies complex message
-                const legacyToolCalls = message.tool_calls as ToolCall<string, any>[];
+                const legacyToolCalls = message.tool_calls as any[];
                 const convertedLegacyToolCalls: ToolCallPart[] = legacyToolCalls.map(tc => ({
                     type: 'tool-call',
-                    toolCallId: tc.toolCallId,
+                    toolCallId: tc.toolCallId as ToolCallId,
                     toolName: tc.toolName,
                     args: tc.args
                 }));
@@ -399,7 +431,38 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         } else {
             messages.push(message);
         }
+        trimHistory(); // Call trim after adding any message type via addMessage
     }
+
+    // Function to trim message history
+    const trimHistory = () => {
+        // We preserve the first message (system prompt) and trim pairs after that.
+        // So, effective history length for user/assistant pairs is (messages.length - 1).
+        // We want to keep _maxHistory pairs, which means (2 * _maxHistory) messages + 1 system message.
+        // So, if messages.length > (2 * _maxHistory + 1), we trim.
+
+        const beforeCount = messages.length;
+        const targetLength = 2 * _maxHistory + 1;
+
+        // Special case: if maxHistory is 0, keep only the system message
+        if (_maxHistory === 0) {
+            messages.splice(1); // Remove everything after the system message
+            if (beforeCount !== messages.length) {
+                aiObservability.emit('assistant:history:trimmed', { beforeCount, afterCount: messages.length, maxHistory: _maxHistory });
+            }
+            return;
+        }
+
+        // Normal case: remove oldest user/assistant pairs
+        while (messages.length > targetLength && messages.length >= 3) { // Ensure at least 3 messages to trim a pair after system
+            messages.splice(1, 2); // drop oldest user/assistant pair (indices 1 and 2)
+        }
+
+        // Emit observability event if trimming occurred
+        if (beforeCount !== messages.length) {
+            aiObservability.emit('assistant:history:trimmed', { beforeCount, afterCount: messages.length, maxHistory: _maxHistory });
+        }
+    };
 
     // Internal actual generation function without auto-execution logic
     const _internalGenerate = async (currentMessages: CoreMessage[], signal?: AbortSignal): Promise<GenerateTextResult<Record<string, Tool<any, any>>, string>> => {
@@ -421,12 +484,17 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
     };
 
     const generate = async (abortSignal?: AbortSignal): Promise<AssistantOutcome> => { // Updated return type
+        const startTime = Date.now();
+
         stop(); // Abort any previous generation/stream
         _abortController = new AbortController();
         if (abortSignal) {
             linkSignals(abortSignal, _abortController); // Use linkSignals here
         }
         const currentSignal = _abortController.signal; // Define after potential linking
+
+        // Emit observability event for generation start
+        aiObservability.emit('assistant:generate:start', { messages: [...messages], options: { autoExecuteTools: _autoExecuteTools, maxSteps } });
 
         try {
             let currentResult = await _internalGenerate(messages, currentSignal);
@@ -447,7 +515,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                 const assistantContentForToolLoop: AssistantContent = {};
                 if (currentResult.text) assistantContentForToolLoop.text = currentResult.text;
                 if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
-                    assistantContentForToolLoop.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }));
+                    assistantContentForToolLoop.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: tc.args }));
                 }
                 addAssistantMessage(assistantContentForToolLoop.text, { toolCalls: assistantContentForToolLoop.toolCalls });
 
@@ -463,8 +531,27 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     };
 
                     if (toolDefinition && typeof toolDefinition.execute === 'function') {
+                        const toolStartTime = Date.now();
+
+                        // Emit tool execution start event
+                        aiObservability.emit('assistant:tool:execute:start', {
+                            toolName: toolCall.toolName,
+                            args: toolCall.args,
+                            toolCallId: toolCall.toolCallId as ToolCallId
+                        });
+
                         try {
                             const executionResult = await toolDefinition.execute(toolCall.args, toolContext);
+                            const toolDuration = Date.now() - toolStartTime;
+
+                            // Emit tool execution success event
+                            aiObservability.emit('assistant:tool:execute:complete', {
+                                toolName: toolCall.toolName,
+                                result: executionResult,
+                                duration: toolDuration,
+                                toolCallId: toolCall.toolCallId as ToolCallId
+                            });
+
                             toolResultsContent.push({
                                 type: 'tool-result',
                                 toolCallId: toolCall.toolCallId,
@@ -472,6 +559,17 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                                 result: executionResult,
                             });
                         } catch (error) {
+                            const toolDuration = Date.now() - toolStartTime;
+                            const toolError = error instanceof Error ? error : new Error("Tool execution failed");
+
+                            // Emit tool execution error event
+                            aiObservability.emit('assistant:tool:execute:error', {
+                                toolName: toolCall.toolName,
+                                error: toolError,
+                                duration: toolDuration,
+                                toolCallId: toolCall.toolCallId as ToolCallId
+                            });
+
                             console.error(`Error executing tool ${toolCall.toolName}:`, error);
                             toolResultsContent.push({
                                 type: 'tool-result',
@@ -509,44 +607,16 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             }
 
             // Final processing of the last result from _internalGenerate
-            if (currentResult.finishReason === 'stop' && (!currentResult.toolCalls || currentResult.toolCalls.length === 0)) {
-                // Only add assistant message if it's a final stop without further tool calls
-                // If loop broke due to maxSteps, this might be an assistant message with tool_calls, already added.
-                if (!messages.some(m => m.role === 'assistant' && m.content === currentResult.text)) {
-                    // Avoid duplicate assistant messages if already added by tool loop
-                    const lastMessage = messages[messages.length - 1];
-                    // Check if the last message is the assistant's response that led to tool calls
-                    // or if the currentResult is a new textual response after tool processing.
-                    let shouldAddFinalAssistantMessage = true;
-                    if (lastMessage.role === 'assistant' && lastMessage.content && Array.isArray(lastMessage.content)) {
-                        const lastContent = lastMessage.content as any[];
-                        if (lastContent.some(part => part.type === 'tool-call')) {
-                            // If the last message was already the one with tool_calls, and currentResult is just that same message,
-                            // don't add it again. This happens if maxSteps is reached.
-                            if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
-                                shouldAddFinalAssistantMessage = false;
-                            }
-                        }
-                    }
-                    if (shouldAddFinalAssistantMessage) {
-                        // Updated call to addAssistantMessage
-                        let textForFinalCall: string | undefined = currentResult.text;
-                        let optionsForFinalCall: { toolCalls?: ToolCallPart[] } = {};
-                        if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
-                            optionsForFinalCall.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }));
-                        }
-                        // Ensure text is not undefined if it's an empty string from result.text
-                        if (currentResult.text === '') textForFinalCall = '';
-
-                        addAssistantMessage(textForFinalCall, (Object.keys(optionsForFinalCall).length > 0 || textForFinalCall === undefined) ? optionsForFinalCall : undefined);
-                    }
-                }
+            // Add the final assistant response to message history only for 'stop' finish reason
+            // For tool-calls with autoExecuteTools=false, we don't add to history as the caller should handle tool calls
+            if (currentResult.finishReason === 'stop' && currentResult.text) {
+                addAssistantMessage(currentResult.text);
             }
 
             lastInteractionData = {
                 finishReason: currentResult.finishReason,
                 toolCalls: currentResult.toolCalls && currentResult.toolCalls.length > 0
-                    ? currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }))
+                    ? currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: tc.args }))
                     : undefined,
                 textContent: currentResult.text,
                 usage: currentResult.usage,
@@ -555,22 +625,29 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             _abortController = null; // Clear abort controller
 
             // Updated return logic based on finishReason
+            let result: AssistantOutcome;
             if (currentResult.finishReason === 'stop') {
-                return { kind: 'text', text: currentResult.text, usage: currentResult.usage };
-            }
-            if (currentResult.finishReason === 'tool-calls' && currentResult.toolCalls && currentResult.toolCalls.length > 0) {
+                result = { kind: 'text', text: currentResult.text, usage: currentResult.usage };
+            } else if (currentResult.finishReason === 'tool-calls' && currentResult.toolCalls && currentResult.toolCalls.length > 0) {
                 const tcParts: ToolCallPart[] = currentResult.toolCalls.map(tc => ({
                     type: 'tool-call',
-                    toolCallId: tc.toolCallId,
+                    toolCallId: tc.toolCallId as ToolCallId,
                     toolName: tc.toolName,
                     args: tc.args,
                 }));
-                return { kind: 'toolCalls', calls: tcParts, usage: currentResult.usage };
+                result = { kind: 'toolCalls', calls: tcParts, usage: currentResult.usage };
+            } else {
+                // Handle other finishReasons as errors or specific kinds if needed
+                const errorMessage = `Unknown or unhandled finish reason: ${currentResult.finishReason}`;
+                console.warn(errorMessage, currentResult); // Log for debugging
+                result = { kind: 'error', error: errorMessage, usage: currentResult.usage };
             }
-            // Handle other finishReasons as errors or specific kinds if needed
-            const errorMessage = `Unknown or unhandled finish reason: ${currentResult.finishReason}`;
-            console.warn(errorMessage, currentResult); // Log for debugging
-            return { kind: 'error', error: errorMessage, usage: currentResult.usage };
+
+            // Emit observability event for successful completion
+            const duration = Date.now() - startTime;
+            aiObservability.emit('assistant:generate:complete', { result, duration });
+
+            return result;
 
         } catch (error) {
             if (_abortController && !_abortController.signal.aborted) {
@@ -578,6 +655,12 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             }
             _abortController = null; // Clear controller after operation finishes or is aborted
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+            // Emit observability event for error
+            const duration = Date.now() - startTime;
+            const errorObj = error instanceof Error ? error : new Error(errorMessage);
+            aiObservability.emit('assistant:generate:error', { error: errorObj, duration });
+
             if (error instanceof Error && error.name === 'AbortError') {
                 return { kind: 'error', error: 'Aborted' }; // Provide usage if available/relevant
             }
@@ -603,10 +686,9 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         }
     };
 
-    // textStream needs to be updated if it's to support autoExecuteTools as well.
-    // For now, it will behave as before (no auto tool execution).
-    // A similar loop logic would be needed inside its async generator if desired.
+    // Enhanced textStream with optional tool execution support
     function getStreamGenerator(): AsyncGenerator<string, void, unknown> {
+        const streamStartTime = Date.now();
         stop();
         _abortController = new AbortController();
         const currentAbortController = _abortController;
@@ -615,6 +697,9 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             let streamResult: StreamTextResult<Record<string, Tool<any, any>>, string> | null = null;
             let fullResponseText = "";
             let streamedToolCalls: ToolCallPart[] = [];
+
+            // Emit stream start event
+            aiObservability.emit('assistant:stream:start', { messages: [...messages] });
 
             try {
                 const streamOptions: any = {
@@ -626,8 +711,12 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     abortSignal: currentAbortController.signal
                 };
 
-                // For streaming, we don't auto-execute tools, so don't pass maxSteps
+                // For streaming, we don't auto-execute tools by default, so don't pass maxSteps
                 // This avoids the "maxSteps must be at least 1" validation error
+                // However, if streamingToolExecution is enabled, we can pass maxSteps
+                if (_streamingToolExecution && _autoExecuteTools) {
+                    streamOptions.maxSteps = maxSteps;
+                }
 
                 streamResult = sdk.streamText<Record<string, Tool<any, any>>>(streamOptions);
 
@@ -639,10 +728,65 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     switch (part.type) {
                         case 'text-delta':
                             fullResponseText += part.textDelta;
+                            // Emit chunk event for observability
+                            aiObservability.emit('assistant:stream:chunk', { chunk: part.textDelta });
                             yield part.textDelta;
                             break;
                         case 'tool-call':
-                            streamedToolCalls.push({ type: 'tool-call', toolCallId: part.toolCallId, toolName: part.toolName, args: part.args });
+                            const toolCallPart: ToolCallPart = { type: 'tool-call', toolCallId: part.toolCallId as ToolCallId, toolName: part.toolName, args: part.args };
+                            streamedToolCalls.push(toolCallPart);
+
+                            // ALPHA: Execute tools during streaming if enabled
+                            if (_streamingToolExecution && _autoExecuteTools && _definedTools) {
+                                const toolDefinition = _definedTools[part.toolName];
+                                if (toolDefinition && typeof toolDefinition.execute === 'function') {
+                                    const toolStartTime = Date.now();
+
+                                    // Emit tool execution start event
+                                    aiObservability.emit('assistant:tool:execute:start', {
+                                        toolName: part.toolName,
+                                        args: part.args,
+                                        toolCallId: part.toolCallId as ToolCallId
+                                    });
+
+                                    try {
+                                        const toolContext = {
+                                            toolCallId: part.toolCallId,
+                                            signal: currentAbortController.signal,
+                                            messages: [...messages]
+                                        };
+
+                                        const executionResult = await toolDefinition.execute(part.args, toolContext);
+                                        const toolDuration = Date.now() - toolStartTime;
+
+                                        // Emit tool execution success event
+                                        aiObservability.emit('assistant:tool:execute:complete', {
+                                            toolName: part.toolName,
+                                            result: executionResult,
+                                            duration: toolDuration,
+                                            toolCallId: part.toolCallId as ToolCallId
+                                        });
+
+                                        // Yield a special marker for tool execution result
+                                        yield `\n[Tool ${part.toolName} executed successfully]\n`;
+
+                                    } catch (error) {
+                                        const toolDuration = Date.now() - toolStartTime;
+                                        const toolError = error instanceof Error ? error : new Error("Tool execution failed");
+
+                                        // Emit tool execution error event
+                                        aiObservability.emit('assistant:tool:execute:error', {
+                                            toolName: part.toolName,
+                                            error: toolError,
+                                            duration: toolDuration,
+                                            toolCallId: part.toolCallId as ToolCallId
+                                        });
+
+                                        // Yield error marker
+                                        yield `\n[Tool ${part.toolName} failed: ${toolError.message}]\n`;
+                                    }
+                                }
+                            }
                             break;
                         case 'finish':
                             // Set lastInteractionData immediately when finish is received
@@ -663,7 +807,9 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                 if (_autoExecuteTools && _definedTools && streamedToolCalls.length > 0) {
                     // Updated call to addAssistantMessage
                     addAssistantMessage(fullResponseText || "", { toolCalls: streamedToolCalls });
-                    console.warn("Streaming with autoExecuteTools=true encountered tool calls. Manual handling required.");
+                    if (!_streamingToolExecution) {
+                        console.warn("Streaming with autoExecuteTools=true encountered tool calls. Consider enabling streamingToolExecution for real-time tool execution.");
+                    }
                 } else {
                     // Always add assistant message for completed streams
                     // Updated call to addAssistantMessage
@@ -674,6 +820,10 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                             : undefined
                     );
                 }
+
+                // Emit stream completion event
+                const streamDuration = Date.now() - streamStartTime;
+                aiObservability.emit('assistant:stream:complete', { fullText: fullResponseText, duration: streamDuration });
 
                 if (currentAbortController.signal.aborted && !lastInteractionData) {
                     lastInteractionData = {
@@ -692,6 +842,11 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     return;
                 }
                 if (!currentAbortController.signal.aborted) {
+                    // Emit stream error event
+                    const streamDuration = Date.now() - streamStartTime;
+                    const streamError = error instanceof Error ? error : new Error('Unknown streaming error');
+                    aiObservability.emit('assistant:stream:error', { error: streamError, duration: streamDuration });
+
                     lastInteractionData = null;
                     throw new Error(`Assistant streaming failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 }
@@ -727,6 +882,9 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         },
         set autoExecuteTools(value: boolean) {
             _autoExecuteTools = value;
+        },
+        get maxHistory() {
+            return _maxHistory;
         }
     };
 };
