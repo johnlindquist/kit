@@ -1,4 +1,4 @@
-import { backupEnvFile, mergeEnvFiles } from "../core/env-backup.js"
+import { backupEnvFile, mergeEnvFiles, formatEnvContent } from "../core/env-backup.js"
 import { safeWriteEnvFile } from "../core/env-file-lock.js"
 import chalk from "chalk"
 
@@ -47,13 +47,9 @@ if (!alreadyExists) {
 			// Merge existing .env with new template
 			const merged = await mergeEnvFiles(envPath, tempTemplatePath)
 
-			// Format merged content
-			const mergedLines: string[] = []
-			for (const [key, value] of merged) {
-				const needsQuotes = /[\s"'`$&|<>^;,\(\)\\]/.test(value) || value.includes('#')
-				const formattedValue = needsQuotes ? `"${value}"` : value
-				mergedLines.push(`${key}=${formattedValue}`)
-			}
+			// Format merged content using the corrected function
+			const mergedContentString = formatEnvContent(merged)
+			const mergedLines = mergedContentString.split('\n');
 
 			// Write merged content safely
 			await safeWriteEnvFile(mergedLines, envPath)

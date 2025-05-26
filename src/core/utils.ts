@@ -534,11 +534,21 @@ export let getLogFromScriptPath = (filePath: string) => {
 //new RegExp(`(^//([^(:|\W)]+
 
 export let stripMetadata = (fileContents: string, exclude: string[] = []) => {
-  let excludeWithCommon = [`http`, `https`, `TODO`, `FIXME`, `NOTE`].concat(exclude)
+  let excludeWithCommon = [`http`, `https`, `TODO`, `FIXME`, `NOTE`].concat(exclude);
 
-  let negBehind = exclude.length ? `(?<!(${excludeWithCommon.join('|')}))` : ``
+  // Regex to capture the metadata key and the colon
+  // It matches lines starting with //, followed by a key (word characters), then a colon.
+  // It uses a negative lookbehind for exclusions.
+  const regex = new RegExp(
+    `^(//\\s*([^(:|\\W|\\n)]+${exclude.length ? `(?<!\\b(${excludeWithCommon.join('|')})\\b)` : ''}):).*$\n?`,
+    'gim'
+  );
 
-  return fileContents.replace(new RegExp(`^//[^(:|\W|\n)]+${negBehind}:.*$\n?`, 'gim'), '')
+  return fileContents.replace(regex, (match, group1) => {
+    // group1 contains the key part like "// Name:" or "// Shortcode:"
+    // We want to keep this part and just remove the value after it, then add a newline.
+    return `${group1.trimEnd()}\n`;
+  });
 }
 
 export let stripName = (name: string) => {

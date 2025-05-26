@@ -72,17 +72,38 @@ const parseEnvContent = (content: string): Map<string, string> => {
 /**
  * Formats env variables back to .env file format
  */
-const formatEnvContent = (envMap: Map<string, string>): string => {
+export const formatEnvContent = (envMap: Map<string, string>): string => {
     const lines: string[] = []
 
     for (const [key, value] of envMap) {
-        // Check if value needs quotes
-        const needsQuotes = /[\s"'`$&|<>^;,\(\)\\]/.test(value) || value.includes('#')
-        const formattedValue = needsQuotes ? `"${value}"` : value
-        lines.push(`${key}=${formattedValue}`)
+        const isAlreadyQuoted =
+            (value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"));
+
+        let formattedValue = value;
+
+        if (isAlreadyQuoted) {
+            // If already quoted, leave as is. 
+            // Or, if it's double-quoted and contains internal double quotes that are not escaped, it's tricky.
+            // For now, we assume valid quoting if already quoted.
+            formattedValue = value;
+        } else {
+            // Needs quoting if it's empty, contains problematic characters, or includes a #
+            const containsProblematicChars = /[\s"'`$&|<>^;,\(\)\\]/.test(value);
+            const needsExternalQuotes = value === "" || containsProblematicChars || value.includes('#');
+
+            if (needsExternalQuotes) {
+                // Escape only internal double quotes, then wrap with double quotes
+                formattedValue = `"${value.replace(/"/g, '\"')}"`;
+            } else {
+                // No quoting needed, use raw value
+                formattedValue = value;
+            }
+        }
+        lines.push(`${key}=${formattedValue}`);
     }
 
-    return lines.join('\n')
+    return lines.join('\n');
 }
 
 /**
@@ -200,6 +221,6 @@ export const cleanupOldBackups = async (): Promise<void> => {
             }
         }
     } catch (error) {
-        global.log?.(chalk.yellow(`Warning: Could not cleanup old backups: ${error}`))
+        global.log?.(chalk.yellow(`Warning: Could not clean up old backups: ${error}`))
     }
-} 
+}

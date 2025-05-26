@@ -1,4 +1,4 @@
-import ava, { type ExecutionContext } from "ava"
+import ava, { type ExecutionContext, TestFn } from "ava"
 import tmp from "tmp-promise"
 import { randomUUID } from "node:crypto"
 import { join } from "node:path"
@@ -27,7 +27,9 @@ type Context = ExecutionContext<TestContext>
 // Mock the kitDotEnvPath function
 let mockEnvPath = ""
 
-ava.beforeEach(async (t: Context) => {
+const test = ava as TestFn<TestContext>
+
+test.beforeEach(async (t) => {
     const tempDir = await tmp.dir({ unsafeCleanup: true })
     const envPath = join(tempDir.path, ".env")
     mockEnvPath = envPath
@@ -48,7 +50,7 @@ ava.beforeEach(async (t: Context) => {
     }
 })
 
-ava.afterEach.always((t: Context) => {
+test.afterEach.always((t) => {
     // Restore original mocks or delete if they didn't exist
     if (t.context.originalKitDotEnvPathMock) {
         global.__kitDotEnvPathMock = t.context.originalKitDotEnvPathMock
@@ -63,7 +65,7 @@ ava.afterEach.always((t: Context) => {
     }
 })
 
-ava.serial("should backup and restore .env file correctly", async (t: Context) => {
+test.serial("should backup and restore .env file correctly", async (t) => {
     const originalContent = "TEST_VAR=original_value\nANOTHER_VAR=another_value"
     await writeFile(t.context.envPath, originalContent)
 
@@ -91,7 +93,7 @@ ava.serial("should backup and restore .env file correctly", async (t: Context) =
     t.is(restoredContent, originalContent)
 })
 
-ava.serial("should merge env files preserving user values", async (t: Context) => {
+test.serial("should merge env files preserving user values", async (t) => {
     const userEnvPath = join(t.context.tempDir, "user.env")
     const templateEnvPath = join(t.context.tempDir, "template.env")
 
@@ -111,7 +113,7 @@ ava.serial("should merge env files preserving user values", async (t: Context) =
     t.is(merged.size, 3)
 })
 
-ava.serial("should handle file locking correctly", async (t: Context) => {
+test.serial("should handle file locking correctly", async (t) => {
     const lock = new EnvFileLock(t.context.envPath)
 
     // Test basic locking
@@ -134,7 +136,7 @@ ava.serial("should handle file locking correctly", async (t: Context) => {
     await lock2.release()
 })
 
-ava.serial("should safely read and write env files concurrently", async (t: Context) => {
+test.serial("should safely read and write env files concurrently", async (t) => {
     const initialContent = ["VAR1=value1", "VAR2=value2", "VAR3=value3"]
     await safeWriteEnvFile(initialContent, t.context.envPath)
 
@@ -156,7 +158,7 @@ ava.serial("should safely read and write env files concurrently", async (t: Cont
     t.true(finalContent.length >= initialContent.length)
 })
 
-ava.serial("should handle stale lock cleanup", async (t: Context) => {
+test.serial("should handle stale lock cleanup", async (t) => {
     const lock = new EnvFileLock(t.context.envPath)
 
     // Create a stale lock file manually
@@ -175,7 +177,7 @@ ava.serial("should handle stale lock cleanup", async (t: Context) => {
     await lock.release()
 })
 
-ava.serial("should backup multiple files and cleanup old ones", async (t: Context) => {
+test.serial("should backup multiple files and cleanup old ones", async (t) => {
     const content = "TEST_VAR=value"
     await writeFile(t.context.envPath, content)
 
@@ -206,7 +208,7 @@ ava.serial("should backup multiple files and cleanup old ones", async (t: Contex
     t.is(remainingCount, 5)
 })
 
-ava.serial("should handle corrupted lock files", async (t: Context) => {
+test.serial("should handle corrupted lock files", async (t) => {
     const corruptedLockPath = `${t.context.envPath}.lock`
     await writeFile(corruptedLockPath, "invalid json content")
 
@@ -219,7 +221,7 @@ ava.serial("should handle corrupted lock files", async (t: Context) => {
     await lock.release()
 })
 
-ava.serial("should preserve comments and empty lines in env files", async (t: Context) => {
+test.serial("should preserve comments and empty lines in env files", async (t) => {
     const contentWithComments = [
         "# This is a comment",
         "VAR1=value1",
@@ -235,7 +237,7 @@ ava.serial("should preserve comments and empty lines in env files", async (t: Co
     t.deepEqual(readBack, contentWithComments)
 })
 
-ava.serial("should handle atomic write failures gracefully", async (t: Context) => {
+test.serial("should handle atomic write failures gracefully", async (t) => {
     // Skip this test on Windows since chmod doesn't work the same way
     if (process.platform === 'win32') {
         t.pass('Skipping permission test on Windows (different permission model)')
@@ -259,14 +261,14 @@ ava.serial("should handle atomic write failures gracefully", async (t: Context) 
     }
 })
 
-ava.serial("should handle missing backup files gracefully", async (t: Context) => {
+test.serial("should handle missing backup files gracefully", async (t) => {
     const nonExistentBackup = join(t.context.tempDir, "nonexistent.backup")
 
     const result = await restoreEnvFile(nonExistentBackup)
     t.true(result.success) // Should succeed (nothing to restore)
 })
 
-ava.serial("withLock should release lock even if operation throws", async (t: Context) => {
+test.serial("withLock should release lock even if operation throws", async (t) => {
     const lock = new EnvFileLock(t.context.envPath)
 
     await t.throwsAsync(
@@ -286,7 +288,7 @@ ava.serial("withLock should release lock even if operation throws", async (t: Co
     await lock.release()
 })
 
-ava.serial("should backup and restore with template merging", async (t: Context) => {
+test.serial("should backup and restore with template merging", async (t) => {
     const originalUserContent = "USER_VAR=user_value\nSHARED_VAR=user_shared_value"
     await writeFile(t.context.envPath, originalUserContent)
 
@@ -315,4 +317,81 @@ ava.serial("should backup and restore with template merging", async (t: Context)
     // Template values should be added
     t.true(lines.includes('TEMPLATE_VAR=template_value'))
     t.true(lines.includes('ANOTHER_TEMPLATE_VAR=another_template'))
+})
+
+test.serial("formatEnvContent should handle various quoting scenarios", async (t) => {
+    const { envPath } = t.context
+    const testCases = [
+        {
+            name: "already double-quoted with spaces",
+            input: new Map([["QUOTED_SPACE", '"already quoted value"']]),
+            expected: 'QUOTED_SPACE="already quoted value"',
+        },
+        {
+            name: "already single-quoted with spaces",
+            input: new Map([["QUOTED_SINGLE_SPACE", "'already single quoted'"]]),
+            expected: "QUOTED_SINGLE_SPACE='already single quoted'",
+        },
+        {
+            name: "already double-quoted comma list",
+            input: new Map([["QUOTED_LIST", '"item1,item2,item3"']]),
+            expected: 'QUOTED_LIST="item1,item2,item3"',
+        },
+        {
+            name: "value with internal quotes needing quotes",
+            input: new Map([["INTERNAL_QUOTES", 'value with "internal" quotes']]),
+            expected: 'INTERNAL_QUOTES="value with \"internal\" quotes"',
+        },
+        {
+            name: "simple value no quotes",
+            input: new Map([["SIMPLE", "value"]]),
+            expected: "SIMPLE=value",
+        },
+        {
+            name: "value needing quotes due to special char",
+            input: new Map([["SPECIAL_CHAR", "value with ; semicolon"]]),
+            expected: 'SPECIAL_CHAR="value with ; semicolon"',
+        },
+        {
+            name: "value needing quotes due to hash",
+            input: new Map([["HASH_VAL", "value#withhash"]]),
+            expected: 'HASH_VAL="value#withhash"',
+        },
+        {
+            name: "empty value",
+            input: new Map([["EMPTY_VAL", ""]]),
+            expected: 'EMPTY_VAL=""', // Empty values are typically quoted
+        },
+        {
+            name: "value with spaces needing quotes",
+            input: new Map([["SPACE_VAL", "value with spaces"]]),
+            expected: 'SPACE_VAL="value with spaces"',
+        },
+        {
+            name: "original KCMDS example",
+            input: new Map([["KIT_MAIN_SHORTCUT", "cmd ;"]]),
+            expected: 'KIT_MAIN_SHORTCUT="cmd ;"',
+        },
+        {
+            name: "original TRUST_KENVS example",
+            input: new Map([["KIT_JOHNLINDQUIST_DANGEROUSLY_TRUST_KENVS", "kit-examples,sponsors,server"]]),
+            expected: 'KIT_JOHNLINDQUIST_DANGEROUSLY_TRUST_KENVS="kit-examples,sponsors,server"',
+        }
+    ];
+
+    // Dynamically import formatEnvContent from env-backup.ts
+    // This is a bit hacky due to it not being directly exported,
+    // usually it would be better to test via public API or export for testing.
+    const { formatEnvContent } = await import("./env-backup.js") as any;
+
+
+    for (const tc of testCases) {
+        const actualContent = formatEnvContent(tc.input);
+        t.is(actualContent, tc.expected, `Test case failed: ${tc.name}`);
+
+        // Also test the round trip via file write and read
+        await writeFile(envPath, actualContent, "utf-8");
+        const fileContent = await readFile(envPath, "utf-8");
+        t.is(fileContent, tc.expected, `File round trip failed for: ${tc.name}`);
+    }
 }) 
