@@ -2182,7 +2182,7 @@ global.chat.addMessage = async (message = {}) => {
     position: "left",
     text: "",
   }
-  await sendWait(Channel.CHAT_ADD_MESSAGE, {
+  return await sendWait(Channel.CHAT_ADD_MESSAGE, {
     ...messageDefaults,
     ...message,
   })
@@ -2193,11 +2193,11 @@ global.chat.getMessages = async () => {
 }
 
 global.chat.setMessages = async (messages = []) => {
-  await sendWait(Channel.CHAT_SET_MESSAGES, messages)
+  return await sendWait(Channel.CHAT_SET_MESSAGES, messages)
 }
 
 global.chat.pushToken = async (token: string = "") => {
-  await sendWait(Channel.CHAT_PUSH_TOKEN, token)
+  return await sendWait(Channel.CHAT_PUSH_TOKEN, token)
 }
 
 global.chat.setMessage = async (
@@ -2212,7 +2212,7 @@ global.chat.setMessage = async (
     position: "left",
     text: "",
   }
-  await sendWait(Channel.CHAT_SET_MESSAGE, {
+  return await sendWait(Channel.CHAT_SET_MESSAGE, {
     index,
     message: {
       ...messageDefaults,

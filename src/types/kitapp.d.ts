@@ -48,14 +48,15 @@ export interface Config {
   deleteSnippet: boolean
 }
 
-export interface BaseMessage {
+export interface ChatMessage {
+  index: number
   text: string
   position: string
   type: string
 }
 
 // Todo: Implement more methods and fix types accordingly
-export interface IMessage extends BaseMessage {
+export interface IMessage extends ChatMessage {
   id: string | number
   title: string
   focus: boolean
@@ -78,11 +79,11 @@ export type Message = string | Partial<IMessage>
 export type Notify = (bodyOrOptions: NotificationConstructorOptions | string) => Promise<void>
 
 export type Chat = ((config?: PromptConfig, actions?: Action[]) => Promise<Message[]>) & {
-  addMessage: (message: Message) => void
-  setMessage: (index: number, message: Message) => void
-  getMessages: () => Promise<BaseMessage[]>
+  addMessage: (message: Message) => Promise<ChatMessage>
+  setMessage: (index: number, message: Message) => Promise<ChatMessage>
+  getMessages: () => Promise<ChatMessage[]>
   setMessages: (messages: Message[]) => Promise<void>
-  pushToken: (token: string) => Promise<void>
+  pushToken: (token: string) => Promise<ChatMessage>
 }
 
 interface ToastOptions {
