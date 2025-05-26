@@ -1,4 +1,5 @@
 import { readFile, stat } from "node:fs/promises";
+import path from "node:path";
 import { globby } from "globby";
 import type { Metadata, Snippet } from '../types/index.js'
 import { kenvPath } from './resolvers.js'
@@ -45,16 +46,27 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
       const newSnippetChoice: Partial<Snippet> = {
         ...metadata,
         filePath: s,
-        name: metadata?.name || s,
+        name: metadata?.name || path.basename(s),
         tag: metadata?.snippet || '',
         description: s,
         text: snippet.trim(),
-        preview: `<div class="p-4">${formattedSnippet}</div>`,
+        preview: `<div class="p-4">
+  <style>
+  p{
+    margin-bottom: 1rem;
+  }
+  li{
+    margin-bottom: .25rem;
+  }
+  
+  </style>
+  ${snippet.trim()}
+</div>`,
         group: 'Snippets',
         kenv: getKenvFromPath(s),
         value: snippet.trim(),
         expand,
-        postfix: postfix ? 'true' : 'false',
+        postfix: postfix ? true : false,
         snippetKey: expand,
       }
 

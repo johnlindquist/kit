@@ -41,6 +41,10 @@ export let postprocessMetadata = (
 ): ScriptMetadata => {
 	const result: Partial<ScriptMetadata> = { ...metadata }
 
+	if ((metadata as ScriptMetadata).postfix !== undefined && (metadata as any).postfix === "false") {
+		delete result.postfix
+	}
+
 	if (metadata.shortcut) {
 		result.shortcut = shortcutNormalizer(metadata.shortcut)
 		result.friendlyShortcut = friendlyShortcut(result.shortcut)

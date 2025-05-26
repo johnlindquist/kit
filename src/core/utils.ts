@@ -10,7 +10,7 @@ import { lstatSync, realpathSync } from 'node:fs'
 import { lstat, readdir } from 'node:fs/promises'
 import { execSync } from 'node:child_process'
 
-import { Channel } from './enum.js'
+import { Channel, ProcessType } from './enum.js'
 import { type AssignmentExpression, type Identifier, type ObjectExpression, Parser, type Program } from 'acorn'
 import tsPlugin from 'acorn-typescript'
 import type { Stamp } from './db'
@@ -538,7 +538,7 @@ export let stripMetadata = (fileContents: string, exclude: string[] = []) => {
 
   let negBehind = exclude.length ? `(?<!(${excludeWithCommon.join('|')}))` : ``
 
-  return fileContents.replace(new RegExp(`(^//[^(:|\W|\n)]+${negBehind}:).+`, 'gim'), '$1')
+  return fileContents.replace(new RegExp(`^//[^(:|\W|\n)]+${negBehind}:.*$\n?`, 'gim'), '')
 }
 
 export let stripName = (name: string) => {
@@ -1322,7 +1322,7 @@ export let isScriptlet = (script: Script | Scriptlet): script is Scriptlet => {
 }
 
 export let isSnippet = (script: Script): script is Snippet => {
-  return 'text' in script
+  return 'text' in script || script.filePath.endsWith('.txt')
 }
 
 export let processPlatformSpecificTheme = (cssString: string): string => {

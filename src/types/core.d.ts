@@ -127,7 +127,7 @@ export interface ScriptMetadata extends Metadata {
   enter?: string
   recent?: boolean
   img?: string
-  postfix?: string
+  postfix?: boolean
 }
 
 export type Script = ScriptMetadata & ScriptPathInfo & Choice
@@ -149,7 +149,7 @@ export type Snippet = Script & {
   group: 'Snippets'
   text: string
   snippetKey?: string
-  postfix?: string
+  postfix?: boolean
 }
 
 export type PromptBounds = {

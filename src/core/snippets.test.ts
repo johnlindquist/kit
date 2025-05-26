@@ -1,5 +1,6 @@
 import ava from "ava"
-import { getSnippet, parseSnippets } from "./snippets.js"
+import { getSnippet } from "./snippets.js"
+import { parseSnippets } from "./utils.js"
 import path from 'node:path'
 import { kenvPath } from '../core/utils.js'
 import { outputTmpFile } from '../api/kit.js'
@@ -97,12 +98,12 @@ console.log("Postfix snippet");
 `.trim()
 	const filePath = path.join(kenvPath('snippets'), 'postfix-snippet.txt')
 	await outputTmpFile(filePath, snippetContent)
-	
+
 	const snippets = await parseSnippets()
 	const found = snippets.find(s => s.name === 'Postfix Snippet')
 	t.truthy(found)
 	t.is(found!.expand, 'postfixTest')
-	t.is(found!.postfix, 'true')
+	t.is(found!.postfix, true)
 })
 
 ava('parseSnippets - snippet with missing expand metadata', async (t) => {
@@ -123,7 +124,7 @@ console.log("No expand snippet");
 	const found = snippets.find(s => s.name === 'No Expand Snippet')
 	t.truthy(found)
 	t.is(found!.expand, '')
-	t.is(found!.postfix, 'false')
+	t.is(found!.postfix, false)
 })
 
 ava('parseSnippets - snippet with extra whitespace', async (t) => {
@@ -161,7 +162,7 @@ ava('parseSnippets - empty snippet file', async (t) => {
 	const filePath = path.join(kenvPath('snippets'), 'empty-snippet.txt')
 	await outputTmpFile(filePath, snippetContent)
 	const snippets = await parseSnippets()
-	
+
 	// Normalize paths for comparison
 	const normalizedFilePath = path.normalize(filePath)
 	const found = snippets.find(s => path.normalize(s.filePath) === normalizedFilePath)

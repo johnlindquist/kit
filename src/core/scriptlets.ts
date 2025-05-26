@@ -1,4 +1,4 @@
-import type { Flags, Scriptlet } from '../types'
+import type { Flags, Scriptlet, ScriptMetadata } from '../types'
 import slugify from 'slugify'
 import { readFile } from 'node:fs/promises'
 import { postprocessMetadata } from './parser.js'
@@ -102,7 +102,7 @@ export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: strin
         }
         continue
       }
-      
+
       if (inH1CodeFence && !insideCodeFence) {
         // Ending the H1 code fence
         inH1CodeFence = false
@@ -197,7 +197,7 @@ export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: strin
       let key = line.slice(0, indexOfColon).trim()
       let value = line.slice(indexOfColon + 1).trim()
       let lowerCaseKey = key.toLowerCase()
-      
+
       // Validate schedule metadata if present
       if (lowerCaseKey === 'schedule') {
         const cronRegex = /^(\S+\s+){4,5}\S+$/

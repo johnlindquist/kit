@@ -11,7 +11,7 @@ snippet = snippetFromFile.trim()
 
 updateArgs(args);
 if (args?.length > 0 && snippet.includes("$0")) {
-    snippet = snippet.replaceAll("$0", args?.shift());
+	snippet = snippet.replaceAll("$0", args?.shift());
 }
 
 // Find ${selection} and replace with selected text

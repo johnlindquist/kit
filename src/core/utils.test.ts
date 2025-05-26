@@ -12,10 +12,11 @@ import {
   scriptsSort,
   templatePlaceholdersRegex
 } from './utils'
-import { outputTmpFile, getGroupedScripts } from '../api/kit'
+import { outputTmpFile } from '../api/kit'
 import slugify from 'slugify'
 import type { Stamp } from './db'
-import type { CronExpression, Script } from '../types'
+import type { CronExpression, Script, Snippet } from '../types'
+import path from 'path'
 
 // Helper function to create a temporary snippet file
 process.env.KENV = home('.mock-kenv')
@@ -564,26 +565,31 @@ console.log("Hello, world!");
     const testSnippet = snippets.find((s) => s.name === 'Test Snippet')
 
     t.truthy(testSnippet)
-    t.is(testSnippet.name, 'Test Snippet')
-    t.is(testSnippet.tag, 'test')
-    t.is(testSnippet.text.trim(), 'console.log("Hello, world!");')
-    t.is(testSnippet.group, 'Snippets')
-    t.is(testSnippet.kenv, '')
-    t.is(testSnippet.expand, 'test')
+    if (testSnippet) {
+      t.is(testSnippet.name, 'Test Snippet')
+      t.is(testSnippet.tag, 'test')
+      t.is(testSnippet.text.trim(), 'console.log("Hello, world!");')
+      t.is(testSnippet.group, 'Snippets')
+      t.is(testSnippet.kenv, '')
+      t.is(testSnippet.expand, 'test')
+    }
   })
 
   ava('parseSnippets - snippet without metadata', async (t) => {
     const content = `console.log("No metadata");`
-    const filePath = await createTempSnippet('no-metadata-snippet.txt', content)
+    const fileName = 'no-metadata-snippet.txt'
+    const filePath = await createTempSnippet(fileName, content)
 
     const snippets = await parseSnippets()
     const testSnippet = snippets.find((s) => s.filePath === filePath)
 
     t.truthy(testSnippet)
-    t.is(testSnippet.name, filePath)
-    t.is(testSnippet.tag, '')
-    t.is(testSnippet.expand, '')
-    t.is(testSnippet.text.trim(), content)
+    if (testSnippet) {
+      t.is(testSnippet.name, path.basename(filePath))
+      t.is(testSnippet.tag, '')
+      t.is(testSnippet.expand, '')
+      t.is(testSnippet.text.trim(), content)
+    }
   })
 
   ava('parseSnippets - snippet with HTML content', async (t) => {
@@ -600,12 +606,14 @@ console.log("Hello, world!");
     const testSnippet = snippets.find((s) => s.name === 'HTML Snippet')
 
     t.truthy(testSnippet)
-    t.is(testSnippet.name, 'HTML Snippet')
-    t.is(testSnippet.text.trim(), '<div>\n  <h1>Hello, world!</h1>\n</div>')
-    t.is(
-      testSnippet.preview,
-      '<div class="p-4">&lt;div&gt;<br/>  &lt;h1&gt;Hello, world!&lt;/h1&gt;<br/>&lt;/div&gt;</div>'
-    )
+    if (testSnippet) {
+      t.is(testSnippet.name, 'HTML Snippet')
+      t.is(testSnippet.text.trim(), '<div>\n  <h1>Hello, world!</h1>\n</div>')
+      const expectedPreview = `<div class="p-4">\n  <style>\n  p{\n    margin-bottom: 1rem;\n  }\n  li{\n    margin-bottom: .25rem;\n  }\n  \n  </style>\n  <div>\n  <h1>Hello, world!</h1>\n</div>\n</div>`.trim()
+      if (testSnippet.preview && typeof testSnippet.preview === 'string') {
+        t.is(testSnippet.preview.replace(/\r\n/g, '\n').trim(), expectedPreview)
+      }
+    }
   })
 
   ava('parseSnippets - multiple snippets', async (t) => {
@@ -625,13 +633,23 @@ console.log("Snippet 2");
     await createTempSnippet('snippet2.txt', snippet2)
 
     const snippets = await parseSnippets()
-    const testSnippets = snippets.filter((s) => s.name === 'Snippet 1' || s.name === 'Snippet 2')
+    const testSnippet1 = snippets.find((s) => s.name === 'Snippet 1')
+    const testSnippet2 = snippets.find((s) => s.name === 'Snippet 2')
+
+    t.truthy(testSnippet1)
+    t.truthy(testSnippet2)
+
+    // Sorted by name by default
+    const definedSnippets = [testSnippet1, testSnippet2].filter(Boolean) as Snippet[]
+    const testSnippets = definedSnippets.sort((a, b) => a.name.localeCompare(b.name))
 
     t.is(testSnippets.length, 2)
-    t.is(testSnippets[0].tag, 's1')
-    t.is(testSnippets[1].tag, 's2')
-    t.is(testSnippets[0].value, 'console.log("Snippet 1");')
-    t.is(testSnippets[1].value, 'console.log("Snippet 2");')
+    if (testSnippets[0] && testSnippets[1]) {
+      t.is(testSnippets[0].tag, 's1')
+      t.is(testSnippets[1].tag, 's2')
+      t.is(testSnippets[0].value, 'console.log("Snippet 1");')
+      t.is(testSnippets[1].value, 'console.log("Snippet 2");')
+    }
   })
 }
 
