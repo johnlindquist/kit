@@ -21,50 +21,42 @@ import '../api/global.js';
 // Type for supported AI providers
 type AIProvider = 'openai' | 'anthropic' | 'google' | 'xai' | 'openrouter';
 
+// ModelFactory type and PROVIDERS map
+type ModelFactory = (id: string) => LanguageModelV1;
+const PROVIDERS: Record<AIProvider, ModelFactory> = {
+    openai: openai,
+    anthropic: anthropic,
+    google: google,
+    xai: xai,
+    openrouter: openrouter
+};
+
+// Cache environment variables at module load
+const ENV_PROVIDER = (process.env.AI_DEFAULT_PROVIDER ?? 'openai') as AIProvider;
+const ENV_MODEL = process.env.AI_DEFAULT_MODEL ?? 'gpt-4o';
+
 // Function to resolve model based on provider and model string
-const resolveModel = (modelString?: string, providerOverride?: AIProvider): LanguageModelV1 => {
-    // Use environment variables for defaults
-    const defaultProvider = (process.env.AI_DEFAULT_PROVIDER as AIProvider) || 'openai';
-    const defaultModel = process.env.AI_DEFAULT_MODEL || 'gpt-4o';
-
-    // If no model string provided, use defaults
+export const resolveModel = (
+    modelString?: string,
+    explicitProvider?: AIProvider
+): LanguageModelV1 => {
     if (!modelString) {
-        const provider = providerOverride || defaultProvider;
-        switch (provider) {
-            case 'openai': return openai(defaultModel);
-            case 'anthropic': return anthropic(defaultModel);
-            case 'google': return google(defaultModel);
-            case 'xai': return xai(defaultModel);
-            case 'openrouter': return openrouter(defaultModel);
-            default: return openai(defaultModel);
+        return PROVIDERS[explicitProvider ?? ENV_PROVIDER](ENV_MODEL);
+    }
+
+    const prefixMatch = modelString.match(/^(\w+?):(.+)$/);
+    if (prefixMatch) {
+        const [, prov, id] = prefixMatch;
+        // Ensure 'prov' is a valid AIProvider before indexing
+        if (prov in PROVIDERS) {
+            return PROVIDERS[prov as AIProvider](id);
         }
+        // Fallback or error handling if provider from string is unknown
+        console.warn(`Unknown provider prefix '${prov}' in model string. Falling back to default.`);
+        return PROVIDERS[ENV_PROVIDER](id); // Or use ENV_MODEL if 'id' is not suitable alone
     }
 
-    // Check if model string contains provider prefix (e.g., "anthropic:claude-3-5-sonnet-latest")
-    const providerMatch = modelString.match(/^(openai|anthropic|google|xai|openrouter):(.+)$/);
-
-    if (providerMatch) {
-        const [, provider, model] = providerMatch;
-        switch (provider as AIProvider) {
-            case 'openai': return openai(model);
-            case 'anthropic': return anthropic(model);
-            case 'google': return google(model);
-            case 'xai': return xai(model);
-            case 'openrouter': return openrouter(model);
-            default: return openai(model);
-        }
-    }
-
-    // Use provider override or default provider
-    const provider = providerOverride || defaultProvider;
-    switch (provider) {
-        case 'openai': return openai(modelString);
-        case 'anthropic': return anthropic(modelString);
-        case 'google': return google(modelString);
-        case 'xai': return xai(modelString);
-        case 'openrouter': return openrouter(modelString);
-        default: return openai(modelString);
-    }
+    return PROVIDERS[explicitProvider ?? ENV_PROVIDER](modelString);
 };
 
 // Interface for injectable SDK functions for testability
@@ -106,23 +98,33 @@ interface AiOptions {
     autoExecuteTools?: boolean // New option
 }
 
+// Define Tokens type (assuming similar to existing usage structure)
+type Tokens = { promptTokens: number; completionTokens: number; totalTokens: number };
+
+// Define AssistantOutcome
+export type AssistantOutcome =
+    | { kind: 'text'; text: string; usage?: Tokens }
+    | { kind: 'toolCalls'; calls: ToolCallPart[]; usage?: Tokens } // Using ToolCallPart as per playbook item 6
+    | { kind: 'error'; error: string; usage?: Tokens };
+
 interface StreamResult {
     stream: AsyncGenerator<string, void, unknown>
     stop: () => void
     abortController: AbortController
 }
 
-export interface AssistantGenerateResult {
-    text: string;
-    toolCalls?: ToolCall<string, any>[];
-    finishReason: FinishReason;
-    response?: GenerateTextResult<Record<string, Tool<any, any>>, string>['response'];
-    usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
-}
+// Comment out or remove old AssistantGenerateResult if it's fully replaced
+// export interface AssistantGenerateResult {
+//     text: string;
+//     toolCalls?: ToolCall<string, any>[];
+//     finishReason: FinishReason;
+//     response?: GenerateTextResult<Record<string, Tool<any, any>>, string>['response'];
+//     usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+// }
 
 export interface AssistantLastInteraction {
     finishReason: FinishReason;
-    toolCalls?: ToolCall<string, any>[];
+    toolCalls?: ToolCallPart[];
     textContent?: string;
     usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
     response?: GenerateTextResult<Record<string, Tool<any, any>>, string>['response'];
@@ -131,16 +133,23 @@ export interface AssistantLastInteraction {
 interface AssistantInstance {
     addUserMessage: (content: string | any[]) => void
     addSystemMessage: (content: string) => void
-    addAssistantMessage: (content: string | any[], toolCalls?: ToolCall<string, any>[]) => void
+    addAssistantMessage: (text?: string, options?: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] }) => void
     addMessage: (message: CoreMessage) => void
     get textStream(): AsyncGenerator<string, void, unknown>
     stop: () => void
-    generate: (abortSignal?: AbortSignal) => Promise<AssistantGenerateResult>
+    generate: (abortSignal?: AbortSignal) => Promise<AssistantOutcome> // Updated return type
     messages: CoreMessage[]
     lastInteraction?: AssistantLastInteraction | null
     get autoExecuteTools(): boolean // Getter
     set autoExecuteTools(value: boolean) // Setter
 }
+
+// Define AssistantContent type for addAssistantMessage
+type AssistantContent = {
+    text?: string;             // plain text
+    parts?: CoreMessage['content'];     // advanced parts (using CoreMessage['content'] for flexibility with string | Part[])
+    toolCalls?: ToolCallPart[];// tool calls, using ToolCallPart for consistency
+};
 
 // Type for the generateObject function we'll add as global.generate
 interface GlobalGenerate {
@@ -161,6 +170,25 @@ interface AiGenerateObject {
 }
 
 // Existing global.ai structure (function returning an input handler)
+// Updated to reflect the new addAssistantMessage signature in the conceptual AiGlobalFull for casting
+interface AiGlobalFull extends AiGlobal {
+    assistant: (
+        systemPrompt: string,
+        options?: AiOptions
+    ) => {
+        addUserMessage: (content: string | any[]) => void;
+        addSystemMessage: (content: string) => void;
+        addAssistantMessage: (text?: string, options?: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] }) => void; // Updated signature here
+        addMessage: (message: CoreMessage) => void;
+        textStream: AsyncGenerator<string, void, unknown>;
+        stop: () => void;
+        generate: (abortSignal?: AbortSignal) => Promise<AssistantOutcome>;
+        messages: CoreMessage[];
+        lastInteraction?: AssistantLastInteraction | null;
+        autoExecuteTools: boolean;
+    };
+}
+
 interface AiGlobal {
     (systemPrompt: string, options?: Omit<AiOptions, 'autoExecuteTools'>): (input: string) => Promise<string>; // autoExecuteTools not relevant here
     object: AiGenerateObject;
@@ -271,48 +299,103 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         messages.push({ role: 'system', content: content })
     }
 
-    const addAssistantMessage = (content: string | any[], toolCalls?: ToolCall<string, any>[]) => {
-        // If we have a simple string and no tool calls, use simple content format
-        if (typeof content === 'string' && (!toolCalls || toolCalls.length === 0)) {
-            messages.push({
-                role: 'assistant',
-                content: content
-            });
-            return;
-        }
-
-        // Otherwise, use the array-based content format
+    const addAssistantMessage = (text?: string, options?: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] }) => {
         const assistantMsg: CoreAssistantMessage = {
             role: 'assistant',
-            content: [] // Initialize content as an array
+            content: "" // Placeholder, will be replaced
         };
 
-        // Handle textual content
-        if (typeof content === 'string') {
-            (assistantMsg.content as any[]).push({ type: 'text', text: content });
+        const hasOptions = options && ((options.toolCalls && options.toolCalls.length > 0) || (options.parts && (typeof options.parts === 'string' ? options.parts.length > 0 : options.parts.length > 0)));
+
+        if (text !== undefined && !hasOptions) {
+            assistantMsg.content = text;
         } else {
-            // If content is already an array (presumably of parts), add them
-            (assistantMsg.content as any[]).push(...content);
-        }
+            const messageContentParts: any[] = [];
+            if (text) {
+                messageContentParts.push({ type: 'text', text: text });
+            }
 
-        // Handle tool calls
-        if (toolCalls && toolCalls.length > 0) {
-            const toolCallParts: ToolCallPart[] = toolCalls.map(tc => ({
-                type: 'tool-call',
-                toolCallId: tc.toolCallId,
-                toolName: tc.toolName,
-                args: tc.args,
-            }));
-            (assistantMsg.content as any[]).push(...toolCallParts);
-        }
+            if (options?.parts) {
+                if (typeof options.parts === 'string') {
+                    // Only add if 'text' wasn't the primary and this provides different content.
+                    // This logic might be redundant if text is always pushed first.
+                    // Consider if options.parts (string) should override or supplement 'text'.
+                    // For now, if 'text' is present, it's the main text part.
+                    // If 'text' is not present, then options.parts (string) can be the text.
+                    if (!text && options.parts.length > 0) {
+                        messageContentParts.push({ type: 'text', text: options.parts });
+                    } else if (text && options.parts !== text && options.parts.length > 0) {
+                        // This case is ambiguous: if text = "Hello" and options.parts = "World", what should happen?
+                        // Current logic: parts (if string) is only used if text is not primary.
+                        // To be safer, let's assume parts get added if they are actual content parts, not a redundant string.
+                    }
+                } else { // It's ContentPart[]
+                    messageContentParts.push(...options.parts);
+                }
+            }
 
+            if (options?.toolCalls && options.toolCalls.length > 0) {
+                messageContentParts.push(...options.toolCalls);
+            }
+            assistantMsg.content = messageContentParts.filter(p => p != null);
+        }
         messages.push(assistantMsg);
     }
 
     const addMessage = (message: CoreMessage) => {
-        // Handle assistant messages with tool_calls property by converting them to the new format
-        if (message.role === 'assistant' && 'tool_calls' in message && message.tool_calls) {
-            addAssistantMessage(message.content, message.tool_calls as ToolCall<string, any>[]);
+        if (message.role === 'assistant') {
+            let primaryText: string | undefined = undefined;
+            const callOptions: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] } = {};
+            let hasComplexParts = false;
+
+            if (typeof message.content === 'string') {
+                primaryText = message.content;
+            } else if (Array.isArray(message.content)) {
+                hasComplexParts = true; // Mark that content is definitely an array
+                const toolCallPartsInContent = message.content.filter(part => part.type === 'tool-call') as ToolCallPart[];
+                const otherParts = message.content.filter(part => part.type !== 'tool-call');
+
+                // Attempt to find a primary text part if no simple string content was found first
+                if (!primaryText && otherParts.length === 1 && otherParts[0].type === 'text') {
+                    // If only one 'text' part remains after extracting tool calls, use its text as primaryText
+                    // and don't put it in callOptions.parts to avoid duplication.
+                    primaryText = (otherParts[0] as { type: 'text'; text: string }).text;
+                } else if (otherParts.length > 0) {
+                    callOptions.parts = otherParts;
+                }
+
+                if (toolCallPartsInContent.length > 0) {
+                    callOptions.toolCalls = toolCallPartsInContent;
+                }
+            }
+
+            // Legacy tool_calls property handling
+            if ('tool_calls' in message && message.tool_calls && Array.isArray(message.tool_calls)) {
+                hasComplexParts = true; // Presence of legacy tool_calls implies complex message
+                const legacyToolCalls = message.tool_calls as ToolCall<string, any>[];
+                const convertedLegacyToolCalls: ToolCallPart[] = legacyToolCalls.map(tc => ({
+                    type: 'tool-call',
+                    toolCallId: tc.toolCallId,
+                    toolName: tc.toolName,
+                    args: tc.args
+                }));
+                callOptions.toolCalls = [...(callOptions.toolCalls || []), ...convertedLegacyToolCalls];
+            }
+
+            // If primaryText is undefined after processing array content (e.g. content was `[]` or only tool_calls),
+            // and the original message.content was actually an empty string, preserve that.
+            if (primaryText === undefined && typeof message.content === 'string') {
+                primaryText = message.content; // Handles case of message.content === ""
+            }
+
+
+            // Determine if options should be passed or if it's a simple text-only message
+            const shouldPassOptions = (callOptions.parts && callOptions.parts.length > 0) ||
+                (callOptions.toolCalls && callOptions.toolCalls.length > 0) ||
+                (hasComplexParts && primaryText === undefined); // if original was array, and no text extracted, pass empty options
+
+            addAssistantMessage(primaryText, shouldPassOptions ? callOptions : undefined);
+
         } else {
             messages.push(message);
         }
@@ -337,15 +420,13 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         return sdk.generateText<Record<string, Tool<any, any>>, string>(generateOptions);
     };
 
-    const generate = async (abortSignal?: AbortSignal): Promise<AssistantGenerateResult> => {
+    const generate = async (abortSignal?: AbortSignal): Promise<AssistantOutcome> => { // Updated return type
         stop(); // Abort any previous generation/stream
         _abortController = new AbortController();
-        const currentSignal = _abortController.signal;
         if (abortSignal) {
-            const externalAbort = () => _abortController?.abort();
-            abortSignal.addEventListener('abort', externalAbort);
-            currentSignal.addEventListener('abort', () => abortSignal.removeEventListener('abort', externalAbort));
+            linkSignals(abortSignal, _abortController); // Use linkSignals here
         }
+        const currentSignal = _abortController.signal; // Define after potential linking
 
         try {
             let currentResult = await _internalGenerate(messages, currentSignal);
@@ -362,7 +443,13 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     throw new Error("Aborted during tool execution loop.");
                 }
 
-                addAssistantMessage(currentResult.text || "", currentResult.toolCalls as ToolCall<string, any>[]);
+                // Updated call to addAssistantMessage
+                const assistantContentForToolLoop: AssistantContent = {};
+                if (currentResult.text) assistantContentForToolLoop.text = currentResult.text;
+                if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
+                    assistantContentForToolLoop.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }));
+                }
+                addAssistantMessage(assistantContentForToolLoop.text, { toolCalls: assistantContentForToolLoop.toolCalls });
 
                 const toolResultsContent: { type: 'tool-result'; toolCallId: string; toolName: string; result: any; }[] = [];
 
@@ -442,7 +529,16 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                         }
                     }
                     if (shouldAddFinalAssistantMessage) {
-                        addAssistantMessage(currentResult.text || "", currentResult.toolCalls as ToolCall<string, any>[] | undefined);
+                        // Updated call to addAssistantMessage
+                        let textForFinalCall: string | undefined = currentResult.text;
+                        let optionsForFinalCall: { toolCalls?: ToolCallPart[] } = {};
+                        if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
+                            optionsForFinalCall.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }));
+                        }
+                        // Ensure text is not undefined if it's an empty string from result.text
+                        if (currentResult.text === '') textForFinalCall = '';
+
+                        addAssistantMessage(textForFinalCall, (Object.keys(optionsForFinalCall).length > 0 || textForFinalCall === undefined) ? optionsForFinalCall : undefined);
                     }
                 }
             }
@@ -450,7 +546,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             lastInteractionData = {
                 finishReason: currentResult.finishReason,
                 toolCalls: currentResult.toolCalls && currentResult.toolCalls.length > 0
-                    ? currentResult.toolCalls.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }))
+                    ? currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }))
                     : undefined,
                 textContent: currentResult.text,
                 usage: currentResult.usage,
@@ -458,23 +554,45 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             };
             _abortController = null; // Clear abort controller
 
-            return {
-                text: currentResult.text,
-                toolCalls: currentResult.toolCalls && currentResult.toolCalls.length > 0
-                    ? currentResult.toolCalls.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }))
-                    : undefined,
-                finishReason: currentResult.finishReason,
-                response: currentResult.response,
-                usage: currentResult.usage
-            };
+            // Updated return logic based on finishReason
+            if (currentResult.finishReason === 'stop') {
+                return { kind: 'text', text: currentResult.text, usage: currentResult.usage };
+            }
+            if (currentResult.finishReason === 'tool-calls' && currentResult.toolCalls && currentResult.toolCalls.length > 0) {
+                const tcParts: ToolCallPart[] = currentResult.toolCalls.map(tc => ({
+                    type: 'tool-call',
+                    toolCallId: tc.toolCallId,
+                    toolName: tc.toolName,
+                    args: tc.args,
+                }));
+                return { kind: 'toolCalls', calls: tcParts, usage: currentResult.usage };
+            }
+            // Handle other finishReasons as errors or specific kinds if needed
+            const errorMessage = `Unknown or unhandled finish reason: ${currentResult.finishReason}`;
+            console.warn(errorMessage, currentResult); // Log for debugging
+            return { kind: 'error', error: errorMessage, usage: currentResult.usage };
 
         } catch (error) {
-            _abortController = null;
-            if (error instanceof Error && error.name === 'AbortError') {
-                throw error;
+            if (_abortController && !_abortController.signal.aborted) {
+                _abortController.abort(); // Ensure cleanup if not already aborted
             }
-            lastInteractionData = null;
-            throw new Error(`Assistant generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            _abortController = null; // Clear controller after operation finishes or is aborted
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            if (error instanceof Error && error.name === 'AbortError') {
+                return { kind: 'error', error: 'Aborted' }; // Provide usage if available/relevant
+            }
+            lastInteractionData = null; // Clear last interaction on error
+            // Ensure usage is passed if available, even in error cases
+            // This part is tricky as currentResult might not be defined if error happens early
+            // Consider how to best capture usage if an error occurs mid-process
+            return { kind: 'error', error: `Assistant generation failed: ${errorMessage}` };
+        } finally {
+            // Ensure _abortController is nulled out AFTER its potential use in abort()
+            const controllerToFinalize = _abortController;
+            _abortController = null; // Nullify the instance variable first
+            if (controllerToFinalize && !controllerToFinalize.signal.aborted) {
+                controllerToFinalize.abort(); // Ensure cleanup of linked signals
+            }
         }
     };
 
@@ -496,7 +614,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         return (async function* () {
             let streamResult: StreamTextResult<Record<string, Tool<any, any>>, string> | null = null;
             let fullResponseText = "";
-            let streamedToolCalls: ToolCall<string, any>[] = [];
+            let streamedToolCalls: ToolCallPart[] = [];
 
             try {
                 const streamOptions: any = {
@@ -524,14 +642,14 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                             yield part.textDelta;
                             break;
                         case 'tool-call':
-                            streamedToolCalls.push({ toolCallId: part.toolCallId, toolName: part.toolName, args: part.args });
+                            streamedToolCalls.push({ type: 'tool-call', toolCallId: part.toolCallId, toolName: part.toolName, args: part.args });
                             break;
                         case 'finish':
                             // Set lastInteractionData immediately when finish is received
                             lastInteractionData = {
                                 finishReason: part.finishReason || 'stop',
                                 toolCalls: streamedToolCalls.length > 0
-                                    ? streamedToolCalls.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }))
+                                    ? streamedToolCalls
                                     : undefined,
                                 textContent: fullResponseText,
                                 usage: part.usage,
@@ -543,18 +661,25 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
 
                 // Add assistant message after the stream completes
                 if (_autoExecuteTools && _definedTools && streamedToolCalls.length > 0) {
-                    addAssistantMessage(fullResponseText || "", streamedToolCalls);
+                    // Updated call to addAssistantMessage
+                    addAssistantMessage(fullResponseText || "", { toolCalls: streamedToolCalls });
                     console.warn("Streaming with autoExecuteTools=true encountered tool calls. Manual handling required.");
                 } else {
                     // Always add assistant message for completed streams
-                    addAssistantMessage(fullResponseText || "", streamedToolCalls.length > 0 ? streamedToolCalls : undefined);
+                    // Updated call to addAssistantMessage
+                    addAssistantMessage(
+                        fullResponseText || "",
+                        (streamedToolCalls.length > 0)
+                            ? { toolCalls: streamedToolCalls }
+                            : undefined
+                    );
                 }
 
                 if (currentAbortController.signal.aborted && !lastInteractionData) {
                     lastInteractionData = {
                         finishReason: 'stop' as FinishReason,
                         toolCalls: streamedToolCalls.length > 0
-                            ? streamedToolCalls.map(tc => ({ toolCallId: tc.toolCallId, toolName: tc.toolName, args: tc.args }))
+                            ? streamedToolCalls
                             : undefined,
                         textContent: fullResponseText,
                         usage: undefined,
@@ -571,7 +696,14 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     throw new Error(`Assistant streaming failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 }
             } finally {
-                if (currentAbortController === _abortController) _abortController = null;
+                // Ensure currentAbortController is nulled out AFTER its potential use in abort()
+                // Also, only act on the controller relevant to this specific stream invocation.
+                if (currentAbortController === _abortController) {
+                    _abortController = null;
+                }
+                if (currentAbortController && !currentAbortController.signal.aborted) {
+                    currentAbortController.abort(); // Ensure cleanup of linked signals
+                }
             }
         })();
     }
@@ -600,6 +732,18 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
 };
 
 // Assign the factory function to global.assistant
-global.assistant = createAssistantInstance;
+global.assistant = createAssistantInstance as AiGlobalFull['assistant'];
+
+// Utility function to link AbortSignals
+const linkSignals = (src: AbortSignal, dst: AbortController) => {
+    const onAbort = () => dst.abort();
+    src.addEventListener('abort', onAbort);
+    // When the destination aborts (e.g. manually or due to its own timeout/logic),
+    // we should remove the listener from the source to prevent memory leaks
+    // and to stop dst.abort() being called again if src aborts later.
+    dst.signal.addEventListener('abort', () =>
+        src.removeEventListener('abort', onAbort)
+    );
+};
 
 export { } 
