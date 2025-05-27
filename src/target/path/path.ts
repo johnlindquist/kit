@@ -8,7 +8,7 @@ import { formatDistanceToNow, compareAsc } from '../../utils/date.js'
 import type { Dirent } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import type { PathConfig, PathDefaultMissingValues } from '../../types/kit'
-import type { Action, Choice, PromptConfig } from '../../types'
+import type { Action, AppState, Choice, PromptConfig } from '../../types'
 import { Channel } from '../../core/enum.js'
 
 export const createPathChoices = async (
@@ -355,16 +355,16 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     }
   }
 
-  let onRight = (input, state) => {
-    downDir(state.focused.value)
+  let onRight = (input, state: AppState) => {
+    if (!state.flaggedValue) {
+      downDir(state.focused.value)
+    }
   }
 
   let onLeft = (input, state) => {
-    upDir(state.focused.value)
-  }
-
-  let onEscape = () => {
-    mainScript()
+    if (!state.flaggedValue) {
+      upDir(state.focused.value)
+    }
   }
 
   let sort = 'name'
@@ -408,8 +408,8 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       actions,
 
       alwaysOnTop: true,
-      // onRight,
-      // onLeft,
+      onRight,
+      onLeft,
       // onNoChoices,
       // onEscape,
       // TODO: If I want resize, I need to create choices first?
