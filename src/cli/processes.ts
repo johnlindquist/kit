@@ -24,6 +24,10 @@ let formatProcesses = async () => {
 			}
 		})
 
+	if (processes.length === 0) {
+		return [{ name: "No running Script Kit processes found", info: true }]
+	}
+
 	return processes
 }
 
