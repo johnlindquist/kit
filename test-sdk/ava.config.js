@@ -4,7 +4,7 @@ export default {
   },
   verbose: true,
   files: [
-    "src/**/*.test.js"
+    "src/**/*.test.js",
     "test/**/*.test.js",
   ],
 }
