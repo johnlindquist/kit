@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url'
 import { Channel } from '../core/enum.js'
-import type { Bounds } from '../types/platform'
+import type { Bounds, KitWindow } from '../types/platform'
 
 let utils = String.raw`on findAndReplaceInText(theText, theSearchString, theReplacementString)
 set AppleScript's text item delimiters to theSearchString
@@ -308,7 +308,6 @@ global.getPrompts = async () => {
     }
 
     prompt.exit = async () => {
-      await hide()
       await sendWait(Channel.TERMINATE_PROMPT, {
         pid: prompt.pid
       })
@@ -338,10 +337,51 @@ global.forcePromptCleanup = async () => {
   return { cleaned, status, summary }
 }
 
-global.getKitWindows = async () => {
+global.getKitWindows = async (): Promise<KitWindow[]> => {
   let message = await global.getDataFromApp(Channel.GET_KIT_WINDOWS)
+  let windows: KitWindow[] = message.windows || []
 
-  return message.windows
+  if (!windows || windows.length === 0) return []
+
+  for (let window of windows) {
+    window.close = async () => {
+      await sendWait(Channel.WINDOW_CLOSE, {
+        id: window.id
+      })
+    }
+
+    window.hide = async () => {
+      await sendWait(Channel.WINDOW_HIDE, {
+        id: window.id
+      })
+    }
+
+    window.show = async () => {
+      await sendWait(Channel.WINDOW_SHOW, {
+        id: window.id
+      })
+    }
+
+    window.focus = async () => {
+      await sendWait(Channel.FOCUS_KIT_WINDOW, {
+        id: window.id
+      })
+    }
+
+    window.minimize = async () => {
+      await sendWait(Channel.WINDOW_MINIMIZE, {
+        id: window.id
+      })
+    }
+
+    window.maximize = async () => {
+      await sendWait(Channel.WINDOW_MAXIMIZE, {
+        id: window.id
+      })
+    }
+  }
+
+  return windows
 }
 
 global.focusKitWindow = async (id: string) => {

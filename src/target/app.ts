@@ -2438,7 +2438,6 @@ global.setHint = hint => {
 }
 
 global.setInput = async input => {
-  log(`setInput: ${input}`)
   return await global.sendWait(Channel.SET_INPUT, input)
 }
 

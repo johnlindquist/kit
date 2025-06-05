@@ -243,6 +243,13 @@ interface KitWindow {
   isFocused: boolean
   isVisible: boolean
   isDestroyed: boolean
+  close(): Promise<void>
+  hide(): Promise<void>
+  show(): Promise<void>
+  focus(): Promise<void>
+  minimize(): Promise<void>
+  maximize(): Promise<void>
+  maximize(): Promise<void>
 }
 
 type GetKitWindows = () => Promise<KitWindow[]>
