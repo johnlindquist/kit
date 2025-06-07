@@ -1332,7 +1332,7 @@ export let isScriptlet = (script: Script | Scriptlet): script is Scriptlet => {
 }
 
 export let isSnippet = (script: Script): script is Snippet => {
-  return 'text' in script || script.filePath.endsWith('.txt')
+  return 'text' in script || script?.filePath?.endsWith('.txt')
 }
 
 export let processPlatformSpecificTheme = (cssString: string): string => {
