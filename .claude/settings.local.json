@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(grep:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(test:*)",
+      "Bash(pnpm ava:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm ava:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(pnpm exec tsc:*)"
     ],
     "deny": []
   }

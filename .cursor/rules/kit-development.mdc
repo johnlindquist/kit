@@ -1,0 +1,36 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Kit Development Guide
+
+This guide provides instructions for building, testing, and working with the Kit codebase.
+
+## Testing
+
+Tests are written using `ava` and follow the `*.test.ts` naming convention.
+
+- **Run all tests:**
+  ```bash
+  pnpm ava
+  ```
+
+- **Run a single test file:**
+  ```bash
+  pnpm ava src/core/env-safety.test.ts
+  ```
+  *(replace `src/core/env-safety.test.ts` with the path to the test file)*
+
+## Building
+
+Building can be disruptive. Please ask a team member before running a full build if they are running a dev build.
+
+- **Run a full build:**
+  ```bash
+  pnpm build
+  ```
+
+## Avoid `pnpm test`
+
+The `pnpm test` command is an "integration" test for the SDK and requires a full build. Avoid using it unless you specifically intend to run these integration tests.

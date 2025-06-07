@@ -266,6 +266,35 @@ declare global {
    * [Examples](https://scriptkit.com?query=replace) | [Docs](https://johnlindquist.github.io/kit-docs/#replace) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=replace)
    */
   var replace: typeof import('replace-in-file').replaceInFile
+
+  // 1Password CLI integration
+  /**
+   * Retrieve secrets from 1Password using the CLI
+   * #### op example
+   * ```ts
+   * // Get GitHub token from default vault
+   * const token = await op("GitHub Token")
+   * 
+   * // Get API key from specific vault
+   * const apiKey = await op("OpenAI API Key", "dev-vault")
+   * 
+   * // Get specific field from specific vault
+   * const username = await op("Database Config", "prod-vault", "username")
+   * 
+   * // With caching options (default: 'session')
+   * const apiKey = await op("API Key", "vault", "password", { 
+   *   cacheDuration: 'until-quit' // 'session' | 'until-quit' | 'until-sleep'
+   * })
+   * ```
+   * Note: Cached values are stored as environment variables with the pattern:
+   * OP_<VAULT>_<ITEM>_<FIELD> (e.g., OP_GITHUB_TOKEN_PASSWORD)
+   * 
+   * [Docs](https://developer.1password.com/docs/cli/)
+   */
+  var op: (itemName: string, vaultName?: string, fieldName?: string, options?: {
+    cacheDuration?: 'session' | 'until-quit' | 'until-sleep'
+  }) => Promise<string>
+
   // stream
   var Writable: typeof import('node:stream').Writable
   var Readable: typeof import('node:stream').Readable

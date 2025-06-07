@@ -1,0 +1,17 @@
+:root {
+  --name: "Rosé Pine";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #e0def4;
+  --color-primary: #c4a7e7;
+  --color-secondary: #6e6a86;
+  --color-background: #191724;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

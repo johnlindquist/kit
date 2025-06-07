@@ -24,8 +24,8 @@ let choices = input => [
     description: !input
       ? `The filename will be converted automatically.`
       : `Filename will be converted to ${stripName(
-          inputTransformer(input)
-        )}.${kitMode()}`,
+        inputTransformer(input)
+      )}.${kitMode()}`,
   },
 ]
 
@@ -34,20 +34,20 @@ let initialChoices = choices(arg?.keyword)
 let name = arg?.pass
   ? stripName(arg?.pass)
   : await arg(
-      {
-        debounceInput: 0,
-        placeholder: arg?.placeholder || "Enter a name",
-        validate: input => {
-          return checkIfCommandExists(stripName(input))
-        },
-        shortcuts: [],
-        enter: `Create script and open in editor`,
-        strict: false,
-        initialChoices,
-      }
-      // I don't think we need choices here
-      // choices
-    )
+    {
+      debounceInput: 0,
+      placeholder: arg?.placeholder || "Enter a name",
+      validate: input => {
+        return checkIfCommandExists(stripName(input))
+      },
+      shortcuts: [],
+      enter: `Create script and open in editor`,
+      strict: false,
+      initialChoices,
+    }
+    // I don't think we need choices here
+    // choices
+  )
 
 let { dirPath: selectedKenvPath } = await selectKenv({
   placeholder: `Select Where to Create Script`,

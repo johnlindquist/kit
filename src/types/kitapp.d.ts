@@ -528,6 +528,11 @@ export interface ChannelMap {
     message: string
     icon: string
   }
+  [Channel.CACHE_ENV_VAR]: {
+    key: string
+    value: string
+    duration: 'session' | 'until-quit' | 'until-sleep'
+  }
   [Channel.SHEBANG]: ShebangConfig
   [Channel.SELECT_FILE]: string
   [Channel.SELECT_FOLDER]: string

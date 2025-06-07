@@ -2,6 +2,10 @@
 
 [https://scriptkit.com/](https://scriptkit.com/)
 
+<a href="https://vercel.com/oss">
+  <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
+</a>
+
 ## Join the Discussion
 
 [https://github.com/johnlindquist/kit/discussions](https://github.com/johnlindquist/kit/discussions)
@@ -9,6 +13,7 @@
 ## Docs
 
 [https://github.com/johnlindquist/kit-docs](https://github.com/johnlindquist/kit-docs)
+
 
 ## ⭐️ Unlock Script Kit Pro by Sponsoring Script Kit ⭐️
 

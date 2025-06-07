@@ -1,0 +1,17 @@
+:root {
+  --name: "Edge Dark";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #c5cdd9;
+  --color-primary: #6cb6eb;
+  --color-secondary: #758094;
+  --color-background: #2c2e34;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

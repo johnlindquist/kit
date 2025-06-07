@@ -1,0 +1,17 @@
+:root {
+  --name: "Flatland";
+  --appearance: dark;
+  --opacity: 0.9;
+  --color-text: #f0f0f0;
+  --color-primary: #55b5db;
+  --color-secondary: #798188;
+  --color-background: #26292c;
+  --ui-bg-opacity: 0.6;
+  --ui-border-opacity: 0.6;
+
+  --mono-font: JetBrains Mono;
+  --sans-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --serif-font: 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times',
+    'serif';
+}

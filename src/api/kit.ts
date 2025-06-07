@@ -979,6 +979,15 @@ export let actions: Action[] = [
     group: 'New'
   },
   {
+    name: 'Generate Script with AI',
+    description: 'Generate a new script with AI',
+    shortcut: `${cmd}+shift+n`,
+    onAction: async () => {
+      await run(kitPath('cli', 'generate-script.js'))
+    },
+    group: 'New'
+  },
+  {
     name: 'New Scriptlet',
     description: 'Create a new scriptlet',
     shortcut: `${cmd}+shift+n`,
