@@ -981,9 +981,9 @@ export let actions: Action[] = [
   {
     name: 'Generate Script with AI',
     description: 'Generate a new script with AI',
-    shortcut: `${cmd}+shift+n`,
+    shortcut: `${cmd}+g`,
     onAction: async () => {
-      await run(kitPath('cli', 'generate-script.js'))
+      await run(kitPath('cli', 'generate.js'))
     },
     group: 'New'
   },
@@ -1584,6 +1584,7 @@ export let getGroupedScripts = async (fromCache = true) => {
 
   let kitScripts = [
     // kitPath("cli", "new.js"),
+    kitPath('cli', 'generate.js'),
     kitPath('cli', 'new-menu.js'),
     kitPath('cli', 'new-scriptlet.js'),
     kitPath('cli', 'new-snippet.js'),

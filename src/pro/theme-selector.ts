@@ -19,7 +19,7 @@ let defaultThemePaths = await globby([
 	kitPath("themes", "script-kit*.css").replaceAll("\\", "/")
 ])
 
-let guide = await readFile(kitPath("GUIDE.md"), "utf-8")
+let guide = await readFile(kitPath("API.md"), "utf-8")
 
 let themes = []
 
