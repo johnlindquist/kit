@@ -34,19 +34,20 @@ await import("./packages/trash.js")
 await import("./packages/open.js")
 await import("./packages/tmpPromise.js")
 await import("./packages/git.js")
+await import("./packages/onepassword.js")
 
 global.env = async (envKey, promptConfig) => {
   if (!envKey) throw new Error(`Environment Key Required`)
 
   let secret =
     typeof (promptConfig as PromptConfig)?.secret ===
-    "boolean"
+      "boolean"
       ? (promptConfig as PromptConfig).secret
       : envKey.includes("KEY") ||
         envKey.includes("SECRET") ||
         envKey.includes("TOKEN")
-      ? true
-      : false
+        ? true
+        : false
   if ((promptConfig as any)?.reset !== true) {
     let envVal = global.env[envKey] || process.env[envKey]
     if (envVal) return envVal
@@ -56,14 +57,14 @@ global.env = async (envKey, promptConfig) => {
     typeof promptConfig === "function"
       ? await promptConfig()
       : typeof promptConfig === "string"
-      ? await global.mini({
+        ? await global.mini({
           enter: "Write to .env",
           shortcuts: [],
           placeholder: promptConfig,
           secret,
           keyword: "",
         })
-      : await global.mini({
+        : await global.mini({
           enter: "Write to .env",
           shortcuts: [],
           placeholder: `Set ${envKey}:`,

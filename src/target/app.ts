@@ -845,6 +845,12 @@ let waitForPromptValue = ({
               break
             }
 
+            case Channel.ENV_UPDATED: {
+              let { key, value } = data
+              global.env[key] = value
+              break
+            }
+
             default:
               // warn(`Unknown channel: ${data.channel}`)
               break
