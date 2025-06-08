@@ -111,6 +111,16 @@ themes = groupChoices(themes, {
 	order: ["Kit", "Default", "Custom", "Built-in"]
 })
 
+// Check if kit.css exists
+let kitCssExists = await pathExists(kenvPath("kit.css"))
+let warningText = ""
+if (kitCssExists) {
+	warningText = `<div class="p-4 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-md mb-4">
+		<p class="font-semibold">⚠️ Note: You have a kit.css file</p>
+		<p class="text-sm mt-1">Your kit.css styles will be applied on top of any theme you select here.</p>
+	</div>`
+}
+
 let cssPath = await arg(
 	{
 		placeholder: "Select Theme",
@@ -120,7 +130,8 @@ let cssPath = await arg(
 		onEscape: async () => {
 			await setScriptTheme("")
 			exit()
-		}
+		},
+		panel: kitCssExists ? md(warningText) : ""
 	},
 	themes
 )
@@ -144,6 +155,14 @@ if (cssPath === RESET) {
 
 	let theme = await readFile(cssPath, "utf-8")
 	await setTheme(theme)
+	
+	// Show notification if kit.css exists
+	if (kitCssExists) {
+		await notify({
+			title: "Theme Applied",
+			body: "Your kit.css file is still active and will override theme styles. Remove kit.css to use only the selected theme."
+		})
+	}
 }
 await setInput("")
 await mainScript()
