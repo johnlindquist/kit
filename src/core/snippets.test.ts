@@ -3,9 +3,8 @@ import { getSnippet } from "./snippets.js"
 import { parseSnippets } from "./utils.js"
 import path from 'node:path'
 import { kenvPath } from '../core/utils.js'
-import { outputTmpFile } from '../api/kit.js'
+import { outputFile, ensureDir, writeFile } from 'fs-extra'
 import tmp from "tmp-promise"
-import { ensureDir } from "fs-extra"
 
 ava("getSnippet - basic metadata and snippet", (t) => {
 	const content = `
@@ -75,7 +74,7 @@ console.log("Kenv snippet");
 	const testKenvDir = kenvPath('kenvs', 'test', 'snippets')
 	await ensureDir(testKenvDir)
 	const filePath = path.join(testKenvDir, 'kenv-snippet.txt')
-	await outputTmpFile(filePath, snippetContent)
+	await writeFile(filePath, snippetContent)
 
 	const snippets = await parseSnippets()
 	const found = snippets.find(s => s.name === 'Kenv Snippet')
@@ -97,7 +96,7 @@ ava('parseSnippets - snippet with postfix expand marker', async (t) => {
 console.log("Postfix snippet");
 `.trim()
 	const filePath = path.join(kenvPath('snippets'), 'postfix-snippet.txt')
-	await outputTmpFile(filePath, snippetContent)
+	await writeFile(filePath, snippetContent)
 
 	const snippets = await parseSnippets()
 	const found = snippets.find(s => s.name === 'Postfix Snippet')
@@ -118,8 +117,9 @@ ava('parseSnippets - snippet with missing expand metadata', async (t) => {
 // SomeMeta: value
 console.log("No expand snippet");
 `.trim()
+	await ensureDir(kenvPath('snippets'))
 	const filePath = path.join(kenvPath('snippets'), 'no-expand-snippet.txt')
-	await outputTmpFile(filePath, snippetContent)
+	await outputFile(filePath, snippetContent)
 	const snippets = await parseSnippets()
 	const found = snippets.find(s => s.name === 'No Expand Snippet')
 	t.truthy(found)
@@ -141,8 +141,9 @@ ava('parseSnippets - snippet with extra whitespace', async (t) => {
 console.log("Whitespace snippet");
 
 `.trim()
+	await ensureDir(kenvPath('snippets'))
 	const filePath = path.join(kenvPath('snippets'), 'whitespace-snippet.txt')
-	await outputTmpFile(filePath, snippetContent)
+	await outputFile(filePath, snippetContent)
 	const snippets = await parseSnippets()
 	t.log({ snippets })
 	const found = snippets.find(s => s.name === 'Whitespace Snippet')
@@ -159,8 +160,9 @@ ava('parseSnippets - empty snippet file', async (t) => {
 	await ensureDir(kenvPath('snippets'))
 
 	const snippetContent = ''
+	await ensureDir(kenvPath('snippets'))
 	const filePath = path.join(kenvPath('snippets'), 'empty-snippet.txt')
-	await outputTmpFile(filePath, snippetContent)
+	await outputFile(filePath, snippetContent)
 	const snippets = await parseSnippets()
 
 	// Normalize paths for comparison
@@ -189,8 +191,8 @@ console.log("Snippet 2");
 `.trim()
 	const filePath1 = path.join(kenvPath('snippets'), 'multi-snippet1.txt')
 	const filePath2 = path.join(kenvPath('snippets'), 'multi-snippet2.txt')
-	await outputTmpFile(filePath1, content1)
-	await outputTmpFile(filePath2, content2)
+	await outputFile(filePath1, content1)
+	await outputFile(filePath2, content2)
 	const snippets = await parseSnippets()
 	const found1 = snippets.find(s => s.name === 'Multi Snippet 1')
 	const found2 = snippets.find(s => s.name === 'Multi Snippet 2')

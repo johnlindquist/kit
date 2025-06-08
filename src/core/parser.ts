@@ -53,7 +53,9 @@ export let postprocessMetadata = (
 	if (metadata.background) {
 		if (metadata.background !== "auto") {
 			// @ts-ignore
-			result.background = metadata.background === "true"
+			result.background = typeof metadata.background === 'boolean' 
+				? metadata.background 
+				: metadata.background === "true"
 		}
 	}
 

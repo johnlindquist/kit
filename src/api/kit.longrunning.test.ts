@@ -1,8 +1,10 @@
 import ava from 'ava'
 import slugify from 'slugify'
-import { outputTmpFile } from './kit.js'
 import { getProcessedScripts } from './kit.js'
 import { Script } from '../types/core.js'
+import { kenvPath } from '../core/utils.js'
+import { ensureDir, outputFile, remove } from 'fs-extra'
+import { join } from 'path'
 
 ava('getProcessedScripts preserves longRunning property', async (t) => {
   const testScriptName = 'Test Longrunning Script'
@@ -11,13 +13,17 @@ ava('getProcessedScripts preserves longRunning property', async (t) => {
   const scriptContent = `
 // Name: ${testScriptName}
 // Description: A test script with longRunning property
-// Longrunning: true
+// longRunning: true
 
 console.log("This is a long running script")
 `
 
-  // Create temporary test script
-  const filePath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+  // Ensure scripts directory exists
+  await ensureDir(kenvPath('scripts'))
+  
+  // Create test script in the scripts directory
+  const filePath = join(kenvPath('scripts'), `${fileName}.ts`)
+  await outputFile(filePath, scriptContent)
 
   // Force cache refresh to include our new script
   const scripts = await getProcessedScripts(false) as Script[]
@@ -29,6 +35,9 @@ console.log("This is a long running script")
   t.truthy(testScript, 'Test script should be found')
   t.is(testScript?.longRunning, true, 'longRunning property should be preserved as true')
   t.is(testScript?.name, testScriptName, 'Script name should match')
+  
+  // Clean up
+  await remove(filePath)
 })
 
 ava('getProcessedScripts handles longRunning: false correctly', async (t) => {
@@ -38,13 +47,17 @@ ava('getProcessedScripts handles longRunning: false correctly', async (t) => {
   const scriptContent = `
 // Name: ${testScriptName}
 // Description: A test script with longRunning set to false
-// Longrunning: false
+// longRunning: false
 
 console.log("This is a quick script")
 `
 
-  // Create temporary test script
-  const filePath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+  // Ensure scripts directory exists
+  await ensureDir(kenvPath('scripts'))
+  
+  // Create test script in the scripts directory
+  const filePath = join(kenvPath('scripts'), `${fileName}.ts`)
+  await outputFile(filePath, scriptContent)
 
   // Force cache refresh to include our new script
   const scripts = await getProcessedScripts(false) as Script[]
@@ -55,6 +68,9 @@ console.log("This is a quick script")
   // Verify the script was found and has longRunning property set to false
   t.truthy(testScript, 'Test script should be found')
   t.is(testScript?.longRunning, false, 'longRunning property should be preserved as false')
+  
+  // Clean up
+  await remove(filePath)
 })
 
 ava('getProcessedScripts handles missing longRunning property', async (t) => {
@@ -68,8 +84,12 @@ ava('getProcessedScripts handles missing longRunning property', async (t) => {
 console.log("This is a normal script")
 `
 
-  // Create temporary test script
-  const filePath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+  // Ensure scripts directory exists
+  await ensureDir(kenvPath('scripts'))
+  
+  // Create test script in the scripts directory
+  const filePath = join(kenvPath('scripts'), `${fileName}.ts`)
+  await outputFile(filePath, scriptContent)
 
   // Force cache refresh to include our new script
   const scripts = await getProcessedScripts(false) as Script[]
@@ -80,6 +100,9 @@ console.log("This is a normal script")
   // Verify the script was found and longRunning is undefined
   t.truthy(testScript, 'Test script should be found')
   t.is(testScript?.longRunning, undefined, 'longRunning property should be undefined when not specified')
+  
+  // Clean up
+  await remove(filePath)
 })
 
 ava('getProcessedScripts preserves longRunning through the entire pipeline', async (t) => {
@@ -89,14 +112,18 @@ ava('getProcessedScripts preserves longRunning through the entire pipeline', asy
   const scriptContent = `
 // Name: ${testScriptName}
 // Description: Test the full pipeline preservation
-// Longrunning: true
+// longRunning: true
 // Background: true
 
 console.log("Testing full pipeline")
 `
 
-  // Create temporary test script
-  const filePath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+  // Ensure scripts directory exists
+  await ensureDir(kenvPath('scripts'))
+  
+  // Create test script in the scripts directory
+  const filePath = join(kenvPath('scripts'), `${fileName}.ts`)
+  await outputFile(filePath, scriptContent)
 
   // Force cache refresh
   const scripts = await getProcessedScripts(false) as Script[]
@@ -113,4 +140,7 @@ console.log("Testing full pipeline")
   // Verify the script object has the expected shape
   t.truthy(testScript?.filePath, 'Should have filePath')
   t.truthy(testScript?.command, 'Should have command')
+  
+  // Clean up
+  await remove(filePath)
 })

@@ -1932,7 +1932,12 @@ test.serial("should hide and exit on blur", async (t) => {
     }
   }
   
-  await mockMainMenu(options)
+  try {
+    await mockMainMenu(options)
+    t.fail("Should have thrown")
+  } catch (error: any) {
+    t.is(error.message, "Exit called")
+  }
   
   t.is(hideCalls, 1)
   t.is(exitCalls, 1)

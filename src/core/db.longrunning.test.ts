@@ -1,7 +1,9 @@
 import ava from 'ava'
 import slugify from 'slugify'
-import { outputTmpFile } from '../api/kit.js'
+import { kenvPath } from './utils.js'
 import { getScriptsDb, getScripts } from './db.js'
+import { ensureDir, outputFile, remove } from 'fs-extra'
+import { join } from 'path'
 
 ava('scripts database preserves longRunning property', async (t) => {
   const testScriptName = 'DB Test Longrunning Script'
@@ -10,13 +12,18 @@ ava('scripts database preserves longRunning property', async (t) => {
   const scriptContent = `
 // Name: ${testScriptName}
 // Description: Testing database persistence of longRunning
-// Longrunning: true
+// longRunning: true
 
 console.log("DB test script")
 `
 
   // Create temporary test script
-  const filePath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+  // Ensure scripts directory exists
+  await ensureDir(kenvPath('scripts'))
+  
+  // Create test script in the scripts directory
+  const filePath = join(kenvPath('scripts'), `${fileName}.ts`)
+  await outputFile(filePath, scriptContent)
 
   // Force database refresh
   const scriptsDb = await getScriptsDb(false)
@@ -52,12 +59,17 @@ ava('scripts database handles various longRunning values', async (t) => {
     const scriptContent = `
 // Name: ${testScriptName}
 // Description: Testing ${testCase.value} value
-// Longrunning: ${testCase.value}
+// longRunning: ${testCase.value}
 
 console.log("Test")
 `
 
-    const filePath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+    // Ensure scripts directory exists
+  await ensureDir(kenvPath('scripts'))
+  
+  // Create test script in the scripts directory
+  const filePath = join(kenvPath('scripts'), `${fileName}.ts`)
+  await outputFile(filePath, scriptContent)
 
     // Force database refresh
     const scriptsDb = await getScriptsDb(false)
@@ -65,6 +77,9 @@ console.log("Test")
 
     t.is(testScript?.longRunning, testCase.expected,
       `longRunning: ${testCase.value} should be stored as ${testCase.expected}`)
+    
+    // Clean up
+    await remove(filePath)
   }
 })
 
@@ -75,7 +90,7 @@ ava('scripts database preserves all metadata including longRunning', async (t) =
   const scriptContent = `
 // Name: ${testScriptName}
 // Description: Test all metadata preservation
-// Longrunning: true
+// longRunning: true
 // Background: true
 // Schedule: */5 * * * *
 // Shortcut: cmd+shift+t
@@ -83,7 +98,12 @@ ava('scripts database preserves all metadata including longRunning', async (t) =
 console.log("All metadata test")
 `
 
-  const filePath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+  // Ensure scripts directory exists
+  await ensureDir(kenvPath('scripts'))
+  
+  // Create test script in the scripts directory
+  const filePath = join(kenvPath('scripts'), `${fileName}.ts`)
+  await outputFile(filePath, scriptContent)
 
   // Force database refresh and get the database instance
   const scriptsDb = await getScriptsDb(false)
@@ -108,4 +128,7 @@ console.log("All metadata test")
 
   t.is(persistedScript?.longRunning, true, 'longRunning should persist after write')
   t.is(persistedScript?.background, true, 'background should persist after write')
+  
+  // Clean up
+  await remove(filePath)
 })
