@@ -373,9 +373,46 @@ export let getScriptFromString = async (script: string): Promise<Script> => {
     return result
   }
   
-  // Normalize both paths for comparison to handle different separator styles
-  const normalizedInput = path.normalize(script)
-  let result = scripts.find((s) => path.normalize(s.filePath) === normalizedInput)
+  // Helper function to normalize paths for cross-platform comparison
+  const normalizePath = (p: string): string => {
+    // Replace all backslashes with forward slashes for consistent comparison
+    return p.replace(/\\/g, '/')
+  }
+  
+  // For case-insensitive comparison on Windows
+  const isWindows = process.platform === 'win32'
+  const compareStrings = (a: string, b: string): boolean => {
+    if (isWindows) {
+      return a.toLowerCase() === b.toLowerCase()
+    }
+    return a === b
+  }
+  
+  // Normalize input path
+  const normalizedInput = normalizePath(script)
+  
+  // Try to find the script
+  let result = scripts.find((s) => {
+    const normalizedScriptPath = normalizePath(s.filePath)
+    
+    // Direct comparison (handles most cases including scriptlets with anchors)
+    if (compareStrings(normalizedScriptPath, normalizedInput)) {
+      return true
+    }
+    
+    // For scriptlets with anchors, also try more flexible matching
+    if (s.filePath.includes('#') && script.includes('#')) {
+      const [inputBase, inputAnchor] = normalizedInput.split('#')
+      const [scriptBase, scriptAnchor] = normalizedScriptPath.split('#')
+      
+      // Compare base paths and anchors separately
+      if (compareStrings(inputBase, scriptBase) && inputAnchor === scriptAnchor) {
+        return true
+      }
+    }
+    
+    return false
+  })
 
   if (!result) {
     // Provide detailed error information for path-based searches
