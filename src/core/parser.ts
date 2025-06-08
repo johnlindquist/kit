@@ -61,6 +61,11 @@ export let postprocessMetadata = (
 		result.shortcode = metadata.shortcode.trim().toLowerCase()
 	}
 
+	if (metadata.longrunning) {
+		// @ts-ignore
+		result.longrunning = metadata.longrunning === "true"
+	}
+
 	if (metadata.trigger) {
 		result.trigger = metadata.trigger.trim().toLowerCase()
 	}
