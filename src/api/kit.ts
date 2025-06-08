@@ -1562,7 +1562,7 @@ export let getProcessedScripts = async (fromCache = true) => {
     name: 'processedScripts = await Promise.all'
   })
 
-  return scripts
+  return processedScripts
 }
 
 export let getGroupedScripts = async (fromCache = true) => {
