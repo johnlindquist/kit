@@ -14,7 +14,7 @@ let { parseMetadata, postprocessMetadata } = await importKit('core', 'parser.js'
 /** @type {import("./enum.js")} */
 let { ProcessType } = await importKit('core', 'enum.js')
 
-ava.serial('parseMetadata handles longrunning: true', (t) => {
+ava.serial('parseMetadata handles longRunning: true', (t) => {
   const fileContents = `
 // Name: Long Running Script
 // Description: This script runs for a long time
@@ -31,7 +31,7 @@ console.log("This is a long running script")
   t.is(metadata.type, ProcessType.Prompt)
 })
 
-ava.serial('parseMetadata handles longrunning: false', (t) => {
+ava.serial('parseMetadata handles longRunning: false', (t) => {
   const fileContents = `
 // Name: Quick Script
 // Longrunning: false
@@ -61,7 +61,7 @@ console.log("This is a normal script")
 ava.serial('postprocessMetadata converts longrunning string to boolean', (t) => {
   const metadata = {
     name: 'Test Script',
-    longrunning: 'true'
+    longRunning: 'true'
   }
   
   const processed = postprocessMetadata(metadata, '')
@@ -83,12 +83,12 @@ ava.serial('postprocessMetadata handles various longrunning values', (t) => {
   testCases.forEach(({ input, expected }) => {
     const metadata = {
       name: 'Test Script',
-      longrunning: input
+      longRunning: input
     }
     
     const processed = postprocessMetadata(metadata, '')
     
-    t.is(processed.longrunning, expected, `longrunning: ${input} should become ${expected}`)
+    t.is(processed.longrunning, expected, `longRunning: ${input} should become ${expected}`)
   })
 })
 
@@ -111,17 +111,4 @@ console.log("Complex script")
   t.is(metadata.longrunning, true)
   t.is(metadata.schedule, '*/5 * * * *')
   t.is(metadata.type, ProcessType.Schedule) // Schedule takes precedence
-})
-
-ava.serial('backwards compatibility - handles longRunning (camelCase)', (t) => {
-  const metadata = {
-    name: 'Test Script',
-    longRunning: 'true'
-  }
-  
-  const processed = postprocessMetadata(metadata, '')
-  
-  // Should still output as lowercase longrunning
-  t.is(processed.longrunning, true)
-  t.is(processed.longRunning, undefined)
 })

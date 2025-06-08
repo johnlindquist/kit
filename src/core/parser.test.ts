@@ -3,38 +3,6 @@ import { postprocessMetadata } from "./parser.js"
 import { getMetadata } from "./utils.js"
 import { ProcessType } from "./enum.js"
 import type { Metadata, ScriptMetadata } from "../types/core.js"
-import * as path from 'node:path'
-import { readFileSync } from 'node:fs'
-
-// Function to parse Metadata keys from the type definition file (for testing)
-const getValidMetadataKeys = (): Set<string> => {
-	try {
-		const coreTypesPath = path.resolve(process.cwd(), 'src', 'types', 'core.d.ts');
-		const typesContent = readFileSync(coreTypesPath, 'utf-8');
-
-		const metadataInterfaceRegex = /export interface Metadata {([\s\S]*?)}\n/s;
-		const match = typesContent.match(metadataInterfaceRegex);
-
-		if (!match || !match[1]) {
-			console.error("Could not find or parse Metadata interface in core.d.ts");
-			return new Set();
-		}
-
-		const interfaceContent = match[1];
-		const keyRegex = /^\s*(\/\*\*[\s\S]*?\*\/)?\s*([a-zA-Z0-9_-]+)\??:/gm;
-		const keys = new Set<string>();
-		let keyMatch;
-		while ((keyMatch = keyRegex.exec(interfaceContent)) !== null) {
-			keys.add(keyMatch[2]);
-		}
-		return keys;
-	} catch (error) {
-		console.error("Error reading or parsing core.d.ts for metadata keys:", error);
-		return new Set();
-	}
-};
-
-const VALID_METADATA_KEYS_SET = getValidMetadataKeys();
 
 ava("postprocessMetadata - basic metadata processing", (t) => {
 	const metadata = {
@@ -74,6 +42,21 @@ ava("postprocessMetadata - process type determination", (t) => {
 	for (const { metadata, expected } of testCases) {
 		const result = postprocessMetadata(metadata, "")
 		t.is(result.type, expected)
+	}
+})
+
+ava("postprocessMetadata - longRunning metadata processing", (t) => {
+	const testCases = [
+		{ metadata: { longRunning: "true" }, expected: true },
+		{ metadata: { longRunning: "false" }, expected: false },
+		{ metadata: { longRunning: true }, expected: true },
+		{ metadata: { longRunning: false }, expected: false },
+		{ metadata: {}, expected: undefined }
+	] as const
+
+	for (const { metadata, expected } of testCases) {
+		const result = postprocessMetadata(metadata as any, "")
+		t.is(result.longRunning, expected)
 	}
 })
 
@@ -203,4 +186,27 @@ ava("getMetadata - handles various whitespace patterns", (t) => {
 	t.deepEqual(getMetadata("//  Name: Test"), { name: "Test" })
 	t.deepEqual(getMetadata("//\tName:Test"), { name: "Test" })
 	t.deepEqual(getMetadata("//\tName: Test"), { name: "Test" })
+})
+
+ava("getMetadata - extracts longRunning metadata with various capitalizations", (t) => {
+	// Test lowercase
+	t.deepEqual(getMetadata("// longRunning: true"), { longRunning: true })
+	t.deepEqual(getMetadata("// longRunning: false"), { longRunning: false })
+	t.deepEqual(getMetadata("// LongRunning: true"), { longRunning: true })
+	t.deepEqual(getMetadata("// LongRunning: false"), { longRunning: false })
+
+	// Test with other metadata
+	const result = getMetadata(`
+// Name: Test Script
+// Description: A test script
+// LongRunning: true
+// Background: true
+	`)
+
+	t.deepEqual(result, {
+		name: "Test Script",
+		description: "A test script",
+		longRunning: true,
+		background: true
+	})
 })

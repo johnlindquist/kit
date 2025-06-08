@@ -130,7 +130,7 @@ export interface ScriptMetadata extends Metadata {
   img?: string
   emoji?: string
   postfix?: boolean
-  longrunning?: boolean
+  longRunning?: boolean
 }
 
 export type Script = ScriptMetadata & ScriptPathInfo & Choice
@@ -554,7 +554,7 @@ export interface Metadata {
   /** Indicates the tag of the script */
   tag?: string
   /** Indicates whether the script is long-running */
-  longrunning?: boolean
+  longRunning?: boolean
 }
 
 export interface ProcessInfo {

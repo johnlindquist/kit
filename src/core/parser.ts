@@ -61,9 +61,14 @@ export let postprocessMetadata = (
 		result.shortcode = metadata.shortcode.trim().toLowerCase()
 	}
 
-	if (metadata.longrunning) {
-		// @ts-ignore
-		result.longrunning = metadata.longrunning === "true"
+	if (metadata.longRunning !== undefined) {
+		if (typeof metadata.longRunning === 'boolean') {
+			// @ts-ignore
+			result.longRunning = metadata.longRunning
+		} else if (typeof metadata.longRunning === 'string') {
+			// @ts-ignore
+			result.longRunning = metadata.longRunning.trim().toLowerCase() === "true"
+		}
 	}
 
 	if (metadata.trigger) {

@@ -4,11 +4,12 @@ import { db } from "./db.js" // Adjust the import path accordingly
 import { kenvPath, resolveScriptToCommand } from "./utils.js"
 import tmp from "tmp-promise"
 import { Choice } from "../types/core.js"
+import { uuid } from "../globals/crypto.js"
 
 await tmp.withDir(async (dir) => {
 	process.env.KENV = dir.path
 	console.log(process.env.KENV)
-	test.beforeEach(async (t) => {
+	test.beforeEach(async () => {
 		global.kitScript = `${uuid()}.js`
 		global.__kitDbMap = new Map()
 	})
@@ -133,5 +134,97 @@ await tmp.withDir(async (dir) => {
 
 		t.is((fruitDb.people[0] as Choice).value, undefined)
 		t.is((fruitDb.people[1] as Choice).value, undefined)
+	})
+	
+	// Windows path handling tests
+	test.serial("getScriptFromString handles Windows paths with forward slashes", async (t) => {
+		// Mock getScripts to return test data
+		const { getScriptFromString, getScripts } = await import("./db.js")
+		const originalGetScripts = getScripts
+		
+		// Create mock scripts with Windows paths
+		const mockScripts = [
+			{
+				name: "test-script",
+				command: "test-script",
+				filePath: "C:\\Users\\josch\\.kenv\\scripts\\test-script.js",
+				kenv: "main",
+				type: "script"
+			},
+			{
+				name: "Home-Assistant",
+				command: "home-assistant",
+				filePath: "C:\\Users\\josch\\.kenv\\scriptlets\\websites.md#Home-Assistant",
+				kenv: "scriptlets",
+				type: "scriptlet"
+			}
+		]
+		
+		// Temporarily override getScripts
+		const dbModule = require("./db.js")
+		dbModule.getScripts = async () => mockScripts
+		
+		// Test with Windows path using forward slashes (the error case)
+		const windowsPathForward = "C:/Users/josch/.kenv/scriptlets/websites.md#Home-Assistant"
+		
+		try {
+			const result = await getScriptFromString(windowsPathForward)
+			t.is(result.name, "Home-Assistant")
+		} catch (error) {
+			t.fail(`Should find script with forward slash Windows path: ${error.message}`)
+		}
+		
+		// Test with Windows path using backslashes
+		const windowsPathBack = "C:\\Users\\josch\\.kenv\\scripts\\test-script.js"
+		
+		try {
+			const result = await getScriptFromString(windowsPathBack)
+			t.is(result.name, "test-script")
+		} catch (error) {
+			t.fail(`Should find script with backslash Windows path: ${error.message}`)
+		}
+		
+		// Test finding by name (no path separators)
+		try {
+			const result = await getScriptFromString("test-script")
+			t.is(result.name, "test-script")
+		} catch (error) {
+			t.fail(`Should find script by name: ${error.message}`)
+		}
+		
+		// Restore original getScripts
+		dbModule.getScripts = originalGetScripts
+	})
+	
+	test.serial("getScriptFromString handles Unix paths correctly", async (t) => {
+		const { getScriptFromString } = await import("./db.js")
+		const dbModule = require("./db.js")
+		const originalGetScripts = dbModule.getScripts
+		
+		// Create mock scripts with Unix paths
+		const mockScripts = [
+			{
+				name: "unix-script",
+				command: "unix-script",
+				filePath: "/home/user/.kenv/scripts/unix-script.js",
+				kenv: "main",
+				type: "script"
+			}
+		]
+		
+		dbModule.getScripts = async () => mockScripts
+		
+		// Test with Unix path
+		const unixPath = "/home/user/.kenv/scripts/unix-script.js"
+		
+		try {
+			const result = await getScriptFromString(unixPath)
+			t.is(result.name, "unix-script")
+		} catch (error) {
+			t.fail(`Should find script with Unix path: ${error.message}`)
+		}
+		
+		// Restore original getScripts
+		dbModule.getScripts = originalGetScripts
 	})
 })

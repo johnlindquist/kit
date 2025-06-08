@@ -350,19 +350,55 @@ export let getTimestamps = async (fromCache = true) => {
 export let getScriptFromString = async (script: string): Promise<Script> => {
   let scripts = await getScripts(false)
 
-  if (!script.includes(path.sep)) {
+  // Check if the string contains any path separators (both Unix and Windows style)
+  const containsPathSeparator = script.includes('/') || script.includes('\\')
+  
+  if (!containsPathSeparator) {
     let result = scripts.find((s) => s.name === script || s.command === script.replace(extensionRegex, ''))
 
     if (!result) {
-      throw new Error(`Cannot find script based on name or command: ${script}`)
+      // Provide detailed error information for debugging
+      const availableNames = scripts.map(s => s.name).slice(0, 10).join(', ')
+      const availableCommands = scripts.map(s => s.command).slice(0, 10).join(', ')
+      const totalScripts = scripts.length
+      
+      throw new Error(
+        `Cannot find script based on name or command: ${script}\n` +
+        `Total scripts available: ${totalScripts}\n` +
+        `Sample script names: ${availableNames}${totalScripts > 10 ? '...' : ''}\n` +
+        `Sample commands: ${availableCommands}${totalScripts > 10 ? '...' : ''}`
+      )
     }
 
     return result
   }
-  let result = scripts.find((s) => path.normalize(s.filePath) === path.normalize(script))
+  
+  // Normalize both paths for comparison to handle different separator styles
+  const normalizedInput = path.normalize(script)
+  let result = scripts.find((s) => path.normalize(s.filePath) === normalizedInput)
 
   if (!result) {
-    throw new Error(`Cannot find script based on path: ${script}`)
+    // Provide detailed error information for path-based searches
+    const availablePaths = scripts
+      .map(s => s.filePath)
+      .filter(p => p.toLowerCase().includes(path.basename(script).toLowerCase()))
+      .slice(0, 5)
+    
+    const pathInfo = {
+      input: script,
+      normalized: normalizedInput,
+      basename: path.basename(script),
+      dirname: path.dirname(script),
+      separator: path.sep,
+      platform: process.platform
+    }
+    
+    throw new Error(
+      `Cannot find script based on path: ${script}\n` +
+      `Path details: ${JSON.stringify(pathInfo, null, 2)}\n` +
+      `Similar paths found:\n${availablePaths.map(p => `  - ${p}`).join('\n')}` +
+      (availablePaths.length === 0 ? '  (none found)' : '')
+    )
   }
 
   return result
