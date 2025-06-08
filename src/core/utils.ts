@@ -263,6 +263,7 @@ const VALID_METADATA_KEYS_SET = new Set<keyof Metadata>([
   "enter",
   "alias",
   "image",
+  "emoji",
   "shortcut",
   "shortcode",
   "trigger",

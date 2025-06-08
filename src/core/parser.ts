@@ -78,6 +78,10 @@ export let postprocessMetadata = (
 		result.img = slash(untildify(metadata.image))
 	}
 
+	if (metadata.emoji) {
+		result.emoji = metadata.emoji
+	}
+
 	if (metadata.index !== undefined) {
 		result.index = typeof metadata.index === "string"
 			? Number.parseInt(metadata.index, 10)

@@ -11,6 +11,7 @@ export interface Choice<Value = any> {
   slicedDescription?: string
   focused?: string
   img?: string
+  emoji?: string
   icon?: string
   html?: string
   hasPreview?: boolean
@@ -127,6 +128,7 @@ export interface ScriptMetadata extends Metadata {
   enter?: string
   recent?: boolean
   img?: string
+  emoji?: string
   postfix?: boolean
   longrunning?: boolean
 }
@@ -486,6 +488,8 @@ export interface Metadata {
   alias?: string
   /** Defines the path to an image to be used for the script */
   image?: string
+  /** Defines an emoji to be displayed for the script or choice */
+  emoji?: string
   /** Defines a global keyboard shortcut to trigger the script. */
   shortcut?: MetadataShortcut
   /**

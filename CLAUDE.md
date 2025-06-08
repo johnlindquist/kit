@@ -29,6 +29,9 @@ pnpm ava:debug
 
 # Reset cache
 pnpm ava:reset
+
+# Type check only (no emit)
+pnpm verify
 ```
 
 ## Creating a New Test
