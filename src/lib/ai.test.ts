@@ -72,6 +72,7 @@ const mockTools = { "mockTool": mockToolDefinition };
 const createMockGenerateTextResult = (overrides: Partial<GenerateTextResult<Record<string, Tool<any, any>>, string>> = {}): GenerateTextResult<Record<string, Tool<any, any>>, string> => ({
     text: "mocked response",
     toolCalls: [], // This field expects ToolCallPart[] | undefined according to GenerateTextResult type
+    toolResults: [], // Required property for tool results
     finishReason: 'stop' as FinishReason,
     usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
     response: {
@@ -84,13 +85,46 @@ const createMockGenerateTextResult = (overrides: Partial<GenerateTextResult<Reco
     files: [],
     reasoningDetails: [],
     sources: [],
-    experimental_providerMetadata: undefined,
+    experimental_output: 'mocked response', // Required property - the OUTPUT generic parameter is string
     warnings: undefined,
     logprobs: undefined,
+    steps: [], // Required property for step results
+    providerMetadata: undefined, // Required property
+    experimental_providerMetadata: undefined, // Deprecated but still required
     request: {
         body: undefined
     },
 
+    ...overrides
+});
+
+// Helper function to create properly typed mock StreamTextResult
+const createMockStreamTextResult = (overrides: Partial<StreamTextResult<Record<string, Tool<any, any>>, string>> = {}): StreamTextResult<Record<string, Tool<any, any>>, string> => ({
+    fullStream: new ReadableStream(),
+    text: Promise.resolve("mocked stream text"),
+    finishReason: Promise.resolve('stop' as FinishReason),
+    usage: Promise.resolve({ promptTokens: 1, completionTokens: 1, totalTokens: 2 }),
+    toolCalls: Promise.resolve([]),
+    toolResults: Promise.resolve([] as never[]),
+    warnings: Promise.resolve(undefined),
+    sources: Promise.resolve([]),
+    files: Promise.resolve([]),
+    providerMetadata: Promise.resolve(undefined),
+    experimental_providerMetadata: Promise.resolve(undefined),
+    request: Promise.resolve({ body: undefined }),
+    response: Promise.resolve({ id: 'mock-stream', timestamp: new Date(), modelId: 'mock-model', body: undefined, messages: [] }),
+    reasoning: Promise.resolve(undefined),
+    reasoningDetails: Promise.resolve([]),
+    steps: Promise.resolve([]),
+    textStream: new ReadableStream(),
+    experimental_partialOutputStream: new ReadableStream(),
+    consumeStream: async () => {},
+    toDataStream: (options?: any) => new ReadableStream(),
+    toDataStreamResponse: (options?: any) => new Response(),
+    pipeDataStreamToResponse: (response: any, options?: any) => {},
+    pipeTextStreamToResponse: (response: any, options?: any) => {},
+    toTextStreamResponse: (options?: any) => new Response(),
+    mergeIntoDataStream: (dataStream: any) => dataStream,
     ...overrides
 });
 
@@ -100,6 +134,7 @@ const createMockGenerateObjectResult = <T>(object: T, overrides: Partial<Generat
     usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
     finishReason: 'stop' as FinishReason,
     providerMetadata: undefined,
+    experimental_providerMetadata: undefined, // Deprecated but still required
     response: {
         id: 'mock-response',
         modelId: 'mock-model',
@@ -111,7 +146,14 @@ const createMockGenerateObjectResult = <T>(object: T, overrides: Partial<Generat
     request: {
         body: undefined
     },
-    experimental_providerMetadata: undefined,
+    toJsonResponse: (init?: ResponseInit) => new Response(JSON.stringify(object), {
+        ...init,
+        status: 200,
+        headers: {
+            'content-type': 'application/json; charset=utf-8',
+            ...init?.headers
+        }
+    }),
     ...overrides
 });
 
@@ -544,26 +586,13 @@ test.serial('assistant (injected) textStream should yield text and populate last
         };
     }
 
-    const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
-        fullStream: mockFullStreamParts() as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
+    const mockSdkStreamResult = createMockStreamTextResult({
+        fullStream: ReadableStream.from(mockFullStreamParts()),
         text: Promise.resolve(fullText),
         finishReason: Promise.resolve('stop' as FinishReason),
         usage: Promise.resolve({ promptTokens: 5, completionTokens: 5, totalTokens: 10 } as LanguageModelUsage),
-        toolCalls: Promise.resolve([]), // Empty array instead of undefined
-        warnings: Promise.resolve(undefined),
-        sources: Promise.resolve([]),
-        files: Promise.resolve([]),
-        providerMetadata: Promise.resolve(undefined),
-        experimental_providerMetadata: Promise.resolve(undefined),
-        request: Promise.resolve({ body: undefined }),
-        reasoning: Promise.resolve(undefined),
-        reasoningDetails: Promise.resolve([]),
-        steps: Promise.resolve([]),
-        objectDeltas: Promise.resolve([]),
-        object: Promise.resolve(undefined),
-        partialObjectStream: Promise.resolve(new ReadableStream()),
         response: Promise.resolve({ id: 'test-stream-no-maxsteps', timestamp: new Date(), modelId: 'test-model-no-maxsteps', body: undefined, messages: [] })
-    };
+    });
     mockStreamText.returns(mockSdkStreamResult);
 
     const chatbot = global.assistant("System Stream", { model: mockLanguageModel, autoExecuteTools: false });
@@ -610,26 +639,14 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
         };
     }
 
-    const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
-        fullStream: mockFullStreamPartsWithTools() as unknown as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>, // Ensured cast
+    const mockSdkStreamResult = createMockStreamTextResult({
+        fullStream: ReadableStream.from(mockFullStreamPartsWithTools()),
         text: Promise.resolve(initialText),
         finishReason: Promise.resolve('tool-calls' as FinishReason),
         usage: Promise.resolve({ promptTokens: 10, completionTokens: 8, totalTokens: 18 } as LanguageModelUsage),
         toolCalls: Promise.resolve(mockToolCalls), // mockToolCalls is ToolCallPart[]
-        warnings: Promise.resolve(undefined),
-        sources: Promise.resolve([]),
-        files: Promise.resolve([]),
-        providerMetadata: Promise.resolve(undefined),
-        experimental_providerMetadata: Promise.resolve(undefined),
-        request: Promise.resolve({ body: undefined }),
-        reasoning: Promise.resolve(undefined),
-        reasoningDetails: Promise.resolve([]),
-        steps: Promise.resolve([]),
-        objectDeltas: Promise.resolve([]),
-        object: Promise.resolve(undefined),
-        partialObjectStream: Promise.resolve(new ReadableStream()),
         response: Promise.resolve({ id: 'test-tc', timestamp: new Date(), modelId: 'test-tc-model', body: undefined, messages: [] })
-    };
+    });
     mockStreamText.returns(mockSdkStreamResult);
 
     const chatbot = global.assistant("System Stream TC", { model: mockLanguageModel, autoExecuteTools: false });
@@ -681,30 +698,15 @@ test.serial('assistant (injected) stop() should abort an ongoing textStream', as
     }
     context.stopped = false;
 
-    const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
-        fullStream: mockLongFullStreamParts() as unknown as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>, // Ensured cast
+    const mockSdkStreamResult = createMockStreamTextResult({
+        fullStream: ReadableStream.from(mockLongFullStreamParts()),
         text: new Promise((resolve, reject) => {
         }),
         finishReason: new Promise<FinishReason>((resolve, reject) => { }),
         usage: new Promise<LanguageModelUsage>((resolve, reject) => { }),
-        toolCalls: Promise.resolve([]),
-        warnings: Promise.resolve(undefined),
-        sources: Promise.resolve([]),
-        files: Promise.resolve([]),
-        providerMetadata: Promise.resolve(undefined),
-        experimental_providerMetadata: Promise.resolve(undefined),
-        rawResponse: Promise.resolve(undefined),
-        request: Promise.resolve({ body: undefined }),
-        logprobs: Promise.resolve(undefined),
-        reasoning: Promise.resolve(undefined),
-        reasoningDetails: Promise.resolve([]),
-        steps: Promise.resolve([]),
-        objectDeltas: Promise.resolve([]),
-        object: Promise.resolve(undefined),
-        partialObjectStream: Promise.resolve(new ReadableStream()),
-        response: Promise.resolve({ id: 'test', timestamp: new Date(), modelId: 'test', body: undefined, messages: [] }), // Added messages: []
+        response: Promise.resolve({ id: 'test-stream', timestamp: new Date(), modelId: 'test-model', body: undefined, messages: [] }),
         textStream: new ReadableStream()
-    };
+    });
     mockStreamText.returns(mockSdkStreamResult);
 
     const chatbot = global.assistant("System Abort", { model: mockLanguageModel });
@@ -1443,7 +1445,10 @@ test.serial('resolveModel should use OpenAI as default when no env vars are set'
     assistant.addUserMessage('test');
     const result = await assistant.generate();
 
-    t.is(typeof result.text, 'string');
+    t.is(result.kind, 'text');
+    if (result.kind === 'text') {
+        t.is(typeof result.text, 'string');
+    }
     t.true(mockGenerateText.calledOnce);
 });
 
@@ -1458,7 +1463,10 @@ test.serial('resolveModel should use custom default provider from environment', 
     assistant.addUserMessage('test');
     const result = await assistant.generate();
 
-    t.is(typeof result.text, 'string');
+    t.is(result.kind, 'text');
+    if (result.kind === 'text') {
+        t.is(typeof result.text, 'string');
+    }
     t.true(mockGenerateText.calledOnce);
 
     // Clean up
@@ -1477,7 +1485,10 @@ test.serial('resolveModel should support provider prefix syntax', async t => {
     assistant.addUserMessage('test');
     const result = await assistant.generate();
 
-    t.is(typeof result.text, 'string');
+    t.is(result.kind, 'text');
+    if (result.kind === 'text') {
+        t.is(typeof result.text, 'string');
+    }
     t.true(mockGenerateText.calledOnce);
 });
 
@@ -1496,7 +1507,10 @@ test.serial('resolveModel should work with all supported providers', async t => 
         assistant.addUserMessage('test');
         const result = await assistant.generate();
 
+        t.is(result.kind, 'text');
+    if (result.kind === 'text') {
         t.is(typeof result.text, 'string');
+    }
         if (result.kind === 'text' && result.text) {
             t.true(result.text.includes(`Response from ${modelWithProvider}`));
         } else if (result.kind !== 'text') {
@@ -1561,26 +1575,14 @@ test.serial('assistant (injected) textStream should not pass maxSteps to avoid v
         };
     }
 
-    const mockSdkStreamResult: StreamTextResult<Record<string, Tool<any, any>>, string> = {
-        fullStream: mockFullStreamParts() as ReadableStream<TextStreamPart<Record<string, Tool<any, any>>>>,
+    const mockSdkStreamResult = createMockStreamTextResult({
+        fullStream: ReadableStream.from(mockFullStreamParts()),
         text: Promise.resolve(fullText),
         finishReason: Promise.resolve('stop' as FinishReason),
         usage: Promise.resolve({ promptTokens: 5, completionTokens: 5, totalTokens: 10 } as LanguageModelUsage),
         toolCalls: Promise.resolve(undefined), // This is valid
-        warnings: Promise.resolve(undefined),
-        sources: Promise.resolve([]),
-        files: Promise.resolve([]),
-        providerMetadata: Promise.resolve(undefined),
-        experimental_providerMetadata: Promise.resolve(undefined),
-        request: Promise.resolve({ body: undefined }),
-        reasoning: Promise.resolve(undefined),
-        reasoningDetails: Promise.resolve([]),
-        steps: Promise.resolve([]),
-        objectDeltas: Promise.resolve([]),
-        object: Promise.resolve(undefined),
-        partialObjectStream: Promise.resolve(new ReadableStream()),
         response: Promise.resolve({ id: 'test-stream-no-maxsteps', timestamp: new Date(), modelId: 'test-model-no-maxsteps', body: undefined, messages: [] })
-    };
+    });
     mockStreamText.returns(mockSdkStreamResult);
 
     const chatbot = global.assistant("System Stream", { model: mockLanguageModel, autoExecuteTools: false });

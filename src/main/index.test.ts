@@ -1,6 +1,6 @@
 import test from "ava"
 import path from "node:path"
-import { Channel, Value } from "../core/enum.js"
+import { Channel, Value, ProcessType } from "../core/enum.js"
 import type { Script, Choice } from "../types/core.js"
 
 // Create runScript function that matches the one in index.ts
@@ -154,7 +154,7 @@ const createRunScript = (dependencies: any) => {
     if (isScriptlet(script)) {
       let { runScriptlet } = await runScriptletImport()
       updateArgs(args)
-      await runScriptlet(script, script.inputs || [], flag)
+      await runScriptlet(script, (script as any).inputs || [], flag)
       return
     }
 
@@ -404,12 +404,15 @@ test.serial("should handle script with postfix", async (t) => {
   
   const runScript = createRunScript(deps)
   
-  const mockScript: Script = {
+  const mockScript = {
     filePath: "/test/postfix-script.js",
     command: "postfix-script",
     name: "Postfix Script",
-    postfix: "somepostfix"
-  } as Script
+    postfix: "somepostfix",
+    type: ProcessType.Prompt,
+    kenv: "",
+    id: "postfix-script"
+  } as any as Script
   
   await runScript(mockScript)
   
@@ -1782,7 +1785,7 @@ test("should load dynamic flags on menu toggle", async (t) => {
   }
   
   // Mock dependencies
-  global.setFlags = (flags: any) => {
+  global.setFlags = async (flags: any) => {
     setFlagsCalls.push(flags)
   }
   
@@ -1811,7 +1814,7 @@ test("should load dynamic flags on menu toggle", async (t) => {
       if (!state?.flag) {
         let menuFlags = {
           ...scriptFlags,
-          ...getFlagsFromActions(actions)
+          ...global.getFlagsFromActions(actions)
         }
         setFlags(menuFlags)
       }
@@ -1917,9 +1920,10 @@ test.serial("should hide and exit on blur", async (t) => {
     hideCalls++
   }
   
-  global.exit = () => {
+  global.exit = (() => {
     exitCalls++
-  }
+    throw new Error("Exit called") // never returns
+  }) as (code?: number) => never
   
   const options = {
     onBlur: async (input: string, state: any) => {
@@ -1989,7 +1993,7 @@ test.serial("should show panel for invalid characters in onNoChoices", async (t)
   }
   
   global.md = (content: string) => content
-  global.setPanel = (content: string) => {
+  global.setPanel = async (content: string) => {
     panelContents.push(content)
     setPanelCalls++
   }
@@ -2262,17 +2266,18 @@ test("should handle complete mainMenu flow from selection to execution", async (
     hideCalls.push(options || {})
   }
   
-  global.exit = () => {
+  global.exit = (() => {
     exitCalls++
-  }
+    throw new Error("Exit called") // never returns
+  }) as (code?: number) => never
   
   global.md = (content: string) => content
   
-  global.setPanel = (content: string) => {
+  global.setPanel = async (content: string) => {
     panelContent = content
   }
   
-  global.setFlags = (flags: any) => {
+  global.setFlags = async (flags: any) => {
     flagsSet = flags
   }
   
@@ -2309,7 +2314,7 @@ test("should handle complete mainMenu flow from selection to execution", async (
       if (!state?.flag) {
         let menuFlags = {
           ...scriptFlags,
-          ...getFlagsFromActions(actions)
+          ...global.getFlagsFromActions(actions)
         }
         setFlags(menuFlags)
       }

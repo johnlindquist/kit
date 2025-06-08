@@ -45,6 +45,7 @@ export type Grid = <T = any[]>(
 
 export interface EnvConfig extends PromptConfig {
   reset?: boolean
+  cacheDuration?: 'session' | 'until-quit' | 'until-sleep'
 }
 export interface Env {
   (envKey: string, promptConfig?: string | EnvConfig | (() => Promise<string>)): Promise<string>

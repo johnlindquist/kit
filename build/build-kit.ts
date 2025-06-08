@@ -6,7 +6,7 @@ import { rimraf } from 'rimraf'
 import { chmod as fsChmod, writeFile } from 'node:fs/promises'
 import { execaCommand as exec, type Options } from 'execa'
 import { ensureDir, move, pathExists } from 'fs-extra'
-import { downloadAndInstallPnpm } from './pnpm.ts'
+import { downloadAndInstallPnpm } from './pnpm'
 
 global.log = console.log
 global.warn = console.warn
@@ -360,7 +360,7 @@ if (packageJsonChanged) {
 console.log('Download docs')
 await ensureDir(kitPath('data'))
 console.log('Created data directory')
-const { default: download } = await import('./download.ts')
+const { default: download } = await import('./download')
 console.log('Imported download module')
 
 try {

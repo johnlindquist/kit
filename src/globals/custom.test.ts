@@ -1,4 +1,4 @@
-import ava from 'ava'
+import ava, { TestFn } from 'ava'
 import '../core/utils.js'
 import tmp from 'tmp-promise'
 import { randomUUID } from 'node:crypto'
@@ -6,11 +6,18 @@ import path from 'node:path'
 import { ensureDir, remove } from 'fs-extra'
 import { kenvPath, kitPath } from '../core/utils.js'
 
+interface TestContext {
+  tmpDir: tmp.DirectoryResult
+  testDir: string
+}
+
 // Store original env values to restore later
 const originalKENV = process.env.KENV
 const originalKIT_CONTEXT = process.env.KIT_CONTEXT
 
-ava.beforeEach(async (t) => {
+const test = ava as TestFn<TestContext>
+
+test.beforeEach(async (t) => {
   // Create isolated test directory for each test
   const tmpDir = await tmp.dir({ unsafeCleanup: true })
 
@@ -36,20 +43,20 @@ ava.beforeEach(async (t) => {
   })
 })
 
-ava.afterEach(async (t) => {
+test.afterEach(async (t) => {
   // Clean up the isolated test directory
   if (t.context.tmpDir) {
     await t.context.tmpDir.cleanup()
   }
 })
 
-ava.after(() => {
+test.after(() => {
   // Restore original environment
   process.env.KENV = originalKENV
   process.env.KIT_CONTEXT = originalKIT_CONTEXT
 })
 
-ava('ensureReadFile creates file with default content if empty', async t => {
+test('ensureReadFile creates file with default content if empty', async t => {
   const testPath = path.join(t.context.testDir, 'test.txt')
   const defaultContent = 'default content'
 
@@ -61,7 +68,7 @@ ava('ensureReadFile creates file with default content if empty', async t => {
   t.is(secondRead, defaultContent)
 })
 
-ava('ensureReadFile preserves existing content', async t => {
+test('ensureReadFile preserves existing content', async t => {
   const testPath = path.join(t.context.testDir, 'existing.txt')
   const existingContent = 'existing content'
 
@@ -71,7 +78,7 @@ ava('ensureReadFile preserves existing content', async t => {
   t.is(result, existingContent)
 })
 
-ava('ensureReadJson creates JSON file with default content', async t => {
+test('ensureReadJson creates JSON file with default content', async t => {
   const testPath = path.join(t.context.testDir, 'test.json')
   const defaultContent = { test: true, count: 42 }
 
@@ -83,7 +90,7 @@ ava('ensureReadJson creates JSON file with default content', async t => {
   t.deepEqual(secondRead, defaultContent)
 })
 
-ava('ensureReadJson preserves existing JSON content', async t => {
+test('ensureReadJson preserves existing JSON content', async t => {
   const testPath = path.join(t.context.testDir, 'existing.json')
   const existingContent = { existing: true, data: 'test' }
 

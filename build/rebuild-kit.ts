@@ -1,4 +1,4 @@
-import { exec, writeFile, ensureDir } from "../src/globals/index.ts"
+import { exec, writeFile, ensureDir } from "../src/globals/index"
 import shelljs from "shelljs"
 import { homedir } from "node:os"
 import path from "node:path"
@@ -29,7 +29,7 @@ let options = {
 	cwd: kitPath()
 }
 
-const { default: download } = await import("./download.ts")
+const { default: download } = await import("./download")
 
 try {
 	const docsBuffer = await download("https://www.scriptkit.com/api/docs")
