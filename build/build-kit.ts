@@ -339,12 +339,12 @@ if (packageJsonChanged) {
       console.log('Downloading and installing pnpm...')
       await downloadAndInstallPnpm()
       console.log('pnpm installation completed')
-      
+
       const pnpmPath = kitPath('pnpm')
       console.log(`Installing production dependencies using ${pnpmPath}...`)
       await exec(`"${pnpmPath}" i --prod`, options)
       console.log('Production dependencies installed successfully')
-      
+
       console.log('Installing development tools (esbuild, vite, tsx)...')
       await exec(`"${pnpmPath}" i esbuild vite tsx`, options)
       console.log('Development tools installed successfully')

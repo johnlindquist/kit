@@ -66,8 +66,7 @@
     "build-editor-types": "tsx ./build/build-editor-types.ts",
     "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
     "lazy-install": "npm i esbuild@0.23.1 --save-exact --production --prefer-dedupe --loglevel=verbose",
-    "preinstall": "node ./build/preinstall.js",
-    "prepare": "husky"
+    "preinstall": "node ./build/preinstall.js"
   },
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
@@ -75,11 +74,7 @@
     "overrides": {
       "typescript": "5.8.3",
       "esbuild": "0.25.4"
-    },
-    "onlyBuiltDependencies": [
-      "@johnlindquist/mac-windows",
-      "esbuild"
-    ]
+    }
   },
   "dependencies": {
     "@ai-sdk/anthropic": "1.2.12",
