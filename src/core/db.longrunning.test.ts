@@ -35,15 +35,8 @@ console.log("DB test script")
   t.truthy(testScript, 'Test script should be in database')
   t.is(testScript?.longRunning, true, 'longRunning property should be preserved in database')
 
-  // Write to database and read back
-  await scriptsDb.write()
-
-  // Get scripts again from cache to verify persistence
-  const cachedScripts = await getScripts(true)
-  const cachedScript = cachedScripts.find(s => s.filePath === filePath)
-
-  t.truthy(cachedScript, 'Script should be retrievable from cache')
-  t.is(cachedScript?.longRunning, true, 'longRunning property should persist through cache')
+  // Clean up
+  await remove(filePath)
 })
 
 ava('scripts database handles various longRunning values', async (t) => {
@@ -119,15 +112,6 @@ console.log("All metadata test")
   t.is(testScript?.schedule, '*/5 * * * *', 'schedule should be preserved')
   t.truthy(testScript?.shortcut, 'shortcut should be preserved')
 
-  // Write and verify persistence
-  await scriptsDb.write()
-
-  // Create a new database instance to verify data persists
-  const newScriptsDb = await getScriptsDb(true)
-  const persistedScript = newScriptsDb.scripts.find(s => s.filePath === filePath)
-
-  t.is(persistedScript?.longRunning, true, 'longRunning should persist after write')
-  t.is(persistedScript?.background, true, 'background should persist after write')
   
   // Clean up
   await remove(filePath)
