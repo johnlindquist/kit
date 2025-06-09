@@ -491,5 +491,3 @@ global.path = new Proxy(__pathSelector, {
 }) as any
 
 export const path = global.path
-
-// Try to open non-existent ~/.huskyrc

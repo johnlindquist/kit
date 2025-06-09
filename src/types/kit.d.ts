@@ -869,6 +869,81 @@ declare global {
   var flag: Flags
   var actionFlag: string
   var setFlags: FlagFn
+  /**
+   * Create contextual action menus for your scripts
+   * 
+   * `setActions` transforms an array of Action objects into an interactive menu that appears
+   * in the Script Kit prompt. Actions can have keyboard shortcuts, groups, and custom callbacks.
+   * 
+   * @param actions - Array of Action objects to display
+   * @param options - Configuration for the actions menu (name, placeholder, active state)
+   * 
+   * #### Basic Example
+   * ```ts
+   * await setActions([
+   *   {
+   *     name: "Copy",
+   *     description: "Copy to clipboard",
+   *     shortcut: "cmd+c",
+   *     onAction: async () => {
+   *       await clipboard.writeText(selectedText)
+   *     }
+   *   },
+   *   {
+   *     name: "Edit", 
+   *     description: "Open in editor",
+   *     shortcut: "cmd+e",
+   *     onAction: async () => {
+   *       await edit(filePath)
+   *     }
+   *   }
+   * ])
+   * ```
+   * 
+   * #### Grouped Actions Example
+   * ```ts
+   * await setActions([
+   *   // File operations group
+   *   { name: "New File", group: "File", shortcut: "cmd+n", onAction: createFile },
+   *   { name: "Open File", group: "File", shortcut: "cmd+o", onAction: openFile },
+   *   { name: "Save File", group: "File", shortcut: "cmd+s", onAction: saveFile },
+   *   
+   *   // Edit operations group
+   *   { name: "Cut", group: "Edit", shortcut: "cmd+x", onAction: cutText },
+   *   { name: "Copy", group: "Edit", shortcut: "cmd+c", onAction: copyText },
+   *   { name: "Paste", group: "Edit", shortcut: "cmd+v", onAction: pasteText }
+   * ], {
+   *   name: "File Operations",
+   *   placeholder: "Choose an action..."
+   * })
+   * ```
+   * 
+   * #### Action Properties
+   * - `name` (required): Display name of the action
+   * - `description`: Additional description text
+   * - `shortcut`: Keyboard shortcut (e.g., "cmd+c", "alt+enter")
+   * - `group`: Group name for organizing related actions
+   * - `onAction`: Async function called when action is selected
+   * - `visible`: Control action visibility (default: true)
+   * - `flag`: Custom flag identifier
+   * - `value`: Custom value passed to onAction
+   * - `condition`: Function to conditionally show/hide action
+   * - `close`: Whether to close the prompt after action (default: true)
+   * 
+   * #### How It Works
+   * 1. Actions are transformed into Script Kit's flag system internally
+   * 2. Each action becomes a selectable item with optional keyboard shortcut
+   * 3. Actions can be filtered by typing in the actions input
+   * 4. Selected action's `onAction` callback is executed
+   * 5. Actions persist until explicitly changed or prompt is closed
+   * 
+   * #### Related Functions
+   * - `openActions()`: Programmatically open the actions menu
+   * - `closeActions()`: Programmatically close the actions menu
+   * - `setFlags()`: Lower-level API that setActions uses internally
+   * 
+   * [Examples](https://scriptkit.com?query=setActions) | [Docs](https://johnlindquist.github.io/kit-docs/#setActions)
+   */
   var setActions: ActionsFn
   /**
    * Manually open the actions menu
