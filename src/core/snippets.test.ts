@@ -3,7 +3,7 @@ import { getSnippet } from "./snippets.js"
 import { parseSnippets } from "./utils.js"
 import path from 'node:path'
 import { kenvPath } from '../core/utils.js'
-import { outputFile, ensureDir, writeFile } from 'fs-extra'
+import { outputFile, ensureDir } from 'fs-extra'
 import tmp from "tmp-promise"
 
 ava("getSnippet - basic metadata and snippet", (t) => {
@@ -74,7 +74,7 @@ console.log("Kenv snippet");
 	const testKenvDir = kenvPath('kenvs', 'test', 'snippets')
 	await ensureDir(testKenvDir)
 	const filePath = path.join(testKenvDir, 'kenv-snippet.txt')
-	await writeFile(filePath, snippetContent)
+	await outputFile(filePath, snippetContent)
 
 	const snippets = await parseSnippets()
 	const found = snippets.find(s => s.name === 'Kenv Snippet')
@@ -96,7 +96,7 @@ ava('parseSnippets - snippet with postfix expand marker', async (t) => {
 console.log("Postfix snippet");
 `.trim()
 	const filePath = path.join(kenvPath('snippets'), 'postfix-snippet.txt')
-	await writeFile(filePath, snippetContent)
+	await outputFile(filePath, snippetContent)
 
 	const snippets = await parseSnippets()
 	const found = snippets.find(s => s.name === 'Postfix Snippet')
