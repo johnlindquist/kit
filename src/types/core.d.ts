@@ -555,6 +555,8 @@ export interface Metadata {
   tag?: string
   /** Indicates whether the script is long-running */
   longRunning?: boolean
+  /** Exposes the script as an MCP (Model Context Protocol) tool */
+  mcp?: string | boolean
 }
 
 export interface ProcessInfo {

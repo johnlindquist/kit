@@ -1,5 +1,6 @@
 // Name: Hello MCP
 // Description: A simple test script for MCP
+// mcp: hello
 
 async function main() {
   const name = await arg("What's your name?", { placeholder: "World" })

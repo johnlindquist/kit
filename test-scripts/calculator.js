@@ -1,5 +1,6 @@
 // Name: Calculator
 // Description: Basic math operations
+// mcp: calculator
 
 async function main() {
   const num1 = await arg("First number", { placeholder: "10" })

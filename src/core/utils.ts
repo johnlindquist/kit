@@ -283,6 +283,7 @@ const VALID_METADATA_KEYS_SET = new Set<keyof Metadata>([
   "response",
   "tag",
   "longRunning",
+  "mcp",
 ]);
 
 const getMetadataFromComments = (contents: string): Record<string, any> => {
