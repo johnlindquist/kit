@@ -10,42 +10,26 @@ import { spawn } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { promises as fs } from 'fs'
+import { extractArgPlaceholders } from '../core/arg-parser.js'
+import os from 'os'
+import http from 'http'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Simple version of arg parser for production
-async function extractArgPlaceholdersSimple(code: string): Promise<Array<{ name: string, placeholder: string | null }>> {
-  const placeholders: Array<{ name: string, placeholder: string | null }> = []
-  let argIndex = 0
-  
-  // Simple regex to find arg calls with placeholders
-  const argRegex = /await\s+arg\s*\(\s*["'`]([^"'`]+)["'`]\s*,\s*\{[^}]*placeholder\s*:\s*["'`]([^"'`]+)["'`]/g
-  let match
-  
-  while ((match = argRegex.exec(code)) !== null) {
-    argIndex++
-    placeholders.push({
-      name: `arg${argIndex}`,
-      placeholder: match[2]
-    })
-  }
-  
-  // Also find args without placeholders (with array choices)
-  const simpleArgRegex = /await\s+arg\s*\(\s*["'`]([^"'`]+)["'`]\s*,\s*\[[^\]]+\]\s*\)/g
-  while ((match = simpleArgRegex.exec(code)) !== null) {
-    argIndex++
-    placeholders.push({
-      name: `arg${argIndex}`,
-      placeholder: null
-    })
-  }
-  
-  return placeholders
+// Check if running on Windows
+function isWindows(): boolean {
+  return os.platform() === 'win32'
 }
 
-// Check if Script Kit app is running by checking for kit.sock
+// Check if Script Kit app is running
 async function isKitRunning(): Promise<boolean> {
+  if (isWindows()) {
+    // On Windows, check if the app process is running
+    // For now, we'll assume it's not running and use HTTP
+    return false
+  }
+  
   try {
     const kitPath = process.env.KIT || path.join(process.env.HOME || '', '.kit')
     await fs.access(path.join(kitPath, 'kit.sock'))
@@ -59,8 +43,11 @@ async function isKitRunning(): Promise<boolean> {
 async function runScriptWithResult(scriptPath: string, args: string[]): Promise<any> {
   const kitRunning = await isKitRunning()
   
-  if (kitRunning) {
-    // Use kar to run the script through the app
+  if (isWindows()) {
+    // On Windows, use HTTP API if available, otherwise run.txt
+    return runScriptViaHttp(scriptPath, args).catch(() => runScriptViaRunTxt(scriptPath, args))
+  } else if (kitRunning) {
+    // On Mac/Linux, use kar to run the script through the app
     return runScriptViaKar(scriptPath, args)
   } else {
     // Fall back to run.txt method
@@ -116,6 +103,52 @@ async function runScriptViaKar(scriptPath: string, args: string[]): Promise<any>
     child.on('error', (err) => {
       reject(err)
     })
+  })
+}
+
+// Run script via HTTP API (for Windows)
+async function runScriptViaHttp(scriptPath: string, args: string[]): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const scriptName = path.basename(scriptPath, path.extname(scriptPath))
+    const port = process.env.KIT_PORT || 5173
+    
+    const postData = JSON.stringify({
+      args: args
+    })
+    
+    const options = {
+      hostname: 'localhost',
+      port: port,
+      path: `/${scriptName}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    }
+    
+    const req = http.request(options, (res) => {
+      let data = ''
+      
+      res.on('data', (chunk) => {
+        data += chunk
+      })
+      
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data))
+        } catch (e) {
+          resolve({ output: data })
+        }
+      })
+    })
+    
+    req.on('error', (e) => {
+      reject(new Error(`HTTP request failed: ${e.message}`))
+    })
+    
+    req.write(postData)
+    req.end()
   })
 }
 
@@ -202,8 +235,8 @@ async function main() {
         // Read script content
         const content = await readFile(script.filePath, 'utf-8')
         
-        // Extract placeholders
-        const placeholders = await extractArgPlaceholdersSimple(content)
+        // Extract placeholders using Acorn parser
+        const placeholders = await extractArgPlaceholders(content)
         
         // Determine tool name
         const toolName = typeof script.mcp === 'string' ? script.mcp : script.command
@@ -228,7 +261,7 @@ async function main() {
               
               return {
                 content: [{
-                  type: 'text' as const,
+                  type: 'text',
                   text: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
                 }]
               }
@@ -236,7 +269,7 @@ async function main() {
               console.error(`Error:`, error)
               return {
                 content: [{
-                  type: 'text' as const,
+                  type: 'text',
                   text: `Error running script: ${error.message}`
                 }]
               }
