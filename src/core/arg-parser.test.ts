@@ -1,26 +1,6 @@
 import ava from 'ava'
-import { Parser } from 'acorn'
-import { simple } from 'acorn-walk'
-
-// Simple function to strip TypeScript syntax before parsing
-function stripTypeScript(code: string): string {
-  // Remove interface definitions (multi-line)
-  code = code.replace(/interface\s+\w+\s*\{[^}]*\}/gs, '')
-  
-  // Remove type annotations from variables and parameters (more precise)
-  code = code.replace(/:\s*[A-Za-z_$][\w$]*(\[\])?(\<[^>]+\>)?(?=[,;)=\s])/g, '')
-  
-  // Remove generic type parameters from function calls like arg<string>
-  code = code.replace(/(<)([A-Za-z_$][\w$]*)(>)(?=\s*\()/g, '')
-  
-  // Remove type declarations
-  code = code.replace(/type\s+\w+\s*=\s*[^;]+;/g, '')
-  
-  // Remove 'as' type assertions
-  code = code.replace(/\s+as\s+[A-Za-z_$][\w$]*(\[\])?/g, '')
-  
-  return code
-}
+import * as acorn from 'acorn'
+import tsPlugin from 'acorn-typescript'
 
 // Function to extract ARG placeholders from script code
 export async function extractArgPlaceholders(code: string): Promise<Array<{ name: string, placeholder: string | null }>> {
@@ -28,45 +8,40 @@ export async function extractArgPlaceholders(code: string): Promise<Array<{ name
   let argIndex = 0
 
   try {
-    let ast: any
+    // Create parser with TypeScript plugin
+    const Parser = acorn.Parser.extend(tsPlugin() as any)
     
-    // Check if code contains TypeScript syntax
-    const hasTypeScript = /interface\s+\w+|:\s*[A-Za-z]|<[A-Za-z]+>/.test(code)
-    
-    if (hasTypeScript) {
-      // Strip TypeScript syntax before parsing
-      const jsCode = stripTypeScript(code)
-      ast = Parser.parse(jsCode, {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        allowAwaitOutsideFunction: true
-      })
-    } else {
-      // Parse as regular JavaScript
-      ast = Parser.parse(code, {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        allowAwaitOutsideFunction: true
-      })
-    }
+    // Parse the code (handles both JS and TS)
+    const ast = Parser.parse(code, {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      allowAwaitOutsideFunction: true,
+      locations: true // Required for acorn-typescript
+    })
 
-    simple(ast, {
-      CallExpression(node: any) {
+    // Walk the AST manually to avoid acorn-walk compatibility issues
+    walkNode(ast)
+    
+    function walkNode(node: any) {
+      if (!node || typeof node !== 'object') return
+      
+      // Check if this is a call expression
+      if (node.type === 'CallExpression') {
         // Check if this is an arg() call
-        if (node.callee.name === 'arg') {
+        if (node.callee && node.callee.name === 'arg') {
           argIndex++
           const argName = `arg${argIndex}`
           
           // Look for options object (second argument)
-          if (node.arguments.length >= 2 && node.arguments[1].type === 'ObjectExpression') {
+          if (node.arguments && node.arguments.length >= 2 && node.arguments[1].type === 'ObjectExpression') {
             const optionsObj = node.arguments[1]
             
             // Find placeholder property
             const placeholderProp = optionsObj.properties.find((prop: any) => 
-              prop.key.name === 'placeholder' || prop.key.value === 'placeholder'
+              prop.key && (prop.key.name === 'placeholder' || prop.key.value === 'placeholder')
             )
             
-            if (placeholderProp && placeholderProp.value.type === 'Literal') {
+            if (placeholderProp && placeholderProp.value && placeholderProp.value.type === 'Literal') {
               placeholders.push({ 
                 name: argName, 
                 placeholder: placeholderProp.value.value 
@@ -74,7 +49,7 @@ export async function extractArgPlaceholders(code: string): Promise<Array<{ name
             } else {
               placeholders.push({ name: argName, placeholder: null })
             }
-          } else if (node.arguments.length >= 2 && node.arguments[1].type === 'ArrayExpression') {
+          } else if (node.arguments && node.arguments.length >= 2 && node.arguments[1].type === 'ArrayExpression') {
             // This is a select-style arg with choices
             placeholders.push({ name: argName, placeholder: null })
           } else {
@@ -83,7 +58,19 @@ export async function extractArgPlaceholders(code: string): Promise<Array<{ name
           }
         }
       }
-    })
+      
+      // Recursively walk all child nodes
+      for (const key in node) {
+        if (key === 'type' || key === 'start' || key === 'end' || key === 'loc' || key === 'range') continue
+        
+        const value = node[key]
+        if (Array.isArray(value)) {
+          value.forEach(walkNode)
+        } else if (value && typeof value === 'object') {
+          walkNode(value)
+        }
+      }
+    }
   } catch (error) {
     console.error('Error parsing script:', error)
     throw error
@@ -151,4 +138,43 @@ ava('should handle nested arg calls in script', async t => {
   t.deepEqual(placeholders[0], { name: "arg1", placeholder: "Jane" })
   t.deepEqual(placeholders[1], { name: "arg2", placeholder: "Smith" })
   t.deepEqual(placeholders[2], { name: "arg3", placeholder: "********" })
+})
+
+ava('should handle TypeScript syntax with interfaces and types', async t => {
+  const code = `
+    interface User {
+      name: string
+      email: string
+    }
+    
+    type Status = 'active' | 'inactive'
+    
+    async function getUser(): Promise<User> {
+      const name = await arg<string>("Name", { placeholder: "John Doe" })
+      const email = await arg("Email", { placeholder: "user@example.com" })
+      const status: Status = await arg("Status", ["active", "inactive"]) as Status
+      
+      return { name, email }
+    }
+  `
+  const placeholders = await extractArgPlaceholders(code)
+  t.is(placeholders.length, 3)
+  t.deepEqual(placeholders[0], { name: "arg1", placeholder: "John Doe" })
+  t.deepEqual(placeholders[1], { name: "arg2", placeholder: "user@example.com" })
+  t.deepEqual(placeholders[2], { name: "arg3", placeholder: null })
+})
+
+ava('should handle TypeScript generics and complex types', async t => {
+  const code = `
+    async function processData<T extends string>(data: T[]): Promise<void> {
+      const filterValue = await arg<T>("Filter by", { placeholder: "search term" })
+      const maxResults: number = parseInt(await arg("Max results", { placeholder: "10" }))
+      
+      const filtered = data.filter((item: T) => item.includes(filterValue))
+    }
+  `
+  const placeholders = await extractArgPlaceholders(code)
+  t.is(placeholders.length, 2)
+  t.deepEqual(placeholders[0], { name: "arg1", placeholder: "search term" })
+  t.deepEqual(placeholders[1], { name: "arg2", placeholder: "10" })
 })
