@@ -6,9 +6,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod'
 import { readFile } from 'fs/promises'
-import { fork } from 'child_process'
+import { spawn } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { promises as fs } from 'fs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -43,32 +44,51 @@ async function extractArgPlaceholdersSimple(code: string): Promise<Array<{ name:
   return placeholders
 }
 
+// Check if Script Kit app is running by checking for kit.sock
+async function isKitRunning(): Promise<boolean> {
+  try {
+    const kitPath = process.env.KIT || path.join(process.env.HOME || '', '.kit')
+    await fs.access(path.join(kitPath, 'kit.sock'))
+    return true
+  } catch {
+    return false
+  }
+}
+
 // Run a script and capture its result
 async function runScriptWithResult(scriptPath: string, args: string[]): Promise<any> {
+  const kitRunning = await isKitRunning()
+  
+  if (kitRunning) {
+    // Use kar to run the script through the app
+    return runScriptViaKar(scriptPath, args)
+  } else {
+    // Fall back to run.txt method
+    return runScriptViaRunTxt(scriptPath, args)
+  }
+}
+
+// Run script via kar (socket communication)
+async function runScriptViaKar(scriptPath: string, args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
-    // Use the Kit script runner
-    const runnerPath = path.join(__dirname, 'script-runner-kit.js')
-    const child = fork(runnerPath, [scriptPath, ...args], {
-      silent: true,
+    const kitPath = process.env.KIT || path.join(process.env.HOME || '', '.kit')
+    const karPath = path.join(kitPath, 'bin', 'kar')
+    
+    // Extract just the script name from the full path
+    const scriptName = path.basename(scriptPath, path.extname(scriptPath))
+    
+    const child = spawn(karPath, [scriptName, ...args], {
       env: {
         ...process.env,
-        KIT_CONTEXT: 'workflow',
-        KIT_SCRIPT_PATH: scriptPath
-      },
-      execArgv: []
+        KIT_MCP_RESPONSE: 'true' // Signal that we want the response
+      }
     })
     
     let output = ''
     let error = ''
-    let lastLine = ''
     
     child.stdout?.on('data', (data) => {
-      const text = data.toString()
-      output += text
-      const lines = text.trim().split('\n').filter(l => l)
-      if (lines.length > 0) {
-        lastLine = lines[lines.length - 1]
-      }
+      output += data.toString()
     })
     
     child.stderr?.on('data', (data) => {
@@ -80,11 +100,12 @@ async function runScriptWithResult(scriptPath: string, args: string[]): Promise<
         reject(new Error(`Script exited with code ${code}: ${error}`))
       } else {
         try {
-          // Try to parse the last line as JSON result
-          if (lastLine && (lastLine.startsWith('{') || lastLine.startsWith('['))) {
-            resolve(JSON.parse(lastLine))
+          // Try to parse the output as JSON
+          const trimmed = output.trim()
+          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            resolve(JSON.parse(trimmed))
           } else {
-            resolve({ output: output.trim() })
+            resolve({ output: trimmed })
           }
         } catch (e) {
           resolve({ output: output.trim() })
@@ -95,6 +116,52 @@ async function runScriptWithResult(scriptPath: string, args: string[]): Promise<
     child.on('error', (err) => {
       reject(err)
     })
+  })
+}
+
+// Run script via run.txt (file-based triggering)
+async function runScriptViaRunTxt(scriptPath: string, args: string[]): Promise<any> {
+  return new Promise(async (resolve, reject) => {
+    const kitPath = process.env.KIT || path.join(process.env.HOME || '', '.kit')
+    const runTxtPath = path.join(kitPath, 'run.txt')
+    const responsePath = path.join(kitPath, 'run-response.json')
+    
+    try {
+      // Clean up any existing response file
+      await fs.unlink(responsePath).catch(() => {})
+      
+      // Write script and args to run.txt
+      const runCommand = [scriptPath, ...args].join(' ')
+      await fs.writeFile(runTxtPath, runCommand)
+      
+      // Poll for response file (with timeout)
+      const timeout = 30000 // 30 seconds
+      const pollInterval = 100 // 100ms
+      const startTime = Date.now()
+      
+      const checkResponse = async () => {
+        try {
+          const response = await fs.readFile(responsePath, 'utf-8')
+          await fs.unlink(responsePath).catch(() => {})
+          
+          try {
+            resolve(JSON.parse(response))
+          } catch {
+            resolve({ output: response })
+          }
+        } catch (err) {
+          if (Date.now() - startTime > timeout) {
+            reject(new Error('Script execution timed out'))
+          } else {
+            setTimeout(checkResponse, pollInterval)
+          }
+        }
+      }
+      
+      checkResponse()
+    } catch (err) {
+      reject(err)
+    }
   })
 }
 
