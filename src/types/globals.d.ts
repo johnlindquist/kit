@@ -317,3 +317,96 @@ declare global {
    */
   var globby: typeof import('globby').globby
 }
+
+// MCP (Model Context Protocol) Types
+export interface MCPToolResult {
+  /**
+   * A list of content objects that represent the result of the tool call.
+   * This field is always present, but may be empty.
+   */
+  content: Array<
+    | {
+        type: 'text'
+        /**
+         * The text content of the message.
+         */
+        text: string
+      }
+    | {
+        type: 'image'
+        /**
+         * The base64-encoded image data.
+         */
+        data: string
+        /**
+         * The MIME type of the image. Different providers may support different image types.
+         */
+        mimeType: string
+      }
+    | {
+        type: 'audio'
+        /**
+         * The base64-encoded audio data.
+         */
+        data: string
+        /**
+         * The MIME type of the audio. Different providers may support different audio types.
+         */
+        mimeType: string
+      }
+    | {
+        type: 'resource'
+        resource: {
+          /**
+           * The URI of this resource.
+           */
+          uri: string
+          /**
+           * The MIME type of this resource, if known.
+           */
+          mimeType?: string
+        } & (
+          | {
+              /**
+               * The text of the item. This must only be set if the item can actually be represented as text (not binary data).
+               */
+              text: string
+            }
+          | {
+              /**
+               * A base64-encoded string representing the binary data of the item.
+               */
+              blob: string
+            }
+        )
+      }
+  >
+  /**
+   * This result property is reserved by the protocol to allow clients and servers to attach additional metadata to their responses.
+   */
+  _meta?: Record<string, any>
+}
+
+declare global {
+  /**
+   * Type for MCP (Model Context Protocol) tool results
+   * @example
+   * ```ts
+   * // Name: My MCP Tool
+   * // Description: A tool that returns structured data
+   * // mcp: my-tool
+   * 
+   * import "@johnlindquist/kit"
+   * 
+   * const result: MCPToolResult = {
+   *   content: [{
+   *     type: 'text',
+   *     text: 'Hello from MCP tool!'
+   *   }]
+   * }
+   * 
+   * export default result
+   * ```
+   */
+  type MCPToolResult = import('./globals').MCPToolResult
+}

@@ -57,6 +57,27 @@ When `mcp` metadata is present, the parser automatically sets `response: true`, 
 - The result will be returned to the MCP client
 - The result can be any JSON-serializable value
 
+### 5. MCPToolResult Type
+
+For properly typed MCP tool results, use the `MCPToolResult` type:
+
+```typescript
+const result: MCPToolResult = {
+  content: [{
+    type: 'text',
+    text: 'Your response text here'
+  }]
+}
+
+export default result
+```
+
+The `MCPToolResult` type supports multiple content types:
+- `text`: Plain text responses
+- `image`: Base64-encoded images with MIME type
+- `audio`: Base64-encoded audio with MIME type
+- `resource`: External resources with URI and optional text or blob data
+
 ## Example Scripts
 
 ### Simple Tool
@@ -92,13 +113,16 @@ const body = await arg({
   hint: "Markdown supported"
 })
 
-const result = await sendEmail({ to, subject, body })
+const emailResult = await sendEmail({ to, subject, body })
 
-export default {
-  success: true,
-  messageId: result.id,
-  sentAt: new Date().toISOString()
+const result: MCPToolResult = {
+  content: [{
+    type: 'text',
+    text: `Email sent successfully!\nMessage ID: ${emailResult.id}\nSent at: ${new Date().toISOString()}`
+  }]
 }
+
+export default result
 ```
 
 ## Running the MCP Server

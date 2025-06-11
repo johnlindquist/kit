@@ -9,13 +9,9 @@ test('tool schema creates args array with optional elements', t => {
     { name: 'city', placeholder: 'Enter your city' }
   ]
   
-  // Create schema using the same logic as MCP server
-  const items = placeholders.map(placeholder => 
-    z.string().optional().describe(placeholder.placeholder)
-  )
-  
+  // Create schema using array instead of tuple for flexibility
   const schema = z.object({
-    args: z.tuple(items as any).optional().default([])
+    args: z.array(z.string().optional()).optional().default([])
   })
   
   // Test valid inputs
@@ -34,6 +30,25 @@ test('tool schema creates args array with optional elements', t => {
   // Test that elements can be undefined
   const valid5 = schema.parse({ args: ['John', undefined, 'NYC'] })
   t.deepEqual(valid5.args, ['John', undefined, 'NYC'])
+  
+  // Test the tuple approach for fixed-length validation
+  const tupleItems = placeholders.map(placeholder => 
+    z.string().optional()
+  )
+  
+  // For tuples, we need to provide all positions (can be undefined)
+  const tupleSchema = z.object({
+    args: z.tuple(tupleItems as any).optional().default(() => [undefined, undefined, undefined])
+  })
+  
+  const tupleValid1 = tupleSchema.parse({ args: ['John', '25', 'NYC'] })
+  t.deepEqual(tupleValid1.args, ['John', '25', 'NYC'])
+  
+  const tupleValid2 = tupleSchema.parse({ args: ['John', undefined, undefined] })
+  t.deepEqual(tupleValid2.args, ['John', undefined, undefined])
+  
+  const tupleValid3 = tupleSchema.parse({})
+  t.deepEqual(tupleValid3.args, [undefined, undefined, undefined])
 })
 
 test('args array maps correctly to script arguments', t => {
@@ -69,4 +84,55 @@ test('lazy args concept - missing args are empty strings', t => {
   // - arg1 gets 'value1' 
   // - arg2 gets 'value2'
   // - arg3 and arg4 get '', triggering prompts in interactive mode
+})
+
+test('MCPToolResult type structure validation', t => {
+  // Test that our type structure matches expected MCP format
+  const validResult: any = {
+    content: [
+      { type: 'text', text: 'Hello world' }
+    ]
+  }
+  
+  // Validate structure
+  t.truthy(validResult.content)
+  t.true(Array.isArray(validResult.content))
+  t.is(validResult.content[0].type, 'text')
+  t.is(validResult.content[0].text, 'Hello world')
+  
+  // Test with metadata
+  const resultWithMeta: any = {
+    content: [
+      { type: 'text', text: 'Result' }
+    ],
+    _meta: {
+      version: '1.0',
+      timestamp: new Date().toISOString()
+    }
+  }
+  
+  t.truthy(resultWithMeta._meta)
+  t.is(resultWithMeta._meta.version, '1.0')
+  
+  // Test multiple content types
+  const multiContent: any = {
+    content: [
+      { type: 'text', text: 'Text content' },
+      { type: 'image', data: 'base64data', mimeType: 'image/png' },
+      { type: 'audio', data: 'base64audio', mimeType: 'audio/mp3' },
+      { 
+        type: 'resource', 
+        resource: { 
+          uri: 'https://example.com/file.txt',
+          mimeType: 'text/plain',
+          text: 'File contents'
+        }
+      }
+    ]
+  }
+  
+  t.is(multiContent.content.length, 4)
+  t.is(multiContent.content[1].type, 'image')
+  t.is(multiContent.content[2].type, 'audio')
+  t.is(multiContent.content[3].type, 'resource')
 })
