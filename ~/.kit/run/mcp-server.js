@@ -1691,11 +1691,8 @@ async function runScriptDirect(scriptPath, args) {
   return new Promise((resolve5, reject) => {
     const kitPath2 = process.env.KIT || path6.join(process.env.HOME || "", ".kit");
     const nodePath = process.execPath;
-    const runnerPath = path6.join(__dirname, "script-runner-mcp.mjs");
+    const runnerPath = path6.join(__dirname, "simple-runner.mjs");
     const child = spawn2(nodePath, [
-      "--loader",
-      `file://${kitPath2}/build/loader.js`,
-      "--no-warnings",
       runnerPath,
       scriptPath,
       ...args
@@ -1863,13 +1860,14 @@ async function runScriptViaRunTxt(scriptPath, args) {
   });
 }
 function createToolSchema(placeholders) {
-  const properties = {};
-  placeholders.forEach((placeholder) => {
-    properties[placeholder.name] = z3.string().describe(
-      placeholder.placeholder || `Enter ${placeholder.name}`
-    );
+  const items = placeholders.map(
+    (placeholder) => z3.string().optional().describe(
+      placeholder.placeholder || `Enter value for ${placeholder.name}`
+    )
+  );
+  return z3.object({
+    args: z3.tuple(items).optional().default([])
   });
-  return z3.object(properties);
 }
 async function main() {
   try {
@@ -1894,7 +1892,8 @@ async function main() {
           schema.shape,
           async (params) => {
             console.error(`Running tool: ${toolName} with params:`, params);
-            const args = placeholders.map((p) => params[p.name] || "");
+            const argsArray = params.args || [];
+            const args = placeholders.map((_, index) => argsArray[index] || "");
             try {
               const result = await runScriptWithResult(script.filePath, args);
               console.error(`Result:`, result);

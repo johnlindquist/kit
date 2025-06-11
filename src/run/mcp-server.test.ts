@@ -42,15 +42,14 @@ async function runMcpServerWithTestScript(t: any, scriptName: string, args: stri
 
     // Wait for server to be ready
     setTimeout(() => {
-      // Send tool call
+      // Send tool call with args array
       const toolCall = {
         method: 'tool/call',
         params: {
           name: scriptName,
-          arguments: args.reduce((acc, arg, i) => ({
-            ...acc,
-            [`arg${i}`]: arg
-          }), {})
+          arguments: {
+            args: args
+          }
         }
       }
 
@@ -88,7 +87,7 @@ async function runMcpServerWithTestScript(t: any, scriptName: string, args: stri
 
 // Test 1: Export default with object
 ava('MCP server handles export default with object', async (t) => {
-  const result = await runMcpServerWithTestScript(t, 'export-default')
+  const result = await runMcpServerWithTestScript(t, 'export-default', [])
   
   t.truthy(result)
   t.is(result.type, 'export-default')
@@ -98,7 +97,7 @@ ava('MCP server handles export default with object', async (t) => {
 
 // Test 2: Console.log JSON output
 ava('MCP server handles console.log JSON output', async (t) => {
-  const result = await runMcpServerWithTestScript(t, 'export-console')
+  const result = await runMcpServerWithTestScript(t, 'export-console', [])
   
   t.truthy(result)
   t.is(result.type, 'console-json')
@@ -108,7 +107,7 @@ ava('MCP server handles console.log JSON output', async (t) => {
 
 // Test 3: Plain text export
 ava('MCP server handles plain text export', async (t) => {
-  const result = await runMcpServerWithTestScript(t, 'plain-text')
+  const result = await runMcpServerWithTestScript(t, 'plain-text', [])
   
   t.truthy(result)
   // Plain text should be wrapped in an object

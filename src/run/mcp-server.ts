@@ -275,17 +275,19 @@ async function runScriptViaRunTxt(scriptPath: string, args: string[]): Promise<a
   })
 }
 
-// Create tool schema from placeholders
+// Create tool schema with args array
 function createToolSchema(placeholders: Array<{ name: string, placeholder: string | null }>) {
-  const properties: Record<string, any> = {}
-
-  placeholders.forEach((placeholder) => {
-    properties[placeholder.name] = z.string().describe(
-      placeholder.placeholder || `Enter ${placeholder.name}`
+  // Create an array where each element is optional
+  const items = placeholders.map(placeholder => 
+    z.string().optional().describe(
+      placeholder.placeholder || `Enter value for ${placeholder.name}`
     )
-  })
+  )
 
-  return z.object(properties)
+  // Return a schema with a single 'args' property that is a tuple
+  return z.object({
+    args: z.tuple(items as any).optional().default([])
+  })
 }
 
 async function main() {
@@ -329,8 +331,10 @@ async function main() {
           async (params) => {
             console.error(`Running tool: ${toolName} with params:`, params)
 
-            // Convert parameters to args array
-            const args = placeholders.map(p => params[p.name] || '')
+            // Extract args array from params
+            const argsArray = params.args || []
+            // Pad with empty strings if needed
+            const args = placeholders.map((_, index) => argsArray[index] || '')
 
             try {
               const result = await runScriptWithResult(script.filePath, args)
