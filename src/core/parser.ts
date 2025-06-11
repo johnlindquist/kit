@@ -118,6 +118,11 @@ export let postprocessMetadata = (
 		result.hasPreview = true
 	}
 
+	// If mcp metadata is present, automatically set response to true
+	if (metadata.mcp) {
+		result.response = true
+	}
+
 	return result as ScriptMetadata
 }
 
