@@ -15,7 +15,12 @@ do
 done
 args+="]"
 
-json="{\"script\":\"$1\",\"args\":$args}"
+# Check if KIT_MCP_RESPONSE is set
+if [ "$KIT_MCP_RESPONSE" = "true" ]; then
+  json="{\"script\":\"$1\",\"args\":$args,\"mcpResponse\":true}"
+else
+  json="{\"script\":\"$1\",\"args\":$args}"
+fi
 echo $json
 curl --http0.9 --unix-socket "$KIT/kit.sock" --header "Content-Type: application/json" \
   --data "$json" \

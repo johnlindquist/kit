@@ -392,26 +392,18 @@ cd(originalDir)
 console.log(`Current directory is now: ${process.cwd()}`)
 
 try {
-  if (process.platform === 'win32') {
-    console.log('Setting permissions for Windows batch files...')
-    await Promise.all([
-      fsChmod(kitPath('bin', 'kit.bat'), 0o755),
-      fsChmod(kitPath('bin', 'mcp.bat'), 0o755)
-    ])
-    console.log('Windows batch file permissions set successfully')
-  } else {
-    console.log('Setting executable permissions for Unix scripts...')
-    await Promise.all([
-      fsChmod(kitPath('script'), 0o755),
-      fsChmod(kitPath('kar'), 0o755),
-      fsChmod(kitPath('bin', 'k'), 0o755),
-      fsChmod(kitPath('bin', 'kit'), 0o755),
-      fsChmod(kitPath('bin', 'sk'), 0o755),
-      fsChmod(kitPath('bin', 'mcp'), 0o755),
-      fsChmod(kitPath('override', 'code', 'python'), 0o755)
-    ])
-    console.log('Unix script permissions set successfully')
-  }
+
+  console.log('Setting executable permissions for Unix scripts...')
+  await Promise.all([
+    fsChmod(kitPath('script'), 0o755),
+    fsChmod(kitPath('kar'), 0o755),
+    fsChmod(kitPath('bin', 'k'), 0o755),
+    fsChmod(kitPath('bin', 'kit'), 0o755),
+    fsChmod(kitPath('bin', 'sk'), 0o755),
+    fsChmod(kitPath('override', 'code', 'python'), 0o755)
+  ])
+  console.log('Unix script permissions set successfully')
+
 
   console.log('Build completed successfully!')
   process.exit(0)

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide demonstrates how to test the Script Kit MCP server using the MCP Inspector CLI.
+This guide demonstrates how to test the Script Kit app's built-in MCP server using the MCP Inspector CLI.
 
 ## Test Setup
 
@@ -19,24 +19,20 @@ This guide demonstrates how to test the Script Kit MCP server using the MCP Insp
 
 ### 2. MCP Server Implementation
 
-**test-mcp-server.js**: A simplified MCP server for testing
-- Registers test scripts as MCP tools
-- Uses a script runner wrapper to execute scripts
-- Handles argument passing and result capture
-
-### 3. Script Runner
-
-**script-runner.js**: Mocks Script Kit globals
-- Provides `arg` function that reads from command line
-- Handles ES module exports
-- Returns results as JSON
+The Script Kit Electron app includes a built-in MCP server that:
+- Automatically discovers scripts with MCP metadata
+- Registers them as MCP tools
+- Handles script execution in the app's runtime environment
+- Manages argument passing and result capture
 
 ## Using the Inspector CLI
 
 ### List Available Tools
 
 ```bash
-npx @modelcontextprotocol/inspector --cli node src/mcp/test-mcp-server.js --method tools/list
+# Note: The MCP server is integrated into the Script Kit app
+# These examples assume the app is running and exposing its MCP server
+npx @modelcontextprotocol/inspector --cli [kit-app-mcp-endpoint] --method tools/list
 ```
 
 Output shows all registered tools with their input schemas:
@@ -47,7 +43,7 @@ Output shows all registered tools with their input schemas:
 
 **Hello MCP Example:**
 ```bash
-npx @modelcontextprotocol/inspector --cli node src/mcp/test-mcp-server.js \
+npx @modelcontextprotocol/inspector --cli [kit-app-mcp-endpoint] \
   --method tools/call \
   --tool-name hello-mcp \
   --tool-arg name=Alice \

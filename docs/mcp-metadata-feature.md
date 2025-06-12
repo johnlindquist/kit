@@ -2,7 +2,7 @@
 
 ## Overview
 
-The MCP (Model Context Protocol) metadata feature allows Script Kit scripts to be exposed as tools through an MCP server, making them accessible to AI assistants and other MCP-compatible clients.
+The MCP (Model Context Protocol) metadata feature allows Script Kit scripts to be exposed as tools through the Script Kit Electron app's built-in MCP server, making them accessible to AI assistants and other MCP-compatible clients.
 
 ## Usage
 
@@ -40,8 +40,8 @@ This uses the script's command name as the tool name.
 
 ## How It Works
 
-1. **Script Discovery**: When the MCP server starts, it calls `getScripts()` to retrieve all scripts
-2. **Filtering**: Only scripts with the `mcp` metadata field are exposed as tools
+1. **Script Discovery**: When the Script Kit app starts, it calls `getScripts()` to retrieve all scripts
+2. **Filtering**: Only scripts with the `mcp` metadata field are exposed as tools through the built-in MCP server
 3. **Tool Registration**: Each MCP-enabled script becomes a tool with:
    - **Name**: From the `mcp` value or script command
    - **Description**: From the script's `description` metadata

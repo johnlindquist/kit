@@ -1,0 +1,47 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## INTRODUCTION
+
+This document serves as the central repository for all project rules, coding standards, workflow guidelines, references, documentation structures, and best practices for the AI coding assistant. It is a "living" document, evolving with each new user-AI interaction.
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+*   All project-related documentation is stored in markdown format.
+*   Filenames should be descriptive and follow a consistent naming convention.
+*   Each document should have a clear title and introduction.
+*   Use SpecStory to automatically generate markdown files from user-AI interactions.
+
+## TECH STACK
+
+*   (Add specific technologies, libraries, and frameworks used in the project here)
+
+## CODING STANDARDS
+
+*   (Define coding style, naming conventions, and best practices for each language used in the project)
+
+## WORKFLOW & RELEASE RULES
+
+*   (Define the project's workflow, including branching strategies, code review processes, and release procedures)
+
+## TESTING
+
+*   When running the "testing-mcp" tool, it requires an argument. Provide a value for the argument to execute the tool. Example: "awesome". If the tool is not found, request clarification from the user as to its location and usage.
+
+## DEBUGGING
+
+*   (Define debugging strategies and tools)
+
+## ERROR HANDLING
+
+*   (Define how errors should be handled and logged)
+
+## SECURITY
+
+*   (Define security best practices and guidelines)
+
+## REFERENCES
+
+*   (List any relevant external resources, documentation, or style guides)
