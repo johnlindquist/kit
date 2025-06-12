@@ -1445,7 +1445,12 @@ global.fields = async (formFields, actions?: Action[]) => {
         })
       }
       if (global.args.length) {
-        defaultElement.value = global.args.shift()
+        let argValue = global.args.shift()
+        // Check if the argument is the special "__undefined__" marker
+        if (argValue !== "__undefined__") {
+          defaultElement.value = argValue
+        }
+        // If it's "__undefined__", don't set the value, let the field be interactive
       }
       let { element, label, id, name, ...attrs } =
         defaultElement
@@ -1925,6 +1930,12 @@ global.basePrompt = async (
 
   let hint =
     (placeholderOrConfig as PromptConfig)?.hint || ""
+
+  // Check if the argument is the special "__undefined__" marker
+  if (firstArg === "__undefined__") {
+    // Treat it as if no argument was provided - show the prompt
+    firstArg = null
+  }
 
   if (
     typeof firstArg !== "undefined" &&

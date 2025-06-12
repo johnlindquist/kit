@@ -97,6 +97,13 @@ global.arg = async (messageOrConfig = 'Input', choices) => {
   }
 
   let firstArg = global.args.length ? global.args.shift() : null
+  
+  // Check if the argument is the special "__undefined__" marker
+  if (firstArg === "__undefined__") {
+    // Treat it as if no argument was provided - show the prompt
+    firstArg = null
+  }
+  
   if (firstArg) {
     let valid = true
     if (typeof messageOrConfig !== 'string' && (messageOrConfig as PromptConfig)?.validate) {
