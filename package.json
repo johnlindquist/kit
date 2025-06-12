@@ -143,7 +143,6 @@
     "zod": "^3.25.56"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "0.14.0",
     "@modelcontextprotocol/sdk": "1.12.1",
     "@types/debug": "4.1.12",
     "@types/node": "^22.15.30",
