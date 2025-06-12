@@ -78,6 +78,8 @@ export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: strin
   let parsingValue = false
 
   let insideCodeFence = false
+  let currentFenceDelimiter = ""      // Tracks ``` vs ~~~ so we don't
+                                      // accidentally close the outer fence
 
   let globalPrependScript = '' // Will hold code fence content under H1
   let sawH1 = false // Track if we've encountered an H1
@@ -88,25 +90,45 @@ export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: strin
   for (const untrimmedLine of lines) {
     let line = untrimmedLine?.length > 0 ? untrimmedLine.trim() : ''
 
-    // Handle code fences and insideCodeFence toggling
+    // ── Handle opening / closing of code fences ────────────────────────────
     if (line.startsWith('```') || line.startsWith('~~~')) {
-      insideCodeFence = !insideCodeFence
+      const delimiter = line.startsWith('```') ? '```' : '~~~'
 
-      // Check if we're within the H1 section and haven't yet started H2 sections
-      if (sawH1 && !currentScriptlet && insideCodeFence) {
-        // Starting the H1 code fence
-        inH1CodeFence = true
-        h1CodeFenceTool = line.replace('```', '').replace('~~~', '').trim()
-        if (!h1CodeFenceTool) {
-          h1CodeFenceTool = process.platform === 'win32' ? 'cmd' : 'bash'
+      if (!insideCodeFence) {
+        // Opening a *new* top‑level fence
+        insideCodeFence = true
+        currentFenceDelimiter = delimiter
+
+        // Check if we're within the H1 section and haven't yet started H2 sections
+        if (sawH1 && !currentScriptlet) {
+          // Starting the H1 code fence
+          inH1CodeFence = true
+          h1CodeFenceTool = line.replace('```', '').replace('~~~', '').trim()
+          if (!h1CodeFenceTool) {
+            h1CodeFenceTool = process.platform === 'win32' ? 'cmd' : 'bash'
+          }
+          continue
         }
-        continue
-      }
+      } else if (delimiter === currentFenceDelimiter) {
+        // Closing the current top‑level fence
+        insideCodeFence = false
+        currentFenceDelimiter = ""
 
-      if (inH1CodeFence && !insideCodeFence) {
-        // Ending the H1 code fence
-        inH1CodeFence = false
-        globalPrependScript = h1CodeFenceLines.join('\n').trim()
+        if (inH1CodeFence) {
+          // Ending the H1 code fence
+          inH1CodeFence = false
+          globalPrependScript = h1CodeFenceLines.join('\n').trim()
+          continue
+        }
+        // Normal closing – carry on
+      } else {
+        // Nested fence that uses a *different* delimiter – treat as content
+        if (parsingValue && currentScriptlet) {
+          currentScriptlet.scriptlet = currentScriptlet.scriptlet
+            ? `${currentScriptlet.scriptlet}\n${untrimmedLine}`
+            : untrimmedLine
+        }
+        // Do *not* toggle insideCodeFence
         continue
       }
     }

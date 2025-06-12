@@ -428,7 +428,7 @@ await term({
 To analyze the implementation of this API, you can use the following command to gather all relevant files:
 
 ```bash
-repomix --include "/workspace/app/src/main/prompt.ts,/workspace/app/src/main/pty.ts,/workspace/sdk/src/(sdk/src/api/pro.ts,/workspace/sdk/src/api/pro.ts"
+repomix --include "app/src/main/prompt.ts,app/src/main/pty.ts,sdk/src/api/pro.ts"
 ```
 
 This will generate a comprehensive report of all the implementation files for this API.

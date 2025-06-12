@@ -3,11 +3,8 @@
 import "@johnlindquist/kit"
 import { getSnippet, templatePlaceholdersRegex } from "../core/utils.js"
 
-let snippet = ""
-
 let contents = await readFile(arg.filePath, "utf8")
-let { metadata, snippet: snippetFromFile } = getSnippet(contents)
-snippet = snippetFromFile.trim()
+let { metadata, snippet } = getSnippet(contents)
 
 updateArgs(args);
 if (args?.length > 0 && snippet.includes("$0")) {
