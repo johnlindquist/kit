@@ -457,11 +457,15 @@ global.term = async (commandOrConfig: string | TerminalConfig = '', actions?: Ac
     })
   }
 
-  return await global.kitPrompt({
+  const result = await global.kitPrompt({
     input: config.command,
     ui: UI.term,
     ...config
   })
+
+  // Maintain the old signature: Promise<string>
+  // Handle cases where kitPrompt might not return a result
+  return result?.output || ''
 }
 
 global.term.write = async (text: string) => {

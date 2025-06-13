@@ -851,6 +851,16 @@ let waitForPromptValue = ({
               break
             }
 
+            case Channel.TERM_CAPTURE_READY: {
+              // Handle terminal capture ready event
+              // This comes from the app when terminal process exits or continues
+              // and includes the captured text
+              const { text, exitCode } = data as any
+              global.finishPrompt()
+              resolve({ output: text, code: exitCode })
+              break
+            }
+
             default:
               // warn(`Unknown channel: ${data.channel}`)
               break
