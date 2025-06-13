@@ -1106,6 +1106,7 @@ declare global {
    */
   var form: Form
   /**
+   * @experimental This bound to change. Use at your own risk.
    * The `formReact` function allows you to create forms using React JSX syntax.
    * The React component is rendered server-side to HTML and passed to the standard form function.
    * 

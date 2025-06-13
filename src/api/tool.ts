@@ -26,6 +26,17 @@ export async function tool<T = Record<string, any>>(
     }
   }
   
+  // Fallback: if all declared parameters are already present in global.headers
+  // use them even when the sentinel keys are missing.
+  if (
+    global.headers &&
+    !global.headers['X-MCP-Tool'] &&
+    config.parameters &&
+    Object.keys(config.parameters).every(k => k in global.headers)
+  ) {
+    return global.headers as unknown as T;
+  }
+  
   // Then check environment variable (for direct MCP calls)
   if (process.env.KIT_MCP_CALL) {
     try {
