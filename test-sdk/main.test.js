@@ -101,6 +101,10 @@ ava('TypeScript support', async (t) => {
   await appendFile(
     tsScriptPath,
     `
+// Consume script name if it's in args
+if (global.args?.[0] === '${tsScript}') {
+  await arg()
+}
 console.log(await arg())`
   );
 
@@ -152,7 +156,11 @@ export let go = async ()=> await arg()
   await appendFile(
     tsScriptPath,
     `
-import { go } from "../lib/yo"    
+import { go } from "../lib/yo"
+// Consume script name if it's in args
+if (global.args?.[0] === '${tsScript}') {
+  await arg()
+}    
 console.log(await go())`
   );
 
