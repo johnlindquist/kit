@@ -1,4 +1,5 @@
-import { CallToolResult } from "@modelcontextprotocol/sdk/types"
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types"
+export type { CallToolResult, Tool }
 
 type ReadFileOptions = Parameters<typeof import('node:fs/promises').readFile>[1]
 
@@ -320,27 +321,7 @@ declare global {
   var globby: typeof import('globby').globby
 }
 
-// Tool Configuration Types
-export interface ToolConfig<T = any> {
-  name: string
-  description?: string
-  parameters?: {
-    [K in keyof T]: ParameterConfig
-  }
-}
 
-export interface ParameterConfig {
-  type: "string" | "number" | "boolean" | "object" | "array"
-  description?: string
-  required?: boolean
-  default?: any
-  enum?: any[]
-  pattern?: string  // for string validation
-  minimum?: number  // for number validation
-  maximum?: number  // for number validation
-  items?: ParameterConfig  // for array items
-  properties?: Record<string, ParameterConfig>  // for object properties
-}
 
 declare global {
   /**
@@ -373,14 +354,18 @@ declare global {
    * const { operation, a, b } = await tool({
    *   name: "calculator",
    *   description: "Perform calculations",
-   *   parameters: {
-   *     operation: {
-   *       type: "string",
-   *       enum: ["add", "subtract", "multiply", "divide"],
-   *       required: true
+   *   inputSchema: {
+   *     type: "object",
+   *     properties: {
+   *       operation: {
+   *         type: "string",
+   *         enum: ["add", "subtract", "multiply", "divide"],
+   *         description: "The operation to perform"
+   *       },
+   *       a: { type: "number", description: "First number" },
+   *       b: { type: "number", description: "Second number" }
    *     },
-   *     a: { type: "number", required: true },
-   *     b: { type: "number", required: true }
+   *     required: ["operation", "a", "b"]
    *   }
    * })
    * 
@@ -388,5 +373,5 @@ declare global {
    * await sendResponse({ result })
    * ```
    */
-  var tool: <T = Record<string, any>>(config: import('./globals').ToolConfig<T>) => Promise<T>
+  var tool: <T = Record<string, any>>(toolConfig: Tool) => Promise<T>
 }
