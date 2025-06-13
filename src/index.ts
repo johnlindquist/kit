@@ -21,6 +21,7 @@ if (!process?.env?.KIT_TARGET) {
 }
 
 export * from "./api/kit.js"
+export * from "./api/tool.js"
 export * from "./core/utils.js"
 
 

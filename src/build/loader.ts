@@ -47,14 +47,21 @@ async function cacheJSXLoad(url, cacheDir = "") {
 }
 
 export async function JSXLoad(url) {
+  const filePath = fileURLToPath(url)
+  const isTsxOrJsx = filePath.endsWith('.tsx') || filePath.endsWith('.jsx')
+  
   const result = await build({
-    entryPoints: [fileURLToPath(url)],
+    entryPoints: [filePath],
     bundle: true,
     platform: "node",
     format: "esm",
     packages: "external",
     charset: "utf8",
     write: false,
+    loader: isTsxOrJsx ? {
+      '.tsx': 'tsx',
+      '.jsx': 'jsx'
+    } : undefined,
     tsconfigRaw: {
       compilerOptions: {
         target: "esnext",
@@ -67,7 +74,6 @@ export async function JSXLoad(url) {
         allowSyntheticDefaultImports: true,
         skipLibCheck: true,
         sourceMap: true,
-        // TODO: Load jsx files?
         jsx: "react-jsx",
       },
     },
@@ -90,6 +96,23 @@ export async function NoLoad(url) {
 
 export async function load(url, context, defaultLoad) {
   const isTerminal = process.env?.KIT_TARGET === "terminal"
+  
+  // Handle .tsx and .jsx files
+  if (url.includes('.tsx?') || url.includes('.jsx?')) {
+    // Remove the .kit suffix and timestamp query
+    const cleanUrl = url.replace(/\?.*\.kit$/, '')
+    let cacheDir = ""
+    if (!isTerminal) {
+      cacheDir = resolve(
+        dirname(fileURLToPath(cleanUrl)),
+        ".cache"
+      )
+      await ensureDir(cacheDir)
+    }
+    const transform = await cacheJSXLoad(cleanUrl, cacheDir)
+    return transform
+  }
+  
   if (
     url.endsWith(".kit") &&
     (url.includes(".ts?") || isTerminal)

@@ -387,6 +387,28 @@ export interface MCPToolResult {
   _meta?: Record<string, any>
 }
 
+// Tool Configuration Types
+export interface ToolConfig<T = any> {
+  name: string
+  description?: string
+  parameters?: {
+    [K in keyof T]: ParameterConfig
+  }
+}
+
+export interface ParameterConfig {
+  type: "string" | "number" | "boolean" | "object" | "array"
+  description?: string
+  required?: boolean
+  default?: any
+  enum?: any[]
+  pattern?: string  // for string validation
+  minimum?: number  // for number validation
+  maximum?: number  // for number validation
+  items?: ParameterConfig  // for array items
+  properties?: Record<string, ParameterConfig>  // for object properties
+}
+
 declare global {
   /**
    * Type for MCP (Model Context Protocol) tool results
@@ -409,4 +431,29 @@ declare global {
    * ```
    */
   type MCPToolResult = import('./globals').MCPToolResult
+  
+  /**
+   * Define a tool that can be used via MCP, CLI, or Script Kit UI
+   * Returns the parameters when called, similar to arg()
+   * @example
+   * ```ts
+   * const { operation, a, b } = await tool({
+   *   name: "calculator",
+   *   description: "Perform calculations",
+   *   parameters: {
+   *     operation: {
+   *       type: "string",
+   *       enum: ["add", "subtract", "multiply", "divide"],
+   *       required: true
+   *     },
+   *     a: { type: "number", required: true },
+   *     b: { type: "number", required: true }
+   *   }
+   * })
+   * 
+   * const result = operation === "add" ? a + b : a - b
+   * await sendResponse({ result })
+   * ```
+   */
+  var tool: <T = Record<string, any>>(config: import('./globals').ToolConfig<T>) => Promise<T>
 }
