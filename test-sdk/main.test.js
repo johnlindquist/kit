@@ -107,7 +107,8 @@ console.log(await arg())`
   let message = 'success';
   let { stdout, stderr } = await exec(`kit ${tsScript} ${message}`);
 
-  t.is(stderr, '');
+  // Ignore locale warnings in stderr
+  t.is(stderr.replace(/bash: warning: setlocale:.*\n?/g, ''), '');
 
   t.regex(stdout, new RegExp(`${message}`), 'TypeScript script worked');
 
@@ -158,7 +159,8 @@ console.log(await go())`
   let message = 'success';
   let { stdout, stderr } = await exec(`kit ${tsScript} ${message}`);
 
-  t.is(stderr, '');
+  // Ignore locale warnings in stderr
+  t.is(stderr.replace(/bash: warning: setlocale:.*\n?/g, ''), '');
 
   t.regex(stdout, new RegExp(`${message}`), 'TypeScript script worked');
 
@@ -355,7 +357,8 @@ console.log(value)
   cd(kenvPath());
   let { stdout, stderr } = await exec(`pnpm run ${npmScript}`);
 
-  t.is(stderr, '');
+  // Ignore locale warnings in stderr
+  t.is(stderr.replace(/bash: warning: setlocale:.*\n?/g, ''), '');
   t.regex(stdout, new RegExp(`${message}`));
 });
 
@@ -388,7 +391,8 @@ if(flag.one === "one" && flag.two === "two"){
   cd(kenvPath());
   ({ stdout, stderr } = await exec(`kit ${command} hello`));
 
-  t.is(stderr, '');
+  // Ignore locale warnings in stderr
+  t.is(stderr.replace(/bash: warning: setlocale:.*\n?/g, ''), '');
   t.regex(stdout, new RegExp(fail));
 });
 
@@ -421,7 +425,8 @@ if(flag.one === "one" && flag.two === "two"){
   cd(kenvPath());
   let { stdout, stderr } = await exec(`kit ${command} hello --one one --two two`);
 
-  t.is(stderr, '');
+  // Ignore locale warnings in stderr
+  t.is(stderr.replace(/bash: warning: setlocale:.*\n?/g, ''), '');
   t.regex(stdout, new RegExp(success));
 });
 
@@ -454,7 +459,8 @@ if(flag.one === "one" && flag.two === "two"){
   cd(kenvPath());
   ({ stdout, stderr } = await exec(`kit ${command} hello --one one --two three`));
 
-  t.is(stderr, '');
+  // Ignore locale warnings in stderr
+  t.is(stderr.replace(/bash: warning: setlocale:.*\n?/g, ''), '');
   t.regex(stdout, new RegExp(fail));
 });
 

@@ -7,6 +7,8 @@ interface DownloadOptions {
 	rejectUnauthorized?: boolean
 	/** Maximum number of redirects to follow. Defaults to 5. */
 	maxRedirects?: number
+	/** Request timeout in milliseconds. Defaults to 10000 (10 seconds). */
+	timeout?: number
 }
 
 /**
@@ -24,7 +26,7 @@ interface DownloadOptions {
  * ```
  */
 const download = (uri: string, opts: DownloadOptions = {}): Promise<Buffer> => {
-	const { maxRedirects = 5 } = opts
+	const { maxRedirects = 5, timeout = 10000 } = opts
 
 	const followRedirect = (url: string, redirectCount = 0): Promise<Buffer> => {
 		console.log(`Downloading ${url}`)
@@ -33,12 +35,13 @@ const download = (uri: string, opts: DownloadOptions = {}): Promise<Buffer> => {
 			...opts,
 			headers: {
 				"User-Agent": "Node.js"
-			}
+			},
+			timeout
 		}
 
 		return new Promise((resolve, reject) => {
 			const protocol = url.startsWith("https:") ? https : http
-			protocol
+			const request = protocol
 				.get(url, options, (res) => {
 					if (
 						res.statusCode &&
@@ -71,6 +74,10 @@ const download = (uri: string, opts: DownloadOptions = {}): Promise<Buffer> => {
 					})
 				})
 				.on("error", reject)
+				.on("timeout", () => {
+					request.destroy()
+					reject(new Error(`Request timeout after ${timeout}ms`))
+				})
 		})
 	}
 
