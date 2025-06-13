@@ -463,14 +463,6 @@ global.term = async (commandOrConfig: string | TerminalConfig = '', actions?: Ac
     ...config
   })
 
-  // Log the result received
-  console.log('[SDK term] Result received:', {
-    hasResult: !!result,
-    hasOutput: !!(result?.output),
-    outputLength: result?.output?.length || 0,
-    outputFirst100: result?.output?.substring(0, 100).replace(/\n/g, '\\n').replace(/\r/g, '\\r')
-  })
-
   // Maintain the old signature: Promise<string>
   // Handle cases where kitPrompt might not return a result
   return result?.output || ''
