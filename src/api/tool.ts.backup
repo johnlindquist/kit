@@ -18,9 +18,16 @@ export async function tool<T = Record<string, any>>(
   toolDefinitions.set(config.name, config)
   
   // Check if we're being called via MCP
-  if (global.kitMcpCall && global.kitMcpCall.tool === config.name) {
-    // Return the parameters passed from MCP
-    return global.kitMcpCall.parameters as T
+  if (process.env.KIT_MCP_CALL) {
+    try {
+      const mcpCall = JSON.parse(process.env.KIT_MCP_CALL)
+      if (mcpCall.tool === config.name) {
+        // Return the parameters passed from MCP
+        return mcpCall.parameters as T
+      }
+    } catch (error) {
+      // Ignore JSON parse errors
+    }
   }
   
   // Check if parameters were passed via CLI args
