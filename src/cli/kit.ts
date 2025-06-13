@@ -185,7 +185,7 @@ export let runCli = async () => {
 		}
 
 		let scriptPath = resolveToScriptPath(script)
-		await run(scriptPath)
+		await run(scriptPath, ...args)
 	}
 
 	await executeScript()
