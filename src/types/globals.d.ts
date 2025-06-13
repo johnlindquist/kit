@@ -1,4 +1,4 @@
-import { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types"
+import { CallToolResult } from "@modelcontextprotocol/sdk/types"
 
 type ReadFileOptions = Parameters<typeof import('node:fs/promises').readFile>[1]
 
@@ -364,7 +364,6 @@ declare global {
    * ```
    */
   type MCPToolResult = typeof CallToolResult
-  type MCPToolSchema = typeof ToolSchema
 
   /**
    * Define a tool that can be used via MCP, CLI, or Script Kit UI
@@ -389,5 +388,5 @@ declare global {
    * await sendResponse({ result })
    * ```
    */
-  var tool: <T = Record<string, any>>(config: Tool<T>) => Promise<T>
+  var tool: <T = Record<string, any>>(config: import('./globals').ToolConfig<T>) => Promise<T>
 }
