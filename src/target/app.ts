@@ -855,6 +855,13 @@ let waitForPromptValue = ({
               // Handle terminal capture ready event
               // This comes from the app when terminal process exits or continues
               // and includes the captured text
+              console.log('[SDK TERM_CAPTURE_READY] Received data:', {
+                hasData: !!data,
+                dataKeys: data ? Object.keys(data) : [],
+                dataType: typeof data,
+                text: (data as any)?.text?.substring(0, 100),
+                exitCode: (data as any)?.exitCode
+              })
               const { text, exitCode } = data as any
               global.finishPrompt()
               resolve({ output: text, code: exitCode })

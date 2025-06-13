@@ -444,6 +444,13 @@ global.term = async (commandOrConfig: string | TerminalConfig = '', actions?: Ac
       ...(commandOrConfig as TerminalConfig)
     }
   }
+  
+  // Log the capture configuration
+  console.log('[SDK term] Configuration:', {
+    hasCapture: !!(config as any).capture,
+    captureValue: (config as any).capture,
+    captureType: typeof (config as any).capture
+  })
 
   if (global.__kitCurrentUI === UI.term) {
     // Hack to clear the terminal when it's already open.
@@ -461,6 +468,14 @@ global.term = async (commandOrConfig: string | TerminalConfig = '', actions?: Ac
     input: config.command,
     ui: UI.term,
     ...config
+  })
+  
+  // Log the result received
+  console.log('[SDK term] Result received:', {
+    hasResult: !!result,
+    hasOutput: !!(result?.output),
+    outputLength: result?.output?.length || 0,
+    outputFirst100: result?.output?.substring(0, 100).replace(/\n/g, '\\n').replace(/\r/g, '\\r')
   })
 
   // Maintain the old signature: Promise<string>
