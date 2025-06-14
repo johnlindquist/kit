@@ -42,12 +42,7 @@ await kitImport("target", "terminal.js")
 global.core = await npm("@actions/core")
 global.github = await npm("@actions/github")
 
-let scriptName = await arg("Path to script")
-let scriptPath = resolveToScriptPath(scriptName)
-
-// Pass remaining arguments to the script
-let scriptArgs = args.slice(args.indexOf(scriptName) + 1)
-global.args = scriptArgs
-global.argOpts = scriptArgs
-
+let scriptPath = resolveToScriptPath(
+  await arg("Path to script")
+)
 await run(scriptPath)
