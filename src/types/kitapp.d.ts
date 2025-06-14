@@ -1,6 +1,5 @@
 import { execaCommand as exec } from 'execa'
 import type { editor as editorApi } from './editor.api'
-import type React from 'react'
 
 import { type Key as CoreKeyEnum, Channel, Mode, type statuses, type PROMPT as CORE_PROMPT } from '../core/enum.js'
 
@@ -1105,30 +1104,6 @@ declare global {
    * [Examples](https://scriptkit.com?query=form) | [Docs](https://johnlindquist.github.io/kit-docs/#form) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=form)
    */
   var form: Form
-  /**
-   * @experimental This bound to change. Use at your own risk.
-   * The `formReact` function allows you to create forms using React JSX syntax.
-   * The React component is rendered server-side to HTML and passed to the standard form function.
-   * 
-   * #### formReact example
-   * ```tsx
-   * const Login = () => (
-   *   <>
-   *     <h2>Login</h2>
-   *     <input name="username" placeholder="Username" required />
-   *     <input name="password" type="password" placeholder="Password" required />
-   *   </>
-   * );
-   * 
-   * const result = await formReact(<Login />);
-   * await notify(`Welcome ${result.username}!`);
-   * ```
-   */
-  var formReact: (
-    element: React.ReactElement | (() => React.ReactElement),
-    formData?: Record<string, any>,
-    actions?: Action[]
-  ) => Promise<any>
   /**
    * The `fields` prompt allows you to rapidly create a form with fields. 
    * 1. An array of labels or objects with label and field properties.

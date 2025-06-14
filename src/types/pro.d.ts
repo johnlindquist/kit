@@ -134,21 +134,6 @@ export type Menubar = (
   scripts?: string[]
 ) => Promise<void>
 
-export type CaptureMode =
-  | "full"        // everything until Continue/exit
-  | "tail"        // last N lines only
-  | "selection"   // whatever the user highlighted
-  | "sentinel"    // only text between delimiters
-  | "none";
-
-export interface TermCapture {
-  mode?: CaptureMode          // default "full"
-  tailLines?: number          // for "tail"
-  stripAnsi?: boolean         // default true
-  sentinelStart?: string      // default "<<START>>"
-  sentinelEnd?: string        // default "<<END>>"
-}
-
 export interface TerminalOptions extends PromptConfig {
   command?: string
   cwd?: string
@@ -159,7 +144,6 @@ export interface TerminalOptions extends PromptConfig {
   }
   closeOnExit?: boolean
   cleanPath?: boolean
-  capture?: TermCapture | boolean   // true ⟹ {mode:"full"}
 }
 
 export type Terminal = {

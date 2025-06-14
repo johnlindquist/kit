@@ -4,7 +4,7 @@
 The `form` API creates multi-field HTML forms for structured data input. It provides a flexible way to collect complex user input through standard HTML form elements that are rendered in the Script Kit Electron app.
 
 ## Main Function Definition
-Located in `sdk/src/target/app.ts`:
+Located in `/workspace/sdk/src/target/app.ts`:
 
 ```typescript
 global.form = async (
@@ -120,17 +120,17 @@ let result = await form({
 
 ### Form Rendering Process
 
-1. **SDK Side** (`sdk/src/target/app.ts:1517`):
+1. **SDK Side** (`/workspace/sdk/src/target/app.ts:1517`):
    - `global.form` creates a PromptConfig with `ui: UI.form`
    - Sends configuration to app via `kitPrompt`
    - Automatically sets enter button text to "Submit" if not specified
 
-2. **Main Process** (`app/src/main/messages.ts`):
+2. **Main Process** (`/workspace/app/src/main/messages.ts`):
    - `SET_FORM` handler receives form configuration and forwards to renderer
    - `SET_FORM_DATA` updates form field values dynamically
    - Previously had `SET_FORM_HTML` (now commented out)
 
-3. **Renderer Process** (`app/src/renderer/src/components/form.tsx`):
+3. **Renderer Process** (`/workspace/app/src/renderer/src/components/form.tsx`):
    - React component that renders the form HTML using `html-react-parser`
    - Manages form state through Jotai atoms:
      - `formHTMLAtom` - Stores the HTML string
@@ -141,7 +141,7 @@ let result = await form({
      - Enter key (when submit button exists)
      - Cmd/Ctrl+S or Cmd/Ctrl+Enter keyboard shortcuts
 
-4. **Form HTML Processing** (`app/src/renderer/src/utils/state-utils.ts:122`):
+4. **Form HTML Processing** (`/workspace/app/src/renderer/src/utils/state-utils.ts:122`):
    - `ensureFormHasSubmit` function automatically adds a hidden submit button if none exists
    - Ensures forms can always be submitted via keyboard
 
@@ -201,7 +201,7 @@ Forms use Jotai atoms for state management:
 To analyze the complete form implementation, use:
 
 ```bash
-repomix --include "sdk/src/target/app.ts,app/src/renderer/src/components/form.tsx,app/src/main/messages.ts,app/src/renderer/src/jotai.ts,app/src/renderer/src/utils/state-utils.ts,sdk/orientation/form.md"
+repomix --include "/workspace/sdk/src/target/app.ts" "/workspace/app/src/renderer/src/components/form.tsx" "/workspace/app/src/main/messages.ts" "/workspace/app/src/renderer/src/jotai.ts" "/workspace/app/src/renderer/src/utils/state-utils.ts"
 ```
 
 This will generate a comprehensive report of all form-related implementation files.

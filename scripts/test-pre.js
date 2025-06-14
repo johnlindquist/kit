@@ -66,7 +66,7 @@ const { stdout: setupStdout, stderr: setupStderr } = await exec(
 	`kit "${kitPath("setup", "setup.js")}" --no-edit`
 )
 console.log({ setupStdout })
-if (setupStderr && !setupStderr.includes('setlocale')) {
+if (setupStderr) {
 	console.log({ setupStderr })
 	exit(1)
 }
@@ -76,7 +76,7 @@ if (setupStderr && !setupStderr.includes('setlocale')) {
 const { stdout: refreshScriptsDbStdout, stderr: refreshScriptsDbStderr } =
 	await exec(`kit "${kitPath("cli", "refresh-scripts-db.js")}"`)
 console.log({ refreshScriptsDbStdout })
-if (refreshScriptsDbStderr && !refreshScriptsDbStderr.includes('setlocale')) {
+if (refreshScriptsDbStderr) {
 	console.log({ refreshScriptsDbStderr })
 	exit(1)
 }

@@ -357,43 +357,30 @@ if (packageJsonChanged) {
   }
 }
 
-console.log('Checking network connectivity...')
-const { checkOnline } = await import('./check-online')
-const isOnline = await checkOnline()
+console.log('Download docs')
+await ensureDir(kitPath('data'))
+console.log('Created data directory')
+const { default: download } = await import('./download')
+console.log('Imported download module')
 
-if (!isOnline) {
-  console.warn('⚠️  No internet connection detected. Skipping downloads of docs.json and hot.json.')
-  console.warn('   You can manually download these files later when online.')
-} else {
-  console.log('Download docs')
-  await ensureDir(kitPath('data'))
-  console.log('Created data directory')
-  const { default: download } = await import('./download')
-  console.log('Imported download module')
+try {
+  console.log('Downloading docs.json...')
+  const docsBuffer = await download('https://www.scriptkit.com/data/docs.json')
+  console.log('Writing docs.json to disk...')
+  await writeFile(kitPath('data', 'docs.json'), docsBuffer)
+  console.log('docs.json downloaded and saved successfully')
+} catch (e) {
+  console.error('Error downloading docs.json:', e)
+}
 
-  try {
-    console.log('Downloading docs.json...')
-    const docsBuffer = await download('https://www.scriptkit.com/data/docs.json', { timeout: 10000 })
-    console.log('Writing docs.json to disk...')
-    await writeFile(kitPath('data', 'docs.json'), docsBuffer)
-    console.log('docs.json downloaded and saved successfully')
-  } catch (e) {
-    console.warn('Warning: Could not download docs.json. This may be due to firewall restrictions.')
-    console.warn('The build will continue without docs.json. You can manually download it later.')
-    console.warn('Error details:', e instanceof Error ? e.message : e)
-  }
-
-  try {
-    console.log('Downloading hot.json...')
-    const hotBuffer = await download('https://www.scriptkit.com/data/hot.json', { timeout: 10000 })
-    console.log('Writing hot.json to disk...')
-    await writeFile(kitPath('data', 'hot.json'), hotBuffer)
-    console.log('hot.json downloaded and saved successfully')
-  } catch (e) {
-    console.warn('Warning: Could not download hot.json. This may be due to firewall restrictions.')
-    console.warn('The build will continue without hot.json. You can manually download it later.')
-    console.warn('Error details:', e instanceof Error ? e.message : e)
-  }
+try {
+  console.log('Downloading hot.json...')
+  const hotBuffer = await download('https://www.scriptkit.com/data/hot.json')
+  console.log('Writing hot.json to disk...')
+  await writeFile(kitPath('data', 'hot.json'), hotBuffer)
+  console.log('hot.json downloaded and saved successfully')
+} catch (e) {
+  console.error('Error downloading hot.json:', e)
 }
 
 console.log('Writing .kitignore file...')

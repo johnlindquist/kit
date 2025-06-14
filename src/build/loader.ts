@@ -1,118 +1,115 @@
-// loader.ts
-import { build } from "esbuild";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import { dirname, join, basename, resolve } from "node:path";
-import { readFile, writeFile, stat } from "node:fs/promises";
-import { ensureDir } from "fs-extra";
+import { fileURLToPath } from "node:url"
+import { build } from "esbuild"
+import { dirname, join, basename, resolve } from "path"
+import { ensureDir } from "fs-extra"
+import { readFile, writeFile, stat } from "fs/promises"
 
-//───────────────────────────────────────────────────────────────────────────
-// Small helpers
-//───────────────────────────────────────────────────────────────────────────
-const stripQuery = (u: string) => u.split("?")[0];
-
-async function cacheJSXLoad(url: string, cacheDir = "") {
-  const fsPath = fileURLToPath(url);
-  const cacheJS = join(cacheDir, `${basename(fsPath)}.js`);
-
+async function cacheJSXLoad(url, cacheDir = "") {
+  const path = fileURLToPath(url)
+  const cachePath = join(cacheDir, basename(path) + ".js")
   if (cacheDir) {
     try {
-      const [src, cached] = await Promise.all([stat(fsPath), stat(cacheJS)]);
-      if (cached.mtime >= src.mtime) {
-        return { 
-          source: await readFile(cacheJS, "utf8"), 
-          format: "module" as const,
-          shortCircuit: true
-        };
+      const [sourceStat, cacheStat] = await Promise.all([
+        stat(path),
+        stat(cachePath),
+      ])
+
+      if (cacheStat.mtime >= sourceStat.mtime) {
+        // Cache is up-to-date
+        // global.log(`💪 Loading cached version of ${url}`)
+        return {
+          source: await readFile(cachePath, "utf8"),
+          format: "module",
+          shortCircuit: true,
+        }
       }
-    } catch { /* cache miss – fall through */ }
+    } catch (error) {
+      // If the cache file doesn't exist or there's an error, we'll proceed to build
+    }
   }
 
-  const result = await JSXLoad(url);
-  const comments = (await readFile(fsPath, "utf8"))
+  // Build and cache the result
+  // global.log(`🔨 Building ${url}`)
+  const result = await JSXLoad(url)
+  // Read any comments from the top of the file and add theme to the top of the cache file
+  const contents = await readFile(path, "utf8")
+  const metadata = contents
     .split("\n")
-    .filter(l => l.startsWith("//") && l.includes(":"))
-    .join("\n");
+    .filter(
+      line => line.startsWith("//") && line.includes(":")
+    )
 
-  if (cacheDir) await writeFile(cacheJS, `${comments}\n${result.source}`, "utf8");
-  return result;
+  const output = metadata.join("\n") + "\n" + result.source
+  if (cacheDir) {
+    await writeFile(cachePath, output, "utf8")
+  }
+  return result
 }
 
-export async function JSXLoad(url: string) {
-  const fsPath = fileURLToPath(url);
-  const ext = fsPath.endsWith(".tsx") || fsPath.endsWith(".jsx");
-  const esbuildResult = await build({
-    entryPoints: [fsPath],
+export async function JSXLoad(url) {
+  const result = await build({
+    entryPoints: [fileURLToPath(url)],
     bundle: true,
     platform: "node",
     format: "esm",
-    loader: ext ? { ".tsx": "tsx", ".jsx": "jsx" } : undefined,
-    write: false,
     packages: "external",
     charset: "utf8",
+    write: false,
     tsconfigRaw: {
       compilerOptions: {
         target: "esnext",
         module: "esnext",
+        outDir: "./dist",
+        rootDir: "./src",
         moduleResolution: "Node",
-        jsx: "react-jsx",
-        allowSyntheticDefaultImports: true,
+        lib: ["esnext"],
         esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
         skipLibCheck: true,
-        sourceMap: true
-      }
-    }
-  });
+        sourceMap: true,
+        // TODO: Load jsx files?
+        jsx: "react-jsx",
+      },
+    },
+  })
 
-  return { 
-    source: esbuildResult.outputFiles[0].text, 
-    format: "module" as const,
-    shortCircuit: true
-  };
+  return {
+    source: result.outputFiles[0].text,
+    format: "module",
+    shortCircuit: true,
+  }
 }
 
-export async function NoLoad(_url: string) {
-  return { 
-    source: "export default {}", 
-    format: "module" as const,
-    shortCircuit: true
-  };
+export async function NoLoad(url) {
+  return {
+    source: `export default {}`,
+    format: "module",
+    shortCircuit: true,
+  }
 }
 
-//───────────────────────────────────────────────────────────────────────────
-// MAIN LOADER – new stable API works fine with the old signature here
-//───────────────────────────────────────────────────────────────────────────
-export async function load(url: string, context, defaultLoad) {
-  const isTerminal = process.env.KIT_TARGET === "terminal";
-  const cleanPath = stripQuery(url);                    // remove ?now=…
-  const isTSFile = cleanPath.endsWith(".ts");
-  const isTSXFile = cleanPath.endsWith(".tsx") || cleanPath.endsWith(".jsx");
-  const isAppCache = url.endsWith(".kit") && isTerminal; // legacy terminal path
-
-  if (isTSFile || isTSXFile || isAppCache) {
-    let cacheDir = "";
-
+export async function load(url, context, defaultLoad) {
+  const isTerminal = process.env?.KIT_TARGET === "terminal"
+  if (
+    url.endsWith(".kit") &&
+    (url.includes(".ts?") || isTerminal)
+  ) {
+    let cacheDir = ""
     if (!isTerminal) {
-      cacheDir = resolve(dirname(fileURLToPath(cleanPath)), ".cache");
-      await ensureDir(cacheDir);
+      cacheDir = resolve(
+        dirname(fileURLToPath(url)),
+        ".cache"
+      )
+      await ensureDir(cacheDir)
     }
-    const result = await cacheJSXLoad(cleanPath, cacheDir);
-    return { ...result, shortCircuit: true };
+    // const start = performance.now()
+    const transform = await cacheJSXLoad(url, cacheDir)
+    // const end = performance.now()
+    // global.log(
+    //   `cacheJSXLoad took ${end - start}ms to complete`
+    // )
+    return transform
   }
 
-  // Fallback to Node’s default resolver.
-  return defaultLoad(url, context, defaultLoad);
+  return defaultLoad(url, context, defaultLoad)
 }
-
-//───────────────────────────────────────────────────────────────────────────
-// Utilities the rest of the codebase already expects
-//───────────────────────────────────────────────────────────────────────────
-global.attemptImport = async (scriptPath: string, ..._args: string[]) => {
-  const cachedArgs = global.args?.slice() ?? [];
-  try {
-    global.updateArgs?.(_args);
-    const href = pathToFileURL(scriptPath).href;
-    return await import(`${href}?now=${Date.now()}.kit`);
-  } finally {
-    global.updateArgs?.(cachedArgs);
-  }
-};

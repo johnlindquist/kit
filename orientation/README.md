@@ -1,4 +1,4 @@
-# Script Kit API Orientation Documents (Auto-Generated)
+# Script Kit API Orientation Documents
 
 This directory contains comprehensive orientation documents for Script Kit APIs. Each document follows a systematic approach to explain how the API works internally, from SDK implementation through to system integration.
 

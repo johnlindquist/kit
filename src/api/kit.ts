@@ -318,10 +318,6 @@ global.sendResponse = (body: any, headers: Record<string, string> = {}) => {
   return global.sendWait(Channel.RESPONSE, response)
 }
 
-// Import and export tool function
-import { tool } from './tool.js'
-global.tool = tool
-
 let _consoleLog = global.console.log.bind(global.console)
 let _consoleWarn = global.console.warn.bind(global.console)
 let _consoleClear = global.console.clear.bind(global.console)
