@@ -9,7 +9,13 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "sourceMap": true,
+    "sourceMap": true
   },
-  "exclude": ["./root/**", "./build/**", "./node_modules/**", "./src/types/kit-editor.d.ts", "**/*.test.*", "scripts/**"]
+  "exclude": [
+    "./root/**",
+    "./build/**",
+    "./node_modules/**",
+    "./src/types/kit-editor.d.ts",
+    "**/*.test.*"
+  ]
 }
