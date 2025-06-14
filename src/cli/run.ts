@@ -14,6 +14,6 @@ let runScript = async (script) => {
 		console.log(script.value)
 		return
 	}
-	return await run(script.filePath, ...args)
+	return await run(script.filePath)
 }
 await runScript(script)
