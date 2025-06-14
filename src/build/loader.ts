@@ -98,7 +98,8 @@ export async function load(url, context, defaultLoad) {
   const isTerminal = process.env?.KIT_TARGET === "terminal"
   
   // Handle .tsx and .jsx files
-  if (url.includes('.tsx?') || url.includes('.jsx?')) {
+  const urlPath = url.split('?')[0]
+  if (urlPath.endsWith('.tsx') || urlPath.endsWith('.jsx')) {
     // Remove the .kit suffix and timestamp query
     const cleanUrl = url.replace(/\?.*\.kit$/, '')
     let cacheDir = ""
