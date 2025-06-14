@@ -3,6 +3,8 @@ process.env.KIT_TARGET = "github-workflow"
 import os from "node:os"
 import { randomUUID } from "node:crypto"
 import { pathToFileURL } from "node:url"
+import * as core from "@actions/core"
+import * as github from "@actions/github"
 
 process.env.KIT_CONTEXT = "workflow"
 
@@ -39,11 +41,8 @@ configEnv()
 
 await kitImport("target", "terminal.js")
 
-if (!args.includes("--trust")) {
-  args.push("--trust")
-}
-global.core = await npm("@actions/core")
-global.github = await npm("@actions/github")
+global.core = core
+global.github = github
 
 let scriptPath = resolveToScriptPath(
   await arg("Path to script")
