@@ -16,6 +16,7 @@
     "./build/**",
     "./node_modules/**",
     "./src/types/kit-editor.d.ts",
-    "**/*.test.*"
+    "**/*.test.*",
+    "./scripts/**"
   ]
 }

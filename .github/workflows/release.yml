@@ -76,6 +76,19 @@ jobs:
         env:
           KIT: ${{ env.kit_path }}
 
+      - name: Script Kit run test-ts John
+        id: test-script-ts
+        shell: bash
+        run: |
+          export KENV=${{ env.wd_path }}
+          export KENV_PREFIX=$KENV/scripts
+          export KIT=${{ env.kit_path }}
+          cd ${{ env.wd_path }}
+          pnpm node --experimental-loader "$KIT/build/loader.js" "$KIT/run/github-workflow.js" test-ts John --trust
+      - run: |
+          [ "${{ steps.test-script-ts.outputs.result }}" != "John" ] && exit 1
+          [ "${{ steps.test-script-ts.outputs.result }}" = "John" ] && echo "Passed 🎉"
+
   test-mac-and-ubuntu:
     strategy:
       matrix:
@@ -187,6 +200,18 @@ jobs:
             pnpm test
         env:
           KIT: ${{ env.kit_path }}
+
+      - name: Script Kit run test-ts John
+        id: test-script-ts
+        run: |
+          export KENV=${{ env.wd_path }}
+          export KENV_PREFIX=$KENV/scripts
+          export KIT=${{ env.kit_path }}
+          cd ${{ env.wd_path }}
+          pnpm node --experimental-loader "$KIT/build/loader.js" "$KIT/run/github-workflow.js" test-ts John --trust
+      - run: |
+          [ "${{ steps.test-script-ts.outputs.result }}" != "John" ] && exit 1
+          [ "${{ steps.test-script-ts.outputs.result }}" = "John" ] && echo "Passed 🎉"
 
   release:
     runs-on: macos-latest

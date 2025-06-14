@@ -18,7 +18,11 @@ async function cacheJSXLoad(url: string, cacheDir = "") {
     try {
       const [src, cached] = await Promise.all([stat(fsPath), stat(cacheJS)]);
       if (cached.mtime >= src.mtime) {
-        return { source: await readFile(cacheJS, "utf8"), format: "module" };
+        return { 
+          source: await readFile(cacheJS, "utf8"), 
+          format: "module" as const,
+          shortCircuit: true
+        };
       }
     } catch { /* cache miss – fall through */ }
   }
@@ -59,11 +63,19 @@ export async function JSXLoad(url: string) {
     }
   });
 
-  return { source: esbuildResult.outputFiles[0].text, format: "module" };
+  return { 
+    source: esbuildResult.outputFiles[0].text, 
+    format: "module" as const,
+    shortCircuit: true
+  };
 }
 
 export async function NoLoad(_url: string) {
-  return { source: "export default {}", format: "module" };
+  return { 
+    source: "export default {}", 
+    format: "module" as const,
+    shortCircuit: true
+  };
 }
 
 //───────────────────────────────────────────────────────────────────────────
@@ -83,7 +95,8 @@ export async function load(url: string, context, defaultLoad) {
       cacheDir = resolve(dirname(fileURLToPath(cleanPath)), ".cache");
       await ensureDir(cacheDir);
     }
-    return cacheJSXLoad(cleanPath, cacheDir);
+    const result = await cacheJSXLoad(cleanPath, cacheDir);
+    return { ...result, shortCircuit: true };
   }
 
   // Fallback to Node’s default resolver.
