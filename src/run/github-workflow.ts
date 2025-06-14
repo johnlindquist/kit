@@ -15,8 +15,8 @@ import {
 let kitImport = async (...pathParts: string[]) =>
   await import(
     pathToFileURL(kitPath(...pathParts)).href +
-      "?uuid=" +
-      randomUUID()
+    "?uuid=" +
+    randomUUID()
   )
 
 await kitImport("api", "global.js")
@@ -39,6 +39,9 @@ configEnv()
 
 await kitImport("target", "terminal.js")
 
+if (!args.includes("--trust")) {
+  args.push("--trust")
+}
 global.core = await npm("@actions/core")
 global.github = await npm("@actions/github")
 
