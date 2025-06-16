@@ -271,8 +271,8 @@ export type OldForm = (
 
 export type Form = (html: string | PromptConfig, formData?: any, actions?: Action[]) => Promise<any>
 
-export type ReactKit = (
-  component: React.ReactElement,
+export type ReactForm = (
+  componentOrConfig: React.ReactElement | (PromptConfig & { jsx?: React.ReactElement }),
   formData?: Record<string, any>,
   actions?: Action[]
 ) => Promise<any>
@@ -377,7 +377,7 @@ export type Appearance = 'light' | 'dark'
 
 type DisabledThottlingConfig = Pick<
   PromptConfig,
-  'headerClassName' | 'footerClassName' | 'ui' | 'inputHeight' | 'itemHeight' | 'placeholder' | 'scriptPath'
+  'headerClassName' | 'footerClassName' | 'containerClassName' | 'ui' | 'inputHeight' | 'itemHeight' | 'placeholder' | 'scriptPath'
 >
 
 export type GetAppData =
@@ -1122,6 +1122,7 @@ declare global {
    * 
    * @example
    * ```tsx
+   * // Simple JSX element
    * const result = await react(
    *   <form>
    *     <h2>Login</h2>
@@ -1134,6 +1135,7 @@ declare global {
    * 
    * @example
    * ```tsx
+   * // With config object for additional options
    * const LoginForm = () => (
    *   <div>
    *     <h2>Welcome Back</h2>
@@ -1146,13 +1148,17 @@ declare global {
    *   </div>
    * )
    * 
-   * const result = await react(<LoginForm />)
+   * const result = await react({
+   *   jsx: <LoginForm />,
+   *   className: "p-4 bg-gray-100",
+   *   placeholder: "Please complete the login form"
+   * })
    * ```
    * 
    * Note: This uses server-side rendering, so React hooks (useState, useEffect, etc.) are not supported.
    * For interactive forms, use form submissions or wait for future client-side React support.
    */
-  var react: ReactKit
+  var react: ReactForm
   /**
    * The `fields` prompt allows you to rapidly create a form with fields. 
    * 1. An array of labels or objects with label and field properties.

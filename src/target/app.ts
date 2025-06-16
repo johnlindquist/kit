@@ -1108,6 +1108,7 @@ let prepPrompt = async (config: PromptConfig) => {
     hasPreview: Boolean(preview),
     headerClassName: "",
     footerClassName: "",
+    containerClassName: "",
     inputClassName: "",
     css: "",
     preventCollapse: false,

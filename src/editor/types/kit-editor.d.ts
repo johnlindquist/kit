@@ -283,6 +283,7 @@ declare module "@johnlindquist/kit" {
     inputClassName?: string
     headerClassName?: string
     footerClassName?: string
+    containerClassName?: string
     preload?: boolean
     css?: string
     preventCollapse?: boolean
