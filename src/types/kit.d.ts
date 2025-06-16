@@ -1,5 +1,5 @@
-import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types"
-export type { CallToolResult, Tool }
+import type { Tool, CallToolResult } from "@modelcontextprotocol/sdk/types"
+export type { CallToolResult }
 import type { Low } from 'lowdb'
 import type { format, formatDistanceToNow } from '../utils/date.js'
 import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods'
@@ -20,7 +20,7 @@ import type {
 import { ChannelHandler } from './core.js'
 import type { ConfigOptions, Options } from 'quick-score'
 // Import AI SDK specific types for global declaration
-import type { CoreMessage, Tool, ToolCall, FinishReason, LanguageModel, LanguageModelV1 } from 'ai'
+import type { CoreMessage, FinishReason, LanguageModel, LanguageModelV1 } from 'ai'
 import type { AssistantOutcome, AssistantLastInteraction, ToolCallPart } from '../lib/ai.js' // Import our custom result types
 import type { ZodTypeAny } from 'zod'; // Import Zod types for global declaration
 
@@ -1361,34 +1361,29 @@ declare global {
  * ```
  */
   type MCPToolResult = typeof CallToolResult
-  type MCPTool = typeof Tool
 
   /**
-   * Define a tool that can be used via MCP, CLI, or Script Kit UI
-   * Returns the parameters when called, similar to arg()
+   * Define parameters for a script that can be used via MCP, CLI, or Script Kit UI
+   * Returns the parameters when called, similar to arg() but with structured schema
    * @example
    * ```ts
-   * const { operation, a, b } = await tool({
-   *   name: "calculator",
-   *   description: "Perform calculations",
-   *   inputSchema: {
-   *     type: "object",
-   *     properties: {
-   *       operation: {
-   *         type: "string",
-   *         enum: ["add", "subtract", "multiply", "divide"],
-   *         description: "The operation to perform"
-   *       },
-   *       a: { type: "number", description: "First number" },
-   *       b: { type: "number", description: "Second number" }
+   * const { operation, a, b } = await params({
+   *   type: "object",
+   *   properties: {
+   *     operation: {
+   *       type: "string",
+   *       enum: ["add", "subtract", "multiply", "divide"],
+   *       description: "The operation to perform"
    *     },
-   *     required: ["operation", "a", "b"]
-   *   }
+   *     a: { type: "number", description: "First number" },
+   *     b: { type: "number", description: "Second number" }
+   *   },
+   *   required: ["operation", "a", "b"]
    * })
    * 
    * const result = operation === "add" ? a + b : a - b
    * await sendResponse({ result })
    * ```
    */
-  var tool: <T = Record<string, any>>(toolConfig: Tool) => Promise<T>
+  var params: <T = Record<string, any>>(inputSchema: Tool['inputSchema']) => Promise<T>
 }

@@ -1,34 +1,28 @@
-import type { Tool } from "../types/kit"
+import type { Tool } from '@modelcontextprotocol/sdk/types'
 
-// Store tool definitions for MCP registration
-export const toolDefinitions = new Map<string, Tool>()
+// Extract the inputSchema type from the Tool type
+export type InputSchema = Tool['inputSchema']
 
-// Helper function to get parameter names from Tool's inputSchema
-function getParameterNames(config: Tool): string[] {
-  if (!config.inputSchema?.properties) return []
-  return Object.keys(config.inputSchema.properties)
+// Re-export for convenience
+export type { InputSchema as ParamsSchema }
+
+// Helper function to get parameter names from InputSchema
+function getParameterNames(schema: InputSchema): string[] {
+  if (!schema?.properties) return []
+  return Object.keys(schema.properties)
 }
 
 // Helper function to get parameter info from inputSchema
-function getParameterInfo(config: Tool, name: string): any {
-  if (!config.inputSchema?.properties) return {}
-  return config.inputSchema.properties[name] || {}
+function getParameterInfo(schema: InputSchema, name: string): any {
+  if (!schema?.properties) return {}
+  return schema.properties[name] || {}
 }
 
-export async function tool<T = Record<string, any>>(
-  config: Tool
+export async function params<T = Record<string, any>>(
+  inputSchema: InputSchema
 ): Promise<T> {
-  // Validate config
-  if (!config.name) {
-    throw new Error("Tool requires a name")
-  }
-
-  // Register tool definition for MCP discovery
-  toolDefinitions.set(config.name, config)
-
-  // Check if we're being called via MCP
-  // First check headers (from HTTP server)
-  if (global.headers && global.headers['X-MCP-Tool'] === config.name && global.headers['X-MCP-Parameters']) {
+  // Check if we're being called via MCP headers
+  if (global.headers?.['X-MCP-Parameters']) {
     try {
       const parameters = JSON.parse(global.headers['X-MCP-Parameters'])
       return parameters as T
@@ -37,24 +31,21 @@ export async function tool<T = Record<string, any>>(
     }
   }
 
-  // Fallback: if all declared parameters are already present in global.headers
-  // use them even when the sentinel keys are missing.
-  const parameterNames = getParameterNames(config)
+  // Check if all parameters are in headers (fallback)
+  const parameterNames = getParameterNames(inputSchema)
   if (
     global.headers &&
-    !global.headers['X-MCP-Tool'] &&
     parameterNames.length > 0 &&
     parameterNames.every(k => k in global.headers)
   ) {
-    return global.headers as unknown as T;
+    return global.headers as unknown as T
   }
 
-  // Then check environment variable (for direct MCP calls)
+  // Check environment variable for MCP calls
   if (process.env.KIT_MCP_CALL) {
     try {
       const mcpCall = JSON.parse(process.env.KIT_MCP_CALL)
-      if (mcpCall.tool === config.name) {
-        // Return the parameters passed from MCP
+      if (mcpCall.parameters) {
         return mcpCall.parameters as T
       }
     } catch (error) {
@@ -62,23 +53,20 @@ export async function tool<T = Record<string, any>>(
     }
   }
 
-  // Check if parameters were passed via CLI args
-  const cliParams = await parseCliParameters(config)
-  if (cliParams) {
-    return cliParams as T
-  }
-
-  // Otherwise, prompt the user for parameters
-  return await promptForParameters(config)
+  // Parse CLI parameters
+  const cliParams = await parseCliParameters(inputSchema)
+  
+  // Prompt for missing parameters
+  return await promptForMissingParameters(inputSchema, cliParams || {})
 }
 
-async function parseCliParameters<T>(config: Tool): Promise<T | null> {
+async function parseCliParameters<T>(schema: InputSchema): Promise<T | null> {
   const args = process.argv.slice(2)
   if (args.length === 0) return null
 
   const params: any = {}
   let hasParams = false
-  const parameterNames = getParameterNames(config)
+  const parameterNames = getParameterNames(schema)
 
   // Parse flags
   for (let i = 0; i < args.length; i++) {
@@ -88,7 +76,7 @@ async function parseCliParameters<T>(config: Tool): Promise<T | null> {
 
       if (parameterNames.includes(key)) {
         hasParams = true
-        const paramInfo = getParameterInfo(config, key)
+        const paramInfo = getParameterInfo(schema, key)
 
         switch (paramInfo.type) {
           case "boolean":
@@ -114,10 +102,10 @@ async function parseCliParameters<T>(config: Tool): Promise<T | null> {
   if (!hasParams) return null
 
   // Apply defaults for missing parameters
-  if (config.inputSchema?.properties) {
-    for (const [key, schema] of Object.entries(config.inputSchema.properties)) {
-      if (!(key in params) && (schema as any).default !== undefined) {
-        params[key] = (schema as any).default
+  if (schema?.properties) {
+    for (const [key, propSchema] of Object.entries(schema.properties)) {
+      if (!(key in params) && (propSchema as any).default !== undefined) {
+        params[key] = (propSchema as any).default
       }
     }
   }
@@ -125,24 +113,36 @@ async function parseCliParameters<T>(config: Tool): Promise<T | null> {
   return params as T
 }
 
-async function promptForParameters<T>(config: Tool): Promise<T> {
-  const result: any = {}
+async function promptForMissingParameters<T>(schema: InputSchema, existingParams: any): Promise<T> {
+  const result: any = { ...existingParams }
 
-  if (!config.inputSchema?.properties) {
+  if (!schema?.properties) {
     return result as T
   }
 
-  const requiredParams = config.inputSchema.required || []
+  const requiredParams = schema.required || []
 
-  // Prompt for each parameter
-  for (const [name, schema] of Object.entries(config.inputSchema.properties)) {
-    const paramInfo = schema as any
+  // Only prompt for parameters that are missing
+  for (const [name, propSchema] of Object.entries(schema.properties)) {
+    const paramInfo = propSchema as any
     
+    // Skip if parameter already has a value
+    if (result[name] !== undefined) {
+      continue
+    }
+    
+    // Skip if parameter has a default value and is not required
+    if (paramInfo.default !== undefined && !requiredParams.includes(name)) {
+      result[name] = paramInfo.default
+      continue
+    }
+    
+    // Prompt for missing parameter
     if (paramInfo.type === "string" && paramInfo.enum) {
       // Use select for enums
       result[name] = await global.arg({
         placeholder: paramInfo.description || `Select ${name}`,
-        choices: paramInfo.enum.map(value => ({ name: String(value), value }))
+        choices: paramInfo.enum.map((value: any) => ({ name: String(value), value }))
       })
     } else if (paramInfo.type === "number") {
       // Use number input
@@ -165,15 +165,18 @@ async function promptForParameters<T>(config: Tool): Promise<T> {
       const value = await global.arg({
         placeholder: paramInfo.description || `Enter ${name} (comma-separated)`
       })
-      result[name] = value.split(",").map(v => v.trim())
+      result[name] = value.split(",").map((v: string) => v.trim())
     } else {
       // Default text input
       result[name] = await global.arg({
         placeholder: paramInfo.description || `Enter ${name}`
       })
     }
+  }
 
-    // Apply defaults if no value provided
+  // Apply defaults for any remaining missing parameters
+  for (const [name, propSchema] of Object.entries(schema.properties)) {
+    const paramInfo = propSchema as any
     if (result[name] === undefined && paramInfo.default !== undefined) {
       result[name] = paramInfo.default
     }
@@ -188,4 +191,3 @@ async function promptForParameters<T>(config: Tool): Promise<T> {
 
   return result as T
 }
-
