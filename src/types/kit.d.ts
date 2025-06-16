@@ -236,7 +236,7 @@ interface KeyValue {
 
 export type Run = (command?: string, ...args: string[]) => Promise<any>
 
-type Utils = typeof import('../core/utils')
+type Utils = typeof import('../core/utils.js')
 
 declare global {
   /**
