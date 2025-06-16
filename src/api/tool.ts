@@ -1,4 +1,4 @@
-import type { Tool } from "../types/globals"
+import type { Tool } from "../types/kit"
 
 // Store tool definitions for MCP registration
 export const toolDefinitions = new Map<string, Tool>()

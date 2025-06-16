@@ -1,12 +1,12 @@
-import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types"
-export type { CallToolResult, Tool }
-
 type ReadFileOptions = Parameters<typeof import('node:fs/promises').readFile>[1]
 
 export type EnsureReadFile = (path: string, defaultContent?: string, options?: ReadFileOptions) => Promise<string>
 
 export type EnsureReadJson =
   <T>(path: string, defaultContent: T, options?: Parameters<typeof import('fs-extra').readJson>[1]) => Promise<T>
+
+// Tool type is already imported from @modelcontextprotocol/sdk/types in kit.d.ts
+// and exposed via global.tool declaration
 
 
 declare global {
@@ -319,59 +319,4 @@ declare global {
    * [Examples](https://scriptkit.com?query=globby) | [Docs](https://johnlindquist.github.io/kit-docs/#globby) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=globby)
    */
   var globby: typeof import('globby').globby
-}
-
-
-
-declare global {
-  /**
-   * Type for MCP (Model Context Protocol) tool results
-   * @example
-   * ```ts
-   * // Name: My MCP Tool
-   * // Description: A tool that returns structured data
-   * // mcp: my-tool
-   * 
-   * import "@johnlindquist/kit"
-   * 
-   * const result: MCPToolResult = {
-   *   content: [{
-   *     type: 'text',
-   *     text: 'Hello from MCP tool!'
-   *   }]
-   * }
-   * 
-   * export default result
-   * ```
-   */
-  type MCPToolResult = typeof CallToolResult
-
-  /**
-   * Define a tool that can be used via MCP, CLI, or Script Kit UI
-   * Returns the parameters when called, similar to arg()
-   * @example
-   * ```ts
-   * const { operation, a, b } = await tool({
-   *   name: "calculator",
-   *   description: "Perform calculations",
-   *   inputSchema: {
-   *     type: "object",
-   *     properties: {
-   *       operation: {
-   *         type: "string",
-   *         enum: ["add", "subtract", "multiply", "divide"],
-   *         description: "The operation to perform"
-   *       },
-   *       a: { type: "number", description: "First number" },
-   *       b: { type: "number", description: "Second number" }
-   *     },
-   *     required: ["operation", "a", "b"]
-   *   }
-   * })
-   * 
-   * const result = operation === "add" ? a + b : a - b
-   * await sendResponse({ result })
-   * ```
-   */
-  var tool: <T = Record<string, any>>(toolConfig: Tool) => Promise<T>
 }

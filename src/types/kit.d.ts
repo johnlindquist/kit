@@ -1,3 +1,5 @@
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types"
+export type { CallToolResult, Tool }
 import type { Low } from 'lowdb'
 import type { format, formatDistanceToNow } from '../utils/date.js'
 import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods'
@@ -1337,4 +1339,56 @@ declare global {
    * [Examples](https://scriptkit.com?query=z) | [Docs](https://johnlindquist.github.io/kit-docs/#z) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=z)
    */
   var z: typeof import('zod').z
+
+  /**
+ * Type for MCP (Model Context Protocol) tool results
+ * @example
+ * ```ts
+ * // Name: My MCP Tool
+ * // Description: A tool that returns structured data
+ * // mcp: my-tool
+ * 
+ * import "@johnlindquist/kit"
+ * 
+ * const result: MCPToolResult = {
+ *   content: [{
+ *     type: 'text',
+ *     text: 'Hello from MCP tool!'
+ *   }]
+ * }
+ * 
+ * export default result
+ * ```
+ */
+  type MCPToolResult = typeof CallToolResult
+  type MCPTool = typeof Tool
+
+  /**
+   * Define a tool that can be used via MCP, CLI, or Script Kit UI
+   * Returns the parameters when called, similar to arg()
+   * @example
+   * ```ts
+   * const { operation, a, b } = await tool({
+   *   name: "calculator",
+   *   description: "Perform calculations",
+   *   inputSchema: {
+   *     type: "object",
+   *     properties: {
+   *       operation: {
+   *         type: "string",
+   *         enum: ["add", "subtract", "multiply", "divide"],
+   *         description: "The operation to perform"
+   *       },
+   *       a: { type: "number", description: "First number" },
+   *       b: { type: "number", description: "Second number" }
+   *     },
+   *     required: ["operation", "a", "b"]
+   *   }
+   * })
+   * 
+   * const result = operation === "add" ? a + b : a - b
+   * await sendResponse({ result })
+   * ```
+   */
+  var tool: <T = Record<string, any>>(toolConfig: Tool) => Promise<T>
 }
