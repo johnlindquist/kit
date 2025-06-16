@@ -10,6 +10,8 @@ export type EnsureReadJson =
 
 
 declare global {
+  //React
+  var React: typeof import('react')
   //process
   var cwd: typeof process.cwd
   var pid: typeof process.pid

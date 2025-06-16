@@ -7,5 +7,7 @@ await import("../lib/keyboard.js")
 await import("../lib/system.js")
 await import("../lib/text.js")
 await import("../lib/utils.js")
+await import("../api/react.js")
+
 
 export { }

@@ -360,27 +360,49 @@ if (packageJsonChanged) {
 console.log('Download docs')
 await ensureDir(kitPath('data'))
 console.log('Created data directory')
-const { default: download } = await import('./download')
-console.log('Imported download module')
 
-try {
-  console.log('Downloading docs.json...')
-  const docsBuffer = await download('https://www.scriptkit.com/data/docs.json')
-  console.log('Writing docs.json to disk...')
-  await writeFile(kitPath('data', 'docs.json'), docsBuffer)
-  console.log('docs.json downloaded and saved successfully')
-} catch (e) {
-  console.error('Error downloading docs.json:', e)
+// Check if we're online before attempting downloads
+const isOnline = async () => {
+  try {
+    const { default: https } = await import('https')
+    return new Promise<boolean>((resolve) => {
+      https.get('https://www.scriptkit.com', { timeout: 5000 }, (res) => {
+        resolve(res.statusCode === 200 || res.statusCode === 301 || res.statusCode === 302)
+      }).on('error', () => {
+        resolve(false)
+      })
+    })
+  } catch {
+    return false
+  }
 }
 
-try {
-  console.log('Downloading hot.json...')
-  const hotBuffer = await download('https://www.scriptkit.com/data/hot.json')
-  console.log('Writing hot.json to disk...')
-  await writeFile(kitPath('data', 'hot.json'), hotBuffer)
-  console.log('hot.json downloaded and saved successfully')
-} catch (e) {
-  console.error('Error downloading hot.json:', e)
+const online = await isOnline()
+if (online) {
+  const { default: download } = await import('./download')
+  console.log('Imported download module')
+
+  try {
+    console.log('Downloading docs.json...')
+    const docsBuffer = await download('https://www.scriptkit.com/data/docs.json')
+    console.log('Writing docs.json to disk...')
+    await writeFile(kitPath('data', 'docs.json'), docsBuffer)
+    console.log('docs.json downloaded and saved successfully')
+  } catch (e) {
+    console.error('Error downloading docs.json:', e)
+  }
+
+  try {
+    console.log('Downloading hot.json...')
+    const hotBuffer = await download('https://www.scriptkit.com/data/hot.json')
+    console.log('Writing hot.json to disk...')
+    await writeFile(kitPath('data', 'hot.json'), hotBuffer)
+    console.log('hot.json downloaded and saved successfully')
+  } catch (e) {
+    console.error('Error downloading hot.json:', e)
+  }
+} else {
+  console.log('Offline mode detected. Skipping downloads of docs.json and hot.json')
 }
 
 console.log('Writing .kitignore file...')

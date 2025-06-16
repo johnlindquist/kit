@@ -61,6 +61,7 @@ performance.mark('start')
 configEnv()
 
 await import('../target/terminal.js')
+await import('../api/react.js')
 let { runCli } = await import('../cli/kit.js')
 
 performance.mark('run')

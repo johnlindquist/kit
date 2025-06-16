@@ -88,11 +88,11 @@ export async function NoLoad(url) {
   }
 }
 
-export async function load(url, context, defaultLoad) {
+export async function load(url: string, context: unknown, defaultLoad: (url: string, context: unknown, defaultLoad: unknown) => Promise<unknown>) {
   const isTerminal = process.env?.KIT_TARGET === "terminal"
   if (
     url.endsWith(".kit") &&
-    (url.includes(".ts?") || isTerminal)
+    (url.includes(".ts?") || url.includes(".tsx?") || isTerminal)
   ) {
     let cacheDir = ""
     if (!isTerminal) {

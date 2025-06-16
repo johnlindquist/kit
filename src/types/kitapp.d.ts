@@ -1,5 +1,6 @@
 import { execaCommand as exec } from 'execa'
 import type { editor as editorApi } from './editor.api'
+import type React from 'react'
 
 import { type Key as CoreKeyEnum, Channel, Mode, type statuses, type PROMPT as CORE_PROMPT } from '../core/enum.js'
 
@@ -269,6 +270,12 @@ export type OldForm = (
 ) => Promise<any>
 
 export type Form = (html: string | PromptConfig, formData?: any, actions?: Action[]) => Promise<any>
+
+export type ReactKit = (
+  component: React.ReactElement,
+  formData?: Record<string, any>,
+  actions?: Action[]
+) => Promise<any>
 
 type Field =
   | {
@@ -815,7 +822,7 @@ export interface Keyboard {
    */
   typeDelayed: (config: {
     rate: number
-    textOrKeys: string | Key[]
+    textOrKeys: string | CoreKeyEnum[]
   }) => Promise<void>
   /**
    * Presses a key.
@@ -1104,6 +1111,48 @@ declare global {
    * [Examples](https://scriptkit.com?query=form) | [Docs](https://johnlindquist.github.io/kit-docs/#form) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=form)
    */
   var form: Form
+  /**
+   * The `react` function allows you to create forms using React JSX syntax.
+   * It renders React components to HTML on the server-side and displays them in Script Kit.
+   * 
+   * @param component - React component or JSX element
+   * @param formData - Initial form data
+   * @param actions - Optional form actions
+   * @returns Promise resolving to form submission data
+   * 
+   * @example
+   * ```tsx
+   * const result = await react(
+   *   <form>
+   *     <h2>Login</h2>
+   *     <input name="username" type="text" placeholder="Username" required />
+   *     <input name="password" type="password" placeholder="Password" required />
+   *   </form>
+   * )
+   * console.log(result.username, result.password)
+   * ```
+   * 
+   * @example
+   * ```tsx
+   * const LoginForm = () => (
+   *   <div>
+   *     <h2>Welcome Back</h2>
+   *     <input name="email" type="email" placeholder="Email" />
+   *     <input name="password" type="password" placeholder="Password" />
+   *     <label>
+   *       <input name="remember" type="checkbox" />
+   *       Remember me
+   *     </label>
+   *   </div>
+   * )
+   * 
+   * const result = await react(<LoginForm />)
+   * ```
+   * 
+   * Note: This uses server-side rendering, so React hooks (useState, useEffect, etc.) are not supported.
+   * For interactive forms, use form submissions or wait for future client-side React support.
+   */
+  var react: ReactKit
   /**
    * The `fields` prompt allows you to rapidly create a form with fields. 
    * 1. An array of labels or objects with label and field properties.
@@ -1657,7 +1706,7 @@ declare global {
    * [Examples](https://scriptkit.com?query=getTypedText) | [Docs](https://johnlindquist.github.io/kit-docs/#getTypedText) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=getTypedText)
    */
   var getTypedText: GetTypedText
-  var PROMPT: typeof PROMPT_OBJECT
+  var PROMPT: typeof CORE_PROMPT
   /**
    * A symbol used to block submitting a prompt
    * #### preventSubmit example
