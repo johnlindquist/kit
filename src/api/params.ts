@@ -1,129 +1,109 @@
 import type { Tool } from '@modelcontextprotocol/sdk/types'
 
-// Define InputSchema type matching MCP SDK specification
-export type InputSchema = Tool['inputSchema']
+// Simplified parameter types
+type ParamType = 'string' | 'number' | 'boolean' | 'array' | 'object'
 
-// Re-export for convenience
-export type { InputSchema as ParamsSchema }
-
-// Helper function to get parameter names from InputSchema
-function getParameterNames(schema: InputSchema): string[] {
-  if (!schema?.properties) return []
-  return Object.keys(schema.properties)
+// Base parameter schema
+interface BaseParamSchema {
+  type: ParamType
+  description: string
+  required?: boolean
+  default?: unknown
 }
 
-// Helper function to get parameter info from inputSchema
-function getParameterInfo(schema: InputSchema, name: string): any {
-  if (!schema?.properties) return {}
-  return schema.properties[name] || {}
+// String parameter with enum support
+interface StringParamSchema extends BaseParamSchema {
+  type: 'string'
+  enum?: string[]
+  default?: string
 }
 
-// Helper to convert a "simple" schema (e.g. { name: "User name" })
-// into a full JSON-Schema compliant InputSchema. A value can be:
-//  - string  → treated as { type: "string", description: value }
-//  - number  → treated as { type: "number", description: String(value), default: value }
-//  - boolean → treated as { type: "boolean", description: "", default: value }
-//  - array   → treated as { type: "array", description: "", default: value }
-//  - object  → assumed to already be a schema fragment for that property
-function expandSimpleSchema(simple: Record<string, any>): InputSchema {
-  const properties: Record<string, any> = {}
-  const required: string[] = []
+// Number parameter
+interface NumberParamSchema extends BaseParamSchema {
+  type: 'number'
+  default?: number
+}
 
-  for (const [key, val] of Object.entries(simple)) {
-    // Skip special keys that would exist on a full schema
-    if (key === 'type' || key === 'properties' || key === 'required') continue
+// Boolean parameter
+interface BooleanParamSchema extends BaseParamSchema {
+  type: 'boolean'
+  default?: boolean
+}
 
-    let propSchema: any
+// Array parameter
+interface ArrayParamSchema extends BaseParamSchema {
+  type: 'array'
+  items?: {
+    type: 'string' | 'number' | 'boolean'
+  }
+  default?: unknown[]
+}
 
-    if (typeof val === 'string') {
-      propSchema = { type: 'string', description: val }
-      // In simple syntax, everything is optional by default
-    } else if (typeof val === 'number') {
-      propSchema = { type: 'number', description: String(val), default: val }
-      // In simple syntax, everything is optional by default
-    } else if (typeof val === 'boolean') {
-      propSchema = { type: 'boolean', description: '', default: val }
-      // In simple syntax, everything is optional by default
-    } else if (Array.isArray(val)) {
-      propSchema = { type: 'array', description: '', default: val }
-      // In simple syntax, everything is optional by default
-    } else if (typeof val === 'object' && val !== null) {
-      // Assume user provided a detailed schema for this property
-      propSchema = val
-      // In simple syntax, everything is optional by default
+// Object parameter
+interface ObjectParamSchema extends BaseParamSchema {
+  type: 'object'
+  properties?: Record<string, BaseParamSchema>
+  default?: Record<string, unknown>
+}
+
+// Union of all parameter schemas
+type ParamSchema = StringParamSchema | NumberParamSchema | BooleanParamSchema | ArrayParamSchema | ObjectParamSchema
+
+// Simple schema type removed as it was unused
+
+// Type inference for parameters
+type InferParamType<T> = T extends string
+  ? string
+  : T extends { type: 'string' }
+  ? string
+  : T extends { type: 'number' }
+  ? number
+  : T extends { type: 'boolean' }
+  ? boolean
+  : T extends { type: 'array' }
+  ? unknown[]
+  : T extends { type: 'object' }
+  ? Record<string, unknown>
+  : never
+
+// Infer the return type of params function
+export type InferParams<T extends Record<string, string | ParamSchema>> = {
+  [K in keyof T]: InferParamType<T[K]>
+}
+
+// Convert simple schema to normalized format
+function normalizeSchema(simple: Record<string, string | ParamSchema>): Record<string, ParamSchema> {
+  const normalized: Record<string, ParamSchema> = {}
+  
+  for (const [key, value] of Object.entries(simple)) {
+    if (typeof value === 'string') {
+      // String shorthand: "key": "description"
+      normalized[key] = {
+        type: 'string',
+        description: value
+      }
     } else {
-      // Fallback to string type
-      propSchema = { type: 'string' }
-      // In simple syntax, everything is optional by default
+      // Already a param schema
+      normalized[key] = value
     }
-
-    properties[key] = propSchema
   }
-
-  const fullSchema: InputSchema = {
-    type: 'object',
-    properties,
-  }
-  if (required.length) fullSchema.required = required
-  return fullSchema
+  
+  return normalized
 }
 
-// Helper type to map individual property schemas to TS types
-type PrimitiveTypeMap<T extends string> =
-  T extends 'string' ? string :
-  T extends 'number' ? number :
-  T extends 'boolean' ? boolean :
-  T extends 'array' ? any[] :
-  any
+// Get list of required parameters
+function getRequiredParams(schema: Record<string, ParamSchema>): string[] {
+  return Object.entries(schema)
+    .filter(([_, param]) => param.required === true)
+    .map(([key]) => key)
+}
 
-type InferParamType<P> =
-  // Schema object with explicit type
-  P extends { type: infer U }
-  ? PrimitiveTypeMap<Extract<U, string>>
-  // Direct primitive defaults
-  : P extends string ? string
-  : P extends number ? number
-  : P extends boolean ? boolean
-  : P extends any[] ? any[]
-  : any
-
-// Infer final params object type from InputSchema or shorthand object
-export type InferParams<S> =
-  // Full JSON schema style with properties
-  S extends { properties: infer Props }
-  ? { [K in keyof Props]: InferParamType<Props[K]> }
-  // Simple shorthand object (no properties key)
-  : S extends Record<string, any>
-  ? { [K in keyof S]:
-    // If value is a schema-like object with `type` string literal
-    S[K] extends { type: infer T }
-    ? T extends 'string' ? string :
-    T extends 'number' ? number :
-    T extends 'boolean' ? boolean :
-    T extends 'array' ? any[] :
-    any
-    : S[K] extends string ? string :
-    S[K] extends number ? number :
-    S[K] extends boolean ? boolean :
-    S[K] extends any[] ? any[] :
-    any }
-  : Record<string, any>
-
-// Overload: full JSON schema style with properties literal
-export function params<P extends Record<string, any>>(schema: { type: 'object'; properties: P; required?: readonly (keyof P)[] }): Promise<{ [K in keyof P]: InferParamType<P[K]> }>
-
-// Overload: shorthand or any record schema
-export function params<S extends Record<string, any>>(schema: S): Promise<InferParams<S>>
-
-// Actual implementation
-export async function params(inputSchema: any): Promise<any> {
-  // Normalise input schema: if no properties exist we treat it as shorthand
-  let schema: InputSchema
-  if (inputSchema && (inputSchema as any).properties) {
-    schema = inputSchema as InputSchema
-  } else {
-    schema = expandSimpleSchema(inputSchema as unknown as Record<string, any>)
-  }
+// Main params function with proper typing
+export async function params<T extends Record<string, string | ParamSchema>>(
+  inputSchema: T
+): Promise<InferParams<T>> {
+  // Normalize the schema
+  const schema = normalizeSchema(inputSchema)
 
   // Check if we're being called via MCP headers
   if (global.headers?.['X-MCP-Parameters']) {
@@ -136,13 +116,13 @@ export async function params(inputSchema: any): Promise<any> {
   }
 
   // Check if all parameters are in headers (fallback)
-  const parameterNames = getParameterNames(schema)
+  const parameterNames = Object.keys(schema)
   if (
     global.headers &&
     parameterNames.length > 0 &&
     parameterNames.every(k => k in global.headers)
   ) {
-    return global.headers as any
+    return global.headers as InferParams<T>
   }
 
   // Check environment variable for MCP calls
@@ -150,7 +130,7 @@ export async function params(inputSchema: any): Promise<any> {
     try {
       const mcpCall = JSON.parse(process.env.KIT_MCP_CALL)
       if (mcpCall.parameters) {
-        return mcpCall.parameters as any
+        return mcpCall.parameters as InferParams<T>
       }
     } catch (error) {
       // Ignore JSON parse errors
@@ -161,16 +141,16 @@ export async function params(inputSchema: any): Promise<any> {
   const cliParams = await parseCliParameters(schema)
 
   // Prompt for missing parameters
-  return await promptForMissingParameters(schema, cliParams || {}) as any
+  return await promptForMissingParameters(schema, cliParams || {}) as InferParams<T>
 }
 
-async function parseCliParameters<T>(schema: InputSchema): Promise<T | null> {
+async function parseCliParameters<T>(schema: Record<string, ParamSchema>): Promise<Partial<T> | null> {
   const args = process.argv.slice(2)
   if (args.length === 0) return null
 
-  const params: any = {}
+  const params: Record<string, unknown> = {}
   let hasParams = false
-  const parameterNames = getParameterNames(schema)
+  const parameterNames = Object.keys(schema)
 
   // Parse flags
   for (let i = 0; i < args.length; i++) {
@@ -180,7 +160,7 @@ async function parseCliParameters<T>(schema: InputSchema): Promise<T | null> {
 
       if (parameterNames.includes(key)) {
         hasParams = true
-        const paramInfo = getParameterInfo(schema, key)
+        const paramInfo = schema[key]
 
         switch (paramInfo.type) {
           case "boolean":
@@ -206,29 +186,21 @@ async function parseCliParameters<T>(schema: InputSchema): Promise<T | null> {
   if (!hasParams) return null
 
   // Apply defaults for missing parameters
-  if (schema?.properties) {
-    for (const [key, propSchema] of Object.entries(schema.properties)) {
-      if (!(key in params) && (propSchema as any).default !== undefined) {
-        params[key] = (propSchema as any).default
-      }
+  for (const [key, paramSchema] of Object.entries(schema)) {
+    if (!(key in params) && paramSchema.default !== undefined) {
+      params[key] = paramSchema.default
     }
   }
 
-  return params as T
+  return params as Partial<T>
 }
 
-async function promptForMissingParameters<T>(schema: InputSchema, existingParams: any): Promise<T> {
-  const result: any = { ...existingParams }
-
-  if (!schema?.properties) {
-    return result as T
-  }
-
-  const requiredParams = schema.required || []
+async function promptForMissingParameters<T extends Record<string, unknown>>(schema: Record<string, ParamSchema>, existingParams: Partial<T>): Promise<T> {
+  const result: Record<string, unknown> = { ...existingParams }
+  const requiredParams = getRequiredParams(schema)
 
   // Only prompt for parameters that are missing
-  for (const [name, propSchema] of Object.entries(schema.properties)) {
-    const paramInfo = propSchema as any
+  for (const [name, paramInfo] of Object.entries(schema)) {
 
     // Skip if parameter already has a value
     if (result[name] !== undefined) {
@@ -236,17 +208,17 @@ async function promptForMissingParameters<T>(schema: InputSchema, existingParams
     }
 
     // Skip if parameter has a default value and is not required
-    if (paramInfo.default !== undefined && !requiredParams.includes(name)) {
+    if (paramInfo.default !== undefined && !paramInfo.required) {
       result[name] = paramInfo.default
       continue
     }
 
     // Prompt for missing parameter
-    if (paramInfo.type === "string" && paramInfo.enum) {
+    if (paramInfo.type === "string" && 'enum' in paramInfo && paramInfo.enum) {
       // Use select for enums
       result[name] = await global.arg({
         placeholder: paramInfo.description || `Select ${name}`,
-        choices: paramInfo.enum.map((value: any) => ({ name: String(value), value }))
+        choices: paramInfo.enum.map((value) => ({ name: String(value), value }))
       })
     } else if (paramInfo.type === "number") {
       // Use number input
@@ -279,8 +251,7 @@ async function promptForMissingParameters<T>(schema: InputSchema, existingParams
   }
 
   // Apply defaults for any remaining missing parameters
-  for (const [name, propSchema] of Object.entries(schema.properties)) {
-    const paramInfo = propSchema as any
+  for (const [name, paramInfo] of Object.entries(schema)) {
     if (result[name] === undefined && paramInfo.default !== undefined) {
       result[name] = paramInfo.default
     }
@@ -295,3 +266,7 @@ async function promptForMissingParameters<T>(schema: InputSchema, existingParams
 
   return result as T
 }
+
+// Re-export InputSchema for backward compatibility
+export type InputSchema = Tool['inputSchema']
+export type { InputSchema as ParamsSchema }

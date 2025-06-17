@@ -37,14 +37,11 @@ ava('params() basic functionality test', async (t) => {
   argCalls.length = 0 // Reset
   
   const result1 = await params({
-    type: 'object',
-    properties: {
-      name: {
-        type: 'string',
-        description: 'Enter your name'
-      }
-    },
-    required: ['name']
+    name: {
+      type: 'string',
+      description: 'Enter your name',
+      required: true
+    }
   })
   
   t.is(argCalls.length, 1, 'Should prompt once')
@@ -56,13 +53,10 @@ ava('params() basic functionality test', async (t) => {
   argCalls.length = 0 // Reset
   
   const result2 = await params({
-    type: 'object',
-    properties: {
-      fruit: {
-        type: 'string',
-        description: 'Select fruit',
-        enum: ['apple', 'banana', 'cherry']
-      }
+    fruit: {
+      type: 'string',
+      description: 'Select fruit',
+      enum: ['apple', 'banana', 'cherry']
     }
   })
   
@@ -79,16 +73,15 @@ ava('params() basic functionality test', async (t) => {
   argCalls.length = 0 // Reset
   
   const result3 = await params({
-    type: 'object',
-    properties: {
-      port: {
-        type: 'number',
-        default: 3000
-      },
-      host: {
-        type: 'string',
-        default: 'localhost'
-      }
+    port: {
+      type: 'number',
+      description: 'Port number',
+      default: 3000
+    },
+    host: {
+      type: 'string',
+      description: 'Host address',
+      default: 'localhost'
     }
   })
   
@@ -101,11 +94,8 @@ ava('params() basic functionality test', async (t) => {
   process.argv = ['node', 'script.js', '--name', 'CLI User', '--age', '30']
   
   const result4 = await params({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      age: { type: 'number' }
-    }
+    name: { type: 'string', description: 'Your name' },
+    age: { type: 'number', description: 'Your age' }
   })
   
   t.is(argCalls.length, 0, 'Should not prompt when CLI args provided')
@@ -120,11 +110,8 @@ ava('params() basic functionality test', async (t) => {
   }
   
   const result5 = await params({
-    type: 'object',
-    properties: {
-      action: { type: 'string' },
-      value: { type: 'number' }
-    }
+    action: { type: 'string', description: 'Action to perform' },
+    value: { type: 'number', description: 'Value to use' }
   })
   
   t.is(argCalls.length, 0, 'Should not prompt when MCP headers present')
@@ -139,11 +126,8 @@ ava('params() basic functionality test', async (t) => {
   })
   
   const result6 = await params({
-    type: 'object',
-    properties: {
-      task: { type: 'string' },
-      priority: { type: 'string' }
-    }
+    task: { type: 'string', description: 'Task to run' },
+    priority: { type: 'string', description: 'Priority level' }
   })
   
   t.is(argCalls.length, 0, 'Should not prompt when MCP env present')
