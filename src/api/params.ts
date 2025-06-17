@@ -1,6 +1,6 @@
 import type { Tool } from '@modelcontextprotocol/sdk/types'
 
-// Extract the inputSchema type from the Tool type
+// Define InputSchema type matching MCP SDK specification
 export type InputSchema = Tool['inputSchema']
 
 // Re-export for convenience
@@ -18,9 +18,67 @@ function getParameterInfo(schema: InputSchema, name: string): any {
   return schema.properties[name] || {}
 }
 
+// Helper to convert a "simple" schema (e.g. { name: "User name" })
+// into a full JSON-Schema compliant InputSchema. A value can be:
+//  - string  → treated as { type: "string", description: value }
+//  - number  → treated as { type: "number", description: String(value), default: value }
+//  - boolean → treated as { type: "boolean", description: "", default: value }
+//  - array   → treated as { type: "array", description: "", default: value }
+//  - object  → assumed to already be a schema fragment for that property
+function expandSimpleSchema(simple: Record<string, any>): InputSchema {
+  const properties: Record<string, any> = {}
+  const required: string[] = []
+
+  for (const [key, val] of Object.entries(simple)) {
+    // Skip special keys that would exist on a full schema
+    if (key === 'type' || key === 'properties' || key === 'required') continue
+
+    let propSchema: any
+
+    if (typeof val === 'string') {
+      propSchema = { type: 'string', description: val }
+      required.push(key)
+    } else if (typeof val === 'number') {
+      propSchema = { type: 'number', description: String(val), default: val }
+      required.push(key)
+    } else if (typeof val === 'boolean') {
+      propSchema = { type: 'boolean', description: '', default: val }
+      required.push(key)
+    } else if (Array.isArray(val)) {
+      propSchema = { type: 'array', description: '', default: val }
+      required.push(key)
+    } else if (typeof val === 'object' && val !== null) {
+      // Assume user provided a detailed schema for this property
+      propSchema = val
+      required.push(key)
+    } else {
+      // Fallback to string type
+      propSchema = { type: 'string' }
+      required.push(key)
+    }
+
+    properties[key] = propSchema
+  }
+
+  const fullSchema: InputSchema = {
+    type: 'object',
+    properties,
+  }
+  if (required.length) fullSchema.required = required
+  return fullSchema
+}
+
 export async function params<T = Record<string, any>>(
   inputSchema: InputSchema
 ): Promise<T> {
+  // Normalise input schema: if no properties exist we treat it as shorthand
+  let schema: InputSchema
+  if (inputSchema && (inputSchema as any).properties) {
+    schema = inputSchema
+  } else {
+    schema = expandSimpleSchema(inputSchema as unknown as Record<string, any>)
+  }
+
   // Check if we're being called via MCP headers
   if (global.headers?.['X-MCP-Parameters']) {
     try {
@@ -32,7 +90,7 @@ export async function params<T = Record<string, any>>(
   }
 
   // Check if all parameters are in headers (fallback)
-  const parameterNames = getParameterNames(inputSchema)
+  const parameterNames = getParameterNames(schema)
   if (
     global.headers &&
     parameterNames.length > 0 &&
@@ -54,10 +112,10 @@ export async function params<T = Record<string, any>>(
   }
 
   // Parse CLI parameters
-  const cliParams = await parseCliParameters(inputSchema)
-  
+  const cliParams = await parseCliParameters(schema)
+
   // Prompt for missing parameters
-  return await promptForMissingParameters(inputSchema, cliParams || {})
+  return await promptForMissingParameters(schema, cliParams || {})
 }
 
 async function parseCliParameters<T>(schema: InputSchema): Promise<T | null> {
@@ -125,18 +183,18 @@ async function promptForMissingParameters<T>(schema: InputSchema, existingParams
   // Only prompt for parameters that are missing
   for (const [name, propSchema] of Object.entries(schema.properties)) {
     const paramInfo = propSchema as any
-    
+
     // Skip if parameter already has a value
     if (result[name] !== undefined) {
       continue
     }
-    
+
     // Skip if parameter has a default value and is not required
     if (paramInfo.default !== undefined && !requiredParams.includes(name)) {
       result[name] = paramInfo.default
       continue
     }
-    
+
     // Prompt for missing parameter
     if (paramInfo.type === "string" && paramInfo.enum) {
       // Use select for enums

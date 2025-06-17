@@ -1304,10 +1304,10 @@ declare global {
    * @example
    * ```ts
    * // Send a simple string result
-   * await sendToolResult("Hello from MCP tool!")
+   * await sendResult("Hello from MCP tool!")
    * 
    * // Send a structured MCP result
-   * await sendToolResult({
+   * await sendResult({
    *   content: [{
    *     type: 'text',
    *     text: 'Processed successfully'
@@ -1315,7 +1315,7 @@ declare global {
    * })
    * 
    * // Send multiple content items
-   * await sendToolResult({
+   * await sendResult({
    *   content: [
    *     { type: 'text', text: 'Analysis complete.' },
    *     { type: 'image', data: imageBase64, mimeType: 'image/png' }
@@ -1323,7 +1323,7 @@ declare global {
    * })
    * ```
    */
-  var sendToolResult: (content: string | CallToolResult) => Promise<any>
+  var sendResult: (content: string | CallToolResult) => Promise<any>
   var sendWaitLong: (channel: Channel, value?: any, timeout?: number) => Promise<any>
 
   var setFocused: SetFocused

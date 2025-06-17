@@ -318,7 +318,7 @@ global.sendResponse = (body: any, headers: Record<string, string> = {}) => {
   return global.sendWait(Channel.RESPONSE, response)
 }
 
-global.sendToolResult = (content: string | CallToolResult) => {
+global.sendResult = (content: string | CallToolResult) => {
   // Format content according to MCP tool result specification
   let toolResult: CallToolResult;
 

@@ -1367,6 +1367,12 @@ declare global {
    * Returns the parameters when called, similar to arg() but with structured schema
    * @example
    * ```ts
+   * // --- Simple shorthand schema ---
+   * const { name } = await params({
+   *   name: "Your name"
+   * })
+   *
+   * // --- Full JSON-Schema style ---
    * const { operation, a, b } = await params({
    *   type: "object",
    *   properties: {
@@ -1380,7 +1386,7 @@ declare global {
    *   },
    *   required: ["operation", "a", "b"]
    * })
-   * 
+   *
    * const result = operation === "add" ? a + b : a - b
    * await sendResponse({ result })
    * ```
