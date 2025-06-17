@@ -14,13 +14,14 @@ interface BaseParamSchema {
 // String parameter with enum support
 interface StringParamSchema extends BaseParamSchema {
   type: 'string'
-  enum?: string[]
+  enum?: readonly string[]
   default?: string
 }
 
-// Number parameter
+// Number parameter with optional enum support
 interface NumberParamSchema extends BaseParamSchema {
   type: 'number'
+  enum?: readonly number[]
   default?: number
 }
 
@@ -36,39 +37,64 @@ interface ArrayParamSchema extends BaseParamSchema {
   items?: {
     type: 'string' | 'number' | 'boolean'
   }
-  default?: unknown[]
+  default?: readonly unknown[]
 }
 
-// Object parameter
+// Forward declare the union type
+type ParamSchema = StringParamSchema | NumberParamSchema | BooleanParamSchema | ArrayParamSchema | ObjectParamSchema
+
+// Object parameter with nested properties
 interface ObjectParamSchema extends BaseParamSchema {
   type: 'object'
-  properties?: Record<string, BaseParamSchema>
+  properties?: Record<string, ParamSchema>
   default?: Record<string, unknown>
 }
 
-// Union of all parameter schemas
-type ParamSchema = StringParamSchema | NumberParamSchema | BooleanParamSchema | ArrayParamSchema | ObjectParamSchema
-
 // Simple schema type removed as it was unused
+
+// Helper to infer object shape from properties
+type InferObjectShape<T extends Record<string, ParamSchema>> = {
+  [K in keyof T as IsRequired<T[K]> extends true ? K : never]: InferParamType<T[K]>
+} & {
+  [K in keyof T as IsRequired<T[K]> extends true ? never : K]?: InferParamType<T[K]>
+}
 
 // Type inference for parameters
 type InferParamType<T> = T extends string
   ? string
+  : T extends { type: 'string'; enum: readonly (infer E)[] }
+  ? E
   : T extends { type: 'string' }
   ? string
+  : T extends { type: 'number'; enum: readonly (infer E)[] }
+  ? E
   : T extends { type: 'number' }
   ? number
   : T extends { type: 'boolean' }
   ? boolean
+  : T extends { type: 'array'; items: { type: infer ItemType } }
+  ? ItemType extends 'string' ? string[] :
+    ItemType extends 'number' ? number[] :
+    ItemType extends 'boolean' ? boolean[] :
+    unknown[]
   : T extends { type: 'array' }
   ? unknown[]
+  : T extends { type: 'object'; properties: infer P }
+  ? P extends Record<string, ParamSchema>
+    ? InferObjectShape<P>
+    : Record<string, unknown>
   : T extends { type: 'object' }
   ? Record<string, unknown>
   : never
 
+// Check if a parameter is required
+type IsRequired<T> = T extends { required: true } ? true : false
+
 // Infer the return type of params function
 export type InferParams<T extends Record<string, string | ParamSchema>> = {
-  [K in keyof T]: InferParamType<T[K]>
+  [K in keyof T as IsRequired<T[K]> extends true ? K : never]: InferParamType<T[K]>
+} & {
+  [K in keyof T as IsRequired<T[K]> extends true ? never : K]?: InferParamType<T[K]>
 }
 
 // Convert simple schema to normalized format

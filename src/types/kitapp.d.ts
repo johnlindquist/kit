@@ -1,10 +1,11 @@
 import { execaCommand as exec } from 'execa'
-import type { editor as editorApi } from './editor.api'
+import type { editor as editorApi } from './editor.api.js'
 import type React from 'react'
 
 import { type Key as CoreKeyEnum, Channel, Mode, type statuses, type PROMPT as CORE_PROMPT } from '../core/enum.js'
 
 import type { AppDb } from '../core/db.js'
+import type { sendResult as sendResultType } from "../api/send-result.js"
 
 import {
   type Action,
@@ -19,7 +20,7 @@ import {
   type Script,
   type Shortcut
 } from './core.js'
-import type { CallToolResult } from './kit'
+
 import type { BrowserWindowConstructorOptions, Display, Rectangle } from './electron.js'
 
 import type { Trash } from './packages.js'
@@ -1299,31 +1300,65 @@ declare global {
   var sendResponse: (body: any, headers?: Record<string, string>) => Promise<any>
   /**
    * Send a tool result in MCP (Model Context Protocol) format
-   * @param content - The content to send. Can be a string (automatically formatted) or a CallToolResult object
+   * @param content - String, object with type, or array of objects with type
    * @returns Promise that resolves when the result is sent
    * @example
    * ```ts
-   * // Send a simple string result
+   * // Send a simple string
    * await sendResult("Hello from MCP tool!")
    * 
-   * // Send a structured MCP result
+   * // Send text content
+   * await sendResult({ 
+   *   type: 'text', 
+   *   text: 'Processing complete' 
+   * })
+   * 
+   * // Send an image
+   * await sendResult({ 
+   *   type: 'image', 
+   *   data: base64Data, 
+   *   mimeType: 'image/png' 
+   * })
+   * 
+   * // Send audio
+   * await sendResult({ 
+   *   type: 'audio', 
+   *   data: audioBase64, 
+   *   mimeType: 'audio/mp3' 
+   * })
+   * 
+   * // Send a resource
    * await sendResult({
-   *   content: [{
-   *     type: 'text',
-   *     text: 'Processed successfully'
-   *   }]
+   *   type: 'resource',
+   *   resource: {
+   *     uri: 'file://path/to/file.txt',
+   *     text: fileContent,
+   *     mimeType: 'text/plain'
+   *   }
+   * })
+   * 
+   * // Send error result
+   * await sendResult({
+   *   type: 'text',
+   *   text: 'Error: Something went wrong',
+   *   isError: true
+   * })
+   * 
+   * // Send with structured content
+   * await sendResult({
+   *   type: 'text',
+   *   text: 'Analysis complete',
+   *   structuredContent: { score: 0.95, category: 'positive' }
    * })
    * 
    * // Send multiple content items
-   * await sendResult({
-   *   content: [
-   *     { type: 'text', text: 'Analysis complete.' },
-   *     { type: 'image', data: imageBase64, mimeType: 'image/png' }
-   *   ]
-   * })
+   * await sendResult([
+   *   { type: 'text', text: 'Processing complete' },
+   *   { type: 'image', data: imageBase64, mimeType: 'image/png' }
+   * ])
    * ```
    */
-  var sendResult: (content: string | CallToolResult) => Promise<any>
+  var sendResult: typeof sendResultType
   var sendWaitLong: (channel: Channel, value?: any, timeout?: number) => Promise<any>
 
   var setFocused: SetFocused

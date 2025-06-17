@@ -318,34 +318,11 @@ global.sendResponse = (body: any, headers: Record<string, string> = {}) => {
   return global.sendWait(Channel.RESPONSE, response)
 }
 
-global.sendResult = (content: string | CallToolResult) => {
-  // Format content according to MCP tool result specification
-  let toolResult: CallToolResult;
+// Import sendResult implementation
+import { sendResult as sendResultImpl } from './send-result.js'
 
-  if (typeof content === 'string') {
-    // If content is a string, wrap it in the MCP format
-    toolResult = {
-      content: [
-        {
-          type: 'text',
-          text: content
-        }
-      ]
-    };
-  } else {
-    // Content is already in MCP format
-    toolResult = content;
-  }
-
-  // Send the tool result using the same RESPONSE channel
-  return global.sendWait(Channel.RESPONSE, {
-    body: toolResult,
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-}
+// Assign to global with the implementation
+global.sendResult = sendResultImpl
 
 // Import and export params function
 import { params } from './params.js'

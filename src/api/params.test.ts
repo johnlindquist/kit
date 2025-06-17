@@ -1,5 +1,4 @@
 import ava from 'ava'
-import type { InputSchema } from './params.js'
 
 // Test params() in isolation with proper state management
 ava('params() basic functionality test', async (t) => {
