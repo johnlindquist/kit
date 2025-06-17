@@ -69,13 +69,23 @@ function expandSimpleSchema(simple: Record<string, any>): InputSchema {
 }
 
 // Helper type to map individual property schemas to TS types
-type InferParamType<P> =
-  P extends { type: 'string' } ? string :
-  P extends { type: 'number' } ? number :
-  P extends { type: 'boolean' } ? boolean :
-  P extends { type: 'array' } ? any[] :
-  // Fallback to any for unknown/complex schemas
+type PrimitiveTypeMap<T extends string> =
+  T extends 'string' ? string :
+  T extends 'number' ? number :
+  T extends 'boolean' ? boolean :
+  T extends 'array' ? any[] :
   any
+
+type InferParamType<P> =
+  // Schema object with explicit type
+  P extends { type: infer U }
+  ? PrimitiveTypeMap<Extract<U, string>>
+  // Direct primitive defaults
+  : P extends string ? string
+  : P extends number ? number
+  : P extends boolean ? boolean
+  : P extends any[] ? any[]
+  : any
 
 // Infer final params object type from InputSchema or shorthand object
 export type InferParams<S> =
@@ -84,12 +94,29 @@ export type InferParams<S> =
   ? { [K in keyof Props]: InferParamType<Props[K]> }
   // Simple shorthand object (no properties key)
   : S extends Record<string, any>
-  ? { [K in keyof S]: S[K] extends string ? string : S[K] extends number ? number : S[K] extends boolean ? boolean : any }
+  ? { [K in keyof S]:
+    // If value is a schema-like object with `type` string literal
+    S[K] extends { type: infer T }
+    ? T extends 'string' ? string :
+    T extends 'number' ? number :
+    T extends 'boolean' ? boolean :
+    T extends 'array' ? any[] :
+    any
+    : S[K] extends string ? string :
+    S[K] extends number ? number :
+    S[K] extends boolean ? boolean :
+    S[K] extends any[] ? any[] :
+    any }
   : Record<string, any>
 
-export async function params<S extends InputSchema | Record<string, any>>(
-  inputSchema: S
-): Promise<InferParams<S>> {
+// Overload: full JSON schema style with properties literal
+export function params<P extends Record<string, any>>(schema: { type: 'object'; properties: P; required?: readonly (keyof P)[] }): Promise<{ [K in keyof P]: InferParamType<P[K]> }>
+
+// Overload: shorthand or any record schema
+export function params<S extends Record<string, any>>(schema: S): Promise<InferParams<S>>
+
+// Actual implementation
+export async function params(inputSchema: any): Promise<any> {
   // Normalise input schema: if no properties exist we treat it as shorthand
   let schema: InputSchema
   if (inputSchema && (inputSchema as any).properties) {
@@ -102,7 +129,7 @@ export async function params<S extends InputSchema | Record<string, any>>(
   if (global.headers?.['X-MCP-Parameters']) {
     try {
       const parameters = JSON.parse(global.headers['X-MCP-Parameters'])
-      return parameters as InferParams<S>
+      return parameters
     } catch (error) {
       // Ignore JSON parse errors
     }
@@ -115,7 +142,7 @@ export async function params<S extends InputSchema | Record<string, any>>(
     parameterNames.length > 0 &&
     parameterNames.every(k => k in global.headers)
   ) {
-    return global.headers as unknown as InferParams<S>
+    return global.headers as any
   }
 
   // Check environment variable for MCP calls
@@ -123,7 +150,7 @@ export async function params<S extends InputSchema | Record<string, any>>(
     try {
       const mcpCall = JSON.parse(process.env.KIT_MCP_CALL)
       if (mcpCall.parameters) {
-        return mcpCall.parameters as InferParams<S>
+        return mcpCall.parameters as any
       }
     } catch (error) {
       // Ignore JSON parse errors
@@ -134,7 +161,7 @@ export async function params<S extends InputSchema | Record<string, any>>(
   const cliParams = await parseCliParameters(schema)
 
   // Prompt for missing parameters
-  return await promptForMissingParameters(schema, cliParams || {}) as unknown as InferParams<S>
+  return await promptForMissingParameters(schema, cliParams || {}) as any
 }
 
 async function parseCliParameters<T>(schema: InputSchema): Promise<T | null> {

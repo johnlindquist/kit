@@ -1294,11 +1294,14 @@ declare global {
    * The `metadata` object can include:
    * - `name`: Display name in Script Kit UI (defaults to filename)
    * - `author`: Creator's name
-   * - `description`: Brief script summary
+   * - `description`: Brief script summary (supports multiline with template literals)
    * - `enter`: Text shown on Enter button
    * - `alias`: Alternative search term
    * - `image`: Path to script icon
-   * - `shortcut`: Global keyboard shortcut, e.g, cmd+opt+4
+   * - `shortcut`: Global keyboard shortcut (must follow the pattern: modifiers+key, e.g., "cmd+opt+4", "ctrl+shift+a")
+   *   - Valid modifiers: cmd/command, ctrl/control, opt/option/alt, shift
+   *   - Modifiers must be separated by space or +
+   *   - Example valid shortcuts: "cmd+shift+a", "ctrl alt x", "option+cmd+shift+1"
    * - `shortcode`: Execute when typed + space in menu
    * - `trigger`: Execute when typed in menu
    * - `expand`: Text expansion trigger (replaces deprecated `snippet`)
@@ -1314,11 +1317,20 @@ declare global {
    * - `access`: REST API access level (public/key/private)
    * - `response`: Allow REST API response
    * - `index`: Order within group
+   * 
+   * **Important**: All string properties must be static string literals. Variables or expressions
+   * (e.g., `${someVar}`) are not supported because metadata is parsed statically from the AST.
+   * Use plain strings or template literals without expressions for multiline content.
+   * 
    * #### metadata example
    * ```ts
+   * metadata = {
    *   name: "Metadata Example",
-   *   description: "This is an example of how to use metadata in a script",
+   *   description: `This is a multiline description
+   * that spans multiple lines
+   * for better formatting`,
    *   author: "John Lindquist",
+   *   shortcut: "cmd+shift+e",
    * };
    * ```
    * [Examples](https://scriptkit.com?query=metadata) | [Docs](https://johnlindquist.github.io/kit-docs/#metadata) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=metadata)

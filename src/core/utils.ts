@@ -433,8 +433,8 @@ function parseMetadataProperties(properties: ObjectExpression['properties']) {
         // Simple template literal without expressions
         acc[key.name] = value.quasis[0].value.cooked
       } else {
-        // Template literal with expressions - for now, throw an error
-        throw Error(`Template literals with expressions are not supported in metadata`)
+        // Template literal with expressions - throw an error with helpful message
+        throw Error(`Template literals with expressions are not supported in metadata. The metadata.${key.name} property contains a template literal with ${value.expressions.length} expression(s). Please use a plain string or a template literal without expressions.`)
       }
     } else {
       throw Error(`value is not a Literal or TemplateLiteral, but a ${value.type}`)
