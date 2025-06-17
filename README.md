@@ -31,7 +31,9 @@
 | Desktop Color Picker | Debug from IDE |
 | Basic Screenshots |
 
-## Prerequisites
+---
+
+## Development
 
 Install pnpm:
 
@@ -45,7 +47,6 @@ git clone https://github.com/johnlindquist/kit.git
 cd kit
 pnpm install
 ```
-
 
 ### Building Kit SDK
 
