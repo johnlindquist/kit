@@ -40,7 +40,7 @@ import { getScripts, getScriptFromString, getUserJson, getTimestamps, type Stamp
 
 import { default as stripAnsi } from 'strip-ansi'
 
-import type { Kenv } from '../types/kit'
+import type { CallToolResult, Kenv } from '../types/kit'
 import type { Fields as TraceFields } from 'chrome-trace-event'
 import dotenv from 'dotenv'
 import type { kenvEnv } from '../types/env'
@@ -316,6 +316,35 @@ global.sendResponse = (body: any, headers: Record<string, string> = {}) => {
   }
 
   return global.sendWait(Channel.RESPONSE, response)
+}
+
+global.sendToolResult = (content: string | CallToolResult) => {
+  // Format content according to MCP tool result specification
+  let toolResult: CallToolResult;
+
+  if (typeof content === 'string') {
+    // If content is a string, wrap it in the MCP format
+    toolResult = {
+      content: [
+        {
+          type: 'text',
+          text: content
+        }
+      ]
+    };
+  } else {
+    // Content is already in MCP format
+    toolResult = content;
+  }
+
+  // Send the tool result using the same RESPONSE channel
+  return global.sendWait(Channel.RESPONSE, {
+    body: toolResult,
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 }
 
 // Import and export params function

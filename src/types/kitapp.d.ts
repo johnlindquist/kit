@@ -19,6 +19,7 @@ import {
   type Script,
   type Shortcut
 } from './core.js'
+import type { CallToolResult } from './kit'
 import type { BrowserWindowConstructorOptions, Display, Rectangle } from './electron.js'
 
 import type { Trash } from './packages.js'
@@ -1296,6 +1297,33 @@ declare global {
   var sendWait: (channel: Channel, value?: any, timeout?: number) => Promise<any>
   var headers: Record<string, string>
   var sendResponse: (body: any, headers?: Record<string, string>) => Promise<any>
+  /**
+   * Send a tool result in MCP (Model Context Protocol) format
+   * @param content - The content to send. Can be a string (automatically formatted) or a CallToolResult object
+   * @returns Promise that resolves when the result is sent
+   * @example
+   * ```ts
+   * // Send a simple string result
+   * await sendToolResult("Hello from MCP tool!")
+   * 
+   * // Send a structured MCP result
+   * await sendToolResult({
+   *   content: [{
+   *     type: 'text',
+   *     text: 'Processed successfully'
+   *   }]
+   * })
+   * 
+   * // Send multiple content items
+   * await sendToolResult({
+   *   content: [
+   *     { type: 'text', text: 'Analysis complete.' },
+   *     { type: 'image', data: imageBase64, mimeType: 'image/png' }
+   *   ]
+   * })
+   * ```
+   */
+  var sendToolResult: (content: string | CallToolResult) => Promise<any>
   var sendWaitLong: (channel: Channel, value?: any, timeout?: number) => Promise<any>
 
   var setFocused: SetFocused
