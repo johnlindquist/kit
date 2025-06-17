@@ -13,6 +13,8 @@ import {
   templatePlaceholdersRegex
 } from './utils'
 import { outputTmpFile } from '../api/kit'
+import { ensureDir } from '../globals/fs-extra'
+import { cmd } from './constants'
 import slugify from 'slugify'
 import type { Stamp } from './db'
 import type { CronExpression, Script, Snippet } from '../types'
@@ -72,6 +74,50 @@ import "@johnlindquist/kit"
   t.is(script.schedule, schedule as CronExpression)
   t.is(script.filePath, scriptPath)
   t.is(script.shortcut, normalizedShortcut)
+})
+
+ava('parseScript multiline description in global metadata', async (t) => {
+  let name = 'Testing Multiline Description Global'
+  let description = `This is a multiline description
+that spans multiple lines
+and should be properly parsed`
+  let fileName = slugify(name, { lower: true })
+  let scriptContent = `
+import "@johnlindquist/kit"
+
+metadata = {
+  name: "${name}",
+  description: \`${description}\`
+}
+  `.trim()
+
+  let scriptPath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+
+  let script = await parseScript(scriptPath)
+  t.is(script.name, name)
+  t.is(script.description, description)
+})
+
+ava('parseScript multiline description in export metadata', async (t) => {
+  let name = 'Testing Multiline Description Export'
+  let description = `This is a multiline description
+that spans multiple lines
+and should be properly parsed`
+  let fileName = slugify(name, { lower: true })
+  let scriptContent = `
+import "@johnlindquist/kit"
+
+export const metadata = {
+  name: "${name}",
+  description: \`${description}\`
+}
+  `.trim()
+
+  let scriptPath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+
+  let script = await parseScript(scriptPath)
+  t.is(script.name, name)
+  t.is(script.description, description)
 })
 
 ava('parseScript export convention metadata name', async (t) => {

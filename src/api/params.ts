@@ -68,13 +68,32 @@ function expandSimpleSchema(simple: Record<string, any>): InputSchema {
   return fullSchema
 }
 
-export async function params<T = Record<string, any>>(
-  inputSchema: InputSchema
-): Promise<T> {
+// Helper type to map individual property schemas to TS types
+type InferParamType<P> =
+  P extends { type: 'string' } ? string :
+  P extends { type: 'number' } ? number :
+  P extends { type: 'boolean' } ? boolean :
+  P extends { type: 'array' } ? any[] :
+  // Fallback to any for unknown/complex schemas
+  any
+
+// Infer final params object type from InputSchema or shorthand object
+export type InferParams<S> =
+  // Full JSON schema style with properties
+  S extends { properties: infer Props }
+  ? { [K in keyof Props]: InferParamType<Props[K]> }
+  // Simple shorthand object (no properties key)
+  : S extends Record<string, any>
+  ? { [K in keyof S]: S[K] extends string ? string : S[K] extends number ? number : S[K] extends boolean ? boolean : any }
+  : Record<string, any>
+
+export async function params<S extends InputSchema | Record<string, any>>(
+  inputSchema: S
+): Promise<InferParams<S>> {
   // Normalise input schema: if no properties exist we treat it as shorthand
   let schema: InputSchema
   if (inputSchema && (inputSchema as any).properties) {
-    schema = inputSchema
+    schema = inputSchema as InputSchema
   } else {
     schema = expandSimpleSchema(inputSchema as unknown as Record<string, any>)
   }
@@ -83,7 +102,7 @@ export async function params<T = Record<string, any>>(
   if (global.headers?.['X-MCP-Parameters']) {
     try {
       const parameters = JSON.parse(global.headers['X-MCP-Parameters'])
-      return parameters as T
+      return parameters as InferParams<S>
     } catch (error) {
       // Ignore JSON parse errors
     }
@@ -96,7 +115,7 @@ export async function params<T = Record<string, any>>(
     parameterNames.length > 0 &&
     parameterNames.every(k => k in global.headers)
   ) {
-    return global.headers as unknown as T
+    return global.headers as unknown as InferParams<S>
   }
 
   // Check environment variable for MCP calls
@@ -104,7 +123,7 @@ export async function params<T = Record<string, any>>(
     try {
       const mcpCall = JSON.parse(process.env.KIT_MCP_CALL)
       if (mcpCall.parameters) {
-        return mcpCall.parameters as T
+        return mcpCall.parameters as InferParams<S>
       }
     } catch (error) {
       // Ignore JSON parse errors
@@ -115,7 +134,7 @@ export async function params<T = Record<string, any>>(
   const cliParams = await parseCliParameters(schema)
 
   // Prompt for missing parameters
-  return await promptForMissingParameters(schema, cliParams || {})
+  return await promptForMissingParameters(schema, cliParams || {}) as unknown as InferParams<S>
 }
 
 async function parseCliParameters<T>(schema: InputSchema): Promise<T | null> {

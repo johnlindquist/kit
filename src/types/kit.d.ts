@@ -1391,5 +1391,5 @@ declare global {
    * await sendResponse({ result })
    * ```
    */
-  var params: <T = Record<string, any>>(inputSchema: Tool['inputSchema']) => Promise<T>
+  var params: typeof import('../api/params.js').params
 }

@@ -423,11 +423,23 @@ function parseMetadataProperties(properties: ObjectExpression['properties']) {
       throw Error('Key is not an Identifier')
     }
 
-    if (!isOfType(value, 'Literal')) {
-      throw Error(`value is not a Literal, but a ${value.type}`)
+    // Handle both Literal and TemplateLiteral
+    if (isOfType(value, 'Literal')) {
+      acc[key.name] = value.value
+    } else if (isOfType(value, 'TemplateLiteral')) {
+      // For template literals, concatenate all the quasi elements
+      // Template literals without expressions will have quasis with the full content
+      if (value.expressions.length === 0 && value.quasis.length === 1) {
+        // Simple template literal without expressions
+        acc[key.name] = value.quasis[0].value.cooked
+      } else {
+        // Template literal with expressions - for now, throw an error
+        throw Error(`Template literals with expressions are not supported in metadata`)
+      }
+    } else {
+      throw Error(`value is not a Literal or TemplateLiteral, but a ${value.type}`)
     }
 
-    acc[key.name] = value.value
     return acc
   }, {})
 }
