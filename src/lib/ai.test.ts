@@ -163,6 +163,13 @@ test.beforeEach(t => {
     mockGenerateObject = sinon.stub();
     mockToolDefinition.execute.resetHistory(); // Reset history for tool execute stub
 
+    // Set dummy API keys to prevent prompting during tests
+    process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'test-openai-key';
+    process.env.ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || 'test-anthropic-key';
+    process.env.GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || 'test-google-key';
+    process.env.XAI_API_KEY = process.env.XAI_API_KEY || 'test-xai-key';
+    process.env.OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || 'test-openrouter-key';
+
     // Configure with mock SDK for testing
     configure({
         sdk: {
