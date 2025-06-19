@@ -12,6 +12,7 @@ import {
 } from "../core/utils.js"
 
 import "../globals/index.js"
+import "./launch-context.js"
 
 import { getScripts } from "../core/db.js"
 import type { PromptConfig } from "../types/core"
