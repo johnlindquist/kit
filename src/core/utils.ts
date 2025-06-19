@@ -255,8 +255,11 @@ ${contents}`.trim()
   return contents
 }
 
-// Create a Set directly, type-checked against the Metadata interface keys.
-const VALID_METADATA_KEYS_SET = new Set<keyof Metadata>([
+// Exhaustive, compile-time-checked list of metadata keys.
+// `satisfies` ensures every entry is a valid `keyof Metadata` **and**
+// warns if we add an invalid key. Missing keys will surface when hovering the
+// `_MissingKeys` helper type during development.
+const META_KEYS = [
   "author",
   "name",
   "description",
@@ -284,7 +287,13 @@ const VALID_METADATA_KEYS_SET = new Set<keyof Metadata>([
   "tag",
   "longRunning",
   "mcp",
-]);
+  'timeout'
+] as const satisfies readonly (keyof Metadata)[];
+
+// Optional development-time check for forgotten keys.
+type _MissingKeys = Exclude<keyof Metadata, typeof META_KEYS[number]>; // should be never
+
+export const VALID_METADATA_KEYS_SET: ReadonlySet<keyof Metadata> = new Set(META_KEYS);
 
 const getMetadataFromComments = (contents: string): Record<string, any> => {
   const lines = contents.split('\n')

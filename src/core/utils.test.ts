@@ -56,6 +56,7 @@ ava('parseScript comment full metadata', async (t) => {
   let schedule = '0 0 * * *'
   let shortcut = `${cmd}+9`
   let normalizedShortcut = shortcutNormalizer(shortcut)
+  let timeout = 15000
   let fileName = slugify(name, { lower: true })
   let scriptContent = `
 import "@johnlindquist/kit"
@@ -64,6 +65,7 @@ import "@johnlindquist/kit"
 // Description: ${description}
 // Schedule: ${schedule}
 // Shortcut: ${shortcut}
+// Timeout: ${timeout}
   `.trim()
 
   let scriptPath = await outputTmpFile(`${fileName}.ts`, scriptContent)
@@ -74,6 +76,7 @@ import "@johnlindquist/kit"
   t.is(script.schedule, schedule as CronExpression)
   t.is(script.filePath, scriptPath)
   t.is(script.shortcut, normalizedShortcut)
+  t.is(script.timeout, timeout)
 })
 
 ava('parseScript multiline description in global metadata', async (t) => {
@@ -135,6 +138,67 @@ export const metadata = {
 
   let script = await parseScript(scriptPath)
   t.is(script.name, name)
+  t.is(script.filePath, scriptPath)
+})
+
+ava('parseScript timeout metadata from comments', async (t) => {
+  let name = 'Testing Timeout Metadata'
+  let timeout = 5000
+  let fileName = slugify(name, { lower: true })
+  let scriptContent = `
+import "@johnlindquist/kit"
+
+// Name: ${name}
+// Timeout: ${timeout}
+  `.trim()
+
+  let scriptPath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+
+  let script = await parseScript(scriptPath)
+  t.is(script.name, name)
+  t.is(script.timeout, timeout)
+  t.is(script.filePath, scriptPath)
+})
+
+ava('parseScript timeout metadata from export', async (t) => {
+  let name = 'Testing Timeout Export Metadata'
+  let timeout = 10000
+  let fileName = slugify(name, { lower: true })
+  let scriptContent = `
+import "@johnlindquist/kit"
+
+export const metadata = {
+  name: "${name}",
+  timeout: ${timeout}
+}
+  `.trim()
+
+  let scriptPath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+
+  let script = await parseScript(scriptPath)
+  t.is(script.name, name)
+  t.is(script.timeout, timeout)
+  t.is(script.filePath, scriptPath)
+})
+
+ava('parseScript timeout metadata from global', async (t) => {
+  let name = 'Testing Timeout Global Metadata'
+  let timeout = 30000
+  let fileName = slugify(name, { lower: true })
+  let scriptContent = `
+import "@johnlindquist/kit"
+
+metadata = {
+  name: "${name}",
+  timeout: ${timeout}
+}
+  `.trim()
+
+  let scriptPath = await outputTmpFile(`${fileName}.ts`, scriptContent)
+
+  let script = await parseScript(scriptPath)
+  t.is(script.name, name)
+  t.is(script.timeout, timeout)
   t.is(script.filePath, scriptPath)
 })
 

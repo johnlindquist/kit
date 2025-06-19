@@ -558,6 +558,9 @@ export interface Metadata {
   longRunning?: boolean
   /** Exposes the script as an MCP (Model Context Protocol) tool */
   mcp?: string | boolean
+
+  /** Indicates the time the script was last run */
+  timeout?: number
 }
 
 export interface ProcessInfo {

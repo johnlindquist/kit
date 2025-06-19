@@ -65,28 +65,96 @@ const PROVIDERS: Record<AIProvider, ModelFactory> = {
 const ENV_PROVIDER = (process.env.AI_DEFAULT_PROVIDER ?? 'openai') as AIProvider;
 const ENV_MODEL = process.env.AI_DEFAULT_MODEL ?? 'gpt-4o';
 
+// Cache for prompted API keys during session
+const apiKeyCache = new Map<string, boolean>();
+
+// Helper function to get environment variable name for a provider
+const getProviderEnvVar = (provider: AIProvider): string => {
+    const envVars: Record<AIProvider, string> = {
+        openai: 'OPENAI_API_KEY',
+        anthropic: 'ANTHROPIC_API_KEY',
+        google: 'GOOGLE_API_KEY',
+        xai: 'XAI_API_KEY',
+        openrouter: 'OPENROUTER_API_KEY'
+    };
+    return envVars[provider];
+};
+
+// Helper function to get provider URL for API key generation
+const getProviderUrl = (provider: AIProvider): string => {
+    const urls: Record<AIProvider, string> = {
+        openai: 'https://platform.openai.com/api-keys',
+        anthropic: 'https://console.anthropic.com/settings/keys',
+        google: 'https://makersuite.google.com/app/apikey',
+        xai: 'https://console.xai.com',
+        openrouter: 'https://openrouter.ai/keys'
+    };
+    return urls[provider];
+};
+
+// Helper function to get provider-specific instructions
+const getProviderInstructions = (provider: AIProvider): string => {
+    const instructions: Record<AIProvider, string> = {
+        openai: 'Create an API key in your OpenAI dashboard under API Keys',
+        anthropic: 'Generate an API key in the Anthropic Console under Settings > Keys',
+        google: 'Create an API key in Google AI Studio',
+        xai: 'Get your API key from the xAI console',
+        openrouter: 'Create an API key at OpenRouter.ai/keys'
+    };
+    return instructions[provider];
+};
+
+// Function to ensure API key exists for a provider
+const ensureApiKey = async (provider: AIProvider): Promise<void> => {
+    const envVarName = getProviderEnvVar(provider);
+
+    // Skip if already prompted this session
+    if (apiKeyCache.has(envVarName)) return;
+
+    // Check if key exists
+    const existingKey = process.env[envVarName];
+    if (!existingKey) {
+        // Prompt for the key
+        const url = getProviderUrl(provider);
+        await global.env(envVarName, {
+            placeholder: `Enter your ${provider} API key`,
+            secret: true,
+            hint: `Get your API key from <a href="${url}">${url}</a>`,
+            description: getProviderInstructions(provider)
+        });
+    }
+
+    apiKeyCache.set(envVarName, true);
+};
+
 // Function to resolve model based on provider and model string
-export const resolveModel = (
+export const resolveModel = async (
     modelString?: string,
     explicitProvider?: AIProvider
-): LanguageModelV1 => {
+): Promise<LanguageModelV1> => {
+    // Determine which provider will be used
+    let targetProvider: AIProvider;
+    let modelId: string;
+
     if (!modelString) {
-        return PROVIDERS[explicitProvider ?? ENV_PROVIDER](ENV_MODEL);
-    }
-
-    const prefixMatch = modelString.match(/^(\w+?):(.+)$/);
-    if (prefixMatch) {
-        const [, prov, id] = prefixMatch;
-        // Ensure 'prov' is a valid AIProvider before indexing
-        if (prov in PROVIDERS) {
-            return PROVIDERS[prov as AIProvider](id);
+        targetProvider = explicitProvider ?? ENV_PROVIDER;
+        modelId = ENV_MODEL;
+    } else {
+        const prefixMatch = modelString.match(/^(\w+?):(.+)$/);
+        if (prefixMatch && prefixMatch[1] in PROVIDERS) {
+            targetProvider = prefixMatch[1] as AIProvider;
+            modelId = prefixMatch[2];
+        } else {
+            targetProvider = explicitProvider ?? ENV_PROVIDER;
+            modelId = modelString;
         }
-        // Fallback or error handling if provider from string is unknown
-        console.warn(`Unknown provider prefix '${prov}' in model string. Falling back to default.`);
-        return PROVIDERS[ENV_PROVIDER](id); // Or use ENV_MODEL if 'id' is not suitable alone
     }
 
-    return PROVIDERS[explicitProvider ?? ENV_PROVIDER](modelString);
+    // Ensure API key exists before creating provider
+    await ensureApiKey(targetProvider);
+
+    // Create and return the model
+    return PROVIDERS[targetProvider](modelId);
 };
 
 // Interface for injectable SDK functions for testability
@@ -185,22 +253,18 @@ type AssistantContent = {
 };
 
 // Type for the generateObject function we'll add as global.generate
-interface GlobalGenerate {
+type GlobalGenerate =
     <Schema extends ZodTypeAny>(
         promptOrMessages: string | CoreMessage[],
         schema: Schema,
-        options?: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'>
-    ): Promise<ZodInfer<Schema>>;
-}
+        options?: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'>) => Promise<ZodInfer<Schema>>
 
 // Type for the generateObject function we'll add to global.ai
-interface AiGenerateObject {
+type AiGenerateObject =
     <Schema extends ZodTypeAny>(
         promptOrMessages: string | CoreMessage[],
         schema: Schema,
-        options?: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'>
-    ): Promise<ZodInfer<Schema>>;
-}
+        options?: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'>) => Promise<ZodInfer<Schema>>
 
 // Existing global.ai structure (function returning an input handler)
 // Updated to reflect the new addAssistantMessage signature in the conceptual AiGlobalFull for casting
@@ -219,12 +283,13 @@ interface AiGlobal {
 // This is the actual function that creates the AI-powered input handler
 const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOptions, 'autoExecuteTools' | 'tools' | 'maxSteps'> = {}) => {
     const { model, temperature = Number(process.env.AI_DEFAULT_TEMPERATURE) || 0.7, maxTokens = Number(process.env.AI_DEFAULT_MAX_TOKENS) || 1000 } = options;
-    const resolvedModel: LanguageModelV1 = typeof model === 'string' || typeof model === 'undefined'
-        ? resolveModel(model)
-        : model as LanguageModelV1;
 
     return async (input: string): Promise<string> => {
         try {
+            const resolvedModel: LanguageModelV1 = typeof model === 'string' || typeof model === 'undefined'
+                ? await resolveModel(model)
+                : model as LanguageModelV1;
+
             const result = await getSdk().generateText<Record<string, Tool<any, any>>, string>({
                 model: resolvedModel,
                 temperature,
@@ -252,7 +317,7 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
 ): Promise<ZodInfer<Schema>> => {
     const { model, temperature, maxTokens } = options;
     const resolvedModel: LanguageModelV1 = typeof model === 'string' || typeof model === 'undefined'
-        ? resolveModel(model)
+        ? await resolveModel(model)
         : model as LanguageModelV1;
 
     let messages: CoreMessage[];
@@ -294,9 +359,17 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
 
     const sdk = getSdk();
     const resolvedModelOption = options.model;
-    const resolvedModel: LanguageModelV1 = typeof resolvedModelOption === 'string' || typeof resolvedModelOption === 'undefined'
-        ? resolveModel(resolvedModelOption)
-        : resolvedModelOption as LanguageModelV1;
+
+    // Create a lazy-loaded model resolver
+    let resolvedModelPromise: Promise<LanguageModelV1> | null = null;
+    const getResolvedModel = async (): Promise<LanguageModelV1> => {
+        if (!resolvedModelPromise) {
+            resolvedModelPromise = typeof resolvedModelOption === 'string' || typeof resolvedModelOption === 'undefined'
+                ? resolveModel(resolvedModelOption)
+                : Promise.resolve(resolvedModelOption as LanguageModelV1);
+        }
+        return resolvedModelPromise;
+    };
 
     const {
         temperature = 0.7,
@@ -466,8 +539,9 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
 
     // Internal actual generation function without auto-execution logic
     const _internalGenerate = async (currentMessages: CoreMessage[], signal?: AbortSignal): Promise<GenerateTextResult<Record<string, Tool<any, any>>, string>> => {
+        const model = await getResolvedModel();
         const generateOptions: any = {
-            model: resolvedModel,
+            model,
             temperature,
             maxTokens,
             messages: [...currentMessages], // Use a snapshot of messages for this attempt
@@ -702,8 +776,9 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             aiObservability.emit('assistant:stream:start', { messages: [...messages] });
 
             try {
+                const model = await getResolvedModel();
                 const streamOptions: any = {
-                    model: resolvedModel,
+                    model,
                     temperature,
                     maxTokens,
                     messages: [...messages],

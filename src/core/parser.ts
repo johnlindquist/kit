@@ -53,8 +53,8 @@ export let postprocessMetadata = (
 	if (metadata.background) {
 		if (metadata.background !== "auto") {
 			// @ts-ignore
-			result.background = typeof metadata.background === 'boolean' 
-				? metadata.background 
+			result.background = typeof metadata.background === 'boolean'
+				? metadata.background
 				: metadata.background === "true"
 		}
 	}
@@ -175,19 +175,18 @@ export let parseScript = async (filePath: string): Promise<Script> => {
 				})
 			}
 			return cachedEntry.script
-		} else {
-			if (parentPort) {
-				if (!cachedEntry) {
-					parentPort.postMessage({
-						channel: Channel.LOG_TO_PARENT,
-						value: `[parseScript] Cache miss (file not in cache): ${filePath}`
-					})
-				} else {
-					parentPort.postMessage({
-						channel: Channel.LOG_TO_PARENT,
-						value: `[parseScript] Cache miss (mtime mismatch on ${filePath} - Cached: ${cachedEntry.mtimeMs}, Current: ${currentMtimeMs})`
-					})
-				}
+		}
+		if (parentPort) {
+			if (!cachedEntry) {
+				parentPort.postMessage({
+					channel: Channel.LOG_TO_PARENT,
+					value: `[parseScript] Cache miss (file not in cache): ${filePath}`
+				})
+			} else {
+				parentPort.postMessage({
+					channel: Channel.LOG_TO_PARENT,
+					value: `[parseScript] Cache miss (mtime mismatch on ${filePath} - Cached: ${cachedEntry.mtimeMs}, Current: ${currentMtimeMs})`
+				})
 			}
 		}
 
