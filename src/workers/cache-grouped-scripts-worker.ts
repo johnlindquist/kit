@@ -178,21 +178,21 @@ const cacheMainScripts = async (id: string, stamp: Stamp | null) => {
     if (!stampFilePath || stampFilePath === cachedStampFilePath) {
       if (cachedMessage) {
         // Reuse cached result
-        logToParent(`${id}: Reusing cached result for ${stampFilePath}`)
+        logToParent(`[SCRIPTS RENDER] Worker ${id}: Reusing cached result for ${stampFilePath} with ${cachedMessage.scripts.length} scripts`)
         parentPort?.postMessage({ ...cachedMessage, id })
         return
       }
     }
 
     // Otherwise, compute fresh results
-    logToParent(`${id}: Parsing main menu`)
+    logToParent(`[SCRIPTS RENDER] Worker ${id}: Starting parseMainMenu for ${stampFilePath}`)
     const message = await parseMainMenu(stamp)
 
     // Cache results for next time
-    cachedMessage
+    cachedMessage = message
     cachedStampFilePath = stampFilePath
 
-    logToParent(`${id}: Sending fresh result for ${stampFilePath}`)
+    logToParent(`[SCRIPTS RENDER] Worker ${id}: Sending fresh result for ${stampFilePath} with ${message.scripts.length} scripts`)
     parentPort?.postMessage({ ...message, id })
   } catch (error) {
     logToParent(`Error caching main scripts: ${error}`)

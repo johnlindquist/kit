@@ -56,18 +56,18 @@ export let actionFlags: ActionFlag[] = [
   },
   ...(isMac
     ? [
-        {
-          name: 'Show Info',
-          value: 'info',
-          shortcut: `${cmd}+i`,
-          action: async (selectedFile) => {
-            await applescript(`
+      {
+        name: 'Show Info',
+        value: 'info',
+        shortcut: `${cmd}+i`,
+        action: async (selectedFile) => {
+          await applescript(`
   set aFile to (POSIX file "${selectedFile}") as alias
   tell application "Finder" to open information window of aFile
   `)
-          }
         }
-      ]
+      }
+    ]
     : []),
   {
     name: 'Open Path in Kit Term',
@@ -133,20 +133,20 @@ export let actionFlags: ActionFlag[] = [
   },
   ...(process.env?.KIT_OPEN_IN
     ? [
-        {
-          name: `Open with ${process.env.KIT_OPEN_IN}`,
-          value: 'open_in_custom',
-          action: async (selectedFile) => {
-            hide()
-            if (isMac) {
-              let command = `${process.env.KIT_OPEN_IN} '${selectedFile}'`
-              await exec(command)
-            } else {
-              await exec(`"${process.env.KIT_OPEN_IN}" '${selectedFile}'`)
-            }
+      {
+        name: `Open with ${process.env.KIT_OPEN_IN}`,
+        value: 'open_in_custom',
+        action: async (selectedFile) => {
+          hide()
+          if (isMac) {
+            let command = `${process.env.KIT_OPEN_IN} '${selectedFile}'`
+            await exec(command)
+          } else {
+            await exec(`"${process.env.KIT_OPEN_IN}" '${selectedFile}'`)
           }
         }
-      ]
+      }
+    ]
     : []),
   {
     name: 'Copy to...',
@@ -189,6 +189,17 @@ export let actionFlags: ActionFlag[] = [
     }
   },
   {
+    name: 'Rename',
+    value: 'rename',
+    shortcut: `${cmd}+r`,
+    action: async (selectedFile) => {
+      let newName = await arg({
+        hint: `Rename ${path.basename(selectedFile)} to:`
+      })
+      mv(selectedFile, path.resolve(path.dirname(selectedFile), newName))
+    }
+  },
+  {
     name: 'Move',
     value: 'move',
     shortcut: `${cmd}+m`,
@@ -199,6 +210,20 @@ export let actionFlags: ActionFlag[] = [
         onlyDirs: true
       })
       mv(selectedFile, destFolder)
+    }
+  },
+  // TODO: Need to hide "foo is not a path" when in this mode
+  {
+    name: "Move and Rename",
+    value: "move-and-rename",
+    shortcut: `${cmd}+shift+m`,
+    action: async (selectedFile) => {
+      let newPath = await path({
+        startPath: path.dirname(selectedFile),
+        hint: `Rename ${path.basename(selectedFile)} path:`
+      })
+
+      mv(selectedFile, newPath)
     }
   },
   {
