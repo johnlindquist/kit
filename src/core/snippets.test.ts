@@ -1,4 +1,4 @@
-import ava from "ava"
+import test from "ava"
 import { getSnippet } from "./snippets.js"
 import { parseSnippets } from "./utils.js"
 import path from 'node:path'
@@ -6,7 +6,7 @@ import { kenvPath } from '../core/utils.js'
 import { outputFile, ensureDir } from 'fs-extra'
 import tmp from "tmp-promise"
 
-ava("getSnippet - basic metadata and snippet", (t) => {
+test.serial("getSnippet - basic metadata and snippet", (t) => {
 	const content = `
 // Name: Test Snippet
 // Tag: test
@@ -21,7 +21,7 @@ with multiple lines
 	t.is(result.snippet.trim(), "This is a test snippet\nwith multiple lines")
 })
 
-ava("getSnippet - no metadata", (t) => {
+test.serial("getSnippet - no metadata", (t) => {
 	const content = "This is a snippet without metadata"
 	const result = getSnippet(content)
 
@@ -29,7 +29,7 @@ ava("getSnippet - no metadata", (t) => {
 	t.is(result.snippet.trim(), "This is a snippet without metadata")
 })
 
-ava("getSnippet - snippet with metadata-like content", (t) => {
+test.serial("getSnippet - snippet with metadata-like content", (t) => {
 	const content = `
 // Name: Tricky Snippet
 // Tag: tricky
@@ -50,7 +50,7 @@ This is a snippet
 	)
 })
 
-ava("getSnippet - empty content", (t) => {
+test.serial("getSnippet - empty content", (t) => {
 	const content = ""
 	const result = getSnippet(content)
 
@@ -58,7 +58,7 @@ ava("getSnippet - empty content", (t) => {
 	t.is(result.snippet, "")
 })
 
-ava('parseSnippets - snippet in kenv directory', async (t) => {
+test.serial('parseSnippets - snippet in kenv directory', async (t) => {
 	const { path: tmpDir } = await tmp.dir()
 	process.env.KENV = tmpDir
 	global.kitScript = `${Date.now()}.js`
@@ -83,7 +83,7 @@ console.log("Kenv snippet");
 	t.is(found!.kenv, 'test')
 })
 
-ava('parseSnippets - snippet with postfix expand marker', async (t) => {
+test.serial('parseSnippets - snippet with postfix expand marker', async (t) => {
 	const { path: tmpDir } = await tmp.dir()
 	process.env.KENV = tmpDir
 	global.kitScript = `${Date.now()}.js`
@@ -105,7 +105,7 @@ console.log("Postfix snippet");
 	t.is(found!.postfix, true)
 })
 
-ava('parseSnippets - snippet with missing expand metadata', async (t) => {
+test.serial('parseSnippets - snippet with missing expand metadata', async (t) => {
 	const { path: tmpDir } = await tmp.dir()
 	process.env.KENV = tmpDir
 	global.kitScript = `${Date.now()}.js`
@@ -127,7 +127,7 @@ console.log("No expand snippet");
 	t.is(found!.postfix, false)
 })
 
-ava('parseSnippets - snippet with extra whitespace', async (t) => {
+test.serial('parseSnippets - snippet with extra whitespace', async (t) => {
 	const { path: tmpDir } = await tmp.dir()
 	process.env.KENV = tmpDir
 	global.kitScript = `${Date.now()}.js`
@@ -152,7 +152,7 @@ console.log("Whitespace snippet");
 	t.is(found!.text, 'console.log("Whitespace snippet");')
 })
 
-ava('parseSnippets - empty snippet file', async (t) => {
+test.serial('parseSnippets - empty snippet file', async (t) => {
 	const { path: tmpDir } = await tmp.dir()
 	process.env.KENV = tmpDir
 	global.kitScript = `${Date.now()}.js`
@@ -172,7 +172,7 @@ ava('parseSnippets - empty snippet file', async (t) => {
 	t.is(found!.text, '')
 })
 
-ava('parseSnippets - multiple snippets in temporary directory', async (t) => {
+test.serial('parseSnippets - multiple snippets in temporary directory', async (t) => {
 	const { path: tmpDir } = await tmp.dir()
 	process.env.KENV = tmpDir
 	global.kitScript = `${Date.now()}.js`
