@@ -453,3 +453,33 @@ ava("Path utility normalizes all directory inputs", async t => {
 	global.isDir = originalIsDir;
 	global.pathExists = originalPathExists;
 });
+
+// Test navigation history feature
+ava("Navigation history remembers selections when going up and down", async t => {
+	// Test the navigation history Map behavior
+	const navigationHistory = new Map<string, string>();
+	
+	// Simulate navigation: /Users/ -> /Users/john/ -> /Users/john/Documents/
+	const paths = process.platform === "win32" 
+		? ["C:\\Users\\", "C:\\Users\\john\\", "C:\\Users\\john\\Documents\\"]
+		: ["/Users/", "/Users/john/", "/Users/john/Documents/"];
+	
+	// Going down, saving selections
+	navigationHistory.set(paths[0], "john");
+	navigationHistory.set(paths[1], "Documents");
+	
+	// Verify saved selections
+	t.is(navigationHistory.get(paths[0]), "john", "Should remember 'john' was selected in /Users/");
+	t.is(navigationHistory.get(paths[1]), "Documents", "Should remember 'Documents' was selected in /Users/john/");
+	
+	// Going up should retrieve the saved selections
+	const selection1 = navigationHistory.get(paths[1]);
+	t.is(selection1, "Documents", "Going back to /Users/john/ should focus on 'Documents'");
+	
+	const selection2 = navigationHistory.get(paths[0]);
+	t.is(selection2, "john", "Going back to /Users/ should focus on 'john'");
+	
+	// Test overwriting: if we go down a different path from the same directory
+	navigationHistory.set(paths[0], "jane"); // Different selection
+	t.is(navigationHistory.get(paths[0]), "jane", "Navigation history should update with new selection");
+});

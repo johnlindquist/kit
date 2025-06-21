@@ -166,6 +166,9 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
   let onlyDirs = false
   let missingChoices: Choice[] = defaultPathMissingChoices
   
+  // Navigation history: Map of path -> last selected item name
+  const navigationHistory = new Map<string, string>()
+  
   // Handle string config (direct path)
   if (typeof config === 'string') {
     startPath = config
@@ -279,6 +282,11 @@ ${error}
     // This ensures we're always working with the most current value
     const currentPath = global.__kitPromptState?.input || currentInput || startPath
     
+    // Save the current selection in navigation history before going up
+    if (dir?.name && currentPath) {
+      navigationHistory.set(currentPath, dir.name)
+    }
+    
     // Remove trailing separator before getting parent, but not for root paths
     let cleanPath
     const rootPath = isWin ? ogPath.parse(currentPath).root : '/'
@@ -314,7 +322,12 @@ ${error}
     // Force refresh the directory listing with the new path
     await lsCurrentDir(newPath)
     
-    if (dir) {
+    // Check if we have a saved selection for the parent directory
+    const savedSelection = navigationHistory.get(newPath)
+    if (savedSelection) {
+      focusOn = savedSelection
+    } else if (dir) {
+      // Default behavior: focus on the directory we came from
       focusOn = path.basename(cleanPath)
     }
   }
@@ -327,7 +340,7 @@ ${error}
     // Get the current path from the actual input state, not startPath
     const currentPath = global.__kitPromptState?.input || currentInput || startPath
     
-    let targetPath = ogPath.resolve(currentPath, dir)
+    let targetPath = typeof dir === 'string' ? ogPath.resolve(currentPath, dir) : dir.value
     let allowed = true
     let needsPermission =
       targetPath === home('Downloads') || targetPath === home('Documents') || targetPath === home('Desktop')
@@ -346,6 +359,11 @@ ${error}
       if (await isDir(targetPath)) {
         const newPath = targetPath + path.sep
         
+        // Save current directory selection before navigating down
+        if (dir?.name && currentPath) {
+          navigationHistory.set(currentPath, dir.name)
+        }
+        
         // Update startPath immediately to prevent race conditions
         startPath = newPath
         
@@ -353,6 +371,12 @@ ${error}
         
         // Force refresh the directory listing
         await lsCurrentDir(newPath)
+        
+        // Check if we have a saved selection for this directory
+        const savedSelection = navigationHistory.get(newPath)
+        if (savedSelection) {
+          focusOn = savedSelection
+        }
       }
     } else {
       let html = md(`
@@ -458,24 +482,22 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   }
 
   let onTab = (input, state) => {
-    let dir = state.focused.value
-
     if (state.modifiers.includes('shift')) {
-      upDir(dir)
+      upDir(state.focused)
     } else {
-      downDir(dir)
+      downDir(state.focused)
     }
   }
 
   let onRight = (input, state: AppState) => {
     if (!state.flaggedValue) {
-      downDir(state.focused.value)
+      downDir(state.focused)
     }
   }
 
   let onLeft = (input, state) => {
     if (!state.flaggedValue) {
-      upDir(state.focused.value)
+      upDir(state.focused)
     }
   }
   
