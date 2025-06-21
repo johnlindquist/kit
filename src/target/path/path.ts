@@ -11,10 +11,53 @@ import type { PathConfig, PathDefaultMissingValues } from '../../types/kit'
 import type { Action, AppState, Choice, PromptConfig } from '../../types'
 import { Channel } from '../../core/enum.js'
 
+const isWin = process.platform === 'win32'
+
+/**
+ * Convert a file-system path to the slash-only flavour that Script Kit's
+ * UI (and drag-n-drop) expects. Keep the original form for disk I/O.
+ */
+const toUiPath = (p: string) => isWin ? p.replaceAll('\\', '/') : p
+
+/**
+ * Return all mount points (eg. ['C:\\', 'D:\\']) on Windows so that an
+ * empty prompt can list "drives", similar to "/", "/home", etc. on POSIX.
+ */
+const getWindowsRoots = async (): Promise<string[]> => {
+  if (!isWin) return []
+  const drives: string[] = []
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+  
+  for (const letter of letters) {
+    try {
+      await fs.promises.stat(`${letter}:\\`)
+      drives.push(`${letter}:\\`)
+    } catch {
+      // Drive doesn't exist, skip it
+    }
+  }
+  
+  return drives
+}
+
 export const createPathChoices = async (
   startPath: string,
   { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync } = {}
 ) => {
+  // Special-case: on Windows an empty path means "show me the drives"
+  if (isWin && (!startPath || ogPath.parse(startPath).root === startPath)) {
+    const roots = await getWindowsRoots()
+    return roots.map(drive => ({
+      name: drive,
+      value: drive,
+      drag: drive,
+      img: pathToFileURL(kitPath('icons', 'folder.svg')).href,
+      description: '',
+      mtime: new Date(),
+      size: 0
+    } as Choice))
+  }
+
   const dirFiles = await readdir(startPath, {
     withFileTypes: true
   })
@@ -82,9 +125,9 @@ export const createPathChoices = async (
       return {
         img,
         name: dirent.name,
-        value: fullPath,
+        value: toUiPath(fullPath),
         description,
-        drag: fullPath,
+        drag: toUiPath(fullPath),
         mtime,
         size
       } as const
@@ -147,6 +190,11 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
     }
   }
 
+  // Normalize the path BEFORE creating initial choices to ensure consistency
+  if (!startPath.endsWith(path.sep) && (await isDir(startPath))) {
+    startPath += path.sep
+  }
+
   let initialChoices = await createPathChoices(startPath, {
     onlyDirs,
     dirFilter: (dirent) => {
@@ -189,9 +237,6 @@ ${error}
   let inputRegex = `[^\\${path.sep}]+$`
   setFilterInput(inputRegex)
 
-  if (!startPath.endsWith(path.sep) && (await isDir(startPath))) {
-    startPath += path.sep
-  }
   let slashCount = startPath.split(path.sep).length
 
   let lsCurrentDir = async (input) => {
@@ -220,9 +265,48 @@ ${error}
     if (dir?.miss) {
       return
     }
-    await setInput(path.dirname(startPath) + path.sep)
+    
+    // Get the current path from the actual input state, not startPath
+    // This ensures we're always working with the most current value
+    const currentPath = global.__kitPromptState?.input || currentInput || startPath
+    
+    // Remove trailing separator before getting parent, but not for root paths
+    let cleanPath
+    const rootPath = isWin ? ogPath.parse(currentPath).root : '/'
+    
+    if (currentPath === rootPath) {
+      // Already at root, don't go up
+      cleanPath = currentPath
+    } else {
+      // Remove trailing separator for dirname calculation
+      cleanPath = currentPath.endsWith(path.sep) 
+        ? currentPath.slice(0, -1) 
+        : currentPath
+    }
+    
+    const parentDir = path.dirname(cleanPath)
+    
+    // Handle root paths specially
+    let newPath
+    if (parentDir === cleanPath || parentDir === rootPath) {
+      // We're at root
+      newPath = rootPath
+    } else {
+      // For non-root paths, add separator and normalize
+      newPath = path.normalize(parentDir + path.sep)
+    }
+    
+    // Update startPath immediately to prevent race conditions
+    startPath = newPath
+    
+    // Set the input
+    await setInput(newPath)
+    
+    // Force refresh the directory listing with the new path
+    await lsCurrentDir(newPath)
+    
     if (dir) {
-      focusOn = path.basename(path.dirname(dir))
+      focusOn = path.basename(cleanPath)
     }
   }
 
@@ -230,7 +314,11 @@ ${error}
     if (dir?.miss) {
       return
     }
-    let targetPath = ogPath.resolve(startPath, dir)
+    
+    // Get the current path from the actual input state, not startPath
+    const currentPath = global.__kitPromptState?.input || currentInput || startPath
+    
+    let targetPath = ogPath.resolve(currentPath, dir)
     let allowed = true
     let needsPermission =
       targetPath === home('Downloads') || targetPath === home('Documents') || targetPath === home('Desktop')
@@ -247,7 +335,15 @@ ${error}
 
     if (allowed) {
       if (await isDir(targetPath)) {
-        setInput(targetPath + path.sep)
+        const newPath = targetPath + path.sep
+        
+        // Update startPath immediately to prevent race conditions
+        startPath = newPath
+        
+        await setInput(newPath)
+        
+        // Force refresh the directory listing
+        await lsCurrentDir(newPath)
       }
     } else {
       let html = md(`
@@ -317,6 +413,9 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     // }
 
     if (!input) {
+      // Ensure we always have at least the root path
+      const rootPath = isWin ? 'C:\\' : '/'
+      setInput(rootPath)
       return
     }
 
@@ -339,7 +438,11 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
     //   return
     // }
     let currentSlashCount = input?.split(path.sep).length
-    if (currentSlashCount !== slashCount || (input.endsWith(path.sep) && inputLess)) {
+    // Update lsCurrentDir trigger conditions to be more robust
+    // - When slash count changes (navigating up/down)
+    // - When input ends with separator (it's a directory)
+    // - When we need to refresh the current directory listing
+    if (currentSlashCount !== slashCount || input.endsWith(path.sep)) {
       slashCount = currentSlashCount
       await lsCurrentDir(input)
     }
@@ -366,6 +469,10 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       upDir(state.focused.value)
     }
   }
+  
+  // Map FORWARD/BACK channels to right/left navigation
+  let onForward = onRight
+  let onBack = onLeft
 
   let sort = 'name'
   let dir = 'desc'
@@ -410,6 +517,8 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       alwaysOnTop: true,
       onRight,
       onLeft,
+      onForward,
+      onBack,
       // onNoChoices,
       // onEscape,
       // TODO: If I want resize, I need to create choices first?
