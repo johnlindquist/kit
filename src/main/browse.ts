@@ -4,7 +4,6 @@
 // Trigger: /
 
 import type { PathDefaultMissingValues } from "../types/kit.js"
-import { sep as pathSep } from "node:path"
 
 import { actionFlags } from "./common.js"
 
@@ -18,11 +17,7 @@ if (initialPath === "~") {
   initialPath = home()
 }
 
-// Ensure the initial path has a trailing separator for directories
-if (await isDir(initialPath) && !initialPath.endsWith(pathSep)) {
-  initialPath += pathSep
-}
-
+// Path normalization is now handled inside the path utility
 let selectedPath = await path({
   flags,
   startPath: initialPath,

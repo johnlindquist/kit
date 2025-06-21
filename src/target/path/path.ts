@@ -165,9 +165,12 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
   let onInputHook = null
   let onlyDirs = false
   let missingChoices: Choice[] = defaultPathMissingChoices
+  
+  // Handle string config (direct path)
   if (typeof config === 'string') {
     startPath = config
   }
+  // Handle object config
   if (typeof config === 'object') {
     startPath = config?.startPath || home()
     onlyDirs = Boolean(config?.onlyDirs)
@@ -190,9 +193,15 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
     }
   }
 
-  // Normalize the path BEFORE creating initial choices to ensure consistency
-  if (!startPath.endsWith(path.sep) && (await isDir(startPath))) {
-    startPath += path.sep
+  // ALWAYS normalize directory paths to have trailing separator
+  // This ensures consistent behavior regardless of how the path utility is called
+  if (startPath && (await pathExists(startPath))) {
+    if ((await isDir(startPath)) && !startPath.endsWith(path.sep)) {
+      startPath += path.sep
+    }
+  } else if (!startPath) {
+    // Default to home directory with separator if no path provided
+    startPath = home() + path.sep
   }
 
   let initialChoices = await createPathChoices(startPath, {
