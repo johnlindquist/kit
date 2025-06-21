@@ -27,7 +27,7 @@ const getWindowsRoots = async (): Promise<string[]> => {
   if (!isWin) return []
   const drives: string[] = []
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-  
+
   for (const letter of letters) {
     try {
       await fs.promises.stat(`${letter}:\\`)
@@ -36,7 +36,7 @@ const getWindowsRoots = async (): Promise<string[]> => {
       // Drive doesn't exist, skip it
     }
   }
-  
+
   return drives
 }
 
@@ -165,10 +165,10 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
   let onInputHook = null
   let onlyDirs = false
   let missingChoices: Choice[] = defaultPathMissingChoices
-  
+
   // Navigation history: Map of path -> last selected item name
   const navigationHistory = new Map<string, string>()
-  
+
   // Handle string config (direct path)
   if (typeof config === 'string') {
     startPath = config
@@ -226,6 +226,12 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
       })
 
       choices.push(...missingChoices)
+      choices.push({
+        name: '{input}',
+        description: 'Select full path as typed',
+        asTyped: true,
+        value: path.join(startPath, currentInput)
+      });
 
       await setChoices(choices, {
         skipInitialSearch: false,
@@ -277,32 +283,32 @@ ${error}
     if (dir?.miss) {
       return
     }
-    
+
     // Get the current path from the actual input state, not startPath
     // This ensures we're always working with the most current value
     const currentPath = global.__kitPromptState?.input || currentInput || startPath
-    
+
     // Save the current selection in navigation history before going up
     if (dir?.name && currentPath) {
       navigationHistory.set(currentPath, dir.name)
     }
-    
+
     // Remove trailing separator before getting parent, but not for root paths
     let cleanPath
     const rootPath = isWin ? ogPath.parse(currentPath).root : '/'
-    
+
     if (currentPath === rootPath) {
       // Already at root, don't go up
       cleanPath = currentPath
     } else {
       // Remove trailing separator for dirname calculation
-      cleanPath = currentPath.endsWith(path.sep) 
-        ? currentPath.slice(0, -1) 
+      cleanPath = currentPath.endsWith(path.sep)
+        ? currentPath.slice(0, -1)
         : currentPath
     }
-    
+
     const parentDir = path.dirname(cleanPath)
-    
+
     // Handle root paths specially
     let newPath
     if (parentDir === cleanPath || parentDir === rootPath) {
@@ -312,16 +318,16 @@ ${error}
       // For non-root paths, add separator and normalize
       newPath = path.normalize(parentDir + path.sep)
     }
-    
+
     // Update startPath immediately to prevent race conditions
     startPath = newPath
-    
+
     // Set the input
     await setInput(newPath)
-    
+
     // Force refresh the directory listing with the new path
     await lsCurrentDir(newPath)
-    
+
     // Check if we have a saved selection for the parent directory
     const savedSelection = navigationHistory.get(newPath)
     if (savedSelection) {
@@ -336,10 +342,10 @@ ${error}
     if (dir?.miss) {
       return
     }
-    
+
     // Get the current path from the actual input state, not startPath
     const currentPath = global.__kitPromptState?.input || currentInput || startPath
-    
+
     let targetPath = typeof dir === 'string' ? ogPath.resolve(currentPath, dir) : dir.value
     let allowed = true
     let needsPermission =
@@ -358,20 +364,20 @@ ${error}
     if (allowed) {
       if (await isDir(targetPath)) {
         const newPath = targetPath + path.sep
-        
+
         // Save current directory selection before navigating down
         if (dir?.name && currentPath) {
           navigationHistory.set(currentPath, dir.name)
         }
-        
+
         // Update startPath immediately to prevent race conditions
         startPath = newPath
-        
+
         await setInput(newPath)
-        
+
         // Force refresh the directory listing
         await lsCurrentDir(newPath)
-        
+
         // Check if we have a saved selection for this directory
         const savedSelection = navigationHistory.get(newPath)
         if (savedSelection) {
@@ -500,7 +506,7 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       upDir(state.focused)
     }
   }
-  
+
   // Map FORWARD/BACK channels to right/left navigation
   let onForward = onRight
   let onBack = onLeft

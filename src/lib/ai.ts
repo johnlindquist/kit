@@ -62,8 +62,8 @@ const PROVIDERS: Record<AIProvider, ModelFactory> = {
 };
 
 // Cache environment variables at module load
-const ENV_PROVIDER = (process.env.AI_DEFAULT_PROVIDER ?? 'openai') as AIProvider;
-const ENV_MODEL = process.env.AI_DEFAULT_MODEL ?? 'gpt-4o';
+const ENV_PROVIDER = (process.env.KIT_AI_DEFAULT_PROVIDER ?? 'openai') as AIProvider;
+const ENV_MODEL = process.env.KIT_AI_DEFAULT_MODEL ?? 'gpt-4o';
 
 // Cache for prompted API keys during session
 const apiKeyCache = new Map<string, boolean>();
@@ -282,7 +282,7 @@ interface AiGlobal {
 
 // This is the actual function that creates the AI-powered input handler
 const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOptions, 'autoExecuteTools' | 'tools' | 'maxSteps'> = {}) => {
-    const { model, temperature = Number(process.env.AI_DEFAULT_TEMPERATURE) || 0.7, maxTokens = Number(process.env.AI_DEFAULT_MAX_TOKENS) || 1000 } = options;
+    const { model, temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7, maxTokens = Number(process.env.KIT_AI_DEFAULT_MAX_TOKENS) || 1000 } = options;
 
     return async (input: string): Promise<string> => {
         try {
@@ -372,8 +372,8 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
     };
 
     const {
-        temperature = 0.7,
-        maxTokens = 1000,
+        temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7,
+        maxTokens = Number(process.env.KIT_AI_DEFAULT_MAX_TOKENS) || 1000,
         tools: providedTools,
         maxSteps = 3,
         autoExecuteTools: initialAutoExecuteTools = true, // Default to true

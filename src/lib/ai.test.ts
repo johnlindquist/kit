@@ -1442,8 +1442,8 @@ test.serial('backward compatibility: both global.generate and ai.object should b
 // Tests for new AI provider resolution functionality
 test.serial('resolveModel should use OpenAI as default when no env vars are set', async t => {
     // Clear any existing env vars
-    delete process.env.AI_DEFAULT_PROVIDER;
-    delete process.env.AI_DEFAULT_MODEL;
+    delete process.env.KIT_AI_DEFAULT_PROVIDER;
+    delete process.env.KIT_AI_DEFAULT_MODEL;
 
     const mockResult = createMockGenerateTextResult({ text: "OpenAI default response" });
     mockGenerateText.resolves(mockResult);
@@ -1460,8 +1460,8 @@ test.serial('resolveModel should use OpenAI as default when no env vars are set'
 });
 
 test.serial('resolveModel should use custom default provider from environment', async t => {
-    process.env.AI_DEFAULT_PROVIDER = 'anthropic';
-    process.env.AI_DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
+    process.env.KIT_AI_DEFAULT_PROVIDER = 'anthropic';
+    process.env.KIT_AI_DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
 
     const mockResult = createMockGenerateTextResult({ text: "Anthropic response" });
     mockGenerateText.resolves(mockResult);
@@ -1477,8 +1477,8 @@ test.serial('resolveModel should use custom default provider from environment', 
     t.true(mockGenerateText.calledOnce);
 
     // Clean up
-    delete process.env.AI_DEFAULT_PROVIDER;
-    delete process.env.AI_DEFAULT_MODEL;
+    delete process.env.KIT_AI_DEFAULT_PROVIDER;
+    delete process.env.KIT_AI_DEFAULT_MODEL;
 });
 
 test.serial('resolveModel should support provider prefix syntax', async t => {

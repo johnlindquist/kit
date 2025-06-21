@@ -57,6 +57,12 @@ export interface Choice<Value = any> {
   exact?: boolean
   recent?: boolean
   index?: number
+  /**
+   * When true this represents the literal text the user typed.
+   * It is generated on-the-fly by invokeSearch – it never lives in a
+   * script's static choice list.
+   */
+  asTyped?: boolean
 }
 
 export interface ScoredChoice {

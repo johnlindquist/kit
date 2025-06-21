@@ -41,7 +41,7 @@ ava('resolveModel should create Anthropic model with prefix', async t => {
 ava('resolveModel should use default provider when no prefix', async t => {
     // Set API key for default provider (openai)
     process.env.OPENAI_API_KEY = 'test-openai-key'
-    process.env.AI_DEFAULT_PROVIDER = 'openai'
+    process.env.KIT_AI_DEFAULT_PROVIDER = 'openai'
     
     try {
         const model = await resolveModel('some-model')
@@ -52,7 +52,7 @@ ava('resolveModel should use default provider when no prefix', async t => {
         t.is(model.modelId, 'some-model')
     } finally {
         delete process.env.OPENAI_API_KEY
-        delete process.env.AI_DEFAULT_PROVIDER
+        delete process.env.KIT_AI_DEFAULT_PROVIDER
     }
 })
 

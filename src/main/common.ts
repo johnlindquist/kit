@@ -158,6 +158,7 @@ export let actionFlags: ActionFlag[] = [
         hint: `Select destination for ${path.basename(selectedFile)}`,
         startPath: home(),
         onlyDirs: true,
+        enter: 'Copy',
         shortcuts: [escapeShortcut]
       })
       await copyFile(selectedFile, path.resolve(destination, path.basename(selectedFile)))
@@ -171,12 +172,13 @@ export let actionFlags: ActionFlag[] = [
       const base = path.basename(selectedFile)
       let destination = await path({
         hint: `Select path (including new filename) for ${base}`,
-        startPath: home(),
-        onlyDirs: true,
+        startPath: path.dirname(selectedFile),
+        onlyDirs: false,
+        enter: 'Duplicate',
         shortcuts: [escapeShortcut],
         missingChoices: [
           {
-            name: `Duplicate "${base}" to "{input}"`,
+            name: `Duplicate "{base}" to "{input}"`,
             miss: true,
             enter: 'Duplicate',
             onSubmit: (input) => {
@@ -208,7 +210,8 @@ export let actionFlags: ActionFlag[] = [
       let destFolder = await path({
         startPath: path.dirname(selectedFile),
         hint: `Select destination for ${path.basename(selectedFile)}`,
-        onlyDirs: true
+        onlyDirs: true,
+        enter: 'Move'
       })
       mv(selectedFile, destFolder)
     }
@@ -218,132 +221,21 @@ export let actionFlags: ActionFlag[] = [
     value: "move-and-rename",
     shortcut: `${cmd}+shift+m`,
     action: async (selectedFile) => {
-      const baseName = path.basename(selectedFile)
-      const dirName = path.dirname(selectedFile)
-      
-      // Track whether we're in "create mode"
-      let createMode = false
-      let lastValidDir = dirName
-      
-      let newPath = await path({
+      const baseName = path.basename(selectedFile);
+      const dirName = path.dirname(selectedFile);
+
+      await path({
         startPath: dirName,
         hint: `Enter new path/name for "${baseName}"`,
         enter: 'Move & Rename',
-        
-        // Override the default onInput behavior
-        onInput: async (input, state) => {
-          if (!input) return
-          
-          // Handle home directory expansion
-          if (input.startsWith('~')) {
-            input = home() + input.slice(1)
-            await setInput(input)
-            return
-          }
-          
-          // Extract directory and filename parts
-          const inputDir = input.endsWith(path.sep) ? input : path.dirname(input)
-          const inputName = input.endsWith(path.sep) ? '' : path.basename(input)
-          
-          // Check if the directory exists
-          const dirExists = await isDir(inputDir)
-          
-          if (dirExists && inputDir !== lastValidDir) {
-            // Directory exists and changed - load its contents
-            lastValidDir = inputDir
-            createMode = false
-            
-            // Load directory contents
-            const choices = await createPathChoices(inputDir, { onlyDirs: false })
-            
-            // Add the "create new file" option if user typed a filename
-            if (inputName) {
-              choices.unshift({
-                name: `Create: "${inputName}"`,
-                value: input,
-                description: 'New file will be created',
-                enter: 'Create & Move',
-                miss: true,
-                img: pathToFileURL(kitPath('icons', 'file.svg')).href
-              })
-            }
-            
-            await setChoices(choices)
-            setPanel('')  // Clear any previous messages
-            
-          } else if (!dirExists && !createMode) {
-            // Directory doesn't exist - enter create mode
-            createMode = true
-            
-            // Show helpful message instead of error
-            setPanel(md(`### New path will be created
-          
-**Directory:** ${inputDir}
-**File:** ${inputName || 'Enter filename...'}
-
-Press **Enter** to create and move the file.`))
-            
-            // Set choices to just the create option
-            await setChoices([{
-              name: `Create path: "${input}"`,
-              value: input,
-              description: 'This path will be created',
-              enter: 'Create & Move',
-              miss: true,
-              img: pathToFileURL(kitPath('icons', 'folder.svg')).href
-            }])
-            
-          } else if (createMode && inputName) {
-            // Update the create option with current input
-            await setChoices([{
-              name: `Create path: "${input}"`,
-              value: input,
-              description: 'This path will be created',
-              enter: 'Create & Move',
-              miss: true,
-              img: pathToFileURL(kitPath('icons', 'file.svg')).href
-            }])
-            
-            // Update the panel with current path info
-            setPanel(md(`### New path will be created
-          
-**Directory:** ${inputDir}
-**File:** ${inputName}
-
-Press **Enter** to create and move the file.`))
-          }
-          
-          // Update enter button text based on mode
-          setEnter(createMode ? 'Create & Move' : 'Select')
-        },
-        
-        // Don't use the default missingChoices
-        missingChoices: [],
-        
-        // Custom shortcuts
-        shortcuts: [
-          escapeShortcut,
-          {
-            name: 'Parent Dir',
-            key: `${cmd}+up`,
-            onPress: async (input) => {
-              const parentDir = path.dirname(path.dirname(input))
-              await setInput(parentDir + path.sep)
-            }
-          }
-        ]
-      })
-
-      if (newPath) {
-        // Ensure parent directory exists before moving
-        const newDir = path.dirname(newPath)
-        if (!(await isDir(newDir))) {
-          await ensureDir(newDir)
+        onSubmit: async (selectedPath) => {
+          // Ensure parent directory exists before moving
+          await editor(selectedPath);
+          await ensureDir(path.dirname(selectedPath));
+          // Perform the move
+          await mv(selectedFile, selectedPath);
         }
-        
-        // Perform the move
-        await mv(selectedFile, newPath)
-      }
+      });
     }
   },
   {

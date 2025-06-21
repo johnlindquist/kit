@@ -48,6 +48,8 @@ if (!global.confirmedPackages) {
   let packages = await arg(
     {
       enter: "Install",
+      debounceInput: 1000,
+      hint: 'Note: npm search is debounced 1 second to avoid rate limiting',
       placeholder:
         "Which npm package would you like to install?",
     },
@@ -70,20 +72,32 @@ if (!global.confirmedPackages) {
           }
         }[]
       }
-      let response = await get<pkgs>(
-        `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
-      )
-      let packages = response.data.objects
-      return packages.map(o => {
-        return {
-          name: o.package.name,
-          value: o.package.name,
-          description: `${o.package.description
-            } - ${formatDistanceToNow(
-              parseISO(o.package.date)
-            )} ago`,
-        }
-      })
+      try {
+        let response = await get<pkgs>(
+          `http://registry.npmjs.com/-/v1/search?text=${input}&size=20`
+        )
+        let packages = response.data.objects
+        return packages.map(o => {
+          return {
+            name: o.package.name,
+            value: o.package.name,
+            description: `${o.package.description
+              } - ${formatDistanceToNow(
+                parseISO(o.package.date)
+              )} ago`,
+          }
+        })
+      } catch (error) {
+        console.error('Error searching npm registry:', error.message || error)
+        return [
+          {
+            info: true,
+            miss: true,
+            name: `Error: ${error.message || 'Failed to search npm packages'}`,
+            description: 'Please try again or install manually',
+          }
+        ]
+      }
     }
   )
 
