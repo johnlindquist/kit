@@ -1,4 +1,44 @@
 #!/bin/bash
 KIT=$(cd "$(dirname ${BASH_SOURCE[0]})" &> /dev/null && pwd)
-curl --http0.9 --unix-socket $KIT/kit.sock "http://localhost/$@"
+
+# Sanitize and validate user input
+# Convert arguments into a properly escaped URL path component
+urlencode() {
+    # URL encode a string using built-in bash functionality
+    local string="$1"
+    local length="${#string}"
+    local encoded=""
+    local pos c o
+    
+    for (( pos=0; pos<length; pos++ )); do
+        c="${string:$pos:1}"
+        case "$c" in
+            [-_.~a-zA-Z0-9]) # These characters don't need encoding
+                encoded+="$c"
+                ;;
+            *) # Encode all other characters
+                printf -v o '%%%02X' "'$c"
+                encoded+="$o"
+                ;;
+        esac
+    done
+    echo "$encoded"
+}
+
+SANITIZED_PATH=""
+if [ "$#" -gt 0 ]; then
+    # Process each argument and properly encode it
+    for ARG in "$@"; do
+        # URL encode the argument
+        ENCODED_ARG="$(urlencode "$ARG")"
+        # Append it to our path
+        SANITIZED_PATH="${SANITIZED_PATH}/${ENCODED_ARG}"
+    done
+else
+    # Default path if no arguments
+    SANITIZED_PATH="/"
+fi
+
+# Use the sanitized path in the curl command
+curl --http0.9 --unix-socket "$KIT/kit.sock" "http://localhost${SANITIZED_PATH}"
 
