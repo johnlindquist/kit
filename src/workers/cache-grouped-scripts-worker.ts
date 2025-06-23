@@ -175,14 +175,15 @@ const cacheMainScripts = async (id: string, stamp: Stamp | null) => {
     const stampFilePath = stamp?.filePath || null
 
     // If no stamp or the same stamp file, try to reuse cached results:
-    if (!stampFilePath || stampFilePath === cachedStampFilePath) {
-      if (cachedMessage) {
-        // Reuse cached result
-        logToParent(`[SCRIPTS RENDER] Worker ${id}: Reusing cached result for ${stampFilePath} with ${cachedMessage.scripts.length} scripts`)
-        parentPort?.postMessage({ ...cachedMessage, id })
-        return
-      }
-    }
+    // NOTE: WE MUST disable caching until a stamp can send a "sha" or something that represented the state of the script in the app cache since we don't have a way to know if the content of the script has changed.
+    // if (!stampFilePath || stampFilePath === cachedStampFilePath) {
+    //   if (cachedMessage) {
+    //     // Reuse cached result
+    //     logToParent(`[SCRIPTS RENDER] Worker ${id}: Reusing cached result for ${stampFilePath} with ${cachedMessage.scripts.length} scripts`)
+    //     parentPort?.postMessage({ ...cachedMessage, id })
+    //     return
+    //   }
+    // }
 
     // Otherwise, compute fresh results
     logToParent(`[SCRIPTS RENDER] Worker ${id}: Starting parseMainMenu for ${stampFilePath}`)

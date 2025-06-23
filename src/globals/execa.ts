@@ -9,8 +9,14 @@ global.execaSync = execaSync
 
 export let execaCommand = all.execaCommand
 global.execaCommand = execaCommand
-global.exec = ((command: string, options: Options = { shell: true, cwd: process.cwd() }) => {
-  return execaCommand(command, options)
+global.exec = ((command: string, options: Options = {}) => {
+  const finalOptions: Options = {
+    cwd: process.cwd(),
+    ...options,
+    shell: options.shell ?? true,
+  }
+
+  return execaCommand(command, finalOptions)
 }) as unknown as typeof execaCommand
 export let exec = global.exec
 
