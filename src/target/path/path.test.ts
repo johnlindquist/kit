@@ -223,33 +223,63 @@ ava("path.dirname behavior at root - Windows", async t => {
 ava("createPathChoices - handles root directory without double slashes", async t => {
 	const rootPath = process.platform === "win32" ? "C:\\" : "/";
 	
-	// Mock readdir for root
-	const mockRootDirents = [
-		createMockDirent("usr", true),
-		createMockDirent("home", true),
-		createMockDirent("etc", true)
-	];
-	
-	global.readdir = async (p) => {
-		// Normalize the path to handle // or C:\\ 
-		const normalized = path.normalize(p);
-		if (normalized === rootPath) {
-			return mockRootDirents as any;
-		}
-		return [] as any;
-	};
-	
-	// Test with root path
-	const result = await createPathChoices(rootPath, {
-		statFn: async () => createMockStats() as any
-	});
-	
-	t.is(result.length, 3);
-	// Ensure paths don't have double slashes
-	result.forEach(choice => {
-		t.false(choice.value.includes("//"));
-		t.false(choice.value.includes("\\\\"));
-	});
+	if (process.platform === "win32") {
+		// On Windows, root paths trigger special handling that lists drives
+		// Mock fs.promises.stat to control which drives are detected
+		const originalStat = fs.promises.stat;
+		fs.promises.stat = async (path: string) => {
+			// Mock C:, D:, and E: drives as existing
+			if (path === "C:\\" || path === "D:\\" || path === "E:\\") {
+				return {} as any;
+			}
+			throw new Error("Drive not found");
+		};
+		
+		const result = await createPathChoices(rootPath, {
+			statFn: async () => createMockStats() as any
+		});
+		
+		// Restore original stat
+		fs.promises.stat = originalStat;
+		
+		// Should return available drives (C:, D:, and E:)
+		t.is(result.length, 3);
+		
+		// Ensure drive paths don't have double slashes
+		result.forEach(choice => {
+			t.false(choice.value.includes("//"));
+			t.false(choice.value.includes("\\\\"));
+			t.regex(choice.value, /^[A-Z]:\\$/); // Should match drive format
+		});
+	} else {
+		// Mock readdir for non-Windows root
+		const mockRootDirents = [
+			createMockDirent("usr", true),
+			createMockDirent("home", true),
+			createMockDirent("etc", true)
+		];
+		
+		global.readdir = async (p) => {
+			// Normalize the path to handle // or C:\\ 
+			const normalized = path.normalize(p);
+			if (normalized === rootPath) {
+				return mockRootDirents as any;
+			}
+			return [] as any;
+		};
+		
+		// Test with root path
+		const result = await createPathChoices(rootPath, {
+			statFn: async () => createMockStats() as any
+		});
+		
+		t.is(result.length, 3);
+		// Ensure paths don't have double slashes
+		result.forEach(choice => {
+			t.false(choice.value.includes("//"));
+			t.false(choice.value.includes("\\\\"));
+		});
+	}
 });
 
 // Test that root paths are handled correctly in navigation
