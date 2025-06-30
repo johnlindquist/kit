@@ -5,7 +5,7 @@ try {
     `https://www.scriptkit.com/api/emoji`,
     kitPath("data"),
     {
-      rejectUnauthorized: false,
+      // rejectUnauthorized: false - removed for security reasons
     }
   )
   global.log(`😘 Emoji updated`)
