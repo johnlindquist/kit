@@ -63,6 +63,8 @@ export interface Choice<Value = any> {
    * script's static choice list.
    */
   asTyped?: boolean
+  /** Indicates whether the choice is from an untrusted source */
+  untrusted?: boolean
 }
 
 export interface ScoredChoice {
