@@ -123,6 +123,10 @@ export let postprocessMetadata = (
 		result.response = true
 	}
 
+	if (metadata.cache) {
+		result.cache = metadata.cache
+	}
+
 	return result as ScriptMetadata
 }
 

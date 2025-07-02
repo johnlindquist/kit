@@ -287,7 +287,8 @@ const META_KEYS = [
   "tag",
   "longRunning",
   "mcp",
-  'timeout'
+  'timeout',
+  'cache'
 ] as const satisfies readonly (keyof Metadata)[];
 
 // Optional development-time check for forgotten keys.

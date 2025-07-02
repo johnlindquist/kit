@@ -6,7 +6,6 @@ import { formatChoices } from '../core/utils.js'
 import { parentPort } from 'node:worker_threads'
 import { type Stamp, getScriptsDb, getTimestamps } from '../core/db.js'
 import { scriptsSort } from '../core/utils.js'
-import { stat } from 'node:fs/promises'
 import { clearParseScriptCache } from '../core/parser.js'
 
 // --------------------

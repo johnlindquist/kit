@@ -569,6 +569,8 @@ export interface Metadata {
 
   /** Indicates the time the script was last run */
   timeout?: number
+  /** Indicates whether the script's choices should be cached */
+  cache?: boolean
 }
 
 export interface ProcessInfo {
