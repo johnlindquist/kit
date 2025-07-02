@@ -149,7 +149,7 @@
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.13.3",
     "@types/debug": "4.1.12",
-    "@types/node": "^24.0.10",
+    "@types/node": "^22.15.30",
     "@types/node-ipc": "9.2.3",
     "@types/sinon": "17.0.4",
     "acorn-walk": "8.3.4",
