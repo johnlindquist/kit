@@ -53,7 +53,7 @@ export async function downloadAndInstallPnpm(): Promise<void> {
   const versionData = await getVersionData('https://registry.npmjs.org/@pnpm/exe')
 
   let version: string
-  
+
   //   read the version from the package.json
   const packageJson = await fs.readFile('package.json', 'utf8')
   const packageJsonData = JSON.parse(packageJson)
@@ -122,8 +122,10 @@ function detectPlatform(): string {
   }
 }
 
+type Arch = 'x64' | 'arm64' | 'arm' | 'ia32' | 'amd64' | 'aarch64'
+
 function detectArch(): string {
-  let arch = os.arch()
+  let arch = os.arch() as Arch
   const is64Bit = os.arch() === 'x64' || os.arch() === 'arm64'
 
   if (os.platform() === 'win32') {
