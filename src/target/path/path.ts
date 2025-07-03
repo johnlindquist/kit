@@ -230,7 +230,7 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
         name: '{input}',
         description: 'Select full path as typed',
         asTyped: true,
-        value: path.join(startPath, currentInput)
+        value: 'select-anyway'
       });
 
       await setChoices(choices, {
