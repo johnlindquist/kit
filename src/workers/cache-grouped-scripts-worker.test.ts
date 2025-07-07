@@ -205,3 +205,45 @@ test('benchmark - worker CACHE_MAIN_SCRIPTS', async (t) => {
 
   t.pass()
 })
+
+test('Worker filters out scripts with exclude metadata', async (t) => {
+  const { msg, worker } = await runWorkerMessage({
+    channel: Channel.CACHE_MAIN_SCRIPTS,
+    value: null,
+    id: 'test-exclude-filter'
+  })
+
+  t.is(msg.channel, Channel.CACHE_MAIN_SCRIPTS)
+  t.true(Array.isArray(msg.scripts), 'scripts should be an array')
+  
+  // Verify no scripts have exclude property set to true
+  const excludedScriptsFound = msg.scripts.filter((script: any) => script.exclude === true)
+  t.is(excludedScriptsFound.length, 0, 'No scripts with exclude:true should be present in cached scripts')
+  
+  // Log for debugging
+  if (msg.scripts.length > 0) {
+    t.log(`Total scripts after exclude filter: ${msg.scripts.length}`)
+  }
+  
+  worker.terminate()
+})
+
+test('Worker preserves non-excluded scripts', async (t) => {
+  const { msg, worker } = await runWorkerMessage({
+    channel: Channel.CACHE_MAIN_SCRIPTS,
+    value: null,
+    id: 'test-preserve-non-excluded'
+  })
+
+  t.is(msg.channel, Channel.CACHE_MAIN_SCRIPTS)
+  t.true(Array.isArray(msg.scripts), 'scripts should be an array')
+  
+  // Verify that scripts without exclude or with exclude:false are preserved
+  const nonExcludedScripts = msg.scripts.filter((script: any) => 
+    script.exclude === undefined || script.exclude === false
+  )
+  
+  t.is(nonExcludedScripts.length, msg.scripts.length, 'All cached scripts should be non-excluded')
+  
+  worker.terminate()
+})

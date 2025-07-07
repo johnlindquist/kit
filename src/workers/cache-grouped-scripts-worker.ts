@@ -129,12 +129,14 @@ const parseMainMenu = async (stamp: Stamp | null) => {
   // Fetch grouped scripts and format
   const groupedScripts = await getGroupedScripts(false)
   logToParent(`Grouped scripts: ${groupedScripts.map((s) => s.name).join(', ')}`)
-  const scripts = formatChoices(groupedScripts)
+  const allScripts = formatChoices(groupedScripts)
+  // Filter out excluded scripts to prevent flicker in main menu
+  const scripts = allScripts.filter((s) => !s?.exclude)
   logToParent(
-    `Formatted scripts: ${scripts
+    `Formatted scripts (after exclude filter): ${scripts
       .slice(0, 10)
       .map((s) => s.name)
-      .join(', ')}`
+      .join(', ')} (${allScripts.length} total, ${scripts.length} after filter)`
   )
 
   const firstScript = scripts.find((script) => !script.skip) as Script | undefined
