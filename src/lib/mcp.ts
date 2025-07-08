@@ -94,9 +94,7 @@ export const mcpObservability = new EventEmitter();
 async function createTransport(options: MCPTransportOptions): Promise<MCPTransport> {
     switch (options.type) {
         case 'sse':
-            return new SSEClientTransport(options.url, {
-                headers: options.headers
-            });
+            return new SSEClientTransport(new URL(options.url));
         
         case 'stdio':
             return new StdioClientTransport({

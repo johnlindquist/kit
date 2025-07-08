@@ -13,17 +13,20 @@ importers:
   .:
     dependencies:
       '@ai-sdk/anthropic':
-        specifier: 1.2.12
-        version: 1.2.12(zod@3.25.67)
+        specifier: 2.0.0-canary.19
+        version: 2.0.0-canary.19(zod@3.25.67)
       '@ai-sdk/google':
-        specifier: 1.2.21
-        version: 1.2.21(zod@3.25.67)
+        specifier: 2.0.0-canary.19
+        version: 2.0.0-canary.19(zod@3.25.67)
       '@ai-sdk/openai':
-        specifier: ^1.3.22
-        version: 1.3.22(zod@3.25.67)
+        specifier: 2.0.0-canary.19
+        version: 2.0.0-canary.19(zod@3.25.67)
+      '@ai-sdk/react':
+        specifier: ^2.0.0-beta.10
+        version: 2.0.0-canary.23(react@19.1.0)(zod@3.25.67)
       '@ai-sdk/xai':
-        specifier: 1.2.16
-        version: 1.2.16(zod@3.25.67)
+        specifier: 2.0.0-canary.19
+        version: 2.0.0-canary.19(zod@3.25.67)
       '@johnlindquist/open':
         specifier: ^10.1.1
         version: 10.1.1
@@ -46,8 +49,8 @@ importers:
         specifier: 11.0.1
         version: 11.0.1(@octokit/core@7.0.2)
       '@openrouter/ai-sdk-provider':
-        specifier: 0.7.1
-        version: 0.7.1(ai@4.3.16(react@19.1.0)(zod@3.25.67))(zod@3.25.67)
+        specifier: 0.7.2
+        version: 0.7.2(ai@5.0.0-canary.24(zod@3.25.67))(zod@3.25.67)
       '@types/chalk':
         specifier: 2.2.4
         version: 2.2.4
@@ -79,8 +82,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1
       ai:
-        specifier: ^4.3.16
-        version: 4.3.16(react@19.1.0)(zod@3.25.67)
+        specifier: ^5.0.0-beta.10
+        version: 5.0.0-canary.24(zod@3.25.67)
       axios:
         specifier: 1.10.0
         version: 1.10.0(debug@4.4.1)
@@ -293,26 +296,26 @@ importers:
 
 packages:
 
-  '@ai-sdk/anthropic@1.2.12':
-    resolution: {integrity: sha512-YSzjlko7JvuiyQFmI9RN1tNZdEiZxc+6xld/0tq/VkJaHpEzGAb1yiNxxvmYVcjvfu/PcvCxAAYXmTYQQ63IHQ==}
+  '@ai-sdk/anthropic@2.0.0-canary.19':
+    resolution: {integrity: sha512-uU8UeRmzKfxmaw7x/qL4hGjysPKzzttORx82dv+24wzoxkitYn9sjn2Mu3l1Q3jzbNC/wkyMRQDs831FggukKw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.24.0
+
+  '@ai-sdk/google@2.0.0-canary.19':
+    resolution: {integrity: sha512-MpGN0/S/0lkvhusOGABxWLrbQSBKZ3T1S1/wo/hHQMG2mCBBBfiqzVY7MoLrbZxC4ALSS3/aTR60S1e0vBMvvw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.0.0
 
-  '@ai-sdk/google@1.2.21':
-    resolution: {integrity: sha512-CbkZ4EYHfxLQzk5dr8Tw/37gug/61EzWelZruKiebEjzAlKSmKQ7625GeLu5w6NibWa5f9cOpEmTxm4kUD8w5Q==}
+  '@ai-sdk/openai-compatible@1.0.0-canary.19':
+    resolution: {integrity: sha512-Iv0KXnYlzXZ13iTZkSpeQfoFzgCFpOzKVHy9240IJ3A3JysDgl3Z8IzI2QhzeU3le5zNlmJsUMOr/I/IByNM1Q==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.24.0
 
-  '@ai-sdk/openai-compatible@0.2.14':
-    resolution: {integrity: sha512-icjObfMCHKSIbywijaoLdZ1nSnuRnWgMEMLgwoxPJgxsUHMx0aVORnsLUid4SPtdhHI3X2masrt6iaEQLvOSFw==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.0.0
-
-  '@ai-sdk/openai@1.3.22':
-    resolution: {integrity: sha512-QwA+2EkG0QyjVR+7h6FE7iOu2ivNqAVMm9UJZkVxxTk5OIq5fFJDTEI/zICEMuHImTTXR2JjsL6EirJ28Jc4cw==}
+  '@ai-sdk/openai@2.0.0-canary.19':
+    resolution: {integrity: sha512-IQwyuWq+m8G4h9bztdwJILXpvzQ7QlvogOcL8htKDcoAydpyQhqWgKvatR0WYA4vG9EBAX1P4qodyN7RuxlsYQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.0.0
@@ -323,12 +326,28 @@ packages:
     peerDependencies:
       zod: ^3.23.8
 
+  '@ai-sdk/provider-utils@3.0.0-canary.18':
+    resolution: {integrity: sha512-CjgNE/Stw1NgB0AQeGCmQ3QPH1G4gY3PxywoT1zWOyg8N4hPzLvzz/AIcL17fpoCxpcLgXZ2pV2yIeDFcI1qNA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.23.8
+
+  '@ai-sdk/provider-utils@3.0.0-canary.19':
+    resolution: {integrity: sha512-4IJw6/wkWYLYfFYPvCs5go0L/sBRZsIRW1l/R6LniF4WjAH2+R4dMbESgBmzx+Z2+W+W6gFeK8dnQByn7vaA/w==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.23.8
+
   '@ai-sdk/provider@1.1.3':
     resolution: {integrity: sha512-qZMxYJ0qqX/RfnuIaab+zp8UAeJn/ygXXAffR5I4N0n1IrvA6qBsjc8hXLmBiMV2zoXlifkacF7sEFnYnjBcqg==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/react@1.2.12':
-    resolution: {integrity: sha512-jK1IZZ22evPZoQW3vlkZ7wvjYGYF+tRBKXtrcolduIkQ/m/sOAVcVeVDUDvh1T91xCnWCdUGCPZg2avZ90mv3g==}
+  '@ai-sdk/provider@2.0.0-canary.14':
+    resolution: {integrity: sha512-aN83hjdjDCyhkOdulwMsxmGb91owS+bCSe6FWg1TEwusNM35vv020nY//Gid/0NdIpVkZJGzAajgCWrnno2zzA==}
+    engines: {node: '>=18'}
+
+  '@ai-sdk/react@2.0.0-canary.23':
+    resolution: {integrity: sha512-QZCe78ui+ciltPY1G7LO46x9BTMvTvtER08UlAMmE8JY6Crx+5uxFTUvSM4pdZ7oSZht5gzUbO3hRoOkpEnY6w==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ^19 || ^19.0.0-rc
@@ -337,17 +356,11 @@ packages:
       zod:
         optional: true
 
-  '@ai-sdk/ui-utils@1.2.11':
-    resolution: {integrity: sha512-3zcwCc8ezzFlwp3ZD15wAPjf2Au4s3vAbKsXQVyhxODHcmu0iyPO2Eua6D/vicq/AUm/BAo60r97O6HU+EI0+w==}
+  '@ai-sdk/xai@2.0.0-canary.19':
+    resolution: {integrity: sha512-Aj5qUYL2vsTSIpDYAH1Y1lCX3BRRG+tgSO3jgUgxvNTWwu+K4F3TahK1BBxI46UafL6KQpAf8dUkX2pKcILI2w==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.23.8
-
-  '@ai-sdk/xai@1.2.16':
-    resolution: {integrity: sha512-UOZT8td9PWwMi2dF9a0U44t/Oltmf6QmIJdSvrOcLG4mvpRc1UJn6YJaR0HtXs3YnW6SvY1zRdIDrW4GFpv4NA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.24.0
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -668,8 +681,8 @@ packages:
   '@octokit/types@14.1.0':
     resolution: {integrity: sha512-1y6DgTy8Jomcpu33N+p5w58l6xyt55Ar2I91RPiIA0xCJBXyUAhXCcmZaDWSANiha7R9a6qJJ2CRomGPZ6f46g==}
 
-  '@openrouter/ai-sdk-provider@0.7.1':
-    resolution: {integrity: sha512-jppCJErJ13KKnr0rOJrElmrlGul+0G5OO45Tqn1II2uIVcJLjyuzyS1hkCWD3fmlKVAuwVbyumTh6JQsS4e+4g==}
+  '@openrouter/ai-sdk-provider@0.7.2':
+    resolution: {integrity: sha512-Fry2mV7uGGJRmP9JntTZRc8ElESIk7AJNTacLbF6Syoeb5k8d7HPGkcK9rTXDlqBb8HgU1hOKtz23HojesTmnw==}
     engines: {node: '>=18'}
     peerDependencies:
       ai: ^4.3.16
@@ -860,6 +873,9 @@ packages:
   '@sinonjs/samsam@8.0.2':
     resolution: {integrity: sha512-v46t/fwnhejRSFTGqbpn9u+LQ9xJDse10gNnPgAcxgdoCDMXj/G2asWAC/8Qs+BAZDicX+MNZouXT1A7c83kVw==}
 
+  '@standard-schema/spec@1.0.0':
+    resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
+
   '@types/chalk@2.2.4':
     resolution: {integrity: sha512-pb/QoGqtCpH2famSp72qEsXkNzcErlVmiXlQ/ww+5AddD8TmmYS7EWg5T20YiNCAiTgs8pMf2G8SJG5h/ER1ZQ==}
     deprecated: This is a stub types definition. chalk provides its own type definitions, so you do not need this installed.
@@ -872,9 +888,6 @@ packages:
 
   '@types/decompress@4.2.7':
     resolution: {integrity: sha512-9z+8yjKr5Wn73Pt17/ldnmQToaFHZxK0N1GHysuk/JIPT8RIdQeoInM01wWPgypRcvb6VH1drjuFpQ4zmY437g==}
-
-  '@types/diff-match-patch@1.0.36':
-    resolution: {integrity: sha512-xFdR6tkm0MWvBfO8xXCSsinYxHcqkQUlcHeSpMC2ukzOb6lwQAfDmW+Qt0AvlGd8HpsS28qKsB+oPeJn9I39jg==}
 
   '@types/download@8.0.5':
     resolution: {integrity: sha512-Ad68goc/BsL3atP3OP/lWKAKhiC6FduN1mC5yg9lZuGYmUY7vyoWBcXgt8GE9OzVWRq5IBXwm4o/QiE+gipZAg==}
@@ -1015,15 +1028,11 @@ packages:
     resolution: {integrity: sha512-gOsf2YwSlleG6IjRYG2A7k0HmBMEo6qVNk9Bp/EaLgAJT5ngH6PXbqa4ItvnEwCm/velL5jAnQgsHsWnjhGmvw==}
     engines: {node: '>=18'}
 
-  ai@4.3.16:
-    resolution: {integrity: sha512-KUDwlThJ5tr2Vw0A1ZkbDKNME3wzWhuVfAOwIvFUzl1TPVDFAXDFTXio3p+jaKneB+dKNCvFFlolYmmgHttG1g==}
+  ai@5.0.0-canary.24:
+    resolution: {integrity: sha512-vqaMmM6XFwjz9mNjox9ehjkWFwXbSchhor5MiqgKZ1qRyoTvoYzAt6oCZwg5kN5jXNQ3rZVuyE8N3BbPbwma2Q==}
     engines: {node: '>=18'}
     peerDependencies:
-      react: ^18 || ^19 || ^19.0.0-rc
       zod: ^3.23.8
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -1748,9 +1757,6 @@ packages:
 
   detective@4.7.1:
     resolution: {integrity: sha512-H6PmeeUcZloWtdt4DAkFyzFL94arpHr3NOwwmVILFiy+9Qd4JTxxXrzfyGk/lmct2qVGBwTSwSXagqu2BxmWig==}
-
-  diff-match-patch@1.0.5:
-    resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
 
   diff3@0.0.3:
     resolution: {integrity: sha512-iSq8ngPOt0K53A6eVr4d5Kn6GNrM2nQZtC740pzIriHtn4pOQ2lyzEXQMBeVcWERN0ye7fhBsk9PbLLQOnUx/g==}
@@ -2762,11 +2768,6 @@ packages:
 
   json-stringify-safe@5.0.1:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
-
-  jsondiffpatch@0.6.0:
-    resolution: {integrity: sha512-3QItJOXp2AP1uv7waBkao5nCvhEv+QmJAd38Ybq7wNI74Q+BBmnLn4EDKz6yI9xGAIQoUF87qHt+kc1IVxB4zQ==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
 
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
@@ -4528,28 +4529,28 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/anthropic@1.2.12(zod@3.25.67)':
+  '@ai-sdk/anthropic@2.0.0-canary.19(zod@3.25.67)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
+      '@ai-sdk/provider': 2.0.0-canary.14
+      '@ai-sdk/provider-utils': 3.0.0-canary.19(zod@3.25.67)
       zod: 3.25.67
 
-  '@ai-sdk/google@1.2.21(zod@3.25.67)':
+  '@ai-sdk/google@2.0.0-canary.19(zod@3.25.67)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
+      '@ai-sdk/provider': 2.0.0-canary.14
+      '@ai-sdk/provider-utils': 3.0.0-canary.18(zod@3.25.67)
       zod: 3.25.67
 
-  '@ai-sdk/openai-compatible@0.2.14(zod@3.25.67)':
+  '@ai-sdk/openai-compatible@1.0.0-canary.19(zod@3.25.67)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
+      '@ai-sdk/provider': 2.0.0-canary.14
+      '@ai-sdk/provider-utils': 3.0.0-canary.19(zod@3.25.67)
       zod: 3.25.67
 
-  '@ai-sdk/openai@1.3.22(zod@3.25.67)':
+  '@ai-sdk/openai@2.0.0-canary.19(zod@3.25.67)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
+      '@ai-sdk/provider': 2.0.0-canary.14
+      '@ai-sdk/provider-utils': 3.0.0-canary.18(zod@3.25.67)
       zod: 3.25.67
 
   '@ai-sdk/provider-utils@2.2.8(zod@3.25.67)':
@@ -4559,32 +4560,42 @@ snapshots:
       secure-json-parse: 2.7.0
       zod: 3.25.67
 
+  '@ai-sdk/provider-utils@3.0.0-canary.18(zod@3.25.67)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0-canary.14
+      zod: 3.25.67
+      zod-to-json-schema: 3.24.5(zod@3.25.67)
+
+  '@ai-sdk/provider-utils@3.0.0-canary.19(zod@3.25.67)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0-canary.14
+      '@standard-schema/spec': 1.0.0
+      zod: 3.25.67
+      zod-to-json-schema: 3.24.5(zod@3.25.67)
+
   '@ai-sdk/provider@1.1.3':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@1.2.12(react@19.1.0)(zod@3.25.67)':
+  '@ai-sdk/provider@2.0.0-canary.14':
     dependencies:
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
-      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.67)
+      json-schema: 0.4.0
+
+  '@ai-sdk/react@2.0.0-canary.23(react@19.1.0)(zod@3.25.67)':
+    dependencies:
+      '@ai-sdk/provider-utils': 3.0.0-canary.19(zod@3.25.67)
+      ai: 5.0.0-canary.24(zod@3.25.67)
       react: 19.1.0
       swr: 2.3.3(react@19.1.0)
       throttleit: 2.1.0
     optionalDependencies:
       zod: 3.25.67
 
-  '@ai-sdk/ui-utils@1.2.11(zod@3.25.67)':
+  '@ai-sdk/xai@2.0.0-canary.19(zod@3.25.67)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
-      zod: 3.25.67
-      zod-to-json-schema: 3.24.5(zod@3.25.67)
-
-  '@ai-sdk/xai@1.2.16(zod@3.25.67)':
-    dependencies:
-      '@ai-sdk/openai-compatible': 0.2.14(zod@3.25.67)
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
+      '@ai-sdk/openai-compatible': 1.0.0-canary.19(zod@3.25.67)
+      '@ai-sdk/provider': 2.0.0-canary.14
+      '@ai-sdk/provider-utils': 3.0.0-canary.19(zod@3.25.67)
       zod: 3.25.67
 
   '@babel/code-frame@7.27.1':
@@ -4885,11 +4896,11 @@ snapshots:
     dependencies:
       '@octokit/openapi-types': 25.1.0
 
-  '@openrouter/ai-sdk-provider@0.7.1(ai@4.3.16(react@19.1.0)(zod@3.25.67))(zod@3.25.67)':
+  '@openrouter/ai-sdk-provider@0.7.2(ai@5.0.0-canary.24(zod@3.25.67))(zod@3.25.67)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
-      ai: 4.3.16(react@19.1.0)(zod@3.25.67)
+      ai: 5.0.0-canary.24(zod@3.25.67)
       zod: 3.25.67
 
   '@opentelemetry/api@1.9.0': {}
@@ -5072,6 +5083,8 @@ snapshots:
       lodash.get: 4.4.2
       type-detect: 4.1.0
 
+  '@standard-schema/spec@1.0.0': {}
+
   '@types/chalk@2.2.4':
     dependencies:
       chalk: 5.4.1
@@ -5088,8 +5101,6 @@ snapshots:
   '@types/decompress@4.2.7':
     dependencies:
       '@types/node': 22.16.0
-
-  '@types/diff-match-patch@1.0.36': {}
 
   '@types/download@8.0.5':
     dependencies:
@@ -5244,17 +5255,12 @@ snapshots:
       clean-stack: 5.2.0
       indent-string: 5.0.0
 
-  ai@4.3.16(react@19.1.0)(zod@3.25.67):
+  ai@5.0.0-canary.24(zod@3.25.67):
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.67)
-      '@ai-sdk/react': 1.2.12(react@19.1.0)(zod@3.25.67)
-      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.67)
+      '@ai-sdk/provider': 2.0.0-canary.14
+      '@ai-sdk/provider-utils': 3.0.0-canary.19(zod@3.25.67)
       '@opentelemetry/api': 1.9.0
-      jsondiffpatch: 0.6.0
       zod: 3.25.67
-    optionalDependencies:
-      react: 19.1.0
 
   ajv@6.12.6:
     dependencies:
@@ -6145,8 +6151,6 @@ snapshots:
     dependencies:
       acorn: 5.7.4
       defined: 1.0.1
-
-  diff-match-patch@1.0.5: {}
 
   diff3@0.0.3: {}
 
@@ -7235,12 +7239,6 @@ snapshots:
       jsonify: 0.0.1
 
   json-stringify-safe@5.0.1: {}
-
-  jsondiffpatch@0.6.0:
-    dependencies:
-      '@types/diff-match-patch': 1.0.36
-      chalk: 5.4.1
-      diff-match-patch: 1.0.5
 
   jsonfile@4.0.0:
     optionalDependencies:

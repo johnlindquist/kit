@@ -3,9 +3,9 @@ import sinon from 'sinon' // For mocking
 import type {
     CoreMessage, Tool, FinishReason,
     GenerateTextResult, StreamTextResult, TextStreamPart,
-    LanguageModelV1CallOptions, CoreAssistantMessage, CoreToolMessage, LanguageModelV1,
+    CoreAssistantMessage, CoreToolMessage, LanguageModel,
     LanguageModelUsage, LanguageModelResponseMetadata,
-    GenerateObjectResult, LanguageModelV1StreamPart,
+    GenerateObjectResult,
     ToolCallPart,
 } from 'ai' // For types used in tests & mocks
 
@@ -27,35 +27,35 @@ let mockGenerateObject: sinon.SinonStub<any[], Promise<GenerateObjectResult<any>
 type MockTextStreamGeneratorType = AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>>;
 
 const mockStreamGenerator = async function* (): MockTextStreamGeneratorType {
-    yield { type: 'text-delta', textDelta: 'mocked' } as TextStreamPart<Record<string, Tool<any, any>>>;
+    yield { type: 'text', text: 'mocked' } as TextStreamPart<Record<string, Tool<any, any>>>;
 };
 
-const mockLanguageModel: LanguageModelV1 = {
+const mockLanguageModel: LanguageModel = {
     provider: 'mock-provider',
     modelId: 'mock-model',
-    doGenerate: sinon.stub<[LanguageModelV1CallOptions], Promise<{
-        text: string;
-        toolCalls: any[];
+    doGenerate: sinon.stub<[any], Promise<{
+        content: any[];
         finishReason: FinishReason;
         usage: LanguageModelUsage;
-        rawCall: { rawPrompt: unknown; rawSettings: Record<string, unknown> };
-        rawResponse?: { headers?: Record<string, string> };
+        warnings: any[];
+        providerMetadata?: any;
+        request?: any;
+        response?: any;
     }>>().resolves({
-        text: 'mocked',
-        toolCalls: [],
+        content: [{ type: 'text', text: 'mocked' }],
         finishReason: 'stop' as FinishReason,
-        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
-        rawCall: { rawPrompt: 'mock', rawSettings: {} }
+        usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+        warnings: []
     }),
-    doStream: sinon.stub<[LanguageModelV1CallOptions], Promise<{
-        stream: ReadableStream<LanguageModelV1StreamPart>;
+    doStream: sinon.stub<[any], Promise<{
+        stream: ReadableStream<any>;
         rawCall: { rawPrompt: unknown; rawSettings: Record<string, unknown> };
         rawResponse?: { headers?: Record<string, string> };
     }>>().resolves({
         stream: new ReadableStream(),
         rawCall: { rawPrompt: 'mock', rawSettings: {} }
     }),
-    specificationVersion: 'v1',
+    specificationVersion: 'v2' as const,
     defaultObjectGenerationMode: 'json'
 };
 
@@ -74,7 +74,7 @@ const createMockGenerateTextResult = (overrides: Partial<GenerateTextResult<Reco
     toolCalls: [], // This field expects ToolCallPart[] | undefined according to GenerateTextResult type
     toolResults: [], // Required property for tool results
     finishReason: 'stop' as FinishReason,
-    usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+    usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
     response: {
         id: 'mock-response',
         modelId: 'mock-model',
@@ -83,14 +83,12 @@ const createMockGenerateTextResult = (overrides: Partial<GenerateTextResult<Reco
     },
     reasoning: undefined,
     files: [],
-    reasoningDetails: [],
     sources: [],
     experimental_output: 'mocked response', // Required property - the OUTPUT generic parameter is string
     warnings: undefined,
     logprobs: undefined,
     steps: [], // Required property for step results
     providerMetadata: undefined, // Required property
-    experimental_providerMetadata: undefined, // Deprecated but still required
     request: {
         body: undefined
     },
@@ -103,7 +101,7 @@ const createMockStreamTextResult = (overrides: Partial<StreamTextResult<Record<s
     fullStream: new ReadableStream(),
     text: Promise.resolve("mocked stream text"),
     finishReason: Promise.resolve('stop' as FinishReason),
-    usage: Promise.resolve({ promptTokens: 1, completionTokens: 1, totalTokens: 2 }),
+    usage: Promise.resolve({ inputTokens: 1, outputTokens: 1, totalTokens: 2 }),
     toolCalls: Promise.resolve([]),
     toolResults: Promise.resolve([] as never[]),
     warnings: Promise.resolve(undefined),
@@ -131,10 +129,9 @@ const createMockStreamTextResult = (overrides: Partial<StreamTextResult<Record<s
 // Helper function to create properly typed mock GenerateObjectResult
 const createMockGenerateObjectResult = <T>(object: T, overrides: Partial<GenerateObjectResult<T>> = {}): GenerateObjectResult<T> => ({
     object,
-    usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+    usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
     finishReason: 'stop' as FinishReason,
     providerMetadata: undefined,
-    experimental_providerMetadata: undefined, // Deprecated but still required
     response: {
         id: 'mock-response',
         modelId: 'mock-model',
@@ -208,7 +205,7 @@ test.serial('generate() with autoExecuteTools=true should execute tools and call
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 }
     });
     const finalGenerateResult = createMockGenerateTextResult({
         text: "Final response after tool execution",
@@ -220,7 +217,7 @@ test.serial('generate() with autoExecuteTools=true should execute tools and call
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
+        usage: { inputTokens: 20, outputTokens: 10, totalTokens: 30 }
     });
 
     mockGenerateText.onFirstCall().resolves(firstGenerateResult);
@@ -276,7 +273,7 @@ test.serial('generate() with autoExecuteTools=false should return tool_calls wit
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 }
     });
     mockGenerateText.resolves(mockSdkResult);
 
@@ -319,7 +316,7 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
+        usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 }
     });
     const secondGenerateAfterTool1 = createMockGenerateTextResult({
         text: "",
@@ -331,7 +328,7 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
+        usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 }
     });
     // This result should be returned if maxSteps is reached
     const thirdGenerateAfterTool2IfMaxStepsAllows = createMockGenerateTextResult({
@@ -344,7 +341,7 @@ test.serial('generate() respects maxSteps for tool execution', async t => {
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
+        usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 }
     });
 
     mockGenerateText.onCall(0).resolves(firstGenerate);
@@ -408,7 +405,7 @@ test.serial('OLD: assistant (injected) generate() should call injected generateT
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 }
     });
     mockGenerateText.resolves(mockSdkResult);
 
@@ -442,7 +439,7 @@ test.serial('OLD: assistant (injected) generate() should return toolCalls if fin
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
+        usage: { inputTokens: 20, outputTokens: 10, totalTokens: 30 }
     });
     mockGenerateText.resolves(mockSdkResult);
 
@@ -581,15 +578,12 @@ test.serial('assistant (injected) textStream should yield text and populate last
 
     async function* mockFullStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
         for (const chunk of responseChunks) {
-            yield { type: 'text-delta', textDelta: chunk };
+            yield { type: 'text', text: chunk };
         }
         yield {
             type: 'finish',
             finishReason: 'stop',
-            usage: { promptTokens: 5, completionTokens: 5, totalTokens: 10 },
-            logprobs: undefined,
-            providerMetadata: undefined,
-            response: {} as LanguageModelResponseMetadata
+            totalUsage: { inputTokens: 5, outputTokens: 5, totalTokens: 10 },
         };
     }
 
@@ -597,7 +591,7 @@ test.serial('assistant (injected) textStream should yield text and populate last
         fullStream: ReadableStream.from(mockFullStreamParts()),
         text: Promise.resolve(fullText),
         finishReason: Promise.resolve('stop' as FinishReason),
-        usage: Promise.resolve({ promptTokens: 5, completionTokens: 5, totalTokens: 10 } as LanguageModelUsage),
+        usage: Promise.resolve({ inputTokens: 5, outputTokens: 5, totalTokens: 10 } as LanguageModelUsage),
         response: Promise.resolve({ id: 'test-stream-no-maxsteps', timestamp: new Date(), modelId: 'test-model-no-maxsteps', body: undefined, messages: [] })
     });
     mockStreamText.returns(mockSdkStreamResult);
@@ -631,7 +625,7 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
     const initialText = "Okay, using a tool.";
 
     async function* mockFullStreamPartsWithTools(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
-        yield { type: 'text-delta', textDelta: initialText };
+        yield { type: 'text', text: initialText };
         // Simulate tool_calls being part of the stream *before* finish
         for (const tc of mockToolCalls) {
             yield tc;
@@ -639,10 +633,7 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
         yield {
             type: 'finish',
             finishReason: 'tool-calls',
-            usage: { promptTokens: 10, completionTokens: 8, totalTokens: 18 },
-            logprobs: undefined,
-            providerMetadata: undefined,
-            response: {} as LanguageModelResponseMetadata
+            totalUsage: { inputTokens: 10, outputTokens: 8, totalTokens: 18 },
         };
     }
 
@@ -650,7 +641,7 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
         fullStream: ReadableStream.from(mockFullStreamPartsWithTools()),
         text: Promise.resolve(initialText),
         finishReason: Promise.resolve('tool-calls' as FinishReason),
-        usage: Promise.resolve({ promptTokens: 10, completionTokens: 8, totalTokens: 18 } as LanguageModelUsage),
+        usage: Promise.resolve({ inputTokens: 10, outputTokens: 8, totalTokens: 18 } as LanguageModelUsage),
         toolCalls: Promise.resolve(mockToolCalls), // mockToolCalls is ToolCallPart[]
         response: Promise.resolve({ id: 'test-tc', timestamp: new Date(), modelId: 'test-tc-model', body: undefined, messages: [] })
     });
@@ -680,27 +671,24 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
     t.is(chatbot.lastInteraction?.finishReason, 'tool-calls');
     t.deepEqual(chatbot.lastInteraction?.toolCalls, mockToolCalls);
     t.is(chatbot.lastInteraction?.textContent, initialText);
-    t.deepEqual(chatbot.lastInteraction?.usage, { promptTokens: 10, completionTokens: 8, totalTokens: 18 });
+    t.deepEqual(chatbot.lastInteraction?.usage, { inputTokens: 10, outputTokens: 8, totalTokens: 18 });
 });
 
 // Test for stop() functionality during stream
 test.serial('assistant (injected) stop() should abort an ongoing textStream', async t => {
     const context = t.context as TestContext;
     async function* mockLongFullStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
-        yield { type: 'text-delta', textDelta: "Starting..." };
+        yield { type: 'text', text: "Starting..." };
         await new Promise(resolve => setTimeout(resolve, 50)); // Allow time for stop() to be called
         if (context.stopped) { console.log("Stream generator detected stop early"); return; }
-        yield { type: 'text-delta', textDelta: "More data..." };
+        yield { type: 'text', text: "More data..." };
         await new Promise(resolve => setTimeout(resolve, 50));
         if (context.stopped) { console.log("Stream generator detected stop late"); return; }
-        yield { type: 'text-delta', textDelta: "This part should not be reached if stopped" };
+        yield { type: 'text', text: "This part should not be reached if stopped" };
         yield {
             type: 'finish',
             finishReason: 'stop',
-            usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
-            logprobs: undefined,
-            providerMetadata: undefined,
-            response: {} as LanguageModelResponseMetadata
+            totalUsage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
         };
     }
     context.stopped = false;
@@ -859,7 +847,7 @@ test.serial('generate() with autoExecuteTools=false should not pass invalid maxS
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 }
     });
     mockGenerateText.resolves(mockSdkResult);
 
@@ -899,7 +887,7 @@ test.serial('generate() with autoExecuteTools=true should pass maxSteps to AI SD
             modelId: 'mock-model',
             timestamp: new Date()
         },
-        usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 }
     });
     mockGenerateText.resolves(mockSdkResult);
 
@@ -965,7 +953,7 @@ test.serial('assistant configuration: different model and options', async t => {
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'test', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }
+        usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 }
     });
     mockGenerateText.resolves(mockResult);
 
@@ -991,7 +979,7 @@ test.serial('conversation context: multi-turn conversation with persistent conte
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'r1', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 5, completionTokens: 5, totalTokens: 10 }
+        usage: { inputTokens: 5, outputTokens: 5, totalTokens: 10 }
     });
     mockGenerateText.onFirstCall().resolves(response1);
 
@@ -1004,7 +992,7 @@ test.serial('conversation context: multi-turn conversation with persistent conte
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'r2', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 10, completionTokens: 8, totalTokens: 18 }
+        usage: { inputTokens: 10, outputTokens: 8, totalTokens: 18 }
     });
     mockGenerateText.onSecondCall().resolves(response2);
 
@@ -1052,7 +1040,7 @@ test.serial('multi-step workflow: research assistant with sequential tool execut
         toolCalls: [{ type: 'tool-call', toolCallId: 'tc1' as ToolCallId, toolName: 'searchWeb', args: { query: 'AI research' } } satisfies ToolCallPart],
         finishReason: 'tool-calls',
         response: { id: 's1', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
+        usage: { inputTokens: 20, outputTokens: 10, totalTokens: 30 }
     });
 
     // Step 2: After search, analyze the data
@@ -1061,7 +1049,7 @@ test.serial('multi-step workflow: research assistant with sequential tool execut
         toolCalls: [{ type: 'tool-call', toolCallId: 'tc2' as ToolCallId, toolName: 'analyzeData', args: { data: 'search results', type: 'trend' } } satisfies ToolCallPart],
         finishReason: 'tool-calls',
         response: { id: 's2', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 30, completionTokens: 15, totalTokens: 45 }
+        usage: { inputTokens: 30, outputTokens: 15, totalTokens: 45 }
     });
 
     // Step 3: Final response with file save
@@ -1070,7 +1058,7 @@ test.serial('multi-step workflow: research assistant with sequential tool execut
         toolCalls: [{ type: 'tool-call', toolCallId: 'tc3' as ToolCallId, toolName: 'saveToFile', args: { filename: 'research.md', content: 'findings' } } satisfies ToolCallPart],
         finishReason: 'tool-calls',
         response: { id: 's3', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 40, completionTokens: 20, totalTokens: 60 }
+        usage: { inputTokens: 40, outputTokens: 20, totalTokens: 60 }
     });
 
     // Final step: Text only response
@@ -1079,7 +1067,7 @@ test.serial('multi-step workflow: research assistant with sequential tool execut
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'final', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 50, completionTokens: 25, totalTokens: 75 }
+        usage: { inputTokens: 50, outputTokens: 25, totalTokens: 75 }
     });
 
     mockGenerateText.onCall(0).resolves(step1Result);
@@ -1141,7 +1129,7 @@ test.serial('real-world scenario: code review workflow with structured output', 
         ],
         finishReason: 'tool-calls',
         response: { id: 'review1', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 }
+        usage: { inputTokens: 100, outputTokens: 50, totalTokens: 150 }
     });
 
     const finalReviewResult = createMockGenerateTextResult({
@@ -1149,7 +1137,7 @@ test.serial('real-world scenario: code review workflow with structured output', 
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'review2', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 150, completionTokens: 75, totalTokens: 225 }
+        usage: { inputTokens: 150, outputTokens: 75, totalTokens: 225 }
     });
 
     mockGenerateText.onFirstCall().resolves(reviewResult);
@@ -1223,7 +1211,7 @@ test.serial('conversation context: context switching between different topics', 
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'math', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 5, completionTokens: 3, totalTokens: 8 }
+        usage: { inputTokens: 5, outputTokens: 3, totalTokens: 8 }
     });
 
     // Topic 2: Cooking
@@ -1232,7 +1220,7 @@ test.serial('conversation context: context switching between different topics', 
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'cooking', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 15, completionTokens: 8, totalTokens: 23 }
+        usage: { inputTokens: 15, outputTokens: 8, totalTokens: 23 }
     });
 
     // Context recall
@@ -1241,7 +1229,7 @@ test.serial('conversation context: context switching between different topics', 
         toolCalls: [],
         finishReason: 'stop',
         response: { id: 'recall', messages: [], modelId: 'mock-model', timestamp: new Date() },
-        usage: { promptTokens: 25, completionTokens: 12, totalTokens: 37 }
+        usage: { inputTokens: 25, outputTokens: 12, totalTokens: 37 }
     });
 
     mockGenerateText.onCall(0).resolves(mathResponse);
@@ -1570,15 +1558,12 @@ test.serial('assistant (injected) textStream should not pass maxSteps to avoid v
 
     async function* mockFullStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
         for (const chunk of responseChunks) {
-            yield { type: 'text-delta', textDelta: chunk };
+            yield { type: 'text', text: chunk };
         }
         yield {
             type: 'finish',
             finishReason: 'stop',
-            usage: { promptTokens: 5, completionTokens: 5, totalTokens: 10 },
-            logprobs: undefined,
-            providerMetadata: undefined,
-            response: {} as LanguageModelResponseMetadata
+            totalUsage: { inputTokens: 5, outputTokens: 5, totalTokens: 10 },
         };
     }
 
@@ -1586,7 +1571,7 @@ test.serial('assistant (injected) textStream should not pass maxSteps to avoid v
         fullStream: ReadableStream.from(mockFullStreamParts()),
         text: Promise.resolve(fullText),
         finishReason: Promise.resolve('stop' as FinishReason),
-        usage: Promise.resolve({ promptTokens: 5, completionTokens: 5, totalTokens: 10 } as LanguageModelUsage),
+        usage: Promise.resolve({ inputTokens: 5, outputTokens: 5, totalTokens: 10 } as LanguageModelUsage),
         toolCalls: Promise.resolve(undefined), // This is valid
         response: Promise.resolve({ id: 'test-stream-no-maxsteps', timestamp: new Date(), modelId: 'test-model-no-maxsteps', body: undefined, messages: [] })
     });
