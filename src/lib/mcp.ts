@@ -10,6 +10,11 @@ import { EventEmitter } from 'events';
 // Export types for global usage
 export type { Tool as MCPTool, CallToolResult as MCPToolResult } from '@modelcontextprotocol/sdk/types';
 
+// Extended MCPTool type with execute function for AI SDK integration
+export interface MCPToolWithExecute extends Tool {
+    execute: (args: any) => Promise<any>;
+}
+
 // MCP Transport types
 export type MCPTransportType = 'sse' | 'stdio' | 'websocket' | 'custom';
 
@@ -61,7 +66,7 @@ export interface ToolOptions {
 export interface MCPInstance {
     connect: (transport: MCPTransportOptions) => Promise<void>;
     disconnect: () => Promise<void>;
-    tools: (options?: ToolOptions) => Promise<Record<string, Tool>>;
+    tools: (options?: ToolOptions) => Promise<Record<string, MCPToolWithExecute>>;
     resources: () => Promise<ListResourcesResult['resources']>;
     prompts: () => Promise<ListPromptsResult['prompts']>;
     call: (toolName: string, args: any) => Promise<any>;
@@ -171,7 +176,7 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
         }
     };
 
-    const tools = async (options?: ToolOptions): Promise<Record<string, Tool>> => {
+    const tools = async (options?: ToolOptions): Promise<Record<string, MCPToolWithExecute>> => {
         if (!client) {
             throw new Error('MCP client not connected. Call connect() first.');
         }
@@ -181,7 +186,7 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
 
         try {
             const result = await client.listTools();
-            let toolsMap: Record<string, Tool> = {};
+            let toolsMap: Record<string, MCPToolWithExecute> = {};
 
             for (const tool of result.tools) {
                 // Apply filters
@@ -192,16 +197,24 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
                     continue;
                 }
 
+                // Create a tool with execute function
+                const toolWithExecute = {
+                    ...tool,
+                    execute: async (args: any) => {
+                        return await call(tool.name, args);
+                    }
+                };
+
                 // Apply schema if provided
                 if (options?.schemas && options.schemas[tool.name]) {
                     const schemaConfig = options.schemas[tool.name];
                     toolsMap[tool.name] = {
-                        ...tool,
+                        ...toolWithExecute,
                         description: schemaConfig.description || tool.description,
                         inputSchema: tool.inputSchema // Keep original schema for now
                     };
                 } else {
-                    toolsMap[tool.name] = tool;
+                    toolsMap[tool.name] = toolWithExecute;
                 }
             }
 
