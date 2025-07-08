@@ -2,14 +2,13 @@ import { openai } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { google } from '@ai-sdk/google'
 import { xai } from '@ai-sdk/xai'
-import { openrouter } from '@openrouter/ai-sdk-provider'
+// import { openrouter } from '@openrouter/ai-sdk-provider' // TODO: Update when v5-compatible version is available
 // Import AI SDK functions from our local wrapper for mocking
 import * as aiSdk from 'ai';
 // Import types directly from 'ai' or from our wrapper, direct is fine for types.
 import type {
     CoreMessage, Tool, FinishReason, LanguageModel,
-    GenerateTextResult, StreamTextResult, CoreAssistantMessage,
-    LanguageModelV1
+    GenerateTextResult, StreamTextResult, CoreAssistantMessage
 } from 'ai';
 // Import zod types for TypeScript compilation (runtime uses global z)
 import type { ZodTypeAny, infer as ZodInfer } from 'zod';
@@ -49,16 +48,16 @@ export interface AiObservabilityEvents {
 export const aiObservability = new EventEmitter();
 
 // Type for supported AI providers
-type AIProvider = 'openai' | 'anthropic' | 'google' | 'xai' | 'openrouter';
+type AIProvider = 'openai' | 'anthropic' | 'google' | 'xai'; // | 'openrouter'; // TODO: Re-enable when v5-compatible
 
 // ModelFactory type and PROVIDERS map
-type ModelFactory = (id: string) => LanguageModelV1;
+type ModelFactory = (id: string) => LanguageModel;
 const PROVIDERS: Record<AIProvider, ModelFactory> = {
     openai: openai,
     anthropic: anthropic,
     google: google,
     xai: xai,
-    openrouter: openrouter
+    // openrouter: openrouter // TODO: Re-enable when v5-compatible
 };
 
 // Cache environment variables at module load
@@ -75,7 +74,7 @@ const getProviderEnvVar = (provider: AIProvider): string => {
         anthropic: 'ANTHROPIC_API_KEY',
         google: 'GOOGLE_API_KEY',
         xai: 'XAI_API_KEY',
-        openrouter: 'OPENROUTER_API_KEY'
+        // openrouter: 'OPENROUTER_API_KEY' // TODO: Re-enable when v5-compatible
     };
     return envVars[provider];
 };
@@ -87,7 +86,7 @@ const getProviderUrl = (provider: AIProvider): string => {
         anthropic: 'https://console.anthropic.com/settings/keys',
         google: 'https://makersuite.google.com/app/apikey',
         xai: 'https://console.xai.com',
-        openrouter: 'https://openrouter.ai/keys'
+        // openrouter: 'https://openrouter.ai/keys' // TODO: Re-enable when v5-compatible
     };
     return urls[provider];
 };
@@ -99,7 +98,7 @@ const getProviderInstructions = (provider: AIProvider): string => {
         anthropic: 'Generate an API key in the Anthropic Console under Settings > Keys',
         google: 'Create an API key in Google AI Studio',
         xai: 'Get your API key from the xAI console',
-        openrouter: 'Create an API key at OpenRouter.ai/keys'
+        // openrouter: 'Create an API key at OpenRouter.ai/keys' // TODO: Re-enable when v5-compatible
     };
     return instructions[provider];
 };
@@ -131,7 +130,7 @@ const ensureApiKey = async (provider: AIProvider): Promise<void> => {
 export const resolveModel = async (
     modelString?: string,
     explicitProvider?: AIProvider
-): Promise<LanguageModelV1> => {
+): Promise<LanguageModel> => {
     // Determine which provider will be used
     let targetProvider: AIProvider;
     let modelId: string;
@@ -190,7 +189,7 @@ const getSdk = () => currentConfig.sdk;
 interface AiOptions {
     model?: string | LanguageModel
     temperature?: number
-    maxTokens?: number
+    maxOutputTokens?: number
     tools?: Record<string, Tool<any, any>>
     maxSteps?: number
     autoExecuteTools?: boolean // New option
@@ -198,8 +197,8 @@ interface AiOptions {
     streamingToolExecution?: boolean; // ALPHA: Enable tool execution during streaming
 }
 
-// Define Tokens type (assuming similar to existing usage structure)
-type Tokens = { promptTokens: number; completionTokens: number; totalTokens: number };
+// Define Tokens type - in v5, usage might have different structure
+type Tokens = { promptTokens?: number; completionTokens?: number; totalTokens?: number } | any;
 
 // Define AssistantOutcome
 export type AssistantOutcome =
@@ -282,18 +281,18 @@ interface AiGlobal {
 
 // This is the actual function that creates the AI-powered input handler
 const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOptions, 'autoExecuteTools' | 'tools' | 'maxSteps'> = {}) => {
-    const { model, temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7, maxTokens = Number(process.env.KIT_AI_DEFAULT_MAX_TOKENS) || 1000 } = options;
+    const { model, temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7, maxOutputTokens = Number(process.env.KIT_AI_DEFAULT_MAX_OUTPUT_TOKENS) || 1000 } = options;
 
     return async (input: string): Promise<string> => {
         try {
-            const resolvedModel: LanguageModelV1 = typeof model === 'string' || typeof model === 'undefined'
+            const resolvedModel: LanguageModel = typeof model === 'string' || typeof model === 'undefined'
                 ? await resolveModel(model)
-                : model as LanguageModelV1;
+                : model as LanguageModel;
 
             const result = await getSdk().generateText<Record<string, Tool<any, any>>, string>({
                 model: resolvedModel,
                 temperature,
-                maxTokens,
+                maxOutputTokens,
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: input }
@@ -315,10 +314,10 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
     schema: Schema,
     options: Omit<AiOptions, 'tools' | 'maxSteps' | 'autoExecuteTools'> = {}
 ): Promise<ZodInfer<Schema>> => {
-    const { model, temperature, maxTokens } = options;
-    const resolvedModel: LanguageModelV1 = typeof model === 'string' || typeof model === 'undefined'
+    const { model, temperature, maxOutputTokens } = options;
+    const resolvedModel: LanguageModel = typeof model === 'string' || typeof model === 'undefined'
         ? await resolveModel(model)
-        : model as LanguageModelV1;
+        : model as LanguageModel;
 
     let messages: CoreMessage[];
     if (typeof promptOrMessages === 'string') {
@@ -328,10 +327,10 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
     }
 
     try {
-        const { object } = await getSdk().generateObject<Schema>({
+        const { object } = await getSdk().generateObject({
             model: resolvedModel,
             temperature,
-            maxTokens,
+            maxOutputTokens,
             messages,
             schema,
             // mode, maxRetries, etc. could be added to options if needed
@@ -361,19 +360,19 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
     const resolvedModelOption = options.model;
 
     // Create a lazy-loaded model resolver
-    let resolvedModelPromise: Promise<LanguageModelV1> | null = null;
-    const getResolvedModel = async (): Promise<LanguageModelV1> => {
+    let resolvedModelPromise: Promise<LanguageModel> | null = null;
+    const getResolvedModel = async (): Promise<LanguageModel> => {
         if (!resolvedModelPromise) {
             resolvedModelPromise = typeof resolvedModelOption === 'string' || typeof resolvedModelOption === 'undefined'
                 ? resolveModel(resolvedModelOption)
-                : Promise.resolve(resolvedModelOption as LanguageModelV1);
+                : Promise.resolve(resolvedModelOption as LanguageModel);
         }
         return resolvedModelPromise;
     };
 
     const {
         temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7,
-        maxTokens = Number(process.env.KIT_AI_DEFAULT_MAX_TOKENS) || 1000,
+        maxOutputTokens = Number(process.env.KIT_AI_DEFAULT_MAX_OUTPUT_TOKENS) || 1000,
         tools: providedTools,
         maxSteps = 3,
         autoExecuteTools: initialAutoExecuteTools = true, // Default to true
@@ -543,7 +542,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         const generateOptions: any = {
             model,
             temperature,
-            maxTokens,
+            maxOutputTokens,
             messages: [...currentMessages], // Use a snapshot of messages for this attempt
             tools: _definedTools,
             abortSignal: signal,
@@ -693,7 +692,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     ? currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: tc.args }))
                     : undefined,
                 textContent: currentResult.text,
-                usage: currentResult.usage,
+                usage: currentResult.usage as Tokens,
                 response: currentResult.response
             };
             _abortController = null; // Clear abort controller
@@ -701,7 +700,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             // Updated return logic based on finishReason
             let result: AssistantOutcome;
             if (currentResult.finishReason === 'stop') {
-                result = { kind: 'text', text: currentResult.text, usage: currentResult.usage };
+                result = { kind: 'text', text: currentResult.text, usage: currentResult.usage as Tokens };
             } else if (currentResult.finishReason === 'tool-calls' && currentResult.toolCalls && currentResult.toolCalls.length > 0) {
                 const tcParts: ToolCallPart[] = currentResult.toolCalls.map(tc => ({
                     type: 'tool-call',
@@ -709,12 +708,12 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     toolName: tc.toolName,
                     args: tc.args,
                 }));
-                result = { kind: 'toolCalls', calls: tcParts, usage: currentResult.usage };
+                result = { kind: 'toolCalls', calls: tcParts, usage: currentResult.usage as Tokens };
             } else {
                 // Handle other finishReasons as errors or specific kinds if needed
                 const errorMessage = `Unknown or unhandled finish reason: ${currentResult.finishReason}`;
                 console.warn(errorMessage, currentResult); // Log for debugging
-                result = { kind: 'error', error: errorMessage, usage: currentResult.usage };
+                result = { kind: 'error', error: errorMessage, usage: currentResult.usage as Tokens };
             }
 
             // Emit observability event for successful completion
@@ -780,7 +779,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                 const streamOptions: any = {
                     model,
                     temperature,
-                    maxTokens,
+                    maxOutputTokens,
                     messages: [...messages],
                     tools: _definedTools,
                     abortSignal: currentAbortController.signal
@@ -801,11 +800,11 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     }
 
                     switch (part.type) {
-                        case 'text-delta':
-                            fullResponseText += part.textDelta;
+                        case 'text':
+                            fullResponseText += part.text;
                             // Emit chunk event for observability
-                            aiObservability.emit('assistant:stream:chunk', { chunk: part.textDelta });
-                            yield part.textDelta;
+                            aiObservability.emit('assistant:stream:chunk', { chunk: part.text });
+                            yield part.text;
                             break;
                         case 'tool-call':
                             const toolCallPart: ToolCallPart = { type: 'tool-call', toolCallId: part.toolCallId as ToolCallId, toolName: part.toolName, args: part.args };
@@ -871,7 +870,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                                     ? streamedToolCalls
                                     : undefined,
                                 textContent: fullResponseText,
-                                usage: part.usage,
+                                usage: (part as any).totalUsage || (part as any).usage,
                                 response: undefined
                             };
                             break;
@@ -978,5 +977,42 @@ const linkSignals = (src: AbortSignal, dst: AbortController) => {
         src.removeEventListener('abort', onAbort)
     );
 };
+
+// Utility function to convert MCP tools to AI SDK tools format
+export const convertMCPToolsToAITools = (
+    mcpTools: Record<string, any>,
+    mcpClient?: { call: (toolName: string, args: any) => Promise<any> }
+): Record<string, Tool<any, any>> => {
+    const aiTools: Record<string, Tool<any, any>> = {};
+    
+    for (const [name, mcpTool] of Object.entries(mcpTools)) {
+        aiTools[name] = {
+            description: mcpTool.description || `MCP tool: ${name}`,
+            parameters: mcpTool.inputSchema || z.object({}),
+            execute: async (args: any, context: any) => {
+                if (mcpClient) {
+                    // Use the MCP client to call the tool
+                    return await mcpClient.call(name, args);
+                } else {
+                    // Fallback: try to find global MCP instance
+                    if (global.mcp && typeof global.mcp === 'function') {
+                        throw new Error('MCP client instance required. Create an MCP client and pass it to convertMCPToolsToAITools.');
+                    }
+                    throw new Error('MCP client not available');
+                }
+            }
+        };
+    }
+    
+    return aiTools;
+};
+
+// Enhanced AiOptions to support MCP
+export interface AiOptionsWithMCP extends AiOptions {
+    mcpTools?: {
+        tools: Record<string, any>;
+        client: { call: (toolName: string, args: any) => Promise<any> };
+    };
+}
 
 export { } 

@@ -1,5 +1,5 @@
 import type { Tool, CallToolResult } from "@modelcontextprotocol/sdk/types"
-export type { CallToolResult }
+export type { CallToolResult, MCPInstance, MCPTransportOptions, MCPTool, MCPToolResult }
 import type { Low } from 'lowdb'
 import type { format, formatDistanceToNow } from '../utils/date.js'
 import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods'
@@ -20,9 +20,10 @@ import type {
 import { ChannelHandler } from './core.js'
 import type { ConfigOptions, Options } from 'quick-score'
 // Import AI SDK specific types for global declaration
-import type { CoreMessage, FinishReason, LanguageModel, LanguageModelV1 } from 'ai'
+import type { CoreMessage, FinishReason, LanguageModel } from 'ai'
 import type { AssistantOutcome, AssistantLastInteraction, ToolCallPart } from '../lib/ai.js' // Import our custom result types
 import type { ZodTypeAny } from 'zod'; // Import Zod types for global declaration
+import type { MCPInstance, MCPTransportOptions, ToolOptions as MCPToolOptions, MCPTool, MCPToolResult } from '../lib/mcp.js' // Import MCP types
 
 export interface Arg {
   [key: string]: any
@@ -1151,9 +1152,9 @@ declare global {
    */
   var ai: {
     (systemPrompt: string, options?: {
-      model?: string | LanguageModelV1
+      model?: string | LanguageModel
       temperature?: number
-      maxTokens?: number
+      maxOutputTokens?: number
     }): (input: string) => Promise<string>;
 
     /**
@@ -1178,9 +1179,9 @@ declare global {
       promptOrMessages: string | CoreMessage[],
       schema: Schema,
       options?: {
-        model?: string | LanguageModelV1
+        model?: string | LanguageModel
         temperature?: number
-        maxTokens?: number
+        maxOutputTokens?: number
         // Other generateObject-specific options could be added here
       }
     ) => Promise<z.infer<Schema>>;
@@ -1284,11 +1285,65 @@ declare global {
     promptOrMessages: string | CoreMessage[],
     schema: Schema,
     options?: {
-      model?: string | LanguageModelV1
+      model?: string | LanguageModel
       temperature?: number
-      maxTokens?: number
+      maxOutputTokens?: number
     }
   ) => Promise<z.infer<Schema>>
+
+  /**
+   * Creates an MCP (Model Context Protocol) client instance for connecting to MCP servers
+   * and accessing their tools, resources, and prompts.
+   * #### mcp basic example
+   * ```ts
+   * // Create MCP instance
+   * const client = await mcp();
+   * 
+   * // Connect to an MCP server via stdio
+   * await client.connect({
+   *   type: 'stdio',
+   *   command: 'npx',
+   *   args: ['-y', '@modelcontextprotocol/server-everything']
+   * });
+   * 
+   * // Get available tools
+   * const tools = await client.tools();
+   * 
+   * // Call a tool
+   * const result = await client.call('get-weather', { location: 'San Francisco' });
+   * ```
+   * #### mcp SSE transport example
+   * ```ts
+   * const client = await mcp();
+   * 
+   * // Connect via Server-Sent Events
+   * await client.connect({
+   *   type: 'sse',
+   *   url: 'https://my-mcp-server.com/sse',
+   *   headers: { 'Authorization': 'Bearer my-api-key' }
+   * });
+   * ```
+   * #### mcp with AI integration example
+   * ```ts
+   * const client = await mcp();
+   * await client.connect({
+   *   type: 'stdio',
+   *   command: 'my-mcp-server'
+   * });
+   * 
+   * // Get MCP tools and use them with AI
+   * const mcpTools = await client.tools();
+   * 
+   * const assistant = await assistant("You are a helpful assistant", {
+   *   tools: mcpTools
+   * });
+   * ```
+   * [Examples](https://scriptkit.com?query=mcp) | [Docs](https://johnlindquist.github.io/kit-docs/#mcp) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=mcp)
+   */
+  var mcp: (options?: {
+    name?: string
+    version?: string
+  }) => MCPInstance
 
   /**
    * The `metadata` object can include:
