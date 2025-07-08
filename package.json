@@ -83,6 +83,7 @@
     "@ai-sdk/react": "^2.0.0-beta.10",
     "@ai-sdk/xai": "2.0.0-canary.19",
     "@johnlindquist/open": "^10.1.1",
+    "@modelcontextprotocol/sdk": "1.13.3",
     "@octokit/auth-oauth-device": "8.0.1",
     "@octokit/core": "7.0.2",
     "@octokit/plugin-paginate-rest": "13.0.0",
@@ -148,7 +149,6 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "1.13.3",
     "@types/debug": "4.1.12",
     "@types/node": "^22.15.30",
     "@types/node-ipc": "9.2.3",

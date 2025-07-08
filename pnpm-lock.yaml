@@ -30,6 +30,9 @@ importers:
       '@johnlindquist/open':
         specifier: ^10.1.1
         version: 10.1.1
+      '@modelcontextprotocol/sdk':
+        specifier: 1.13.3
+        version: 1.13.3
       '@octokit/auth-oauth-device':
         specifier: 8.0.1
         version: 8.0.1
@@ -220,9 +223,6 @@ importers:
         specifier: ^3.25.67
         version: 3.25.67
     devDependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: 1.13.3
-        version: 1.13.3
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
