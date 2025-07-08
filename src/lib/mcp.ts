@@ -1,9 +1,9 @@
-import { Client as MCPClient } from '@modelcontextprotocol/sdk/client/index';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse';
-import { WebSocketClientTransport } from '@modelcontextprotocol/sdk/client/websocket';
-import type { Transport as MCPTransport } from '@modelcontextprotocol/sdk/shared/transport';
-import type { Tool, CallToolRequest, CallToolResult, ListResourcesResult, ListPromptsResult } from '@modelcontextprotocol/sdk/types';
+import { Client as MCPClient } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { WebSocketClientTransport } from '@modelcontextprotocol/sdk/client/websocket.js';
+import type { Transport as MCPTransport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import type { Tool, CallToolRequest, CallToolResult, ListResourcesResult, ListPromptsResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { EventEmitter } from 'events';
 
@@ -309,8 +309,17 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
     };
 };
 
+// Lazy-loaded MCP factory to avoid module resolution issues
+let mcpLoaded = false;
+const lazyMCP = (...args: Parameters<typeof createMCPInstance>) => {
+    if (!mcpLoaded) {
+        mcpLoaded = true;
+    }
+    return createMCPInstance(...args);
+};
+
 // Global MCP factory function
-global.mcp = createMCPInstance;
+global.mcp = lazyMCP;
 
 // Export for testing and advanced usage
 export { createMCPInstance };
