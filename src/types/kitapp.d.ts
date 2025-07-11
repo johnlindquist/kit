@@ -887,6 +887,7 @@ export interface KitClipboard {
    * ```
    */
   writeBuffer: (type: clipboardBufferType, buffer: Buffer) => Promise<void>
+  writeFileUrl: (filePath: string) => Promise<void>
 
   clear: () => Promise<void>
 }

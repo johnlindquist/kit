@@ -247,6 +247,14 @@ export let actionFlags: ActionFlag[] = [
     }
   },
   {
+    name: 'Copy as File Reference',
+    value: 'copy-as-file-reference',
+    shortcut: `${cmd}+shift+c`,
+    action: async (selectedFile) => {
+      await clipboard.writeBuffer('public.file-url', Buffer.from(`file://${encodeURI(selectedFile)}`, 'utf8'))
+    }
+  },
+  {
     name: 'Paste Path',
     value: 'paste',
     shortcut: `${cmd}+v`,

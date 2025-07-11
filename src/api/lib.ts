@@ -1,4 +1,5 @@
 await import("../lib/ai.js")
+await import("../lib/mcp.js")
 await import("../lib/audio.js")
 await import("../lib/browser.js")
 await import("../lib/desktop.js")
