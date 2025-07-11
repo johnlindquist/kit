@@ -21,7 +21,7 @@ import { ChannelHandler } from './core.js'
 import type { ConfigOptions, Options } from 'quick-score'
 // Import AI SDK specific types for global declaration
 import type { CoreMessage, FinishReason, LanguageModel } from 'ai'
-import type { AssistantOutcome, AssistantLastInteraction, ToolCallPart } from '../lib/ai.js' // Import our custom result types
+import type { AssistantOutcome, AssistantLastInteraction, ToolCallPart, AiOptions } from '../lib/ai.js' // Import our custom result types
 import type { ZodTypeAny } from 'zod'; // Import Zod types for global declaration
 import type { MCPInstance, MCPTransportOptions, ToolOptions as MCPToolOptions, MCPTool, MCPToolResult } from '../lib/mcp.js' // Import MCP types
 
@@ -1141,21 +1141,68 @@ declare global {
   /**
    * Simple wrapper around AI SDK for text generation with system prompts.
    * Returns a function that takes user input and resolves to the AI's text response.
-   * #### ai example
+   * Supports tool calling with MCP tools or custom tools.
+   * 
+   * #### ai basic example
    * ```ts
    * const translate = ai("Translate to French")
    * const result = await translate("Hello world!")
    * // Returns: "Bonjour le monde!"
    * ```
+   * 
+   * #### ai with MCP tools example
+   * ```ts
+   * // Connect to MCP server
+   * const client = mcp({ name: "pieces" })
+   * await client.connect({
+   *   type: "sse",
+   *   url: "http://localhost:39300/model_context_protocol/2024-11-05/sse"
+   * })
+   * const tools = await client.tools()
+   * 
+   * // Create AI function with tools
+   * const searchAI = ai("You are a helpful assistant that searches memories", {
+   *   tools,
+   *   autoExecuteTools: true, // Default: true - tools execute automatically
+   *   maxSteps: 3 // Default: 3 - allows multiple steps for tool calls + response
+   * })
+   * 
+   * const result = await searchAI("Find my notes about TypeScript")
+   * // Tools will be called automatically and result will include the final response
+   * ```
+   * 
+   * #### ai with custom tools example
+   * ```ts
+   * import { tool } from 'ai'
+   * import { z } from 'zod'
+   * 
+   * const tools = {
+   *   weather: tool({
+   *     description: "Get weather for a location",
+   *     parameters: z.object({
+   *       location: z.string()
+   *     }),
+   *     execute: async ({ location }) => {
+   *       return { temp: "72°F", condition: "sunny" }
+   *     }
+   *   })
+   * }
+   * 
+   * const weatherAI = ai("You are a weather assistant", { tools })
+   * const result = await weatherAI("What's the weather in NYC?")
+   * // Returns: "The weather in NYC is currently 72°F and sunny."
+   * ```
+   * 
+   * Note: When using tools with `ai()`, the function works best for simple tool calls. 
+   * Due to how `generateText` handles tools, it may only execute the tool without generating
+   * a final response. For reliable tool interactions with responses, use the `assistant()` API
+   * which provides full control over the conversation flow.
+   * 
    * To generate structured objects, use `ai.object()`.
    * [Examples](https://scriptkit.com?query=ai) | [Docs](https://johnlindquist.github.io/kit-docs/#ai) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=ai)
    */
   var ai: {
-    (systemPrompt: string, options?: {
-      model?: string | LanguageModel
-      temperature?: number
-      maxOutputTokens?: number
-    }): (input: string) => Promise<string>;
+    (systemPrompt: string, options?: AiOptions): (input: string) => Promise<string>;
 
     /**
      * Generates a structured JavaScript object based on a Zod schema and a prompt.
@@ -1239,15 +1286,7 @@ declare global {
    * }
    * ```
    */
-  var assistant: (systemPrompt: string, options?: {
-    model?: string | LanguageModelV1
-    temperature?: number
-    maxTokens?: number
-    tools?: Record<string, Tool<any, any>>
-    maxSteps?: number
-    autoExecuteTools?: boolean
-    maxHistory?: number
-  }) => {
+  var assistant: (systemPrompt: string, options?: AiOptions) => {
     addUserMessage: (content: string | any[]) => void
     addSystemMessage: (content: string) => void
     addAssistantMessage: (text?: string, options?: { toolCalls?: ToolCallPart[]; parts?: CoreMessage['content'] }) => void

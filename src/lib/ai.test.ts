@@ -55,8 +55,7 @@ const mockLanguageModel: LanguageModel = {
         stream: new ReadableStream(),
         rawCall: { rawPrompt: 'mock', rawSettings: {} }
     }),
-    specificationVersion: 'v2' as const,
-    defaultObjectGenerationMode: 'json'
+    specificationVersion: 'v2' as const
 };
 
 // Mock tool definition
@@ -86,7 +85,6 @@ const createMockGenerateTextResult = (overrides: Partial<GenerateTextResult<Reco
     sources: [],
     experimental_output: 'mocked response', // Required property - the OUTPUT generic parameter is string
     warnings: undefined,
-    logprobs: undefined,
     steps: [], // Required property for step results
     providerMetadata: undefined, // Required property
     request: {
@@ -108,7 +106,6 @@ const createMockStreamTextResult = (overrides: Partial<StreamTextResult<Record<s
     sources: Promise.resolve([]),
     files: Promise.resolve([]),
     providerMetadata: Promise.resolve(undefined),
-    experimental_providerMetadata: Promise.resolve(undefined),
     request: Promise.resolve({ body: undefined }),
     response: Promise.resolve({ id: 'mock-stream', timestamp: new Date(), modelId: 'mock-model', body: undefined, messages: [] }),
     reasoning: Promise.resolve(undefined),
@@ -139,7 +136,6 @@ const createMockGenerateObjectResult = <T>(object: T, overrides: Partial<Generat
         body: undefined
     },
     warnings: undefined,
-    logprobs: undefined,
     request: {
         body: undefined
     },
@@ -936,7 +932,7 @@ test.serial('assistant configuration: different model and options', async t => {
     const customOptions = {
         model: mockLanguageModel,
         temperature: 0.3,
-        maxTokens: 500,
+        maxOutputTokens: 500,
         tools: mockTools,
         autoExecuteTools: false
     };
@@ -962,7 +958,7 @@ test.serial('assistant configuration: different model and options', async t => {
 
     const generateCallArgs = mockGenerateText.getCall(0).args[0];
     t.is(generateCallArgs.temperature, 0.3);
-    t.is(generateCallArgs.maxTokens, 500);
+    t.is(generateCallArgs.maxOutputTokens, 500);
     t.is(generateCallArgs.model, mockLanguageModel);
 });
 

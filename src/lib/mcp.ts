@@ -6,17 +6,20 @@ import type { Transport as MCPTransport } from '@modelcontextprotocol/sdk/shared
 import type { Tool, CallToolRequest, CallToolResult, ListResourcesResult, ListPromptsResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { EventEmitter } from 'events';
+import { jsonSchema } from 'ai';
+import { HTTPSSETransport } from './http-sse-transport.js';
 
 // Export types for global usage
 export type { Tool as MCPTool, CallToolResult as MCPToolResult } from '@modelcontextprotocol/sdk/types';
 
 // Extended MCPTool type with execute function for AI SDK integration
 export interface MCPToolWithExecute extends Tool {
+    parameters?: any; // AI SDK compatible parameters (Zod schema or jsonSchema)
     execute: (args: any) => Promise<any>;
 }
 
 // MCP Transport types
-export type MCPTransportType = 'sse' | 'stdio' | 'websocket' | 'custom';
+export type MCPTransportType = 'sse' | 'stdio' | 'websocket' | 'http' | 'custom';
 
 export interface SSETransportOptions {
     type: 'sse';
@@ -37,12 +40,18 @@ export interface WebSocketTransportOptions {
     url: string;
 }
 
+export interface HTTPTransportOptions {
+    type: 'http';
+    url: string;
+    headers?: Record<string, string>;
+}
+
 export interface CustomTransportOptions {
     type: 'custom';
     transport: MCPTransport;
 }
 
-export type MCPTransportOptions = SSETransportOptions | StdioTransportOptions | WebSocketTransportOptions | CustomTransportOptions;
+export type MCPTransportOptions = SSETransportOptions | StdioTransportOptions | WebSocketTransportOptions | HTTPTransportOptions | CustomTransportOptions;
 
 // MCP Options
 export interface MCPOptions {
@@ -99,7 +108,24 @@ export const mcpObservability = new EventEmitter();
 async function createTransport(options: MCPTransportOptions): Promise<MCPTransport> {
     switch (options.type) {
         case 'sse':
-            return new SSEClientTransport(new URL(options.url));
+            // For SSE, we need to pass headers in both eventSourceInit and requestInit
+            // eventSourceInit is for the SSE stream connection
+            // requestInit is for POST requests when sending messages
+            const transportOptions: any = {
+                requestInit: {
+                    headers: options.headers
+                }
+            };
+            
+            // If headers are provided, also try to set them for the EventSource
+            // Note: EventSource spec doesn't officially support headers, but some polyfills do
+            if (options.headers) {
+                transportOptions.eventSourceInit = {
+                    headers: options.headers
+                } as any;
+            }
+            
+            return new SSEClientTransport(new URL(options.url), transportOptions);
         
         case 'stdio':
             return new StdioClientTransport({
@@ -111,6 +137,9 @@ async function createTransport(options: MCPTransportOptions): Promise<MCPTranspo
         
         case 'websocket':
             return new WebSocketClientTransport(options.url as any);
+        
+        case 'http':
+            return new HTTPSSETransport(options.url, options.headers);
         
         case 'custom':
             return options.transport;
@@ -197,9 +226,54 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
                     continue;
                 }
 
-                // Create a tool with execute function
-                const toolWithExecute = {
+                // Create a tool with execute function and proper parameters
+                const toolWithExecute: MCPToolWithExecute = {
                     ...tool,
+                    // Convert inputSchema to parameters for AI SDK compatibility
+                    // The AI SDK expects either a Zod schema or a JSON Schema wrapped with jsonSchema()
+                    parameters: (() => {
+                        try {
+                            if (!tool.inputSchema) {
+                                // Return a minimal valid schema if no inputSchema
+                                return jsonSchema({
+                                    type: 'object',
+                                    properties: {},
+                                    additionalProperties: false
+                                });
+                            }
+                            
+                            // Ensure we have a valid object schema
+                            const schema = {
+                                type: 'object',
+                                ...tool.inputSchema,
+                                additionalProperties: false
+                            };
+                            
+                            // Ensure the type is always 'object'
+                            schema.type = 'object';
+                            
+                            // If properties exist but required doesn't, add all properties to required
+                            if (schema.properties && !schema.required) {
+                                schema.required = Object.keys(schema.properties);
+                            }
+                            
+                            // Ensure required is an array and contains valid property names
+                            if (schema.required && Array.isArray(schema.required)) {
+                                const propertyNames = Object.keys(schema.properties || {});
+                                schema.required = schema.required.filter(prop => propertyNames.includes(prop));
+                            }
+                            
+                            return jsonSchema(schema);
+                        } catch (e) {
+                            console.error(`Failed to convert schema for tool ${tool.name}:`, e);
+                            // Return a minimal valid schema as fallback
+                            return jsonSchema({
+                                type: 'object',
+                                properties: {},
+                                additionalProperties: false
+                            });
+                        }
+                    })(),
                     execute: async (args: any) => {
                         return await call(tool.name, args);
                     }
@@ -211,7 +285,7 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
                     toolsMap[tool.name] = {
                         ...toolWithExecute,
                         description: schemaConfig.description || tool.description,
-                        inputSchema: tool.inputSchema // Keep original schema for now
+                        parameters: schemaConfig.inputSchema // Use custom schema as parameters (should be Zod)
                     };
                 } else {
                     toolsMap[tool.name] = toolWithExecute;

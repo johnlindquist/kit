@@ -186,7 +186,7 @@ export const resetConfig = () => {
 // Get current SDK instance
 const getSdk = () => currentConfig.sdk;
 
-interface AiOptions {
+export interface AiOptions {
     model?: string | LanguageModel
     temperature?: number
     maxOutputTokens?: number
@@ -275,13 +275,20 @@ interface AiGlobalFull extends AiGlobal {
 }
 
 interface AiGlobal {
-    (systemPrompt: string, options?: Omit<AiOptions, 'autoExecuteTools'>): (input: string) => Promise<string>; // autoExecuteTools not relevant here
+    (systemPrompt: string, options?: AiOptions): (input: string) => Promise<string>;
     object: AiGenerateObject;
 }
 
 // This is the actual function that creates the AI-powered input handler
-const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOptions, 'autoExecuteTools' | 'tools' | 'maxSteps'> = {}) => {
-    const { model, temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7, maxOutputTokens = Number(process.env.KIT_AI_DEFAULT_MAX_OUTPUT_TOKENS) || 1000 } = options;
+const aiPoweredInputHandlerFactory = (systemPrompt: string, options: AiOptions = {}) => {
+    const { 
+        model, 
+        temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7, 
+        maxOutputTokens = Number(process.env.KIT_AI_DEFAULT_MAX_OUTPUT_TOKENS) || 1000,
+        tools,
+        maxSteps = 3,
+        autoExecuteTools = true
+    } = options;
 
     return async (input: string): Promise<string> => {
         try {
@@ -289,16 +296,82 @@ const aiPoweredInputHandlerFactory = (systemPrompt: string, options: Omit<AiOpti
                 ? await resolveModel(model)
                 : model as LanguageModel;
 
-            const result = await getSdk().generateText<Record<string, Tool<any, any>>, string>({
+            const generateOptions: any = {
                 model: resolvedModel,
                 temperature,
                 maxOutputTokens,
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: input }
-                ]
-            });
-            return result.text;
+                ],
+                tools
+            };
+
+            // Only pass maxSteps when autoExecuteTools is true and tools are provided
+            if (autoExecuteTools && tools) {
+                generateOptions.maxSteps = maxSteps;
+            }
+
+            const result = await getSdk().generateText<Record<string, Tool<any, any>>, string>(generateOptions);
+            
+            // Debug logging
+            if (process.env.NODE_ENV === 'test' || process.env.DEBUG_AI) {
+                console.log('AI generateText result:', {
+                    hasText: !!result.text,
+                    text: result.text,
+                    hasSteps: !!result.steps,
+                    stepsLength: result.steps?.length,
+                    finishReason: result.finishReason,
+                    hasToolCalls: !!result.toolCalls,
+                    toolCallsLength: result.toolCalls?.length
+                });
+                if (result.steps) {
+                    result.steps.forEach((step, i) => {
+                        console.log(`Step ${i}:`, {
+                            hasText: !!step.text,
+                            hasToolCalls: !!step.toolCalls,
+                            toolCallsLength: step.toolCalls?.length,
+                            finishReason: step.finishReason
+                        });
+                    });
+                }
+            }
+            
+            // Return the main text if available
+            if (result.text) {
+                return result.text;
+            }
+            
+            // If no main text but we have steps, look through all steps for text
+            if (result.steps && result.steps.length > 0) {
+                // Try to find the last step with text content
+                for (let i = result.steps.length - 1; i >= 0; i--) {
+                    const step = result.steps[i];
+                    if (step.text) {
+                        return step.text;
+                    }
+                }
+            }
+            
+            // If we only got tool calls and no text, we might need to check the steps
+            if (result.finishReason === 'tool-calls' && result.toolCalls?.length > 0 && !result.text) {
+                // Check if there's text in any of the steps
+                if (result.steps && result.steps.length > 0) {
+                    // Look for the final message after tool execution
+                    for (const step of result.steps) {
+                        if (step.finishReason === 'stop' && step.text) {
+                            return step.text;
+                        }
+                    }
+                }
+                
+                // If still no text, this might be because maxSteps was reached
+                // or the model didn't generate a final response after tool use
+                console.warn('AI returned only tool calls without final text response. The model may need more steps or explicit instruction to respond after tool use.');
+            }
+            
+            // If still no text, return empty string
+            return '';
         } catch (error) {
             throw new Error(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -334,7 +407,7 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
             messages,
             schema,
             // mode, maxRetries, etc. could be added to options if needed
-        });
+        } as any);
         return object;
     } catch (error) {
         throw new Error(`AI object generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -377,7 +450,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
         maxSteps = 3,
         autoExecuteTools: initialAutoExecuteTools = true, // Default to true
         maxHistory,
-        streamingToolExecution = false // ALPHA feature, defaults to false
+        streamingToolExecution = true // ALPHA feature, defaults to false
     } = options;
 
     const _definedTools = providedTools;
@@ -456,7 +529,14 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                 primaryText = message.content;
             } else if (Array.isArray(message.content)) {
                 hasComplexParts = true; // Mark that content is definitely an array
-                const toolCallPartsInContent = message.content.filter(part => part.type === 'tool-call') as ToolCallPart[];
+                const toolCallPartsInContent = message.content
+                    .filter(part => part.type === 'tool-call')
+                    .map(part => ({
+                        type: 'tool-call' as const,
+                        toolCallId: (part as any).toolCallId as ToolCallId,
+                        toolName: (part as any).toolName,
+                        args: (part as any).args
+                    })) as ToolCallPart[];
                 const otherParts = message.content.filter(part => part.type !== 'tool-call');
 
                 // Attempt to find a primary text part if no simple string content was found first
@@ -588,7 +668,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                 const assistantContentForToolLoop: AssistantContent = {};
                 if (currentResult.text) assistantContentForToolLoop.text = currentResult.text;
                 if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
-                    assistantContentForToolLoop.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: tc.args }));
+                    assistantContentForToolLoop.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: (tc as any).input || (tc as any).args }));
                 }
                 addAssistantMessage(assistantContentForToolLoop.text, { toolCalls: assistantContentForToolLoop.toolCalls });
 
@@ -609,12 +689,12 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                         // Emit tool execution start event
                         aiObservability.emit('assistant:tool:execute:start', {
                             toolName: toolCall.toolName,
-                            args: toolCall.args,
+                            args: (toolCall as any).input || (toolCall as any).args,
                             toolCallId: toolCall.toolCallId as ToolCallId
                         });
 
                         try {
-                            const executionResult = await toolDefinition.execute(toolCall.args, toolContext);
+                            const executionResult = await toolDefinition.execute((toolCall as any).input || (toolCall as any).args, toolContext);
                             const toolDuration = Date.now() - toolStartTime;
 
                             // Emit tool execution success event
@@ -663,7 +743,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                 }
 
                 if (toolResultsContent.length > 0) {
-                    addMessage({ role: 'tool', content: toolResultsContent });
+                    addMessage({ role: 'tool', content: toolResultsContent as any });
                 }
 
                 stepsRemaining--;
@@ -689,7 +769,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             lastInteractionData = {
                 finishReason: currentResult.finishReason,
                 toolCalls: currentResult.toolCalls && currentResult.toolCalls.length > 0
-                    ? currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: tc.args }))
+                    ? currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: (tc as any).input || (tc as any).args }))
                     : undefined,
                 textContent: currentResult.text,
                 usage: currentResult.usage as Tokens,
@@ -706,7 +786,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                     type: 'tool-call',
                     toolCallId: tc.toolCallId as ToolCallId,
                     toolName: tc.toolName,
-                    args: tc.args,
+                    args: (tc as any).input || (tc as any).args,
                 }));
                 result = { kind: 'toolCalls', calls: tcParts, usage: currentResult.usage as Tokens };
             } else {
@@ -807,7 +887,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                             yield part.text;
                             break;
                         case 'tool-call':
-                            const toolCallPart: ToolCallPart = { type: 'tool-call', toolCallId: part.toolCallId as ToolCallId, toolName: part.toolName, args: part.args };
+                            const toolCallPart: ToolCallPart = { type: 'tool-call', toolCallId: part.toolCallId as ToolCallId, toolName: part.toolName, args: (part as any).input || (part as any).args };
                             streamedToolCalls.push(toolCallPart);
 
                             // ALPHA: Execute tools during streaming if enabled
@@ -819,7 +899,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                                     // Emit tool execution start event
                                     aiObservability.emit('assistant:tool:execute:start', {
                                         toolName: part.toolName,
-                                        args: part.args,
+                                        args: (part as any).input || (part as any).args,
                                         toolCallId: part.toolCallId as ToolCallId
                                     });
 
@@ -830,7 +910,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                                             messages: [...messages]
                                         };
 
-                                        const executionResult = await toolDefinition.execute(part.args, toolContext);
+                                        const executionResult = await toolDefinition.execute((part as any).input || (part as any).args, toolContext);
                                         const toolDuration = Date.now() - toolStartTime;
 
                                         // Emit tool execution success event
@@ -842,7 +922,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
                                         });
 
                                         // Yield a special marker for tool execution result
-                                        yield `\n[Tool ${part.toolName} executed successfully]\n`;
+                                        // yield `\n[Tool ${part.toolName} executed successfully]\n`;
 
                                     } catch (error) {
                                         const toolDuration = Date.now() - toolStartTime;
@@ -983,8 +1063,8 @@ export const convertMCPToolsToAITools = (
     mcpTools: Record<string, any>,
     mcpClient?: { call: (toolName: string, args: any) => Promise<any> }
 ): Record<string, Tool<any, any>> => {
-    const aiTools: Record<string, Tool<any, any>> = {};
-    
+    const aiTools: Record<string, any> = {};
+
     for (const [name, mcpTool] of Object.entries(mcpTools)) {
         aiTools[name] = {
             description: mcpTool.description || `MCP tool: ${name}`,
@@ -1003,7 +1083,7 @@ export const convertMCPToolsToAITools = (
             }
         };
     }
-    
+
     return aiTools;
 };
 

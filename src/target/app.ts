@@ -2912,6 +2912,10 @@ global.clipboard = {
     return await sendWait(Channel.CLIPBOARD_WRITE_BUFFER, { type, buffer })
   },
 
+  writeFileUrl: async (filePath: string) => {
+    await clipboard.writeBuffer('public.file-url', Buffer.from(`file://${encodeURI(filePath)}`, 'utf8'))
+  },
+
   clear: async () => {
     return await sendWait(Channel.CLIPBOARD_CLEAR)
   },
