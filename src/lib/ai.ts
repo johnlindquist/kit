@@ -26,6 +26,7 @@ export interface ToolCallPart {
     toolCallId: ToolCallId;
     toolName: string;
     args: unknown;
+    input?: unknown; // Added for AI SDK v5 compatibility
 }
 
 // Observability events interface
@@ -623,7 +624,7 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
             model,
             temperature,
             maxOutputTokens,
-            messages: [...currentMessages], // Use a snapshot of messages for this attempt
+            messages: [...currentMessages], // Use messages directly
             tools: _definedTools,
             abortSignal: signal,
         };

@@ -1179,7 +1179,7 @@ declare global {
    * const tools = {
    *   weather: tool({
    *     description: "Get weather for a location",
-   *     parameters: z.object({
+   *     inputSchema: z.object({
    *       location: z.string()
    *     }),
    *     execute: async ({ location }) => {
@@ -1243,7 +1243,7 @@ declare global {
    *   tools: {
    *     getCurrentWeather: {
    *       description: "Get the current weather for a location",
-   *       parameters: z.object({ location: z.string() }),
+   *       inputSchema: z.object({ location: z.string() }),
    *       execute: async ({ location }) => ({ temperature: "..." })
    *     }
    *   }

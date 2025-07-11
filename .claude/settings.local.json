@@ -28,7 +28,8 @@
       "Bash(KIT_NODE_PATH=/Users/johnlindquist/Library/pnpm/nodejs/22.9.0/bin/node ~/.kit/bin/kit ~/.kenv/scripts/list-all-mcp-tools.ts)",
       "Bash(mv:*)",
       "Bash(pnpm add:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(pnpm verify:*)"
     ],
     "deny": []
   }

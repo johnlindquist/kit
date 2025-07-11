@@ -14,7 +14,7 @@ export type { Tool as MCPTool, CallToolResult as MCPToolResult } from '@modelcon
 
 // Extended MCPTool type with execute function for AI SDK integration
 export interface MCPToolWithExecute extends Tool {
-    parameters?: any; // AI SDK compatible parameters (Zod schema or jsonSchema)
+    inputSchema?: any; // AI SDK v5 compatible schema (Zod schema or jsonSchema)
     execute: (args: any) => Promise<any>;
 }
 
@@ -229,9 +229,9 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
                 // Create a tool with execute function and proper parameters
                 const toolWithExecute: MCPToolWithExecute = {
                     ...tool,
-                    // Convert inputSchema to parameters for AI SDK compatibility
+                    // Keep inputSchema for AI SDK v5 compatibility
                     // The AI SDK expects either a Zod schema or a JSON Schema wrapped with jsonSchema()
-                    parameters: (() => {
+                    inputSchema: (() => {
                         try {
                             if (!tool.inputSchema) {
                                 // Return a minimal valid schema if no inputSchema
@@ -285,7 +285,7 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
                     toolsMap[tool.name] = {
                         ...toolWithExecute,
                         description: schemaConfig.description || tool.description,
-                        parameters: schemaConfig.inputSchema // Use custom schema as parameters (should be Zod)
+                        inputSchema: schemaConfig.inputSchema // Use custom schema (should be Zod)
                     };
                 } else {
                     toolsMap[tool.name] = toolWithExecute;
