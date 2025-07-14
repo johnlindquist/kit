@@ -29,7 +29,10 @@ let binTemplate = await readFile(
 let binTemplateCompiler = compile(binTemplate)
 
 try {
-  for await (let { command, filePath } of scripts) {
+  for await (let { command, filePath, bin } of scripts) {
+    if (!bin) {
+      continue
+    }
     let compiledBinTemplate = binTemplateCompiler({
       command,
       type: "scripts",
@@ -56,4 +59,4 @@ try {
   log(`🚨 Error creating bins`, error)
 }
 
-export {}
+export { }

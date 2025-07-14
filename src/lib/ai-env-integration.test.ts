@@ -15,8 +15,12 @@ ava('resolveModel should create OpenAI model when API key exists', async t => {
         
         // Verify model was created
         t.truthy(model)
-        t.is(model.provider, 'openai.chat')
-        t.is(model.modelId, 'gpt-4')
+        if (typeof model !== 'string') {
+            t.is(model.provider, 'openai.chat')
+            t.is(model.modelId, 'gpt-4')
+        } else {
+            t.fail('Expected model object, got string')
+        }
     } finally {
         delete process.env.OPENAI_API_KEY
     }
@@ -31,8 +35,12 @@ ava('resolveModel should create Anthropic model with prefix', async t => {
         
         // Verify model was created
         t.truthy(model)
-        t.is(model.provider, 'anthropic.messages')
-        t.is(model.modelId, 'claude-3-opus-20240229')
+        if (typeof model !== 'string') {
+            t.is(model.provider, 'anthropic.messages')
+            t.is(model.modelId, 'claude-3-opus-20240229')
+        } else {
+            t.fail('Expected model object, got string')
+        }
     } finally {
         delete process.env.ANTHROPIC_API_KEY
     }
@@ -48,8 +56,12 @@ ava('resolveModel should use default provider when no prefix', async t => {
         
         // Verify model was created with default provider
         t.truthy(model)
-        t.is(model.provider, 'openai.chat')
-        t.is(model.modelId, 'some-model')
+        if (typeof model !== 'string') {
+            t.is(model.provider, 'openai.chat')
+            t.is(model.modelId, 'some-model')
+        } else {
+            t.fail('Expected model object, got string')
+        }
     } finally {
         delete process.env.OPENAI_API_KEY
         delete process.env.KIT_AI_DEFAULT_PROVIDER
@@ -65,8 +77,12 @@ ava('resolveModel should handle explicit provider parameter', async t => {
         
         // Verify model was created with explicit provider
         t.truthy(model)
-        t.is(model.provider, 'google.generative-ai')
-        t.is(model.modelId, 'gemini-pro')
+        if (typeof model !== 'string') {
+            t.is(model.provider, 'google.generative-ai')
+            t.is(model.modelId, 'gemini-pro')
+        } else {
+            t.fail('Expected model object, got string')
+        }
     } finally {
         delete process.env.GOOGLE_API_KEY
     }

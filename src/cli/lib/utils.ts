@@ -29,7 +29,10 @@ export let ensureTemplates = async () => {
   }
 }
 
-export let createBinFromScript = async (type: Bin, { command, filePath, execPath }: Script & { execPath?: string }) => {
+export let createBinFromScript = async (type: Bin, { command, filePath, execPath, bin }: Script & { execPath?: string }) => {
+  if (!bin) {
+    return
+  }
   let template = jsh ? 'stackblitz' : 'terminal'
 
   let useCmd = process.platform === 'win32' && !process.env?.KIT_WSL
@@ -158,19 +161,19 @@ export let addPreview = async (choices: Choice[], dir: string, onlyMatches = fal
   let docOnlyChoices = onlyMatches
     ? []
     : filteredDocs
-        .map((doc) => {
-          return {
-            name: doc.title,
-            description: doc?.description || '',
-            tag: doc?.tag || '',
-            value: doc.file,
-            preview: async () => {
-              return await highlight(doc.content, containerClasses)
-            },
-            enter: 'Discuss Topic'
-          }
-        })
-        .sort((a, b) => (a.name > b.name ? 1 : -1))
+      .map((doc) => {
+        return {
+          name: doc.title,
+          description: doc?.description || '',
+          tag: doc?.tag || '',
+          value: doc.file,
+          preview: async () => {
+            return await highlight(doc.content, containerClasses)
+          },
+          enter: 'Discuss Topic'
+        }
+      })
+      .sort((a, b) => (a.name > b.name ? 1 : -1))
 
   return [...enhancedChoices, ...docOnlyChoices]
 }

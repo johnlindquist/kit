@@ -139,6 +139,7 @@ export interface ScriptMetadata extends Metadata {
   emoji?: string
   postfix?: boolean
   longRunning?: boolean
+  bin?: boolean
 }
 
 export type Script = ScriptMetadata & ScriptPathInfo & Choice
@@ -571,6 +572,8 @@ export interface Metadata {
   timeout?: number
   /** Indicates whether the script's choices should be cached */
   cache?: boolean
+  /** Indicates whether the script should be added to ~/.kenv/bin */
+  bin?: boolean
 }
 
 export interface ProcessInfo {

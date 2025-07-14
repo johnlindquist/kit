@@ -203,6 +203,31 @@ export type Editor = ((config?: EditorConfig & { hint?: string }, actions?: Acti
   moveCursor: (offset: number) => Promise<void>
   insertText: (text: string) => Promise<void>
   setText: (text: string) => Promise<void>
+  replaceRange: (start: number, end: number, text: string) => Promise<number>
+  getLineInfo: (lineNumber?: number) => Promise<{
+    lineNumber: number
+    content: string
+    length: number
+    totalLines: number
+    indentation: string
+  }>
+  findAndReplaceAll: (searchText: string, replaceText: string, options?: { 
+    regex?: boolean
+    matchCase?: boolean
+    wholeWord?: boolean 
+  }) => Promise<{ replacedCount: number }>
+  getFoldedRegions: () => Promise<Array<{ start: number; end: number }>>
+  setFoldedRegions: (regions: Array<{ start: number; end: number }>) => Promise<void>
+  executeCommand: (commandId: string, args?: any) => Promise<{
+    success: boolean
+    commandId: string
+    result?: any
+    error?: string
+  }>
+  scrollTo: (position: 'top' | 'center' | 'bottom' | number) => Promise<void>
+  scrollToTop: () => Promise<void>
+  scrollToBottom: () => Promise<void>
+  getCurrentInput: () => Promise<string>
   // setCodeHint: (hint: string) => Promise<void>
 }
 
@@ -887,6 +912,7 @@ export interface KitClipboard {
    * ```
    */
   writeBuffer: (type: clipboardBufferType, buffer: Buffer) => Promise<void>
+  writeFileUrl: (filePath: string) => Promise<void>
 
   clear: () => Promise<void>
 }
