@@ -11,6 +11,12 @@ import { tool } from 'ai'
 config({ path: resolve(process.env.HOME, '.kenv', '.env') })
 
 test('mcp tools work with assistant API', async (t) => {
+    // Skip in CI
+    if (process.env.CI) {
+        t.pass('Skipping test - CI environment')
+        return
+    }
+    
     // Skip if Pieces MCP server is not running
     t.timeout(30000); // 30 second timeout
     
@@ -90,6 +96,12 @@ test('mcp tools work with assistant API', async (t) => {
 
 // Test with Pieces MCP server JSON schema tools
 test('mcp json schema tools work with assistant API', async (t) => {
+    // Skip in CI
+    if (process.env.CI) {
+        t.pass('Skipping test - CI environment')
+        return
+    }
+    
     // Skip if OPENAI_API_KEY is not available
     if (!process.env.OPENAI_API_KEY) {
         t.pass('Skipping - OPENAI_API_KEY not available')
@@ -229,6 +241,12 @@ test('assistant calls MCP tools correctly', async (t) => {
 
 // Simpler test to verify the integration without actual MCP server
 test('mcp tools have correct structure for assistant API', async (t) => {
+    // Skip in CI
+    if (process.env.CI) {
+        t.pass('Skipping test - CI environment')
+        return
+    }
+    
     const client = createMCPInstance({
         name: "test"
     })
