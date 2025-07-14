@@ -29,7 +29,7 @@ let searchDirs = [
 let searchExistingDirs = []
 for await (let dir of searchDirs) {
   if (await isDir(dir)) {
-    searchExistingDirs.push(dir + path.sep + "*")
+    searchExistingDirs.push(dir)
   }
 }
 
@@ -83,7 +83,8 @@ let filePath = await arg(
       let filePaths = searchExistingDirs
         .flatMap(dir => {
           try {
-            let { stdout } = grep("-il", input, dir)
+            cd(dir)
+            let { stdout } = grep("-il", input, "*.*")
             return stdout.split("\n")
           } catch (error) {
             return []

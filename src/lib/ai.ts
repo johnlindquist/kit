@@ -282,9 +282,9 @@ interface AiGlobal {
 
 // This is the actual function that creates the AI-powered input handler
 const aiPoweredInputHandlerFactory = (systemPrompt: string, options: AiOptions = {}) => {
-    const { 
-        model, 
-        temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7, 
+    const {
+        model,
+        temperature = Number(process.env.KIT_AI_DEFAULT_TEMPERATURE) || 0.7,
         maxOutputTokens = Number(process.env.KIT_AI_DEFAULT_MAX_OUTPUT_TOKENS) || 1000,
         tools,
         maxSteps = 3,
@@ -314,7 +314,7 @@ const aiPoweredInputHandlerFactory = (systemPrompt: string, options: AiOptions =
             }
 
             const result = await getSdk().generateText<Record<string, Tool<any, any>>, string>(generateOptions);
-            
+
             // Debug logging
             if (process.env.NODE_ENV === 'test' || process.env.DEBUG_AI) {
                 console.log('AI generateText result:', {
@@ -337,12 +337,12 @@ const aiPoweredInputHandlerFactory = (systemPrompt: string, options: AiOptions =
                     });
                 }
             }
-            
+
             // Return the main text if available
             if (result.text) {
                 return result.text;
             }
-            
+
             // If no main text but we have steps, look through all steps for text
             if (result.steps && result.steps.length > 0) {
                 // Try to find the last step with text content
@@ -353,7 +353,7 @@ const aiPoweredInputHandlerFactory = (systemPrompt: string, options: AiOptions =
                     }
                 }
             }
-            
+
             // If we only got tool calls and no text, we might need to check the steps
             if (result.finishReason === 'tool-calls' && result.toolCalls?.length > 0 && !result.text) {
                 // Check if there's text in any of the steps
@@ -365,12 +365,12 @@ const aiPoweredInputHandlerFactory = (systemPrompt: string, options: AiOptions =
                         }
                     }
                 }
-                
+
                 // If still no text, this might be because maxSteps was reached
                 // or the model didn't generate a final response after tool use
                 console.warn('AI returned only tool calls without final text response. The model may need more steps or explicit instruction to respond after tool use.');
             }
-            
+
             // If still no text, return empty string
             return '';
         } catch (error) {
@@ -409,7 +409,7 @@ const generateObjectFunction = async <Schema extends ZodTypeAny>(
             schema,
             // mode, maxRetries, etc. could be added to options if needed
         } as any);
-        return object;
+        return object as ZodInfer<Schema>;
     } catch (error) {
         throw new Error(`AI object generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -652,111 +652,170 @@ const createAssistantInstance = (systemPrompt: string, options: AiOptions = {}):
 
         try {
             let currentResult = await _internalGenerate(messages, currentSignal);
-            let stepsRemaining = _autoExecuteTools && _definedTools ? maxSteps : 0;
 
-            while (
-                _autoExecuteTools &&
-                _definedTools &&
-                currentResult.toolCalls &&
-                currentResult.toolCalls.length > 0 &&
-                stepsRemaining > 0
-            ) {
-                if (currentSignal.aborted) {
-                    throw new Error("Aborted during tool execution loop.");
-                }
+            // Check if we're dealing with MCP tools (they have an execute function)
+            const isMCPTools = _definedTools && Object.values(_definedTools).some(tool =>
+                typeof tool === 'object' && 'execute' in tool
+            );
 
-                // Updated call to addAssistantMessage
-                const assistantContentForToolLoop: AssistantContent = {};
-                if (currentResult.text) assistantContentForToolLoop.text = currentResult.text;
-                if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
-                    assistantContentForToolLoop.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: (tc as any).input || (tc as any).args }));
-                }
-                addAssistantMessage(assistantContentForToolLoop.text, { toolCalls: assistantContentForToolLoop.toolCalls });
+            // For MCP tools, use a simpler approach that works
+            if (isMCPTools && _autoExecuteTools && currentResult.finishReason === 'tool-calls' && currentResult.toolCalls?.length > 0) {
+                // Execute the first tool
+                const toolCall = currentResult.toolCalls[0];
+                const toolDef = _definedTools[toolCall.toolName];
 
-                const toolResultsContent: { type: 'tool-result'; toolCallId: string; toolName: string; result: any; }[] = [];
-
-                for (const toolCall of currentResult.toolCalls) {
-                    const toolDefinition = _definedTools[toolCall.toolName];
-                    // Correctly type and construct toolContext
-                    const toolContext = {
-                        toolCallId: toolCall.toolCallId,
-                        signal: currentSignal, // Pass along the abort signal
-                        messages: [...messages] // Include messages in context (use the messages array from closure)
-                    };
-
-                    if (toolDefinition && typeof toolDefinition.execute === 'function') {
+                if (toolDef && typeof toolDef.execute === 'function') {
+                    try {
+                        // Execute the tool
                         const toolStartTime = Date.now();
-
-                        // Emit tool execution start event
-                        aiObservability.emit('assistant:tool:execute:start', {
-                            toolName: toolCall.toolName,
-                            args: (toolCall as any).input || (toolCall as any).args,
-                            toolCallId: toolCall.toolCallId as ToolCallId
-                        });
-
-                        try {
-                            const executionResult = await toolDefinition.execute((toolCall as any).input || (toolCall as any).args, toolContext);
-                            const toolDuration = Date.now() - toolStartTime;
-
-                            // Emit tool execution success event
-                            aiObservability.emit('assistant:tool:execute:complete', {
-                                toolName: toolCall.toolName,
-                                result: executionResult,
-                                duration: toolDuration,
-                                toolCallId: toolCall.toolCallId as ToolCallId
-                            });
-
-                            toolResultsContent.push({
-                                type: 'tool-result',
-                                toolCallId: toolCall.toolCallId,
-                                toolName: toolCall.toolName,
-                                result: executionResult,
-                            });
-                        } catch (error) {
-                            const toolDuration = Date.now() - toolStartTime;
-                            const toolError = error instanceof Error ? error : new Error("Tool execution failed");
-
-                            // Emit tool execution error event
-                            aiObservability.emit('assistant:tool:execute:error', {
-                                toolName: toolCall.toolName,
-                                error: toolError,
-                                duration: toolDuration,
-                                toolCallId: toolCall.toolCallId as ToolCallId
-                            });
-
-                            console.error(`Error executing tool ${toolCall.toolName}:`, error);
-                            toolResultsContent.push({
-                                type: 'tool-result',
-                                toolCallId: toolCall.toolCallId,
-                                toolName: toolCall.toolName,
-                                result: { error: error instanceof Error ? error.message : "Tool execution failed" },
-                            });
-                        }
-                    } else {
-                        console.warn(`Tool ${toolCall.toolName} not found or not executable, skipping.`);
-                        toolResultsContent.push({
-                            type: 'tool-result',
+                        let toolResult = await toolDef.execute((toolCall as any).input || (toolCall as any).args, {
                             toolCallId: toolCall.toolCallId,
-                            toolName: toolCall.toolName,
-                            result: { error: `Tool ${toolCall.toolName} not found or not executable.` },
+                            messages: [...messages]
                         });
+
+                        // Parse JSON if needed
+                        if (typeof toolResult === 'string') {
+                            try {
+                                toolResult = JSON.parse(toolResult);
+                            } catch (e) {
+                                // Keep as string
+                            }
+                        }
+
+                        // Generate a summary with the tool results
+                        const summaryMessages = [
+                            { role: 'system', content: 'You are a helpful assistant. Summarize the data clearly and concisely.' },
+                            {
+                                role: 'user',
+                                content: `The user asked: "${messages[messages.length - 1].content}"
+                                
+Tool "${toolCall.toolName}" returned:
+${JSON.stringify(toolResult, null, 2)}
+
+Please provide a helpful summary.`
+                            }
+                        ];
+
+                        currentResult = await sdk.generateText({
+                            model: await getResolvedModel(),
+                            temperature,
+                            maxOutputTokens,
+                            messages: summaryMessages as CoreMessage[],
+                            abortSignal: currentSignal
+                        });
+                    } catch (error) {
+                        console.error('MCP tool execution error:', error);
+                        // Continue with error handling below
                     }
                 }
+            } else {
+                // Original tool execution logic for non-MCP tools
+                let stepsRemaining = _autoExecuteTools && _definedTools && !isMCPTools ? maxSteps : 0;
 
-                if (toolResultsContent.length > 0) {
-                    addMessage({ role: 'tool', content: toolResultsContent as any });
-                }
+                while (
+                    _autoExecuteTools &&
+                    _definedTools &&
+                    currentResult.toolCalls &&
+                    currentResult.toolCalls.length > 0 &&
+                    stepsRemaining > 0
+                ) {
+                    if (currentSignal.aborted) {
+                        throw new Error("Aborted during tool execution loop.");
+                    }
 
-                stepsRemaining--;
-                if (currentSignal.aborted) throw new Error("Aborted after tool execution.");
+                    // Updated call to addAssistantMessage
+                    const assistantContentForToolLoop: AssistantContent = {};
+                    if (currentResult.text) assistantContentForToolLoop.text = currentResult.text;
+                    if (currentResult.toolCalls && currentResult.toolCalls.length > 0) {
+                        assistantContentForToolLoop.toolCalls = currentResult.toolCalls.map(tc => ({ type: 'tool-call', toolCallId: tc.toolCallId as ToolCallId, toolName: tc.toolName, args: (tc as any).input || (tc as any).args }));
+                    }
+                    addAssistantMessage(assistantContentForToolLoop.text, { toolCalls: assistantContentForToolLoop.toolCalls });
 
-                // Always generate after tool execution, but check if we have more steps for additional tool calls
-                currentResult = await _internalGenerate(messages, currentSignal);
+                    const toolResultsContent: { type: 'tool-result'; toolCallId: string; toolName: string; result: any; }[] = [];
 
-                // If steps are exhausted and the model still wants to call tools, break the loop
-                if (stepsRemaining <= 0 && currentResult.toolCalls && currentResult.toolCalls.length > 0) {
-                    console.warn("Max tool execution steps reached. Returning last intermediate result from LLM.");
-                    break;
+                    for (const toolCall of currentResult.toolCalls) {
+                        const toolDefinition = _definedTools[toolCall.toolName];
+                        // Correctly type and construct toolContext
+                        const toolContext = {
+                            toolCallId: toolCall.toolCallId,
+                            signal: currentSignal, // Pass along the abort signal
+                            messages: [...messages] // Include messages in context (use the messages array from closure)
+                        };
+
+                        if (toolDefinition && typeof toolDefinition.execute === 'function') {
+                            const toolStartTime = Date.now();
+
+                            // Emit tool execution start event
+                            aiObservability.emit('assistant:tool:execute:start', {
+                                toolName: toolCall.toolName,
+                                args: (toolCall as any).input || (toolCall as any).args,
+                                toolCallId: toolCall.toolCallId as ToolCallId
+                            });
+
+                            try {
+                                const executionResult = await toolDefinition.execute((toolCall as any).input || (toolCall as any).args, toolContext);
+                                const toolDuration = Date.now() - toolStartTime;
+
+                                // Emit tool execution success event
+                                aiObservability.emit('assistant:tool:execute:complete', {
+                                    toolName: toolCall.toolName,
+                                    result: executionResult,
+                                    duration: toolDuration,
+                                    toolCallId: toolCall.toolCallId as ToolCallId
+                                });
+
+                                toolResultsContent.push({
+                                    type: 'tool-result',
+                                    toolCallId: toolCall.toolCallId,
+                                    toolName: toolCall.toolName,
+                                    result: executionResult,
+                                });
+                            } catch (error) {
+                                const toolDuration = Date.now() - toolStartTime;
+                                const toolError = error instanceof Error ? error : new Error("Tool execution failed");
+
+                                // Emit tool execution error event
+                                aiObservability.emit('assistant:tool:execute:error', {
+                                    toolName: toolCall.toolName,
+                                    error: toolError,
+                                    duration: toolDuration,
+                                    toolCallId: toolCall.toolCallId as ToolCallId
+                                });
+
+                                console.error(`Error executing tool ${toolCall.toolName}:`, error);
+                                toolResultsContent.push({
+                                    type: 'tool-result',
+                                    toolCallId: toolCall.toolCallId,
+                                    toolName: toolCall.toolName,
+                                    result: { error: error instanceof Error ? error.message : "Tool execution failed" },
+                                });
+                            }
+                        } else {
+                            console.warn(`Tool ${toolCall.toolName} not found or not executable, skipping.`);
+                            toolResultsContent.push({
+                                type: 'tool-result',
+                                toolCallId: toolCall.toolCallId,
+                                toolName: toolCall.toolName,
+                                result: { error: `Tool ${toolCall.toolName} not found or not executable.` },
+                            });
+                        }
+                    }
+
+                    if (toolResultsContent.length > 0) {
+                        addMessage({ role: 'tool', content: toolResultsContent as any });
+                    }
+
+                    stepsRemaining--;
+                    if (currentSignal.aborted) throw new Error("Aborted after tool execution.");
+
+                    // Always generate after tool execution, but check if we have more steps for additional tool calls
+                    currentResult = await _internalGenerate(messages, currentSignal);
+
+                    // If steps are exhausted and the model still wants to call tools, break the loop
+                    if (stepsRemaining <= 0 && currentResult.toolCalls && currentResult.toolCalls.length > 0) {
+                        console.warn("Max tool execution steps reached. Returning last intermediate result from LLM.");
+                        break;
+                    }
                 }
             }
 

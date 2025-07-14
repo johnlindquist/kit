@@ -127,7 +127,7 @@ let createHandlerWrapper = (
   global.send(channel, true)
   let wrappedHandler = (data: any) => {
     // log(data)
-    if (data?.channel === channel) {
+    if (data?.channel === channel && data?.state) {
       handler(data.state)
     }
   }
@@ -1850,6 +1850,82 @@ global.editor.insertText = async (text: string) => {
 
 global.editor.setText = async (text: string) => {
   await setInput(text)
+}
+
+global.editor.replaceRange = async (start: number, end: number, text: string) => {
+  let message = await sendWait(
+    Channel.EDITOR_REPLACE_RANGE,
+    { start, end, text }
+  )
+  return message?.state?.value
+}
+
+global.editor.getLineInfo = async (lineNumber?: number) => {
+  let message = await sendWait(
+    Channel.EDITOR_GET_LINE_INFO,
+    lineNumber
+  )
+  return message?.state?.value
+}
+
+global.editor.findAndReplaceAll = async (searchText: string, replaceText: string, options?: { regex?: boolean; matchCase?: boolean; wholeWord?: boolean }) => {
+  let message = await sendWait(
+    Channel.EDITOR_FIND_REPLACE_ALL,
+    { searchText, replaceText, options }
+  )
+  return message?.state?.value
+}
+
+global.editor.getFoldedRegions = async () => {
+  let message = await sendWait(
+    Channel.EDITOR_GET_FOLDED_REGIONS
+  )
+  return message?.state?.value
+}
+
+global.editor.setFoldedRegions = async (regions: Array<{ start: number; end: number }>) => {
+  let message = await sendWait(
+    Channel.EDITOR_SET_FOLDED_REGIONS,
+    regions
+  )
+  return message?.state?.value
+}
+
+global.editor.executeCommand = async (commandId: string, args?: any) => {
+  let message = await sendWait(
+    Channel.EDITOR_EXECUTE_COMMAND,
+    { commandId, args }
+  )
+  return message?.state?.value
+}
+
+global.editor.scrollTo = async (position: 'top' | 'center' | 'bottom' | number) => {
+  let message = await sendWait(
+    Channel.EDITOR_SCROLL_TO,
+    position
+  )
+  return message?.state?.value
+}
+
+global.editor.scrollToTop = async () => {
+  let message = await sendWait(
+    Channel.EDITOR_SCROLL_TO_TOP
+  )
+  return message?.state?.value
+}
+
+global.editor.scrollToBottom = async () => {
+  let message = await sendWait(
+    Channel.EDITOR_SCROLL_TO_BOTTOM
+  )
+  return message?.state?.value
+}
+
+global.editor.getCurrentInput = async () => {
+  let message = await sendWait(
+    Channel.EDITOR_GET_CURRENT_INPUT
+  )
+  return message?.state?.value
 }
 
 // global.editor.setCodeHint = async (value: string) => {

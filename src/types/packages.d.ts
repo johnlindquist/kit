@@ -1,4 +1,4 @@
-import type * as shelljs from "shelljs/index"
+import type * as shelljs from "shelljs"
 import type {
 	add,
 	clone,

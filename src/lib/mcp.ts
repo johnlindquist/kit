@@ -13,9 +13,12 @@ import { HTTPSSETransport } from './http-sse-transport.js';
 export type { Tool as MCPTool, CallToolResult as MCPToolResult } from '@modelcontextprotocol/sdk/types';
 
 // Extended MCPTool type with execute function for AI SDK integration
-export interface MCPToolWithExecute extends Tool {
+// This type should only include properties that are compatible with AI SDK's Tool type
+export interface MCPToolWithExecute {
+    description?: string;
     inputSchema?: any; // AI SDK v5 compatible schema (Zod schema or jsonSchema)
     execute: (args: any) => Promise<any>;
+    // Explicitly exclude outputSchema and other MCP-specific properties from the interface
 }
 
 // MCP Transport types
@@ -227,8 +230,9 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
                 }
 
                 // Create a tool with execute function and proper parameters
+                // Only include properties that are compatible with AI SDK's Tool type
                 const toolWithExecute: MCPToolWithExecute = {
-                    ...tool,
+                    description: tool.description,
                     // Keep inputSchema for AI SDK v5 compatibility
                     // The AI SDK expects either a Zod schema or a JSON Schema wrapped with jsonSchema()
                     inputSchema: (() => {
@@ -410,3 +414,6 @@ global.mcp = lazyMCP;
 
 // Export for testing and advanced usage
 export { createMCPInstance };
+
+// Export the assistant wrapper
+export { createMCPAssistant } from './mcp-assistant-wrapper.js';

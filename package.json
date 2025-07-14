@@ -79,8 +79,8 @@
   "dependencies": {
     "@ai-sdk/anthropic": "2.0.0-beta.5",
     "@ai-sdk/google": "2.0.0-beta.8",
-    "@ai-sdk/openai": "2.0.0-beta.6",
-    "@ai-sdk/react": "2.0.0-beta.14",
+    "@ai-sdk/openai": "2.0.0-beta.7",
+    "@ai-sdk/react": "2.0.0-beta.16",
     "@ai-sdk/xai": "2.0.0-beta.4",
     "@johnlindquist/open": "^10.1.1",
     "@modelcontextprotocol/sdk": "1.13.3",
@@ -90,7 +90,7 @@
     "@octokit/plugin-rest-endpoint-methods": "15.0.0",
     "@octokit/plugin-retry": "8.0.1",
     "@octokit/plugin-throttling": "11.0.1",
-    "@openrouter/ai-sdk-provider": "0.7.2",
+    "@openrouter/ai-sdk-provider": "1.0.0-beta.1",
     "@types/chalk": "2.2.4",
     "@types/download": "8.0.5",
     "@types/fs-extra": "11.0.4",
@@ -101,7 +101,7 @@
     "acorn": "^8.15.0",
     "acorn-typescript": "^1.4.13",
     "advanced-calculator": "1.1.1",
-    "ai": "5.0.0-beta.14",
+    "ai": "5.0.0-beta.18",
     "axios": "1.10.0",
     "body-parser": "^2.2.0",
     "bottleneck": "^2.19.5",
@@ -146,7 +146,7 @@
     "suggestion": "2.1.2",
     "tmp-promise": "3.0.3",
     "untildify": "5.0.0",
-    "zod": "^3.25.67"
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
@@ -227,5 +227,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@10.12.4"
+  "packageManager": "pnpm@10.13.1"
 }
