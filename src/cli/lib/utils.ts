@@ -30,9 +30,6 @@ export let ensureTemplates = async () => {
 }
 
 export let createBinFromScript = async (type: Bin, { command, filePath, execPath, bin }: Script & { execPath?: string }) => {
-  if (!bin) {
-    return
-  }
   let template = jsh ? 'stackblitz' : 'terminal'
 
   let useCmd = process.platform === 'win32' && !process.env?.KIT_WSL
