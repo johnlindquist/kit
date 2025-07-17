@@ -20,6 +20,30 @@ const isWin = process.platform === 'win32'
 const toUiPath = (p: string) => isWin ? p.replaceAll('\\', '/') : p
 
 /**
+ * Filter choices based on file types configuration
+ * @param choices - Array of path choices
+ * @param fileTypes - Array of allowed file extensions (e.g., ['.mp4', '.mp3'])
+ * @returns Filtered choices including all directories and matching files
+ */
+const filterByFileTypes = (choices: Choice[], fileTypes: string[] | undefined): Choice[] => {
+  if (!fileTypes) return choices
+  
+  return choices.filter((choice) => {
+    // Always include directories (identified by folder.svg icon)
+    if (choice.img?.includes('folder.svg')) {
+      return true
+    }
+    
+    // Check file extension
+    const ext = ogPath.extname(choice.value)
+    
+    // Include files with matching extensions
+    // Exclude files without extensions (like README, Makefile) when fileTypes is specified
+    return ext && fileTypes.includes(ext)
+  })
+}
+
+/**
  * Return all mount points (eg. ['C:\\', 'D:\\']) on Windows so that an
  * empty prompt can list "drives", similar to "/", "/home", etc. on POSIX.
  */
@@ -42,7 +66,13 @@ const getWindowsRoots = async (): Promise<string[]> => {
 
 export const createPathChoices = async (
   startPath: string,
-  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync } = {}
+  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync, fileTypes } : {
+    dirFilter?: (dirent: any) => boolean
+    dirSort?: (a: any, b: any) => number
+    onlyDirs?: boolean
+    statFn?: typeof statAsync
+    fileTypes?: string[]
+  } = {}
 ) => {
   // Special-case: on Windows an empty path means "show me the drives"
   if (isWin && (!startPath || ogPath.parse(startPath).root === startPath)) {
@@ -88,8 +118,8 @@ export const createPathChoices = async (
           const stats = await getCachedStat(resolved)
 
           Object.assign(dirent, {
-            path: path.dirname(resolved),
-            name: path.basename(resolved),
+            path: ogPath.dirname(resolved),
+            name: ogPath.basename(resolved),
             isDirectory: () => stats.isDirectory(),
             isFile: () => stats.isFile(),
             isSymbolicLink: () => stats.isSymbolicLink(),
@@ -136,8 +166,10 @@ export const createPathChoices = async (
   }
 
   const mapped = await mapDirents(folders.concat(files))
-
-  return mapped.sort(dirSort)
+  const sorted = mapped.sort(dirSort)
+  
+  // Apply fileTypes filtering if specified
+  return filterByFileTypes(sorted, fileTypes)
 }
 
 type DefaultMissingPathChoice = Omit<Choice, 'value'> & {
@@ -222,7 +254,8 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
     try {
       let choices = await createPathChoices(startPath, {
         dirFilter: dirFilter as (dirent: any) => true,
-        onlyDirs
+        onlyDirs,
+        fileTypes: (config as PathConfig)?.fileTypes
       })
 
       choices.push(...missingChoices)
@@ -531,7 +564,8 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
       let choices = await createPathChoices(startPath, {
         dirFilter: (dirent) => true,
         dirSort,
-        onlyDirs
+        onlyDirs,
+        fileTypes: (config as PathConfig)?.fileTypes
       })
 
       setChoices(choices)

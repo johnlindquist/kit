@@ -136,6 +136,7 @@ export interface PathConfig extends PromptConfig {
   onlyDirs?: boolean
   showHidden?: boolean
   missingChoices?: Choice[]
+  fileTypes?: string[]
 }
 
 type PathPicker = (config?: string | PathConfig, actions?: Action[]) => Promise<string>
