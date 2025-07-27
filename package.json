@@ -142,6 +142,7 @@
     "safe-stable-stringify": "^2.5.0",
     "shelljs": "0.10.0",
     "slugify": "1.6.6",
+    "source-map-support": "^0.5.21",
     "strip-ansi": "7.1.0",
     "suggestion": "2.1.2",
     "tmp-promise": "3.0.3",

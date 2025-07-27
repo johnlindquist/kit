@@ -55,6 +55,7 @@ export async function JSXLoad(url) {
     packages: "external",
     charset: "utf8",
     write: false,
+    sourcemap: 'external', // Generate external sourcemaps for better debugging
     tsconfigRaw: {
       compilerOptions: {
         target: "esnext",

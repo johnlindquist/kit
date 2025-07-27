@@ -1,6 +1,22 @@
 process.env.KIT_CONTEXT = 'terminal'
 process.env.KIT_TARGET = 'terminal'
 
+// Enable sourcemap support for better error stack traces
+if (process.env.KIT_ENABLE_SOURCEMAPS !== 'false') {
+  const start = performance.now()
+  await import('source-map-support').then((sms) => {
+    sms.install({
+      environment: 'node',
+      handleUncaughtExceptions: false // We handle these ourselves
+    })
+    if (process.env.KIT_MEASURE) {
+      console.log(`[Perf] Sourcemap support loaded in ${(performance.now() - start).toFixed(2)}ms`)
+    }
+  }).catch((error) => {
+    console.warn('Failed to load source-map-support:', error.message)
+  })
+}
+
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:')
   console.error(formatError(error))
