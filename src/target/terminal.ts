@@ -83,8 +83,8 @@ global.kitPrompt = async (config: any) => {
     message: config.placeholder
   }
   let { prompt }: Enquirer = enquirer
-  // TODO: Strip out enquirer autocomplete
-  ;(prompt as any).on('cancel', () => process.exit())
+    // TODO: Strip out enquirer autocomplete
+    ; (prompt as any).on('cancel', () => process.exit())
 
   let result = (await prompt(promptConfig)) as any
 
@@ -97,13 +97,13 @@ global.arg = async (messageOrConfig = 'Input', choices) => {
   }
 
   let firstArg = global.args.length ? global.args.shift() : null
-  
+
   // Check if the argument is the special "__undefined__" marker
   if (firstArg === "__undefined__") {
     // Treat it as if no argument was provided - show the prompt
     firstArg = null
   }
-  
+
   if (firstArg) {
     let valid = true
     if (typeof messageOrConfig !== 'string' && (messageOrConfig as PromptConfig)?.validate) {
@@ -264,7 +264,7 @@ global.edit = async (filePath) => {
     if (global?.env?.KIT_TERMINAL_EDITOR === 'kit') {
       try {
         await exec(`~/.kit/kar ~/.kit/cli/edit.js '${filePath}'`)
-      } catch (error) {}
+      } catch (error) { }
     } else {
       await spawn(global.env.KIT_TERMINAL_EDITOR, [filePath], {
         stdio: 'inherit'
@@ -302,17 +302,17 @@ global.drop = async () => {
   global.exit()
 }
 
-global.setChoices = async () => {}
-global.clearTabs = async () => {}
+global.setChoices = async () => { }
+global.clearTabs = async () => { }
 
-global.setPanel = async (html, containerClasses = '') => {}
-global.setPreview = async (html, containerClasses = '') => {}
-global.setPanelContainer = async (html, containerClasses = '') => {}
+global.setPanel = async (html, containerClasses = '') => { }
+global.setPreview = async (html, containerClasses = '') => { }
+global.setPanelContainer = async (html, containerClasses = '') => { }
 
-global.setIgnoreBlur = async (ignore) => {}
-global.setResize = async (resize) => {}
+global.setIgnoreBlur = async (ignore) => { }
+global.setResize = async (resize) => { }
 
-global.setBounds = async (bounds: Partial<Rectangle>) => {}
+global.setBounds = async (bounds: Partial<Rectangle>) => { }
 
 global.setDescription = (description: string) => {
   // console.log({ description })
@@ -321,7 +321,7 @@ global.setName = (name: string) => {
   // console.log({ name })
 }
 
-global.setPauseResize = (pause: boolean) => {}
+global.setPauseResize = (pause: boolean) => { }
 
 global.getScriptsState = () => {
   notSupported('getScriptsState')
@@ -344,8 +344,8 @@ global.submit = async (value: any) => {
   notSupported('submit')
 }
 
-global.setLoading = (loading: boolean) => {}
-global.setRunning = (running: boolean) => {}
+global.setLoading = (loading: boolean) => { }
+global.setRunning = (running: boolean) => { }
 
 global.copy = async (text) => {
   let c = await npm('clipboardy')
@@ -355,6 +355,10 @@ global.copy = async (text) => {
 global.paste = async () => {
   let c = await npm('clipboardy')
   return c.read()
+}
+
+global.setFilterInput = async (inputFilter) => {
+  notSupported('setFilterInput')
 }
 
 type pathConfig = { startPath?: string; hint?: string }
@@ -378,26 +382,26 @@ global.revealFile = async () => {
   notSupported('revealFile')
   return ''
 }
-;(global as any).clipboard = new Proxy(
-  {},
-  {
-    get: (target, k: string) => {
-      return () => {
-        notSupported(`clipboard.${k}`)
+  ; (global as any).clipboard = new Proxy(
+    {},
+    {
+      get: (target, k: string) => {
+        return () => {
+          notSupported(`clipboard.${k}`)
+        }
       }
     }
-  }
-)
-;(global as any).keyboard = new Proxy(
-  {},
-  {
-    get: (target, k: string) => {
-      return () => {
-        notSupported(`keyboard.${k}`)
+  )
+  ; (global as any).keyboard = new Proxy(
+    {},
+    {
+      get: (target, k: string) => {
+        return () => {
+          notSupported(`keyboard.${k}`)
+        }
       }
     }
-  }
-)
+  )
 
 global.term = async (commandOrConfig) => {
   let defaultConfig = {
@@ -419,7 +423,7 @@ global.term = async (commandOrConfig) => {
   return result?.stdout || result?.stderr || ''
 }
 
-global.mainScript = async () => {}
+global.mainScript = async () => { }
 global.sendWait = async () => {
   notSupportedDebug('sendWait')
 }
