@@ -134,30 +134,27 @@ export let errorPrompt = async (error: Error) => {
   }
   if (process.env.KIT_CONTEXT === 'app') {
     global.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
-    let stackWithoutId = error?.stack?.replace(/\?[^:]*/g, '') || 'No Error Stack'
-    global.warn(stackWithoutId)
+    
+    // Use the new formatter for better error handling
+    const { SourcemapErrorFormatter } = await import('../core/sourcemap-formatter.js')
+    const formattedError = SourcemapErrorFormatter.formatError(error)
+    
+    global.warn(formattedError.stack)
 
     let errorFile = global.kitScript
-    let line = '1'
-    let col = '1'
+    let line = 1
+    let col = 1
 
-    let secondLine = stackWithoutId.split('\n')?.[1] || ''
-
-    // TODO: This is broken on Windows...
-    if (secondLine?.match('at file://')) {
-      if (isWin) {
-        errorFile = path.normalize(secondLine.replace('at file:///', '').replace(/:\d+/g, '').trim())
-          ;[, , line, col] = secondLine.replace('at file:///', '').split(':')
-      } else {
-        errorFile = secondLine.replace('at file://', '').replace(/:.*/, '').trim()
-          ;[, line, col] = secondLine.replace('at file://', '').split(':')
-      }
+    // Extract location using the formatter
+    const errorLocation = SourcemapErrorFormatter.extractErrorLocation(error)
+    if (errorLocation) {
+      errorFile = errorLocation.file
+      line = errorLocation.line
+      col = errorLocation.column
     }
 
-    // END TODO
-
     let script = global.kitScript.replace(/.*\//, '')
-    let errorToCopy = `${error.message}\n${error.stack}`
+    let errorToCopy = formattedError.stack
     let dashedDate = () => new Date().toISOString().replace('T', '-').replace(/:/g, '-').split('.')[0]
     let errorJsonPath = global.tmp(`error-${dashedDate()}.txt`)
     await global.writeFile(errorJsonPath, errorToCopy)
@@ -169,9 +166,9 @@ export let errorPrompt = async (error: Error) => {
       }
       global.warn(`Running error action because of`, {
         script,
-        error
+        error: formattedError.message
       })
-      await run(kitPath('cli', 'error-action.js'), script, errorJsonPath, errorFile, line, col)
+      await run(kitPath('cli', 'error-action.js'), script, errorJsonPath, errorFile, String(line), String(col))
     } catch (error) {
       global.warn(error)
     }
