@@ -55,7 +55,7 @@ export async function JSXLoad(url) {
     packages: "external",
     charset: "utf8",
     write: false,
-    sourcemap: 'external', // Generate external sourcemaps for better debugging
+    sourcemap: 'inline', // Use inline sourcemaps since we're not writing to disk
     tsconfigRaw: {
       compilerOptions: {
         target: "esnext",
