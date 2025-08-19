@@ -63,7 +63,7 @@ try {
   )
   try {
     await exec(
-      "pnpm config set use-node-version 22.9.0 --location project",
+      "pnpm config set use-node-version 22.17.1 --location project",
       {
         cwd: kenvPath(),
       }
@@ -83,4 +83,4 @@ try {
   process.exit(1)
 }
 
-export {}
+export { }

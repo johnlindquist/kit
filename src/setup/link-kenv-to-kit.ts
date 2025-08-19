@@ -43,7 +43,7 @@ await cli("install", `"${kitPath()}"`)
 let defaultPackageJson = {
   type: "module",
   engines: {
-    node: "22.9.0",
+    node: "22.17.1",
   },
   devDependencies: {
     "@johnlindquist/kit": `link:${(process.env.KIT || home(".kit"))?.replace(/\\/g, '/')}`,
@@ -66,4 +66,4 @@ if (!packageJsonObj.type) {
   )
 }
 
-export {}
+export { }

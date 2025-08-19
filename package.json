@@ -216,7 +216,7 @@
     ]
   },
   "volta": {
-    "node": "22.9.0"
+    "node": "22.17.1"
   },
   "config": {
     "commitizen": {

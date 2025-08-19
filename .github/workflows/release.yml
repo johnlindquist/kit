@@ -37,7 +37,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.9.0
+          node-version: 22.17.1
           cache: "pnpm"
 
       - name: Check node $PATH version
@@ -108,7 +108,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.9.0
+          node-version: 22.17.1
           cache: "pnpm"
 
       - name: Build Kit
@@ -218,7 +218,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.9.0
+          node-version: 22.17.1
           cache: "pnpm"
 
       - name: Build Kit

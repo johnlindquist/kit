@@ -1,7 +1,7 @@
 import { existsSync } from "fs"
 
 //Description: Adds the .kenv bin dir to your $PATH
-export {}
+export { }
 
 let kenv = await selectKenv()
 
@@ -12,7 +12,7 @@ if (process.platform === "win32") {
 2. Click the "Environment Variables..." button.
 3. Under the "System Variables" section, scroll down and highlight the "Path" variable, then click the "Edit..." button.  
 4. In the next screen, click "New" and then "Browse" to find the ${kenvPath(
-    "bint"
+    "bin"
   )} directory.
 5. Click "OK" to close the dialogs.
 6. Close the terminal and open it again.

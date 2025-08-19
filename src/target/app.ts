@@ -26,17 +26,7 @@ import type {
   DivConfig,
 } from "../types/kitapp.js"
 
-import {
-  filter,
-  Observable,
-  share,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-  Subject,
-  merge,
-} from "../lib/mini-rxjs.js"
+// RxJS removed — see rxless helpers and dispatcher below.
 import { default as minimist } from "minimist"
 import { default as stripAnsi } from "strip-ansi"
 
@@ -119,6 +109,39 @@ interface DisplayChoicesProps
 let promptId = 0
 
 global.__kitPromptId = ""
+
+// --- begin: rxless prompt helpers ---
+type MessageListener = (data: AppMessage) => void
+
+  // current prompt's local dispatcher; lets global.submit short‑circuit app round‑trips
+  ; (global as any).__kitDispatchLocal =
+    ((global as any).__kitDispatchLocal as MessageListener | undefined) || undefined
+
+  // replace "__kitEndPrevPromptSubject": we abort the previous prompt's listeners
+  ; (global as any).__kitAbortPrevPrompt =
+    ((global as any).__kitAbortPrevPrompt as (() => void) | undefined) || undefined
+
+const abortPrev = () => {
+  try {
+    ; (global as any).__kitAbortPrevPrompt?.()
+  } catch { }
+}
+
+function makeAbort() {
+  const ac = new AbortController()
+    ; (global as any).__kitAbortPrevPrompt = () => ac.abort()
+  return ac
+}
+
+function decodeIfDataUrl(value: any) {
+  if (typeof value === "string" && value.startsWith("data:")) {
+    const [header, content] = value.split(",")
+    const [, encoding] = header.split(";")
+    if (encoding === "base64") return Buffer.from(content, "base64")
+  }
+  return value
+}
+// --- end: rxless prompt helpers ---
 
 let createHandlerWrapper = (
   channel: keyof ChannelMap,
@@ -430,7 +453,7 @@ let onTabChanged = (input, state) => {
 
 // If you call a prompt while a prompt is already running, end the stream
 // This is especially important when switching tabs
-global.__kitEndPrevPromptSubject = new Subject()
+// global.__kitEndPrevPromptSubject removed - using AbortController instead
 global.__kitPromptState = {}
 global.finishPrompt = () => { }
 let promptPromises: Promise<any>[] = []
@@ -444,14 +467,32 @@ export let inspectPromptPromises = () => {
 }
 
 let runAction = async (data: AppMessage) => {
+  // console.log(`[SDK] runAction called with:`, {
+  //   channel: data?.channel,
+  //   actionName: data?.state?.action?.name,
+  //   actionFlag: data?.state?.action?.flag,
+  //   actionValue: data?.state?.action?.value,
+  //   shortcut: data?.state?.shortcut,
+  //   mapKeys: Array.from(global.__kitActionsMap.keys())
+  // })
+  
   let action: Action | Shortcut
-  if (
-    global.__kitActionsMap.has(data?.state?.action?.name)
-  ) {
-    action = global.__kitActionsMap.get(
-      data?.state?.action?.name
-    )
-  } else if (data?.state?.shortcut) {
+  // Try multiple ways to find the action
+  const possibleKeys = [
+    data?.state?.action?.name,
+    data?.state?.action?.flag,
+    data?.state?.action?.value,
+  ].filter(Boolean)
+  
+  for (const key of possibleKeys) {
+    if (global.__kitActionsMap.has(key)) {
+      action = global.__kitActionsMap.get(key)
+      // console.log(`[SDK] Found action with key: ${key}`)
+      break
+    }
+  }
+  
+  if (!action && data?.state?.shortcut) {
     for (let [
       key,
       value,
@@ -461,9 +502,14 @@ let runAction = async (data: AppMessage) => {
         value?.key === data.state.shortcut
       ) {
         action = value
+        console.log(`[SDK] Found action by shortcut: ${data.state.shortcut}`)
         break
       }
     }
+  }
+  
+  if (!action) {
+    console.log(`[SDK] No action found for:`, data?.state)
   }
 
   if (action) {
@@ -536,7 +582,7 @@ let waitForPromptValue = ({
 }: WaitForPromptValueProps) => {
   global.actionFlag = ""
   global.__kitPromptState = {}
-  global.__kitEndPrevPromptSubject.next()
+  abortPrev()
   global.activePromptPromise = new Promise(
     (resolve, reject) => {
       if (
@@ -558,357 +604,168 @@ let waitForPromptValue = ({
         setChoices([])
       }
 
-      global.__kitPromptSubject = new Subject()
-      let process$ = merge(
-        global.__kitPromptSubject as Subject<AppMessage>,
-        new Observable<AppMessage>(observer => {
-          let messageHandler = (data: AppMessage) => {
-            observer.next(data)
-          }
-          let errorHandler = (error: Error) => {
-            observer.error(error)
-          }
+      // --- begin: rxless dispatcher ---
+      const ac = makeAbort()
+      let resolving = false
+      let lockedByTabChange = false // mimic message$.takeUntil(tab$)
 
-          global.finishPrompt()
-          process.on("message", messageHandler)
-          process.on("error", errorHandler)
+      // track cleanups for this prompt
+      const cleanups: Array<() => void> = []
 
-          global.finishPrompt = () => {
-            process.off("message", messageHandler)
-            process.off("error", errorHandler)
-            global.finishPrompt = () => { }
-          }
+      // finishPrompt now tears down everything for this prompt
+      global.finishPrompt = () => {
+        while (cleanups.length) {
+          try { cleanups.pop()!() } catch { }
+        }
+        ; (global as any).__kitDispatchLocal = undefined
+        global.finishPrompt = () => { }
+      }
 
-          return global.finishPrompt
-        })
-      ).pipe(
-        takeUntil(global.__kitEndPrevPromptSubject),
-        share()
-      )
+      const handleTabChanged = (data: AppMessage) => {
+        lockedByTabChange = true // stop generic handlers after first TAB_CHANGED (like takeUntil)
+        onTabChanged(data.state.input, data.state)
+      }
 
-      let tab$ = process$.pipe(
-        filter(
-          data => data.channel === Channel.TAB_CHANGED
-        ),
-        share()
-      )
+      const handleValueSubmitted = async (data: AppMessage) => {
+        if (resolving) return
+        resolving = true
 
-      let message$ = process$.pipe(takeUntil(tab$), share())
-
-      let valueSubmitted$ = message$.pipe(
-        filter(
-          data => data.channel === Channel.VALUE_SUBMITTED
-        ),
-        share()
-      )
-
-      let value$ = valueSubmitted$.pipe(
-        tap(data => {
-          if (data.state?.flag) {
-            global.flag[data.state?.flag] = true
-            global.actionFlag = data.state?.flag || ""
-          }
-        }),
-        switchMap(async (data: AppMessage) => {
+        try {
           if (!data?.state) {
-            global.warn(
-              `AppMessage failed: ${JSON.stringify(
-                data,
-                null,
-                2
-              )}`
-            )
+            global.warn(`AppMessage failed: ${JSON.stringify(data, null, 2)}`)
+            resolving = false
             return
           }
-          let { value, focused, multiple, selected } =
-            data?.state
-          let choice = (global.kitPrevChoices || []).find(
-            (c: Choice) => c.id === focused?.id
-          )
 
-          // handle when a select prompt uses a flag
-          if (multiple) {
-            return selected
+          if (data.state?.flag) {
+            global.flag[data.state.flag] = true
+            global.actionFlag = data.state.flag || ""
           }
 
-          // TODO: Dont use onSubmit for chat component? onUserMessage maybe?
+          let { value, focused, multiple, selected } = data.state
+          let choice = (global.kitPrevChoices || []).find((c: Choice) => c.id === focused?.id)
+
+          if (multiple) {
+            global.finishPrompt()
+            resolve(selected)
+            global.__kitAddErrorListeners()
+            ac.abort()
+            return
+          }
+
           if (global.__kitPromptState?.ui !== UI.chat) {
             let checkPreventSubmit: any
-
             if (!data?.state?.flag) {
               if (choice?.onSubmit) {
-                checkPreventSubmit = await choice?.onSubmit(
-                  data?.state?.input,
-                  data?.state
-                )
+                checkPreventSubmit = await choice.onSubmit(data.state.input, data.state)
               } else {
-                checkPreventSubmit = await onSubmit(
-                  data?.state?.input,
-                  data.state
-                )
+                checkPreventSubmit = await onSubmit(data.state.input, data.state)
               }
             }
-
-            if (checkPreventSubmit === preventSubmit) {
+            if (checkPreventSubmit === global.preventSubmit) {
               send(Channel.PREVENT_SUBMIT)
-              return preventSubmit
+              resolving = false
+              return
             }
           }
 
-          // TODO: Refactor out an invalid$ stream
           if (validate) {
             let validateMessage = await validate(value)
-            if (
-              typeof validateMessage === "boolean" &&
-              !validateMessage
-            ) {
-              send(
-                Channel.VALUE_INVALID,
-                chalk`${value} is {red not valid}`
-              )
-              return invalid
+            if (typeof validateMessage === "boolean" && !validateMessage) {
+              send(Channel.VALUE_INVALID, chalk`${value} is {red not valid}`)
+              resolving = false
+              return
             }
-
             if (typeof validateMessage === "string") {
               send(Channel.VALUE_INVALID, validateMessage)
-
-              return invalid
-            }
-            return value
-          }
-          return value
-        }),
-        filter(
-          value =>
-            value !== invalid && value !== preventSubmit
-        ),
-        take(1),
-        share()
-      )
-
-      tab$.pipe(takeUntil(value$)).subscribe(data => {
-        onTabChanged(data.state.input, data.state)
-      })
-
-      message$.pipe(takeUntil(value$), share()).subscribe({
-        next: async data => {
-          // if (data?.promptId !== global.__kitPromptId) {
-          //   log(
-          //     `🤔 ${data?.channel} ${data?.promptId} : ${global.__kitPromptId} Received "prompt" message from an unmatched prompt`
-          //   )
-          //   return
-          // }
-          if (data?.state?.input === Value.Undefined) {
-            data.state.input = ""
-          }
-
-          global.__kitPromptState = data.state
-
-          trace.instant({
-            name: data?.channel,
-            channel: data?.channel,
-            args: data,
-          })
-          switch (data.channel) {
-            case Channel.PING:
-              send(Channel.PONG)
-              break
-
-            case Channel.ON_SUBMIT:
-              await onSubmit(data.state.input, data.state)
-              break
-
-            case Channel.INPUT:
-              onInput(data.state.input, data.state)
-              break
-
-            case Channel.ACTION:
-              await runAction(data)
-              break
-
-            case Channel.ACTIONS_INPUT:
-              onActionsInput(data.state.input, data.state)
-              break
-
-            case Channel.SELECTED:
-              onSelected(data.state.input, data.state)
-              break
-
-            case Channel.CHANGE:
-              onChange(data.state.input, data.state)
-              break
-
-            case Channel.NO_CHOICES:
-              onNoChoices(data.state.input, data.state)
-              break
-
-            case Channel.ESCAPE:
-              onEscape(data.state.input, data.state)
-
-              break
-
-            case Channel.BACK:
-              onBack(data.state.input, data.state)
-              break
-
-            case Channel.FORWARD:
-              onForward(data.state.input, data.state)
-              break
-
-            case Channel.UP:
-              onUp(data.state.input, data.state)
-              break
-
-            case Channel.DOWN:
-              onDown(data.state.input, data.state)
-              break
-
-            case Channel.LEFT:
-              onLeft(data.state.input, data.state)
-              break
-
-            case Channel.RIGHT:
-              onRight(data.state.input, data.state)
-              break
-
-            case Channel.TAB:
-              onTab(data.state.input, data.state)
-              break
-
-            case Channel.KEYWORD_TRIGGERED:
-              onKeyword(data.state.input, data.state)
-              break
-
-            case Channel.CHOICE_FOCUSED:
-              onChoiceFocus(data.state.input, data.state)
-              break
-
-            case Channel.MESSAGE_FOCUSED:
-              onMessageFocus(data.state.input, data.state)
-              break
-
-            case Channel.BLUR:
-              onBlur(data.state.input, data.state)
-              break
-
-            case Channel.ABANDON: {
-              global.__kitAbandoned = true
-              onAbandon(data.state.input, data.state)
-              break
-            }
-
-            case Channel.SHORTCUT:
-              await runAction(data)
-              break
-
-            case Channel.ON_PASTE:
-              onPaste(data.state.input, data.state)
-              break
-
-            case Channel.ON_DROP:
-              onDrop(data.state.input, data.state)
-              break
-
-            case Channel.ON_DRAG_ENTER:
-              onDragEnter(data.state.input, data.state)
-              break
-
-            case Channel.ON_DRAG_LEAVE:
-              onDragLeave(data.state.input, data.state)
-              break
-
-            case Channel.ON_DRAG_OVER:
-              onDragOver(data.state.input, data.state)
-              break
-
-            case Channel.ON_MENU_TOGGLE:
-              onMenuToggle(data.state.input, data.state)
-              break
-
-            case Channel.ON_INIT:
-              onInit(data.state.input, data.state)
-              break
-
-            case Channel.ON_VALIDATION_FAILED:
-              onValidationFailed(
-                data.state.input,
-                data.state
-              )
-              break
-
-            case Channel.SCRIPTS_CHANGED:
-              global.__kitScriptsFromCache = false
-              break
-
-            case Channel.ENV_CHANGED: {
-              ; (process as any).env = data?.env
-              break
-            }
-
-            case Channel.ENV_UPDATED: {
-              let { key, value } = data
-              global.env[key] = value
-              break
-            }
-
-            default:
-              // warn(`Unknown channel: ${data.channel}`)
-              break
-          }
-        },
-        // TODO: Add a kit log
-        // TODO: Why abandon on CLI?
-        complete: () => {
-          // global.log(
-          //   `${process.pid}: ✂️  Remove all handlers`
-          // )
-        },
-      })
-
-      value$.subscribe({
-        next: value => {
-          if (value?.data) {
-            console.log(`Found value.data`)
-            value = value.data
-          }
-          if (
-            typeof value === "string" &&
-            value.startsWith("data:")
-          ) {
-            const [header, content] = value.split(",")
-            const [type, encoding] = header.split(";")
-
-            // log(`decoding ${encoding} ${type}`)
-
-            if (encoding === "base64") {
-              value = Buffer.from(content, "base64")
+              resolving = false
+              return
             }
           }
 
-          // for (let eventName of process.eventNames()) {
-          //   let count = process.listenerCount(eventName)
-
-          //   console.log(
-          //     `${process.pid}: ✅  ${String(
-          //       eventName
-          //     )} ${count} listeners left.`
-          //   )
-          // }
+          let submittedValue: any = value
+          if (submittedValue?.data) submittedValue = submittedValue.data
+          submittedValue = decodeIfDataUrl(submittedValue)
 
           global.finishPrompt()
-          resolve(value)
-
+          resolve(submittedValue)
           global.__kitAddErrorListeners()
-        },
-        complete: () => {
-          // global.log(
-          //   `${process.pid}: Prompt #${promptId} complete 👍`
-          // )
-        },
-        error: error => {
-          reject(error)
-        },
-      })
+          ac.abort()
+        } catch (error) {
+          reject(error as Error)
+        }
+      }
+
+      const handleMessage = async (data: AppMessage) => {
+        if (ac.signal.aborted) return
+        if (data?.state?.input === Value.Undefined) data.state.input = ""
+
+        global.__kitPromptState = data.state
+
+        trace.instant({
+          name: data?.channel,
+          channel: data?.channel,
+          args: data,
+        })
+
+        // after first TAB_CHANGED, ignore all other channels (this mirrors message$.takeUntil(tab$))
+        if (lockedByTabChange && data.channel !== Channel.TAB_CHANGED) return
+
+        switch (data.channel) {
+          case Channel.PING: send(Channel.PONG); return
+          case Channel.ON_SUBMIT: await onSubmit(data.state.input, data.state); return
+          case Channel.ACTION:
+          case Channel.SHORTCUT: await runAction(data); return
+          case Channel.SELECTED: onSelected(data.state.input, data.state); return
+          case Channel.CHANGE: onChange(data.state.input, data.state); return
+          case Channel.NO_CHOICES: onNoChoices(data.state.input, data.state); return
+          case Channel.ESCAPE: onEscape(data.state.input, data.state); return
+          case Channel.BACK: onBack(data.state.input, data.state); return
+          case Channel.FORWARD: onForward(data.state.input, data.state); return
+          case Channel.UP: onUp(data.state.input, data.state); return
+          case Channel.DOWN: onDown(data.state.input, data.state); return
+          case Channel.LEFT: onLeft(data.state.input, data.state); return
+          case Channel.RIGHT: onRight(data.state.input, data.state); return
+          case Channel.TAB: onTab(data.state.input, data.state); return
+          case Channel.KEYWORD_TRIGGERED: onKeyword(data.state.input, data.state); return
+          case Channel.CHOICE_FOCUSED: onChoiceFocus(data.state.input, data.state); return
+          case Channel.MESSAGE_FOCUSED: onMessageFocus(data.state.input, data.state); return
+          case Channel.BLUR: onBlur(data.state.input, data.state); return
+          case Channel.ABANDON: global.__kitAbandoned = true; onAbandon(data.state.input, data.state); return
+          case Channel.ON_PASTE: onPaste(data.state.input, data.state); return
+          case Channel.ON_DROP: onDrop(data.state.input, data.state); return
+          case Channel.ON_DRAG_ENTER: onDragEnter(data.state.input, data.state); return
+          case Channel.ON_DRAG_LEAVE: onDragLeave(data.state.input, data.state); return
+          case Channel.ON_DRAG_OVER: onDragOver(data.state.input, data.state); return
+          case Channel.ON_MENU_TOGGLE: onMenuToggle(data.state.input, data.state); return
+          case Channel.ON_INIT: onInit(data.state.input, data.state); return
+          case Channel.ON_VALIDATION_FAILED: onValidationFailed(data.state.input, data.state); return
+          case Channel.SCRIPTS_CHANGED: global.__kitScriptsFromCache = false; return
+          case Channel.ENV_CHANGED: ; (process as any).env = data?.env; return
+          case Channel.ENV_UPDATED: { let { key, value } = data as any; global.env[key] = value; } return
+          case Channel.INPUT: onInput(data.state.input, data.state); return
+          case Channel.ACTIONS_INPUT: onActionsInput(data.state.input, data.state); return
+          case Channel.TAB_CHANGED: handleTabChanged(data); return
+          case Channel.VALUE_SUBMITTED: await handleValueSubmitted(data); return
+          default: return
+        }
+      }
+
+      // hook up process events
+      const onError = (error: Error) => reject(error)
+      process.on("message", handleMessage)
+      process.on("error", onError)
+      cleanups.push(() => process.off("message", handleMessage))
+      cleanups.push(() => process.off("error", onError))
+
+        // allow local (in-process) submissions to short-circuit
+        ; (global as any).__kitDispatchLocal = handleMessage
+
+      // clean up when aborted
+      ac.signal.addEventListener("abort", () => {
+        global.finishPrompt()
+      }, { once: true })
+      // --- end: rxless dispatcher ---
     }
   )
   return global.activePromptPromise
@@ -1326,6 +1183,11 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   global.__currentPromptConfig = config
   await prepPrompt(config)
+  
+  // Send flags to renderer if they exist (including actions converted to flags)
+  if (config.flags) {
+    await global.setFlags(config.flags)
+  }
 
   let choiceFocus = createOnChoiceFocusDefault(
     debounceChoiceFocus,
@@ -2734,16 +2596,15 @@ global.clearClipboardHistory = async () => {
 
 global.submit = async (value: any) => {
   global.send(Channel.VALUE_SUBMITTED, value)
-  if (global.__kitPromptSubject) {
-    global.__kitPromptSubject.next({
+  const dispatch = (global as any).__kitDispatchLocal as MessageListener | undefined
+  if (dispatch) {
+    dispatch({
       channel: Channel.VALUE_SUBMITTED,
       state: {
-        ...(global.__kitPromptState || {
-          input: "",
-        }),
+        ...(global.__kitPromptState || { input: "" }),
         value,
       },
-    })
+    } as any)
   }
 }
 

@@ -690,15 +690,17 @@ global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
     if (key === 'order') continue
     if (key === 'sortChoicesKey') continue
 
+    // Strip non-serializable functions before sending to avoid IPC serialization issues
+    const { onAction, condition, preview, ...rest } = value ?? {}
     let validFlag = {
-      ...value,
+      ...rest,
       name: value?.name || key,
       shortcut: value?.shortcut || '',
       description: value?.description || '',
       value: key,
       bar: value?.bar || '',
-      preview: value?.preview || '',
-      hasAction: Boolean(value?.onAction)
+      preview: typeof preview === 'string' ? preview : '',
+      hasAction: Boolean(onAction)
     }
     validFlags[key] = validFlag
 
@@ -724,7 +726,13 @@ global.prepFlags = (flagsOptions: FlagsObject): FlagsObject => {
       choice.group = value.group
     }
 
-    global.__kitActionsMap.set(value?.name || key, choice)
+    // Use the flag key (not the display name) as the map key, since that's what the UI sends back
+    global.__kitActionsMap.set(key, choice)
+    // console.log(`[SDK] Storing action in map with key: ${key}`, {
+    //   name: choice.name,
+    //   onAction: typeof value?.onAction,
+    //   shortcut: choice.shortcut
+    // })
   }
 
   return validFlags
@@ -740,6 +748,15 @@ global.setFlags = async (flags: FlagsObject, options = {}) => {
     }
   }
   // TODO: Move props from FlagsObject like "order", "sortChoicesKey" to the options
+  // console.log(`[SDK] Sending flags to app:`, {
+  //   flagKeys: Object.keys(flagsMessage.flags),
+  //   flagsWithHasAction: Object.entries(flagsMessage.flags).map(([k, v]) => ({
+  //     key: k,
+  //     name: (v as any).name,
+  //     hasAction: (v as any).hasAction,
+  //     shortcut: (v as any).shortcut
+  //   }))
+  // })
   await global.sendWait(Channel.SET_FLAGS, flagsMessage)
 }
 
@@ -1049,7 +1066,8 @@ export let actions: Action[] = [
     description: 'Search for a script by contents',
     shortcut: `${cmd}+f`,
     onAction: async () => {
-      global.setFlags({})
+      // Don't clear all flags - preserve existing action flags
+      // global.setFlags({})  
       await run(kitPath('cli', 'find.js'))
     },
     group: 'Script Actions'
