@@ -30,9 +30,6 @@ importers:
       '@johnlindquist/open':
         specifier: ^10.1.1
         version: 10.1.1
-      '@kit/schemas':
-        specifier: file:../packages/schemas
-        version: file:../packages/schemas
       '@modelcontextprotocol/sdk':
         specifier: 1.13.3
         version: 1.13.3
@@ -595,9 +592,6 @@ packages:
 
   '@keyv/serialize@1.0.3':
     resolution: {integrity: sha512-qnEovoOp5Np2JDGonIDL6Ayihw0RhnRh6vxPuHo4RDn1UOzwEo4AeIfpL6UGIrsceWrCMiVPgwRjbHu4vYFc3g==}
-
-  '@kit/schemas@file:../packages/schemas':
-    resolution: {directory: ../packages/schemas, type: directory}
 
   '@mapbox/node-pre-gyp@2.0.0':
     resolution: {integrity: sha512-llMXd39jtP0HpQLVI37Bf1m2ADlEb35GYSh1SDSLsBhR+5iCxiNGlT31yqbNtVHygHAtMy6dWFERpU2JgufhPg==}
@@ -4787,10 +4781,6 @@ snapshots:
   '@keyv/serialize@1.0.3':
     dependencies:
       buffer: 6.0.3
-
-  '@kit/schemas@file:../packages/schemas':
-    dependencies:
-      zod: 3.25.76
 
   '@mapbox/node-pre-gyp@2.0.0':
     dependencies:
