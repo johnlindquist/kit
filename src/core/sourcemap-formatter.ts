@@ -23,7 +23,7 @@ export interface FormattedError {
 export class SourcemapErrorFormatter {
   private static readonly STACK_FRAME_REGEX = /^\s*at\s+(?:(.+?)\s+\()?(.+?):(\d+):(\d+)\)?$/
   private static readonly WINDOWS_PATH_REGEX = /^([a-zA-Z]:\\|\\\\)/
-  private static readonly FILE_URL_REGEX = /^file:\/\/\/?/
+  private static readonly FILE_URL_REGEX = /^file:\/\//
 
   /**
    * Formats an error with enhanced stack trace information
@@ -63,8 +63,14 @@ export class SourcemapErrorFormatter {
           file = file.substring(1)
         }
         
-        // Normalize path for current platform
+        // Ensure absolute paths remain absolute after normalization
+        const isAbsolutePath = file.startsWith('/') || this.WINDOWS_PATH_REGEX.test(file)
         file = normalize(file)
+        
+        // On Unix, normalize may strip leading slash, restore it if needed
+        if (isAbsolutePath && !file.startsWith('/') && os.platform() !== 'win32') {
+          file = '/' + file
+        }
         
         frames.push({
           file,
@@ -155,9 +161,15 @@ export class SourcemapErrorFormatter {
       }
       
       // Resolve relative paths
-      const resolvedPath = isAbsolute(cleanPath) 
+      const isAbsolutePath = cleanPath.startsWith('/') || this.WINDOWS_PATH_REGEX.test(cleanPath)
+      let resolvedPath = isAbsolute(cleanPath) 
         ? normalize(cleanPath)
         : resolve(basePath || process.cwd(), cleanPath)
+      
+      // On Unix, normalize may strip leading slash, restore it if needed  
+      if (isAbsolutePath && !resolvedPath.startsWith('/') && os.platform() !== 'win32') {
+        resolvedPath = '/' + resolvedPath
+      }
       
       // Check if file exists
       if (existsSync(resolvedPath)) {

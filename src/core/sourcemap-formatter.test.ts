@@ -1,6 +1,9 @@
 import ava from 'ava'
 import { SourcemapErrorFormatter } from './sourcemap-formatter.js'
 import os from 'os'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
 
 ava('formatError should parse basic error stack', (t) => {
   const error = new Error('Test error')
