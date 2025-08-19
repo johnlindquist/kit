@@ -22,7 +22,8 @@ export interface FormattedError {
 
 export class SourcemapErrorFormatter {
   private static readonly STACK_FRAME_REGEX = /^\s*at\s+(?:(.+?)\s+\()?(.+?):(\d+):(\d+)\)?$/
-  private static readonly WINDOWS_PATH_REGEX = /^([a-zA-Z]:\\|\\\\)/
+  // Windows absolute path: drive letter ("C:\" or "C:/") or UNC ("\\server\share")
+  private static readonly WINDOWS_PATH_REGEX = /^([a-zA-Z]:[\\/]|\\\\)/
   private static readonly FILE_URL_REGEX = /^file:\/\//
 
   /**
@@ -57,18 +58,17 @@ export class SourcemapErrorFormatter {
           .replace(this.FILE_URL_REGEX, '')
           .replace(/\?.*$/, '') // Remove query parameters
         
-        // Handle Windows paths
-        if (os.platform() === 'win32' && file.startsWith('/')) {
-          // Convert /C:/path to C:/path on Windows
-          file = file.substring(1)
-        }
+        // Drop the leading slash for Windows drive paths like "/C:/..."
+        // This handles file://C:/... URLs that become /C:/... after protocol removal
+        file = file.replace(/^\/([a-zA-Z]:\/?)/, '$1')
         
         // Ensure absolute paths remain absolute after normalization
         const isAbsolutePath = file.startsWith('/') || this.WINDOWS_PATH_REGEX.test(file)
         file = normalize(file)
         
         // On Unix, normalize may strip leading slash, restore it if needed
-        if (isAbsolutePath && !file.startsWith('/') && os.platform() !== 'win32') {
+        // But don't add a slash to Windows-style paths (C:/, \\server\share)
+        if (isAbsolutePath && !file.startsWith('/') && !this.WINDOWS_PATH_REGEX.test(file) && os.platform() !== 'win32') {
           file = '/' + file
         }
         
@@ -114,14 +114,17 @@ export class SourcemapErrorFormatter {
    * Determines if a frame should be skipped in the output
    */
   private static shouldSkipFrame(frame: StackFrame): boolean {
+    // Normalize path separators so regexes behave the same on Win & POSIX
+    const f = frame.file.replace(/\\/g, '/')
     const skipPatterns = [
-      /node_modules/,
-      /internal\/modules/,
-      /internal\/process/,
-      /internal\/timers/
+      /(?:^|\/)node_modules(?:\/|$)/,
+      /(?:^|\/)internal\/modules(?:\/|$)/,
+      /(?:^|\/)internal\/process(?:\/|$)/,
+      /(?:^|\/)internal\/timers(?:\/|$)/,
+      /^node:internal\//, // e.g., node:internal/modules/...
     ]
     
-    return skipPatterns.some(pattern => pattern.test(frame.file))
+    return skipPatterns.some(pattern => pattern.test(f))
   }
 
   /**
@@ -155,19 +158,19 @@ export class SourcemapErrorFormatter {
       // Remove file:// protocol if present
       let cleanPath = filePath.replace(this.FILE_URL_REGEX, '')
       
-      // Handle Windows paths
-      if (os.platform() === 'win32' && cleanPath.startsWith('/')) {
-        cleanPath = cleanPath.substring(1)
-      }
+      // Drop the leading slash for Windows drive paths like "/C:/..."
+      // This handles file://C:/... URLs that become /C:/... after protocol removal
+      cleanPath = cleanPath.replace(/^\/([a-zA-Z]:\/?)/, '$1')
       
       // Resolve relative paths
       const isAbsolutePath = cleanPath.startsWith('/') || this.WINDOWS_PATH_REGEX.test(cleanPath)
-      let resolvedPath = isAbsolute(cleanPath) 
+      let resolvedPath = (isAbsolute(cleanPath) || this.WINDOWS_PATH_REGEX.test(cleanPath))
         ? normalize(cleanPath)
         : resolve(basePath || process.cwd(), cleanPath)
       
-      // On Unix, normalize may strip leading slash, restore it if needed  
-      if (isAbsolutePath && !resolvedPath.startsWith('/') && os.platform() !== 'win32') {
+      // On Unix, normalize may strip leading slash, restore it if needed
+      // But don't add a slash to Windows-style paths (C:/, \\server\share)
+      if (isAbsolutePath && !resolvedPath.startsWith('/') && !this.WINDOWS_PATH_REGEX.test(resolvedPath) && os.platform() !== 'win32') {
         resolvedPath = '/' + resolvedPath
       }
       
