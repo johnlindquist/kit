@@ -33,7 +33,7 @@ await tmp.withDir(async (dir) => {
 	})
 
 	ava("legacy npm import with title-case", async (t) => {
-		try{
+		try {
 			await exec(`pnpm init`, {
 				cwd: kenvPath()
 			})
@@ -41,7 +41,18 @@ await tmp.withDir(async (dir) => {
 				cwd: kitPath()
 			})
 		} catch (error) {
-			t.log(error)
+			// On Windows CI we sometimes see pnpm init fail with
+			// ERR_PNPM_PACKAGE_JSON_EXISTS when package.json already exists.
+			// That error is benign for this test; log rich context to aid triage.
+			const e: any = error
+			t.log({
+				message: e?.message,
+				exitCode: e?.exitCode,
+				stdout: e?.stdout,
+				stderr: e?.stderr,
+				cwdKenv: kenvPath(),
+				cwdKit: kitPath()
+			})
 		}
 		console.log = t.log
 		global.log = t.log
