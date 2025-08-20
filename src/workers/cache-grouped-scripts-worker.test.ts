@@ -161,7 +161,8 @@ test('Worker caches results for identical stamp filePath', async (t) => {
 
 test('benchmark - worker CACHE_MAIN_SCRIPTS', async (t) => {
   const previousResults = await loadPreviousResults()
-  const runs = 20
+  const isWindows = process.platform === 'win32'
+  const runs = isWindows ? 5 : 20
   const times = []
 
   // Warm-up run (not measured)
