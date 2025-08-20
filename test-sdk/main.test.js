@@ -10,6 +10,21 @@ process.env.NODE_NO_WARNINGS = 1;
 
 process.env.KIT = process.env.KIT || path.resolve(os.homedir(), '.kit');
 
+// Global per-test diagnostics: BEGIN/END + watchdog
+ava.beforeEach((t) => {
+  t.context.__start = Date.now()
+  t.log(`[test-diag] BEGIN ${t.title}`)
+  t.context.__timer = setTimeout(() => {
+    console.log(`[test-diag] WARN still running after 15s: ${t.title}`)
+  }, 15000)
+})
+
+ava.afterEach.always((t) => {
+  try { clearTimeout(t.context.__timer) } catch {}
+  const dur = Date.now() - (t.context.__start || Date.now())
+  t.log(`[test-diag] END ${t.title} in ${dur}ms`)
+})
+
 ava.serial('app-prompt.js', async (t) => {
   let script = 'mock-script-with-arg';
   let scriptPath = kenvPath('scripts', `${script}.js`);
