@@ -224,13 +224,27 @@ ava.serial('kit new, run, and rm', async (t) => {
   console.log(\`${command} \${value} 🎉!\`)
 `;
 
-  let { stdout, stderr } = await exec(`kit new ${command} main --no-edit`, {
+  // Diagnostics: verify PATH and kit binary presence before running
+  const binDir = kenvPath('bin')
+  t.log('[test-diag] PATH', process.env.PATH)
+  t.log('[test-diag] kit bin dir', binDir)
+  try {
+    const bins = await readdir(binDir)
+    t.log('[test-diag] existing bins', bins)
+  } catch (e) {
+    t.log('[test-diag] readdir bin failed', e?.message || String(e))
+  }
+
+  const newCmd = `kit new ${command} main --no-edit`
+  t.log('[test-diag] exec start', newCmd)
+  let { stdout, stderr } = await exec(newCmd, {
     env: {
       ...process.env,
       KIT_NODE_PATH: process.execPath,
       KIT_MODE: 'js'
     }
   });
+  t.log('[test-diag] exec done', { newCmd, stderrLen: (stderr||'').length, stdoutLen: (stdout||'').length })
 
   let scriptPath = kenvPath('scripts', `${command}.js`);
   let binPath = kenvPath('bin', `${command}`);
@@ -246,11 +260,17 @@ ava.serial('kit new, run, and rm', async (t) => {
   t.true(test('-f', binPath), 'bin created');
 
   let message = 'success';
-  ({ stdout, stderr } = await exec(`${binPath} ${message}`));
+  const runCmd = `${binPath} ${message}`
+  t.log('[test-diag] run bin start', runCmd)
+  ;({ stdout, stderr } = await exec(runCmd));
+  t.log('[test-diag] run bin done', { runCmd, stderrLen: (stderr||'').length, stdoutLen: (stdout||'').length })
 
   t.true(stdout.includes(message), `stdout includes ${message}`);
 
-  let { stdout: rmStdout, stderr: rmStderr } = await exec(`kit rm ${command} --confirm`);
+  const rmCmd = `kit rm ${command} --confirm`
+  t.log('[test-diag] rm start', rmCmd)
+  let { stdout: rmStdout, stderr: rmStderr } = await exec(rmCmd);
+  t.log('[test-diag] rm done', { rmCmd, stderrLen: (rmStderr||'').length, stdoutLen: (rmStdout||'').length })
 
   let scripts = await readdir(kenvPath('scripts'));
   let bins = await readdir(kenvPath('bin'));
