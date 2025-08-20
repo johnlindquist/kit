@@ -1909,8 +1909,16 @@ export let processWithStringPreview = async (s: Script, infoBlock: string) => {
     processedPreview = `<div/>`
   } else {
     try {
-      let content = await readFile(path.resolve(path.dirname(s.filePath), s?.preview as string), 'utf-8')
-      processedPreview = infoBlock ? md(infoBlock) : `` + md(content)
+      const val = String(s?.preview || '').trim()
+      // If the preview looks like inline HTML, return it directly
+      if (val.startsWith('<')) {
+        processedPreview = (infoBlock ? md(infoBlock) : ``) + val
+      } else {
+        // Treat string as a relative doc path next to the script
+        const docPath = path.resolve(path.dirname(s.filePath), val)
+        const content = await readFile(docPath, 'utf-8')
+        processedPreview = (infoBlock ? md(infoBlock) : ``) + md(content)
+      }
     } catch (error) {
       processedPreview = `Error: ${error.message}`
     }
