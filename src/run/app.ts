@@ -24,7 +24,12 @@ let script = await arg("Path to script:")
 process.title = path.basename(script)
 
 process.once("beforeExit", () => {
-  send(Channel.BEFORE_EXIT)
+  try {
+    console.warn('[app-exit-diag] app BEFORE_EXIT sending')
+    send(Channel.BEFORE_EXIT)
+  } catch (e) {
+    console.warn('[app-exit-diag] app send BEFORE_EXIT failed:', (e as any)?.message || e)
+  }
 })
 
 await run(script)

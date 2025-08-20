@@ -42,7 +42,12 @@ process.title = `Kit Idle - Main Script`
 configEnv()
 
 process.once("beforeExit", () => {
-  send(Channel.BEFORE_EXIT)
+  try {
+    console.warn('[app-exit-diag] app-index BEFORE_EXIT sending')
+    send(Channel.BEFORE_EXIT)
+  } catch (e) {
+    console.warn('[app-exit-diag] app-index send BEFORE_EXIT failed:', (e as any)?.message || e)
+  }
 })
 
 log(

@@ -128,11 +128,22 @@ configEnv()
 process.title = `Kit - ${path.basename(script)}`
 
 process.once('beforeExit', () => {
-  if (global?.trace?.flush) {
-    global.trace.flush()
-    global.trace = null
+  // Emit BEFORE_EXIT before tearing down tracing to avoid null deref
+  try {
+    console.warn('[app-exit-diag] app-prompt BEFORE_EXIT sending')
+    send(Channel.BEFORE_EXIT)
+  } catch (e) {
+    console.warn('[app-exit-diag] send BEFORE_EXIT failed:', (e as any)?.message || e)
   }
-  send(Channel.BEFORE_EXIT)
+  try {
+    if (global?.trace?.flush) {
+      global.trace.flush()
+    }
+  } catch (e) {
+    console.warn('[app-exit-diag] trace.flush failed:', (e as any)?.message || e)
+  } finally {
+    try { (global as any).trace = null } catch {}
+  }
 })
 
 performance.mark('run')
