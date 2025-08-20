@@ -37,8 +37,17 @@ function runWorkerMessage(messageToSend: any): Promise<{ msg: any; worker: Worke
     const worker = new Worker(compiledWorkerPath)
     let resolved = false
 
+    // Diagnostics: log worker lifecycle to help triage CI hangs
+    worker.on('online', () => {
+      console.error(`[worker-diag] online threadId=${worker.threadId} file=${compiledWorkerPath}`)
+    })
+    worker.on('exit', (code) => {
+      console.error(`[worker-diag] exit threadId=${worker.threadId} code=${code}`)
+    })
+
     // Listen for messages and resolve when we get a CACHE_MAIN_SCRIPTS message
     worker.on('message', (msg) => {
+      console.error(`[worker-diag] message threadId=${worker.threadId} channel=${msg?.channel} id=${msg?.id}`)
       if (msg.channel === Channel.CACHE_MAIN_SCRIPTS && !resolved) {
         resolved = true
         resolve({ msg, worker })
@@ -54,12 +63,15 @@ function runWorkerMessage(messageToSend: any): Promise<{ msg: any; worker: Worke
       reject(err)
     })
 
+    console.error(`[worker-diag] postMessage threadId=${worker.threadId} channel=${messageToSend?.channel} id=${messageToSend?.id}`)
     worker.postMessage(messageToSend)
 
     // Add timeout to prevent hanging
     setTimeout(() => {
       if (!resolved) {
         if (process.env.CI) {
+          console.error('[worker-diag] timeout waiting for CACHE_MAIN_SCRIPTS; terminating worker to avoid dangling thread')
+          try { worker.terminate() } catch {}
           console.log('Timeout waiting for CACHE_MAIN_SCRIPTS message. This is expected to sometimes fail in CI, but need to investigate why...')
         } else {
           reject(new Error('Timeout waiting for CACHE_MAIN_SCRIPTS message'))
