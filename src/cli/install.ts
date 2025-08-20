@@ -105,6 +105,9 @@ if (!global.confirmedPackages) {
 }
 
 if (process?.send) global.setChoices([])
-await install([...global.confirmedPackages, ...argOpts])
+// Only pass confirmed package names to the installer. Avoid forwarding
+// arbitrary process args (e.g., AVA flags like --concurrency) which can
+// break package manager commands in CI, especially on Windows.
+await install([...global.confirmedPackages])
 const packages = global.confirmedPackages
 export { packages }
