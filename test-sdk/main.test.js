@@ -11,8 +11,6 @@ process.env.NODE_NO_WARNINGS = 1;
 process.env.KIT = process.env.KIT || path.resolve(os.homedir(), '.kit');
 
 ava.serial('app-prompt.js', async (t) => {
-  t.timeout(20000); // prevent infinite pending
-  
   let script = 'mock-script-with-arg';
   let scriptPath = kenvPath('scripts', `${script}.js`);
   let placeholder = 'hello';
@@ -23,22 +21,13 @@ ava.serial('app-prompt.js', async (t) => {
   await writeFile(scriptPath, contents);
 
   t.log('Starting app-prompt.js...');
-  const mockApp = fork(KIT_APP_PROMPT, [], {
-    stdio: ['ignore', 'pipe', 'pipe', 'ipc'],  // ensure IPC channel
-    windowsHide: true,
+  let mockApp = fork(KIT_APP_PROMPT, {
     env: {
       NODE_NO_WARNINGS: '1',
       KIT: home('.kit'),
       KENV: kenvPath(),
       KIT_CONTEXT: 'app'
     }
-  });
-
-  // Ensure cleanup on test completion
-  t.teardown(() => {
-    try { 
-      if (!mockApp.killed) mockApp.kill('SIGKILL'); 
-    } catch {}
   });
 
   let command = 'mock-script-with-arg';
@@ -48,43 +37,37 @@ ava.serial('app-prompt.js', async (t) => {
   };
 
   t.log('Waiting for app-prompt.js to start...');
-  const result = await Promise.race([
-    new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('app-prompt handshake timeout'));
-      }, 12000);
-
-      mockApp.once('error', (err) => {
-        clearTimeout(timeout);
-        reject(err);
-      });
-      
-      mockApp.once('exit', (code, signal) => {
-        clearTimeout(timeout);
-        reject(new Error(`app-prompt exited early (code=${code}, signal=${signal})`));
-      });
-      
-      mockApp.on('message', (data) => {
-        console.log('received', data);
-        if (data?.channel === Channel.SET_SCRIPT) {
-          // The mockApp will hang waiting for input if you don't submit a value
-          mockApp.send({
-            channel: Channel.VALUE_SUBMITTED,
-            value: 'done'
-          });
-          clearTimeout(timeout);
-          resolve(data);
-        }
-      });
-
-      mockApp.once('spawn', () => {
+  let result = await new Promise((resolve, reject) => {
+    /**
+    channel: Channel
+    pid: number
+    newPid?: number
+    state: AppState
+    widgetId?: number
+       * 
+       */
+    mockApp.on('message', (data) => {
+      console.log('received', data);
+      if (data.channel === Channel.SET_SCRIPT) {
+        // The mockApp will hang waiting for input if you don't submit a value
         mockApp.send({
           channel: Channel.VALUE_SUBMITTED,
-          value
+          value: 'done'
         });
-      });
-    })
-  ]);
+        resolve(data);
+      }
+    });
+
+    mockApp.on('spawn', () => {
+      mockApp.send(
+        {
+          channel: Channel.VALUE_SUBMITTED,
+          value
+        },
+        (error) => { }
+      );
+    });
+  });
 
   t.log({ result, command });
   t.is(result.value.command, command);

@@ -71,12 +71,10 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          shell: bash
           command: |
-            bash -lc "pnpm test"
+            pnpm test
         env:
           KIT: ${{ env.kit_path }}
-          AVA_TIMEOUT: 60s
 
   test-mac-and-ubuntu:
     strategy:
@@ -185,12 +183,10 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          shell: bash
           command: |
-            bash -lc "pnpm test"
+            pnpm test
         env:
           KIT: ${{ env.kit_path }}
-          AVA_TIMEOUT: 60s
 
   release:
     runs-on: macos-latest

@@ -12,16 +12,7 @@ let importKit = async (...parts) => {
 await importKit("api/global.js")
 await importKit("api/kit.js")
 await importKit("api/lib.js")
-
-// On Windows CI, avoid importing the interactive terminal target to prevent TTY hangs
-const isWindowsCI = process.platform === "win32" && !!process.env.CI
-if (!isWindowsCI) {
-	await importKit("target/terminal.js")
-} else {
-	// If any test truly needs the app runtime, it forks KIT_APP_PROMPT explicitly.
-	console.log("[Test Setup] Skipping terminal.js import on Windows CI")
-}
-
+await importKit("target/terminal.js")
 await importKit("platform/base.js")
 
 let platform = os.platform()
@@ -29,16 +20,6 @@ try {
 	await importKit(`platform/${platform}.js`)
 } catch (error) {
 	// console.log(`No ./platform/${platform}.js`)
-}
-
-// Safety: in non-TTY CI environments, some libs call setRawMode unguarded.
-// Make it a no-op when stdin is not a TTY to avoid surprises.
-try {
-	if (!process.stdin.isTTY && typeof process.stdin.setRawMode === "function") {
-		process.stdin.setRawMode = () => {}
-	}
-} catch {
-	/* no-op */
 }
 
 export let kitMockPath = (...parts) =>
