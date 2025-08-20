@@ -58,6 +58,16 @@ ava.serial('app-prompt.js', async (t) => {
       }
     });
 
+    mockApp.on('exit', (code, signal) => {
+      console.log('[app-diag] child exit', { code, signal })
+    })
+    mockApp.on('close', (code, signal) => {
+      console.log('[app-diag] child close', { code, signal })
+    })
+    mockApp.on('error', (err) => {
+      console.log('[app-diag] child error', { message: err?.message })
+    })
+
     mockApp.on('spawn', () => {
       mockApp.send(
         {
@@ -71,6 +81,8 @@ ava.serial('app-prompt.js', async (t) => {
 
   t.log({ result, command });
   t.is(result.value.command, command);
+  // Be explicit: close the child if still running
+  try { mockApp.kill() } catch {}
 });
 
 ava.serial('kit setup', async (t) => {
