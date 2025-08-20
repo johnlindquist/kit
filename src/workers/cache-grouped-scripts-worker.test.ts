@@ -69,13 +69,11 @@ function runWorkerMessage(messageToSend: any): Promise<{ msg: any; worker: Worke
     // Add timeout to prevent hanging
     setTimeout(() => {
       if (!resolved) {
-        if (process.env.CI) {
-          console.error('[worker-diag] timeout waiting for CACHE_MAIN_SCRIPTS; terminating worker to avoid dangling thread')
-          try { worker.terminate() } catch {}
-          console.log('Timeout waiting for CACHE_MAIN_SCRIPTS message. This is expected to sometimes fail in CI, but need to investigate why...')
-        } else {
-          reject(new Error('Timeout waiting for CACHE_MAIN_SCRIPTS message'))
-        }
+        // Always fail fast with a clear error and terminate the worker.
+        // Avoid leaving a pending Promise which causes AVA to time out.
+        console.error('[worker-diag] timeout waiting for CACHE_MAIN_SCRIPTS; terminating worker to avoid dangling thread')
+        try { worker.terminate() } catch {}
+        reject(new Error('Timeout waiting for CACHE_MAIN_SCRIPTS message'))
       }
     }, 5000)
   })
