@@ -199,7 +199,7 @@ export let buildWidget = async (scriptPath, outPath = '') => {
     kitPath("node_modules", "react", "umd", "react.development.js")
   )
   let { default: ReactDOM } = await import(
-    kitPath("node_modules", "react-dom", "umd", "react-dom.deveolpment.js")
+    kitPath("node_modules", "react-dom", "umd", "react-dom.development.js")
   )
   
   let __renderToString = (x, y, z)=> Server.renderToString(React.createElement(x, y, z))  
@@ -819,7 +819,7 @@ export let getFlagsFromActions = (actions: PromptConfig['actions']) => {
     }
   }
 
-  flags.sortChoicesKey = Array.from(groups).map((g) => 'index')
+  flags.sortChoicesKey = ['index']
 
   return flags
 }

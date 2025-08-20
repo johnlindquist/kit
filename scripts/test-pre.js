@@ -28,7 +28,7 @@ if (await isDir(userBinPath)) {
 	await rimraf(escapePathPeriods(staleMocks))
 }
 
-if (await isDir("-d", kitMockPath())) {
+if (await isDir(kitMockPath())) {
 	await rimraf(escapePathPeriods(kitMockPath()))
 }
 
