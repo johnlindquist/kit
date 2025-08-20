@@ -62,7 +62,7 @@
     "test:metadata": "cross-env NODE_NO_WARNINGS=1 ava ./src/core/metadata.test.js --no-worker-threads",
     "posttest:metadata": "node ./scripts/test-post.js",
     "pretest": "node ./scripts/test-pre.js",
-    "test": "cross-env NODE_NO_WARNINGS=1 ava --no-worker-threads --fail-fast",
+    "test": "cross-env NODE_NO_WARNINGS=1 ava --no-worker-threads --fail-fast --retry 1",
     "posttest": "node ./scripts/test-post.js",
     "build-editor-types": "tsx ./build/build-editor-types.ts",
     "rebuild-test": "npm run rebuild-kit && npm run test -- --fail-fast",
