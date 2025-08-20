@@ -1,5 +1,5 @@
 import * as path from 'node:path'
-import { rm } from 'node:fs/promises'
+import { rm, open as fsOpen, unlink, stat as fsStat } from 'node:fs/promises'
 import {
   kitPath,
   kenvPath,
@@ -137,6 +137,35 @@ export async function db<T>(
       }
     }
 
+    // Patch LowDB write to use file lock and retries across this instance
+    const __origWrite = _db.write.bind(_db)
+    ;(_db as any).write = async function patchedWrite() {
+      const dir = path.dirname(dbPath)
+      const lockPath = path.join(dir, `.${path.basename(dbPath)}.lock`)
+      await ensureDir(dir)
+      const release = await acquireFileLock(lockPath)
+      try {
+        const maxAttempts = 5
+        let lastErr: any
+        for (let i = 0; i < maxAttempts; i++) {
+          try {
+            await __origWrite()
+            return
+          } catch (error: any) {
+            lastErr = error
+            if (error?.code === 'ENOENT' || error?.code === 'EPERM' || error?.code === 'EBUSY') {
+              await sleep(50 * (i + 1))
+              continue
+            }
+            throw error
+          }
+        }
+        global.log?.('DB write failed after retries', { path: dbPath, error: String(lastErr?.message || lastErr) })
+      } finally {
+        try { await release() } catch {}
+      }
+    }
+
     // If no data or not using cache, initialize with provided data
     if (!_db.data || !fromCache) {
       const getData = async () => {
@@ -149,22 +178,8 @@ export async function db<T>(
 
       _db.data = await getData()
 
-      try {
-        // Write initial data to the database
-        await _db.write()
-      } catch (error) {
-        global.log?.(error)
-        // On Windows, sometimes the rename fails due to timing issues
-        // Retry once after a short delay
-        if (process.platform === 'win32' && error?.code === 'ENOENT') {
-          await new Promise(resolve => setTimeout(resolve, 100))
-          try {
-            await _db.write()
-          } catch (retryError) {
-            global.log?.('Retry write also failed:', retryError)
-          }
-        }
-      }
+      // Use patched write which includes cross-process lock & retries
+      await _db.write()
     }
   }
 
@@ -219,6 +234,38 @@ export async function db<T>(
 
 global.db = db
 global.store = store
+
+// Cross-process write lock & retry to avoid Windows rename ENOENT during concurrent writes
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
+
+async function acquireFileLock(lockPath: string, maxRetries = 100, baseDelayMs = 25) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const handle = await fsOpen(lockPath, 'wx')
+      return async () => {
+        try { await handle.close() } catch {}
+        try { await unlink(lockPath) } catch {}
+      }
+    } catch (error: any) {
+      if (error?.code === 'EEXIST') {
+        try {
+          const st = await fsStat(lockPath).catch(() => null)
+          if (st && Date.now() - st.mtimeMs > 30_000) {
+            await unlink(lockPath).catch(() => {})
+          }
+        } catch {}
+        const jitter = Math.floor(Math.random() * 10)
+        await sleep(baseDelayMs + jitter)
+        continue
+      }
+      throw error
+    }
+  }
+  // Best effort: continue without lock if we couldn't acquire
+  return async () => {}
+}
+
+// Intentionally no exported write wrapper; the LowDB instance is patched in-place
 
 export let parseScripts = async (ignoreKenvPattern = /^ignore$/) => {
   let scriptFiles = await getScriptFiles()
