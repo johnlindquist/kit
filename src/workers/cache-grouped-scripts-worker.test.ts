@@ -159,7 +159,8 @@ test('Worker caches results for identical stamp filePath', async (t) => {
   worker.terminate()
 })
 
-test('benchmark - worker CACHE_MAIN_SCRIPTS', async (t) => {
+const runBench = process.env.KIT_BENCH === 'true'
+;(runBench ? test : test.skip)('benchmark - worker CACHE_MAIN_SCRIPTS', async (t) => {
   const previousResults = await loadPreviousResults()
   const isWindows = process.platform === 'win32'
   const runs = isWindows ? 5 : 20
@@ -183,6 +184,9 @@ test('benchmark - worker CACHE_MAIN_SCRIPTS', async (t) => {
       })
       const end = performance.now()
       times.push(end - start)
+      if (i % Math.max(1, Math.floor(runs / 5)) === 0) {
+        console.error(`[worker-diag] benchmark progress i=${i} duration=${(end-start).toFixed(1)}ms`)
+      }
       return result
     })()
     worker.terminate()

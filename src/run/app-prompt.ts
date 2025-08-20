@@ -101,14 +101,21 @@ try {
     }
 
     let messageHandler = (data: MessageData) => {
+      try {
+        console.warn('[app-log] app-prompt received message', { channel: data?.channel })
+      } catch {}
       if (data.channel === Channel.HEARTBEAT) {
         send(Channel.HEARTBEAT)
       }
       if (data.channel === Channel.VALUE_SUBMITTED) {
-        trace.instant({
-          name: 'app-prompt.ts -> VALUE_SUBMITTED',
-          args: data
-        })
+        try {
+          trace.instant({
+            name: 'app-prompt.ts -> VALUE_SUBMITTED',
+            args: { hasHeaders: !!data?.value?.headers, hasArgs: Array.isArray(data?.value?.args) }
+          })
+        } catch (e) {
+          console.warn('[app-log] trace.instant failed in VALUE_SUBMITTED', (e as any)?.message || e)
+        }
         global.headers = data?.value?.headers || {}
         process.off('message', messageHandler)
         resolve(data.value)
@@ -117,7 +124,7 @@ try {
     process.on('message', messageHandler)
   })
 } catch (e) {
-  global.warn(e)
+  console.warn('[app-log] app-prompt main promise failed', (e as any)?.message || e)
   exit()
 }
 ;({ script, args, trigger, choices, name, scriptlet } = result)
@@ -167,11 +174,25 @@ if (choices?.length > 0) {
   }
   let { runScriptlet } = await import('../main/scriptlet.js')
   updateArgs(args)
-  await runScriptlet(scriptlet, inputs, flag)
+  try {
+    console.warn('[app-log] running scriptlet', { name, id: scriptlet?.id })
+    await runScriptlet(scriptlet, inputs, flag)
+    console.warn('[app-log] finished scriptlet')
+  } catch (e) {
+    console.warn('[app-log] runScriptlet failed', (e as any)?.message || e)
+    throw e
+  }
 } else {
   if (script.includes('.md')) {
     log({ script, ugh: '❌' })
     exit()
   }
-  await run(script, ...args)
+  try {
+    console.warn('[app-log] running script', { script, argsLen: args?.length || 0 })
+    await run(script, ...args)
+    console.warn('[app-log] finished script')
+  } catch (e) {
+    console.warn('[app-log] run(script) failed', (e as any)?.message || e)
+    throw e
+  }
 }
