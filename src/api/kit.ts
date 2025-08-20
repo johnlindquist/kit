@@ -48,6 +48,14 @@ import { getRecentLimit } from './recent.js'
 
 global.__kitActionsMap = new Map<string, Action | Shortcut>()
 
+// Raw console references captured early to avoid recursion when IPC send fails
+const __rawConsole = {
+  log: global.console.log.bind(global.console),
+  warn: global.console.warn.bind(global.console),
+  error: global.console.error.bind(global.console)
+}
+let __sendDiagCount = 0
+
 export async function initTrace() {
   if (process.env.KIT_TRACE || (process.env.KIT_TRACE_DATA && !global?.trace?.enabled)) {
     let timestamp = Date.now()
@@ -285,9 +293,31 @@ global.send = (channel: Channel, value?: any) => {
         args: payload
       })
 
+      // Emit limited diagnostics in test runs on Windows to trace IPC behavior
+      if (process.env.KIT_TEST && process.platform === 'win32' && __sendDiagCount < 5) {
+        __rawConsole.warn(
+          `[send-diag] about to process.send channel=${channel} pid=${payload.pid} connected=${(process as any).connected}`
+        )
+        __sendDiagCount++
+      }
+
       process.send(payload)
     } catch (e) {
-      global.warn(e)
+      // Avoid recursive warn -> send loop in app context during tests
+      if (process.env.KIT_TEST && process.platform === 'win32') {
+        try {
+          const err: any = e
+          __rawConsole.warn(
+            `[send-diag] process.send threw for channel=${channel}: ${err?.message || err}`
+          )
+          if (err?.stack) __rawConsole.warn(err.stack.split('\n').slice(0, 6).join('\n'))
+          __rawConsole.warn(
+            `[send-diag] process.connected=${(process as any).connected} hasSend=${typeof (process as any).send === 'function'}`
+          )
+        } catch { }
+      } else {
+        global.warn(e)
+      }
     }
   } else {
     // console.log(from, ...args)
