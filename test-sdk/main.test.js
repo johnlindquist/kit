@@ -113,10 +113,10 @@ ava.serial('kit setup', async (t) => {
 const isWindows = process.platform === 'win32'
 const inCI = !!process.env.CI
 
-// Flaky test on Windows CI: instrument and skip to unblock
+// Flaky test on Windows CI: instrument and skip in main job; allow dedicated TS job via KIT_WINDOWS_TS
 ava('TypeScript support', async (t) => {
   t.timeout(45000)
-  if (isWindows && inCI) {
+  if (isWindows && inCI && !process.env.KIT_WINDOWS_TS) {
     t.log('[test-diag] SKIP TypeScript support on Windows CI')
     t.pass()
     return
@@ -172,7 +172,7 @@ console.log(await arg())`
 
 ava('TypeScript import from lib', async (t) => {
   t.timeout(45000)
-  if (isWindows && inCI) {
+  if (isWindows && inCI && !process.env.KIT_WINDOWS_TS) {
     t.log('[test-diag] SKIP TypeScript import from lib on Windows CI')
     t.pass()
     return

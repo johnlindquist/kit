@@ -115,6 +115,54 @@ jobs:
           # Run only the worker benchmark test
           pnpm exec ava --config ./test/ava.config.mjs src/workers/cache-grouped-scripts-worker.test.ts -m "benchmark - worker CACHE_MAIN_SCRIPTS"
 
+  test-windows-typescript:
+    runs-on: windows-latest
+    needs: [test-windows]
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4
+
+      - name: Set env vars
+        run: |
+          echo "wd_path=$PWD" >> $GITHUB_ENV
+          echo "kit_path=$PWD/.kit" >> $GITHUB_ENV
+          echo "KIT=$PWD/.kit" >> $GITHUB_ENV
+
+      - name: Checkout kit
+        uses: actions/checkout@master
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.17.1
+          cache: "pnpm"
+
+      - name: pnpm i
+        shell: bash
+        run: |
+          pnpm i
+
+      - name: pnpm build-kit
+        shell: bash
+        env:
+          KIT: ${{ env.kit_path }}
+        run: |
+          pnpm build-kit
+
+      - name: Run Windows TypeScript tests (isolated)
+        shell: bash
+        env:
+          KIT: ${{ env.kit_path }}
+          KIT_WINDOWS_TS: 'true'
+        run: |
+          pnpm exec ava --config ./test/ava.config.mjs \
+            --match "TypeScript support" \
+            --match "TypeScript import from lib" \
+            test-sdk/main.test.js
+
   test-mac-and-ubuntu:
     strategy:
       matrix:
