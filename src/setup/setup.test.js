@@ -1,5 +1,6 @@
 import ava from "ava"
 import os from "node:os"
+import path from "node:path"
 import { spawnSync } from "node:child_process"
 import "../../test-sdk/config.js"
 import { pathToFileURL } from "node:url"
@@ -29,7 +30,18 @@ const options = {
 }
 
 ava.before(`Run setup script`, (t) => {
-	const setupResult = spawnSync(`./script`, [`./setup/setup.js`], options)
+	// Use POSIX shim on Unix, Node directly on Windows
+	const isWin = process.platform === "win32"
+	const runner = isWin ? process.execPath : `./script`
+	const args = isWin
+		? [path.resolve(KIT, 'setup', 'setup.js')]
+		: [`./setup/setup.js`]
+
+	const setupResult = spawnSync(runner, args, options)
+	// Optional: log non-zero exit for easier debugging
+	if (setupResult.status && setupResult.status !== 0) {
+		t.log('Setup script failed:', setupResult)
+	}
 })
 
 ava.serial("env was created", async (t) => {
