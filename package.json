@@ -34,6 +34,7 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "ava": "ava --config ./test/ava.config.mjs --fail-fast",
+    "ava:ci": "ava --config ./test/ava.config.mjs",
     "ava:watch": "ava --watch --no-worker-threads --config ./test/ava.config.mjs",
     "ava:reset": "ava reset-cache --config ./test/ava.config.mjs",
     "ava:debug": "ava debug --config ./test/ava.config.mjs",

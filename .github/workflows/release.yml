@@ -64,7 +64,7 @@ jobs:
         env:
           KIT: ${{ env.kit_path }}
         run: |
-          pnpm ava
+          pnpm ava:ci
 
       - name: pnpm test
         uses: nick-invision/retry@v3
@@ -176,7 +176,7 @@ jobs:
 
       - name: pnpm ava
         run: |
-          pnpm ava
+          pnpm ava:ci
 
       - name: pnpm test
         uses: nick-invision/retry@v3

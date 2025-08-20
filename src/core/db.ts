@@ -109,8 +109,10 @@ export async function db<T>(
   const parentExists = await isDir(path.dirname(dbPath))
   if (!parentExists) {
     dbPath = kenvPath('db', `${path.basename(dbPath)}`)
-    await ensureDir(path.dirname(dbPath))
   }
+  
+  // Always ensure the directory exists before creating the database
+  await ensureDir(path.dirname(dbPath))
 
   let _db: Low<any>
 
@@ -152,6 +154,16 @@ export async function db<T>(
         await _db.write()
       } catch (error) {
         global.log?.(error)
+        // On Windows, sometimes the rename fails due to timing issues
+        // Retry once after a short delay
+        if (process.platform === 'win32' && error?.code === 'ENOENT') {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          try {
+            await _db.write()
+          } catch (retryError) {
+            global.log?.('Retry write also failed:', retryError)
+          }
+        }
       }
     }
   }
