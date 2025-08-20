@@ -3,7 +3,7 @@ export default {
   extensions: {
     ts: "module",
   },
-  nodeArguments: ["--import=tsx", "--import=./test/setup.js"],
+  nodeArguments: ["--import=tsx"],
   environmentVariables: {
     KIT_TEST: "true",
   },
