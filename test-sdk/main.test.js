@@ -2,6 +2,7 @@ import ava from 'ava';
 import slugify from 'slugify';
 import path from 'node:path';
 import os from 'node:os';
+import { fork } from 'node:child_process';
 import { Channel, KIT_APP_PROMPT } from './config.js';
 import { pathToFileURL } from 'url';
 
