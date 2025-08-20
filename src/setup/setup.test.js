@@ -1,5 +1,6 @@
 import ava from "ava"
 import os from "node:os"
+import { spawnSync } from "node:child_process"
 import "../../test-sdk/config.js"
 import { pathToFileURL } from "node:url"
 
