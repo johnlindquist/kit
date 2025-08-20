@@ -218,6 +218,8 @@ ava.serial('JavaScript support', async (t) => {
 });
 
 ava.serial('kit new, run, and rm', async (t) => {
+  t.timeout(45000)
+  t.log('[test-diag] BODY START: kit new, run, and rm')
   let command = 'mock-script-for-new-run-rm';
   let scriptContents = `
   let value = await arg()

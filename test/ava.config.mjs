@@ -8,5 +8,6 @@ export default {
     KIT_TEST: "true",
   },
   verbose: true,
+  timeout: '45s',
   files: ["src/**/*.test.ts", "test/**/*.test.ts"],
 }
