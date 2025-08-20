@@ -303,8 +303,8 @@ global.send = (channel: Channel, value?: any) => {
 
       process.send(payload)
     } catch (e) {
-      // Avoid recursive warn -> send loop in app context during tests
-      if (process.env.KIT_TEST && process.platform === 'win32') {
+      // Avoid recursive warn -> send loop in app context: use raw console
+      if (process.env.KIT_CONTEXT === 'app') {
         try {
           const err: any = e
           __rawConsole.warn(
@@ -314,10 +314,11 @@ global.send = (channel: Channel, value?: any) => {
           __rawConsole.warn(
             `[send-diag] process.connected=${(process as any).connected} hasSend=${typeof (process as any).send === 'function'}`
           )
-        } catch { }
-      } else {
-        global.warn(e)
+        } catch {}
+        return
       }
+      // In non-app contexts, fall back to global.warn
+      global.warn(e)
     }
   } else {
     // console.log(from, ...args)
