@@ -131,7 +131,7 @@ global.arg = async (messageOrConfig = 'Input', choices) => {
   }
 
   if (Array.isArray(choices) && choices?.length === 0) {
-    console.log(`No choices available... 😅`)
+    // console.log(`No choices available... 😅`)
     global.exit()
   }
 
@@ -249,7 +249,7 @@ global.div = async (html = '') => {
   if (global.flag?.log === false) return
 
   // let { default: cliHtml } = await import("cli-html")
-  console.log(html)
+  // console.log(html)
 }
 
 global.textarea = async () => {

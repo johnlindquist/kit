@@ -1,10 +1,10 @@
 let copyIfNotExists = async (p: string, dest: string) => {
   let exists = await isFile(dest)
-  console.log({
-    p,
-    dest,
-    exists: exists ? "true" : "false",
-  })
+  // console.log({
+  //   p,
+  //   dest,
+  //   exists: exists ? "true" : "false",
+  // })
   if (!exists) await copyFile(p, dest)
 }
 

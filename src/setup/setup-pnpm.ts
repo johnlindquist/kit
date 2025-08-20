@@ -24,7 +24,7 @@ async function removeSymlinkIfExists(path: string) {
 
 try {
   // Install pnpm locally
-  console.log("Installing pnpm locally...")
+  // console.log("Installing pnpm locally...")
 
   // Create symlink
   const pnpmPath = kitPath("node_modules", ".bin", "pnpm")
@@ -35,7 +35,7 @@ try {
     isWindows ? "pnpm.cmd" : "pnpm"
   )
 
-  console.log("Creating symlink...")
+  // console.log("Creating symlink...")
   try {
     if (isWindows) {
       // Remove existing symlinks if they exist
@@ -54,13 +54,13 @@ try {
     }
   } catch (error) {
     console.error("Failed to create symlink:", error)
-    console.log(
-      "You may need to run this command manually after setup."
-    )
+    // console.log(
+    //   "You may need to run this command manually after setup."
+    // )
   }
-  console.log(
-    "Configuring pnpm to use local Node.js version..."
-  )
+  // console.log(
+  //   "Configuring pnpm to use local Node.js version..."
+  // )
   try {
     await exec(
       "pnpm config set use-node-version 22.17.1 --location project",
@@ -68,15 +68,15 @@ try {
         cwd: kenvPath(),
       }
     )
-    console.log("pnpm configuration updated successfully.")
+    // console.log("pnpm configuration updated successfully.")
   } catch (configError) {
     console.error(
       "Failed to update pnpm configuration:",
       configError
     )
-    console.log(
-      "You may need to run this command manually after setup."
-    )
+    // console.log(
+    //   "You may need to run this command manually after setup."
+    // )
   }
 } catch (error) {
   console.error("An error occurred during setup:", error)

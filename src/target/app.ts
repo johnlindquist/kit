@@ -475,7 +475,7 @@ let runAction = async (data: AppMessage) => {
   //   shortcut: data?.state?.shortcut,
   //   mapKeys: Array.from(global.__kitActionsMap.keys())
   // })
-  
+
   let action: Action | Shortcut
   // Try multiple ways to find the action
   const possibleKeys = [
@@ -483,7 +483,7 @@ let runAction = async (data: AppMessage) => {
     data?.state?.action?.flag,
     data?.state?.action?.value,
   ].filter(Boolean)
-  
+
   for (const key of possibleKeys) {
     if (global.__kitActionsMap.has(key)) {
       action = global.__kitActionsMap.get(key)
@@ -491,7 +491,7 @@ let runAction = async (data: AppMessage) => {
       break
     }
   }
-  
+
   if (!action && data?.state?.shortcut) {
     for (let [
       key,
@@ -502,14 +502,14 @@ let runAction = async (data: AppMessage) => {
         value?.key === data.state.shortcut
       ) {
         action = value
-        console.log(`[SDK] Found action by shortcut: ${data.state.shortcut}`)
+        // console.log(`[SDK] Found action by shortcut: ${data.state.shortcut}`)
         break
       }
     }
   }
-  
+
   if (!action) {
-    console.log(`[SDK] No action found for:`, data?.state)
+    // console.log(`[SDK] No action found for:`, data?.state)
   }
 
   if (action) {
@@ -1183,7 +1183,7 @@ global.kitPrompt = async (config: PromptConfig) => {
 
   global.__currentPromptConfig = config
   await prepPrompt(config)
-  
+
   // Send flags to renderer if they exist (including actions converted to flags)
   if (config.flags) {
     await global.setFlags(config.flags)
