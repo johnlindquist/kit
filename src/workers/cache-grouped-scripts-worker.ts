@@ -18,6 +18,22 @@ const logToParent = (message: string) => {
   })
 }
 
+// Early diagnostics to confirm worker startup in CI
+logToParent(`[WORKER_INIT] pid=${process.pid}`)
+
+// Emit a short heartbeat in Windows tests to prove liveness before messages
+if (process.env.KIT_TEST && process.platform === 'win32') {
+  let beats = 0
+  const maxBeats = 3
+  const timer = setInterval(() => {
+    try {
+      beats += 1
+      logToParent(`[WORKER_HEARTBEAT] pid=${process.pid} beat=${beats}`)
+      if (beats >= maxBeats) clearInterval(timer)
+    } catch {}
+  }, 1000)
+}
+
 // --------------------
 // Pre-Sanitize Script Flags once
 // --------------------
@@ -267,6 +283,7 @@ parentPort?.on(
       isSponsor: boolean
     }
   }) => {
+    logToParent(`[RECV] channel=${channel} id=${id} filePath=${value?.filePath ?? ''}`)
     // This is received from the app from kitState.isSponsor
     process.env.KIT_SPONSOR = state?.isSponsor ? 'true' : 'false'
     if (channel === Channel.CACHE_MAIN_SCRIPTS) {
