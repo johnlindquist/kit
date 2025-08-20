@@ -287,11 +287,17 @@ global.send = (channel: Channel, value?: any) => {
         value
       }
 
-      global.trace.instant({
-        name: `Send ${channel}`,
-        channel,
-        args: payload
-      })
+      if (global?.trace?.enabled && typeof global.trace.instant === 'function') {
+        try {
+          global.trace.instant({
+            name: `Send ${channel}`,
+            channel,
+            args: payload
+          })
+        } catch (traceErr) {
+          __rawConsole.warn(`[send-diag] trace.instant failed: ${String((traceErr as any)?.message || traceErr)}`)
+        }
+      }
 
       // Emit limited diagnostics in test runs on Windows to trace IPC behavior
       if (process.env.KIT_TEST && process.platform === 'win32' && __sendDiagCount < 5) {

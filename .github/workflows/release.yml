@@ -69,7 +69,7 @@ jobs:
       - name: pnpm test
         uses: nick-invision/retry@v3
         with:
-          max_attempts: 3
+          max_attempts: 1
           timeout_minutes: 30
           command: |
             pnpm test
@@ -181,7 +181,7 @@ jobs:
       - name: pnpm test
         uses: nick-invision/retry@v3
         with:
-          max_attempts: 3
+          max_attempts: 1
           timeout_minutes: 30
           command: |
             pnpm test
