@@ -16,7 +16,7 @@ export type { Tool as MCPTool, CallToolResult as MCPToolResult } from '@modelcon
 // This type should only include properties that are compatible with AI SDK's Tool type
 export interface MCPToolWithExecute {
     description?: string;
-    inputSchema?: any; // AI SDK v5 compatible schema (Zod schema or jsonSchema)
+    inputSchema: any; // AI SDK v5 compatible schema (Zod schema or jsonSchema)
     execute: (args: any) => Promise<any>;
     // Explicitly exclude outputSchema and other MCP-specific properties from the interface
 }

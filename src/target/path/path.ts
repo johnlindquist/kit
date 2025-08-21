@@ -109,12 +109,19 @@ export const createPathChoices = async (
     return statCache.get(path)
   }
 
+  // Helper to get base path for a Dirent. Some Node versions expose
+  // an undocumented `path` field on `Dirent`; types may not include it.
+  const getDirentBasePath = (dirent: Dirent | any, fallback: string) =>
+    typeof dirent?.path === 'string' ? (dirent.path as string) : fallback
+
   // Process symlinks in parallel
   await Promise.all(
     dirents.map(async (dirent) => {
       if (dirent.isSymbolicLink()) {
         try {
-          const resolved = await fs.promises.realpath(ogPath.resolve(dirent.path as string, dirent.name))
+          const resolved = await fs.promises.realpath(
+            ogPath.resolve(getDirentBasePath(dirent, startPath), dirent.name)
+          )
           const stats = await getCachedStat(resolved)
 
           Object.assign(dirent, {
@@ -144,7 +151,10 @@ export const createPathChoices = async (
 
   const mapDirents = async (dirents: Dirent[]): Promise<Choice[]> => {
     const choices = await Promise.all(dirents.map(async (dirent) => {
-      const fullPath = ogPath.resolve(dirent.path as string, dirent.name)
+      const fullPath = ogPath.resolve(
+        getDirentBasePath(dirent, startPath),
+        dirent.name
+      )
       const { size, mtime } = await getCachedStat(fullPath)
 
       const type = folderSet.has(dirent.name) ? 'folder' : 'file'

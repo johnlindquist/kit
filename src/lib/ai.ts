@@ -940,7 +940,7 @@ Please provide a helpful summary.`
                     }
 
                     switch (part.type) {
-                        case 'text':
+                        case 'text-delta':
                             fullResponseText += part.text;
                             // Emit chunk event for observability
                             aiObservability.emit('assistant:stream:chunk', { chunk: part.text });
