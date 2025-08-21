@@ -31,7 +31,7 @@ let mockGenerateObject: sinon.SinonStub<any[], Promise<GenerateObjectResult<any>
 type MockTextStreamGeneratorType = AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>>;
 
 const mockStreamGenerator = async function* (): MockTextStreamGeneratorType {
-    yield { type: 'text', id: 'mock-id', text: 'mocked' } as TextStreamPart<Record<string, Tool<any, any>>>;
+    yield { type: 'text-delta', id: 'mock-id', text: 'mocked' } as TextStreamPart<Record<string, Tool<any, any>>>;
 };
 
 const mockLanguageModel: LanguageModel = {
@@ -578,7 +578,7 @@ test.serial('assistant (injected) textStream should yield text and populate last
 
     async function* mockFullStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
         for (const chunk of responseChunks) {
-            yield { type: 'text', id: 'test-id', text: chunk };
+            yield { type: 'text-delta', id: 'test-id', text: chunk };
         }
         yield {
             type: 'finish',
@@ -631,7 +631,7 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
     const initialText = "Okay, using a tool.";
 
     async function* mockFullStreamPartsWithTools(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
-        yield { type: 'text', id: 'test-id', text: initialText };
+        yield { type: 'text-delta', id: 'test-id', text: initialText };
         // Simulate tool_calls being part of the stream *before* finish
         for (const tc of mockToolCalls) {
             yield tc;
@@ -693,13 +693,13 @@ test.serial('assistant (injected) textStream should populate lastInteraction wit
 test.serial('assistant (injected) stop() should abort an ongoing textStream', async t => {
     const context = t.context as TestContext;
     async function* mockLongFullStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
-        yield { type: 'text', id: 'test-id', text: "Starting..." };
+        yield { type: 'text-delta', id: 'test-id', text: "Starting..." };
         await new Promise(resolve => setTimeout(resolve, 50)); // Allow time for stop() to be called
         if (context.stopped) { console.log("Stream generator detected stop early"); return; }
-        yield { type: 'text', id: 'test-id', text: "More data..." };
+        yield { type: 'text-delta', id: 'test-id', text: "More data..." };
         await new Promise(resolve => setTimeout(resolve, 50));
         if (context.stopped) { console.log("Stream generator detected stop late"); return; }
-        yield { type: 'text', id: 'test-id', text: "This part should not be reached if stopped" };
+        yield { type: 'text-delta', id: 'test-id', text: "This part should not be reached if stopped" };
         yield {
             type: 'finish',
             finishReason: 'stop',
@@ -1580,7 +1580,7 @@ test.serial('assistant (injected) textStream should not pass maxSteps to avoid v
 
     async function* mockFullStreamParts(): AsyncGenerator<TextStreamPart<Record<string, Tool<any, any>>>> {
         for (const chunk of responseChunks) {
-            yield { type: 'text', id: 'test-id', text: chunk };
+            yield { type: 'text-delta', id: 'test-id', text: chunk };
         }
         yield {
             type: 'finish',
