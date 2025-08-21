@@ -142,11 +142,11 @@ export let errorPrompt = async (error: Error) => {
   }
   if (process.env.KIT_CONTEXT === 'app') {
     global.warn(`☠️ ERROR PROMPT SHOULD SHOW ☠️`)
-    
+
     // Use the new formatter for better error handling
     const { SourcemapErrorFormatter } = await import('../core/sourcemap-formatter.js')
     const formattedError = SourcemapErrorFormatter.formatError(error)
-    
+
     global.warn(formattedError.stack)
 
     let errorFile = global.kitScript
@@ -320,7 +320,7 @@ global.send = (channel: Channel, value?: any) => {
           __rawConsole.warn(
             `[send-diag] process.connected=${(process as any).connected} hasSend=${typeof (process as any).send === 'function'}`
           )
-        } catch {}
+        } catch { }
         return
       }
       // In non-app contexts, fall back to global.warn

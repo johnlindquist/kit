@@ -101,9 +101,6 @@ try {
     }
 
     let messageHandler = (data: MessageData) => {
-      try {
-        console.warn('[app-log] app-prompt received message', { channel: data?.channel })
-      } catch {}
       if (data.channel === Channel.HEARTBEAT) {
         send(Channel.HEARTBEAT)
       }
@@ -127,7 +124,7 @@ try {
   console.warn('[app-log] app-prompt main promise failed', (e as any)?.message || e)
   exit()
 }
-;({ script, args, trigger, choices, name, scriptlet } = result)
+; ({ script, args, trigger, choices, name, scriptlet } = result)
 
 process.env.KIT_TRIGGER = trigger
 
@@ -149,7 +146,7 @@ process.once('beforeExit', () => {
   } catch (e) {
     console.warn('[app-exit-diag] trace.flush failed:', (e as any)?.message || e)
   } finally {
-    try { (global as any).trace = null } catch {}
+    try { (global as any).trace = null } catch { }
   }
 })
 
@@ -175,11 +172,11 @@ if (choices?.length > 0) {
   let { runScriptlet } = await import('../main/scriptlet.js')
   updateArgs(args)
   try {
-    console.warn('[app-log] running scriptlet', { name, id: scriptlet?.id })
+    global.log('[app-log] running scriptlet', { name, id: scriptlet?.id })
     await runScriptlet(scriptlet, inputs, flag)
-    console.warn('[app-log] finished scriptlet')
+    global.log('[app-log] finished scriptlet')
   } catch (e) {
-    console.warn('[app-log] runScriptlet failed', (e as any)?.message || e)
+    global.log('[app-log] runScriptlet failed', (e as any)?.message || e)
     throw e
   }
 } else {
@@ -188,11 +185,11 @@ if (choices?.length > 0) {
     exit()
   }
   try {
-    console.warn('[app-log] running script', { script, argsLen: args?.length || 0 })
+    global.log('[app-log] running script', { script, argsLen: args?.length || 0 })
     await run(script, ...args)
-    console.warn('[app-log] finished script')
+    global.log('[app-log] finished script')
   } catch (e) {
-    console.warn('[app-log] run(script) failed', (e as any)?.message || e)
+    global.log('[app-log] run(script) failed', (e as any)?.message || e)
     throw e
   }
 }
