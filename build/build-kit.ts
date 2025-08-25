@@ -70,6 +70,10 @@ Node executable: ${process.execPath}
 `)
 
 const oldKitPath = kitPath() + '-old'
+// Ensure pnpm installs into the same KIT directory used by this build
+process.env.KIT_PNPM_HOME = kitPath()
+const isWin = process.platform === 'win32'
+const pnpmFile = isWin ? 'pnpm.exe' : 'pnpm'
 let packageJsonChanged = true // Default to true for the first run
 
 // Check if we're running from a binary located in kitPath()
@@ -307,8 +311,9 @@ if (packageJsonChanged) {
     await downloadAndInstallPnpm()
     console.log('pnpm installation completed')
 
-    console.log(`Checking node path with pnpm node -e at ${kitPath('pnpm')}`)
-    await exec(`${kitPath('pnpm')} node -e "console.log(process.execPath)"`, {
+    const pnpmExec = kitPath(pnpmFile)
+    console.log(`Checking node path with pnpm node -e at ${pnpmExec}`)
+    await exec(`"${pnpmExec}" node -e "console.log(process.execPath)"`, {
       cwd: kitPath(),
       stdio: 'inherit',
       env: {
@@ -318,7 +323,7 @@ if (packageJsonChanged) {
     })
     console.log('Node path check completed')
 
-    const pnpmPath = kitPath('pnpm')
+    const pnpmPath = kitPath(pnpmFile)
     console.log(`Installing production dependencies using ${pnpmPath}...`)
     await exec(`"${pnpmPath}" i --prod`, options)
     console.log('Production dependencies installed successfully')
@@ -340,7 +345,7 @@ if (packageJsonChanged) {
       await downloadAndInstallPnpm()
       console.log('pnpm installation completed')
 
-      const pnpmPath = kitPath('pnpm')
+      const pnpmPath = kitPath(pnpmFile)
       console.log(`Installing production dependencies using ${pnpmPath}...`)
       await exec(`"${pnpmPath}" i --prod`, options)
       console.log('Production dependencies installed successfully')
