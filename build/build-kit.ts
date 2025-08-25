@@ -4,7 +4,7 @@ import { homedir, platform } from 'node:os'
 import { existsSync, readFileSync } from 'node:fs'
 import { rimraf } from 'rimraf'
 import { chmod as fsChmod, writeFile } from 'node:fs/promises'
-import { execaCommand as exec, type Options } from 'execa'
+import { execa as execFile, execaCommand as exec, type Options } from 'execa'
 import { ensureDir, move, pathExists } from 'fs-extra'
 import { downloadAndInstallPnpm } from './pnpm'
 
@@ -313,23 +313,23 @@ if (packageJsonChanged) {
 
     const pnpmExec = kitPath(pnpmFile)
     console.log(`Checking node path with pnpm node -e at ${pnpmExec}`)
-    await exec(`"${pnpmExec}" node -e "console.log(process.execPath)"`, {
+    await execFile(pnpmExec, ['node', '-e', 'console.log(process.execPath)'], {
       cwd: kitPath(),
       stdio: 'inherit',
       env: {
         PNPM_HOME: kitPath(),
-        PATH: ''
+        PATH: process.env.PATH
       }
     })
     console.log('Node path check completed')
 
     const pnpmPath = kitPath(pnpmFile)
     console.log(`Installing production dependencies using ${pnpmPath}...`)
-    await exec(`"${pnpmPath}" i --prod`, options)
+    await execFile(pnpmPath, ['i', '--prod'], { cwd: kitPath(), stdio: 'inherit' })
     console.log('Production dependencies installed successfully')
 
     console.log('Installing development tools (esbuild, vite, tsx)...')
-    await exec(`"${pnpmPath}" i esbuild vite tsx`, options)
+    await execFile(pnpmPath, ['i', 'esbuild', 'vite', 'tsx'], { cwd: kitPath(), stdio: 'inherit' })
     console.log('Development tools installed successfully')
   } catch (error) {
     console.error('Error installing dependencies:', error)
@@ -347,11 +347,11 @@ if (packageJsonChanged) {
 
       const pnpmPath = kitPath(pnpmFile)
       console.log(`Installing production dependencies using ${pnpmPath}...`)
-      await exec(`"${pnpmPath}" i --prod`, options)
+      await execFile(pnpmPath, ['i', '--prod'], { cwd: kitPath(), stdio: 'inherit' })
       console.log('Production dependencies installed successfully')
 
       console.log('Installing development tools (esbuild, vite, tsx)...')
-      await exec(`"${pnpmPath}" i esbuild vite tsx`, options)
+      await execFile(pnpmPath, ['i', 'esbuild', 'vite', 'tsx'], { cwd: kitPath(), stdio: 'inherit' })
       console.log('Development tools installed successfully')
     } catch (error) {
       console.error('Error installing dependencies:', error)
