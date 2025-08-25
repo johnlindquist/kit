@@ -366,6 +366,15 @@ declare module "@johnlindquist/kit" {
     name?: string
     placeholder?: string
     active?: string
+    /**
+     * Optional: preselect an action in the overlay by id (flag or name).
+     */
+    defaultActionsId?: string
+    /**
+     * Optional: default close behavior for actions (legacy default: true).
+     * Set false to keep overlay open unless an action explicitly sets close: true.
+    */
+    defaultClose?: boolean
   }
 
   export type Action = {
@@ -10912,6 +10921,13 @@ declare module "@johnlindquist/kit" {
     var setActions: ActionsFn
     var openActions: () => Promise<void>
     var closeActions: () => Promise<void>
+    /**
+     * Open the actions overlay with optional payload.
+     * Visibility is separate from payload; when `flag` is provided it will be set after opening.
+     */
+    var openActionsOverlay: (opts?: { source?: 'choice' | 'input' | 'ui' | 'editor'; flag?: string }) => Promise<void>
+    /** Close the actions overlay. */
+    var closeActionsOverlay: () => Promise<void>
     var setFlagValue: (value: any) => Promise<void>
     var prepFlags: PrepFlags
 

@@ -353,6 +353,15 @@ export type ActionsConfig = {
   name?: string
   placeholder?: string
   active?: string
+  /**
+ * Optional: preselect a
+ */
+  defaultActionsId?: strin
+  /**
+   * Optional: default clo
+   * Set false to keep ove
+  */
+  defaultClose?: boolean
 }
 
 export type Action = {

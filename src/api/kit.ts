@@ -821,7 +821,10 @@ function sortArrayByIndex(arr) {
   return sortedArr
 }
 
-export let getFlagsFromActions = (actions: PromptConfig['actions']) => {
+export let getFlagsFromActions = (
+  actions: PromptConfig['actions'],
+  options: { defaultActionsId?: string; defaultClose?: boolean } = {},
+) => {
   let flags: FlagsObject = {}
   let indices = new Set()
   for (let a of actions as Action[]) {
@@ -831,7 +834,15 @@ export let getFlagsFromActions = (actions: PromptConfig['actions']) => {
   }
   let groups = new Set()
   if (Array.isArray(actions)) {
-    const sortedActions = sortArrayByIndex(actions)
+    let sortedActions = sortArrayByIndex(actions)
+    // Optional: preselect a default by moving it to the front without changing explicit indices
+    if (options?.defaultActionsId) {
+      const i = sortedActions.findIndex((a: any) => (a?.flag || a?.name) === options.defaultActionsId)
+      if (i > 0) {
+        const [def] = sortedActions.splice(i, 1)
+        sortedActions.unshift(def)
+      }
+    }
     for (let i = 0; i < sortedActions.length; i++) {
       let action = sortedActions[i]
       if (typeof action === 'string') {
@@ -847,7 +858,8 @@ export let getFlagsFromActions = (actions: PromptConfig['actions']) => {
       let flagAction = {
         flag: action.flag || action.name,
         index: i,
-        close: true,
+        // Default close behavior is true (legacy). Allow override via options or per-action.
+        close: typeof options?.defaultClose === 'boolean' ? options.defaultClose : true,
         ...action,
         hasAction: !!action?.onAction,
         bar: action?.visible ? 'right' : ''
@@ -861,8 +873,14 @@ export let getFlagsFromActions = (actions: PromptConfig['actions']) => {
   return flags
 }
 
-global.setActions = async (actions: Action[], options = {}) => {
-  let flags = getFlagsFromActions(actions)
+global.setActions = async (
+  actions: Action[],
+  options: { name?: string; placeholder?: string; active?: string; defaultActionsId?: string; defaultClose?: boolean } = {},
+) => {
+  const flags = getFlagsFromActions(actions, {
+    defaultActionsId: options?.defaultActionsId,
+    defaultClose: options?.defaultClose,
+  })
   await setFlags(flags, options)
 }
 
@@ -876,6 +894,20 @@ global.closeActions = async () => {
 
 global.setFlagValue = (value: any) => {
   return global.sendWait(Channel.SET_FLAG_VALUE, value)
+}
+
+// Overlay-aligned helpers (non-breaking wrappers)
+global.openActionsOverlay = async (opts: { source?: 'choice' | 'input' | 'ui' | 'editor'; flag?: string } = {}) => {
+  // OPEN_ACTIONS triggers overlay visibility in renderer (via main mapping to SET_FLAG_VALUE 'action')
+  await global.openActions()
+  if (typeof opts.flag === 'string' && opts.flag.length > 0) {
+    // Set payload after opening for better parity with renderer’s split of visibility vs payload
+    await global.setFlagValue(opts.flag)
+  }
+}
+
+global.closeActionsOverlay = async () => {
+  await global.closeActions()
 }
 
 global.hide = async (hideOptions = {}) => {
