@@ -67,14 +67,11 @@ jobs:
           pnpm ava:ci
 
       - name: pnpm test (unit/integration, no benchmark)
-        uses: nick-invision/retry@v3
-        with:
-          max_attempts: 1
-          timeout_minutes: 30
-          command: |
-            pnpm test
+        shell: bash
         env:
           KIT: ${{ env.kit_path }}
+        run: |
+          pnpm test
 
   test-windows-worker-bench:
     runs-on: windows-latest
