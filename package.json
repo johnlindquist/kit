@@ -102,7 +102,7 @@
     "acorn": "^8.15.0",
     "acorn-typescript": "^1.4.13",
     "advanced-calculator": "1.1.1",
-    "ai": "5.0.20",
+    "ai": "5.0.23",
     "axios": "1.10.0",
     "body-parser": "^2.2.0",
     "bottleneck": "^2.19.5",
@@ -229,5 +229,5 @@
     "file-icon": "5.1.1",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@10.13.1"
+  "packageManager": "pnpm@10.15.0"
 }

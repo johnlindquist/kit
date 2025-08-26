@@ -53,7 +53,7 @@ importers:
         version: 11.0.1(@octokit/core@7.0.2)
       '@openrouter/ai-sdk-provider':
         specifier: 1.0.0-beta.1
-        version: 1.0.0-beta.1(ai@5.0.20(zod@4.0.5))(zod@4.0.5)
+        version: 1.0.0-beta.1(ai@5.0.23(zod@4.0.5))(zod@4.0.5)
       '@types/chalk':
         specifier: 2.2.4
         version: 2.2.4
@@ -85,8 +85,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1
       ai:
-        specifier: 5.0.20
-        version: 5.0.20(zod@4.0.5)
+        specifier: 5.0.23
+        version: 5.0.23(zod@4.0.5)
       axios:
         specifier: 1.10.0
         version: 1.10.0(debug@4.4.1)
@@ -311,12 +311,6 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4
 
-  '@ai-sdk/gateway@1.0.9':
-    resolution: {integrity: sha512-kIfwunyUUwyBLg2KQcaRtjRQ1bDuJYPNIs4CNWaWPpMZ4SV5cRL1hLGMuX4bhfCJYDXHMGvJGLtUK6+iAJH2ZQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
   '@ai-sdk/google@2.0.8':
     resolution: {integrity: sha512-k+5SLtoV0qG4rSCxwWQ+/0qrJFXwYHQ1TcH4GyaP4X0qOuVS4NDtD8ymSu8ej0ejFluogtBfTLev7sbj2AnJzA==}
     engines: {node: '>=18'}
@@ -331,12 +325,6 @@ packages:
 
   '@ai-sdk/openai@2.0.20':
     resolution: {integrity: sha512-6cBQpb6Sh5pCthSb/rGhIAsVq3EfHYKtFmeYapsBpILMkWI2DiIOajpEVe9DWCQaqTjXglZdbQsxSFJoaWlNQQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
-  '@ai-sdk/provider-utils@3.0.4':
-    resolution: {integrity: sha512-/3Z6lfUp8r+ewFd9yzHkCmPlMOJUXup2Sx3aoUyrdXLhOmAfHRl6Z4lDbIdV0uvw/QYoBcVLJnvXN7ncYeS3uQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -1032,12 +1020,6 @@ packages:
   aggregate-error@5.0.0:
     resolution: {integrity: sha512-gOsf2YwSlleG6IjRYG2A7k0HmBMEo6qVNk9Bp/EaLgAJT5ngH6PXbqa4ItvnEwCm/velL5jAnQgsHsWnjhGmvw==}
     engines: {node: '>=18'}
-
-  ai@5.0.20:
-    resolution: {integrity: sha512-zesSsm03ELeiqwU63IP8grTWuWtywil+XqA+64/8ALUVbsuCt/4fj7Sdk0G/k4f7oSo31lIVAdlj6rzx7d0GhQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
 
   ai@5.0.23:
     resolution: {integrity: sha512-1zUF0o1zRI7UmSd8u5CKc2iHNhv21tM95Oka81c0CF77GnTbq5RvrAqVuLI+gMyKcIgs99yxA+xc5hJXvh6V+w==}
@@ -4555,12 +4537,6 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.5(zod@4.0.5)
       zod: 4.0.5
 
-  '@ai-sdk/gateway@1.0.9(zod@4.0.5)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.4(zod@4.0.5)
-      zod: 4.0.5
-
   '@ai-sdk/google@2.0.8(zod@4.0.5)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
@@ -4578,14 +4554,6 @@ snapshots:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.5(zod@4.0.5)
       zod: 4.0.5
-
-  '@ai-sdk/provider-utils@3.0.4(zod@4.0.5)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@standard-schema/spec': 1.0.0
-      eventsource-parser: 3.0.3
-      zod: 4.0.5
-      zod-to-json-schema: 3.24.5(zod@4.0.5)
 
   '@ai-sdk/provider-utils@3.0.5(zod@4.0.5)':
     dependencies:
@@ -4914,9 +4882,9 @@ snapshots:
     dependencies:
       '@octokit/openapi-types': 25.1.0
 
-  '@openrouter/ai-sdk-provider@1.0.0-beta.1(ai@5.0.20(zod@4.0.5))(zod@4.0.5)':
+  '@openrouter/ai-sdk-provider@1.0.0-beta.1(ai@5.0.23(zod@4.0.5))(zod@4.0.5)':
     dependencies:
-      ai: 5.0.20(zod@4.0.5)
+      ai: 5.0.23(zod@4.0.5)
       zod: 4.0.5
 
   '@opentelemetry/api@1.9.0': {}
@@ -5270,14 +5238,6 @@ snapshots:
     dependencies:
       clean-stack: 5.2.0
       indent-string: 5.0.0
-
-  ai@5.0.20(zod@4.0.5):
-    dependencies:
-      '@ai-sdk/gateway': 1.0.9(zod@4.0.5)
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.4(zod@4.0.5)
-      '@opentelemetry/api': 1.9.0
-      zod: 4.0.5
 
   ai@5.0.23(zod@4.0.5):
     dependencies:
