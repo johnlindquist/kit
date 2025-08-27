@@ -3,8 +3,8 @@ import { KIT_FIRST_PATH } from '../core/utils.js'
 async function downloadAndSetupExamples() {
   let destination = kenvPath('tmp')
   await download('https://github.com/johnlindquist/kit-examples-ts/archive/main.zip', destination, {
-    extract: true,
-    rejectUnauthorized: false
+    extract: true
+    // rejectUnauthorized: false - removed for security reasons
   })
 
   let source = path.join(destination, 'kit-examples-main')
