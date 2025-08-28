@@ -316,7 +316,16 @@ type Say = (text: string, options?: any) => Promise<string>
 
 type Beep = () => Promise<void>
 
-type SetSelectedText = (text: string, hide?: boolean) => Promise<void>
+type SetSelectedText = (
+  text: string,
+  hideOrOptions?: boolean | { hide?: boolean; method?: 'typing' | 'clipboard' | 'auto' }
+) => Promise<void>
+
+type GetSelectedTextEx = (options?: {
+  restoreClipboard?: boolean
+  timeoutMs?: number
+  pollMs?: number
+}) => Promise<{ ok: boolean; value: string; reason?: 'unchanged' | 'no-selection' }>
 
 type KeyStroke = (keyString: string) => Promise<string>
 
@@ -646,10 +655,15 @@ declare global {
    * ```ts
    * await setSelectedText("Hello from Script Kit!");
    * ```
-   * Grab text from the focused app. Literally triggers a "cmd?ctrl+c", so expect a similar behavior.
-   * [Examples](https://scriptkit.com?query=setSelectedText) | [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedText) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setSelectedText)
-   */
+  * Grab text from the focused app. Literally triggers a "cmd?ctrl+c", so expect a similar behavior.
+  * [Examples](https://scriptkit.com?query=setSelectedText) | [Docs](https://johnlindquist.github.io/kit-docs/#setSelectedText) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=setSelectedText)
+  */
   var setSelectedText: SetSelectedText
+  /**
+   * Robust selected text retrieval that optionally restores the previous clipboard
+   * and provides structured results for downstream logic.
+   */
+  var getSelectedTextEx: GetSelectedTextEx
   var setSelectedFile: SetSelectedFile
   var setWindowBoundsByIndex: SetWindowBoundsByIndex
   /**
