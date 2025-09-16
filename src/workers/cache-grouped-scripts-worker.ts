@@ -157,12 +157,16 @@ const parseMainMenu = async (stamp: Stamp | null) => {
 
   const firstScript = scripts.find((script) => !script.skip) as Script | undefined
   let preview = ''
-  if (firstScript) {
+  const skipPreview = process.env.KIT_TEST === 'true'
+
+  if (firstScript && !skipPreview) {
     try {
       preview = (await processScriptPreview(firstScript)()) as string
     } catch (error) {
       logToParent(`Error processing script preview: ${error}`)
     }
+  } else if (skipPreview) {
+    logToParent(`[parseMainMenu] Skipping preview generation in KIT_TEST env`)
   }
 
   // Sanitize scripts so no preview functions or values remain
