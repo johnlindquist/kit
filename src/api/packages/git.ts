@@ -1,7 +1,7 @@
 import _git from "isomorphic-git"
 import fs from "fs"
 import os from "os"
-import http from "isomorphic-git/http/node/index.js"
+import http from "isomorphic-git/http/node"
 import { DegitOptions } from "../../types/packages"
 import { rimraf } from "rimraf"
 
