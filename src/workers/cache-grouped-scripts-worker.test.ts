@@ -36,6 +36,7 @@ function runWorkerMessage(messageToSend: any): Promise<{ msg: any; worker: Worke
   return new Promise((resolve, reject) => {
     const worker = new Worker(compiledWorkerPath)
     let resolved = false
+    const timeoutMs = process.platform === 'win32' ? 15000 : 5000
 
     // Diagnostics: log worker lifecycle to help triage CI hangs
     worker.on('online', () => {
@@ -75,7 +76,7 @@ function runWorkerMessage(messageToSend: any): Promise<{ msg: any; worker: Worke
         try { worker.terminate() } catch {}
         reject(new Error('Timeout waiting for CACHE_MAIN_SCRIPTS message'))
       }
-    }, 5000)
+    }, timeoutMs)
   })
 }
 
