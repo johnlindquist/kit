@@ -89,9 +89,14 @@ function setEnvValue(key: string, value?: string) {
 
 const NEEDS_QUOTES_REGEX = /[\s"'`$&|<>^;,\(\)\\]/
 function formatEnvLine(key: string, value: string) {
+  // Normalize Windows paths to use forward slashes
+  // Forward slashes work correctly on Windows and don't need quoting in .env files
+  const normalizedValue = value.replace(/\\/g, '/')
+
   // Check if value contains spaces, special characters, or hash symbols
-  const needsQuotes = NEEDS_QUOTES_REGEX.test(value) || value.includes('#');
-  return needsQuotes ? `${key}="${value}"` : `${key}=${value}`;
+  // Note: After normalization, backslashes are gone, so this won't trigger on paths
+  const needsQuotes = NEEDS_QUOTES_REGEX.test(normalizedValue) || normalizedValue.includes('#');
+  return needsQuotes ? `${key}="${normalizedValue}"` : `${key}=${normalizedValue}`;
 }
 
 // Update an existing environment variable

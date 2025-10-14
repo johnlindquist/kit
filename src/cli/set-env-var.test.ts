@@ -217,11 +217,13 @@ await tmp.withDir(async (dir) => {
     t.is(parsed.BRAND_NEW_KEY, "brand_new_value")
   })
 
-  ava.serial("should handle Windows-style paths", async (t: Context) => {
+  ava.serial("should handle Windows-style paths (normalized to forward slashes)", async (t: Context) => {
     const windowsPath = "C:\\Users\\JohnDoe\\Documents\\Project"
+    const expectedNormalized = "C:/Users/JohnDoe/Documents/Project"
     await global.setEnvVar("WIN_PATH", windowsPath)
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
-    t.is(parsed.WIN_PATH, windowsPath)
+    // Paths are normalized to forward slashes to prevent .env parsing issues
+    t.is(parsed.WIN_PATH, expectedNormalized)
   })
 
   ava.serial("should handle POSIX-style paths", async (t: Context) => {
@@ -233,37 +235,72 @@ await tmp.withDir(async (dir) => {
 
   ava.serial("should handle paths with spaces", async (t: Context) => {
     const windowsPath = "C:\\Program Files\\My App\\Config"
+    const expectedWinNormalized = "C:/Program Files/My App/Config"
     const posixPath = "/home/user/My Documents/project"
 
     await global.setEnvVar("WIN_SPACE_PATH", windowsPath)
     await global.setEnvVar("POSIX_SPACE_PATH", posixPath)
 
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
-    t.is(parsed.WIN_SPACE_PATH, windowsPath)
+    // Windows paths normalized to forward slashes, POSIX paths unchanged
+    t.is(parsed.WIN_SPACE_PATH, expectedWinNormalized)
     t.is(parsed.POSIX_SPACE_PATH, posixPath)
   })
 
   ava.serial("should handle network paths and UNC paths", async (t: Context) => {
     const uncPath = "\\\\server\\share\\folder"
+    const expectedUncNormalized = "//server/share/folder"
     const networkPath = "//server/share/folder"
 
     await global.setEnvVar("UNC_PATH", uncPath)
     await global.setEnvVar("NETWORK_PATH", networkPath)
 
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
-    t.is(parsed.UNC_PATH, uncPath)
+    // UNC paths normalized to forward slashes, network paths unchanged
+    t.is(parsed.UNC_PATH, expectedUncNormalized)
     t.is(parsed.NETWORK_PATH, networkPath)
   })
 
   ava.serial("should handle relative paths", async (t: Context) => {
     const winRelative = "..\\parent\\child"
+    const expectedWinNormalized = "../parent/child"
     const posixRelative = "../parent/child"
 
     await global.setEnvVar("WIN_RELATIVE", winRelative)
     await global.setEnvVar("POSIX_RELATIVE", posixRelative)
 
     const { parsed } = dotenv.config({ files: [t.context.envFile] })
-    t.is(parsed.WIN_RELATIVE, winRelative)
+    // Windows relative paths normalized to forward slashes, POSIX paths unchanged
+    t.is(parsed.WIN_RELATIVE, expectedWinNormalized)
     t.is(parsed.POSIX_RELATIVE, posixRelative)
+  })
+
+  ava.serial("should fix KENV and KIT_NODE_PATH issue (GitHub issue)", async (t: Context) => {
+    // This tests the exact scenario reported in the issue:
+    // Windows paths with backslashes were being wrapped in quotes,
+    // causing .env parsing to fail
+    const kenvPath = "C:\\Users\\myusername\\.kenv"
+    const kitNodePath = "C:\\Users\\myusername\\.kit\\nodejs\\22.9.0\\node.exe"
+
+    const expectedKenv = "C:/Users/myusername/.kenv"
+    const expectedKitNode = "C:/Users/myusername/.kit/nodejs/22.9.0/node.exe"
+
+    // Use different var names to avoid confusing the path resolution
+    await global.setEnvVar("TEST_KENV_PATH", kenvPath)
+    await global.setEnvVar("TEST_KIT_NODE_PATH", kitNodePath)
+
+    // Read raw file to verify no backslashes in quotes
+    const contents = await readFile(t.context.envFile, "utf-8")
+    t.log("File contents:", contents)
+
+    // Verify the file doesn't contain quoted backslash paths
+    t.false(contents.includes('="C:\\'), "Should not have quoted backslash paths")
+    // Verify it has normalized forward slash paths
+    t.true(contents.includes('C:/Users/myusername'), "Should have normalized forward slash paths")
+
+    // Verify dotenv can parse correctly
+    const { parsed } = dotenv.config({ files: [t.context.envFile] })
+    t.is(parsed.TEST_KENV_PATH, expectedKenv, "Path should be normalized to forward slashes")
+    t.is(parsed.TEST_KIT_NODE_PATH, expectedKitNode, "Path should be normalized to forward slashes")
   })
 })

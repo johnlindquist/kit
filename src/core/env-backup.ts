@@ -76,28 +76,33 @@ export const formatEnvContent = (envMap: Map<string, string>): string => {
     const lines: string[] = []
 
     for (const [key, value] of envMap) {
-        const isAlreadyQuoted =
-            (value.startsWith('"') && value.endsWith('"')) ||
-            (value.startsWith("'") && value.endsWith("'"));
+        // Normalize Windows paths to use forward slashes
+        // Forward slashes work correctly on Windows and don't need quoting in .env files
+        let normalizedValue = value.replace(/\\/g, '/')
 
-        let formattedValue = value;
+        const isAlreadyQuoted =
+            (normalizedValue.startsWith('"') && normalizedValue.endsWith('"')) ||
+            (normalizedValue.startsWith("'") && normalizedValue.endsWith("'"));
+
+        let formattedValue = normalizedValue;
 
         if (isAlreadyQuoted) {
             // If already quoted, leave as is. 
             // Or, if it's double-quoted and contains internal double quotes that are not escaped, it's tricky.
             // For now, we assume valid quoting if already quoted.
-            formattedValue = value;
+            formattedValue = normalizedValue;
         } else {
             // Needs quoting if it's empty, contains problematic characters, or includes a #
-            const containsProblematicChars = /[\s"'`$&|<>^;,\(\)\\]/.test(value);
-            const needsExternalQuotes = value === "" || containsProblematicChars || value.includes('#');
+            // Note: After normalization, backslashes are gone, so this won't trigger on paths
+            const containsProblematicChars = /[\s"'`$&|<>^;,\(\)\\]/.test(normalizedValue);
+            const needsExternalQuotes = normalizedValue === "" || containsProblematicChars || normalizedValue.includes('#');
 
             if (needsExternalQuotes) {
                 // Escape only internal double quotes, then wrap with double quotes
-                formattedValue = `"${value.replace(/"/g, '\"')}"`;
+                formattedValue = `"${normalizedValue.replace(/"/g, '\"')}"`;
             } else {
                 // No quoting needed, use raw value
-                formattedValue = value;
+                formattedValue = normalizedValue;
             }
         }
         lines.push(`${key}=${formattedValue}`);
