@@ -72,17 +72,17 @@
   "author": "John Lindquist (https://johnlindquist.com)",
   "license": "ISC",
   "dependencies": {
-    "@ai-sdk/anthropic": "2.0.29",
+    "@ai-sdk/anthropic": "2.0.35",
     "@ai-sdk/google": "2.0.23",
-    "@ai-sdk/openai": "2.0.52",
-    "@ai-sdk/react": "2.0.71",
+    "@ai-sdk/openai": "2.0.53",
+    "@ai-sdk/react": "2.0.76",
     "@ai-sdk/xai": "2.0.26",
     "@johnlindquist/open": "^10.1.1",
-    "@modelcontextprotocol/sdk": "1.20.0",
+    "@modelcontextprotocol/sdk": "1.20.1",
     "@octokit/auth-oauth-device": "8.0.2",
     "@octokit/core": "7.0.5",
-    "@octokit/plugin-paginate-rest": "13.2.0",
-    "@octokit/plugin-rest-endpoint-methods": "16.1.0",
+    "@octokit/plugin-paginate-rest": "13.2.1",
+    "@octokit/plugin-rest-endpoint-methods": "16.1.1",
     "@octokit/plugin-retry": "8.0.2",
     "@octokit/plugin-throttling": "11.0.2",
     "@openrouter/ai-sdk-provider": "1.2.0",
@@ -96,7 +96,7 @@
     "acorn": "^8.15.0",
     "acorn-typescript": "^1.4.13",
     "advanced-calculator": "1.1.1",
-    "ai": "5.0.71",
+    "ai": "5.0.76",
     "axios": "1.12.2",
     "body-parser": "^2.2.0",
     "bottleneck": "^2.19.5",
@@ -109,7 +109,7 @@
     "dotenv-flow": "4.1.0",
     "download": "8.0.0",
     "enquirer": "2.4.1",
-    "esbuild": "0.25.10",
+    "esbuild": "0.25.11",
     "execa": "9.6.0",
     "filesize": "11.0.13",
     "fs-extra": "^11.3.2",
@@ -121,7 +121,7 @@
     "keyv": "^5.5.3",
     "keyv-file": "^5.2.0",
     "lowdb": "7.0.1",
-    "marked": "16.4.0",
+    "marked": "16.4.1",
     "marked-extended-tables": "2.0.1",
     "marked-gfm-heading-id": "4.1.2",
     "marked-highlight": "2.2.2",
@@ -146,7 +146,7 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
-    "@types/node": "^24.7.2",
+    "@types/node": "^24.9.1",
     "@types/node-ipc": "9.2.3",
     "@types/sinon": "17.0.4",
     "acorn-walk": "8.3.4",
@@ -157,14 +157,14 @@
     "debug": "4.4.3",
     "husky": "^9.1.7",
     "node-stream-zip": "^1.15.0",
-    "semantic-release": "24.2.9",
+    "semantic-release": "25.0.1",
     "semantic-release-plugin-update-version-in-files": "2.0.0",
     "sinon": "21.0.0",
     "tsc-watch": "7.2.0",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
     "unzipper": "0.12.3",
-    "vite": "7.1.10"
+    "vite": "7.1.11"
   },
   "ava": {
     "environmentVariables": {
@@ -223,5 +223,5 @@
     "file-icon": "6.0.0",
     "get-app-icon": "1.0.1"
   },
-  "packageManager": "pnpm@10.18.3"
+  "packageManager": "pnpm@10.19.0"
 }

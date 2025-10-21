@@ -297,13 +297,23 @@ export let findApps = async (includePrefs = false) => {
     const SYSTEM_UTILITIES_DIR = '/System/Applications/Utilities'
     const CHROME_APPS_DIR = home('Applications', 'Chrome Apps.localized')
 
-    let manualAppDir = (await readdir(APP_DIR)).map((app) => `${APP_DIR}/${app}`)
-    let manualUtilitiesDir = (await readdir(UTILITIES_DIR)).map((app) => `${UTILITIES_DIR}/${app}`)
-    let systemUtilitiesDir = (await readdir(SYSTEM_UTILITIES_DIR)).map((app) => `${SYSTEM_UTILITIES_DIR}/${app}`)
-    let chromeApps = []
-    if (await isDir(CHROME_APPS_DIR)) {
-      chromeApps = (await readdir(CHROME_APPS_DIR)).map((app) => `${CHROME_APPS_DIR}/${app}`)
+    // Helper to safely read directories, returning empty array if directory doesn't exist
+    const safeReaddir = async (dirPath: string): Promise<string[]> => {
+      try {
+        if (await isDir(dirPath)) {
+          return (await readdir(dirPath)).map((app) => `${dirPath}/${app}`)
+        }
+        return []
+      } catch (error) {
+        global.warn?.(`Could not read directory ${dirPath}: ${error.message}`)
+        return []
+      }
     }
+
+    let manualAppDir = await safeReaddir(APP_DIR)
+    let manualUtilitiesDir = await safeReaddir(UTILITIES_DIR)
+    let systemUtilitiesDir = await safeReaddir(SYSTEM_UTILITIES_DIR)
+    let chromeApps = await safeReaddir(CHROME_APPS_DIR)
 
     let apps = manualAppDir
       .concat(chromeApps, manualUtilitiesDir, systemUtilitiesDir)
