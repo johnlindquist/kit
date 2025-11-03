@@ -43,4 +43,4 @@ let handleLog = line => {
 }
 
 let logPath = getLogFromScriptPath(scriptPath)
-await execLog(`tail -f ${logPath}`, handleLog)
+await execLog("tail", ["-f", logPath], handleLog)
