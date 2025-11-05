@@ -1,105 +1,68 @@
-import os from "os"
-import { escapeShortcut } from "../core/utils.js"
-import { PromptConfig } from "../types/core.js"
+/**
+ * Platform-agnostic utilities for external application launching
+ * Provides clean environment handling for VS Code, terminals, and other apps
+ */
 
-let unsupported = () => {
-  let stack = new Error().stack
-  // N.B. stack === "Error\n  at Hello ...\n  at main ... \n...."
-  let m = stack.match(/.*?unsupported.*?\n(.*?)\n/)
-  if (m) {
-    let fnName = m[1]
-    throw new Error(
-      `${fnName} is unsupported on ${os.platform()}`
-    )
-  }
+/**
+ * Gets a clean shell environment for launching external applications
+ *
+ * This function returns the user's shell environment WITHOUT Script Kit's modifications.
+ * External apps (VS Code, terminals, etc.) launched with this environment will behave
+ * as if launched normally from the system, preventing package manager conflicts.
+ *
+ * The environment is cached at app startup and passed via KIT_CLEAN_SHELL_ENV.
+ *
+ * @returns Clean environment variables suitable for external application launches
+ */
+export const getCleanEnvForExternalApp = (): Record<string, string> => {
+	// Try to read cached shell environment passed from the app
+	if (process.env.KIT_CLEAN_SHELL_ENV) {
+		try {
+			const cleanEnv = JSON.parse(process.env.KIT_CLEAN_SHELL_ENV)
+			return cleanEnv as Record<string, string>
+		} catch (error) {
+			// Fall through to fallback if JSON parse fails
+			console.error("Failed to parse KIT_CLEAN_SHELL_ENV:", error)
+		}
+	}
+
+	// Fallback: Build a minimal clean environment from whitelisted variables
+	// This happens if the app didn't cache the shell env (shouldn't normally occur)
+	const whitelist = [
+		"HOME",
+		"USER",
+		"SHELL",
+		"LANG",
+		"LC_ALL",
+		"TERM",
+		"TMPDIR",
+		"TMP",
+		"TEMP",
+		"EDITOR",
+		"VISUAL",
+		// Platform-specific
+		"APPDATA", // Windows
+		"LOCALAPPDATA", // Windows
+		"USERPROFILE", // Windows
+		"XDG_CONFIG_HOME", // Linux
+		"XDG_DATA_HOME" // Linux
+	]
+
+	const cleanEnv: Record<string, string> = {}
+
+	for (const key of whitelist) {
+		if (process.env[key]) {
+			cleanEnv[key] = process.env[key] as string
+		}
+	}
+
+	// For PATH, use the original if available, otherwise use current
+	// (This fallback won't be perfect but better than Kit's modified PATH)
+	if (process.env.PATH) {
+		cleanEnv.PATH = process.env.PATH
+	}
+
+	return cleanEnv
 }
 
-global.applescript = async (
-  script,
-  options = { silent: true }
-) => {
-  unsupported()
-
-  return ""
-}
-
-global.terminal = async script => {
-  unsupported()
-
-  return ""
-}
-
-global.iterm = async command => {
-  unsupported()
-
-  return ""
-}
-
-global.hyper = async command => {
-  unsupported()
-
-  return ""
-}
-
-global.selectKitEditor = async (reset = false) => {
-  unsupported()
-
-  return ""
-}
-
-global.edit = async (file, dir, line = 0, col = 0) => {
-  unsupported()
-
-  return
-}
-
-global.openLog = () => {
-  unsupported()
-
-  return ""
-}
-
-global.find = async (config, options = {}) => {
-  let defaultConfig = {
-    placeholder: "Search Files",
-    enter: "Select File",
-    shortcuts: [escapeShortcut],
-  }
-  if (typeof config === "string") {
-    defaultConfig.placeholder = config
-  }
-
-  let disabled = [
-    {
-      name: "Type at least 3 characters to search",
-      disableSubmit: true,
-    },
-  ]
-
-  let selectedFile = await arg(
-    {
-      ...defaultConfig,
-      ...(config as PromptConfig),
-    },
-    async input => {
-      if (!input || input === "undefined") {
-        return disabled
-      }
-      if (input?.length < 3) {
-        return disabled
-      }
-
-      let files = await fileSearch(input, options)
-      return files.map(p => {
-        return {
-          name: path.basename(p),
-          description: p,
-          drag: p,
-          value: p,
-        }
-      })
-    }
-  )
-
-  return selectedFile
-}
+export {}

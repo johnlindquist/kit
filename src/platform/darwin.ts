@@ -9,6 +9,7 @@ import {
 
 import { refreshScripts } from "../core/db.js"
 import { existsSync } from "fs"
+import { getCleanEnvForExternalApp } from "./base.js"
 
 global.applescript = async (script, options = { silent: true }) => {
 	let applescriptPath = kenvTmpPath("latest.scpt")
@@ -127,10 +128,7 @@ let terminalEditor = (editor) => async (file) => {
 let execConfig = () => {
 	return {
 		shell: true,
-		env: {
-			HOME: home(),
-			PATH: KIT_FIRST_PATH
-		}
+		env: getCleanEnvForExternalApp()
 	}
 }
 

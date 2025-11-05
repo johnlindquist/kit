@@ -294,6 +294,7 @@ export let findApps = async (includePrefs = false) => {
     })
     const APP_DIR = '/Applications'
     const UTILITIES_DIR = `${APP_DIR}/Utilities`
+    const SYSTEM_APP_DIR = '/System/Applications'
     const SYSTEM_UTILITIES_DIR = '/System/Applications/Utilities'
     const CHROME_APPS_DIR = home('Applications', 'Chrome Apps.localized')
 
@@ -312,11 +313,12 @@ export let findApps = async (includePrefs = false) => {
 
     let manualAppDir = await safeReaddir(APP_DIR)
     let manualUtilitiesDir = await safeReaddir(UTILITIES_DIR)
+    let systemAppDir = await safeReaddir(SYSTEM_APP_DIR)
     let systemUtilitiesDir = await safeReaddir(SYSTEM_UTILITIES_DIR)
     let chromeApps = await safeReaddir(CHROME_APPS_DIR)
 
     let apps = manualAppDir
-      .concat(chromeApps, manualUtilitiesDir, systemUtilitiesDir)
+      .concat(chromeApps, manualUtilitiesDir, systemAppDir, systemUtilitiesDir)
       .filter((app) => app.endsWith('.app'))
 
     // Filter out broken symlinks

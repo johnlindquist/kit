@@ -1,3 +1,5 @@
+import { getCleanEnvForExternalApp } from "./base.js"
+
 let notSupported = (name) => async () =>
   await div(
     md(`# ${name} is Not Supported on Linux
@@ -10,7 +12,8 @@ Have an idea on how to support it? Please share on our [GitHub Discussions](http
 global.edit = async (path, dir, line, col) => {
   await global.exec(`${env.KIT_EDITOR || 'code'} ${path} ${dir}`, {
     detached: true,
-    windowsHide: true
+    windowsHide: true,
+    env: getCleanEnvForExternalApp()
   })
 }
 

@@ -1,3 +1,5 @@
+import { getCleanEnvForExternalApp } from "./base.js"
+
 // List of Windows editors including established ones plus newer options.
 const WIN_EDITORS = [
   {
@@ -217,9 +219,7 @@ global.edit = async (p, dir, line, col) => {
 
     await global.exec(command, {
       shell: true,
-      env: {
-        HOME: home()
-      }
+      env: getCleanEnvForExternalApp()
     })
   } catch {}
 }
