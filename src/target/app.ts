@@ -2062,13 +2062,20 @@ global.micro = async (
   choices = ``,
   actions = ``
 ) => {
-  let microConfig = {
+  let microConfig: PromptConfig = {
     headerClassName: "hidden",
     footerClassName: "hidden",
     inputHeight: PROMPT.INPUT.HEIGHT.XS,
     itemHeight: PROMPT.ITEM.HEIGHT.XS,
+
+    // XS defaults are authoritative for micro
     height: PROMPT.INPUT.HEIGHT.XS,
     width: PROMPT.WIDTH.XS,
+
+    // Keep resize pipeline active and prevent full collapse
+    resize: true,
+    preventCollapse: true,
+
     placeholder: "",
   }
 
@@ -2077,9 +2084,13 @@ global.micro = async (
   }
 
   if (typeof placeholderOrConfig === "object") {
+    const overrides = placeholderOrConfig as PromptConfig
     microConfig = {
       ...microConfig,
-      ...(placeholderOrConfig as PromptConfig),
+      ...overrides,
+      // Re-apply XS defaults when height/width not provided
+      height: overrides.height ?? microConfig.height,
+      width: overrides.width ?? microConfig.width,
     }
   }
 

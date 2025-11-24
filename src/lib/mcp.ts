@@ -177,11 +177,7 @@ const createMCPInstance = (options: MCPOptions = {}): MCPInstance => {
                 name,
                 version
             }, {
-                capabilities: {
-                    tools: true,
-                    resources: true,
-                    prompts: true
-                }
+                capabilities: {}
             });
 
             // Connect

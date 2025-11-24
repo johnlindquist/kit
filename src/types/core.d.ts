@@ -237,6 +237,11 @@ export interface PromptData {
   previewWidthPercent: number
   panel: string
   secret: boolean
+  /**
+   * High-level selection hint coming from PromptConfig.selected.
+   * The renderer combines this with Choice.selected, focusedId and defaultChoiceId
+   * to resolve the initial focused index.
+   */
   selected: string
   strict: boolean
   tabs: string[]
@@ -247,7 +252,14 @@ export interface PromptData {
   placeholderOnly: boolean
   scripts: boolean
   shortcodes: { [key: string]: any }
+  /**
+   * Optional id of the choice that should be treated as the default when no
+   * per-choice selected flag or focusedId resolves.
+   */
   defaultChoiceId: string
+  /**
+   * Optional id of the choice that should receive initial focus.
+   */
   focusedId: string
   footer: string
   env: any
@@ -261,6 +273,10 @@ export interface PromptData {
   itemHeight: number
   inputHeight: number
   defaultValue: string
+  /**
+   * Legacy string-based focus hint (name/value/id). Only used as a fallback when
+   * id-based hints and Choice.selected are not provided.
+   */
   focused: string
   formData?: any
   html?: string
