@@ -3,7 +3,7 @@ import { PROMPT } from './enum.js'
 import { randomUUID as uuid } from 'node:crypto'
 
 export let defaultGroupClassName = 'border-t-1 border-t-ui-border'
-export let defaultGroupNameClassName = 'font-medium text-xxs text-text-base/60 uppercase'
+export let defaultGroupNameClassName = 'font-medium text-xxs text-text-base opacity-60 uppercase'
 
 /**
  * Given an array of items, separate those with an index property from those without,
