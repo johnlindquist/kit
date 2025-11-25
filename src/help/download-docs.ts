@@ -5,7 +5,7 @@ try {
     `https://www.scriptkit.com/api/docs`,
     kitPath("data"),
     {
-      rejectUnauthorized: false,
+      // rejectUnauthorized: false - removed for security reasons
     }
   )
 
