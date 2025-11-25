@@ -63,4 +63,4 @@ await tmp.withDir(async (dir) => {
 
 		t.is(result, "Hello")
 	})
-})
+}, { unsafeCleanup: true })
