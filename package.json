@@ -28,6 +28,7 @@
     "./platform/*": "./platform/*.js",
     "./run/*": "./run/*.js",
     "./core/*": "./core/*.js",
+    "./core/logger": "./core/logger/index.js",
     "./workers": "./workers/index.js",
     "./types/*": "./types/*.js"
   },
