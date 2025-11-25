@@ -3303,6 +3303,52 @@ global.toast = async (text: string, options = {}) => {
   })
 }
 
+/**
+ * File search prompt - search for files using system file search (mdfind on macOS, where on Windows)
+ */
+global.find = async (placeholderOrConfig?, fileSearchOptions = {}) => {
+  let config: PromptConfig =
+    typeof placeholderOrConfig === "string"
+      ? { placeholder: placeholderOrConfig }
+      : placeholderOrConfig || {}
+
+  let searchDebounce: ReturnType<typeof setTimeout> | null = null
+
+  return await global.kitPrompt({
+    placeholder: "Search for files...",
+    enter: "Select",
+    ...config,
+    onInput: async (input, state) => {
+      if (config.onInput) {
+        await config.onInput(input, state)
+      }
+
+      if (searchDebounce) {
+        clearTimeout(searchDebounce)
+      }
+
+      if (!input || input.length < 2) {
+        setChoices([])
+        return
+      }
+
+      searchDebounce = setTimeout(async () => {
+        try {
+          const results = await global.fileSearch(input, fileSearchOptions)
+          const choices = results.slice(0, 100).map((filePath: string) => ({
+            name: global.path.basename(filePath),
+            description: filePath,
+            value: filePath,
+          }))
+          setChoices(choices)
+        } catch (error) {
+          setChoices([])
+        }
+      }, 200)
+    },
+  })
+}
+
 let beginMicStream = () => {
   global.mic.stream = undefined
   global.mic.stream = new Readable({

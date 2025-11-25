@@ -382,6 +382,11 @@ global.revealFile = async () => {
   notSupported('revealFile')
   return ''
 }
+
+global.find = async () => {
+  notSupported('find')
+  return ''
+}
   ; (global as any).clipboard = new Proxy(
     {},
     {
