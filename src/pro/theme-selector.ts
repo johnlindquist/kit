@@ -4,95 +4,27 @@
 // Cache: true
 
 import "@johnlindquist/kit"
-import { globby } from "globby"
+import { loadThemePaths, buildThemeChoices } from "../core/theme-loader.js"
 
-let customThemePaths = await globby([
-	kenvPath("themes", "*.css").replaceAll("\\", "/")
-])
+// Load all theme paths using shared utility
+const paths = await loadThemePaths(kenvPath, kitPath)
 
-let themePaths = await globby([
-	kitPath("themes", "*.css").replaceAll("\\", "/"),
-	`!${kitPath("themes", "script-kit*.css").replaceAll("\\", "/")}`
-])
+// Load preview content
+const guide = await readFile(kitPath("API.md"), "utf-8")
 
-let defaultThemePaths = await globby([
-	kitPath("themes", "script-kit*.css").replaceAll("\\", "/")
-])
+// Build theme choices using shared utility
+let themes = await buildThemeChoices({
+	paths,
+	readFile,
+	pathModule: path,
+	setScriptTheme,
+	md,
+	previewContent: guide,
+})
 
-let guide = await readFile(kitPath("API.md"), "utf-8")
+const RESET = "Reset to Defaults"
 
-let themes = []
-
-for await (let themePath of defaultThemePaths) {
-	let css = await readFile(themePath, "utf-8")
-	let themeName = path.basename(themePath)
-	let theme = {
-		group: "Default",
-		name: themeName,
-		description: themePath,
-		value: themePath,
-		enter: "Apply Theme",
-		preview: async () => {
-			setScriptTheme(css)
-
-			return md(
-				`# Preview of ${themeName}
-    
-${guide}`
-			)
-		}
-	}
-
-	themes.push(theme)
-}
-
-for await (let cssPath of themePaths) {
-	let css = await readFile(cssPath, "utf-8")
-	let themeName = path.basename(cssPath)
-	let theme = {
-		group: "Built-in",
-		name: themeName,
-		description: cssPath,
-		value: cssPath,
-		enter: "Apply Theme",
-		preview: async () => {
-			setScriptTheme(css)
-
-			return md(
-				`# Preview of ${themeName}
-    
-${guide}`
-			)
-		}
-	}
-
-	themes.push(theme)
-}
-
-for await (let cssPath of customThemePaths) {
-	let css = await readFile(cssPath, "utf-8")
-	let themeName = path.basename(cssPath)
-	let theme = {
-		group: "Custom",
-		name: themeName,
-		description: cssPath,
-		value: cssPath,
-		enter: "Apply Theme",
-		preview: async () => {
-			setScriptTheme(css)
-
-			return md(
-				`# Preview of ${themeName}
-		
-	${guide}`
-			)
-		}
-	}
-	themes.push(theme)
-}
-
-let RESET = "Reset to Defaults"
-
+// Add reset option if custom themes are configured
 if (env.KIT_THEME_LIGHT || env.KIT_THEME_DARK) {
 	themes.unshift({
 		group: "Kit",
@@ -100,8 +32,8 @@ if (env.KIT_THEME_LIGHT || env.KIT_THEME_DARK) {
 		description: "Reset both light and dark themes to defaults",
 		value: RESET,
 		enter: "Reset",
-		preview: md(`# Reset to Defaults
-  
+		preview: async () => md(`# Reset to Defaults
+
   Clear both \`KIT_THEME_LIGHT\` and \`KIT_THEME_DARK\` environment variables to reset to defaults.
   `)
 	})
@@ -109,10 +41,10 @@ if (env.KIT_THEME_LIGHT || env.KIT_THEME_DARK) {
 
 themes = groupChoices(themes, {
 	order: ["Kit", "Default", "Custom", "Built-in"]
-})
+}) as typeof themes
 
 // Check if kit.css exists
-let kitCssExists = await pathExists(kenvPath("kit.css"))
+const kitCssExists = await pathExists(kenvPath("kit.css"))
 let warningText = ""
 if (kitCssExists) {
 	warningText = `<div class="p-4 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-md mb-4">
@@ -121,7 +53,7 @@ if (kitCssExists) {
 	</div>`
 }
 
-let cssPath = await arg(
+const cssPath = await arg(
 	{
 		placeholder: "Select Theme",
 		headerClassName: "",
@@ -140,7 +72,7 @@ if (cssPath === RESET) {
 	await cli("remove-env-var", "KIT_THEME_LIGHT")
 	await cli("remove-env-var", "KIT_THEME_DARK")
 } else {
-	let appearance = await arg(`Use ${path.basename(cssPath)} When Appearance`, [
+	const appearance = await arg(`Use ${path.basename(cssPath)} When Appearance`, [
 		"Light",
 		"Dark",
 		"Both"
@@ -153,9 +85,9 @@ if (cssPath === RESET) {
 		await cli("set-env-var", "KIT_THEME_DARK", cssPath)
 	}
 
-	let theme = await readFile(cssPath, "utf-8")
+	const theme = await readFile(cssPath, "utf-8")
 	await setTheme(theme)
-	
+
 	// Show notification if kit.css exists
 	if (kitCssExists) {
 		await notify({

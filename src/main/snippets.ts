@@ -85,14 +85,20 @@ if (typeof snippet?.text === "string") {
 }
 snippet = text.replaceAll("\\$", "$")
 
-if (snippet.includes("$SELECTED_TEXT")) {
+// Support both $SELECTION and $SELECTED_TEXT for consistency
+if (snippet.includes("$SELECTED_TEXT") || snippet.includes("$SELECTION")) {
 	let selectedText = await getSelectedText()
 	snippet = snippet.replaceAll("$SELECTED_TEXT", selectedText)
+	snippet = snippet.replaceAll("$SELECTION", selectedText)
 }
 
 if (snippet.includes("$CLIPBOARD")) {
 	let clipboardText = await paste()
 	snippet = snippet.replaceAll("$CLIPBOARD", clipboardText)
+}
+
+if (snippet.includes("$HOME")) {
+	snippet = snippet.replaceAll("$HOME", home())
 }
 
 if (snippet.match(templatePlaceholdersRegex)) {

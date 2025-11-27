@@ -11,10 +11,11 @@ if (args?.length > 0 && snippet.includes("$0")) {
 	snippet = snippet.replaceAll("$0", args?.shift());
 }
 
-// Find ${selection} and replace with selected text
-if (snippet.includes("$SELECTION")) {
+// Support both $SELECTION and $SELECTED_TEXT for consistency
+if (snippet.includes("$SELECTION") || snippet.includes("$SELECTED_TEXT")) {
 	let selectedText = await getSelectedText()
 	snippet = snippet.replaceAll("$SELECTION", selectedText)
+	snippet = snippet.replaceAll("$SELECTED_TEXT", selectedText)
 }
 
 if (snippet.includes("$CLIPBOARD")) {

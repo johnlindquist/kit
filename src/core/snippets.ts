@@ -3,7 +3,8 @@ import path from "node:path";
 import { globby } from "globby";
 import type { Metadata, Snippet } from '../types/index.js'
 import { kenvPath } from './resolvers.js'
-import { escapeHTML, getKenvFromPath, getMetadata, postprocessMetadata, checkDbAndInvalidateCache } from './utils.js'
+import { escapeHTML, getKenvFromPath } from './utils.js'
+import { parseSnippetMetadata } from './metadata-parser.js'
 
 interface SnippetFileCacheEntry {
   snippetObject: Partial<Snippet>;
@@ -33,23 +34,19 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
       }
 
       let contents = await readFile(s, 'utf8')
-      let { metadata, snippet } = getSnippet(contents)
-      let formattedSnippet = escapeHTML(snippet)
+      // Use unified metadata parser for consistency with App
+      const { metadata, snippetBody, snippetKey, postfix } = parseSnippetMetadata(contents)
 
-      let expand = (metadata?.expand || metadata?.snippet || '').trim()
-      let postfix = false
-      if (expand.startsWith('*')) {
-        postfix = true
-        expand = expand.slice(1)
-      }
+      // Get raw expand value for tag (preserves * prefix for postfix snippets)
+      const rawExpand = (metadata?.snippet || metadata?.expand || '') as string
 
       const newSnippetChoice: Partial<Snippet> = {
         ...metadata,
         filePath: s,
         name: metadata?.name || path.basename(s),
-        tag: metadata?.snippet || '',
+        tag: rawExpand,
         description: s,
-        text: snippet.trim(),
+        text: snippetBody.trim(),
         preview: `<div class="p-4">
   <style>
   p{
@@ -58,16 +55,16 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
   li{
     margin-bottom: .25rem;
   }
-  
+
   </style>
-  ${snippet.trim()}
+  ${escapeHTML(snippetBody.trim())}
 </div>`,
         group: 'Snippets',
         kenv: getKenvFromPath(s),
-        value: snippet.trim(),
-        expand,
-        postfix: postfix ? true : false,
-        snippetKey: expand,
+        value: snippetBody.trim(),
+        expand: snippetKey,
+        postfix,
+        snippetKey,
       }
 
       snippetCache.set(s, { snippetObject: newSnippetChoice, mtimeMs: currentMtimeMs });
@@ -82,27 +79,17 @@ export let parseSnippets = async (): Promise<Snippet[]> => {
   return snippetChoices as Snippet[]
 }
 
-const snippetRegex = /(?<=^(?:(?:\/\/)|#)\s{0,2})([\w-]+)(?::)(.*)/
+/**
+ * Parse snippet contents and extract metadata and body.
+ * Uses unified parseSnippetMetadata for consistency with App.
+ * @deprecated Use parseSnippetMetadata directly for full result including warnings
+ */
 export let getSnippet = (
   contents: string
 ): {
   metadata: Metadata
   snippet: string
 } => {
-  let lines = contents.split('\n')
-  let metadata = postprocessMetadata(getMetadata(contents), contents) as Metadata
-  delete (metadata as any).type
-  let contentStartIndex = lines.length
-
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i]
-    let match = line.match(snippetRegex)
-
-    if (!match) {
-      contentStartIndex = i
-      break
-    }
-  }
-  let snippet = lines.slice(contentStartIndex).join('\n')
-  return { metadata, snippet }
+  const { metadata, snippetBody } = parseSnippetMetadata(contents)
+  return { metadata: metadata as Metadata, snippet: snippetBody }
 }
