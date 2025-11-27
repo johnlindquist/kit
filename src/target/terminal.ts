@@ -260,6 +260,11 @@ global.textarea = async () => {
 
 global.edit = async (filePath) => {
   if (global.flag?.edit === false) return
+
+  // Import clean env to prevent secret leakage to editors
+  const { getCleanEnvForLaunch } = await import('../platform/base.js')
+  const cleanEnv = getCleanEnvForLaunch()
+
   if (global?.env?.KIT_TERMINAL_EDITOR) {
     if (global?.env?.KIT_TERMINAL_EDITOR === 'kit') {
       try {
@@ -267,17 +272,20 @@ global.edit = async (filePath) => {
       } catch (error) { }
     } else {
       await spawn(global.env.KIT_TERMINAL_EDITOR, [filePath], {
-        stdio: 'inherit'
+        stdio: 'inherit',
+        env: cleanEnv
       })
     }
   } else {
     if (global?.env?.KIT_EDITOR === 'kit') {
       await spawn('vim', [filePath], {
-        stdio: 'inherit'
+        stdio: 'inherit',
+        env: cleanEnv
       })
     } else {
       await spawn(global.env.KIT_EDITOR, [filePath], {
-        stdio: 'inherit'
+        stdio: 'inherit',
+        env: cleanEnv
       })
     }
   }

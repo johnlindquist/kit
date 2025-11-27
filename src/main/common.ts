@@ -96,10 +96,33 @@ export let actionFlags: ActionFlag[] = [
       }
 
       if (isMac) {
-        if (env?.KIT_TERMINAL?.toLowerCase() === 'iterm') {
-          return await exec(`open -a iTerm '${selectedFile}'`)
-        }
-        return await exec(`open -a Terminal '${selectedFile}'`)
+        // Note: Terminal apps will still load shell profiles (.zshrc/.bashrc) which may
+        // source ~/.kenv/.env. To prevent secrets leaking to terminals, users should
+        // guard .env sourcing in their shell profile: [ -n "$KIT" ] && source ~/.kenv/.env
+        //
+        // We use open() which spawns the executable directly with clean env, but the
+        // terminal's shell session will read profiles independently.
+        const terminalApp = env?.KIT_TERMINAL?.toLowerCase() === 'iterm'
+          ? '/Applications/iTerm.app'
+          : '/Applications/Utilities/Terminal.app'
+
+        // Use AppleScript to open terminal at directory (more reliable than open -a with path)
+        const script = env?.KIT_TERMINAL?.toLowerCase() === 'iterm'
+          ? `tell application "iTerm"
+              activate
+              tell current window
+                create tab with default profile
+                tell current session
+                  write text "cd '${selectedFile}'"
+                end tell
+              end tell
+            end tell`
+          : `tell application "Terminal"
+              activate
+              do script "cd '${selectedFile}'"
+            end tell`
+
+        return await exec(`osascript -e '${script.replace(/'/g, "'\"'\"'")}'`)
       }
 
       // Linux support
@@ -125,11 +148,9 @@ export let actionFlags: ActionFlag[] = [
     shortcut: `${cmd}+shift+v`,
     action: async (selectedFile) => {
       hide()
-      if (isMac) {
-        await exec(`open -a 'Visual Studio Code' '${selectedFile}'`)
-      } else {
-        await exec(`code ${selectedFile}`)
-      }
+      // Use `code` CLI on all platforms - it inherits our clean env from exec()
+      // Avoid `open -a` on macOS as it goes through Launch Services and ignores env
+      await exec(`code '${selectedFile}'`)
     }
   },
   ...(process.env?.KIT_OPEN_IN
