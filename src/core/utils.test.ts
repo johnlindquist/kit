@@ -718,8 +718,10 @@ console.log("Hello, world!");
     t.truthy(testSnippet)
     if (testSnippet) {
       t.is(testSnippet.name, 'HTML Snippet')
+      // text should remain unescaped (it's the actual snippet content to insert)
       t.is(testSnippet.text.trim(), '<div>\n  <h1>Hello, world!</h1>\n</div>')
-      const expectedPreview = `<div class="p-4">\n  <style>\n  p{\n    margin-bottom: 1rem;\n  }\n  li{\n    margin-bottom: .25rem;\n  }\n  \n  </style>\n  <div>\n  <h1>Hello, world!</h1>\n</div>\n</div>`.trim()
+      // preview should have escaped HTML for XSS safety (escapeHTML also converts \n to <br/>)
+      const expectedPreview = `<div class="p-4">\n  <style>\n  p{\n    margin-bottom: 1rem;\n  }\n  li{\n    margin-bottom: .25rem;\n  }\n\n  </style>\n  &lt;div&gt;<br/>  &lt;h1&gt;Hello, world!&lt;/h1&gt;<br/>&lt;/div&gt;\n</div>`.trim()
       if (testSnippet.preview && typeof testSnippet.preview === 'string') {
         t.is(testSnippet.preview.replace(/\r\n/g, '\n').trim(), expectedPreview)
       }
