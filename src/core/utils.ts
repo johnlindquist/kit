@@ -255,154 +255,26 @@ ${contents}`.trim()
   return contents
 }
 
-// Exhaustive, compile-time-checked list of metadata keys.
-// `satisfies` ensures every entry is a valid `keyof Metadata` **and**
-// warns if we add an invalid key. Missing keys will surface when hovering the
-// `_MissingKeys` helper type during development.
-const META_KEYS = [
-  "author",
-  "name",
-  "description",
-  "enter",
-  "alias",
-  "image",
-  "emoji",
-  "shortcut",
-  "shortcode",
-  "trigger",
-  "snippet", // Keep deprecated for now
-  "expand",
-  "keyword",
-  "pass",
-  "group",
-  "exclude",
-  "watch",
-  "log",
-  "background",
-  "system",
-  "schedule",
-  "index",
-  "access",
-  "response",
-  "tag",
-  "longRunning",
-  "mcp",
-  'timeout',
-  'cache',
-  'bin'
-] as const satisfies readonly (keyof Metadata)[];
+// Re-export from unified metadata parser for backwards compatibility
+export {
+  VALID_METADATA_KEYS,
+  VALID_METADATA_KEYS_SET,
+  parseMetadataComments,
+  parseSnippetMetadata,
+  type MetadataWarning,
+  type ParseMetadataResult,
+  type ParseMetadataOptions,
+  type ValidMetadataKey
+} from './metadata-parser.js'
 
-// Optional development-time check for forgotten keys.
-type _MissingKeys = Exclude<keyof Metadata, typeof META_KEYS[number]>; // should be never
+import { parseMetadataComments, VALID_METADATA_KEYS_SET as UNIFIED_VALID_KEYS } from './metadata-parser.js'
 
-export const VALID_METADATA_KEYS_SET: ReadonlySet<keyof Metadata> = new Set(META_KEYS);
-
+/**
+ * @deprecated Use parseMetadataComments from './metadata-parser.js' instead
+ * Kept for backwards compatibility - wraps the unified parser
+ */
 const getMetadataFromComments = (contents: string): Record<string, any> => {
-  const lines = contents.split('\n')
-  const metadata = {}
-  let commentStyle = null
-  let inMultilineComment = false
-  let multilineCommentEnd = null
-
-  // Valid metadata key pattern: starts with a letter, can contain letters, numbers, and underscores
-  const validKeyPattern = /^[a-zA-Z][a-zA-Z0-9_]*$/
-  // Common prefixes to ignore
-  const ignoreKeyPrefixes = ['TODO', 'FIXME', 'NOTE', 'HACK', 'XXX', 'BUG']
-
-  // Regex to match comment lines with metadata
-  const commentRegex = {
-    '//': /^\/\/\s*([^:]+):(.*)$/,
-    '#': /^#\s*([^:]+):(.*)$/
-  }
-
-  for (const line of lines) {
-    // Check for the start of a multiline comment block
-    if (
-      !inMultilineComment &&
-      (line.trim().startsWith('/*') ||
-        line.trim().startsWith("'''") ||
-        line.trim().startsWith('"""') ||
-        line.trim().match(/^: '/))
-    ) {
-      inMultilineComment = true
-      multilineCommentEnd = line.trim().startsWith('/*')
-        ? '*/'
-        : line.trim().startsWith(": '")
-          ? "'"
-          : line.trim().startsWith("'''")
-            ? "'''"
-            : '"""'
-    }
-
-    // Check for the end of a multiline comment block
-    if (inMultilineComment && line.trim().endsWith(multilineCommentEnd)) {
-      inMultilineComment = false
-      multilineCommentEnd = null
-      continue // Skip the end line of a multiline comment block
-    }
-
-    // Skip lines that are part of a multiline comment block
-    if (inMultilineComment) continue
-
-    // Determine comment style and try to match metadata
-    let match = null
-    if (line.startsWith('//')) {
-      match = line.match(commentRegex['//'])
-      commentStyle = '//'
-    } else if (line.startsWith('#')) {
-      match = line.match(commentRegex['#'])
-      commentStyle = '#'
-    }
-
-    if (!match) continue
-
-    // Extract and trim the key and value
-    const [, rawKey, value] = match
-    const trimmedKey = rawKey.trim()
-    const trimmedValue = value.trim()
-
-    // Skip if key starts with common prefixes to ignore
-    if (ignoreKeyPrefixes.some(prefix => trimmedKey.toUpperCase().startsWith(prefix))) continue
-
-    // Skip if key doesn't match valid pattern
-    if (!validKeyPattern.test(trimmedKey)) continue
-
-    // Transform the key case
-    let key = trimmedKey
-    if (key?.length > 0) {
-      key = key[0].toLowerCase() + key.slice(1)
-    }
-
-    // Skip empty keys or values
-    if (!key || !trimmedValue) {
-      continue
-    }
-
-    let parsedValue: string | boolean | number
-    let lowerValue = trimmedValue.toLowerCase()
-    let lowerKey = key.toLowerCase()
-    switch (true) {
-      case lowerValue === 'true':
-        parsedValue = true
-        break
-      case lowerValue === 'false':
-        parsedValue = false
-        break
-      case lowerKey === 'timeout':
-        parsedValue = Number.parseInt(trimmedValue, 10)
-        break
-      default:
-        parsedValue = trimmedValue
-    }
-
-    // Only assign if the key hasn't been assigned before AND is in the valid set
-    // Cast key to keyof Metadata because Set.has expects this type due to Set<keyof Metadata>.
-    // We trust the string `key` corresponds if .has returns true.
-    if (!(key in metadata) && VALID_METADATA_KEYS_SET.has(key as keyof Metadata)) {
-      metadata[key] = parsedValue
-    }
-  }
-
+  const { metadata } = parseMetadataComments(contents, { validate: true })
   return metadata
 }
 

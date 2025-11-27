@@ -38,3 +38,59 @@ export const SHELL_TOOLS = [
 	"pwsh",
 	"cmd"
 ]
+
+/**
+ * All valid scriptlet tool types.
+ * This includes:
+ * - Script/Kit tools: '', 'kit', 'ts', 'js'
+ * - Transform/Template: 'transform', 'template'
+ * - Action tools: 'open', 'edit', 'paste', 'type', 'submit'
+ * - Shell tools: bash, sh, zsh, fish, powershell, pwsh, cmd
+ * - Language interpreters: ruby, python, python3, perl, php, node, etc.
+ */
+export const VALID_TOOLS = [
+	// Script/Kit tools
+	"",
+	"kit",
+	"ts",
+	"js",
+	// Transform/Template
+	"transform",
+	"template",
+	// Action tools
+	"open",
+	"edit",
+	"paste",
+	"type",
+	"submit",
+	// Shell tools
+	...SHELL_TOOLS,
+	// Language interpreters
+	"ruby",
+	"python",
+	"python3",
+	"perl",
+	"php",
+	"node",
+	"lua",
+	"r",
+	"groovy",
+	"scala",
+	"swift",
+	"go",
+	"rust",
+	"java",
+	"clojure",
+	"elixir",
+	"erlang",
+	"ocaml",
+	"osascript",
+	"deno",
+	"kotlin",
+	"julia",
+	"dart",
+	"haskell",
+	"csharp"
+] as const
+
+export type ToolType = typeof VALID_TOOLS[number]

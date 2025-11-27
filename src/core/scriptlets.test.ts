@@ -212,7 +212,7 @@ ava("formatScriptlet with no flags", (t) => {
 		[],
 		{}
 	)
-	t.is(formattedScriptlet, "ls  ~/Downloads")
+	t.is(formattedScriptlet, "ls ~/Downloads")
 	t.deepEqual(remainingInputs, [])
 })
 
@@ -248,7 +248,7 @@ ava("formatScriptlet with zip flag", (t) => {
 		[],
 		{ zip: "true" }
 	)
-	t.is(formattedScriptlet, "ls  ~/Downloads | grep .zip")
+	t.is(formattedScriptlet, "ls ~/Downloads | grep .zip")
 	t.deepEqual(remainingInputs, [])
 })
 
@@ -283,12 +283,12 @@ ava("formatScriptlet with nested conditionals", (t) => {
 
 	const { formattedScriptlet: result1, remainingInputs: remaining1 } =
 		formatScriptlet(scriptlet, [], {})
-	t.is(result1, "ls  ~/Downloads")
+	t.is(result1, "ls ~/Downloads")
 	t.deepEqual(remaining1, [])
 
 	const { formattedScriptlet: result2, remainingInputs: remaining2 } =
 		formatScriptlet(scriptlet, [], { all: "true" })
-	t.is(result2, "ls -a  ~/Downloads") // Note the two spaces here
+	t.is(result2, "ls -a ~/Downloads") // Whitespace is now normalized
 	t.deepEqual(remaining2, [])
 
 	const { formattedScriptlet: result3, remainingInputs: remaining3 } =
@@ -298,7 +298,7 @@ ava("formatScriptlet with nested conditionals", (t) => {
 
 	const { formattedScriptlet: result4, remainingInputs: remaining4 } =
 		formatScriptlet(scriptlet, [], { long: "true" })
-	t.is(result4, "ls  ~/Downloads")
+	t.is(result4, "ls ~/Downloads")
 	t.deepEqual(remaining4, [])
 })
 
@@ -1716,4 +1716,38 @@ with open('~/hello-python.txt', 'w') as f:
   t.is(scripts[0].tool, "python")
   t.is(scripts[0].scriptlet, `with open('~/hello-python.txt', 'w') as f:
     f.write('Hello from Python!')`)
+})
+
+ava("parseMarkdownAsScriptlets throws error for invalid tool type", async (t) => {
+  const markdown = `
+## Invalid Tool Test
+\`\`\`invalidtool
+echo "This should fail"
+\`\`\`
+`.trim()
+
+  await t.throwsAsync(
+    async () => parseMarkdownAsScriptlets(markdown),
+    {
+      instanceOf: Error,
+      message: /Invalid tool type "invalidtool"/
+    }
+  )
+})
+
+ava("parseMarkdownAsScriptlets accepts all valid tool types", async (t) => {
+  // Test a sample of valid tools
+  const validTools = ['bash', 'python', 'kit', 'transform', 'template', 'open', 'paste']
+
+  for (const tool of validTools) {
+    const markdown = `
+## ${tool} Test
+\`\`\`${tool}
+test command
+\`\`\`
+`.trim()
+
+    const scripts = await parseMarkdownAsScriptlets(markdown)
+    t.is(scripts[0].tool, tool, `Tool "${tool}" should be accepted`)
+  }
 })

@@ -4,8 +4,9 @@ import { readFile } from 'node:fs/promises'
 import { postprocessMetadata } from './parser.js'
 import { kenvPath } from './resolvers.js'
 import { getKenvFromPath, highlight, stripName, tagger } from './utils.js'
-import { SHELL_TOOLS } from './constants.js'
+import { SHELL_TOOLS, VALID_TOOLS } from './constants.js'
 import { processConditionals } from './scriptlet.utils.js'
+import { generateScriptletMenuScript, generateScriptletMenuPreview } from './scriptlet-menu-template.js'
 import os from 'node:os'
 
 export function formatScriptlet(
@@ -196,6 +197,14 @@ export let parseMarkdownAsScriptlets = async (markdown: string, filePath?: strin
           tool = process.platform === 'win32' ? 'cmd' : 'bash'
         }
 
+        // Validate tool type
+        if (!VALID_TOOLS.includes(tool as typeof VALID_TOOLS[number])) {
+          throw new Error(
+            `Invalid tool type "${tool}" in scriptlet "${currentScriptlet.name}". ` +
+            `Valid tools: ${VALID_TOOLS.filter(t => t !== '').join(', ')}`
+          )
+        }
+
         currentScriptlet.tool = tool
 
         const toolHTML = `
@@ -314,65 +323,8 @@ ${await highlight(preview, '')}`)
       group: exclude ? undefined : currentGroup,
       tool: 'kit',
       exclude,
-      scriptlet: `
-const scripts = await getScripts(true);
-let focused;
-const script = await arg(
-  {
-    placeholder: "Select a Scriptlet",
-    onChoiceFocus: (input, state) => {
-      focused = state.focused;
-    },
-  },
-  scripts.filter((s) => s.group === "${currentGroup}")
-);
-
-const { runScriptlet } = await import(kitPath("main", "scriptlet.js"));
-
-export let isScriptlet = (
-  script: Script | Scriptlet
-): script is Scriptlet => {
-  return "scriptlet" in script
-}
-
-export let isSnippet = (
-  script: Script
-): script is Snippet => {
-  return "text" in script
-}
-
-const determineScriptletRun = async () => {
-	if (isSnippet(script)) {
-		send("STAMP_SCRIPT", script as Script)
-
-		return await run(
-		kitPath("app", "paste-snippet.js"),
-		"--filePath",
-		script.filePath
-		)
-	}
-    if (isScriptlet(script)) {
-        await runScriptlet(script, script.inputs || [], flag)
-        return
-      }
-    
-      if (Array.isArray(script)) {
-        await runScriptlet(focused as Scriptlet, script, flag)
-        return
-      }
-    
-      if ((script as Script)?.shebang) {
-        const shebang = parseShebang(script as Script)
-        return await sendWait(Channel.SHEBANG, shebang)
-      }
-}
-
-
-await determineScriptletRun();
-			`,
-      preview: `
-List all the scriptlets in the ${currentGroup} group
-			`,
+      scriptlet: generateScriptletMenuScript(currentGroup),
+      preview: generateScriptletMenuPreview(currentGroup),
       inputs: []
     } as Scriptlet)
   }

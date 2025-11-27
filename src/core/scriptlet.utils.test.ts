@@ -36,8 +36,8 @@ ava("processConditionals with nested conditions", (t) => {
 ava("processConditionals with multiple conditions in one string", (t) => {
 	const input = "{{#if a}}A{{/if}} {{#if b}}B{{/if}} {{#if c}}C{{/if}}"
 	t.is(processConditionals(input, { a: "true", b: "true", c: "true" }), "A B C")
-	t.is(processConditionals(input, { a: "true", c: "true" }), "A  C")
-	t.is(processConditionals(input, {}), "  ")
+	t.is(processConditionals(input, { a: "true", c: "true" }), "A C") // Whitespace is now normalized
+	t.is(processConditionals(input, {}), " ") // Whitespace is now normalized
 })
 
 ava("processConditionals with empty conditions", (t) => {

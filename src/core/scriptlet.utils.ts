@@ -38,5 +38,12 @@ export function processConditionals(str: string, flag?: Flags): string {
 		)
 	} while (result !== lastResult)
 
+	// Normalize whitespace: collapse multiple spaces into single space on each line
+	// This handles artifacts from conditional removal (e.g., "ls -a  ~/Downloads" -> "ls -a ~/Downloads")
+	result = result
+		.split('\n')
+		.map(line => line.replace(/ {2,}/g, ' '))
+		.join('\n')
+
 	return result
 }
