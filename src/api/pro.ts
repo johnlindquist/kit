@@ -12,6 +12,7 @@ import type {
   WidgetHandler,
   WidgetMessage
 } from '../types/pro.js'
+import { createWidgetTemplates, type WidgetTemplates } from './widget-templates.js'
 
 let createBaseWidgetAPI = (widgetId: number, off: () => void) => {
   let closeHandler: WidgetHandler = () => {
@@ -133,6 +134,22 @@ let createBaseWidgetAPI = (widgetId: number, off: () => void) => {
         value: js
       })
     },
+    getBounds: async () => {
+      return await global.getDataFromApp(Channel.WIDGET_GET_BOUNDS, { widgetId }, false)
+    },
+    snapshot: async (snapshotId?: string) => {
+      return await global.getDataFromApp(Channel.WIDGET_SNAPSHOT, {
+        widgetId,
+        snapshotId: snapshotId || `widget-${widgetId}`
+      }, false)
+    },
+    broadcast: (topic: string, data: any) => {
+      global.send(Channel.WIDGET_BROADCAST, {
+        widgetId,
+        topic,
+        data
+      })
+    },
     onClose: (handler: WidgetHandler) => {
       closeHandler = handler
     }
@@ -197,6 +214,8 @@ let createWidgetAPI = (widgetId: number) => {
   let resizedHandler: WidgetHandler = () => { }
   let movedHandler: WidgetHandler = () => { }
   let initHandler: WidgetHandler = () => { }
+  // Inter-widget communication: topic-based handlers
+  let topicHandlers: Map<string, ((data: any) => void)[]> = new Map()
 
   let messageHandler = (data: WidgetMessage) => {
     if (data.channel === Channel.WIDGET_CUSTOM && data.widgetId === widgetId) {
@@ -239,6 +258,18 @@ let createWidgetAPI = (widgetId: number) => {
       return
     }
 
+    // Inter-widget message handling
+    if (data.channel === Channel.WIDGET_MESSAGE) {
+      const { topic, payload, fromWidgetId } = data as any
+      const handlers = topicHandlers.get(topic)
+      if (handlers) {
+        for (const handler of handlers) {
+          handler({ topic, data: payload, fromWidgetId })
+        }
+      }
+      return
+    }
+
     // global.warn(`No handler for ${data.channel}`)
   }
 
@@ -271,6 +302,20 @@ let createWidgetAPI = (widgetId: number) => {
     },
     onInit: (handler: WidgetHandler) => {
       initHandler = handler
+    },
+    onMessage: (topic: string, handler: (data: { topic: string; data: any; fromWidgetId: string }) => void) => {
+      const handlers = topicHandlers.get(topic) || []
+      handlers.push(handler)
+      topicHandlers.set(topic, handlers)
+      // Return unsubscribe function
+      return () => {
+        const currentHandlers = topicHandlers.get(topic) || []
+        const index = currentHandlers.indexOf(handler)
+        if (index !== -1) {
+          currentHandlers.splice(index, 1)
+          topicHandlers.set(topic, currentHandlers)
+        }
+      }
     },
 
     ...createBaseWidgetAPI(widgetId, off)
@@ -468,7 +513,11 @@ global.term.write = async (text: string) => {
   await sendWait(Channel.TERM_WRITE, text)
 }
 
-global.widget = widget
+// Create widget with attached template methods
+const widgetTemplates = createWidgetTemplates(widget)
+const widgetWithTemplates = Object.assign(widget, widgetTemplates) as Widget & WidgetTemplates
+
+global.widget = widgetWithTemplates
 global.menu = menu
 global.vite = vite
 

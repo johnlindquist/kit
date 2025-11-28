@@ -5,13 +5,258 @@ import * as ogPath from 'node:path'
 
 import { formatDistanceToNow, compareAsc } from '../../utils/date.js'
 
-import type { Dirent } from 'node:fs'
+import type { Dirent, Stats } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import type { PathConfig, PathDefaultMissingValues } from '../../types/kit'
 import type { Action, AppState, Choice, PromptConfig } from '../../types'
 import { Channel } from '../../core/enum.js'
 
 const isWin = process.platform === 'win32'
+
+// ============================================================================
+// Path Browser Enhancements
+// ============================================================================
+
+/**
+ * Structured error codes for path operations
+ */
+export const PathErrorCode = {
+  PERMISSION_DENIED: 'EACCES',
+  NOT_FOUND: 'ENOENT',
+  NOT_A_DIRECTORY: 'ENOTDIR',
+  SYMLINK_LOOP: 'ELOOP',
+  TOO_MANY_FILES: 'EMFILE',
+  NETWORK_UNREACHABLE: 'ENETUNREACH',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type PathErrorCode = typeof PathErrorCode[keyof typeof PathErrorCode]
+
+/**
+ * Enhanced error class for path operations with structured error codes
+ */
+export class PathError extends Error {
+  code: PathErrorCode
+  path: string
+  hint?: string
+
+  constructor(message: string, code: PathErrorCode, path: string, hint?: string) {
+    super(message)
+    this.name = 'PathError'
+    this.code = code
+    this.path = path
+    this.hint = hint
+  }
+
+  static fromNodeError(err: NodeJS.ErrnoException, path: string): PathError {
+    const codeMap: Record<string, PathErrorCode> = {
+      EACCES: PathErrorCode.PERMISSION_DENIED,
+      EPERM: PathErrorCode.PERMISSION_DENIED,
+      ENOENT: PathErrorCode.NOT_FOUND,
+      ENOTDIR: PathErrorCode.NOT_A_DIRECTORY,
+      ELOOP: PathErrorCode.SYMLINK_LOOP,
+      EMFILE: PathErrorCode.TOO_MANY_FILES,
+      ENETUNREACH: PathErrorCode.NETWORK_UNREACHABLE
+    }
+    const code = codeMap[err.code || ''] || PathErrorCode.UNKNOWN
+    const hints: Record<PathErrorCode, string> = {
+      [PathErrorCode.PERMISSION_DENIED]: 'Check file permissions or grant access in System Preferences > Security & Privacy',
+      [PathErrorCode.NOT_FOUND]: 'The path does not exist. Check for typos or create it first.',
+      [PathErrorCode.NOT_A_DIRECTORY]: 'Expected a directory but found a file.',
+      [PathErrorCode.SYMLINK_LOOP]: 'Circular symlink detected. Check symlink targets.',
+      [PathErrorCode.TOO_MANY_FILES]: 'Too many open files. Close some applications or increase ulimit.',
+      [PathErrorCode.NETWORK_UNREACHABLE]: 'Network path is unreachable. Check network connection.',
+      [PathErrorCode.UNKNOWN]: 'An unexpected error occurred.'
+    }
+    return new PathError(err.message, code, path, hints[code])
+  }
+}
+
+/**
+ * Simple LRU cache for fs.stat results to improve performance
+ * Reduces disk I/O when navigating directories with many files
+ */
+class StatCache {
+  private cache = new Map<string, { stats: Stats; timestamp: number }>()
+  private maxSize: number
+  private ttlMs: number
+
+  constructor(maxSize = 1000, ttlMs = 30000) {
+    this.maxSize = maxSize
+    this.ttlMs = ttlMs
+  }
+
+  async get(path: string, statFn: typeof statAsync = statAsync): Promise<Stats> {
+    const now = Date.now()
+    const cached = this.cache.get(path)
+
+    if (cached && (now - cached.timestamp) < this.ttlMs) {
+      // Move to end for LRU behavior
+      this.cache.delete(path)
+      this.cache.set(path, cached)
+      return cached.stats
+    }
+
+    // Fetch fresh stats
+    const stats = await statFn(path)
+
+    // Evict oldest entries if at capacity
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value
+      if (firstKey) this.cache.delete(firstKey)
+    }
+
+    this.cache.set(path, { stats, timestamp: now })
+    return stats
+  }
+
+  invalidate(path: string): void {
+    this.cache.delete(path)
+  }
+
+  clear(): void {
+    this.cache.clear()
+  }
+
+  get size(): number {
+    return this.cache.size
+  }
+}
+
+// Session-level stat cache shared across path selector invocations
+const sessionStatCache = new StatCache()
+
+/**
+ * Track recently visited folders for quick access
+ */
+class RecentFolders {
+  private folders: string[] = []
+  private maxSize: number
+
+  constructor(maxSize = 10) {
+    this.maxSize = maxSize
+  }
+
+  add(folder: string): void {
+    // Remove if already exists
+    const index = this.folders.indexOf(folder)
+    if (index > -1) {
+      this.folders.splice(index, 1)
+    }
+    // Add to front
+    this.folders.unshift(folder)
+    // Trim to max size
+    if (this.folders.length > this.maxSize) {
+      this.folders = this.folders.slice(0, this.maxSize)
+    }
+  }
+
+  getAll(): string[] {
+    return [...this.folders]
+  }
+
+  clear(): void {
+    this.folders = []
+  }
+}
+
+// Global recent folders tracker
+const recentFolders = new RecentFolders()
+
+/**
+ * Debug timing utilities for path operations
+ */
+const pathDebug = {
+  enabled: false,
+  timings: new Map<string, number[]>(),
+
+  enable(): void {
+    this.enabled = true
+  },
+
+  disable(): void {
+    this.enabled = false
+  },
+
+  time<T>(label: string, fn: () => T): T {
+    if (!this.enabled) return fn()
+    const start = performance.now()
+    const result = fn()
+    const duration = performance.now() - start
+    this.recordTiming(label, duration)
+    return result
+  },
+
+  async timeAsync<T>(label: string, fn: () => Promise<T>): Promise<T> {
+    if (!this.enabled) return fn()
+    const start = performance.now()
+    const result = await fn()
+    const duration = performance.now() - start
+    this.recordTiming(label, duration)
+    return result
+  },
+
+  recordTiming(label: string, durationMs: number): void {
+    if (!this.timings.has(label)) {
+      this.timings.set(label, [])
+    }
+    this.timings.get(label)!.push(durationMs)
+    global.log?.(`[path-debug] ${label}: ${durationMs.toFixed(2)}ms`)
+  },
+
+  getStats(): Record<string, { count: number; avg: number; min: number; max: number }> {
+    const stats: Record<string, { count: number; avg: number; min: number; max: number }> = {}
+    for (const [label, times] of this.timings) {
+      stats[label] = {
+        count: times.length,
+        avg: times.reduce((a, b) => a + b, 0) / times.length,
+        min: Math.min(...times),
+        max: Math.max(...times)
+      }
+    }
+    return stats
+  },
+
+  clearStats(): void {
+    this.timings.clear()
+  }
+}
+
+// Export debug utilities for external use
+export { sessionStatCache, recentFolders, pathDebug }
+
+/**
+ * Detect symlink loops by tracking visited inodes
+ */
+const detectSymlinkLoop = async (
+  linkPath: string,
+  visited: Set<string> = new Set()
+): Promise<{ isLoop: boolean; target?: string }> => {
+  try {
+    const realPath = await fs.promises.realpath(linkPath)
+
+    // Check if we've seen this real path before
+    if (visited.has(realPath)) {
+      return { isLoop: true, target: realPath }
+    }
+
+    visited.add(realPath)
+
+    // Check if target is also a symlink
+    const targetStat = await fs.promises.lstat(realPath)
+    if (targetStat.isSymbolicLink()) {
+      return detectSymlinkLoop(realPath, visited)
+    }
+
+    return { isLoop: false, target: realPath }
+  } catch (err) {
+    // ELOOP from system indicates circular reference
+    if ((err as NodeJS.ErrnoException).code === 'ELOOP') {
+      return { isLoop: true }
+    }
+    throw err
+  }
+}
 
 /**
  * Convert a file-system path to the slash-only flavour that Script Kit's
@@ -66,12 +311,14 @@ const getWindowsRoots = async (): Promise<string[]> => {
 
 export const createPathChoices = async (
   startPath: string,
-  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync, fileTypes } : {
+  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync, fileTypes, useSessionCache = true } : {
     dirFilter?: (dirent: any) => boolean
     dirSort?: (a: any, b: any) => number
     onlyDirs?: boolean
     statFn?: typeof statAsync
     fileTypes?: string[]
+    /** Use session-level LRU cache for stat calls (default: true) */
+    useSessionCache?: boolean
   } = {}
 ) => {
   // Special-case: on Windows an empty path means "show me the drives"
@@ -88,9 +335,9 @@ export const createPathChoices = async (
     } as Choice))
   }
 
-  const dirFiles = await readdir(startPath, {
-    withFileTypes: true
-  })
+  const dirFiles = await pathDebug.timeAsync('readdir', () =>
+    readdir(startPath, { withFileTypes: true })
+  )
 
   dirFiles.sort((a, b) => {
     const aStarts = a.name.startsWith('.')
@@ -99,14 +346,14 @@ export const createPathChoices = async (
   })
 
   const dirents = dirFiles.filter(dirFilter)
-  const validDirents = []
-  const statCache = new Map()
+  const validDirents: (Dirent & { isSymlinkLoop?: boolean })[] = []
 
-  const getCachedStat = async (path: string) => {
-    if (!statCache.has(path)) {
-      statCache.set(path, await statFn(path))
+  // Use session cache or create a local one
+  const getCachedStat = async (path: string): Promise<Stats> => {
+    if (useSessionCache) {
+      return sessionStatCache.get(path, statFn)
     }
-    return statCache.get(path)
+    return statFn(path)
   }
 
   // Helper to get base path for a Dirent. Some Node versions expose
@@ -114,64 +361,96 @@ export const createPathChoices = async (
   const getDirentBasePath = (dirent: Dirent | any, fallback: string) =>
     typeof dirent?.path === 'string' ? (dirent.path as string) : fallback
 
-  // Process symlinks in parallel
-  await Promise.all(
-    dirents.map(async (dirent) => {
-      if (dirent.isSymbolicLink()) {
-        try {
-          const resolved = await fs.promises.realpath(
-            ogPath.resolve(getDirentBasePath(dirent, startPath), dirent.name)
-          )
-          const stats = await getCachedStat(resolved)
+  // Process symlinks in parallel with loop detection
+  await pathDebug.timeAsync('process-symlinks', () =>
+    Promise.all(
+      dirents.map(async (dirent: Dirent & { isSymlinkLoop?: boolean }) => {
+        if (dirent.isSymbolicLink()) {
+          const linkPath = ogPath.resolve(getDirentBasePath(dirent, startPath), dirent.name)
 
-          Object.assign(dirent, {
-            path: ogPath.dirname(resolved),
-            name: ogPath.basename(resolved),
-            isDirectory: () => stats.isDirectory(),
-            isFile: () => stats.isFile(),
-            isSymbolicLink: () => stats.isSymbolicLink(),
-            isBlockDevice: () => stats.isBlockDevice(),
-            isCharacterDevice: () => stats.isCharacterDevice(),
-            isFIFO: () => stats.isFIFO(),
-            isSocket: () => stats.isSocket()
-          })
+          try {
+            // Check for symlink loops first
+            const loopCheck = await detectSymlinkLoop(linkPath)
+
+            if (loopCheck.isLoop) {
+              // Mark as loop but still include in listing with indicator
+              dirent.isSymlinkLoop = true
+              validDirents.push(dirent)
+              return
+            }
+
+            const resolved = loopCheck.target || await fs.promises.realpath(linkPath)
+            const stats = await getCachedStat(resolved)
+
+            Object.assign(dirent, {
+              path: ogPath.dirname(resolved),
+              name: ogPath.basename(resolved),
+              isDirectory: () => stats.isDirectory(),
+              isFile: () => stats.isFile(),
+              isSymbolicLink: () => stats.isSymbolicLink(),
+              isBlockDevice: () => stats.isBlockDevice(),
+              isCharacterDevice: () => stats.isCharacterDevice(),
+              isFIFO: () => stats.isFIFO(),
+              isSocket: () => stats.isSocket()
+            })
+            validDirents.push(dirent)
+          } catch (err) {
+            // Log the error but don't crash - skip invalid symlinks
+            if (pathDebug.enabled) {
+              global.log?.(`[path-debug] Skipping invalid symlink: ${linkPath} - ${(err as Error).message}`)
+            }
+          }
+        } else {
           validDirents.push(dirent)
-        } catch {
-          // Skip invalid symlinks
         }
-      } else {
-        validDirents.push(dirent)
-      }
-    })
+      })
+    )
   )
 
   const folderSet = new Set(validDirents.filter((dirent) => dirent.isDirectory()).map((dirent) => dirent.name))
   const folders = validDirents.filter((dirent) => folderSet.has(dirent.name))
   const files = onlyDirs ? [] : validDirents.filter((dirent) => !folderSet.has(dirent.name))
 
-  const mapDirents = async (dirents: Dirent[]): Promise<Choice[]> => {
-    const choices = await Promise.all(dirents.map(async (dirent) => {
-      const fullPath = ogPath.resolve(
-        getDirentBasePath(dirent, startPath),
-        dirent.name
-      )
-      const { size, mtime } = await getCachedStat(fullPath)
+  const mapDirents = async (dirents: (Dirent & { isSymlinkLoop?: boolean })[]): Promise<Choice[]> => {
+    const choices = await pathDebug.timeAsync('map-dirents', () =>
+      Promise.all(dirents.map(async (dirent) => {
+        const fullPath = ogPath.resolve(
+          getDirentBasePath(dirent, startPath),
+          dirent.name
+        )
 
-      const type = folderSet.has(dirent.name) ? 'folder' : 'file'
-      const description = type === 'folder' ? '' : `${filesize(size)} - Last modified ${formatDistanceToNow(mtime)} ago`
+        // Handle symlink loops specially
+        if (dirent.isSymlinkLoop) {
+          return {
+            img: pathToFileURL(kitPath('icons', 'folder.svg')).href,
+            name: `${dirent.name} ↩️`,
+            value: toUiPath(fullPath),
+            description: '⚠️ Circular symlink - cannot follow',
+            drag: toUiPath(fullPath),
+            mtime: new Date(),
+            size: 0,
+            disabled: true
+          } as Choice
+        }
 
-      const img = pathToFileURL(kitPath('icons', `${type}.svg`)).href
+        const { size, mtime } = await getCachedStat(fullPath)
 
-      return {
-        img,
-        name: dirent.name,
-        value: toUiPath(fullPath),
-        description,
-        drag: toUiPath(fullPath),
-        mtime,
-        size
-      } as const
-    }))
+        const type = folderSet.has(dirent.name) ? 'folder' : 'file'
+        const description = type === 'folder' ? '' : `${filesize(size)} - Last modified ${formatDistanceToNow(mtime)} ago`
+
+        const img = pathToFileURL(kitPath('icons', `${type}.svg`)).href
+
+        return {
+          img,
+          name: dirent.name,
+          value: toUiPath(fullPath),
+          description,
+          drag: toUiPath(fullPath),
+          mtime,
+          size
+        } as const
+      }))
+    )
     return choices
   }
 
@@ -262,6 +541,11 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
 
   let currentDirChoices = async (startPath, dirFilter = () => true) => {
     try {
+      // Track this folder as recently visited
+      if (startPath && startPath !== '/' && startPath !== home()) {
+        recentFolders.add(startPath)
+      }
+
       let choices = await createPathChoices(startPath, {
         dirFilter: dirFilter as (dirent: any) => true,
         onlyDirs,
@@ -286,12 +570,19 @@ let __pathSelector = async (config: string | PathConfig = home(), actions?: Acti
       }
       focusOn = ''
     } catch (error) {
-      setPanel(
-        md(`### Failed to read ${startPath}
-      
-${error}      
-      `)
-      )
+      // Create structured error with helpful hints
+      const pathError = error instanceof PathError
+        ? error
+        : PathError.fromNodeError(error as NodeJS.ErrnoException, startPath)
+
+      const errorPanel = `### Failed to read \`${startPath}\`
+
+**Error:** ${pathError.message}
+**Code:** \`${pathError.code}\`
+
+${pathError.hint ? `**Hint:** ${pathError.hint}` : ''}
+`
+      setPanel(md(errorPanel))
     }
   }
 
@@ -640,6 +931,33 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
           key: `${cmd}+/`,
           onPress: createSorter('date'),
           bar
+        },
+        {
+          name: 'Recent',
+          key: `${cmd}+r`,
+          visible: true,
+          bar,
+          onPress: async () => {
+            const recent = recentFolders.getAll()
+            if (recent.length === 0) {
+              setPanel(md('### No recent folders\n\nNavigate to some folders first to build your history.'))
+              return
+            }
+
+            const recentChoices: Choice[] = recent.map((folder, index) => ({
+              name: ogPath.basename(folder) || folder,
+              value: folder,
+              description: folder,
+              img: pathToFileURL(kitPath('icons', 'folder.svg')).href,
+              // Add keyboard shortcut hints for first 9 items
+              enter: index < 9 ? `Press ${index + 1} to select` : undefined
+            }))
+
+            await setChoices(recentChoices, {
+              skipInitialSearch: true
+            })
+            setPanel(md('### Recent Folders\n\nSelect a folder or press Escape to return.'))
+          }
         },
         ...((config as PromptConfig).shortcuts || [])
       ]

@@ -522,6 +522,28 @@ export interface ChannelMap {
     args?: any[]
   }
 
+  [Channel.WIDGET_SNAPSHOT]: {
+    widgetId: number
+    snapshotId: string
+  }
+
+  [Channel.WIDGET_GET_BOUNDS]: {
+    widgetId: number
+  }
+
+  [Channel.WIDGET_BROADCAST]: {
+    widgetId: number
+    topic: string
+    data: any
+  }
+
+  [Channel.WIDGET_MESSAGE]: {
+    widgetId: string
+    topic: string
+    payload: any
+    fromWidgetId: string
+  }
+
   //
 
   [Channel.CLEAR_CACHE]: undefined
