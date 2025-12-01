@@ -467,14 +467,7 @@ export let inspectPromptPromises = () => {
 }
 
 let runAction = async (data: AppMessage) => {
-  // console.log(`[SDK] runAction called with:`, {
-  //   channel: data?.channel,
-  //   actionName: data?.state?.action?.name,
-  //   actionFlag: data?.state?.action?.flag,
-  //   actionValue: data?.state?.action?.value,
-  //   shortcut: data?.state?.shortcut,
-  //   mapKeys: Array.from(global.__kitActionsMap.keys())
-  // })
+  global.log(`[SDK] runAction called with: channel=${data?.channel}, shortcut=${data?.state?.shortcut}, input=${data?.state?.input}, focused.name=${data?.state?.focused?.name}, focused.value=${data?.state?.focused?.value}, mapKeys=${Array.from(global.__kitActionsMap.keys()).join(',')}`)
 
   let action: Action | Shortcut
   // Try multiple ways to find the action
@@ -487,7 +480,7 @@ let runAction = async (data: AppMessage) => {
   for (const key of possibleKeys) {
     if (global.__kitActionsMap.has(key)) {
       action = global.__kitActionsMap.get(key)
-      // console.log(`[SDK] Found action with key: ${key}`)
+      global.log(`[SDK] Found action with key: ${key}`)
       break
     }
   }
@@ -502,14 +495,14 @@ let runAction = async (data: AppMessage) => {
         value?.key === data.state.shortcut
       ) {
         action = value
-        // console.log(`[SDK] Found action by shortcut: ${data.state.shortcut}`)
+        global.log(`[SDK] Found action by shortcut: ${data.state.shortcut}, actionName=${(action as any)?.name}`)
         break
       }
     }
   }
 
   if (!action) {
-    // console.log(`[SDK] No action found for:`, data?.state)
+    global.log(`[SDK] No action found for shortcut: ${data?.state?.shortcut}`)
   }
 
   if (action) {
@@ -517,11 +510,13 @@ let runAction = async (data: AppMessage) => {
       typeof (action as Action)?.onAction === "function"
     const hasOnPress =
       typeof (action as Shortcut)?.onPress === "function"
+    global.log(`[SDK] Action found: name=${(action as any)?.name}, hasOnAction=${hasOnAction}, hasOnPress=${hasOnPress}`)
     if (
       action?.value &&
       !hasOnAction &&
       !hasOnPress
     ) {
+      global.log(`[SDK] Submitting action value: ${action.value}`)
       submit(action.value)
       return
     }
@@ -532,6 +527,7 @@ let runAction = async (data: AppMessage) => {
           ? (action as Shortcut).onPress
           : null
     if (actionFunction) {
+      global.log(`[SDK] Calling action function for: ${(action as any)?.name}`)
       return await actionFunction(
         data?.state?.input,
         data?.state
@@ -3563,4 +3559,228 @@ global.notify = async options => {
     options = { title: options }
   }
   await sendWait(Channel.NOTIFY, options)
+}
+
+// Measure - Screen area measurement tool
+global.measure = async (options = {}) => {
+  const defaultOptions = {
+    color: '#00ff00',
+    strokeWidth: 2,
+    fillOpacity: 0.1,
+    showDimensions: true,
+    showCrosshair: true,
+    fontSize: 14,
+    gridSnap: 1,
+    constrainToDisplay: false,
+    allowKeyboardAdjust: true,
+    hint: 'Click and drag to measure an area. Press Enter to confirm, Escape to cancel.',
+    clipboardFormat: 'dimensions'
+  }
+
+  const mergedOptions = { ...defaultOptions, ...options }
+
+  try {
+    // Use a long timeout (5 minutes) since measurement requires user interaction
+    // The default 1 second timeout was causing the measurement to fail
+    const FIVE_MINUTES = 5 * 60 * 1000
+    const result = await global.sendWait(Channel.MEASURE, mergedOptions, FIVE_MINUTES)
+
+    if (result && typeof result === 'object' && !result.cancelled) {
+      return {
+        ...result,
+        right: result.x + result.width,
+        bottom: result.y + result.height,
+        centerX: result.x + Math.floor(result.width / 2),
+        centerY: result.y + Math.floor(result.height / 2),
+        area: result.width * result.height,
+        cancelled: false
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.error('Measurement failed:', error)
+    return null
+  }
+}
+
+// Screen Recording - Capture screen video
+global.getScreenSources = async () => {
+  try {
+    const sources = await global.sendWait(Channel.GET_SCREEN_SOURCES, {})
+    return sources || []
+  } catch (error) {
+    console.error('Failed to get screen sources:', error)
+    return []
+  }
+}
+
+global.screenRecord = async (options = {}) => {
+  const defaultOptions = {
+    format: 'webm',
+    quality: 0.9,
+    frameRate: 30,
+    includeAudio: false,
+    selectArea: false,
+    showControls: true,
+    countdown: true,
+    countdownSeconds: 3,
+    maxDuration: 0,
+    hint: 'Click and drag to select recording area. Press Escape to cancel.'
+  }
+
+  const mergedOptions = { ...defaultOptions, ...options }
+
+  try {
+    let sourceId = mergedOptions.sourceId
+
+    if (!sourceId) {
+      const sources = await global.getScreenSources()
+
+      if (sources.length === 0) {
+        console.error('No screen sources available')
+        return null
+      }
+
+      if (sources.length === 1) {
+        sourceId = sources[0].id
+      } else {
+        sourceId = await global.arg({
+          placeholder: 'Select screen to record',
+          hint: 'Choose which display to record'
+        }, sources.map(s => ({
+          name: s.name,
+          value: s.id,
+          img: s.thumbnail
+        })))
+
+        if (!sourceId) {
+          return null
+        }
+      }
+    }
+
+    let area = mergedOptions.area
+
+    if (mergedOptions.selectArea && !area) {
+      const measureResult = await global.measure({
+        hint: mergedOptions.hint,
+        color: '#ff0000',
+        showDimensions: true
+      })
+
+      if (!measureResult) {
+        return null
+      }
+
+      area = {
+        x: measureResult.x,
+        y: measureResult.y,
+        width: measureResult.width,
+        height: measureResult.height,
+        displayId: measureResult.displayId ? parseInt(measureResult.displayId) : undefined
+      }
+    }
+
+    const startResult = await global.sendWait(Channel.START_SCREEN_RECORDING, {
+      sourceId,
+      area,
+      options: {
+        format: mergedOptions.format,
+        quality: mergedOptions.quality,
+        frameRate: mergedOptions.frameRate,
+        includeAudio: mergedOptions.includeAudio,
+        filePath: mergedOptions.filePath,
+        maxDuration: mergedOptions.maxDuration,
+        showControls: mergedOptions.showControls,
+        countdown: mergedOptions.countdown,
+        countdownSeconds: mergedOptions.countdownSeconds
+      }
+    })
+
+    if (!startResult || !startResult.success) {
+      console.error('Failed to start recording:', startResult?.error)
+      return null
+    }
+
+    const result = await global.sendWait(Channel.SCREEN_RECORDING_STATUS, {
+      waitForComplete: true
+    })
+
+    if (!result || result.cancelled) {
+      return null
+    }
+
+    return {
+      filePath: result.filePath,
+      duration: result.duration || 0,
+      width: area?.width || result.width || 0,
+      height: area?.height || result.height || 0,
+      cancelled: false
+    }
+  } catch (error) {
+    console.error('Screen recording failed:', error)
+    return null
+  }
+}
+
+global.stopScreenRecording = async () => {
+  try {
+    const result = await global.sendWait(Channel.STOP_SCREEN_RECORDING, {})
+
+    if (!result || !result.success) {
+      return null
+    }
+
+    return {
+      filePath: result.filePath,
+      duration: result.duration || 0,
+      width: result.width || 0,
+      height: result.height || 0,
+      cancelled: false
+    }
+  } catch (error) {
+    console.error('Failed to stop recording:', error)
+    return null
+  }
+}
+
+global.pauseScreenRecording = async () => {
+  try {
+    const result = await global.sendWait(Channel.PAUSE_SCREEN_RECORDING, {})
+    return result?.success ?? false
+  } catch (error) {
+    console.error('Failed to pause recording:', error)
+    return false
+  }
+}
+
+global.resumeScreenRecording = async () => {
+  try {
+    const result = await global.sendWait(Channel.RESUME_SCREEN_RECORDING, {})
+    return result?.success ?? false
+  } catch (error) {
+    console.error('Failed to resume recording:', error)
+    return false
+  }
+}
+
+global.getScreenRecordingStatus = async () => {
+  try {
+    const result = await global.sendWait(Channel.SCREEN_RECORDING_STATUS, {})
+    return {
+      isRecording: result?.status === 'recording',
+      isPaused: result?.status === 'paused',
+      duration: result?.duration || 0,
+      status: result?.status || 'idle'
+    }
+  } catch (error) {
+    console.error('Failed to get recording status:', error)
+    return {
+      isRecording: false,
+      isPaused: false,
+      duration: 0,
+      status: 'idle'
+    }
+  }
 }
