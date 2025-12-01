@@ -3580,6 +3580,9 @@ global.measure = async (options = {}) => {
   const mergedOptions = { ...defaultOptions, ...options }
 
   try {
+    // Hide the current prompt so it doesn't interfere with measurement
+    await global.hide()
+
     // Use a long timeout (5 minutes) since measurement requires user interaction
     // The default 1 second timeout was causing the measurement to fail
     const FIVE_MINUTES = 5 * 60 * 1000
