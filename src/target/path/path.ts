@@ -272,16 +272,16 @@ const toUiPath = (p: string) => isWin ? p.replaceAll('\\', '/') : p
  */
 const filterByFileTypes = (choices: Choice[], fileTypes: string[] | undefined): Choice[] => {
   if (!fileTypes) return choices
-  
+
   return choices.filter((choice) => {
     // Always include directories (identified by folder.svg icon)
     if (choice.img?.includes('folder.svg')) {
       return true
     }
-    
+
     // Check file extension
     const ext = ogPath.extname(choice.value)
-    
+
     // Include files with matching extensions
     // Exclude files without extensions (like README, Makefile) when fileTypes is specified
     return ext && fileTypes.includes(ext)
@@ -311,7 +311,7 @@ const getWindowsRoots = async (): Promise<string[]> => {
 
 export const createPathChoices = async (
   startPath: string,
-  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync, fileTypes, useSessionCache = true } : {
+  { dirFilter = (dirent) => true, dirSort = (a, b) => 0, onlyDirs = false, statFn = statAsync, fileTypes, useSessionCache = true }: {
     dirFilter?: (dirent: any) => boolean
     dirSort?: (a: any, b: any) => number
     onlyDirs?: boolean
@@ -456,7 +456,7 @@ export const createPathChoices = async (
 
   const mapped = await mapDirents(folders.concat(files))
   const sorted = mapped.sort(dirSort)
-  
+
   // Apply fileTypes filtering if specified
   return filterByFileTypes(sorted, fileTypes)
 }
@@ -614,6 +614,7 @@ ${pathError.hint ? `**Hint:** ${pathError.hint}` : ''}
   }
 
   let upDir = async (dir) => {
+    global.log(`[path] upDir called: dir.name=${dir?.name}, dir.value=${dir?.value}, dir.miss=${dir?.miss}`)
     if (dir?.miss) {
       return
     }
@@ -621,6 +622,7 @@ ${pathError.hint ? `**Hint:** ${pathError.hint}` : ''}
     // Get the current path from the actual input state, not startPath
     // This ensures we're always working with the most current value
     const currentPath = global.__kitPromptState?.input || currentInput || startPath
+    global.log(`[path] upDir: currentPath=${currentPath}, startPath=${startPath}`)
 
     // Save the current selection in navigation history before going up
     if (dir?.name && currentPath) {
@@ -673,14 +675,17 @@ ${pathError.hint ? `**Hint:** ${pathError.hint}` : ''}
   }
 
   let downDir = async (dir) => {
+    global.log(`[path] downDir called: dir.name=${dir?.name}, dir.value=${dir?.value}, dir.miss=${dir?.miss}`)
     if (dir?.miss) {
       return
     }
 
     // Get the current path from the actual input state, not startPath
     const currentPath = global.__kitPromptState?.input || currentInput || startPath
+    global.log(`[path] downDir: currentPath=${currentPath}, startPath=${startPath}`)
 
     let targetPath = typeof dir === 'string' ? ogPath.resolve(currentPath, dir) : dir.value
+    global.log(`[path] downDir: targetPath=${targetPath}`)
     let allowed = true
     let needsPermission =
       targetPath === home('Downloads') || targetPath === home('Documents') || targetPath === home('Desktop')
@@ -830,20 +835,52 @@ Please grant permission in System Preferences > Security & Privacy > Privacy > F
   }
 
   let onRight = (input, state: AppState) => {
+    global.log(`[path] onRight called: input=${input}, flaggedValue=${state?.flaggedValue}, focused=${state?.focused?.name}`)
     if (!state.flaggedValue) {
-      downDir(state.focused)
+      // Handle case where focused is stale/invalid (e.g., __app__/no-choice sentinel)
+      // This can happen due to timing issues when the renderer hasn't updated focusedChoiceAtom yet
+      const focused = state.focused
+      if (!focused?.value || focused?.name === '__app__/no-choice') {
+        global.log(`[path] onRight: focused is invalid (${focused?.name}), using first available choice`)
+        // Try to get the first valid choice from kitPrevChoices
+        const firstChoice = global.kitPrevChoices?.find(c => c?.value && !c?.miss && c?.name !== '__app__/no-choice')
+        if (firstChoice) {
+          global.log(`[path] onRight: using fallback choice: ${firstChoice.name}`)
+          downDir(firstChoice)
+        } else {
+          global.log(`[path] onRight: no valid fallback choice available`)
+        }
+      } else {
+        downDir(focused)
+      }
     }
   }
 
   let onLeft = (input, state) => {
+    global.log(`[path] onLeft called: input=${input}, flaggedValue=${state?.flaggedValue}, focused=${state?.focused?.name}`)
     if (!state.flaggedValue) {
-      upDir(state.focused)
+      // Handle case where focused is stale/invalid - upDir doesn't strictly need a valid focused
+      // since it navigates up regardless, but we pass the focused for history tracking
+      const focused = state.focused
+      if (!focused?.value || focused?.name === '__app__/no-choice') {
+        global.log(`[path] onLeft: focused is invalid (${focused?.name}), using first available choice`)
+        const firstChoice = global.kitPrevChoices?.find(c => c?.value && !c?.miss && c?.name !== '__app__/no-choice')
+        upDir(firstChoice || focused)
+      } else {
+        upDir(focused)
+      }
     }
   }
 
   // Map FORWARD/BACK channels to right/left navigation
-  let onForward = onRight
-  let onBack = onLeft
+  let onForward = (input, state) => {
+    global.log(`[path] onForward called: input=${input}`)
+    onRight(input, state)
+  }
+  let onBack = (input, state) => {
+    global.log(`[path] onBack called: input=${input}`)
+    onLeft(input, state)
+  }
 
   let sort = 'name'
   let dir = 'desc'
