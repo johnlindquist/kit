@@ -366,6 +366,9 @@ export enum Channel {
   OPEN_ACTIONS = 'OPEN_ACTIONS',
   KEYBOARD_TYPE_RATE = 'KEYBOARD_TYPE_RATE',
   SCREENSHOT = 'SCREENSHOT',
+  MEASURE = 'MEASURE',
+  MEASURE_COMPLETE = 'MEASURE_COMPLETE',
+  MEASURE_CANCELLED = 'MEASURE_CANCELLED',
   SCRIPT_CHANGED = 'SCRIPT_CHANGED',
   SCRIPT_ADDED = 'SCRIPT_ADDED',
   SCRIPT_REMOVED = 'SCRIPT_REMOVED',
@@ -377,7 +380,17 @@ export enum Channel {
   TERMINATE_PROMPT = 'TERMINATE_PROMPT',
   CLEANUP_PROMPTS = 'CLEANUP_PROMPTS',
   GET_PROMPT_STATUS = 'GET_PROMPT_STATUS',
-  FORCE_PROMPT_CLEANUP = 'FORCE_PROMPT_CLEANUP'
+  FORCE_PROMPT_CLEANUP = 'FORCE_PROMPT_CLEANUP',
+  // Screen Recording Channels
+  START_SCREEN_RECORDING = 'START_SCREEN_RECORDING',
+  STOP_SCREEN_RECORDING = 'STOP_SCREEN_RECORDING',
+  PAUSE_SCREEN_RECORDING = 'PAUSE_SCREEN_RECORDING',
+  RESUME_SCREEN_RECORDING = 'RESUME_SCREEN_RECORDING',
+  SCREEN_AREA_SELECTED = 'SCREEN_AREA_SELECTED',
+  GET_SCREEN_SOURCES = 'GET_SCREEN_SOURCES',
+  SHOW_AREA_SELECTOR = 'SHOW_AREA_SELECTOR',
+  SCREEN_RECORDING_STATUS = 'SCREEN_RECORDING_STATUS',
+  SCREEN_RECORDING_STREAM = 'SCREEN_RECORDING_STREAM'
 }
 
 export enum ProcessType {
@@ -420,7 +433,8 @@ export enum UI {
   debugger = 'debugger',
   chat = 'chat',
   mic = 'mic',
-  webcam = 'webcam'
+  webcam = 'webcam',
+  screenRecorder = 'screenRecorder'
 }
 
 export enum Bin {
@@ -450,6 +464,10 @@ export enum Key {
   LeftSuper = 'command',
   RightShift = 'right_shift',
   RightSuper = 'command',
+  // Cross-platform aliases for the "super" key (Command on macOS, Windows key on Windows, Meta on Linux)
+  Meta = 'command',
+  LeftMeta = 'command',
+  RightMeta = 'command',
   F1 = 'f1',
   F2 = 'f2',
   F3 = 'f3',
