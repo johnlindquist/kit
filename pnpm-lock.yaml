@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@1password/sdk':
+        specifier: 0.3.1
+        version: 0.3.1
       '@ai-sdk/anthropic':
         specifier: 2.0.49
         version: 2.0.49(zod@4.1.13)
@@ -294,6 +297,12 @@ importers:
         version: 1.0.1
 
 packages:
+
+  '@1password/sdk-core@0.3.1':
+    resolution: {integrity: sha512-zFkbRznmE47kpke10OpO/9R0AF5csNWS+naFbadgXuFX1LlxY+2C28NSKbCXhLTqmcuWifBfPdZQ728GJ1i5xg==}
+
+  '@1password/sdk@0.3.1':
+    resolution: {integrity: sha512-20zbQfqsjcECT0gvnAw4zONJDt3XQgNH946pZR0NV1Qxukyaz/DKB0cBnBNCCEWZg93Bah8poaR6gJCyuNX14w==}
 
   '@actions/core@1.11.1':
     resolution: {integrity: sha512-hXJCSrkwfA46Vd9Z3q4cpEpHB1rL5NG04+/rbqW9d3+CSvtB1tYe8UTpAlixa1vj0m/ULglfEK2UKxMGxCxv5A==}
@@ -4860,6 +4869,12 @@ packages:
     resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
 
 snapshots:
+
+  '@1password/sdk-core@0.3.1': {}
+
+  '@1password/sdk@0.3.1':
+    dependencies:
+      '@1password/sdk-core': 0.3.1
 
   '@actions/core@1.11.1':
     dependencies:
