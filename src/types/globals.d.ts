@@ -296,9 +296,17 @@ declare global {
    * 
    * [Docs](https://developer.1password.com/docs/cli/)
    */
-  var op: (itemName: string, vaultName?: string, fieldName?: string, options?: {
-    cacheDuration?: 'session' | 'until-quit' | 'until-sleep'
-  }) => Promise<string>
+  var op: (
+    itemName: string,
+    vaultName?: string,
+    fieldName?: string,
+    options?: {
+      cacheDuration?: 'session' | 'until-quit' | 'until-sleep'
+      useSDK?: boolean
+      cache?: boolean
+      fallbackToEnv?: boolean
+    }
+  ) => Promise<string>
 
   // stream
   var Writable: typeof import('node:stream').Writable
@@ -321,4 +329,197 @@ declare global {
    * [Examples](https://scriptkit.com?query=globby) | [Docs](https://johnlindquist.github.io/kit-docs/#globby) | [Discussions](https://github.com/johnlindquist/kit/discussions?discussions_q=globby)
    */
   var globby: typeof import('globby').globby
+
+  // Measure - Screen area measurement tool
+  /**
+   * Opens a transparent overlay for measuring screen areas
+   * @param options - Configuration options for the measurement tool
+   * @returns Promise that resolves with measurement result or null if cancelled
+   *
+   * @example
+   * ```typescript
+   * const area = await measure({
+   *   hint: "Drag to select an area to measure",
+   *   color: "#00ff00",
+   *   gridSnap: 8
+   * });
+   *
+   * if (area) {
+   *   console.log(`Selected: ${area.width}×${area.height} at (${area.x}, ${area.y})`);
+   * }
+   * ```
+   */
+  var measure: (options?: {
+    /** Stroke color for the selection rectangle (default: #00ff00) */
+    color?: string
+    /** Width of the selection border in pixels (default: 2) */
+    strokeWidth?: number
+    /** Opacity of the selection fill (0-1, default: 0.1) */
+    fillOpacity?: number
+    /** Whether to show dimension labels (default: true) */
+    showDimensions?: boolean
+    /** Whether to show crosshair guides (default: true) */
+    showCrosshair?: boolean
+    /** Font size for dimension labels (default: 14) */
+    fontSize?: number
+    /** Grid size for snapping, 1 = no snap (default: 1) */
+    gridSnap?: number
+    /** Whether to constrain selection to current display (default: false) */
+    constrainToDisplay?: boolean
+    /** Whether to allow keyboard adjustments after initial drag (default: true) */
+    allowKeyboardAdjust?: boolean
+    /** Instructions shown to the user */
+    hint?: string
+    /** Starting position for the overlay (follows cursor if not specified) */
+    startPosition?: { x: number; y: number }
+    /** Initial rectangle to display (for editing existing measurement) */
+    initialRect?: { x: number; y: number; width: number; height: number }
+    /** Clipboard format when user presses Cmd+C during measurement */
+    clipboardFormat?: 'dimensions' | 'css' | 'json'
+  }) => Promise<{
+    x: number
+    y: number
+    width: number
+    height: number
+    right: number
+    bottom: number
+    centerX: number
+    centerY: number
+    area: number
+    displayId?: string
+    scaleFactor?: number
+    cancelled: boolean
+  } | null>
+
+  // Screen Recording
+  /**
+   * Screen source available for recording
+   */
+  interface ScreenSource {
+    id: string
+    name: string
+    thumbnail: string
+    displayId: string
+  }
+
+  /**
+   * Area definition for recording a portion of the screen
+   */
+  interface RecordingArea {
+    x: number
+    y: number
+    width: number
+    height: number
+    displayId?: number
+  }
+
+  /**
+   * Result returned from a screen recording operation
+   */
+  interface ScreenRecordingResult {
+    filePath: string
+    duration: number
+    width: number
+    height: number
+    cancelled: boolean
+  }
+
+  /**
+   * Get available screen sources for recording
+   * @returns Promise that resolves with array of available screen sources
+   *
+   * @example
+   * ```typescript
+   * const sources = await getScreenSources();
+   * const selected = await arg("Select screen", sources.map(s => ({
+   *   name: s.name,
+   *   value: s.id,
+   *   preview: s.thumbnail
+   * })));
+   * ```
+   */
+  var getScreenSources: () => Promise<ScreenSource[]>
+
+  /**
+   * Start a screen recording session
+   * @param options - Configuration options for the recording
+   * @returns Promise that resolves with the recording result or null if cancelled
+   *
+   * @example
+   * ```typescript
+   * // Record full screen
+   * const result = await screenRecord();
+   * if (result) {
+   *   console.log(`Recording saved to: ${result.filePath}`);
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // Record with area selection
+   * const result = await screenRecord({
+   *   selectArea: true,
+   *   hint: "Select the area you want to record",
+   *   format: 'webm',
+   *   maxDuration: 60
+   * });
+   * ```
+   */
+  var screenRecord: (options?: {
+    /** Video format: 'webm' or 'mp4' (default: 'webm') */
+    format?: 'webm' | 'mp4'
+    /** Video quality 0.0-1.0 (default: 0.9) */
+    quality?: number
+    /** Frame rate in FPS (default: 30) */
+    frameRate?: number
+    /** Include system audio (default: false) */
+    includeAudio?: boolean
+    /** Whether to prompt for area selection (default: false for full screen) */
+    selectArea?: boolean
+    /** Pre-defined area to record (skips area selection) */
+    area?: RecordingArea
+    /** Specific source ID to record (skips source selection) */
+    sourceId?: string
+    /** Custom file path for the recording (default: temp directory) */
+    filePath?: string
+    /** Maximum recording duration in seconds (0 = unlimited) */
+    maxDuration?: number
+    /** Instructions shown to the user during area selection */
+    hint?: string
+    /** Whether to show recording controls overlay (default: true) */
+    showControls?: boolean
+    /** Whether to show countdown before recording starts (default: true) */
+    countdown?: boolean
+    /** Countdown duration in seconds (default: 3) */
+    countdownSeconds?: number
+  }) => Promise<ScreenRecordingResult | null>
+
+  /**
+   * Stop an active screen recording
+   * @returns Promise that resolves with the recording result
+   */
+  var stopScreenRecording: () => Promise<ScreenRecordingResult | null>
+
+  /**
+   * Pause an active screen recording
+   * @returns Promise that resolves when paused
+   */
+  var pauseScreenRecording: () => Promise<boolean>
+
+  /**
+   * Resume a paused screen recording
+   * @returns Promise that resolves when resumed
+   */
+  var resumeScreenRecording: () => Promise<boolean>
+
+  /**
+   * Get the current screen recording status
+   * @returns Promise that resolves with recording status
+   */
+  var getScreenRecordingStatus: () => Promise<{
+    isRecording: boolean
+    isPaused: boolean
+    duration: number
+    status: 'idle' | 'recording' | 'paused' | 'selecting'
+  }>
 }
