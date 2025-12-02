@@ -218,6 +218,19 @@ await keyboard.tap(Key.LeftSuper, Key.C)
 await keyboard.tap(Key.LeftSuper, Key.V)
 ```
 
+### Modifier Key Aliases
+
+The "super" key maps to different physical keys across platforms:
+- **macOS**: Command key
+- **Windows**: Windows key
+- **Linux**: Meta/Super key
+
+Available Key enum values for this:
+- `Key.LeftSuper` / `Key.RightSuper` - Original names
+- `Key.Meta` / `Key.LeftMeta` / `Key.RightMeta` - Aliases for discoverability
+
+All of these map to `'command'` which robotjs uses cross-platform.
+
 ### Advanced Key Control
 ```typescript
 // Hold shift while typing
