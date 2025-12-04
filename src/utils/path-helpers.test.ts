@@ -157,18 +157,29 @@ ava('getCommonAncestor - empty array', (t) => {
 })
 
 ava('getCommonAncestor - single path', (t) => {
-  const result = getCommonAncestor(['/home/user/file.txt'])
-  t.is(result, '/home/user')
+  // Use platform-appropriate paths
+  const file = path.join('home', 'user', 'file.txt')
+  const result = getCommonAncestor([file])
+  // path.resolve will make these absolute, so check the result ends correctly
+  t.true(result?.endsWith(path.join('home', 'user')) ?? false)
 })
 
 ava('getCommonAncestor - sibling files', (t) => {
-  const result = getCommonAncestor(['/home/user/a.txt', '/home/user/b.txt'])
-  t.is(result, '/home/user')
+  // Use platform-appropriate paths
+  const file1 = path.join('home', 'user', 'a.txt')
+  const file2 = path.join('home', 'user', 'b.txt')
+  const result = getCommonAncestor([file1, file2])
+  // path.resolve will make these absolute, so check the result ends correctly
+  t.true(result?.endsWith(path.join('home', 'user')) ?? false)
 })
 
 ava('getCommonAncestor - different directories', (t) => {
-  const result = getCommonAncestor(['/home/user/docs/a.txt', '/home/user/images/b.png'])
-  t.is(result, '/home/user')
+  // Use platform-appropriate paths
+  const file1 = path.join('home', 'user', 'docs', 'a.txt')
+  const file2 = path.join('home', 'user', 'images', 'b.png')
+  const result = getCommonAncestor([file1, file2])
+  // path.resolve will make these absolute, so check the result ends correctly
+  t.true(result?.endsWith(path.join('home', 'user')) ?? false)
 })
 
 // ============================================================================
