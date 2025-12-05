@@ -3,7 +3,7 @@ let downloadMarkdown = async (fileName: string) => {
     let url = `https://raw.githubusercontent.com/johnlindquist/kit-docs/main/${fileName}`
     process.send?.(`Downloading ${url}...`)
     let buffer = await download(url, undefined, {
-      rejectUnauthorized: false,
+      // rejectUnauthorized: false - removed for security reasons
     })
     await writeFile(kitPath(fileName), buffer)
     process.send?.(`Successfully downloaded ${fileName}`)
