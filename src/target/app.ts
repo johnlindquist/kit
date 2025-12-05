@@ -1943,6 +1943,12 @@ global.basePrompt = async (
     promptConfig.resize ??= true
   }
 
+  // Enable resize for function-based choices (Mode.GENERATE)
+  // Without this, the main process skips resize when choices arrive dynamically
+  if (typeof choices === 'function') {
+    promptConfig.resize ??= true
+  }
+
   if (typeof placeholderOrConfig === "string") {
     promptConfig.placeholder = placeholderOrConfig
   }
