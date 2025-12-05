@@ -404,7 +404,7 @@ export type {};
       command: global.kitCommand,
       html: url,
       options: {
-        containerClass: 'overflow-auto flex justify-center items-center v-screen h-screen',
+        containerClass: 'overflow-auto flex justify-center items-center w-screen h-screen',
         draggable: true,
         resizable: true,
         ...options
@@ -430,7 +430,7 @@ let widget: Widget = async (html, options = {}) => {
       command: global.kitCommand,
       html,
       options: {
-        containerClass: 'overflow-auto flex justify-center items-center v-screen h-screen',
+        containerClass: 'overflow-auto flex justify-center items-center w-screen h-screen',
         draggable: true,
         resizable: true,
         ...options
